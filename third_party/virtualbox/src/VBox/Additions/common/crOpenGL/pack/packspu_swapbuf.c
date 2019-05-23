@@ -65,7 +65,7 @@ void PACKSPU_APIENTRY packspu_SwapBuffers( GLint window, GLint flags )
          *
          * This is complicated because writeback in the pack spu is
          * overridden to always set the value to zero when the
-         * reply is received, rather than decrementing it: 
+         * reply is received, rather than decrementing it:
          */
         switch( thread->writeback ) {
         case 0:

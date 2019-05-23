@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="KnownIssues">
   <title>Limites connues</title>
     <sect1 id="ExperimentalFeatures">
@@ -49,7 +49,7 @@
       <para>La section suivante décrit les problèmes connus avec VirtualBox
       @VBOX_VERSION_STRING@. Sauf autrement spécifié, il est prévu de corriger ces
       problèmes dans les prochaines versions.</para>
-    
+
       <itemizedlist>
         <listitem>
           <para>Les <emphasis role="bold">limites SMP (multiprocesseur) de
@@ -62,10 +62,10 @@
                 la 3.0.6 pour les invités Windows NT, 2000, XP et 2003 32 bits.
                 Exige l'installation des suppléments invité 3.0.6 ou supérieur.</para>
               </listitem>
-    
+
               <listitem>
                 <para><emphasis role="bold">Faibles performances</emphasis> avec
-                les invités 32 bits sur certains modèles de processeurs Intel 
+                les invités 32 bits sur certains modèles de processeurs Intel
                 qui n'incluent pas le support de l'optimisation matérielle APIC
                 virtuel. Cela concerne surtout les invités Windows et Solaris,
                 mais probablement également certaines révisions du noyau Linux.
@@ -75,7 +75,7 @@
           </listitem>
             </itemizedlist></para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">NX (ne s'éxécute pas ou empêche le traitement de
           données)</emphasis> ne fonctionne que sur les invités en fonction
@@ -87,7 +87,7 @@
           les invités Windows</emphasis> fonctionne, il faut installer les suppléments
           invité en mode "sans échec" dans Windows. Appuyez sur F8 quand
           l'invité Windows démarre et sélectionnez "Mode sans échec", puis installez
-          les suppléments invité. Sans cela, le mécanisme de protection des 
+          les suppléments invité. Sans cela, le mécanisme de protection des
           fichiers de Windows interfèrera dans le remplacement des DLLs
           installés par VirtualBox et il restaurera les DLLs du système Windows
           d'origine. <note>
@@ -96,14 +96,14 @@
          et Windows 7 inclu avec VirtualBox 4.1.</para>
           </note></para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">contrôle de l'invité.</emphasis> Sur les
           invités Windows, un processus lancé via le support d'exécution du
           contrôle de l'invité ne pourra pas afficher d'interface graphique,
           <emphasis>sauf</emphasis> si le compte utilisateur sous lequel il est
           lancé est connecté et s'il a une session de bureau.</para>
-    
+
           <para>En outre, pour utiliser des comptes avec ou sans mot de passe
           vide, vous devez modifier la politique de groupe de l'invité. Pour ce
           faire, ouvrez un éditeur des règles de groupes en ligne de commande
@@ -113,7 +113,7 @@
           valeur de <emphasis>Accounts: Limit local account use of blank passwords to
           console logon only</emphasis> en <emphasis>Disabled</emphasis>.</para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">La compression d'images de disques virtuels
           est limitée aux fichiers VDI.</emphasis> La commande <code>VBoxManage modifyhd --compact</code>
@@ -122,84 +122,84 @@
           dans d'autres formats (VMDK, VHD) est de cloner l'image puis d'utiliser
           l'image clonée dans la configuration de la VM.</para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">import/export d'OVF&#xA0;:</emphasis><itemizedlist>
               <listitem>
                 <para>La particularisation des OVF (plusieurs langues dans un fichier
                 OVF) n'est pas encore supportée.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Certaines sections OVF comme StartupSection,
                 DeploymentOptionSection et InstallSection sont ignorées.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Les documents d'environnement OVF, y compris leurs
                 sections de propriétés et la configuration d'applicatifs avec des
                 images ISO, ne sont pas encore supportés.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Les fichiers distants avec HTTP ou d'autres mécanismes ne
                 sont pas encore supportés.</para>
               </listitem>
             </itemizedlist></para>
         </listitem>
-    
+
         <listitem>
           <para>Ni le <emphasis role="bold">mode échelonné</emphasis> ni <emphasis
           role="bold">le mode transparent</emphasis> ne fonctionnent bien avec les
-          invités qui utilisent les fonctions 3D d'OpenGL (telles que celles 
+          invités qui utilisent les fonctions 3D d'OpenGL (telles que celles
           avec les gestionnaires de fenêtres ayant activé compiz).</para>
         </listitem>
-    
+
         <listitem>
           <para>Le serveur RDP du pack d'extension de VirtualBox ne supporte que
           les flux audio au format 22.05kHz stereo 16 bit. Si le client RDP
           demande d'autres formats de son, ils ne seront pas sonores.</para>
         </listitem>
-    
+
         <listitem>
-          <para>La préservation de l'apparence de l'affichage en mode échelonné 
+          <para>La préservation de l'apparence de l'affichage en mode échelonné
           ne fonctionne que sur les hôtes Windows et sur les hôtes Mac OS X.</para>
         </listitem>
-    
+
         <listitem>
           <para>Sur les <emphasis role="bold">hôtes Mac OS X,</emphasis> les
           fonctions suivantes ne sont pas encore implémentées&#xA0;:</para>
-    
+
           <para><itemizedlist>
               <listitem>
                 <para>Émulation du verrouillage numérique</para>
               </listitem>
-    
+
               <listitem>
                 <para>Mesure de la fréquence du processeur</para>
               </listitem>
-    
+
               <listitem>
                 <para>Jeu de ballon avec la mémoire</para>
               </listitem>
             </itemizedlist></para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">Invités Mac OS X&#xA0;:</emphasis>
           <itemizedlist>
               <listitem>
                 <para>Les invités Mac OS X ne peuvent fonctionner que sur un
                 certain matériel hôte. Pour des détails sur les limites de la
-                licence et du matériel hôte, merci de voir <xref linkend="intro-macosxguests" /> 
+                licence et du matériel hôte, merci de voir <xref linkend="intro-macosxguests" />
                 et vérifiez les conditions de la licence logicielle d'Apple.</para>
               </listitem>
-    
+
               <listitem>
                 <para>VirtualBox n'offre pas de suppléments invité pour Mac OS X
                 pour l'instant.</para>
               </listitem>
-    
+
               <listitem>
                 <para>La résolution graphique est par défaut de 1024x768 car
                 Mac OS X se rabat sur le support d'affichage EFI intégré. Voir
@@ -211,19 +211,19 @@
                 sur une VM. Le support du SMP sera fourni dans une version
                 future.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Selon votre système et votre version de Mac OS X, vous pourriez
                 connaître des plantages de l'invité après quelque temps. Vous
                 pouvez corriger cela en désactivant l'économie d'énergie (passez
                 le timeout à "Never" (jamais)) dans les préférences du système.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Par défaut, l'EFI de VirtualBox active la sortie de débogage
                 du noyau Mac OS X pour vous aider à diagnostiquer les problèmes
                 de démarrage. Remarquez qu'il y a de nombreux messages et toutes
-                les erreurs ne sont pas fatales (elles s'afficheraient aussi 
+                les erreurs ne sont pas fatales (elles s'afficheraient aussi
                 sur votre Mac physique). Vous pouvez désactiver ces messages en
                 lançant cette commande&#xA0;:<screen>VBoxManage setextradata "nom VM" "VBoxInternal2/EfiBootArgs" "  "</screen>Pour
                 revenir à l'ancien comportement, utilisez :<screen>VBoxManage setextradata "nom VM" "VBoxInternal2/EfiBootArgs" ""</screen></para>
@@ -236,21 +236,21 @@
               </listitem>
             </itemizedlist></para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">Hôtes Solaris&#xA0;:</emphasis> <itemizedlist>
               <listitem>
                 <para>Il n'y a pas de support des périphériques USB connectés aux
                 hôtes Solaris 10.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Le support USB sur les hôtes Solaris exige Solaris version
                 11 snv_124 ou supérieur. Les Webcams et les autres périphériques
                 de temps (isochronous) sont connus pour donner de faibles
                 performances.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Le passthrough de la webcam hôte se limite aux résolutions
                 640x480 avec 20 images par secondes à cause de limites de l'API
@@ -261,11 +261,11 @@
                 <para>Aucune informations d'ACPI (état de la batterie, source
                 d'énergie) n'est signalée à l'invité.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Pas de support des adaptateurs wifi avec le réseau bridgé.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Le réseau bridgé basé sur Crossbow sur les hôtes Solaris
                 ne fonctionne pas directement avec les liens agrégés. Cependant,
@@ -276,14 +276,14 @@
               </listitem>
             </itemizedlist></para>
         </listitem>
-        
+
         <listitem>
           <para><emphasis role="bold">Suppléments invité de la version 4.1, 4.1.2 et 4.1.4 pour Windows</emphasis>
-          Il se peut que le pilote graphique WDDM de VirtualBox ait été 
+          Il se peut que le pilote graphique WDDM de VirtualBox ait été
           installé et soit gardé dans le système invité après la désinstallation des
           suppléments invité. Cela vient d'un bogue du désinstalleur des suppléments
-          invité. 
-          
+          invité.
+
           <note>
             <para>Cela <emphasis role="bold">ne s'applique pas</emphasis> aux
             mises à jour des suppléments invité, c'est-à-dire que l'installation d'une
@@ -303,18 +303,18 @@
           pour l'adaptateur graphique.
           </para>
         </listitem>
-    
+
         <listitem>
           <para>Ni le pilote <emphasis>virtio</emphasis> ni <emphasis>Intel PRO/1000
-            </emphasis> des <emphasis role="bold">invités Windows XP</emphasis> 
+            </emphasis> des <emphasis role="bold">invités Windows XP</emphasis>
             ne supportent la segmentation hors charge (offloading). Donc,
             les invités Windows XP ont des vitesses de transmission plus lentes
             que d'autres types d'invités. Reportez-vous à l'article 842264
             du MS Knowledge base pour des informations supplémentaires.</para>
         </listitem>
-    
+
         <listitem>
-          <para><emphasis role="bold">Suppléments invité pour OS/2.</emphasis> 
+          <para><emphasis role="bold">Suppléments invité pour OS/2.</emphasis>
           Les dossiers partagés ne sont pas encore supportés avec les invités
           OS/2. De plus, les fenêtres transparentes et le redimensionnement de
           l'invité ne seront probablement jamais implémentés à cause de limites

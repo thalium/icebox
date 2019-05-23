@@ -145,34 +145,6 @@
     </message>
 </context>
 <context>
-    <name>QObject</name>
-    <message>
-        <source>Result&amp;nbsp;Code: </source>
-        <comment>error info</comment>
-        <translation type="vanished">結果碼: </translation>
-    </message>
-    <message>
-        <source>Component: </source>
-        <comment>error info</comment>
-        <translation type="vanished">元件: </translation>
-    </message>
-    <message>
-        <source>Interface: </source>
-        <comment>error info</comment>
-        <translation type="vanished">介面: </translation>
-    </message>
-    <message>
-        <source>Callee: </source>
-        <comment>error info</comment>
-        <translation type="vanished">被呼叫端: </translation>
-    </message>
-    <message>
-        <source>Callee&amp;nbsp;RC: </source>
-        <comment>error info</comment>
-        <translation type="vanished">被呼叫端&amp;nbsp;RC: </translation>
-    </message>
-</context>
-<context>
     <name>SFTreeViewItem</name>
     <message>
         <source>%1, %2: %3, %4: %5, %6: %7</source>
@@ -1375,27 +1347,27 @@
     <message>
         <source>Result&amp;nbsp;Code: </source>
         <comment>error info</comment>
-        <translation type="unfinished">結果碼: </translation>
+        <translation>結果碼: </translation>
     </message>
     <message>
         <source>Component: </source>
         <comment>error info</comment>
-        <translation type="unfinished">元件: </translation>
+        <translation>元件: </translation>
     </message>
     <message>
         <source>Interface: </source>
         <comment>error info</comment>
-        <translation type="unfinished">介面: </translation>
+        <translation>介面: </translation>
     </message>
     <message>
         <source>Callee: </source>
         <comment>error info</comment>
-        <translation type="unfinished">被呼叫端: </translation>
+        <translation>被呼叫端: </translation>
     </message>
     <message>
         <source>Callee&amp;nbsp;RC: </source>
         <comment>error info</comment>
-        <translation type="unfinished">被呼叫端&amp;nbsp;RC: </translation>
+        <translation>被呼叫端&amp;nbsp;RC: </translation>
     </message>
 </context>
 <context>
@@ -2966,16 +2938,12 @@
 <context>
     <name>UIHostNetworkManagerWidget</name>
     <message>
-        <source>Networking</source>
-        <translation type="vanished">網路</translation>
-    </message>
-    <message>
         <source>Adding network...</source>
-        <translation type="unfinished"></translation>
+        <translation>加入網路...</translation>
     </message>
     <message>
         <source>Removing network...</source>
-        <translation type="unfinished"></translation>
+        <translation>移除網路...</translation>
     </message>
 </context>
 <context>
@@ -3038,26 +3006,6 @@
 <context>
     <name>UIIndicatorsPool</name>
     <message>
-        <source>&lt;nobr&gt;Indicates the activity of the hard disks:&lt;/nobr&gt;%1</source>
-        <comment>HD tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示硬碟的活動性:&lt;/nobr&gt;%1</translation>
-    </message>
-    <message>
-        <source>&lt;nobr&gt;Indicates the activity of the optical drives:&lt;/nobr&gt;%1</source>
-        <comment>CD tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示光學裝置的活動性:&lt;/nobr&gt;%1</translation>
-    </message>
-    <message>
-        <source>&lt;nobr&gt;Indicates the activity of the floppy drives:&lt;/nobr&gt;%1</source>
-        <comment>FD tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示軟碟的活動性:&lt;/nobr&gt;%1</translation>
-    </message>
-    <message>
-        <source>&lt;nobr&gt;Indicates the activity of the network interfaces:&lt;/nobr&gt;%1</source>
-        <comment>Network tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示網路介面的活動性:&lt;/nobr&gt;%1</translation>
-    </message>
-    <message>
         <source>Adapter %1 (%2)</source>
         <comment>Network tooltip</comment>
         <translation>網路卡 %1 (%2)</translation>
@@ -3083,29 +3031,14 @@
         <translation>已中斷連接</translation>
     </message>
     <message>
-        <source>&lt;nobr&gt;Indicates the activity of the attached USB devices:&lt;/nobr&gt;%1</source>
-        <comment>USB tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示附加 USB 裝置的活動性:&lt;/nobr&gt;%1</translation>
-    </message>
-    <message>
         <source>No USB devices attached</source>
         <comment>USB tooltip</comment>
         <translation>未附加 USB 裝置</translation>
     </message>
     <message>
-        <source>&lt;nobr&gt;Indicates the activity of the machine&apos;s shared folders:&lt;/nobr&gt;%1</source>
-        <comment>Shared folders tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示電腦的共用資料夾的活動性:&lt;/nobr&gt;%1</translation>
-    </message>
-    <message>
         <source>No shared folders</source>
         <comment>Shared folders tooltip</comment>
         <translation>沒有共用資料夾</translation>
-    </message>
-    <message>
-        <source>&lt;nobr&gt;Indicates the activity of the display:&lt;/nobr&gt;%1</source>
-        <comment>Display tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示顯示的活動性:&lt;/nobr&gt;%1</translation>
     </message>
     <message>
         <source>Video memory</source>
@@ -3123,11 +3056,6 @@
         <translation>3D 加速</translation>
     </message>
     <message>
-        <source>&lt;nobr&gt;Indicates video capturing activity:&lt;/nobr&gt;%1</source>
-        <comment>Video capture tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示視訊擷取的活動性:&lt;/nobr&gt;%1</translation>
-    </message>
-    <message>
         <source>Video capture disabled</source>
         <comment>Video capture tooltip</comment>
         <translation>視訊擷取停用</translation>
@@ -3136,11 +3064,6 @@
         <source>Video capture file</source>
         <comment>Video capture tooltip</comment>
         <translation>視訊擷取檔案</translation>
-    </message>
-    <message>
-        <source>&lt;nobr&gt;Indicates the activity of the additional features:&lt;/nobr&gt;%1</source>
-        <comment>Virtualization Stuff LED</comment>
-        <translation type="vanished">&lt;nobr&gt;指示額外功能的活動性:&lt;/nobr&gt;%1</translation>
     </message>
     <message>
         <source>Indicates whether the host mouse pointer is captured by the guest OS:%1</source>
@@ -3191,11 +3114,6 @@
         <source>keyboard is captured</source>
         <comment>Keyboard tooltip</comment>
         <translation>鍵盤擷取</translation>
-    </message>
-    <message>
-        <source>&lt;nobr&gt;Indicates the activity of the audio device:&lt;/nobr&gt;%1</source>
-        <comment>Audio tooltip</comment>
-        <translation type="vanished">&lt;nobr&gt;指示音訊裝置的活動性:&lt;/nobr&gt;%1</translation>
     </message>
 </context>
 <context>
@@ -3898,11 +3816,11 @@
     </message>
     <message>
         <source>When checked, VirtualBox will record the audio stream to video file as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>選取時，VirtualBox 也將錄製音訊串流到視訊檔案。</translation>
     </message>
     <message>
         <source>&amp;Record Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>錄音(&amp;R)</translation>
     </message>
 </context>
 <context>
@@ -3953,19 +3871,19 @@
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>加密(&amp;R)</translation>
+        <translation type="vanished">加密(&amp;R)</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>如果勾選，對此虛擬機器啟用加密。</translation>
+        <translation type="vanished">如果勾選，對此虛擬機器啟用加密。</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>啟用加密(&amp;A)</translation>
+        <translation type="vanished">啟用加密(&amp;A)</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>加密 Cipher(&amp;I) :</translation>
+        <translation type="vanished">加密 Cipher(&amp;I) :</translation>
     </message>
     <message>
         <source>E&amp;nter New Password:</source>
@@ -3973,7 +3891,7 @@
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>保留指派給虛擬機器的密碼。</translation>
+        <translation type="vanished">保留指派給虛擬機器的密碼。</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -3981,23 +3899,23 @@
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>確認要指派給虛擬機器的密碼。</translation>
+        <translation type="vanished">確認要指派給虛擬機器的密碼。</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>您正嘗試加密此虛擬機器。 然而這需要安裝 &lt;i&gt;%1&lt;/i&gt;。 從 VirtualBox 網站下載並安裝 Extension Pack。</translation>
+        <translation type="vanished">您正嘗試加密此虛擬機器。 然而這需要安裝 &lt;i&gt;%1&lt;/i&gt;。 從 VirtualBox 網站下載並安裝 Extension Pack。</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>加密 Cipher 類型未指定。</translation>
+        <translation type="vanished">加密 Cipher 類型未指定。</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>加密密碼為空。</translation>
+        <translation type="vanished">加密密碼為空。</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>加密密碼不相符。</translation>
+        <translation type="vanished">加密密碼不相符。</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -4011,6 +3929,46 @@
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>保留將儲存這部虛擬機器快照的路徑。 注意，快照可能需要相當多的存放裝置空間。</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5223,6 +5181,38 @@
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation>無法變更媒體大小從 &lt;b&gt;%1&lt;/b&gt; 到 &lt;b&gt;%2&lt;/b&gt;，因為存放裝置縮放目前尚未實施。</translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation>選擇媒體位置</translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation>位置不能為空。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation>這種類型的媒體直接或間接附加，取得快照時保留。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation>這種類型的媒體間接附加，下次虛擬機器啟動時，將清除變更。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation>這種類型的媒體直接附加，在取得快照時忽略。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation>這種類型的媒體直接附加，允許由數台機器同時使用。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation>這種類型的媒體直接附加，可以由數台機器使用。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation>這種類型的媒體間接附加，使得一個基本媒體可以用於具有其自己的差異媒體來存放其修改的數個 VM。</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -5390,46 +5380,43 @@
     </message>
     <message>
         <source>Copy Disk Image File (%1)</source>
-        <translation type="unfinished">複製磁碟映像檔案 (%1)</translation>
+        <translation>複製磁碟映像檔案 (%1)</translation>
     </message>
     <message>
         <source>Remove Disk Image File (%1)</source>
-        <translation type="unfinished">移除磁碟映像檔案 (%1)</translation>
+        <translation>移除磁碟映像檔案 (%1)</translation>
     </message>
     <message>
         <source>Release Disk Image File (%1)</source>
-        <translation type="unfinished">釋放磁碟映像檔案 (%1)</translation>
+        <translation>釋放磁碟映像檔案 (%1)</translation>
     </message>
     <message>
         <source>Open Disk Image File Properties (%1)</source>
-        <translation type="unfinished">開啟磁碟映像檔案內容 (%1)</translation>
+        <translation>開啟磁碟映像檔案內容 (%1)</translation>
     </message>
     <message>
         <source>Refresh Disk Image Files (%1)</source>
-        <translation type="unfinished">重新整理磁碟映像檔案 (%1)</translation>
-    </message>
-</context>
-<context>
-    <name>UIMediumManagerWidget</name>
-    <message>
-        <source>Copy Disk Image File (%1)</source>
-        <translation type="vanished">複製磁碟映像檔案 (%1)</translation>
+        <translation>重新整理磁碟映像檔案 (%1)</translation>
     </message>
     <message>
-        <source>Remove Disk Image File (%1)</source>
-        <translation type="vanished">移除磁碟映像檔案 (%1)</translation>
+        <source>Current extension (*.%1)</source>
+        <translation>目前附檔名 (*.%1)</translation>
     </message>
     <message>
-        <source>Release Disk Image File (%1)</source>
-        <translation type="vanished">釋放磁碟映像檔案 (%1)</translation>
+        <source>Choose the location of this medium</source>
+        <translation>選擇這個媒體的位置</translation>
     </message>
     <message>
-        <source>Open Disk Image File Properties (%1)</source>
-        <translation type="vanished">開啟磁碟映像檔案內容 (%1)</translation>
+        <source>&amp;Move...</source>
+        <translation>移動(&amp;M)...</translation>
     </message>
     <message>
-        <source>Refresh Disk Image Files (%1)</source>
-        <translation type="vanished">重新整理磁碟映像檔案 (%1)</translation>
+        <source>Move Disk Image File (%1)</source>
+        <translation>移動磁碟映像檔案 (%1)</translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation>移動選取的磁碟映像檔案</translation>
     </message>
 </context>
 <context>
@@ -5441,45 +5428,6 @@
     <message>
         <source>&lt;nobr&gt;%1 (%2 B)&lt;/nobr&gt;</source>
         <translation>&lt;nobr&gt;%1 (%2 B)&lt;/nobr&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>UIMediumTypeChangeDialog</name>
-    <message>
-        <source>Modify medium attributes</source>
-        <translation>修改媒體屬性</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;您即將變更磁碟映像檔案 &lt;b&gt;%1&lt;/b&gt; 的設定。&lt;/p&gt;&lt;p&gt;請選擇以下一種模式並按下 [&lt;b&gt;%2&lt;/b&gt;] 進行否則按下 [&lt;b&gt;%3&lt;/b&gt;]。&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Choose mode:</source>
-        <translation>選擇模式:</translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>這種類型的媒體直接或間接附加，取得快照時保留。</translation>
-    </message>
-    <message>
-        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>這種類型的媒體間接附加，下次虛擬機器啟動時，將清除變更。</translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>這種類型的媒體直接附加，在取得快照時忽略。</translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>這種類型的媒體直接附加，允許由數台機器同時使用。</translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>這種類型的媒體直接附加，可以由數台機器使用。</translation>
-    </message>
-    <message>
-        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>這種類型的媒體間接附加，使得一個基本媒體可以用於具有其自己的差異媒體來存放其修改的數個 VM。</translation>
     </message>
 </context>
 <context>
@@ -6331,7 +6279,7 @@
     </message>
     <message>
         <source>The current port forwarding rules are not valid. Rule names should be unique.</source>
-        <translation>目前連接埠轉送規則無效。規則名稱應該唯一。</translation>
+        <translation>目前連接埠轉送規則無效。 規則名稱應該唯一。</translation>
     </message>
     <message>
         <source>The current port forwarding rules are not valid. Few rules have same host ports and conflicting IP addresses.</source>
@@ -6528,7 +6476,7 @@
     </message>
     <message>
         <source>Unable to find the host network interface &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation>找不到主機網路介面 &lt;b&gt;%1&lt;/b&gt;.</translation>
+        <translation>找不到主機網路介面 &lt;b&gt;%1&lt;/b&gt;。</translation>
     </message>
     <message>
         <source>Failed to create a host network interface.</source>
@@ -6597,6 +6545,14 @@
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>變更虛擬機器 &lt;b&gt;%2&lt;/b&gt; 的快照 &lt;b&gt;%1&lt;/b&gt; 失敗。</translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation>建立虛擬磁碟映像存儲失敗 &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;。&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;您請求的變更需要從其附加的電腦中釋放這個磁碟。&lt;/p&gt;&lt;p&gt;您確定要釋放磁碟映像檔 &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; 嗎?&lt;/p&gt;&lt;p&gt;這將從以下虛擬電腦中取消連接: &lt;b&gt;%2&lt;/b&gt;。&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -7659,81 +7615,81 @@
         <translation>分割成小於 2GB 的檔案(&amp;S)</translation>
     </message>
     <message>
-        <source>%1_copy</source>
-        <comment>copied virtual hard drive name</comment>
-        <translation>%1_copy</translation>
-    </message>
-    <message>
-        <source>Copy Virtual Hard Disk</source>
-        <translation>複製虛擬硬碟</translation>
-    </message>
-    <message>
-        <source>Hard disk to copy</source>
-        <translation>複製的硬碟</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;如果尚未選取，請選取希望複製的虛擬硬碟檔案。 可以從清單選擇或使用清單旁資料夾圖示選取一個。&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Choose a virtual hard disk file to copy...</source>
-        <translation>選擇複製的虛擬硬碟檔案...</translation>
-    </message>
-    <message>
-        <source>Hard disk file type</source>
-        <translation>硬碟檔案類型</translation>
-    </message>
-    <message>
-        <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>請選擇您希望新虛擬硬碟所使用的檔案類型。 如果您不需要與其它虛擬化軟體使用，您可以保持此設定不變。</translation>
-    </message>
-    <message>
         <source>Storage on physical hard disk</source>
         <translation>實體硬碟中存放裝置</translation>
     </message>
     <message>
-        <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>請選擇新虛擬硬碟檔案是否根據使用而成長 (動態配置) 或以最大大小建立 (固定大小)。</translation>
+        <source>Copy Virtual Disk Image</source>
+        <translation>複製虛擬磁碟映像</translation>
     </message>
     <message>
-        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;動態配置&lt;/b&gt;硬碟檔案只使用實體硬碟的空間作為填滿 (直到最大的&lt;b&gt;固定大小&lt;/b&gt;) ，雖然有可用空間也不會再次自動伸縮。&lt;/p&gt;</translation>
+        <source>Disk image to copy</source>
+        <translation>複製的磁碟映像</translation>
     </message>
     <message>
-        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;固定大小&lt;/b&gt;硬碟檔案在某些系統需要花比較長的時間建立但通常用起來比較快。&lt;/p&gt;</translation>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;如果尚未選取，請選取希望複製的虛擬磁碟映像檔案。 您可以從清單選擇或使用清單旁資料夾圖示選取一個。&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;您也可以選擇&lt;b&gt;分割&lt;/b&gt;虛擬硬碟成每個最大 2GB 的數個檔案。 這主要是有用於如果想存放虛擬機器在卸除式 USB 裝置，或某些無法處理非常大檔案的舊系統時。</translation>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation>選取複製的虛擬磁碟映像檔案...</translation>
     </message>
     <message>
-        <source>Please choose a location for new virtual hard disk file</source>
-        <translation>請選擇新虛擬硬碟檔案的位置</translation>
+        <source>Disk image file type</source>
+        <translation>磁碟映像檔案類型</translation>
     </message>
     <message>
-        <source>New hard disk to create</source>
-        <translation>建立的新硬碟</translation>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation>請選取新的虛擬磁碟映像希望使用的檔案類型。 如果不需要用在其它虛擬化軟體，您可以保留這個設定不變更。</translation>
     </message>
     <message>
-        <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>請在以下方塊輸入新虛擬硬碟檔案的名稱或按一下資料夾圖示以選取建立檔案所在的不同資料夾。</translation>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation>請選擇新的虛擬磁碟映像檔案是否應根據使用來成長 (動態配置)，或建立為其最大大小 (固定大小)。</translation>
     </message>
     <message>
-        <source>Choose a location for new virtual hard disk file...</source>
-        <translation>選擇新虛擬硬碟檔案的位置...</translation>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;動態配置&lt;/b&gt; 磁碟映像檔案將只使用實體硬碟的空間作為填滿 (直到最大的&lt;b&gt;固定大小&lt;/b&gt;)，雖然它的空間釋放時不會再次自動縮小。&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>Hard disk to &amp;copy</source>
-        <translation>複製的硬碟(&amp;C)</translation>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;固定大小&lt;/b&gt;磁碟映像檔案在某些系統需要花比較長的時間建立但通常用起來比較快。&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>&amp;New hard disk to create</source>
-        <translation>建立的新硬碟(&amp;N)</translation>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation>&lt;p&gt;您也可以選擇&lt;b&gt;分割&lt;/b&gt;磁碟映像檔案成每個最大 2GB 的數個檔案。 這主要是有用於如果想存放虛擬機器在卸除式 USB 裝置，或某些無法處理非常大檔案的舊系統時。</translation>
     </message>
     <message>
-        <source>Hard disk file &amp;type</source>
-        <translation>硬碟檔案類型(&amp;T)</translation>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation>請選擇新虛擬磁碟映像檔案的位置</translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation>建立的新磁碟映像</translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation>請在下方方框輸入新虛擬磁碟映像檔案的名稱或按一下資料夾圖示來選取建立檔案的不同資料夾。</translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation>選擇新虛擬磁碟映像檔案的位置...</translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation>%1_copy</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation>複製的磁碟映像(&amp;C)</translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation>建立的新磁碟映像(&amp;N)</translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation>磁碟映像檔案類型(&amp;T)</translation>
     </message>
 </context>
 <context>

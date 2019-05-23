@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1356,12 +1356,12 @@ static DECLCALLBACK(VOID) vboxVideoAMgrAllocSubmitCompletion(PVBOXMP_DEVEXT pDev
     Assert(KeGetCurrentIrql() == DISPATCH_LEVEL);
 
     PVBOXVDMACBUF_DR pDr = (PVBOXVDMACBUF_DR)pvContext;
-    PVBOXVDMACMD pHdr = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
-    VBOXVDMACMD_CHROMIUM_CMD *pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHROMIUM_CMD);
+    VBOXVDMACMD              RT_UNTRUSTED_VOLATILE_HOST *pHdr  = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
+    VBOXVDMACMD_CHROMIUM_CMD RT_UNTRUSTED_VOLATILE_HOST *pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHROMIUM_CMD);
     UINT cBufs = pBody->cBuffers;
     for (UINT i = 0; i < cBufs; ++i)
     {
-        VBOXVDMACMD_CHROMIUM_BUFFER *pBufCmd = &pBody->aBuffers[i];
+        VBOXVDMACMD_CHROMIUM_BUFFER RT_UNTRUSTED_VOLATILE_HOST *pBufCmd = &pBody->aBuffers[i];
         PVBOXVIDEOCM_ALLOC_REF pRef = (PVBOXVIDEOCM_ALLOC_REF)pBufCmd->u64GuestData;
         if (!pBufCmd->u32GuestData)
         {
@@ -1391,7 +1391,7 @@ NTSTATUS vboxVideoAMgrCtxAllocSubmit(PVBOXMP_DEVEXT pDevExt, PVBOXVIDEOCM_ALLOC_
     NTSTATUS Status = STATUS_SUCCESS;
     UINT cbCmd = VBOXVDMACMD_SIZE_FROMBODYSIZE(RT_OFFSETOF(VBOXVDMACMD_CHROMIUM_CMD, aBuffers[cBuffers]));
 
-    PVBOXVDMACBUF_DR pDr = vboxVdmaCBufDrCreate(&pDevExt->u.primary.Vdma, cbCmd);
+    VBOXVDMACBUF_DR RT_UNTRUSTED_VOLATILE_HOST *pDr = vboxVdmaCBufDrCreate(&pDevExt->u.primary.Vdma, cbCmd);
     if (pDr)
     {
         // vboxVdmaCBufDrCreate zero initializes the pDr
@@ -1399,14 +1399,15 @@ NTSTATUS vboxVideoAMgrCtxAllocSubmit(PVBOXMP_DEVEXT pDevExt, PVBOXVIDEOCM_ALLOC_
         pDr->cbBuf = cbCmd;
         pDr->rc = VERR_NOT_IMPLEMENTED;
 
-        PVBOXVDMACMD pHdr = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
+        VBOXVDMACMD RT_UNTRUSTED_VOLATILE_HOST *pHdr = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
         pHdr->enmType = VBOXVDMACMD_TYPE_CHROMIUM_CMD;
         pHdr->u32CmdSpecific = 0;
-        VBOXVDMACMD_CHROMIUM_CMD *pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHROMIUM_CMD);
+
+        VBOXVDMACMD_CHROMIUM_CMD RT_UNTRUSTED_VOLATILE_HOST *pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHROMIUM_CMD);
         pBody->cBuffers = cBuffers;
         for (UINT i = 0; i < cBuffers; ++i)
         {
-            VBOXVDMACMD_CHROMIUM_BUFFER *pBufCmd = &pBody->aBuffers[i];
+            VBOXVDMACMD_CHROMIUM_BUFFER RT_UNTRUSTED_VOLATILE_HOST *pBufCmd = &pBody->aBuffers[i];
             VBOXWDDM_UHGSMI_BUFFER_UI_INFO_ESCAPE *pBufInfo = &paBuffers[i];
             PVBOXVIDEOCM_ALLOC_REF pRef = vboxVideoAMgrCtxAllocRefAcquire(pContext, pBufInfo->hAlloc);
             if (pRef)
@@ -1425,7 +1426,7 @@ NTSTATUS vboxVideoAMgrCtxAllocSubmit(PVBOXMP_DEVEXT pDevExt, PVBOXVIDEOCM_ALLOC_
                 /* release all previously acquired aloc references */
                 for (UINT j = 0; j < i; ++j)
                 {
-                    VBOXVDMACMD_CHROMIUM_BUFFER *pBufCmdJ = &pBody->aBuffers[j];
+                    VBOXVDMACMD_CHROMIUM_BUFFER RT_UNTRUSTED_VOLATILE_HOST *pBufCmdJ = &pBody->aBuffers[j];
                     PVBOXVIDEOCM_ALLOC_REF pRefJ = (PVBOXVIDEOCM_ALLOC_REF)pBufCmdJ;
                     vboxVideoAMgrCtxAllocRefRelease(pRefJ);
                 }
@@ -1437,7 +1438,7 @@ NTSTATUS vboxVideoAMgrCtxAllocSubmit(PVBOXMP_DEVEXT pDevExt, PVBOXVIDEOCM_ALLOC_
         if (Status == STATUS_SUCCESS)
         {
             PVBOXVDMADDI_CMD pDdiCmd = VBOXVDMADDI_CMD_FROM_BUF_DR(pDr);
-            vboxVdmaDdiCmdInit(pDdiCmd, 0, 0, vboxVideoAMgrAllocSubmitCompletion, pDr);
+            vboxVdmaDdiCmdInit(pDdiCmd, 0, 0, vboxVideoAMgrAllocSubmitCompletion, (void *)pDr);
             /* mark command as submitted & invisible for the dx runtime since dx did not originate it */
             vboxVdmaDdiCmdSubmittedNotDx(pDdiCmd);
             int rc = vboxVdmaCBufDrSubmit(pDevExt, &pDevExt->u.primary.Vdma, pDr);
@@ -1452,7 +1453,7 @@ NTSTATUS vboxVideoAMgrCtxAllocSubmit(PVBOXMP_DEVEXT pDevExt, PVBOXVIDEOCM_ALLOC_
             /* release all previously acquired aloc references */
             for (UINT i = 0; i < cBuffers; ++i)
             {
-                VBOXVDMACMD_CHROMIUM_BUFFER *pBufCmd = &pBody->aBuffers[i];
+                VBOXVDMACMD_CHROMIUM_BUFFER RT_UNTRUSTED_VOLATILE_HOST *pBufCmd = &pBody->aBuffers[i];
                 PVBOXVIDEOCM_ALLOC_REF pRef = (PVBOXVIDEOCM_ALLOC_REF)pBufCmd;
                 vboxVideoAMgrCtxAllocRefRelease(pRef);
             }
@@ -1807,8 +1808,9 @@ NTSTATUS vboxWddmThreadCreate(PKTHREAD * ppThread, PKSTART_ROUTINE pStartRoutine
 static int vboxWddmWdProgram(PVBOXMP_DEVEXT pDevExt, uint32_t cMillis)
 {
     int rc = VINF_SUCCESS;
-    PVBOXVDMA_CTL pCmd = (PVBOXVDMA_CTL)VBoxSHGSMICommandAlloc(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx.heapCtx,
-                                                               sizeof(VBOXVDMA_CTL), HGSMI_CH_VBVA, VBVA_VDMA_CTL);
+    VBOXVDMA_CTL RT_UNTRUSTED_VOLATILE_GUEST *pCmd
+        = (VBOXVDMA_CTL RT_UNTRUSTED_VOLATILE_GUEST *)VBoxSHGSMICommandAlloc(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx.heapCtx,
+                                                                             sizeof(VBOXVDMA_CTL), HGSMI_CH_VBVA, VBVA_VDMA_CTL);
     if (pCmd)
     {
         pCmd->enmCtl = VBOXVDMA_CTL_TYPE_WATCHDOG;
@@ -1844,7 +1846,7 @@ static int vboxWddmWdProgram(PVBOXMP_DEVEXT pDevExt, uint32_t cMillis)
             } while (0);
         }
 
-        VBoxSHGSMICommandFree (&VBoxCommonFromDeviceExt(pDevExt)->guestCtx.heapCtx, pCmd);
+        VBoxSHGSMICommandFree(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx.heapCtx, pCmd);
     }
     else
     {

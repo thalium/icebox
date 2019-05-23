@@ -251,6 +251,8 @@ typedef struct RTVFSOPS
     DECLCALLBACKMEMBER(int, pfnTraverse)(void *pvThis, const char *pszPath, size_t *poffPath, PRTVFS??? phVfs?, ???* p???);
 #endif
 
+    /** @todo need rename API */
+
     /** Marks the end of the structure (RTVFSOPS_VERSION). */
     uintptr_t               uEndMarker;
 } RTVFSOPS;
@@ -561,7 +563,9 @@ typedef struct RTVFSDIROPS
      * @returns IPRT status code.
      * @param   pvThis      The implementation specific directory data.
      * @param   pszSubDir   The name of the immediate subdirectory to open.
+     * @param   fFlags      RTDIR_F_XXX.
      * @param   phVfsDir    Where to return the handle to the opened directory.
+     *                      Optional.
      * @sa      RTDirOpen.
      */
     DECLCALLBACKMEMBER(int, pfnOpenDir)(void *pvThis, const char *pszSubDir, uint32_t fFlags, PRTVFSDIR phVfsDir);
@@ -644,6 +648,9 @@ typedef struct RTVFSDIROPS
      *                      (RTFS_TYPE_XXX).
      * @param   pszNewName  The new entry name.
      * @sa      RTPathRename
+     *
+     * @todo    This API is not flexible enough, must be able to rename between
+     *          directories within a file system.
      */
     DECLCALLBACKMEMBER(int, pfnRenameEntry)(void *pvThis, const char *pszEntry, RTFMODE fType, const char *pszNewName);
 
@@ -1002,6 +1009,8 @@ typedef struct RTVFSPARSEDPATH
      * reference and not a file reference.  The slash has been removed from
      * the copy. */
     bool            fDirSlash;
+    /** Set if absolute. */
+    bool            fAbsolute;
     /** The offset where each path component starts, i.e. the char after the
      * slash.  The array has cComponents + 1 entries, where the final one is
      * cch + 1 so that one can always terminate the current component by

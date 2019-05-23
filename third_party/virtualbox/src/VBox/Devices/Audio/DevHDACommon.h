@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2016-2017 Oracle Corporation
+ * Copyright (C) 2016-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -19,6 +19,7 @@
 #define DEV_HDA_COMMON_H
 
 #include "AudioMixer.h"
+#include <VBox/log.h> /* LOG_ENABLED */
 
 /** See 302349 p 6.2. */
 typedef struct HDAREGDESC
@@ -74,7 +75,7 @@ AssertCompile(HDA_MAX_SDI <= HDA_MAX_SDO);
 /** Number of general registers. */
 #define HDA_NUM_GENERAL_REGS        34
 /** Number of total registers in the HDA's register map. */
-#define HDA_NUM_REGS                                       (HDA_NUM_GENERAL_REGS + (HDA_MAX_STREAMS * 10 /* Each stream descriptor has 10 registers */))
+#define HDA_NUM_REGS                (HDA_NUM_GENERAL_REGS + (HDA_MAX_STREAMS * 10 /* Each stream descriptor has 10 registers */))
 /** Total number of stream tags (channels). Index 0 is reserved / invalid. */
 #define HDA_MAX_TAGS                16
 
@@ -88,13 +89,26 @@ AssertCompile(HDA_MAX_SDI <= HDA_MAX_SDO);
 
 /** Default timer frequency (in Hz).
  *
- *  Note: Keep in mind that the Hz rate has nothing to do with samples rates
- *        or DMA / interrupt timing -- it's purely needed in order to drive
- *        the data flow at a constant (and sufficient) rate.
+ * Lowering this value can ask for trouble, as backends then can run
+ * into data underruns. */
+#define HDA_TIMER_HZ_DEFAULT        100
+
+/** Default position adjustment (in audio samples).
  *
- *        Lowering this value can ask for trouble, as backends then can run
- *        into data underruns. */
-#define HDA_TIMER_HZ                200
+ * For snd_hda_intel (Linux guests), the first BDL entry always is being used as
+ * so-called BDL adjustment, which can vary, and is being used for chipsets which
+ * misbehave and/or are incorrectly implemented.
+ *
+ * The BDL adjustment entry *always* has the IOC (Interrupt on Completion) bit set.
+ *
+ * For Intel Baytrail / Braswell implementations the BDL default adjustment is 32 frames, whereas
+ * for ICH / PCH it's only one (1) frame.
+ *
+ * See default_bdl_pos_adj() and snd_hdac_stream_setup_periods() for more information.
+ *
+ * By default we apply some simple heuristics in hdaStreamInit().
+ */
+#define HDA_POS_ADJUST_DEFAULT      0
 
 /** HDA's (fixed) audio frame size in bytes.
  *  We only support 16-bit stereo frames at the moment. */
@@ -230,7 +244,17 @@ extern const HDAREGDESC g_aHdaRegMap[HDA_NUM_REGS];
 
 #define HDA_REG_CORBSIZE            21          /* 0x4E */
 #define HDA_RMX_CORBSIZE            19
-/** NB: Up to and including ICH 10, sizes of CORB and RIRB are fixed at 256 entries. */
+#define HDA_CORBSIZE_SZ_CAP         0xF0
+#define HDA_CORBSIZE_SZ             0x3
+
+/** Number of CORB buffer entries. */
+#define HDA_CORB_SIZE               256
+/** CORB element size (in bytes). */
+#define HDA_CORB_ELEMENT_SIZE       4
+/** Number of RIRB buffer entries. */
+#define HDA_RIRB_SIZE               256
+/** RIRB element size (in bytes). */
+#define HDA_RIRB_ELEMENT_SIZE       8
 
 #define HDA_REG_RIRBLBASE           22          /* 0x50 */
 #define HDA_RMX_RIRBLBASE           20
@@ -244,7 +268,9 @@ extern const HDAREGDESC g_aHdaRegMap[HDA_NUM_REGS];
 
 #define HDA_REG_RINTCNT             25          /* 0x5A */
 #define HDA_RMX_RINTCNT             23
-#define RINTCNT_N(pThis)            (HDA_REG(pThis, RINTCNT) & 0xff)
+
+/** Maximum number of Response Interrupts. */
+#define HDA_MAX_RINTCNT             256
 
 #define HDA_REG_RIRBCTL             26          /* 0x5C */
 #define HDA_RMX_RIRBCTL             24
@@ -489,9 +515,7 @@ extern const HDAREGDESC g_aHdaRegMap[HDA_NUM_REGS];
 /** Interrupt on completion (IOC) flag. */
 #define HDA_BDLE_FLAG_IOC           RT_BIT(0)
 
-/*********************************************************************************************************************************
-*   Prototypes                                                                                                                 *
-*********************************************************************************************************************************/
+
 
 /** The HDA controller. */
 typedef struct HDASTATE *PHDASTATE;
@@ -547,20 +571,28 @@ typedef struct HDABDLE
     /** Internal state of this BDLE.
      *  Not part of the actual BDLE registers. */
     HDABDLESTATE State;
-} HDABDLE, *PHDABDLE;
+} HDABDLE;
+AssertCompileSizeAlignment(HDABDLE, 8);
+/** Pointer to a buffer descriptor list entry (BDLE). */
+typedef HDABDLE *PHDABDLE;
 
 /** @name Object lookup functions.
  * @{
  */
+#ifdef IN_RING3
+PHDAMIXERSINK hdaR3GetDefaultSink(PHDASTATE pThis, uint8_t uSD);
+#endif
 PDMAUDIODIR   hdaGetDirFromSD(uint8_t uSD);
 PHDASTREAM    hdaGetStreamFromSD(PHDASTATE pThis, uint8_t uSD);
-PHDASTREAM    hdaGetStreamFromSink(PHDASTATE pThis, PHDAMIXERSINK pSink);
+#ifdef IN_RING3
+PHDASTREAM    hdaR3GetStreamFromSink(PHDASTATE pThis, PHDAMIXERSINK pSink);
+#endif
 /** @} */
 
 /** @name Interrupt functions.
  * @{
  */
-#ifdef DEBUG
+#ifdef LOG_ENABLED
 int           hdaProcessInterrupt(PHDASTATE pThis, const char *pszSource);
 #else
 int           hdaProcessInterrupt(PHDASTATE pThis);
@@ -572,15 +604,17 @@ int           hdaProcessInterrupt(PHDASTATE pThis);
  */
 uint64_t      hdaWalClkGetCurrent(PHDASTATE pThis);
 #ifdef IN_RING3
-bool          hdaWalClkSet(PHDASTATE pThis, uint64_t u64WalClk, bool fForce);
+bool          hdaR3WalClkSet(PHDASTATE pThis, uint64_t u64WalClk, bool fForce);
 #endif
 /** @} */
 
 /** @name DMA utility functions.
  * @{
  */
-int           hdaDMARead(PHDASTATE pThis, PHDASTREAM pStream, uint32_t cbToRead, uint32_t *pcbRead);
-int           hdaDMAWrite(PHDASTATE pThis, PHDASTREAM pStream, uint32_t cbToWrite, uint32_t *pcbWritten);
+#ifdef IN_RING3
+int           hdaR3DMARead(PHDASTATE pThis, PHDASTREAM pStream, void *pvBuf, uint32_t cbBuf, uint32_t *pcbRead);
+int           hdaR3DMAWrite(PHDASTATE pThis, PHDASTREAM pStream, const void *pvBuf, uint32_t cbBuf, uint32_t *pcbWritten);
+#endif
 /** @} */
 
 /** @name Register functions.
@@ -588,7 +622,7 @@ int           hdaDMAWrite(PHDASTATE pThis, PHDASTREAM pStream, uint32_t cbToWrit
  */
 uint32_t      hdaGetINTSTS(PHDASTATE pThis);
 #ifdef IN_RING3
-int           hdaSDFMTToPCMProps(uint32_t u32SDFMT, PPDMAUDIOPCMPROPS pProps);
+int           hdaR3SDFMTToPCMProps(uint32_t u32SDFMT, PPDMAUDIOPCMPROPS pProps);
 #endif /* IN_RING3 */
 /** @} */
 
@@ -596,9 +630,20 @@ int           hdaSDFMTToPCMProps(uint32_t u32SDFMT, PPDMAUDIOPCMPROPS pProps);
  * @{
  */
 #ifdef IN_RING3
-int           hdaBDLEFetch(PHDASTATE pThis, PHDABDLE pBDLE, uint64_t u64BaseDMA, uint16_t u16Entry);
-bool          hdaBDLEIsComplete(PHDABDLE pBDLE);
-bool          hdaBDLENeedsInterrupt(PHDABDLE pBDLE);
+# ifdef LOG_ENABLED
+void          hdaR3BDLEDumpAll(PHDASTATE pThis, uint64_t u64BDLBase, uint16_t cBDLE);
+# endif
+int           hdaR3BDLEFetch(PHDASTATE pThis, PHDABDLE pBDLE, uint64_t u64BaseDMA, uint16_t u16Entry);
+bool          hdaR3BDLEIsComplete(PHDABDLE pBDLE);
+bool          hdaR3BDLENeedsInterrupt(PHDABDLE pBDLE);
+#endif /* IN_RING3 */
+/** @} */
+
+/** @name Device timer functions.
+ * @{
+ */
+#ifdef IN_RING3
+bool          hdaR3TimerSet(PHDASTATE pThis, PHDASTREAM pStream, uint64_t u64Expire, bool fForce);
 #endif /* IN_RING3 */
 /** @} */
 

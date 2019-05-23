@@ -96,13 +96,13 @@ PyUnicode_AsPRUnichar(PyObject *obj, PRUnichar **dest_out, PRUint32 *size_out)
 	size = (PyString_GET_SIZE(s) - 2) / sizeof(PRUnichar);
 	src = PyString_AS_STRING(s) + 2;
 #else
-    if (!PyBytes_Check(obj))
+    if (!PyBytes_Check(s))
     {
         PyErr_SetString(PyExc_TypeError, "internal error in PyXPCOM, parameter must be a bytes object");
         return -1;
     }
-    size = (PyBytes_GET_SIZE(obj) - 2) / sizeof(PRUnichar);
-    src = PyBytes_AS_STRING(obj) + 2;
+    size = (PyBytes_GET_SIZE(s) - 2) / sizeof(PRUnichar);
+    src = PyBytes_AS_STRING(s) + 2;
 #endif
 	dest = (PRUnichar *)nsMemory::Alloc(sizeof(PRUnichar) * (size + 1));
 	if (!dest) {

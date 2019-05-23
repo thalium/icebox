@@ -73,6 +73,8 @@ typedef enum CPUMCPUIDFEATURE
     CPUMCPUIDFEATURE_HVP,
     /** The MWait Extensions bits (Std) */
     CPUMCPUIDFEATURE_MWAIT_EXTS,
+    /** The speculation control feature bits. (StExt) */
+    CPUMCPUIDFEATURE_SPEC_CTRL,
     /** 32bit hackishness. */
     CPUMCPUIDFEATURE_32BIT_HACK = 0x7fffffff
 } CPUMCPUIDFEATURE;
@@ -136,7 +138,11 @@ typedef enum CPUMMICROARCH
     kCpumMicroarch_Intel_Core7_Haswell,
     kCpumMicroarch_Intel_Core7_Broadwell,
     kCpumMicroarch_Intel_Core7_Skylake,
-    kCpumMicroarch_Intel_Core7_Cannonlake,
+    kCpumMicroarch_Intel_Core7_KabyLake,
+    kCpumMicroarch_Intel_Core7_CoffeeLake,
+    kCpumMicroarch_Intel_Core7_CannonLake,
+    kCpumMicroarch_Intel_Core7_IceLake,
+    kCpumMicroarch_Intel_Core7_TigerLake,
     kCpumMicroarch_Intel_Core7_End,
 
     kCpumMicroarch_Intel_Atom_First,
@@ -146,8 +152,18 @@ typedef enum CPUMMICROARCH
     kCpumMicroarch_Intel_Atom_Silvermont,   /**< 22nm */
     kCpumMicroarch_Intel_Atom_Airmount,     /**< 14nm */
     kCpumMicroarch_Intel_Atom_Goldmont,     /**< 14nm */
+    kCpumMicroarch_Intel_Atom_GoldmontPlus, /**< 14nm */
     kCpumMicroarch_Intel_Atom_Unknown,
     kCpumMicroarch_Intel_Atom_End,
+
+
+    kCpumMicroarch_Intel_Phi_First,
+    kCpumMicroarch_Intel_Phi_KnightsFerry = kCpumMicroarch_Intel_Phi_First,
+    kCpumMicroarch_Intel_Phi_KnightsCorner,
+    kCpumMicroarch_Intel_Phi_KnightsLanding,
+    kCpumMicroarch_Intel_Phi_KnightsHill,
+    kCpumMicroarch_Intel_Phi_KnightsMill,
+    kCpumMicroarch_Intel_Phi_End,
 
     kCpumMicroarch_Intel_P6_Core_Atom_End,
 
@@ -455,6 +471,8 @@ typedef enum CPUMMSRRDFN
     kCpumMsrRdFn_Ia32VmxTrueExitCtls,       /**< Takes real value as reference. */
     kCpumMsrRdFn_Ia32VmxTrueEntryCtls,      /**< Takes real value as reference. */
     kCpumMsrRdFn_Ia32VmxVmFunc,             /**< Takes real value as reference. */
+    kCpumMsrRdFn_Ia32SpecCtrl,
+    kCpumMsrRdFn_Ia32ArchCapabilities,
 
     kCpumMsrRdFn_Amd64Efer,
     kCpumMsrRdFn_Amd64SyscallTarget,
@@ -707,6 +725,8 @@ typedef enum CPUMMSRWRFN
     kCpumMsrWrFn_Ia32TscDeadline,
     kCpumMsrWrFn_Ia32X2ApicN,
     kCpumMsrWrFn_Ia32DebugInterface,
+    kCpumMsrWrFn_Ia32SpecCtrl,
+    kCpumMsrWrFn_Ia32PredCmd,
 
     kCpumMsrWrFn_Amd64Efer,
     kCpumMsrWrFn_Amd64SyscallTarget,
@@ -1011,6 +1031,20 @@ typedef struct CPUMFEATURES
     uint32_t        fClFlush : 1;
     /** Supports CLFLUSHOPT. */
     uint32_t        fClFlushOpt : 1;
+    /** Supports IA32_PRED_CMD.IBPB. */
+    uint32_t        fIbpb : 1;
+    /** Supports IA32_SPEC_CTRL.IBRS. */
+    uint32_t        fIbrs : 1;
+    /** Supports IA32_SPEC_CTRL.STIBP. */
+    uint32_t        fStibp : 1;
+    /** Supports IA32_ARCH_CAP. */
+    uint32_t        fArchCap : 1;
+    /** Supports PCID. */
+    uint32_t        fPcid : 1;
+    /** Supports INVPCID. */
+    uint32_t        fInvpcid : 1;
+    /** Supports read/write FSGSBASE instructions. */
+    uint32_t        fFsGsBase : 1;
 
     /** Supports AMD 3DNow instructions. */
     uint32_t        f3DNow : 1;
@@ -1043,8 +1077,13 @@ typedef struct CPUMFEATURES
     /** Support for Intel VMX. */
     uint32_t        fVmx : 1;
 
+    /** Indicates that speculative execution control CPUID bits and
+     *  MSRs are exposed. The details are different for Intel and
+     * AMD but both have similar functionality. */
+    uint32_t        fSpeculationControl : 1;
+
     /** Alignment padding / reserved for future use. */
-    uint32_t        fPadding : 23;
+    uint32_t        fPadding : 15;
 
     /** SVM: Supports Nested-paging. */
     uint32_t        fSvmNestedPaging : 1;
@@ -1179,6 +1218,8 @@ VMM_INT_DECL(void)  CPUMGuestLazyLoadHiddenCsAndSs(PVMCPU pVCpu);
 VMM_INT_DECL(void)  CPUMGuestLazyLoadHiddenSelectorReg(PVMCPU pVCpu, PCPUMSELREG pSReg);
 VMMR0_INT_DECL(void)        CPUMR0SetGuestTscAux(PVMCPU pVCpu, uint64_t uValue);
 VMMR0_INT_DECL(uint64_t)    CPUMR0GetGuestTscAux(PVMCPU pVCpu);
+VMMR0_INT_DECL(void)        CPUMR0SetGuestSpecCtrl(PVMCPU pVCpu, uint64_t uValue);
+VMMR0_INT_DECL(uint64_t)    CPUMR0GetGuestSpecCtrl(PVMCPU pVCpu);
 /** @} */
 
 
@@ -1205,11 +1246,11 @@ VMM_INT_DECL(bool)  CPUMIsGuestInRawMode(PVMCPU pVCpu);
 VMM_INT_DECL(bool)      CPUMCanSvmNstGstTakePhysIntr(PCCPUMCTX pCtx);
 VMM_INT_DECL(bool)      CPUMCanSvmNstGstTakeVirtIntr(PCCPUMCTX pCtx);
 VMM_INT_DECL(uint8_t)   CPUMGetSvmNstGstInterrupt(PCCPUMCTX pCtx);
-VMM_INT_DECL(void)      CPUMSvmVmExitRestoreHostState(PCPUMCTX pCtx);
+VMM_INT_DECL(void)      CPUMSvmVmExitRestoreHostState(PVMCPU pVCpu, PCPUMCTX pCtx);
 VMM_INT_DECL(void)      CPUMSvmVmRunSaveHostState(PCPUMCTX pCtx, uint8_t cbInstr);
 /** @} */
 
-#ifndef VBOX_WITHOUT_UNNAMED_UNIONS
+#ifndef IPRT_WITHOUT_NAMED_UNIONS_AND_STRUCTS
 
 /**
  * Tests if the guest is running in real mode or not.
@@ -1332,6 +1373,7 @@ DECLINLINE(bool) CPUMIsGuestSvmEnabled(PCCPUMCTX pCtx)
  */
 DECLINLINE(bool) CPUMIsGuestSvmCtrlInterceptSet(PCCPUMCTX pCtx, uint64_t fIntercept)
 {
+    Assert(!pCtx->hwvirt.svm.fHMCachedVmcb);
     PCSVMVMCB pVmcb = pCtx->hwvirt.svm.CTX_SUFF(pVmcb);
     return pVmcb && (pVmcb->ctrl.u64InterceptCtrl & fIntercept);
 }
@@ -1346,6 +1388,7 @@ DECLINLINE(bool) CPUMIsGuestSvmCtrlInterceptSet(PCCPUMCTX pCtx, uint64_t fInterc
  */
 DECLINLINE(bool) CPUMIsGuestSvmReadCRxInterceptSet(PCCPUMCTX pCtx, uint8_t uCr)
 {
+    Assert(!pCtx->hwvirt.svm.fHMCachedVmcb);
     PCSVMVMCB pVmcb = pCtx->hwvirt.svm.CTX_SUFF(pVmcb);
     return pVmcb && (pVmcb->ctrl.u16InterceptRdCRx & (1 << uCr));
 }
@@ -1360,6 +1403,7 @@ DECLINLINE(bool) CPUMIsGuestSvmReadCRxInterceptSet(PCCPUMCTX pCtx, uint8_t uCr)
  */
 DECLINLINE(bool) CPUMIsGuestSvmWriteCRxInterceptSet(PCCPUMCTX pCtx, uint8_t uCr)
 {
+    Assert(!pCtx->hwvirt.svm.fHMCachedVmcb);
     PCSVMVMCB pVmcb = pCtx->hwvirt.svm.CTX_SUFF(pVmcb);
     return pVmcb && (pVmcb->ctrl.u16InterceptWrCRx & (1 << uCr));
 }
@@ -1374,6 +1418,7 @@ DECLINLINE(bool) CPUMIsGuestSvmWriteCRxInterceptSet(PCCPUMCTX pCtx, uint8_t uCr)
  */
 DECLINLINE(bool) CPUMIsGuestSvmReadDRxInterceptSet(PCCPUMCTX pCtx, uint8_t uDr)
 {
+    Assert(!pCtx->hwvirt.svm.fHMCachedVmcb);
     PCSVMVMCB pVmcb = pCtx->hwvirt.svm.CTX_SUFF(pVmcb);
     return pVmcb && (pVmcb->ctrl.u16InterceptRdDRx & (1 << uDr));
 }
@@ -1388,6 +1433,7 @@ DECLINLINE(bool) CPUMIsGuestSvmReadDRxInterceptSet(PCCPUMCTX pCtx, uint8_t uDr)
  */
 DECLINLINE(bool) CPUMIsGuestSvmWriteDRxInterceptSet(PCCPUMCTX pCtx, uint8_t uDr)
 {
+    Assert(!pCtx->hwvirt.svm.fHMCachedVmcb);
     PCSVMVMCB pVmcb = pCtx->hwvirt.svm.CTX_SUFF(pVmcb);
     return pVmcb && (pVmcb->ctrl.u16InterceptWrDRx & (1 << uDr));
 }
@@ -1402,6 +1448,7 @@ DECLINLINE(bool) CPUMIsGuestSvmWriteDRxInterceptSet(PCCPUMCTX pCtx, uint8_t uDr)
  */
 DECLINLINE(bool) CPUMIsGuestSvmXcptInterceptSet(PCCPUMCTX pCtx, uint8_t uVector)
 {
+    Assert(!pCtx->hwvirt.svm.fHMCachedVmcb);
     Assert(uVector < 32);
     PCSVMVMCB pVmcb = pCtx->hwvirt.svm.CTX_SUFF(pVmcb);
     return pVmcb && (pVmcb->ctrl.u32InterceptXcpt & (UINT32_C(1) << uVector));
@@ -1452,7 +1499,7 @@ DECLINLINE(bool) CPUMIsGuestInNestedHwVirtMode(PCCPUMCTX pCtx)
 {
     return CPUMIsGuestInSvmNestedHwVirtMode(pCtx) || CPUMIsGuestInVmxNestedHwVirtMode(pCtx);
 }
-#endif /* VBOX_WITHOUT_UNNAMED_UNIONS */
+#endif /* IPRT_WITHOUT_NAMED_UNIONS_AND_STRUCTS */
 
 /** @} */
 
@@ -1590,6 +1637,8 @@ VMMDECL(uint32_t)       CPUMGetGuestMxCsrMask(PVM pVM);
 VMMDECL(uint64_t)       CPUMGetGuestScalableBusFrequency(PVM pVM);
 VMMDECL(int)            CPUMQueryValidatedGuestEfer(PVM pVM, uint64_t uCr0, uint64_t uOldEfer, uint64_t uNewEfer,
                                                     uint64_t *puValidEfer);
+VMMDECL(void)           CPUMSetGuestMsrEferNoCheck(PVMCPU pVCpu, uint64_t uOldEfer, uint64_t uValidEfer);
+
 
 /** @name Typical scalable bus frequency values.
  * @{ */

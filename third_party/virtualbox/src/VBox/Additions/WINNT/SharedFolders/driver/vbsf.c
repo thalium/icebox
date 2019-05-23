@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1479,11 +1479,95 @@ NTSTATUS VBoxMRxNotifyChangeDirectory(IN OUT PRX_CONTEXT RxContext)
     return STATUS_NOT_IMPLEMENTED;
 }
 
+static NTSTATUS vbsfQuerySdInfo(PVOID pvBuffer, ULONG cbBuffer, SECURITY_INFORMATION SecurityInformation, ULONG *pcbOut)
+{
+    /* What a public SMB share would return. */
+    static SID_IDENTIFIER_AUTHORITY sIA = SECURITY_NT_AUTHORITY;
+    #define SUB_AUTHORITY_COUNT 2
+    static const ULONG saSubAuthorityOwner[] = { SECURITY_NT_NON_UNIQUE, DOMAIN_USER_RID_GUEST   };
+    static const ULONG saSubAuthorityGroup[] = { SECURITY_NT_NON_UNIQUE, DOMAIN_GROUP_RID_GUESTS };
+
+    SECURITY_DESCRIPTOR_RELATIVE *pSD = (SECURITY_DESCRIPTOR_RELATIVE *)pvBuffer;
+    ULONG cbSD = 0; /* Size of returned security descriptor. */
+    ULONG cbAdd; /* How many bytes to add to the buffer for each component of the security descriptor. */
+
+    cbAdd = sizeof(SECURITY_DESCRIPTOR_RELATIVE);
+    if (cbSD + cbAdd <= cbBuffer)
+    {
+        pSD->Revision = SECURITY_DESCRIPTOR_REVISION1;
+        pSD->Sbz1     = 0;
+        pSD->Control  = SE_SELF_RELATIVE;
+        pSD->Owner    = 0;
+        pSD->Group    = 0;
+        pSD->Sacl     = 0;
+        pSD->Dacl     = 0;
+    }
+    cbSD += cbAdd;
+
+    if (SecurityInformation & OWNER_SECURITY_INFORMATION)
+    {
+        cbAdd = RT_UOFFSETOF(SID, SubAuthority) + SUB_AUTHORITY_COUNT * sizeof(ULONG);
+        if (cbSD + cbAdd <= cbBuffer)
+        {
+            SID *pSID = (SID *)((uint8_t *)pSD + cbSD);
+            pSID->Revision            = 1;
+            pSID->SubAuthorityCount   = SUB_AUTHORITY_COUNT;
+            pSID->IdentifierAuthority = sIA;
+            memcpy(pSID->SubAuthority, saSubAuthorityOwner, SUB_AUTHORITY_COUNT * sizeof(ULONG));
+
+            pSD->Owner = cbSD;
+        }
+        cbSD += cbAdd;
+    }
+
+    if (SecurityInformation & GROUP_SECURITY_INFORMATION)
+    {
+        cbAdd = RT_UOFFSETOF(SID, SubAuthority) + SUB_AUTHORITY_COUNT * sizeof(ULONG);
+        if (cbSD + cbAdd <= cbBuffer)
+        {
+            SID *pSID = (SID *)((uint8_t *)pSD + cbSD);
+            pSID->Revision            = 1;
+            pSID->SubAuthorityCount   = SUB_AUTHORITY_COUNT;
+            pSID->IdentifierAuthority = sIA;
+            memcpy(pSID->SubAuthority, saSubAuthorityGroup, SUB_AUTHORITY_COUNT * sizeof(ULONG));
+
+            pSD->Group = cbSD;
+        }
+        cbSD += cbAdd;
+    }
+
+    #undef SUB_AUTHORITY_COUNT
+
+    *pcbOut = cbSD;
+    return STATUS_SUCCESS;
+}
+
 NTSTATUS VBoxMRxQuerySdInfo(IN OUT PRX_CONTEXT RxContext)
 {
-    RT_NOREF(RxContext);
-    Log(("VBOXSF: MRxQuerySdInfo\n"));
-    return STATUS_NOT_IMPLEMENTED;
+    NTSTATUS Status;
+
+    PVOID pvBuffer = RxContext->Info.Buffer;
+    ULONG cbBuffer = RxContext->Info.LengthRemaining;
+    SECURITY_INFORMATION SecurityInformation = RxContext->QuerySecurity.SecurityInformation;
+
+    ULONG cbSD = 0;
+
+    Log(("VBOXSF: MRxQuerySdInfo: Buffer %p, Length %d, SecurityInformation 0x%x\n",
+         pvBuffer, cbBuffer, SecurityInformation));
+
+    Status = vbsfQuerySdInfo(pvBuffer, cbBuffer, SecurityInformation, &cbSD);
+    if (NT_SUCCESS(Status))
+    {
+        RxContext->InformationToReturn = cbSD;
+        if (RxContext->InformationToReturn > cbBuffer)
+        {
+            Status = STATUS_BUFFER_OVERFLOW;
+        }
+    }
+
+    Log(("VBOXSF: MRxQuerySdInfo: Status 0x%08X, InformationToReturn %d\n",
+         Status, RxContext->InformationToReturn));
+    return Status;
 }
 
 NTSTATUS VBoxMRxSetSdInfo(IN OUT struct _RX_CONTEXT * RxContext)

@@ -1,0 +1,63 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for graphics.
+#
+
+#
+# Copyright (C) 2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+/BIOS/vbe.c:            --external-copyright --lgpl-disclaimer
+/BIOS/vbe.h:            --external-copyright --lgpl-disclaimer
+/BIOS/vberom.asm:       --external-copyright --lgpl-disclaimer
+/BIOS/vbetables-gen.c:  --external-copyright
+/BIOS/vgabios.c:        --external-copyright --lgpl-disclaimer
+/BIOS/vgabios.h:        --external-copyright
+/BIOS/vgadefs.h:        --external-copyright
+/BIOS/vgadefs.inc:      --external-copyright
+/BIOS/vgafonts.h:       --external-copyright
+/BIOS/vgarom.asm:       --external-copyright --lgpl-disclaimer
+/BIOS/vgatables.h:      --external-copyright
+/BIOS/tests/testbios.c: --external-copyright
+
+--filter-out-files /BIOS/BUGS
+--filter-out-files /BIOS/ChangeLog
+--filter-out-files /BIOS/makefile
+--filter-out-files /BIOS/Notes
+--filter-out-files /BIOS/README
+--filter-out-files /BIOS/TODO
+--filter-out-files /BIOS/vbe_display_api.txt
+--filter-out-files /BIOS/VBoxVgaBiosAlternative*.asm
+--filter-out-files /BIOS/VBoxVgaBiosAlternative*.md5sum
+
+
+/shaderlib/*: --external-copyright --lgpl-disclaimer --no-convert-tabs --no-fix-todos --no-strip-trailing-blanks
+/shaderlib/wine/include/*.idl:       --treat-as .h
+/shaderlib/wine/include/*.rh:        --treat-as .h
+/shaderlib/wine/include/*.h.in:      --treat-as .h
+/shaderlib/wine/include/*-h.in:      --treat-as .h
+/shaderlib/wine/include/*.inl:       --treat-as .h
+/shaderlib/wine/include/*.x:         --treat-as .h
+/shaderlib/wine/include/Makefile.in: --treat-as Makefile
+
+/shaderlib/shaderapi.c:                  --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+/shaderlib/shaderlib.h:                  --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+/shaderlib/utils.c:                      --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+/shaderlib/vboxext.h:                    --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+/shaderlib/wine/vbox/VBoxDbgGl.c:        --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+/shaderlib/wine/vbox/VBoxDbgGl.h:        --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+/shaderlib/wine/vbox/VBoxWineEx.h:       --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+/shaderlib/winoverride.h:                --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos --strip-trailing-blanks
+
+/vmsvga/*.h: --external-copyright --no-convert-tabs
+/vmsvga_glext/*.h: --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+

@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1241,7 +1241,7 @@ int CrFbEntryCreateForTexId(CR_FRAMEBUFFER *pFb, GLuint idTexture, uint32_t fFla
     int rc = CrFbEntryCreateForTexData(pFb, pTex, fFlags, phEntry);
     if (!RT_SUCCESS(rc))
     {
-    	WARN(("CrFbEntryCreateForTexData failed rc %d", rc));
+        WARN(("CrFbEntryCreateForTexData failed rc %d", rc));
     }
 
     /*always release the tex, the CrFbEntryCreateForTexData will do incref as necessary */
@@ -3887,8 +3887,10 @@ static int8_t crVBoxServerCrCmdClrFillGenericBGRAProcess(const VBOXCMDVBVA_CLRFI
     return 0;
 }
 
-int8_t crVBoxServerCrCmdClrFillProcess(const VBOXCMDVBVA_CLRFILL_HDR *pCmd, uint32_t cbCmd)
+/** @todo RT_UNTRUSTED_VOLATILE_GUEST */
+int8_t crVBoxServerCrCmdClrFillProcess(VBOXCMDVBVA_CLRFILL_HDR const RT_UNTRUSTED_VOLATILE_GUEST *pCmdTodo, uint32_t cbCmd)
 {
+    VBOXCMDVBVA_CLRFILL_HDR const *pCmd = (VBOXCMDVBVA_CLRFILL_HDR const *)pCmdTodo;
     uint8_t u8Flags = pCmd->Hdr.u8Flags;
     uint8_t u8Cmd = (VBOXCMDVBVA_OPF_CLRFILL_TYPE_MASK & u8Flags);
 
@@ -3911,8 +3913,10 @@ int8_t crVBoxServerCrCmdClrFillProcess(const VBOXCMDVBVA_CLRFILL_HDR *pCmd, uint
 
 }
 
-int8_t crVBoxServerCrCmdBltProcess(const VBOXCMDVBVA_BLT_HDR *pCmd, uint32_t cbCmd)
+/** @todo RT_UNTRUSTED_VOLATILE_GUEST */
+int8_t crVBoxServerCrCmdBltProcess(VBOXCMDVBVA_BLT_HDR const RT_UNTRUSTED_VOLATILE_GUEST *pCmdTodo, uint32_t cbCmd)
 {
+    VBOXCMDVBVA_BLT_HDR const *pCmd = (VBOXCMDVBVA_BLT_HDR const *)pCmdTodo;
     uint8_t u8Flags = pCmd->Hdr.u8Flags;
     uint8_t u8Cmd = (VBOXCMDVBVA_OPF_BLT_TYPE_MASK & u8Flags);
 
@@ -3954,8 +3958,10 @@ int8_t crVBoxServerCrCmdBltProcess(const VBOXCMDVBVA_BLT_HDR *pCmd, uint32_t cbC
     }
 }
 
-int8_t crVBoxServerCrCmdFlipProcess(const VBOXCMDVBVA_FLIP *pFlip, uint32_t cbCmd)
+/** @todo RT_UNTRUSTED_VOLATILE_GUEST   */
+int8_t crVBoxServerCrCmdFlipProcess(VBOXCMDVBVA_FLIP const RT_UNTRUSTED_VOLATILE_GUEST *pFlipTodo, uint32_t cbCmd)
 {
+    VBOXCMDVBVA_FLIP const *pFlip = (VBOXCMDVBVA_FLIP const *)pFlipTodo;
     uint32_t hostId;
     const VBOXCMDVBVA_RECT *pPRects = pFlip->aRects;
     uint32_t cRects;

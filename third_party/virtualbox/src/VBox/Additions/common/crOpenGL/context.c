@@ -5,7 +5,7 @@
  */
 
 /**
- * \mainpage OpenGL_stub 
+ * \mainpage OpenGL_stub
  *
  * \section OpenGL_stubIntroduction Introduction
  *
@@ -74,7 +74,7 @@ stubSetDispatch( SPUDispatchTable *table )
      * to get a pointer to the dispatch table, and jump through it.
      */
     }
-    else 
+    else
 #endif
     {
     /* Single thread mode - just install the caller's dispatch table */
@@ -256,7 +256,7 @@ stubNewWindow( const char *dpyName, GLint visBits )
 static XErrorHandler oldErrorHandler;
 static unsigned char lastXError = Success;
 
-static int 
+static int
 errorHandler (Display *dpy, XErrorEvent *e)
 {
     RT_NOREF(dpy);
@@ -280,7 +280,7 @@ stubIsWindowVisible(WindowInfo *win)
     return GL_TRUE;
 #elif defined(GLX)
     Display *dpy = stubGetWindowDisplay(win);
-    if (dpy) 
+    if (dpy)
     {
         XWindowAttributes attr;
         XLOCK(dpy);
@@ -317,7 +317,7 @@ stubIsWindowVisible(WindowInfo *win)
             XLOCK(dpy);
             XSync(dpy, false);
             oldErrorHandler = XSetErrorHandler(errorHandler);
-            /*@todo this will create new pixmap for window every call*/
+            /** @todo this will create new pixmap for window every call*/
             p = XCompositeNameWindowPixmap(dpy, win->drawable);
             XSync(dpy, false);
             XSetErrorHandler(oldErrorHandler);
@@ -751,8 +751,8 @@ GetCursorPosition(WindowInfo *window, int pos[2])
     unsigned int NativeHeight, NativeWidth, ChromiumHeight, ChromiumWidth;
     float WidthRatio, HeightRatio;
     static int DebugFlag = 0;
-    
-    // apparently the "window" parameter passed to this 
+
+    // apparently the "window" parameter passed to this
     // function contains the native window information
     HWND NATIVEhwnd = window->hWnd;
 
@@ -773,7 +773,7 @@ GetCursorPosition(WindowInfo *window, int pos[2])
     // get the ratio of the size of the native window to the cr window
     WidthRatio = (float)ChromiumWidth / (float)NativeWidth;
     HeightRatio = (float)ChromiumHeight / (float)NativeHeight;
-    
+
     // output some debug information at the beginning
     if(DebugFlag)
     {
@@ -784,12 +784,12 @@ GetCursorPosition(WindowInfo *window, int pos[2])
         crDebug("Chromium Width = %i", ChromiumWidth);
         crDebug("Chromium Height = %i", ChromiumHeight);
     }
-        
-    if (NATIVEhwnd) 
-    { 
+
+    if (NATIVEhwnd)
+    {
         GetClientRect( NATIVEhwnd, &rect );
         GetCursorPos (&point);
-        
+
         // make sure these coordinates are relative to the native window,
         // not the whole desktop
         ScreenToClient(NATIVEhwnd, &point);
@@ -798,7 +798,7 @@ GetCursorPosition(WindowInfo *window, int pos[2])
         pos[0] = (int)(point.x * WidthRatio);
         pos[1] = (int)((NativeHeight - point.y) * HeightRatio);
     }
-    else 
+    else
     {
         pos[0] = 0;
         pos[1] = 0;
@@ -865,9 +865,9 @@ stubGetWindowGeometry(WindowInfo *window, int *x, int *y, unsigned int *w, unsig
 
     dpy = stubGetWindowDisplay(window);
 
-    //@todo: Performing those checks is expensive operation, especially for simple apps with high FPS.
+    /// @todo Performing those checks is expensive operation, especially for simple apps with high FPS.
     //       Disabling those triples glxgears fps, thus using xevents instead of per frame polling is much more preferred.
-    //@todo: Check similar on windows guests, though doubtful as there're no XSync like calls on windows.
+    /// @todo Check similar on windows guests, though doubtful as there're no XSync like calls on windows.
     if (window && dpy)
     {
         XLOCK(dpy);
@@ -877,7 +877,7 @@ stubGetWindowGeometry(WindowInfo *window, int *x, int *y, unsigned int *w, unsig
         || !dpy
         || !window->drawable
         || !XGetGeometry(dpy, window->drawable, &root, x, y, w, h, &border, &depth)
-        || !XTranslateCoordinates(dpy, window->drawable, root, 0, 0, x, y, &child)) 
+        || !XTranslateCoordinates(dpy, window->drawable, root, 0, 0, x, y, &child))
     {
         crWarning("Failed to get windows geometry for %p, try xwininfo", window);
         *x = *y = 0;
@@ -1020,21 +1020,21 @@ stubCheckUseChromium( WindowInfo *window )
     }
 
     /* If the user's specified a minimum window size for Chromium, see if
-     * this window satisfies that criterium. 
+     * this window satisfies that criterium.
      */
-    if (stub.minChromiumWindowWidth > 0 && 
+    if (stub.minChromiumWindowWidth > 0 &&
         stub.minChromiumWindowHeight > 0) {
         stubGetWindowGeometry( window, &x, &y, &w, &h );
-        if (w >= stub.minChromiumWindowWidth && 
+        if (w >= stub.minChromiumWindowWidth &&
             h >= stub.minChromiumWindowHeight) {
 
             /* Check for maximum sized window now too */
-            if (stub.maxChromiumWindowWidth && 
+            if (stub.maxChromiumWindowWidth &&
                 stub.maxChromiumWindowHeight) {
                 if (w < stub.maxChromiumWindowWidth &&
                     h < stub.maxChromiumWindowHeight)
                     return GL_TRUE;
-                else 
+                else
                     return GL_FALSE;
             }
 
@@ -1283,7 +1283,7 @@ stubMakeCurrent( WindowInfo *window, ContextInfo *context )
 # endif
                         );
 #endif
-                if (context->currentDrawable && context->currentDrawable->type==CHROMIUM 
+                if (context->currentDrawable && context->currentDrawable->type==CHROMIUM
                     && context->currentDrawable->pOwner==context)
                 {
 #ifdef WINDOWS
@@ -1303,7 +1303,7 @@ stubMakeCurrent( WindowInfo *window, ContextInfo *context )
                         }
                         XUNLOCK(context->currentDrawable->dpy);
 #endif
-                    
+
                 }
             }
 

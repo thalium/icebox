@@ -2,11 +2,11 @@
 # $Id: xcode-6.2-extractor.sh $
 ## @file
 # Extracts the necessary bits from the Xcode 6.2 (Xcode_6.2.dmg,
-# md5sum fe4c6c99182668cf14bfa5703bedeed6) and the Command Line 
-# Tools for Xcode 6.2 (10.9: commandlinetoolsosx10.9forxcode6.2.dmg, 
+# md5sum fe4c6c99182668cf14bfa5703bedeed6) and the Command Line
+# Tools for Xcode 6.2 (10.9: commandlinetoolsosx10.9forxcode6.2.dmg,
 # 10.10: commandlinetoolsosx10.10forxcode6.2.dmg).
 #
-# This script allows extracting the tools on systems where the command line 
+# This script allows extracting the tools on systems where the command line
 # tools refuse to install due to version checks.
 #
 
@@ -91,13 +91,13 @@ if [ -z "${MY_DST_DIR}" ]; then
     echo "error: missing --destination <dstdir>." 1>&2;
     my_usage 1;
 fi
-if ! mkdir -p "${MY_DST_DIR}"; then 
+if ! mkdir -p "${MY_DST_DIR}"; then
     echo "error: error creating '${MY_DST_DIR}'." 1>&2;
     exit 1;
 fi
 
 #
-# Copy bits from the Xcode package. Must retain a valid .pkg bundle structure or xcrun 
+# Copy bits from the Xcode package. Must retain a valid .pkg bundle structure or xcrun
 # doesn't work, which breaks 'cpp' (needed for dtrace and maybe more).
 #
 for item in \
@@ -121,7 +121,7 @@ for item in \
 do
     echo "Copying ${item}..."
     if [ -d "${MY_XCODE_APP}/${item}" ]; then
-        if ! mkdir -p "${MY_DST_DIR}/x.app/${item}"; then 
+        if ! mkdir -p "${MY_DST_DIR}/x.app/${item}"; then
             echo "error: error creating directory '${MY_DST_DIR}/x.app/${item}'." 1>&2;
             exit 1;
         fi
@@ -131,7 +131,7 @@ do
         fi
     else
         dir=`dirname "${item}"`
-        if ! mkdir -p "${MY_DST_DIR}/x.app/${dir}"; then 
+        if ! mkdir -p "${MY_DST_DIR}/x.app/${dir}"; then
             echo "error: error creating directory '${MY_DST_DIR}/x.app/${dir}'." 1>&2;
             exit 1;
         fi

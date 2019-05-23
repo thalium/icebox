@@ -134,7 +134,7 @@ typedef struct CPUMSYSENTER
 #ifdef VBOX_FOR_DTRACE_LIB
 # define CPUM_UNION_NM(a_Nm)  a_Nm
 # define CPUM_STRUCT_NM(a_Nm) a_Nm
-#elif defined(VBOX_WITHOUT_UNNAMED_UNIONS)
+#elif defined(IPRT_WITHOUT_NAMED_UNIONS_AND_STRUCTS)
 # define CPUM_UNION_NM(a_Nm)  a_Nm
 # define CPUM_STRUCT_NM(a_Nm) a_Nm
 #else
@@ -457,15 +457,21 @@ typedef struct CPUMCTX
 
     /** Pointer to the FPU/SSE/AVX/XXXX state ring-0 mapping. */
     R0PTRTYPE(PX86XSAVEAREA)    pXStateR0;
+#if HC_ARCH_BITS == 32
+    uint32_t                    uXStateR0Padding;
+#endif
     /** Pointer to the FPU/SSE/AVX/XXXX state ring-3 mapping. */
     R3PTRTYPE(PX86XSAVEAREA)    pXStateR3;
+#if HC_ARCH_BITS == 32
+    uint32_t                    uXStateR3Padding;
+#endif
     /** Pointer to the FPU/SSE/AVX/XXXX state raw-mode mapping. */
     RCPTRTYPE(PX86XSAVEAREA)    pXStateRC;
     /** State component offsets into pXState, UINT16_MAX if not present. */
     uint16_t                    aoffXState[64];
 
-    /** 724 - Size padding. */
-    uint8_t                     abPadding[HC_ARCH_BITS == 64 ? 4 : 12];
+    /** 0x2d4 - World switcher flags, CPUMCTX_WSF_XXX. */
+    uint32_t                    fWorldSwitcher;
 
     /** 728 - Hardware virtualization state.   */
     struct
@@ -498,8 +504,8 @@ typedef struct CPUMCTX
                 uint16_t            cPauseFilterThreshold;
                 /** 950 - Whether the injected event is subject to event intercepts. */
                 bool                fInterceptEvents;
-                /** 951 - Padding. */
-                uint8_t             u8Padding1;
+                /** 951 - Whether parts of the VMCB are cached (and potentially modified) by HM. */
+                bool                fHMCachedVmcb;
                 /** 952 - MSR permission bitmap - R0 ptr. */
                 R0PTRTYPE(void *)   pvMsrBitmapR0;
                 /** 960 / 956 - MSR permission bitmap - R3 ptr. */
@@ -578,9 +584,9 @@ AssertCompileMemberOffset(CPUMCTX,            msrKERNELGSBASE, 536);
 AssertCompileMemberOffset(CPUMCTX,                       aXcr, 552);
 AssertCompileMemberOffset(CPUMCTX,                fXStateMask, 568);
 AssertCompileMemberOffset(CPUMCTX,                  pXStateR0, 576);
-AssertCompileMemberOffset(CPUMCTX,                  pXStateR3, HC_ARCH_BITS == 64 ? 584 : 580);
-AssertCompileMemberOffset(CPUMCTX,                  pXStateRC, HC_ARCH_BITS == 64 ? 592 : 584);
-AssertCompileMemberOffset(CPUMCTX,                 aoffXState, HC_ARCH_BITS == 64 ? 596 : 588);
+AssertCompileMemberOffset(CPUMCTX,                  pXStateR3, 584);
+AssertCompileMemberOffset(CPUMCTX,                  pXStateRC, 592);
+AssertCompileMemberOffset(CPUMCTX,                 aoffXState, 596);
 AssertCompileMemberOffset(CPUMCTX, hwvirt, 728);
 AssertCompileMemberOffset(CPUMCTX, hwvirt.CPUM_UNION_NM(s.) svm.uMsrHSavePa,            728);
 AssertCompileMemberOffset(CPUMCTX, hwvirt.CPUM_UNION_NM(s.) svm.GCPhysVmcb,             736);
@@ -736,6 +742,16 @@ AssertCompileMembersAtSameOffset(CPUMCTX, CPUM_UNION_STRUCT_NM(s,n.) gs,   CPUMC
 
 #endif /* !VBOX_FOR_DTRACE_LIB */
 
+
+/** @name CPUMCTX_WSF_XXX
+ * @{ */
+/** Touch IA32_PRED_CMD.IBPB on VM exit. */
+#define CPUMCTX_WSF_IBPB_EXIT           RT_BIT_32(0)
+/** Touch IA32_PRED_CMD.IBPB on VM entry. */
+#define CPUMCTX_WSF_IBPB_ENTRY          RT_BIT_32(1)
+/** @} */
+
+
 /**
  * Additional guest MSRs (i.e. not part of the CPU context structure).
  *
@@ -761,6 +777,8 @@ typedef union CPUMCTXMSRS
         uint64_t    MtrrFix4K_F0000;    /**< IA32_MTRR_FIX4K_F0000 */
         uint64_t    MtrrFix4K_F8000;    /**< IA32_MTRR_FIX4K_F8000 */
         uint64_t    PkgCStateCfgCtrl;   /**< MSR_PKG_CST_CONFIG_CONTROL */
+        uint64_t    SpecCtrl;           /**< IA32_SPEC_CTRL */
+        uint64_t    ArchCaps;           /**< IA32_ARCH_CAPABILITIES */
     } msr;
     uint64_t    au64[64];
 } CPUMCTXMSRS;

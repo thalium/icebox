@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2011 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -90,13 +90,11 @@ NativeNSImageRef darwinToNSImageRef(const QImage *pImage)
     CGImageRef pCGImage = ::darwinToCGImageRef(pImage);
     NativeNSImageRef pNSImage = ::darwinToNSImageRef(pCGImage);
     CGImageRelease(pCGImage);
-#ifdef VBOX_GUI_WITH_HIDPI
     /* Apply device pixel ratio: */
     double dScaleFactor = pImage->devicePixelRatio();
     NSSize imageSize = { (CGFloat)pImage->width() / dScaleFactor,
                          (CGFloat)pImage->height() / dScaleFactor };
     [pNSImage setSize:imageSize];
-#endif /* VBOX_GUI_WITH_HIDPI */
     /* Return result: */
     return pNSImage;
 }

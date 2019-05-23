@@ -1,8 +1,11 @@
 #!/usr/bin/perl
-#
+# $Id: x11config15sol.pl $
+## @file
 # Guest Additions X11 config update script
 #
-# Copyright (C) 2006-2012 Oracle Corporation
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -59,8 +62,8 @@ foreach $cfg (@cfg_files)
                     $in_section = 1;
                 }
             }
-			else
-		    {
+            else
+            {
                 if ($line =~ /^\s*EndSection/i)
                 {
                     $in_section = 0;

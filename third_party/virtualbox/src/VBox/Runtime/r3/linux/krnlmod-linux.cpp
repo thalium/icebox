@@ -171,21 +171,20 @@ RTDECL(uint32_t) RTKrnlModLoadedGetCount(void)
 {
     uint32_t cKmodsLoaded = 0;
 
-    PRTDIR pDir = NULL;
-    int rc = RTDirOpen(&pDir, "/sys/module");
+    RTDIR hDir = NULL;
+    int rc = RTDirOpen(&hDir, "/sys/module");
     if (RT_SUCCESS(rc))
     {
         RTDIRENTRY DirEnt;
-        rc = RTDirRead(pDir, &DirEnt, NULL);
+        rc = RTDirRead(hDir, &DirEnt, NULL);
         while (RT_SUCCESS(rc))
         {
-            if (   RTStrCmp(DirEnt.szName, ".")
-                && RTStrCmp(DirEnt.szName, ".."))
+            if (!RTDirEntryIsStdDotLink(&DirEnt))
                 cKmodsLoaded++;
-            rc = RTDirRead(pDir, &DirEnt, NULL);
+            rc = RTDirRead(hDir, &DirEnt, NULL);
         }
 
-        RTDirClose(pDir);
+        RTDirClose(hDir);
     }
 
 
@@ -206,18 +205,17 @@ RTDECL(int) RTKrnlModLoadedQueryInfoAll(PRTKRNLMODINFO pahKrnlModInfo, uint32_t 
         return VERR_BUFFER_OVERFLOW;
     }
 
-    PRTDIR pDir = NULL;
-    int rc = RTDirOpen(&pDir, "/sys/module");
+    RTDIR hDir = NULL;
+    int rc = RTDirOpen(&hDir, "/sys/module");
     if (RT_SUCCESS(rc))
     {
         unsigned idxKrnlModInfo = 0;
         RTDIRENTRY DirEnt;
 
-        rc = RTDirRead(pDir, &DirEnt, NULL);
+        rc = RTDirRead(hDir, &DirEnt, NULL);
         while (RT_SUCCESS(rc))
         {
-            if (   RTStrCmp(DirEnt.szName, ".")
-                && RTStrCmp(DirEnt.szName, ".."))
+            if (!RTDirEntryIsStdDotLink(&DirEnt))
             {
                 rc = rtKrnlModLinuxInfoCreate(DirEnt.szName, &pahKrnlModInfo[idxKrnlModInfo]);
                 if (RT_SUCCESS(rc))
@@ -225,7 +223,7 @@ RTDECL(int) RTKrnlModLoadedQueryInfoAll(PRTKRNLMODINFO pahKrnlModInfo, uint32_t 
             }
 
             if (RT_SUCCESS(rc))
-                rc = RTDirRead(pDir, &DirEnt, NULL);
+                rc = RTDirRead(hDir, &DirEnt, NULL);
         }
 
         if (rc == VERR_NO_MORE_FILES)
@@ -240,7 +238,7 @@ RTDECL(int) RTKrnlModLoadedQueryInfoAll(PRTKRNLMODINFO pahKrnlModInfo, uint32_t 
         if (*pcEntries)
             *pcEntries = cKmodsLoaded;
 
-        RTDirClose(pDir);
+        RTDirClose(hDir);
     }
 
     return rc;

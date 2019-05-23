@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -23,4 +23,4 @@ int                VBoxVRDPInit    (const VBOXSERVICEENV *pEnv, void **ppInstanc
 unsigned __stdcall VBoxVRDPThread  (void *pInstance);
 void               VBoxVRDPDestroy (const VBOXSERVICEENV *pEnv, void *pInstance);
 
-#endif /* __VBOXSERVICEVRDP__H */
+#endif /* !__VBOXSERVICEVRDP__H */

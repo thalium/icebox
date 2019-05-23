@@ -5,8 +5,8 @@
  */
 
 #include "cr_spu.h"
-#include "cr_error.h" 
-#include "cr_mem.h" 
+#include "cr_error.h"
+#include "cr_mem.h"
 #include "stub.h"
 #include <iprt/thread.h>
 
@@ -198,7 +198,7 @@ GLboolean stubUpdateWindowGeometry(WindowInfo *pWindow, GLboolean bForceUpdate)
 
     stubGetWindowGeometry(pWindow, &winX, &winY, &winW, &winH);
 
-    /* @todo remove "if (winW && winH)"?*/
+    /** @todo remove "if (winW && winH)"?*/
     if (winW && winH) {
         if (stub.trackWindowSize) {
             if (bForceUpdate || winW != pWindow->width || winH != pWindow->height) {
@@ -256,13 +256,13 @@ GLboolean stubUpdateWindowVisibileRegions(WindowInfo *pWindow)
         crWarning("Window(%i) DC is no longer valid", pWindow->spuWindow);
         return GL_FALSE;
     }
-    
+
     hVisRgn = CreateRectRgn(0,0,0,0);
     iret = GetRandomRgn(pWindow->drawable, hVisRgn, SYSRGN);
 
     if (iret==1)
     {
-        /*@todo check win95/win98 here, as rects should be already in client space there*/
+        /** @todo check win95/win98 here, as rects should be already in client space there*/
         /* Convert screen related rectangles to client related rectangles */
         pt.x = 0;
         pt.y = 0;
@@ -284,7 +284,7 @@ GLboolean stubUpdateWindowVisibileRegions(WindowInfo *pWindow)
         crFree(lpRgnData);
         */
 
-        if (pWindow->hVisibleRegion==INVALID_HANDLE_VALUE 
+        if (pWindow->hVisibleRegion==INVALID_HANDLE_VALUE
             || !EqualRgn(pWindow->hVisibleRegion, hVisRgn))
         {
             DeleteObject(pWindow->hVisibleRegion);
@@ -308,7 +308,7 @@ GLboolean stubUpdateWindowVisibileRegions(WindowInfo *pWindow)
             DeleteObject(hVisRgn);
         }
     }
-    else 
+    else
     {
         crWarning("GetRandomRgn returned (%d) instead of (1), VisibleRegions update failed", iret);
         DeleteObject(hVisRgn);
@@ -394,7 +394,7 @@ LRESULT CALLBACK stubCBWindowMessageHookProc(int nCode, WPARAM wParam, LPARAM lP
                 break;
             }
 
-            /* @todo remove it*/
+            /** @todo remove it*/
             default:
             {
                 /*crDebug("hook: unknown message (%d)", pMsgInfo->message);*/
@@ -432,15 +432,15 @@ void stubCheckXExtensions(WindowInfo *pWindow)
     stub.trackWindowVisibleRgn = 0;
 
     XLOCK(dpy);
-    if (XCompositeQueryExtension(dpy, &evb, &erb) 
-        && XCompositeQueryVersion(dpy, &vma, &vmi) 
+    if (XCompositeQueryExtension(dpy, &evb, &erb)
+        && XCompositeQueryVersion(dpy, &vma, &vmi)
         && (vma>0 || vmi>=4))
     {
         stub.bHaveXComposite = GL_TRUE;
         crDebug("XComposite %i.%i", vma, vmi);
         vma=0;
         vmi=0;
-        if (XFixesQueryExtension(dpy, &evb, &erb) 
+        if (XFixesQueryExtension(dpy, &evb, &erb)
             && XFixesQueryVersion(dpy, &vma, &vmi)
             && vma>=2)
         {
@@ -487,7 +487,7 @@ GLboolean stubUpdateWindowVisibileRegions(WindowInfo *pWindow)
 
     dpy = stubGetWindowDisplay(pWindow);
 
-    /*@todo see comment regarding size/position updates and XSync, same applies to those functions but
+    /** @todo see comment regarding size/position updates and XSync, same applies to those functions but
     * it seems there's no way to get even based updates for this. Or I've failed to find the appropriate extension.
     */
     XLOCK(dpy);
@@ -504,7 +504,7 @@ GLboolean stubUpdateWindowVisibileRegions(WindowInfo *pWindow)
 
     if (!bNoUpdate
         && (!pWindow->pVisibleRegions
-            || pWindow->cVisibleRegions!=cRects 
+            || pWindow->cVisibleRegions!=cRects
             || (pWindow->pVisibleRegions && crMemcmp(pWindow->pVisibleRegions, pXRects, cRects * sizeof(XRectangle)))))
     {
         if (pWindow->pVisibleRegions)
@@ -530,7 +530,7 @@ GLboolean stubUpdateWindowVisibileRegions(WindowInfo *pWindow)
             pGLRects[4*i+1] = pXRects[i].y;
             pGLRects[4*i+2] = pXRects[i].x+pXRects[i].width;
             pGLRects[4*i+3] = pXRects[i].y+pXRects[i].height;
-            //crDebug("Rect[%i]=(%i,%i,%i,%i)", i, pGLRects[4*i+0], pGLRects[4*i+1], pGLRects[4*i+2], pGLRects[4*i+3]);                   
+            //crDebug("Rect[%i]=(%i,%i,%i,%i)", i, pGLRects[4*i+0], pGLRects[4*i+1], pGLRects[4*i+2], pGLRects[4*i+3]);
         }
 
         crDebug("Dispatched WindowVisibleRegion (%i, cRects=%i)", pWindow->spuWindow, cRects);

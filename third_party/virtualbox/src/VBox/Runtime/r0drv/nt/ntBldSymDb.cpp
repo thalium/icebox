@@ -796,6 +796,8 @@ static RTEXITCODE FigurePdbVersionInfo(const char *pszPdb, PRTNTSDBOSVER pVerInf
             { RT_STR_TUPLE("Windows_Win8.9200"),                6, 2, 0, 9200 }, /* RTM */
             { RT_STR_TUPLE("en_windows_8_1"),                   6, 3, 0, 9600 }, /* RTM */
             { RT_STR_TUPLE("en_windows_10_symbols_"),          10, 0, 0,10240 }, /* RTM */
+            { RT_STR_TUPLE("en_windows_10_symbols_"),          10, 0, 0,10240 }, /* RTM */
+            { RT_STR_TUPLE("en_windows_10_17134_"),            10, 0, 0,17134 }, /* 1803 */
         };
 
         const char *pszComp  = u.Split.apszComps[i];
@@ -1002,8 +1004,8 @@ static RTEXITCODE processDirSub(char *pszDir, size_t cchDir, PRTDIRENTRYEX pDirE
         return RTMsgErrorExit(RTEXITCODE_FAILURE, "Path too long: '%s'\n", pszDir);
 
     /* Open directory. */
-    PRTDIR pDir;
-    int rc = RTDirOpen(&pDir, pszDir);
+    RTDIR hDir;
+    int rc = RTDirOpen(&hDir, pszDir);
     if (RT_FAILURE(rc))
         return RTMsgErrorExit(RTEXITCODE_FAILURE, "RTDirOpen failed on '%s': %Rrc\n", pszDir, rc);
 
@@ -1022,13 +1024,12 @@ static RTEXITCODE processDirSub(char *pszDir, size_t cchDir, PRTDIRENTRYEX pDirE
     {
         /* Get the next directory. */
         size_t cbDirEntry = MY_DIRENTRY_BUF_SIZE;
-        rc = RTDirReadEx(pDir, pDirEntry, &cbDirEntry, RTFSOBJATTRADD_UNIX, RTPATH_F_ON_LINK);
+        rc = RTDirReadEx(hDir, pDirEntry, &cbDirEntry, RTFSOBJATTRADD_UNIX, RTPATH_F_ON_LINK);
         if (RT_FAILURE(rc))
             break;
 
         /* Skip the dot and dot-dot links. */
-        if (   (pDirEntry->cbName == 1 && pDirEntry->szName[0] == '.')
-            || (pDirEntry->cbName == 2 && pDirEntry->szName[0] == '.' && pDirEntry->szName[1] == '.'))
+        if (RTDirEntryExIsStdDotLink(pDirEntry))
             continue;
 
         /* Check length. */
@@ -1076,7 +1077,7 @@ static RTEXITCODE processDirSub(char *pszDir, size_t cchDir, PRTDIRENTRYEX pDirE
     if (rc != VERR_NO_MORE_FILES)
         rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "RTDirReadEx failed: %Rrc\npszDir=%.*s", rc, cchDir, pszDir);
 
-    rc = RTDirClose(pDir);
+    rc = RTDirClose(hDir);
     if (RT_FAILURE(rc))
         rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "RTDirClose failed: %Rrc\npszDir=%.*s", rc, cchDir, pszDir);
     return rcExit;
@@ -1153,7 +1154,7 @@ int main(int argc, char **argv)
                 break;
 
             case 'V':
-                RTPrintf("$Revision: 118412 $");
+                RTPrintf("$Revision: 123140 $");
                 break;
 
             case 'h':

@@ -454,6 +454,7 @@ typedef RTFSISOVDSINFO *PRTFSISOVDSINFO;
 *   Global Variables                                                                                                             *
 *********************************************************************************************************************************/
 
+
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
@@ -4126,7 +4127,7 @@ static DECLCALLBACK(int) rtFsIsoVol_QueryInfo(void *pvThis, PRTFSOBJINFO pObjInf
 
 
 /**
- * @interface_method_impl{RTVFSOPS,pfnOpenRoo}
+ * @interface_method_impl{RTVFSOPS,pfnOpenRoot}
  */
 static DECLCALLBACK(int) rtFsIsoVol_OpenRoot(void *pvThis, PRTVFSDIR phVfsDir)
 {

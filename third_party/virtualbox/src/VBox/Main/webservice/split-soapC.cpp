@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
     size_t        cbLimit = 0;
     size_t        cbWritten = 0;
     unsigned long cIfNesting = 0;
+    unsigned long cWarningNesting = 0;
     unsigned long cBraceNesting = 0;
     unsigned long cLinesSinceStaticMap = ~0UL / 2;
     bool          fJustZero = false;
@@ -165,6 +166,10 @@ int main(int argc, char *argv[])
             if (!cBraceNesting && !cIfNesting)
                 fJustZero = true;
         }
+        else if (!strncmp(pszLine, RT_STR_TUPLE("#pragma warning(push)")))
+            cWarningNesting++;
+        else if (!strncmp(pszLine, RT_STR_TUPLE("#pragma warning(pop)")))
+            cWarningNesting--;
         else
         {
             for (const char *p = pszLine; p < pszLine + cbLine; p++)
@@ -189,6 +194,7 @@ int main(int argc, char *argv[])
         /* start a new output file if necessary and possible */
         if (   cbWritten >= cbLimit
             && cIfNesting == 0
+            && cWarningNesting == 0
             && fJustZero
             && cFiles < cChunks
             && cLinesSinceStaticMap > 150 /*hack!*/)

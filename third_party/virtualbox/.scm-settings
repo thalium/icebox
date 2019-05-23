@@ -10,7 +10,7 @@
 #
 
 #
-# Copyright (C) 2010-2015 Oracle Corporation
+# Copyright (C) 2010-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -41,41 +41,12 @@
 # recursion against these patterns.
 #
 --filter-out-dirs  ".svn"
---filter-out-dirs  "*/*out*/."
---filter-out-dirs  "*/tools/."
---filter-out-dirs  "*/webtools/."
---filter-out-dirs  "*/kBuild/."
---filter-out-dirs  "*/_kBuild/."
---filter-out-dirs  "*/kBuild_/."
---filter-out-dirs  "*/debian/."
---filter-out-dirs  "*/SlickEdit/."
---filter-out-dirs  "*/doc/manual/texfiles/."
---filter-out-dirs  "*/src/libs/*/."
---filter-out-dirs  "*/src/apps/kchmviewer*/."
---filter-out-dirs  "*/src/VBox/Additions/x11/x11include/."
---filter-out-dirs  "*/src/VBox/Additions/WINNT/Graphics/Wine/."
---filter-out-dirs  "*/src/VBox/Additions/WINNT/Network/freebsd/."
---filter-out-dirs  "*/src/VBox/Additions/WINNT/i8042prt/include/."
---filter-out-dirs  "*/src/VBox/Additions/WINNT/Graphics/Wine*/."
---filter-out-dirs  "*/src/VBox/Additions/common/crOpenGL/."
---filter-out-dirs  "*/src/VBox/Additions/solaris/DRM/include/."
---filter-out-dirs  "*/src/VBox/Additions/solaris/SharedFolders/solaris10/sys/."
---filter-out-dirs  "*/src/VBox/Additions/linux/lightdm-greeter/*/."
---filter-out-dirs  "*/src/VBox/HostServices/SharedOpenGL/."
---filter-out-dirs  "*/src/VBox/HostDrivers/VBoxNetFlt/solaris/include/."
---filter-out-dirs  "*/src/VBox/HostDrivers/VBoxUSB/solaris/include/."
---filter-out-dirs  "*/src/VBox/GuestHost/OpenGL/*/."
---filter-out-dirs  "*/src/VBox/Devices/Graphics/shaderlib*/."
---filter-out-dirs  "*/src/VBox/Devices/Graphics/vmsvga/."
---filter-out-dirs  "*/src/VBox/Devices/Graphics/vmsvga_glext/."
---filter-out-dirs  "*/src/VBox/Devices/PC/ipxe/*/."
---filter-out-dirs  "*/src/VBox/Devices/EFI/Firmware*/."
---filter-out-dirs  "*/src/VBox/Devices/Network/lwip*/src*/."
---filter-out-dirs  "*/src/VBox/Devices/Network/lwip*/doc*/."
---filter-out-dirs  "*/src/VBox/Devices/Network/lwip*/test*/."
---filter-out-dirs  "*/src/VBox/Storage/VDFormats/StorageCraft/*/."
---filter-out-dirs  "*/src/VBox/RDP/client-*/."
---filter-out-dirs  "*/src/recompiler/tests/."
+--filter-out-dirs  "/*out*/."
+--filter-out-dirs  "/webtools/."
+--filter-out-dirs  "/*kBuild*/."
+--filter-out-dirs  "/debian/."
+--filter-out-dirs  "/SlickEdit/."
+--filter-out-dirs  "/src/libs/*/."
 
 
 #
@@ -84,59 +55,13 @@
 # Same format as for the directories, except that we'll also apply them to
 # files specified directly on the command line.
 #
---filter-out-files "*/include/VBox/HostServices/glext.h"
---filter-out-files "*/include/VBox/HostServices/glxext.h"
---filter-out-files "*/include/VBox/HostServices/wglext.h"
---filter-out-files "*/src/VBox/Devices/Audio/sys-queue.h"
---filter-out-files "*/src/VBox/Devices/Audio_old/sys-queue.h"
---filter-out-files "*/src/VBox/HostDrivers/VBoxUSB/os2/usbcalls.h"
---filter-out-files "*/src/VBox/RDP/x11server/Init*.c"
---filter-out-files "*/vslick.h"
-
-
-#
-# Files and sub-trees where we don't convert tabs.
-#
-*/src/VBox/Additions/solaris/SharedFolders/*: --no-convert-tabs
-*/src/VBox/Additions/x11/vboxmouse/*mouse*: --no-convert-tabs
-*/src/VBox/Additions/x11/vboxmouse/*pnp.c: --no-convert-tabs
-*/src/VBox/Additions/x11/vboxvideo/vboxvideo*.c: --no-convert-tabs
-*/src/VBox/Additions/x11/vboxvideo/vboxvideo*.h: --no-convert-tabs
-*/src/VBox/Devices/Network/slirp/*: --no-convert-tabs
-*/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxVgaDxe/Edid.c: --no-convert-tabs
-*/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxFsDxe/*.*: --no-convert-tabs
-*/src/apps/tunctl/tunctl.c: --no-convert-tabs
-*/src/VBox/Main/src-all/DisplayResampleImage.cpp: --no-convert-tabs
-vboxvideo_drm.c: --no-convert-tabs
-*linux.mod.c: --no-convert-tabs
-*/src/VBox/Main/DisplayResampleImage.cpp: --no-convert-tabs
-*/src/recompiler/*: --no-convert-tabs
-*/src/recompiler/VBox*: --convert-tabs
-
-
-#
-# Files and sub-trees where we don't set forcibly set svn:keywords.
-#
-*/src/VBox/Additions/x11/vboxmouse/*mouse*: --dont-set-svn-keywords
-*/src/VBox/Additions/x11/vboxmouse/*pnp.c: --dont-set-svn-keywords
-*/src/VBox/Additions/x11/vboxvideo/vboxvideo*.c: --dont-set-svn-keywords
-*/src/VBox/Additions/x11/vboxvideo/vboxvideo*.h: --dont-set-svn-keywords
-*/src/VBox/Devices/Network/slirp/*: --dont-set-svn-keywords
-*/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxVgaDxe/Edid.c: --dont-set-svn-keywords
-*/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxFsDxe/*.*: --dont-set-svn-keywords
-*/src/VBox/Devices/PC/BIOS/rombios.c: --dont-set-svn-keywords
-*/src/recompiler/*: --dont-set-svn-keywords
-*/src/recompiler/VBox*: --set-svn-keywords
-
-
-#
-# Temporary exclusions, awaiting cleanup.
-#
---filter-out-dirs  "*/src/VBox/Additions/os2/VBoxGradd/."
---filter-out-dirs  "*/src/VBox/Additions/os2/VBoxGrext/."
---filter-out-dirs  "*/src/VBox/Additions/os2/VBoxMouse/."
---filter-out-dirs  "*/src/VBox/Devices/PC/PXE/."
-*/src/VBox/Additions/solaris/Installer/postinstall.sh: --no-convert-tabs
-*/src/VBox/HostDrivers/Support/solaris/mod.sh: --no-convert-tabs
-*/src/VBox/Installer/solaris/vboxconfig.sh: --no-convert-tabs
+--filter-out-files "/vslick.h"
+--filter-out-files "*/PkgInfo"
+--filter-out-files "*/*-PkgInfo"
+--filter-out-files "*.plist"
+--filter-out-files "*/Doxyfile*"
+--filter-out-files "*/COPYING"
+--filter-out-files "*/COPYING.LIB"
+--filter-out-files "*/COPYING.CDDL"
+--filter-out-files "*.desktop"
 

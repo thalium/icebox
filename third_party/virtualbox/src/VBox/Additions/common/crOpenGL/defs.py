@@ -428,7 +428,7 @@ for func_name in keys:
     except KeyError:
         pass
 
-for func_name in ( "wglChoosePixelFormat", 
+for func_name in ( "wglChoosePixelFormat",
            "wglCopyContext",
            "wglCreateContext",
            "wglCreateLayerContext",
@@ -451,7 +451,7 @@ for func_name in ( "wglChoosePixelFormat",
            "wglUseFontBitmapsA",
            "wglUseFontBitmapsW",
            "wglUseFontOutlinesA",
-           "wglUseFontOutlinesW", 
+           "wglUseFontOutlinesW",
            "wglChoosePixelFormatEXT",
            "wglGetPixelFormatAttribivEXT",
            "wglGetPixelFormatAttribfvEXT",

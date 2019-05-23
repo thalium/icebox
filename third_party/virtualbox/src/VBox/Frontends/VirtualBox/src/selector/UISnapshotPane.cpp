@@ -1133,7 +1133,7 @@ void UISnapshotPane::sltHandleItemChange(QTreeWidgetItem *pItem)
                 CSession comSession = vboxGlobal().openExistingSession(comSnapshot.GetMachine().GetId());
                 if (!comSession.isNull())
                 {
-                    // TODO: Add settings save validation.
+                    /// @todo Add settings save validation.
 
                     /* Save snapshot name: */
                     comSnapshot.SetName(pSnapshotItem->text(Column_Name));
@@ -1241,7 +1241,7 @@ void UISnapshotPane::prepareWidgets()
 #ifdef VBOX_WS_MAC
         layout()->setSpacing(10);
 #else
-        layout()->setSpacing(4);
+        layout()->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 2);
 #endif
 
         /* Prepare toolbar: */

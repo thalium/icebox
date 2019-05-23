@@ -312,7 +312,7 @@ static RTEXITCODE rtZipTarCmdOpenOutputArchive(PRTZIPTARCMDOPS pOpts, PRTVFSFSST
                                       true /*fLeaveOpen*/,
                                       &hVfsIos);
         if (RT_FAILURE(rc))
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to prepare standard output for writing: %Rrc", rc);
+            return RTMsgErrorExitFailure("Failed to prepare standard output for writing: %Rrc", rc);
     }
 
     /*
@@ -401,13 +401,13 @@ static RTEXITCODE rtZipTarCmdOpenOutputArchive(PRTZIPTARCMDOPS pOpts, PRTVFSFSST
             }
         }
         else
-            rc = RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to open tar filesystem stream: %Rrc", rc);
+            rc = RTMsgErrorExitFailure("Failed to open tar filesystem stream: %Rrc", rc);
     }
     else
         rc = VERR_NOT_SUPPORTED;
     RTVfsIoStrmRelease(hVfsIos);
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to open tar filesystem stream: %Rrc", rc);
+        return RTMsgErrorExitFailure("Failed to open tar filesystem stream: %Rrc", rc);
 
     return RTEXITCODE_SUCCESS;
 }
@@ -591,7 +591,7 @@ static RTEXITCODE rtZipTarCmdOpenInputArchive(PRTZIPTARCMDOPS pOpts, PRTVFSFSSTR
                                       true /*fLeaveOpen*/,
                                       &hVfsIos);
         if (RT_FAILURE(rc))
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to prepare standard in for reading: %Rrc", rc);
+            return RTMsgErrorExitFailure("Failed to prepare standard in for reading: %Rrc", rc);
     }
 
     /*
@@ -652,7 +652,7 @@ static RTEXITCODE rtZipTarCmdOpenInputArchive(PRTZIPTARCMDOPS pOpts, PRTVFSFSSTR
         rc = RTZipTarFsStreamFromIoStream(hVfsIos, 0/*fFlags*/, phVfsFss);
     RTVfsIoStrmRelease(hVfsIos);
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to open tar filesystem stream: %Rrc", rc);
+        return RTMsgErrorExitFailure("Failed to open tar filesystem stream: %Rrc", rc);
 
     return RTEXITCODE_SUCCESS;
 }
@@ -676,7 +676,7 @@ static RTEXITCODE rtZipTarDoWithMembers(PRTZIPTARCMDOPS pOpts, PFNDOWITHMEMBER p
     {
         pbmFound = (uint32_t *)RTMemAllocZ(((pOpts->cFiles + 31) / 32) * sizeof(uint32_t));
         if (!pbmFound)
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to allocate the found-file-bitmap");
+            return RTMsgErrorExitFailure("Failed to allocate the found-file-bitmap");
     }
 
 
@@ -701,7 +701,7 @@ static RTEXITCODE rtZipTarDoWithMembers(PRTZIPTARCMDOPS pOpts, PFNDOWITHMEMBER p
             if (RT_FAILURE(rc))
             {
                 if (rc != VERR_EOF)
-                    rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "RTVfsFsStrmNext returned %Rrc", rc);
+                    rcExit = RTMsgErrorExitFailure("RTVfsFsStrmNext returned %Rrc", rc);
                 break;
             }
 
@@ -773,6 +773,7 @@ static bool rtZipTarHasEscapeSequence(const char *pszName)
     return false;
 }
 
+
 #if !defined(RT_OS_WINDOWS) && !defined(RT_OS_OS2)
 
 /**
@@ -797,7 +798,7 @@ static RTEXITCODE rtZipTarQueryExtractOwner(PRTZIPTARCMDOPS pOpts, PCRTFSOBJINFO
         else
         {
             *pUid = NIL_RTUID;
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: User resolving is not implemented.", pszName);
+            return RTMsgErrorExitFailure("%s: User resolving is not implemented.", pszName);
         }
     }
     else
@@ -828,7 +829,7 @@ static RTEXITCODE rtZipTarQueryExtractGroup(PRTZIPTARCMDOPS pOpts, PCRTFSOBJINFO
         else
         {
             *pGid = NIL_RTGID;
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Group resolving is not implemented.", pszName);
+            return RTMsgErrorExitFailure("%s: Group resolving is not implemented.", pszName);
         }
     }
     else
@@ -837,6 +838,141 @@ static RTEXITCODE rtZipTarQueryExtractGroup(PRTZIPTARCMDOPS pOpts, PCRTFSOBJINFO
 }
 
 #endif /* !defined(RT_OS_WINDOWS) && !defined(RT_OS_OS2) */
+
+
+/**
+ * Corrects the file mode and other attributes.
+ *
+ * Common worker for rtZipTarCmdExtractFile and rtZipTarCmdExtractHardlink.
+ *
+ * @returns rcExit or RTEXITCODE_FAILURE.
+ * @param   pOpts               The tar options.
+ * @param   rcExit              The current exit code.
+ * @param   hFile               The handle to the destination file.
+ * @param   pszDst              The destination path (for error reporting).
+ * @param   pUnixInfo           The unix fs object info.
+ * @param   pOwner              The owner info.
+ * @param   pGroup              The group info.
+ */
+static RTEXITCODE rtZipTarCmdExtractSetAttribs(PRTZIPTARCMDOPS pOpts, RTEXITCODE rcExit, RTFILE hFile, const char *pszDst,
+                                               PCRTFSOBJINFO pUnixInfo, PCRTFSOBJINFO pOwner, PCRTFSOBJINFO pGroup)
+{
+    int rc;
+
+    if (!pOpts->fNoModTime)
+    {
+        rc = RTFileSetTimes(hFile, NULL, &pUnixInfo->ModificationTime, NULL, NULL);
+        if (RT_FAILURE(rc))
+            rcExit = RTMsgErrorExitFailure("%s: Error setting times: %Rrc", pszDst, rc);
+    }
+
+#if !defined(RT_OS_WINDOWS) && !defined(RT_OS_OS2)
+    if (   pOpts->uidOwner != NIL_RTUID
+        || pOpts->gidGroup != NIL_RTGID
+        || pOpts->fPreserveOwner
+        || pOpts->fPreserveGroup)
+    {
+        RTUID uidFile;
+        rcExit = rtZipTarQueryExtractOwner(pOpts, pOwner, pszDst, rcExit, &uidFile);
+
+        RTGID gidFile;
+        rcExit = rtZipTarQueryExtractGroup(pOpts, pGroup, pszDst, rcExit, &gidFile);
+        if (uidFile != NIL_RTUID || gidFile != NIL_RTGID)
+        {
+            rc = RTFileSetOwner(hFile, uidFile, gidFile);
+            if (RT_FAILURE(rc))
+                rcExit = RTMsgErrorExitFailure("%s: Error owner/group: %Rrc", pszDst, rc);
+        }
+    }
+#else
+    RT_NOREF_PV(pOwner); RT_NOREF_PV(pGroup);
+#endif
+
+    RTFMODE fMode = (pUnixInfo->Attr.fMode & pOpts->fFileModeAndMask) | pOpts->fFileModeOrMask;
+    rc = RTFileSetMode(hFile, fMode | RTFS_TYPE_FILE);
+    if (RT_FAILURE(rc))
+        rcExit = RTMsgErrorExitFailure("%s: Error changing mode: %Rrc", pszDst, rc);
+
+    return rcExit;
+}
+
+
+/**
+ * Extracts a hard linked file.
+ *
+ * @returns rcExit or RTEXITCODE_FAILURE.
+ * @param   pOpts               The tar options.
+ * @param   rcExit              The current exit code.
+ * @param   pszDst              The destination path.
+ * @param   pszTarget           The target relative path.
+ * @param   pUnixInfo           The unix fs object info.
+ * @param   pOwner              The owner info.
+ * @param   pGroup              The group info.
+ */
+static RTEXITCODE rtZipTarCmdExtractHardlink(PRTZIPTARCMDOPS pOpts, RTEXITCODE rcExit, const char *pszDst,
+                                             const char *pszTarget, PCRTFSOBJINFO pUnixInfo, PCRTFSOBJINFO pOwner,
+                                             PCRTFSOBJINFO pGroup)
+{
+    /*
+     * Construct full target path and check that it exists.
+     */
+    char szFullTarget[RTPATH_MAX];
+    int rc = RTPathJoin(szFullTarget, sizeof(szFullTarget), pOpts->pszDirectory ? pOpts->pszDirectory : ".", pszTarget);
+    if (RT_FAILURE(rc))
+        return RTMsgErrorExitFailure("%s: Failed to construct full hardlink target path for %s: %Rrc",
+                                     pszDst, pszTarget, rc);
+
+    if (!RTFileExists(szFullTarget))
+        return RTMsgErrorExitFailure("%s: Hardlink target not found (or not a file): %s", pszDst, szFullTarget);
+
+    /*
+     * Try hardlink the file, falling back on copying.
+     */
+    /** @todo actual hardlinking */
+    if (true)
+    {
+        RTMsgWarning("%s: Hardlinking not available, copying '%s' instead.", pszDst, szFullTarget);
+
+        RTFILE hSrcFile;
+        rc = RTFileOpen(&hSrcFile, szFullTarget, RTFILE_O_READ | RTFILE_O_DENY_WRITE | RTFILE_O_OPEN);
+        if (RT_SUCCESS(rc))
+        {
+            uint32_t fOpen = RTFILE_O_READWRITE | RTFILE_O_DENY_WRITE | RTFILE_O_CREATE_REPLACE | RTFILE_O_ACCESS_ATTR_DEFAULT
+                           | ((RTFS_UNIX_IWUSR | RTFS_UNIX_IRUSR) << RTFILE_O_CREATE_MODE_SHIFT);
+            RTFILE hDstFile;
+            rc = RTFileOpen(&hDstFile, pszDst, fOpen);
+            if (RT_SUCCESS(rc))
+            {
+                rc = RTFileCopyByHandles(hSrcFile, hDstFile);
+                if (RT_SUCCESS(rc))
+                {
+                    rcExit = rtZipTarCmdExtractSetAttribs(pOpts, rcExit, hDstFile, pszDst, pUnixInfo, pOwner, pGroup);
+                    rc = RTFileClose(hDstFile);
+                    if (RT_FAILURE(rc))
+                    {
+                        rcExit = RTMsgErrorExitFailure("%s: Error closing hardlinked file copy: %Rrc", pszDst, rc);
+                        RTFileDelete(pszDst);
+                    }
+                }
+                else
+                {
+                    rcExit = RTMsgErrorExitFailure("%s: Failed copying hardlinked file '%s': %Rrc", pszDst, szFullTarget, rc);
+                    rc = RTFileClose(hDstFile);
+                    RTFileDelete(pszDst);
+                }
+            }
+            else
+                rcExit = RTMsgErrorExitFailure("%s: Error creating file: %Rrc", pszDst, rc);
+            RTFileClose(hSrcFile);
+        }
+        else
+            rcExit = RTMsgErrorExitFailure("%s: Error opening file '%s' for reading (hardlink target): %Rrc",
+                                           pszDst, szFullTarget, rc);
+    }
+
+    return rcExit;
+}
+
 
 
 /**
@@ -849,6 +985,7 @@ static RTEXITCODE rtZipTarQueryExtractGroup(PRTZIPTARCMDOPS pOpts, PCRTFSOBJINFO
  * @param   pOpts               The tar options.
  * @param   hVfsObj             The tar object to display
  * @param   rcExit              The current exit code.
+ * @param   pszDst              The destination path.
  * @param   pUnixInfo           The unix fs object info.
  * @param   pOwner              The owner info.
  * @param   pGroup              The group info.
@@ -864,7 +1001,7 @@ static RTEXITCODE rtZipTarCmdExtractFile(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVfsObj
     RTFILE hFile;
     int rc = RTFileOpen(&hFile, pszDst, fOpen);
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error creating file: %Rrc", pszDst, rc);
+        return RTMsgErrorExitFailure("%s: Error creating file: %Rrc", pszDst, rc);
 
     RTVFSIOSTREAM hVfsIosDst;
     rc = RTVfsIoStrmFromRTFile(hFile, fOpen, true /*fLeaveOpen*/, &hVfsIosDst);
@@ -888,55 +1025,18 @@ static RTEXITCODE rtZipTarCmdExtractFile(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVfsObj
         }
 
         /*
-         * Pump the data thru.
+         * Pump the data thru and correct the file attributes.
          */
         rc = RTVfsUtilPumpIoStreams(hVfsIosSrc, hVfsIosDst, (uint32_t)RT_MIN(pUnixInfo->cbObject, _1M));
         if (RT_SUCCESS(rc))
-        {
-            /*
-             * Correct the file mode and other attributes.
-             */
-            if (!pOpts->fNoModTime)
-            {
-                rc = RTFileSetTimes(hFile, NULL, &pUnixInfo->ModificationTime, NULL, NULL);
-                if (RT_FAILURE(rc))
-                    rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error setting times: %Rrc", pszDst, rc);
-            }
-
-#if !defined(RT_OS_WINDOWS) && !defined(RT_OS_OS2)
-            if (   pOpts->uidOwner != NIL_RTUID
-                || pOpts->gidGroup != NIL_RTGID
-                || pOpts->fPreserveOwner
-                || pOpts->fPreserveGroup)
-            {
-                RTUID uidFile;
-                rcExit = rtZipTarQueryExtractOwner(pOpts, pOwner, pszDst, rcExit, &uidFile);
-
-                RTGID gidFile;
-                rcExit = rtZipTarQueryExtractGroup(pOpts, pGroup, pszDst, rcExit, &gidFile);
-                if (uidFile != NIL_RTUID || gidFile != NIL_RTGID)
-                {
-                    rc = RTFileSetOwner(hFile, uidFile, gidFile);
-                    if (RT_FAILURE(rc))
-                        rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error owner/group: %Rrc", pszDst, rc);
-                }
-            }
-#else
-            RT_NOREF_PV(pOwner); RT_NOREF_PV(pGroup);
-#endif
-
-            RTFMODE fMode = (pUnixInfo->Attr.fMode & pOpts->fFileModeAndMask) | pOpts->fFileModeOrMask;
-            rc = RTFileSetMode(hFile, fMode | RTFS_TYPE_FILE);
-            if (RT_FAILURE(rc))
-                rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error changing mode: %Rrc", pszDst, rc);
-        }
+            rcExit = rtZipTarCmdExtractSetAttribs(pOpts, rcExit, hFile, pszDst, pUnixInfo, pOwner, pGroup);
         else
-            rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error writing out file: %Rrc", pszDst, rc);
+            rcExit = RTMsgErrorExitFailure("%s: Error writing out file: %Rrc", pszDst, rc);
         RTVfsIoStrmRelease(hVfsIosSrc);
         RTVfsIoStrmRelease(hVfsIosDst);
     }
     else
-        rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error creating I/O stream for file: %Rrc", pszDst, rc);
+        rcExit = RTMsgErrorExitFailure("%s: Error creating I/O stream for file: %Rrc", pszDst, rc);
     RTFileClose(hFile);
     return rcExit;
 }
@@ -956,7 +1056,7 @@ static RTEXITCODE rtZipTarCmdExtractCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVf
     RTFSOBJINFO UnixInfo;
     int rc = RTVfsObjQueryInfo(hVfsObj, &UnixInfo, RTFSOBJATTRADD_UNIX);
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "RTVfsObjQueryInfo returned %Rrc on '%s'", rc, pszName);
+        return RTMsgErrorExitFailure("RTVfsObjQueryInfo returned %Rrc on '%s'", rc, pszName);
 
     RTFSOBJINFO Owner;
     rc = RTVfsObjQueryInfo(hVfsObj, &Owner, RTFSOBJATTRADD_UNIX_OWNER);
@@ -972,6 +1072,7 @@ static RTEXITCODE rtZipTarCmdExtractCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVf
                               "RTVfsObjQueryInfo(,,UNIX_OWNER) returned %Rrc on '%s'",
                               rc, pszName);
 
+    bool fIsHardLink = false;
     char szTarget[RTPATH_MAX];
     szTarget[0] = '\0';
     RTVFSSYMLINK hVfsSymlink = RTVfsObjToSymlink(hVfsObj);
@@ -980,17 +1081,25 @@ static RTEXITCODE rtZipTarCmdExtractCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVf
         rc = RTVfsSymlinkRead(hVfsSymlink, szTarget, sizeof(szTarget));
         RTVfsSymlinkRelease(hVfsSymlink);
         if (RT_FAILURE(rc))
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: RTVfsSymlinkRead failed: %Rrc", pszName, rc);
-        if (!RTFS_IS_SYMLINK(UnixInfo.Attr.fMode))
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Hardlinks are not supported.", pszName);
+            return RTMsgErrorExitFailure("%s: RTVfsSymlinkRead failed: %Rrc", pszName, rc);
         if (!szTarget[0])
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Link target is empty.", pszName);
+            return RTMsgErrorExitFailure("%s: Link target is empty.", pszName);
+        if (!RTFS_IS_SYMLINK(UnixInfo.Attr.fMode))
+        {
+            fIsHardLink = true;
+            if (!RTFS_IS_FILE(UnixInfo.Attr.fMode))
+                return RTMsgErrorExitFailure("%s: Hardlinks are only supported for regular files (target=%s).",
+                                             pszName, szTarget);
+            if (rtZipTarHasEscapeSequence(pszName))
+                return RTMsgErrorExitFailure("%s: Hardlink target '%s' contains an escape sequence.",
+                                             pszName, szTarget);
+        }
     }
     else if (RTFS_IS_SYMLINK(UnixInfo.Attr.fMode))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to get symlink object for '%s'", pszName);
+        return RTMsgErrorExitFailure("Failed to get symlink object for '%s'", pszName);
 
     if (rtZipTarHasEscapeSequence(pszName))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "Name '%s' contains an escape sequence.", pszName);
+        return RTMsgErrorExitFailure("Name '%s' contains an escape sequence.", pszName);
 
     /*
      * Construct the path to the extracted member.
@@ -998,41 +1107,44 @@ static RTEXITCODE rtZipTarCmdExtractCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVf
     char szDst[RTPATH_MAX];
     rc = RTPathJoin(szDst, sizeof(szDst), pOpts->pszDirectory ? pOpts->pszDirectory : ".", pszName);
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Failed to construct destination path for: %Rrc", pszName, rc);
+        return RTMsgErrorExitFailure("%s: Failed to construct destination path for: %Rrc", pszName, rc);
 
     /*
      * Extract according to the type.
      */
-    switch (UnixInfo.Attr.fMode & RTFS_TYPE_MASK)
-    {
-        case RTFS_TYPE_FILE:
-            return rtZipTarCmdExtractFile(pOpts, hVfsObj, rcExit, szDst, &UnixInfo, &Owner, &Group);
+    if (!fIsHardLink)
+        switch (UnixInfo.Attr.fMode & RTFS_TYPE_MASK)
+        {
+            case RTFS_TYPE_FILE:
+                return rtZipTarCmdExtractFile(pOpts, hVfsObj, rcExit, szDst, &UnixInfo, &Owner, &Group);
 
-        case RTFS_TYPE_DIRECTORY:
-            rc = RTDirCreateFullPath(szDst, UnixInfo.Attr.fMode & RTFS_UNIX_ALL_ACCESS_PERMS);
-            if (RT_FAILURE(rc))
-                return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error creating directory: %Rrc", szDst, rc);
-            break;
+            case RTFS_TYPE_DIRECTORY:
+                rc = RTDirCreateFullPath(szDst, UnixInfo.Attr.fMode & RTFS_UNIX_ALL_ACCESS_PERMS);
+                if (RT_FAILURE(rc))
+                    return RTMsgErrorExitFailure("%s: Error creating directory: %Rrc", szDst, rc);
+                break;
 
-        case RTFS_TYPE_SYMLINK:
-            rc = RTSymlinkCreate(szDst, szTarget, RTSYMLINKTYPE_UNKNOWN, 0);
-            if (RT_FAILURE(rc))
-                return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error creating symbolic link: %Rrc", szDst, rc);
-            break;
+            case RTFS_TYPE_SYMLINK:
+                rc = RTSymlinkCreate(szDst, szTarget, RTSYMLINKTYPE_UNKNOWN, 0);
+                if (RT_FAILURE(rc))
+                    return RTMsgErrorExitFailure("%s: Error creating symbolic link: %Rrc", szDst, rc);
+                break;
 
-        case RTFS_TYPE_FIFO:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: FIFOs are not supported.", pszName);
-        case RTFS_TYPE_DEV_CHAR:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: FIFOs are not supported.", pszName);
-        case RTFS_TYPE_DEV_BLOCK:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Block devices are not supported.", pszName);
-        case RTFS_TYPE_SOCKET:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Sockets are not supported.", pszName);
-        case RTFS_TYPE_WHITEOUT:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Whiteouts are not support.", pszName);
-        default:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Unknown file type.", pszName);
-    }
+            case RTFS_TYPE_FIFO:
+                return RTMsgErrorExitFailure("%s: FIFOs are not supported.", pszName);
+            case RTFS_TYPE_DEV_CHAR:
+                return RTMsgErrorExitFailure("%s: FIFOs are not supported.", pszName);
+            case RTFS_TYPE_DEV_BLOCK:
+                return RTMsgErrorExitFailure("%s: Block devices are not supported.", pszName);
+            case RTFS_TYPE_SOCKET:
+                return RTMsgErrorExitFailure("%s: Sockets are not supported.", pszName);
+            case RTFS_TYPE_WHITEOUT:
+                return RTMsgErrorExitFailure("%s: Whiteouts are not support.", pszName);
+            default:
+                return RTMsgErrorExitFailure("%s: Unknown file type.", pszName);
+        }
+    else
+        return rtZipTarCmdExtractHardlink(pOpts, rcExit, szDst, szTarget, &UnixInfo, &Owner, &Group);
 
     /*
      * Set other attributes as requested.
@@ -1043,7 +1155,7 @@ static RTEXITCODE rtZipTarCmdExtractCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVf
     {
         rc = RTPathSetTimesEx(szDst, NULL, &UnixInfo.ModificationTime, NULL, NULL, RTPATH_F_ON_LINK);
         if (RT_FAILURE(rc) && rc != VERR_NOT_SUPPORTED && rc != VERR_NS_SYMLINK_SET_TIME)
-            rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error changing modification time: %Rrc.", pszName, rc);
+            rcExit = RTMsgErrorExitFailure("%s: Error changing modification time: %Rrc.", pszName, rc);
     }
 
 #if !defined(RT_OS_WINDOWS) && !defined(RT_OS_OS2)
@@ -1061,7 +1173,7 @@ static RTEXITCODE rtZipTarCmdExtractCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVf
         {
             rc = RTPathSetOwnerEx(szDst, uidFile, gidFile, RTPATH_F_ON_LINK);
             if (RT_FAILURE(rc))
-                rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error owner/group: %Rrc", szDst, rc);
+                rcExit = RTMsgErrorExitFailure("%s: Error owner/group: %Rrc", szDst, rc);
         }
     }
 #endif
@@ -1076,7 +1188,7 @@ static RTEXITCODE rtZipTarCmdExtractCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVf
             fMode = (UnixInfo.Attr.fMode & (pOpts->fFileModeAndMask | RTFS_TYPE_MASK)) | pOpts->fFileModeOrMask;
         rc = RTPathSetMode(szDst, fMode);
         if (RT_FAILURE(rc))
-            rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "%s: Error changing mode: %Rrc", szDst, rc);
+            rcExit = RTMsgErrorExitFailure("%s: Error changing mode: %Rrc", szDst, rc);
     }
 #endif
 
@@ -1105,7 +1217,7 @@ static RTEXITCODE rtZipTarCmdListCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVfsOb
     int rc = RTVfsObjQueryInfo(hVfsObj, &UnixInfo, RTFSOBJATTRADD_UNIX);
     if (RT_FAILURE(rc))
     {
-        rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "RTVfsObjQueryInfo returned %Rrc on '%s'", rc, pszName);
+        rcExit = RTMsgErrorExitFailure("RTVfsObjQueryInfo returned %Rrc on '%s'", rc, pszName);
         RT_ZERO(UnixInfo);
     }
 
@@ -1137,12 +1249,12 @@ static RTEXITCODE rtZipTarCmdListCallback(PRTZIPTARCMDOPS pOpts, RTVFSOBJ hVfsOb
     {
         rc = RTVfsSymlinkRead(hVfsSymlink, szTarget, sizeof(szTarget));
         if (RT_FAILURE(rc))
-            rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "RTVfsSymlinkRead returned %Rrc on '%s'", rc, pszName);
+            rcExit = RTMsgErrorExitFailure("RTVfsSymlinkRead returned %Rrc on '%s'", rc, pszName);
         RTVfsSymlinkRelease(hVfsSymlink);
         pszLinkType = RTFS_IS_SYMLINK(UnixInfo.Attr.fMode) ? "->" : "link to";
     }
     else if (RTFS_IS_SYMLINK(UnixInfo.Attr.fMode))
-        rcExit = RTMsgErrorExit(RTEXITCODE_FAILURE, "Failed to get symlink object for '%s'", pszName);
+        rcExit = RTMsgErrorExitFailure("Failed to get symlink object for '%s'", pszName);
 
     /*
      * Translate the mode mask.
@@ -1407,7 +1519,7 @@ RTDECL(RTEXITCODE) RTZipTarCmd(unsigned cArgs, char **papszArgs)
     int rc = RTGetOptInit(&GetState, cArgs, papszArgs, s_aOptions, RT_ELEMENTS(s_aOptions), 1,
                           RTGETOPTINIT_FLAGS_OPTS_FIRST);
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "RTGetOpt failed: %Rrc", rc);
+        return RTMsgErrorExitFailure("RTGetOpt failed: %Rrc", rc);
 
     RTZIPTARCMDOPS Opts;
     RT_ZERO(Opts);
@@ -1618,11 +1730,11 @@ RTDECL(RTEXITCODE) RTZipTarCmd(unsigned cArgs, char **papszArgs)
 
     if (   Opts.iOperation == 'x'
         && Opts.pszOwner)
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "The use of --owner with %s has not implemented yet", Opts.pszOperation);
+        return RTMsgErrorExitFailure("The use of --owner with %s has not implemented yet", Opts.pszOperation);
 
     if (   Opts.iOperation == 'x'
         && Opts.pszGroup)
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "The use of --group with %s has not implemented yet", Opts.pszOperation);
+        return RTMsgErrorExitFailure("The use of --group with %s has not implemented yet", Opts.pszOperation);
 
     /*
      * Do the job.
@@ -1643,10 +1755,10 @@ RTDECL(RTEXITCODE) RTZipTarCmd(unsigned cArgs, char **papszArgs)
         case 'r':
         case 'u':
         case RTZIPTARCMD_OPT_DELETE:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "The operation %s is not implemented yet", Opts.pszOperation);
+            return RTMsgErrorExitFailure("The operation %s is not implemented yet", Opts.pszOperation);
 
         default:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "Internal error");
+            return RTMsgErrorExitFailure("Internal error");
     }
 }
 

@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="id_ID">
+<TS version="2.0" language="id_ID">
 <context>
     <name>AudioOutput</name>
     <message>
         <source>&lt;html&gt;The audio playback device &lt;b&gt;%1&lt;/b&gt; does not work.&lt;br/&gt;Falling back to &lt;b&gt;%2&lt;/b&gt;.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;Perangkat pemutar audio &lt;b&gt;%1&lt;/b&gt; tak bekerja.&lt;br/&gt;Beralih ke cadangan &lt;b&gt;%2&lt;/b&gt;.&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;Perangkat pemutar audio &lt;b&gt;%1&lt;/b&gt; tak bekerja.&lt;br/&gt;Beralih ke cadangan &lt;b&gt;%2&lt;/b&gt;.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;Switching to the audio playback device &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;which just became available and has higher preference.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;Bertukar ke perangkat pemutar audio &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;yang baru saja jadi tersedia dan memiliki preferensi lebih tinggi.&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;Bertukar ke perangkat pemutar audio &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;yang baru saja jadi tersedia dan memiliki preferensi lebih tinggi.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Revert back to device &apos;%1&apos;</source>
-        <translation type="vanished">Kembali ke perangkat &apos;%1&apos;</translation>
+        <translation>Kembali ke perangkat &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>CloseButton</name>
     <message>
         <source>Close Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutup Tab</translation>
     </message>
 </context>
 <context>
@@ -58,27 +58,27 @@
     <name>Phonon::</name>
     <message>
         <source>Notifications</source>
-        <translation type="vanished">Pemberitahuan</translation>
+        <translation>Pemberitahuan</translation>
     </message>
     <message>
         <source>Music</source>
-        <translation type="vanished">Musik</translation>
+        <translation>Musik</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="vanished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <source>Communication</source>
-        <translation type="vanished">Komunikasi</translation>
+        <translation>Komunikasi</translation>
     </message>
     <message>
         <source>Games</source>
-        <translation type="vanished">Permainan</translation>
+        <translation>Permainan</translation>
     </message>
     <message>
         <source>Accessibility</source>
-        <translation type="vanished">Aksesibilitas</translation>
+        <translation>Aksesibilitas</translation>
     </message>
 </context>
 <context>
@@ -86,13 +86,13 @@
     <message>
         <source>Warning: You do not seem to have the package gstreamer0.10-plugins-good installed.
           Some video features have been disabled.</source>
-        <translation type="vanished">Peringatan: Sepertinya Anda belum memasang paket gstreamer0.10-plugins-good.
+        <translation>Peringatan: Sepertinya Anda belum memasang paket gstreamer0.10-plugins-good.
           Beberapa fitur video telah dimatikan.</translation>
     </message>
     <message>
         <source>Warning: You do not seem to have the base GStreamer plugins installed.
           All audio and video support has been disabled</source>
-        <translation type="vanished">Peringatan: Sepertinya Anda belum memasang plugin GStreamer dasar.
+        <translation>Peringatan: Sepertinya Anda belum memasang plugin GStreamer dasar.
           Semua dukungan audio dan video telah dimatikan</translation>
     </message>
 </context>
@@ -103,322 +103,322 @@
 
 Check your Gstreamer installation and make sure you 
 have libgstreamer-plugins-base installed.</source>
-        <translation type="vanished">Tak bisa mulai memutar. 
+        <translation>Tak bisa mulai memutar. 
 
 Periksa instalasi Gstreamer Anda dan pastikan bahwa 
 libgstreamer-plugins-base telah terpasang.</translation>
     </message>
     <message numerus="yes">
         <source>A required codec is missing. You need to install the following codec(s) to play this content: %0</source>
-        <translation type="vanished">
+        <translation>
             <numerusform>Sebuah codec yang diperlukan hilang. Anda perlu memasang codec berikut untuk memainkannya: %0</numerusform>
         </translation>
     </message>
     <message>
         <source>Could not open media source.</source>
-        <translation type="vanished">Tak bisa membuka sumber media.</translation>
+        <translation>Tak bisa membuka sumber media.</translation>
     </message>
     <message>
         <source>Invalid source type.</source>
-        <translation type="vanished">Tipe sumber tak valid.</translation>
+        <translation>Tipe sumber tak valid.</translation>
     </message>
     <message>
         <source>Could not locate media source.</source>
-        <translation type="vanished">Tak bisa menemukan sumber media.</translation>
+        <translation>Tak bisa menemukan sumber media.</translation>
     </message>
     <message>
         <source>Could not open audio device. The device is already in use.</source>
-        <translation type="vanished">Tak bisa membuka perangkat audio. Perangkat telah dipakai.</translation>
+        <translation>Tak bisa membuka perangkat audio. Perangkat telah dipakai.</translation>
     </message>
     <message>
         <source>Could not decode media source.</source>
-        <translation type="vanished">Tak bisa men-decode sumber media.</translation>
+        <translation>Tak bisa men-decode sumber media.</translation>
     </message>
 </context>
 <context>
     <name>Phonon::VolumeSlider</name>
     <message>
         <source>Volume: %1%</source>
-        <translation type="vanished">Volume: %1%</translation>
+        <translation>Volume: %1%</translation>
     </message>
     <message>
         <source>Use this slider to adjust the volume. The leftmost position is 0%, the rightmost is %1%</source>
-        <translation type="vanished">Gunakan penggeser ini untuk mengatur keras suara. Posisi paling kiri adalah 0%, paling kanan %1%</translation>
+        <translation>Gunakan penggeser ini untuk mengatur keras suara. Posisi paling kiri adalah 0%, paling kanan %1%</translation>
     </message>
 </context>
 <context>
     <name>Q3Accel</name>
     <message>
         <source>%1, %2 not defined</source>
-        <translation type="vanished">%1, %2 tak didefinisikan</translation>
+        <translation>%1, %2 tak didefinisikan</translation>
     </message>
     <message>
         <source>Ambiguous %1 not handled</source>
-        <translation type="vanished">%1 ambigu tak ditangani</translation>
+        <translation>%1 ambigu tak ditangani</translation>
     </message>
 </context>
 <context>
     <name>Q3DataTable</name>
     <message>
         <source>True</source>
-        <translation type="vanished">Benar</translation>
+        <translation>Benar</translation>
     </message>
     <message>
         <source>False</source>
-        <translation type="vanished">Salah</translation>
+        <translation>Salah</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation type="vanished">Sisipkan</translation>
+        <translation>Sisipkan</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="vanished">Perbarui</translation>
+        <translation>Perbarui</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="vanished">Hapus</translation>
+        <translation>Hapus</translation>
     </message>
 </context>
 <context>
     <name>Q3FileDialog</name>
     <message>
         <source>Copy or Move a File</source>
-        <translation type="vanished">Salin atau Pindah sebuah File</translation>
+        <translation>Salin atau Pindah sebuah File</translation>
     </message>
     <message>
         <source>Read: %1</source>
-        <translation type="vanished">Baca: %1</translation>
+        <translation>Baca: %1</translation>
     </message>
     <message>
         <source>Write: %1</source>
-        <translation type="vanished">Tulis: %1</translation>
+        <translation>Tulis: %1</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="vanished">Batal</translation>
+        <translation>Batal</translation>
     </message>
     <message>
         <source>All Files (*)</source>
-        <translation type="vanished">Semua File (*)</translation>
+        <translation>Semua File (*)</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="vanished">Nama</translation>
+        <translation>Nama</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="vanished">Ukuran</translation>
+        <translation>Ukuran</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="vanished">Tipe</translation>
+        <translation>Tipe</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation type="vanished">Tanggal</translation>
+        <translation>Tanggal</translation>
     </message>
     <message>
         <source>Attributes</source>
-        <translation type="vanished">Atribut</translation>
+        <translation>Atribut</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Look &amp;in:</source>
-        <translation type="vanished">Lihat d&amp;i:</translation>
+        <translation>Lihat d&amp;i:</translation>
     </message>
     <message>
         <source>File &amp;name:</source>
-        <translation type="vanished">&amp;Nama file:</translation>
+        <translation>&amp;Nama file:</translation>
     </message>
     <message>
         <source>File &amp;type:</source>
-        <translation type="vanished">&amp;Tipe file:</translation>
+        <translation>&amp;Tipe file:</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="vanished">Mundur</translation>
+        <translation>Mundur</translation>
     </message>
     <message>
         <source>One directory up</source>
-        <translation type="vanished">Naik satu direktori</translation>
+        <translation>Naik satu direktori</translation>
     </message>
     <message>
         <source>Create New Folder</source>
-        <translation type="vanished">Buat Folder Baru</translation>
+        <translation>Buat Folder Baru</translation>
     </message>
     <message>
         <source>List View</source>
-        <translation type="vanished">Tilikan Daftar</translation>
+        <translation>Tilikan Daftar</translation>
     </message>
     <message>
         <source>Detail View</source>
-        <translation type="vanished">Tilikan Rinci</translation>
+        <translation>Tilikan Rinci</translation>
     </message>
     <message>
         <source>Preview File Info</source>
-        <translation type="vanished">Pratinjau Info File</translation>
+        <translation>Pratinjau Info File</translation>
     </message>
     <message>
         <source>Preview File Contents</source>
-        <translation type="vanished">Pratinjau Isi File</translation>
+        <translation>Pratinjau Isi File</translation>
     </message>
     <message>
         <source>Read-write</source>
-        <translation type="vanished">Baca-tulis</translation>
+        <translation>Baca-tulis</translation>
     </message>
     <message>
         <source>Read-only</source>
-        <translation type="vanished">Baca-saja</translation>
+        <translation>Baca-saja</translation>
     </message>
     <message>
         <source>Write-only</source>
-        <translation type="vanished">Tulis-saja</translation>
+        <translation>Tulis-saja</translation>
     </message>
     <message>
         <source>Inaccessible</source>
-        <translation type="vanished">Tak dapat diakses</translation>
+        <translation>Tak dapat diakses</translation>
     </message>
     <message>
         <source>Symlink to File</source>
-        <translation type="vanished">Symlink ke File</translation>
+        <translation>Symlink ke File</translation>
     </message>
     <message>
         <source>Symlink to Directory</source>
-        <translation type="vanished">Symlink ke Direktori</translation>
+        <translation>Symlink ke Direktori</translation>
     </message>
     <message>
         <source>Symlink to Special</source>
-        <translation type="vanished">Symlink ke Spesial</translation>
+        <translation>Symlink ke Spesial</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="vanished">File</translation>
+        <translation>File</translation>
     </message>
     <message>
         <source>Dir</source>
-        <translation type="vanished">Dir</translation>
+        <translation>Dir</translation>
     </message>
     <message>
         <source>Special</source>
-        <translation type="vanished">Spesial</translation>
+        <translation>Spesial</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="vanished">Buka</translation>
+        <translation>Buka</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="vanished">Simpan Sebagai</translation>
+        <translation>Simpan Sebagai</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="vanished">&amp;Buka</translation>
+        <translation>&amp;Buka</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="vanished">&amp;Simpan</translation>
+        <translation>&amp;Simpan</translation>
     </message>
     <message>
         <source>&amp;Rename</source>
-        <translation type="vanished">&amp;Ubah Nama</translation>
+        <translation>&amp;Ubah Nama</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="vanished">Hapu&amp;s</translation>
+        <translation>Hapu&amp;s</translation>
     </message>
     <message>
         <source>R&amp;eload</source>
-        <translation type="vanished">Muat &amp;Ulang</translation>
+        <translation>Muat &amp;Ulang</translation>
     </message>
     <message>
         <source>Sort by &amp;Name</source>
-        <translation type="vanished">Urut &amp;Nama</translation>
+        <translation>Urut &amp;Nama</translation>
     </message>
     <message>
         <source>Sort by &amp;Size</source>
-        <translation type="vanished">Urut &amp;Ukuran</translation>
+        <translation>Urut &amp;Ukuran</translation>
     </message>
     <message>
         <source>Sort by &amp;Date</source>
-        <translation type="vanished">Urut &amp;Tanggal</translation>
+        <translation>Urut &amp;Tanggal</translation>
     </message>
     <message>
         <source>&amp;Unsorted</source>
-        <translation type="vanished">T&amp;ak Diurutkan</translation>
+        <translation>T&amp;ak Diurutkan</translation>
     </message>
     <message>
         <source>Sort</source>
-        <translation type="vanished">Urutkan</translation>
+        <translation>Urutkan</translation>
     </message>
     <message>
         <source>Show &amp;hidden files</source>
-        <translation type="vanished">&amp;Tampilkan file tersembunyi</translation>
+        <translation>&amp;Tampilkan file tersembunyi</translation>
     </message>
     <message>
         <source>the file</source>
-        <translation type="vanished">file</translation>
+        <translation>file</translation>
     </message>
     <message>
         <source>the directory</source>
-        <translation type="vanished">direktori</translation>
+        <translation>direktori</translation>
     </message>
     <message>
         <source>the symlink</source>
-        <translation type="vanished">symlink</translation>
+        <translation>symlink</translation>
     </message>
     <message>
         <source>Delete %1</source>
-        <translation type="vanished">Hapus %1</translation>
+        <translation>Hapus %1</translation>
     </message>
     <message>
         <source>&lt;qt&gt;Are you sure you wish to delete %1 &quot;%2&quot;?&lt;/qt&gt;</source>
-        <translation type="vanished">&lt;qt&gt;Anda yakin hendak menghapus %1 &quot;%2&quot;?&lt;/qt&gt;</translation>
+        <translation>&lt;qt&gt;Anda yakin hendak menghapus %1 &quot;%2&quot;?&lt;/qt&gt;</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
-        <translation type="vanished">&amp;Ya</translation>
+        <translation>&amp;Ya</translation>
     </message>
     <message>
         <source>&amp;No</source>
-        <translation type="vanished">&amp;Tidak</translation>
+        <translation>&amp;Tidak</translation>
     </message>
     <message>
         <source>New Folder 1</source>
-        <translation type="vanished">Folder Baru 1</translation>
+        <translation>Folder Baru 1</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation type="vanished">Folder Baru</translation>
+        <translation>Folder Baru</translation>
     </message>
     <message>
         <source>New Folder %1</source>
-        <translation type="vanished">Folder Baru %1</translation>
+        <translation>Folder Baru %1</translation>
     </message>
     <message>
         <source>Find Directory</source>
-        <translation type="vanished">Cari Direktori</translation>
+        <translation>Cari Direktori</translation>
     </message>
     <message>
         <source>Directories</source>
-        <translation type="vanished">Direktori</translation>
+        <translation>Direktori</translation>
     </message>
     <message>
         <source>Directory:</source>
-        <translation type="vanished">Direktori:</translation>
+        <translation>Direktori:</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="vanished">Kesalahan</translation>
+        <translation>Kesalahan</translation>
     </message>
     <message>
         <source>%1
 File not found.
 Check path and filename.</source>
-        <translation type="vanished">%1
+        <translation>%1
 File tak ditemukan.
 Periksa path dan nama file.</translation>
     </message>
@@ -428,19 +428,19 @@ Periksa path dan nama file.</translation>
     <message>
         <source>Could not read directory
 %1</source>
-        <translation type="vanished">Tak bisa membaca direktori
+        <translation>Tak bisa membaca direktori
 %1</translation>
     </message>
     <message>
         <source>Could not create directory
 %1</source>
-        <translation type="vanished">Tak bisa membuat direktori
+        <translation>Tak bisa membuat direktori
 %1</translation>
     </message>
     <message>
         <source>Could not remove file or directory
 %1</source>
-        <translation type="vanished">Tak bisa menghapus file atau direktori
+        <translation>Tak bisa menghapus file atau direktori
 %1</translation>
     </message>
     <message>
@@ -448,7 +448,7 @@ Periksa path dan nama file.</translation>
 %1
 to
 %2</source>
-        <translation type="vanished">Tak bisa mengubah nama
+        <translation>Tak bisa mengubah nama
 %1
 menjadi
 %2</translation>
@@ -456,13 +456,13 @@ menjadi
     <message>
         <source>Could not open
 %1</source>
-        <translation type="vanished">Tak bisa membuka
+        <translation>Tak bisa membuka
 %1</translation>
     </message>
     <message>
         <source>Could not write
 %1</source>
-        <translation type="vanished">Tak bisa menulis
+        <translation>Tak bisa menulis
 %1</translation>
     </message>
 </context>
@@ -470,203 +470,203 @@ menjadi
     <name>Q3MainWindow</name>
     <message>
         <source>Line up</source>
-        <translation type="vanished">Bariskan</translation>
+        <translation>Bariskan</translation>
     </message>
     <message>
         <source>Customize...</source>
-        <translation type="vanished">Gubah...</translation>
+        <translation>Gubah...</translation>
     </message>
 </context>
 <context>
     <name>Q3NetworkProtocol</name>
     <message>
         <source>Operation stopped by the user</source>
-        <translation type="vanished">Operasi dihentikan oleh pengguna</translation>
+        <translation>Operasi dihentikan oleh pengguna</translation>
     </message>
 </context>
 <context>
     <name>Q3ProgressDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="vanished">Batal</translation>
+        <translation>Batal</translation>
     </message>
 </context>
 <context>
     <name>Q3TabDialog</name>
     <message>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="vanished">Terapkan</translation>
+        <translation>Terapkan</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="vanished">Bantuan</translation>
+        <translation>Bantuan</translation>
     </message>
     <message>
         <source>Defaults</source>
-        <translation type="vanished">Bawaan</translation>
+        <translation>Bawaan</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="vanished">Batal</translation>
+        <translation>Batal</translation>
     </message>
 </context>
 <context>
     <name>Q3TextEdit</name>
     <message>
         <source>&amp;Undo</source>
-        <translation type="vanished">&amp;Batalkan</translation>
+        <translation>&amp;Batalkan</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="vanished">&amp;Jadi Lagi</translation>
+        <translation>&amp;Jadi Lagi</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="vanished">Po&amp;tong</translation>
+        <translation>Po&amp;tong</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Salin</translation>
+        <translation>&amp;Salin</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="vanished">Tem&amp;pel</translation>
+        <translation>Tem&amp;pel</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="vanished">Bersihkan</translation>
+        <translation>Bersihkan</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="vanished">Pilih Semua</translation>
+        <translation>Pilih Semua</translation>
     </message>
 </context>
 <context>
     <name>Q3TitleBar</name>
     <message>
         <source>System</source>
-        <translation type="vanished">Sistem</translation>
+        <translation>Sistem</translation>
     </message>
     <message>
         <source>Restore up</source>
-        <translation type="vanished">Kembali naik</translation>
+        <translation>Kembali naik</translation>
     </message>
     <message>
         <source>Minimize</source>
-        <translation type="vanished">Minimalkan</translation>
+        <translation>Minimalkan</translation>
     </message>
     <message>
         <source>Restore down</source>
-        <translation type="vanished">Kembali turun</translation>
+        <translation>Kembali turun</translation>
     </message>
     <message>
         <source>Maximize</source>
-        <translation type="vanished">Maksimalkan</translation>
+        <translation>Maksimalkan</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="vanished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>Contains commands to manipulate the window</source>
-        <translation type="vanished">Memuat perintah untuk memanipulasi window</translation>
+        <translation>Memuat perintah untuk memanipulasi window</translation>
     </message>
     <message>
         <source>Puts a minimized back to normal</source>
-        <translation type="vanished">Mengembalikan yang terminimumkan ke normal</translation>
+        <translation>Mengembalikan yang terminimumkan ke normal</translation>
     </message>
     <message>
         <source>Moves the window out of the way</source>
-        <translation type="vanished">Memindah window agar tak menghalangi</translation>
+        <translation>Memindah window agar tak menghalangi</translation>
     </message>
     <message>
         <source>Puts a maximized window back to normal</source>
-        <translation type="vanished">Mengembalikan yang termaksimumkan ke normal</translation>
+        <translation>Mengembalikan yang termaksimumkan ke normal</translation>
     </message>
     <message>
         <source>Makes the window full screen</source>
-        <translation type="vanished">Membuat window memenuhi layar</translation>
+        <translation>Membuat window memenuhi layar</translation>
     </message>
     <message>
         <source>Closes the window</source>
-        <translation type="vanished">Menutup window</translation>
+        <translation>Menutup window</translation>
     </message>
     <message>
         <source>Holds the name of the window and contains controls to manipulate it</source>
-        <translation type="vanished">Menampilkan nama window dan mewadahi kendali untuk memanipulasikannya</translation>
+        <translation>Menampilkan nama window dan mewadahi kendali untuk memanipulasikannya</translation>
     </message>
 </context>
 <context>
     <name>Q3ToolBar</name>
     <message>
         <source>More...</source>
-        <translation type="vanished">Lebih...</translation>
+        <translation>Lebih...</translation>
     </message>
 </context>
 <context>
     <name>Q3UrlOperator</name>
     <message>
         <source>The protocol `%1&apos; is not supported</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak didukung</translation>
+        <translation>Protokol &apos;%1&apos; tak didukung</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support listing directories</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak mendukung daftar direktori</translation>
+        <translation>Protokol &apos;%1&apos; tak mendukung daftar direktori</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support creating new directories</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak mendukung pembuatan direktori baru</translation>
+        <translation>Protokol &apos;%1&apos; tak mendukung pembuatan direktori baru</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support removing files or directories</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak mendukung penghapusan file atau direktori</translation>
+        <translation>Protokol &apos;%1&apos; tak mendukung penghapusan file atau direktori</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support renaming files or directories</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak mendukung pengubahan nama file atau direktori</translation>
+        <translation>Protokol &apos;%1&apos; tak mendukung pengubahan nama file atau direktori</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support getting files</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak mendukung pengambilan file</translation>
+        <translation>Protokol &apos;%1&apos; tak mendukung pengambilan file</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support putting files</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak mendukung peletakan file</translation>
+        <translation>Protokol &apos;%1&apos; tak mendukung peletakan file</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
-        <translation type="vanished">Protokol &apos;%1&apos; tak mendukung penyalinan atau pemindahan file atau direktori</translation>
+        <translation>Protokol &apos;%1&apos; tak mendukung penyalinan atau pemindahan file atau direktori</translation>
     </message>
     <message>
         <source>(unknown)</source>
-        <translation type="vanished">(tak dikenal)</translation>
+        <translation>(tak dikenal)</translation>
     </message>
 </context>
 <context>
     <name>Q3Wizard</name>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Batal</translation>
+        <translation>&amp;Batal</translation>
     </message>
     <message>
         <source>&lt; &amp;Back</source>
-        <translation type="vanished">&lt; Kem&amp;bali</translation>
+        <translation>&lt; Kem&amp;bali</translation>
     </message>
     <message>
         <source>&amp;Next &gt;</source>
-        <translation type="vanished">La&amp;njut &gt;</translation>
+        <translation>La&amp;njut &gt;</translation>
     </message>
     <message>
         <source>&amp;Finish</source>
-        <translation type="vanished">&amp;Selesai</translation>
+        <translation>&amp;Selesai</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="vanished">&amp;Bantuan</translation>
+        <translation>&amp;Bantuan</translation>
     </message>
 </context>
 <context>
@@ -689,19 +689,19 @@ menjadi
     </message>
     <message>
         <source>Operation on socket is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Operasi pada soket tidak didukung</translation>
     </message>
     <message>
         <source>Connection timed out</source>
-        <translation type="unfinished">Koneksi habis waktu</translation>
+        <translation>Koneksi habis waktu</translation>
     </message>
     <message>
         <source>Trying to connect while connection is in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Mencoba menyambung saat koneksi tengah berlangsung</translation>
     </message>
     <message>
         <source>Network unreachable</source>
-        <translation type="unfinished">Jaringan tak dapat dicapai</translation>
+        <translation>Jaringan tak dapat dicapai</translation>
     </message>
 </context>
 <context>
@@ -723,15 +723,15 @@ menjadi
     <name>QAccessibleActionInterface</name>
     <message>
         <source>Press</source>
-        <translation type="unfinished">Tekan</translation>
+        <translation>Tekan</translation>
     </message>
     <message>
         <source>Increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Naikkan</translation>
     </message>
     <message>
         <source>Decrease</source>
-        <translation type="unfinished"></translation>
+        <translation>Turunkan</translation>
     </message>
     <message>
         <source>ShowMenu</source>
@@ -743,105 +743,105 @@ menjadi
     </message>
     <message>
         <source>Toggle</source>
-        <translation type="unfinished">Jungkitkan</translation>
+        <translation>Jungkitkan</translation>
     </message>
     <message>
         <source>Scroll Left</source>
-        <translation type="unfinished">Gulung Kiri</translation>
+        <translation>Gulung Kiri</translation>
     </message>
     <message>
         <source>Scroll Right</source>
-        <translation type="unfinished">Gulung Kanan</translation>
+        <translation>Gulung Kanan</translation>
     </message>
     <message>
         <source>Scroll Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Gulung Atas</translation>
     </message>
     <message>
         <source>Scroll Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Gulung Bawah</translation>
     </message>
     <message>
         <source>Previous Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Halaman Sebelumnya</translation>
     </message>
     <message>
         <source>Next Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Halaman Berikutnya</translation>
     </message>
     <message>
         <source>Triggers the action</source>
-        <translation type="unfinished"></translation>
+        <translation>Picu aksi</translation>
     </message>
     <message>
         <source>Increase the value</source>
-        <translation type="unfinished"></translation>
+        <translation>Naikkan nilai</translation>
     </message>
     <message>
         <source>Decrease the value</source>
-        <translation type="unfinished"></translation>
+        <translation>Turunkan nilai</translation>
     </message>
     <message>
         <source>Shows the menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan menu</translation>
     </message>
     <message>
         <source>Sets the focus</source>
-        <translation type="unfinished"></translation>
+        <translation>Menata fokus</translation>
     </message>
     <message>
         <source>Toggles the state</source>
-        <translation type="unfinished"></translation>
+        <translation>Menjungkitkan keadaan</translation>
     </message>
     <message>
         <source>Scrolls to the left</source>
-        <translation type="unfinished"></translation>
+        <translation>Menggulung ke kiri</translation>
     </message>
     <message>
         <source>Scrolls to the right</source>
-        <translation type="unfinished"></translation>
+        <translation>Menggulung ke kanan</translation>
     </message>
     <message>
         <source>Scrolls up</source>
-        <translation type="unfinished"></translation>
+        <translation>Menggulung ke atas</translation>
     </message>
     <message>
         <source>Scrolls down</source>
-        <translation type="unfinished"></translation>
+        <translation>Menggulung ke bawah</translation>
     </message>
     <message>
         <source>Goes back a page</source>
-        <translation type="unfinished"></translation>
+        <translation>Mundur satu halaman</translation>
     </message>
     <message>
         <source>Goes to the next page</source>
-        <translation type="unfinished"></translation>
+        <translation>Menuju ke halaman selanjutnya</translation>
     </message>
 </context>
 <context>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ya</translation>
+        <translation>Ya</translation>
     </message>
     <message>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ya untuk Semua</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Tidak</translation>
+        <translation>Tidak</translation>
     </message>
     <message>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak untuk Semua</translation>
     </message>
 </context>
 <context>
     <name>QApplication</name>
     <message>
         <source>Activate</source>
-        <translation type="vanished">Aktifkan</translation>
+        <translation>Aktifkan</translation>
     </message>
     <message>
         <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
@@ -854,88 +854,88 @@ menjadi
     <message>
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
-        <translation type="vanished">LTR</translation>
+        <translation>LTR</translation>
     </message>
     <message>
         <source>Activates the program&apos;s main window</source>
-        <translation type="vanished">Aktifkan window utama program</translation>
+        <translation>Aktifkan window utama program</translation>
     </message>
 </context>
 <context>
     <name>QCheckBox</name>
     <message>
         <source>Uncheck</source>
-        <translation type="vanished">Hapus contreng</translation>
+        <translation>Hapus contreng</translation>
     </message>
     <message>
         <source>Check</source>
-        <translation type="vanished">Contreng</translation>
+        <translation>Contreng</translation>
     </message>
     <message>
         <source>Toggle</source>
-        <translation type="vanished">Jungkitkan</translation>
+        <translation>Jungkitkan</translation>
     </message>
 </context>
 <context>
     <name>QCocoaMenuItem</name>
     <message>
         <source>About Qt</source>
-        <translation type="unfinished">Tentang Qt</translation>
+        <translation>Tentang Qt</translation>
     </message>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Tentang</translation>
     </message>
     <message>
         <source>Config</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfig</translation>
     </message>
     <message>
         <source>Preference</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferensi</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Opsi</translation>
+        <translation>Opsi</translation>
     </message>
     <message>
         <source>Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Setelan</translation>
     </message>
     <message>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Penyiapan</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished">Keluar</translation>
+        <translation>Keluar</translation>
     </message>
     <message>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Keluar</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation type="unfinished">Potong</translation>
+        <translation>Potong</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Salin</translation>
+        <translation>Salin</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished">Tempel</translation>
+        <translation>Tempel</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished">Pilih Semua</translation>
+        <translation>Pilih Semua</translation>
     </message>
 </context>
 <context>
     <name>QCocoaTheme</name>
     <message>
         <source>Don&apos;t Save</source>
-        <translation type="unfinished">Jangan Simpan</translation>
+        <translation>Jangan Simpan</translation>
     </message>
 </context>
 <context>
@@ -982,31 +982,32 @@ menjadi
     </message>
     <message>
         <source>Select color</source>
-        <translation type="vanished">Pilih warna</translation>
+        <translation>Pilih warna</translation>
     </message>
     <message>
         <source>&amp;HTML:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;HTML:</translation>
     </message>
     <message>
         <source>Cursor at %1, %2
 Press ESC to cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Kursor di %1, %2
+Tekan ESC untuk membatalkan</translation>
     </message>
     <message>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih Warna</translation>
     </message>
     <message>
         <source>&amp;Pick Screen Color</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Pilih Warna Layar</translation>
     </message>
 </context>
 <context>
     <name>QComboBox</name>
     <message>
         <source>Open</source>
-        <translation type="vanished">Buka</translation>
+        <translation>Buka</translation>
     </message>
     <message>
         <source>False</source>
@@ -1018,54 +1019,54 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="vanished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>Open the combo box selection popup</source>
-        <translation type="unfinished"></translation>
+        <translation>Buka popup pemilihan kotak kombo</translation>
     </message>
 </context>
 <context>
     <name>QCommandLineParser</name>
     <message>
         <source>Displays version information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan informasi versi.</translation>
     </message>
     <message>
         <source>Displays this help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan bantuan ini.</translation>
     </message>
     <message>
         <source>Unknown option &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi &apos;%1&apos; tidak dikenal.</translation>
     </message>
     <message>
         <source>Unknown options: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi tidak dikenal: %1.</translation>
     </message>
     <message>
         <source>Missing value after &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurang nilai setelah &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Unexpected value after &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nilai yang tidak diharapkan setelah &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>[options]</source>
-        <translation type="unfinished"></translation>
+        <translation>[opsi]</translation>
     </message>
     <message>
         <source>Usage: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Cara pakai: %1</translation>
     </message>
     <message>
         <source>Options:</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Argumen:</translation>
     </message>
 </context>
 <context>
@@ -1073,27 +1074,27 @@ Press ESC to cancel</source>
     <message>
         <source>%1: permission denied</source>
         <comment>QSystemSemaphore</comment>
-        <translation type="vanished">%1: ijin ditolak</translation>
+        <translation>%1: ijin ditolak</translation>
     </message>
     <message>
         <source>%1: already exists</source>
         <comment>QSystemSemaphore</comment>
-        <translation type="vanished">%1: telah ada</translation>
+        <translation>%1: telah ada</translation>
     </message>
     <message>
         <source>%1: doesn&apos;t exists</source>
         <comment>QSystemSemaphore</comment>
-        <translation type="vanished">%1: tidak ada</translation>
+        <translation>%1: tidak ada</translation>
     </message>
     <message>
         <source>%1: out of resources</source>
         <comment>QSystemSemaphore</comment>
-        <translation type="vanished">%1: kehabisan sumber daya</translation>
+        <translation>%1: kehabisan sumber daya</translation>
     </message>
     <message>
         <source>%1: unknown error %2</source>
         <comment>QSystemSemaphore</comment>
-        <translation type="vanished">%1: kesalahan tak dikenal %2</translation>
+        <translation>%1: kesalahan tak dikenal %2</translation>
     </message>
     <message>
         <source>%1: key is empty</source>
@@ -1115,79 +1116,79 @@ Press ESC to cancel</source>
     <name>QCupsJobWidget</name>
     <message>
         <source>Job</source>
-        <translation type="unfinished"></translation>
+        <translation>Tugas</translation>
     </message>
     <message>
         <source>Job Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Kendali Tugas</translation>
     </message>
     <message>
         <source>Scheduled printing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pencetakan terjadwal:</translation>
     </message>
     <message>
         <source>Billing information:</source>
-        <translation type="unfinished"></translation>
+        <translation>Informasi tagihan:</translation>
     </message>
     <message>
         <source>Job priority:</source>
-        <translation type="unfinished"></translation>
+        <translation>Prioritas tugas:</translation>
     </message>
     <message>
         <source>Banner Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Halaman Banner</translation>
     </message>
     <message>
         <source>End:</source>
         <comment>Banner page at end</comment>
-        <translation type="unfinished"></translation>
+        <translation>Akhir:</translation>
     </message>
     <message>
         <source>Start:</source>
         <comment>Banner page at start</comment>
-        <translation type="unfinished"></translation>
+        <translation>Awal:</translation>
     </message>
     <message>
         <source>Print Immediately</source>
-        <translation type="unfinished"></translation>
+        <translation>Cetak Sekarang Juga</translation>
     </message>
     <message>
         <source>Hold Indefinitely</source>
-        <translation type="unfinished"></translation>
+        <translation>Tahan Selamanya</translation>
     </message>
     <message>
         <source>Day (06:00 to 17:59)</source>
-        <translation type="unfinished"></translation>
+        <translation>Siang (06:00 sampai 17:59)</translation>
     </message>
     <message>
         <source>Night (18:00 to 05:59)</source>
-        <translation type="unfinished"></translation>
+        <translation>Malam (18:00 sampai 05:59)</translation>
     </message>
     <message>
         <source>Second Shift (16:00 to 23:59)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift Ke Dua (16:00 sampai 23:59)</translation>
     </message>
     <message>
         <source>Third Shift (00:00 to 07:59)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift Ke Tiga (00:00 sampai 07:59)</translation>
     </message>
     <message>
         <source>Weekend (Saturday to Sunday)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Akhir Pekan (Sabtu sampai Minggu)</translation>
     </message>
     <message>
         <source>Specific Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Waktu Tertentu</translation>
     </message>
     <message>
         <source>None</source>
         <comment>CUPS Banner page</comment>
-        <translation type="unfinished">Nihil</translation>
+        <translation>Nihil</translation>
     </message>
     <message>
         <source>Standard</source>
         <comment>CUPS Banner page</comment>
-        <translation type="unfinished"></translation>
+        <translation>Standar</translation>
     </message>
     <message>
         <source>Unclassified</source>
@@ -1197,7 +1198,7 @@ Press ESC to cancel</source>
     <message>
         <source>Confidential</source>
         <comment>CUPS Banner page</comment>
-        <translation type="unfinished"></translation>
+        <translation>Konfidensial</translation>
     </message>
     <message>
         <source>Classified</source>
@@ -1207,12 +1208,12 @@ Press ESC to cancel</source>
     <message>
         <source>Secret</source>
         <comment>CUPS Banner page</comment>
-        <translation type="unfinished"></translation>
+        <translation>Rahasia</translation>
     </message>
     <message>
         <source>Top Secret</source>
         <comment>CUPS Banner page</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sangat Rahasia</translation>
     </message>
 </context>
 <context>
@@ -1265,60 +1266,60 @@ Press ESC to cancel</source>
     <name>QDBusTrayIcon</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
     <name>QDateTimeEdit</name>
     <message>
         <source>AM</source>
-        <translation type="vanished">AM</translation>
+        <translation>AM</translation>
     </message>
     <message>
         <source>am</source>
-        <translation type="vanished">am</translation>
+        <translation>am</translation>
     </message>
     <message>
         <source>PM</source>
-        <translation type="vanished">PM</translation>
+        <translation>PM</translation>
     </message>
     <message>
         <source>pm</source>
-        <translation type="vanished">pm</translation>
+        <translation>pm</translation>
     </message>
 </context>
 <context>
     <name>QDateTimeParser</name>
     <message>
         <source>AM</source>
-        <translation type="unfinished">AM</translation>
+        <translation>AM</translation>
     </message>
     <message>
         <source>am</source>
-        <translation type="unfinished">am</translation>
+        <translation>am</translation>
     </message>
     <message>
         <source>PM</source>
-        <translation type="unfinished">PM</translation>
+        <translation>PM</translation>
     </message>
     <message>
         <source>pm</source>
-        <translation type="unfinished">pm</translation>
+        <translation>pm</translation>
     </message>
 </context>
 <context>
     <name>QDial</name>
     <message>
         <source>QDial</source>
-        <translation type="vanished">QDial</translation>
+        <translation>QDial</translation>
     </message>
     <message>
         <source>SpeedoMeter</source>
-        <translation type="vanished">SpeedoMeter</translation>
+        <translation>SpeedoMeter</translation>
     </message>
     <message>
         <source>SliderHandle</source>
-        <translation type="vanished">SliderHandle</translation>
+        <translation>SliderHandle</translation>
     </message>
 </context>
 <context>
@@ -1329,7 +1330,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Done</source>
-        <translation type="vanished">Selesai</translation>
+        <translation>Selesai</translation>
     </message>
 </context>
 <context>
@@ -1340,83 +1341,83 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Save</source>
-        <translation type="vanished">Simpan</translation>
+        <translation>Simpan</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="vanished">Buka</translation>
+        <translation>Buka</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="vanished">Batal</translation>
+        <translation>Batal</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="vanished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="vanished">Terapkan</translation>
+        <translation>Terapkan</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="vanished">Reset</translation>
+        <translation>Reset</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="vanished">Bantuan</translation>
+        <translation>Bantuan</translation>
     </message>
     <message>
         <source>Don&apos;t Save</source>
-        <translation type="vanished">Jangan Simpan</translation>
+        <translation>Jangan Simpan</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation type="vanished">Buang</translation>
+        <translation>Buang</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
-        <translation type="vanished">&amp;Ya</translation>
+        <translation>&amp;Ya</translation>
     </message>
     <message>
         <source>Yes to &amp;All</source>
-        <translation type="vanished">Ya untuk Semu&amp;a</translation>
+        <translation>Ya untuk Semu&amp;a</translation>
     </message>
     <message>
         <source>&amp;No</source>
-        <translation type="vanished">&amp;Tidak</translation>
+        <translation>&amp;Tidak</translation>
     </message>
     <message>
         <source>N&amp;o to All</source>
-        <translation type="vanished">T&amp;idak untuk Semua</translation>
+        <translation>T&amp;idak untuk Semua</translation>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="vanished">Simpan Semua</translation>
+        <translation>Simpan Semua</translation>
     </message>
     <message>
         <source>Abort</source>
-        <translation type="vanished">Gugurkan</translation>
+        <translation>Gugurkan</translation>
     </message>
     <message>
         <source>Retry</source>
-        <translation type="vanished">Coba Lagi</translation>
+        <translation>Coba Lagi</translation>
     </message>
     <message>
         <source>Ignore</source>
-        <translation type="vanished">Abaikan</translation>
+        <translation>Abaikan</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
-        <translation type="vanished">Kembalikan Bawaan</translation>
+        <translation>Kembalikan Bawaan</translation>
     </message>
     <message>
         <source>Close without Saving</source>
-        <translation type="vanished">Tutup tanpa Menyimpan</translation>
+        <translation>Tutup tanpa Menyimpan</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
 </context>
 <context>
@@ -1448,106 +1449,106 @@ Press ESC to cancel</source>
     <name>QDnsLookup</name>
     <message>
         <source>Operation cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>Operasi dibatalkan</translation>
     </message>
 </context>
 <context>
     <name>QDnsLookupRunnable</name>
     <message>
         <source>IPv6 addresses for nameservers are currently not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Alamat IPv6 untuk server DNS saat ini tidak didukung</translation>
     </message>
     <message>
         <source>Invalid domain name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nama domain tidak valid</translation>
     </message>
     <message>
         <source>Not yet supported on Android</source>
-        <translation type="unfinished"></translation>
+        <translation>Belum didukung pada Android</translation>
     </message>
     <message>
         <source>Resolver functions not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Fungsi resolver tidak ditemukan</translation>
     </message>
     <message>
         <source>Resolver initialization failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Inisialisasi resolver gagal</translation>
     </message>
     <message>
         <source>Server could not process query</source>
-        <translation type="unfinished"></translation>
+        <translation>Server tidak bisa memroses kueri</translation>
     </message>
     <message>
         <source>Server failure</source>
-        <translation type="unfinished"></translation>
+        <translation>Kegagalan server</translation>
     </message>
     <message>
         <source>Non existent domain</source>
-        <translation type="unfinished"></translation>
+        <translation>Domain tidak ada</translation>
     </message>
     <message>
         <source>Server refused to answer</source>
-        <translation type="unfinished"></translation>
+        <translation>Server menolak menjawab</translation>
     </message>
     <message>
         <source>Invalid reply received</source>
-        <translation type="unfinished"></translation>
+        <translation>Jawaban yang diterima tidak valid</translation>
     </message>
     <message>
         <source>Could not expand domain name</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa mengekspansi nama domain</translation>
     </message>
     <message>
         <source>Invalid IPv4 address record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record alamat IPv4 tidak valid</translation>
     </message>
     <message>
         <source>Invalid IPv6 address record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record alamat IPv6 tidak valid</translation>
     </message>
     <message>
         <source>Invalid canonical name record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record nama kanonik tidak valid</translation>
     </message>
     <message>
         <source>Invalid name server record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record server DNS tidak valid</translation>
     </message>
     <message>
         <source>Invalid pointer record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record pointer tidak valid</translation>
     </message>
     <message>
         <source>Invalid mail exchange record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record mail exchange tidak valid</translation>
     </message>
     <message>
         <source>Invalid service record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record layanan tidak valid</translation>
     </message>
     <message>
         <source>Invalid text record</source>
-        <translation type="unfinished"></translation>
+        <translation>Record teks tidak valid</translation>
     </message>
     <message>
         <source>Resolver library can&apos;t be loaded: No runtime library loading support</source>
-        <translation type="unfinished"></translation>
+        <translation>Pustaka resolver tak bisa dimuat: Tidak ada dukungan pemuatan pustaka saat runtime</translation>
     </message>
     <message>
         <source>No hostname given</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada nama host yang diberikan</translation>
     </message>
     <message>
         <source>Invalid hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>Nama host tidak valid</translation>
     </message>
     <message>
         <source>Host %1 could not be found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Host %1 tidak dapat ditemukan.</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Kesalahan tak dikenal</translation>
+        <translation>Kesalahan tak dikenal</translation>
     </message>
 </context>
 <context>
@@ -1559,7 +1560,7 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Dock</source>
-        <translation type="vanished">Dok</translation>
+        <translation>Dok</translation>
     </message>
     <message>
         <source>Float</source>
@@ -1572,18 +1573,18 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>Closes the dock widget</source>
-        <translation type="unfinished"></translation>
+        <translation>Menutup widget dok</translation>
     </message>
 </context>
 <context>
     <name>QDoubleSpinBox</name>
     <message>
         <source>More</source>
-        <translation type="vanished">Lebih</translation>
+        <translation>Lebih</translation>
     </message>
     <message>
         <source>Less</source>
-        <translation type="vanished">Kurang</translation>
+        <translation>Kurang</translation>
     </message>
 </context>
 <context>
@@ -1613,54 +1614,54 @@ Press ESC to cancel</source>
     <name>QFile</name>
     <message>
         <source>Destination file is the same file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas tujuan adalah berkas yang sama.</translation>
     </message>
     <message>
         <source>Source file does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas sumber tidak ada.</translation>
     </message>
     <message>
         <source>Destination file exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas tujuan sudah ada</translation>
     </message>
     <message>
         <source>Error while renaming.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan saat mengubah nama.</translation>
     </message>
     <message>
         <source>Unable to restore from %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa memulihkan dari %1: %2</translation>
     </message>
     <message>
         <source>Will not rename sequential file using block copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak akan mengubah nama berkas sekuensial memakai penyalinan blok</translation>
     </message>
     <message>
         <source>Cannot remove source file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa menghapus berkas sumber</translation>
     </message>
     <message>
         <source>Cannot open %1 for input</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa membuka %1 untuk masukan</translation>
     </message>
     <message>
         <source>Cannot open for output</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa membuka untuk keluaran</translation>
     </message>
     <message>
         <source>Failure to write block</source>
-        <translation type="unfinished"></translation>
+        <translation>Kegagalan menulis blok</translation>
     </message>
     <message>
         <source>Cannot create %1 for output</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa membuat %1 untuk keluaran</translation>
     </message>
 </context>
 <context>
     <name>QFileDevice</name>
     <message>
         <source>No file engine available or engine does not support UnMapExtension</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada mesin berkas yang tersedia atau mesin tidak mendukung UnMapExtension</translation>
     </message>
 </context>
 <context>
@@ -1755,7 +1756,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Are sure you want to delete &apos;%1&apos;?</source>
-        <translation type="vanished">Anda yakin hendak menghapus &apos;%1&apos;?</translation>
+        <translation>Anda yakin hendak menghapus &apos;%1&apos;?</translation>
     </message>
     <message>
         <source>Could not delete directory.</source>
@@ -1819,63 +1820,63 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation>Mundur</translation>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Kiri</translation>
     </message>
     <message>
         <source>Go forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Maju</translation>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Kanan</translation>
     </message>
     <message>
         <source>Go to the parent directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Ke direktori induk</translation>
     </message>
     <message>
         <source>Alt+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Naik</translation>
     </message>
     <message>
         <source>Create a New Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Buat Folder Baru</translation>
     </message>
     <message>
         <source>Change to list view mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Ubah ke mode tilikan daftar</translation>
     </message>
     <message>
         <source>Change to detail view mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Ubah ke mode tilikan rinci</translation>
     </message>
     <message>
         <source>Sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilah sisi</translation>
     </message>
     <message>
         <source>List of places and bookmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>Daftar tempat dan markah</translation>
     </message>
     <message>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas</translation>
     </message>
     <message>
         <source>All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Semua berkas (*.*)</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Hapus</translation>
+        <translation>Hapus</translation>
     </message>
     <message>
         <source>Are you sure you want to delete &apos;%1&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Anda yakin hendak menghapus &apos;%1&apos;?</translation>
     </message>
     <message>
         <source>Recent Places</source>
@@ -1884,27 +1885,27 @@ Anda tetap ingin menghapusnya?</translation>
     <message>
         <source>%1 File</source>
         <extracomment>%1 is a file name suffix, for example txt</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Berkas %1</translation>
     </message>
     <message>
         <source>File Folder</source>
         <comment>Match Windows Explorer</comment>
-        <translation type="unfinished"></translation>
+        <translation>Folder Berkas</translation>
     </message>
     <message>
         <source>Folder</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished"></translation>
+        <translation>Folder</translation>
     </message>
     <message>
         <source>Alias</source>
         <comment>OS X Finder</comment>
-        <translation type="unfinished"></translation>
+        <translation>Alias</translation>
     </message>
     <message>
         <source>Shortcut</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished"></translation>
+        <translation>Pintasan</translation>
     </message>
 </context>
 <context>
@@ -1969,14 +1970,14 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>%1 byte(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 byte</translation>
     </message>
 </context>
 <context>
     <name>QFontDatabase</name>
     <message>
         <source>Normal</source>
-        <translation type="vanished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Bold</source>
@@ -2142,33 +2143,33 @@ Anda tetap ingin menghapusnya?</translation>
     <message>
         <source>Normal</source>
         <comment>The Normal or Regular font weight</comment>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Medium</source>
         <comment>The Medium font weight</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sedang</translation>
     </message>
     <message>
         <source>Thin</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipis</translation>
     </message>
     <message>
         <source>Extra Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekstra Ringan</translation>
     </message>
     <message>
         <source>Extra Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekstra Tebal</translation>
     </message>
     <message>
         <source>Extra</source>
         <extracomment>The word for &quot;Extra&quot; as in &quot;Extra Bold, Extra Thin&quot; used as a pattern for string searches</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ekstra</translation>
     </message>
     <message>
         <source>N&apos;Ko</source>
-        <translation type="unfinished"></translation>
+        <translation>N&apos;Ko</translation>
     </message>
 </context>
 <context>
@@ -2230,7 +2231,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Connection refused for data connection</source>
-        <translation type="vanished">Sambungan ditolak untuk koneksi data</translation>
+        <translation>Sambungan ditolak untuk koneksi data</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -2295,50 +2296,50 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="vanished">Host %1 ditemukan</translation>
+        <translation>Host %1 ditemukan</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="vanished">Sambungan ke %1 ditutup</translation>
+        <translation>Sambungan ke %1 ditutup</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="vanished">Host ditemukan</translation>
+        <translation>Host ditemukan</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="vanished">Tersambung ke host</translation>
+        <translation>Tersambung ke host</translation>
     </message>
     <message>
         <source>Connection timed out to host %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sambungan habis waktu ke host %1</translation>
     </message>
     <message>
         <source>Data Connection refused</source>
-        <translation type="unfinished"></translation>
+        <translation>Koneksi data ditolak</translation>
     </message>
 </context>
 <context>
     <name>QGnomeTheme</name>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished">&amp;Simpan</translation>
+        <translation>&amp;Simpan</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Batal</translation>
+        <translation>&amp;Batal</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">Tutu&amp;p</translation>
+        <translation>Tutu&amp;p</translation>
     </message>
     <message>
         <source>Close without Saving</source>
-        <translation type="unfinished">Tutup tanpa Menyimpan</translation>
+        <translation>Tutup tanpa Menyimpan</translation>
     </message>
 </context>
 <context>
@@ -2346,7 +2347,7 @@ Anda tetap ingin menghapusnya?</translation>
     <message>
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
-        <translation type="unfinished">LTR</translation>
+        <translation>LTR</translation>
     </message>
 </context>
 <context>
@@ -2357,7 +2358,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>No host name given</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada nama host yang diberikan</translation>
     </message>
 </context>
 <context>
@@ -2376,38 +2377,38 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>No host name given</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada nama host yang diberikan</translation>
     </message>
     <message>
         <source>Invalid hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>Nama host tidak valid</translation>
     </message>
     <message>
         <source>Unknown error (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan tak dikenal (%1)</translation>
     </message>
 </context>
 <context>
     <name>QHttp</name>
     <message>
         <source>Unknown error</source>
-        <translation type="vanished">Kesalahan tak dikenal</translation>
+        <translation>Kesalahan tak dikenal</translation>
     </message>
     <message>
         <source>Request aborted</source>
-        <translation type="vanished">Permintaan digugurkan</translation>
+        <translation>Permintaan digugurkan</translation>
     </message>
     <message>
         <source>No server set to connect to</source>
-        <translation type="vanished">Server untuk dihubungi tak ditata</translation>
+        <translation>Server untuk dihubungi tak ditata</translation>
     </message>
     <message>
         <source>Wrong content length</source>
-        <translation type="vanished">Panjang isi salah</translation>
+        <translation>Panjang isi salah</translation>
     </message>
     <message>
         <source>Server closed connection unexpectedly</source>
-        <translation type="vanished">Server menutup koneksi tak terduga</translation>
+        <translation>Server menutup koneksi tak terduga</translation>
     </message>
     <message>
         <source>Connection refused</source>
@@ -2419,35 +2420,35 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>HTTP request failed</source>
-        <translation type="vanished">Permintaan HTTP gagal</translation>
+        <translation>Permintaan HTTP gagal</translation>
     </message>
     <message>
         <source>Invalid HTTP response header</source>
-        <translation type="vanished">Header respon HTTP tak valid</translation>
+        <translation>Header respon HTTP tak valid</translation>
     </message>
     <message>
         <source>Invalid HTTP chunked body</source>
-        <translation type="vanished">Body chunked HTTP tak valid</translation>
+        <translation>Body chunked HTTP tak valid</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="vanished">Host %1 ditemukan</translation>
+        <translation>Host %1 ditemukan</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="vanished">Tersambung ke host %1</translation>
+        <translation>Tersambung ke host %1</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="vanished">Sambungan ke %1 ditutup</translation>
+        <translation>Sambungan ke %1 ditutup</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="vanished">Host ditemukan</translation>
+        <translation>Host ditemukan</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="vanished">Tersambung ke host</translation>
+        <translation>Tersambung ke host</translation>
     </message>
     <message>
         <source>Connection closed</source>
@@ -2455,19 +2456,19 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Proxy authentication required</source>
-        <translation type="vanished">Otentikasi proksi diperlukan</translation>
+        <translation>Otentikasi proksi diperlukan</translation>
     </message>
     <message>
         <source>Authentication required</source>
-        <translation type="vanished">Otentikasi diperlukan</translation>
+        <translation>Otentikasi diperlukan</translation>
     </message>
     <message>
         <source>HTTPS connection requested but SSL support not compiled in</source>
-        <translation type="vanished">Koneksi HTTPS diminta tapi dukungan SSL tak disertakan saat kompail</translation>
+        <translation>Koneksi HTTPS diminta tapi dukungan SSL tak disertakan saat kompail</translation>
     </message>
     <message>
         <source>Connection refused (or timed out)</source>
-        <translation type="vanished">Sambungan ditolak (atau habis waktu)</translation>
+        <translation>Sambungan ditolak (atau habis waktu)</translation>
     </message>
     <message>
         <source>Proxy requires authentication</source>
@@ -2491,11 +2492,11 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Too many redirects</source>
-        <translation type="unfinished"></translation>
+        <translation>Terlalu banyak pengalihan</translation>
     </message>
     <message>
         <source>Insecure redirect</source>
-        <translation type="unfinished"></translation>
+        <translation>Pengalihan tidak aman</translation>
     </message>
 </context>
 <context>
@@ -2506,35 +2507,35 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Did not receive HTTP response from proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak menerima respon HTTP dari proksi</translation>
     </message>
     <message>
         <source>Error parsing authentication request from proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan saat mengurai permintaan otentikasi dari proksi</translation>
     </message>
     <message>
         <source>Proxy denied connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Proksi menolak koneksi</translation>
     </message>
     <message>
         <source>Error communicating with HTTP proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan saat berkomunikasi dengan proksi HTTP</translation>
     </message>
     <message>
         <source>Proxy server not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Server proksi tidak ditemukan</translation>
     </message>
     <message>
         <source>Proxy connection refused</source>
-        <translation type="unfinished"></translation>
+        <translation>Koneksi proksi ditolak</translation>
     </message>
     <message>
         <source>Proxy server connection timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Koneksi server proksi habis waktu</translation>
     </message>
     <message>
         <source>Proxy connection closed prematurely</source>
-        <translation type="unfinished"></translation>
+        <translation>Koneksi proksi ditutup secara prematur</translation>
     </message>
 </context>
 <context>
@@ -2651,177 +2652,177 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>file to open is a directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas yang akan dibuka adalah sebuah direktori</translation>
     </message>
 </context>
 <context>
     <name>QImageReader</name>
     <message>
         <source>Invalid device</source>
-        <translation type="unfinished"></translation>
+        <translation>Peranti tidak valid</translation>
     </message>
     <message>
         <source>File not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas tidak ditemukan</translation>
     </message>
     <message>
         <source>Unsupported image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format citra tidak didukung</translation>
     </message>
     <message>
         <source>Unable to read image data</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa membaca data citra</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Kesalahan tak dikenal</translation>
+        <translation>Kesalahan tak dikenal</translation>
     </message>
 </context>
 <context>
     <name>QImageWriter</name>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Kesalahan tak dikenal</translation>
+        <translation>Kesalahan tak dikenal</translation>
     </message>
     <message>
         <source>Device is not set</source>
-        <translation type="unfinished"></translation>
+        <translation>Peranti tidak ditata</translation>
     </message>
     <message>
         <source>Device not writable</source>
-        <translation type="unfinished"></translation>
+        <translation>Peranti tidak dapat ditulisi</translation>
     </message>
     <message>
         <source>Unsupported image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format citra tidak didukung</translation>
     </message>
 </context>
 <context>
     <name>QInputContext</name>
     <message>
         <source>XIM</source>
-        <translation type="vanished">XIM</translation>
+        <translation>XIM</translation>
     </message>
     <message>
         <source>XIM input method</source>
-        <translation type="vanished">Metoda masukan XIM</translation>
+        <translation>Metoda masukan XIM</translation>
     </message>
     <message>
         <source>Windows input method</source>
-        <translation type="vanished">Metoda masukan Windows</translation>
+        <translation>Metoda masukan Windows</translation>
     </message>
     <message>
         <source>Mac OS X input method</source>
-        <translation type="vanished">Metoda masuka Mac OS X</translation>
+        <translation>Metoda masuka Mac OS X</translation>
     </message>
 </context>
 <context>
     <name>QInputDialog</name>
     <message>
         <source>Enter a value:</source>
-        <translation type="unfinished"></translation>
+        <translation>Masukkan suatu nilai:</translation>
     </message>
 </context>
 <context>
     <name>QJsonParseError</name>
     <message>
         <source>no error occurred</source>
-        <translation type="unfinished">tak terjadi kesalahan</translation>
+        <translation>tak terjadi kesalahan</translation>
     </message>
     <message>
         <source>unterminated object</source>
-        <translation type="unfinished"></translation>
+        <translation>objek tak diterminasi</translation>
     </message>
     <message>
         <source>missing name separator</source>
-        <translation type="unfinished"></translation>
+        <translation>kurang pemisah nama</translation>
     </message>
     <message>
         <source>unterminated array</source>
-        <translation type="unfinished"></translation>
+        <translation>larik tak diterminasi</translation>
     </message>
     <message>
         <source>missing value separator</source>
-        <translation type="unfinished"></translation>
+        <translation>kurang pemisah nilai</translation>
     </message>
     <message>
         <source>illegal value</source>
-        <translation type="unfinished"></translation>
+        <translation>nilai tidak legal</translation>
     </message>
     <message>
         <source>invalid termination by number</source>
-        <translation type="unfinished"></translation>
+        <translation>terminasi dengan angka yang tidak valid</translation>
     </message>
     <message>
         <source>illegal number</source>
-        <translation type="unfinished"></translation>
+        <translation>angka tidak legal</translation>
     </message>
     <message>
         <source>invalid escape sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>urutan escape yang tidak valid</translation>
     </message>
     <message>
         <source>invalid UTF8 string</source>
-        <translation type="unfinished"></translation>
+        <translation>string UTF8 yang tidak valid</translation>
     </message>
     <message>
         <source>unterminated string</source>
-        <translation type="unfinished"></translation>
+        <translation>string tidak diterminasi</translation>
     </message>
     <message>
         <source>object is missing after a comma</source>
-        <translation type="unfinished"></translation>
+        <translation>kurang objek setelah koma</translation>
     </message>
     <message>
         <source>too deeply nested document</source>
-        <translation type="unfinished"></translation>
+        <translation>dokumen bersarang terlalu dalam</translation>
     </message>
     <message>
         <source>too large document</source>
-        <translation type="unfinished"></translation>
+        <translation>dokumen terlalu besar</translation>
     </message>
     <message>
         <source>garbage at the end of the document</source>
-        <translation type="unfinished"></translation>
+        <translation>sampah di ujung dokumen</translation>
     </message>
 </context>
 <context>
     <name>QKeySequenceEdit</name>
     <message>
         <source>Press shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekan pintasan</translation>
     </message>
     <message>
         <source>%1, ...</source>
         <extracomment>This text is an &quot;unfinished&quot; shortcut, expands like &quot;Ctrl+A, ...&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1, ...</translation>
     </message>
 </context>
 <context>
     <name>QLibrary</name>
     <message>
         <source>QLibrary::load_sys: Cannot load %1 (%2)</source>
-        <translation type="vanished">QLibrary::load_sys: Tak bisa memuat %1 (%2)</translation>
+        <translation>QLibrary::load_sys: Tak bisa memuat %1 (%2)</translation>
     </message>
     <message>
         <source>QLibrary::unload_sys: Cannot unload %1 (%2)</source>
-        <translation type="vanished">QLibrary::unload_sys: Tak bisa membongkar %1 (%2)</translation>
+        <translation>QLibrary::unload_sys: Tak bisa membongkar %1 (%2)</translation>
     </message>
     <message>
         <source>QLibrary::resolve_sys: Symbol &quot;%1&quot; undefined in %2 (%3)</source>
-        <translation type="vanished">QLibrary::resolve_sys: Simbol &quot;%1&quot; tak terdefinisi dalam %2 (%3)</translation>
+        <translation>QLibrary::resolve_sys: Simbol &quot;%1&quot; tak terdefinisi dalam %2 (%3)</translation>
     </message>
     <message>
         <source>Could not mmap &apos;%1&apos;: %2</source>
-        <translation type="vanished">Tak bisa mmap &apos;%1&apos;: %2</translation>
+        <translation>Tak bisa mmap &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Plugin verification data mismatch in &apos;%1&apos;</source>
-        <translation type="vanished">Data verifikasi plugin tak cocok dalam &apos;%1&apos;</translation>
+        <translation>Data verifikasi plugin tak cocok dalam &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Could not unmap &apos;%1&apos;: %2</source>
-        <translation type="vanished">Tak bisa unmap &apos;%1&apos;: %2</translation>
+        <translation>Tak bisa unmap &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. (%2.%3.%4) [%5]</source>
@@ -2829,7 +2830,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. Expected build key &quot;%2&quot;, got &quot;%3&quot;</source>
-        <translation type="vanished">Plugin &apos;%1&apos; memakai pustaka Qt yang tak kompatibel. Mengharapkan kunci build &quot;%2&quot;, mendapat &quot;%3&quot;</translation>
+        <translation>Plugin &apos;%1&apos; memakai pustaka Qt yang tak kompatibel. Mengharapkan kunci build &quot;%2&quot;, mendapat &quot;%3&quot;</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -2849,63 +2850,63 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not an ELF object (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; bukan suatu objek ELF (%2)</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not an ELF object</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; bukan suatu objek ELF</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; bukan objek ELF yang valid (%2)</translation>
     </message>
     <message>
         <source>Failed to extract plugin meta data from &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Gagal mengekstrak meta data plugin dari &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Cannot load library %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak bisa memuat pustaka %1: %2</translation>
     </message>
     <message>
         <source>Cannot unload library %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak bisa membongkar muat pustaka %1: %2</translation>
     </message>
     <message>
         <source>Cannot resolve symbol &quot;%1&quot; in %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak bisa mengurai simbol &quot;%1&quot; dalam %2: %3</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid Mach-O binary (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; bukan biner Mach-O yang valid (%2)</translation>
     </message>
     <message>
         <source>file is corrupt</source>
-        <translation type="unfinished"></translation>
+        <translation>berkas terkorupsi</translation>
     </message>
     <message>
         <source>file too small</source>
-        <translation type="unfinished"></translation>
+        <translation>berkas terlalu kecil</translation>
     </message>
     <message>
         <source>no suitable architecture in fat binary</source>
-        <translation type="unfinished"></translation>
+        <translation>tak ada arsitektur yang cocok dalam biner fat</translation>
     </message>
     <message>
         <source>invalid magic %1</source>
-        <translation type="unfinished"></translation>
+        <translation>magic %1 tak valid</translation>
     </message>
     <message>
         <source>wrong architecture</source>
-        <translation type="unfinished"></translation>
+        <translation>salah arsitektur</translation>
     </message>
     <message>
         <source>not a dynamic library</source>
-        <translation type="unfinished"></translation>
+        <translation>bukan suatu pustaka dinamis</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a Qt plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; bukanlah suatu plugin Qt</translation>
     </message>
 </context>
 <context>
@@ -3002,26 +3003,26 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>%1: Operation not permitted when socket is in this state</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Operasi tak diizinkan ketika soket dalam keadaan ini</translation>
     </message>
     <message>
         <source>%1: Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Kesalahan tak dikenal</translation>
     </message>
     <message>
         <source>Trying to connect while connection is in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Mencoba menyambung saat koneksi tengah berlangsung</translation>
     </message>
     <message>
         <source>%1: Access denied</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Akses ditolak</translation>
     </message>
 </context>
 <context>
     <name>QMYSQLDriver</name>
     <message>
         <source>Unable to open database &apos;</source>
-        <translation type="vanished">Tak bisa membuka database &apos;</translation>
+        <translation>Tak bisa membuka database &apos;</translation>
     </message>
     <message>
         <source>Unable to connect</source>
@@ -3041,11 +3042,12 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Unable to allocate a MYSQL object</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Tak bisa mengalokasikan sebuah objek MySQL</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <source>Unable to open database &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak bisa membuka database &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -3181,15 +3183,15 @@ Anda tetap ingin menghapusnya?</translation>
     <name>QMenu</name>
     <message>
         <source>Close</source>
-        <translation type="vanished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="vanished">Buka</translation>
+        <translation>Buka</translation>
     </message>
     <message>
         <source>Execute</source>
-        <translation type="vanished">Jalankan</translation>
+        <translation>Jalankan</translation>
     </message>
 </context>
 <context>
@@ -3208,7 +3210,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Program ini memakai Qt versi %1.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Program ini memakai Qt versi %1.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Show Details...</source>
@@ -3220,15 +3222,15 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Program ini memakai Qt Open Source Edition versi %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition ditujukan bagi pengembangan aplikasi Open Source. Anda perlu lisensi komersial Qt bagi pengembangan aplikasi proprietary (closed source).&lt;/p&gt;&lt;p&gt;Silakan lihat &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; untuk ringkasan tentang masalah lisensi Qt.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Program ini memakai Qt Open Source Edition versi %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition ditujukan bagi pengembangan aplikasi Open Source. Anda perlu lisensi komersial Qt bagi pengembangan aplikasi proprietary (closed source).&lt;/p&gt;&lt;p&gt;Silakan lihat &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; untuk ringkasan tentang masalah lisensi Qt.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qt for Embedded Linux and Qt for Windows CE.&lt;/p&gt;&lt;p&gt;Qt is a Nokia product. See &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; for more information.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Tentang Qt&lt;/h3&gt;%1&lt;p&gt;Qt adalah toolkit C++ untuk pengembangan aplikasi lintas platform.&lt;/p&gt;&lt;p&gt;Qt menyediakan portabilitas sumber tunggal mencakup MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, dan semua varian Unix komersial utama. Qt juga tersedia bagi device embedded sebagai Qt for Embedded Linux dan Qt for Windows CE.&lt;/p&gt;&lt;p&gt;Qt adalah sebuah produk Nokia. Lihat &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; untuk informasi lebih lanjut.&lt;/p&gt;</translation>
+        <translation>&lt;h3&gt;Tentang Qt&lt;/h3&gt;%1&lt;p&gt;Qt adalah toolkit C++ untuk pengembangan aplikasi lintas platform.&lt;/p&gt;&lt;p&gt;Qt menyediakan portabilitas sumber tunggal mencakup MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, dan semua varian Unix komersial utama. Qt juga tersedia bagi device embedded sebagai Qt for Embedded Linux dan Qt for Windows CE.&lt;/p&gt;&lt;p&gt;Qt adalah sebuah produk Nokia. Lihat &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; untuk informasi lebih lanjut.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Tentang Qt&lt;/h3&gt;&lt;p&gt;Program ini memakai Qt versi %1.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across all major desktop operating systems. It is also available for embedded Linux and other embedded and mobile operating systems.&lt;/p&gt;&lt;p&gt;Qt is available under three different licensing options designed to accommodate the needs of our various users.&lt;/p&gt;&lt;p&gt;Qt licensed under our commercial license agreement is appropriate for development of proprietary/commercial software where you do not want to share any source code with third parties or otherwise cannot comply with the terms of the GNU LGPL version 3 or GNU LGPL version 2.1.&lt;/p&gt;&lt;p&gt;Qt licensed under the GNU LGPL version 3 is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the GNU LGPL version 3.&lt;/p&gt;&lt;p&gt;Qt licensed under the GNU LGPL version 2.1 is appropriate for the development of Qt&amp;nbsp;applications provided you can comply with the terms and conditions of the GNU LGPL version 2.1.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;http://%2/&quot;&gt;%2&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;&lt;p&gt;Copyright (C) %1 The Qt Company Ltd and other contributors.&lt;/p&gt;&lt;p&gt;Qt and the Qt logo are trademarks of The Qt Company Ltd.&lt;/p&gt;&lt;p&gt;Qt is The Qt Company Ltd product developed as an open source project. See &lt;a href=&quot;http://%3/&quot;&gt;%3&lt;/a&gt; for more information.&lt;/p&gt;</source>
@@ -3239,18 +3241,18 @@ Anda tetap ingin menghapusnya?</translation>
     <name>QMultiInputContext</name>
     <message>
         <source>Select IM</source>
-        <translation type="vanished">Pilih IM</translation>
+        <translation>Pilih IM</translation>
     </message>
 </context>
 <context>
     <name>QMultiInputContextPlugin</name>
     <message>
         <source>Multiple input method switcher</source>
-        <translation type="vanished">Penukar metoda masukan berganda</translation>
+        <translation>Penukar metoda masukan berganda</translation>
     </message>
     <message>
         <source>Multiple input method switcher that uses the context menu of the text widgets</source>
-        <translation type="vanished">Penukar metoda masukan berganda yang memakai menu konteks dari widget teks</translation>
+        <translation>Penukar metoda masukan berganda yang memakai menu konteks dari widget teks</translation>
     </message>
 </context>
 <context>
@@ -3361,44 +3363,44 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Temporary error</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan sementara</translation>
     </message>
     <message>
         <source>Network dropped connection on reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Jaringan memutus koneksi saat reset</translation>
     </message>
     <message>
         <source>Connection reset by peer</source>
-        <translation type="unfinished"></translation>
+        <translation>Koneksi direset oleh peer</translation>
     </message>
 </context>
 <context>
     <name>QNetworkAccessCacheBackend</name>
     <message>
         <source>Error opening %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan saat membuka %1</translation>
     </message>
 </context>
 <context>
     <name>QNetworkAccessDataBackend</name>
     <message>
         <source>Invalid URI: %1</source>
-        <translation type="unfinished">URI tak valid: %1</translation>
+        <translation>URI tak valid: %1</translation>
     </message>
 </context>
 <context>
     <name>QNetworkAccessDebugPipeBackend</name>
     <message>
         <source>Write error writing to %1: %2</source>
-        <translation type="unfinished">Kesalahan saat menulis ke %1: %2</translation>
+        <translation>Kesalahan tulis saat menulis ke %1: %2</translation>
     </message>
     <message>
         <source>Socket error on %1: %2</source>
-        <translation type="unfinished">Kesalahan soket pada %1: %2</translation>
+        <translation>Kesalahan soket pada %1: %2</translation>
     </message>
     <message>
         <source>Remote host closed the connection prematurely on %1</source>
-        <translation type="unfinished">Host remote menutup koneksi secara dini pada %1</translation>
+        <translation>Host remote menutup koneksi secara dini pada %1</translation>
     </message>
 </context>
 <context>
@@ -3444,21 +3446,21 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>No suitable proxy found</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ditemukan proksi yang cocok</translation>
     </message>
 </context>
 <context>
     <name>QNetworkAccessManager</name>
     <message>
         <source>Network access is disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Akses jaringan dinonaktifkan.</translation>
     </message>
 </context>
 <context>
     <name>QNetworkReply</name>
     <message>
         <source>Error downloading %1 - server replied: %2</source>
-        <translation type="vanished">Kesalahan mendownload %1 - server menjawab: %2</translation>
+        <translation>Kesalahan mendownload %1 - server menjawab: %2</translation>
     </message>
     <message>
         <source>Protocol &quot;%1&quot; is unknown</source>
@@ -3466,34 +3468,34 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Error transferring %1 - server replied: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan saat menransfer %1 - server menjawab: %2</translation>
     </message>
     <message>
         <source>Background request not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Permintaan latar belakang tidak diizinkan.</translation>
     </message>
     <message>
         <source>Network session error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan sesi jaringan.</translation>
     </message>
     <message>
         <source>backend start error.</source>
-        <translation type="unfinished"></translation>
+        <translation>kesalahan memulai backend.</translation>
     </message>
     <message>
         <source>Temporary network failure.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kegagalan jaringan temporer.</translation>
     </message>
 </context>
 <context>
     <name>QNetworkReplyHttpImpl</name>
     <message>
         <source>Operation canceled</source>
-        <translation type="unfinished">Operasi dibatalkan</translation>
+        <translation>Operasi dibatalkan</translation>
     </message>
     <message>
         <source>No suitable proxy found</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ditemukan proksi yang cocok</translation>
     </message>
 </context>
 <context>
@@ -3507,30 +3509,30 @@ Anda tetap ingin menghapusnya?</translation>
     <name>QNetworkSession</name>
     <message>
         <source>Invalid configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurasi tidak valid.</translation>
     </message>
 </context>
 <context>
     <name>QNetworkSessionPrivateImpl</name>
     <message>
         <source>Unknown session error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan sesi yang tidak dikenal.</translation>
     </message>
     <message>
         <source>The session was aborted by the user or system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sesi digugurkan oleh pengguna atau sistem.</translation>
     </message>
     <message>
         <source>The requested operation is not supported by the system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Operasi yang diminta tidak didukung oleh sistem.</translation>
     </message>
     <message>
         <source>The specified configuration cannot be used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurasi yang dinyatakan tidak dapat dipakai.</translation>
     </message>
     <message>
         <source>Roaming was aborted or is not possible.</source>
-        <translation type="unfinished"></translation>
+        <translation>Roaming digugurkan atau tidak mungkin.</translation>
     </message>
 </context>
 <context>
@@ -3585,7 +3587,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Unable to execute select statement</source>
-        <translation type="vanished">Tak bisa mengeksekusi pernyataan select</translation>
+        <translation>Tak bisa mengeksekusi pernyataan select</translation>
     </message>
     <message>
         <source>Unable to execute statement</source>
@@ -3593,7 +3595,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Unable to get statement type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak bisa mendapat tipe pernyataan</translation>
     </message>
 </context>
 <context>
@@ -3604,7 +3606,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Unable to connect - Driver doesn&apos;t support all needed functionality</source>
-        <translation type="vanished">Tak bisa menyambung - Driver tak mendukung semua fungsionalitas yang diperlukan</translation>
+        <translation>Tak bisa menyambung - Driver tak mendukung semua fungsionalitas yang diperlukan</translation>
     </message>
     <message>
         <source>Unable to disable autocommit</source>
@@ -3624,7 +3626,7 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Unable to connect - Driver doesn&apos;t support all functionality required</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak bisa menyambung - Driver tak mendukung semua fungsionalitas yang diperlukan</translation>
     </message>
 </context>
 <context>
@@ -3670,42 +3672,42 @@ Anda tetap ingin menghapusnya?</translation>
     <name>QObject</name>
     <message>
         <source>Operation not supported on %1</source>
-        <translation type="vanished">Operasi tak didukung pada %1</translation>
+        <translation>Operasi tak didukung pada %1</translation>
     </message>
     <message>
         <source>Invalid URI: %1</source>
-        <translation type="vanished">URI tak valid: %1</translation>
+        <translation>URI tak valid: %1</translation>
     </message>
     <message>
         <source>Write error writing to %1: %2</source>
-        <translation type="vanished">Kesalahan saat menulis ke %1: %2</translation>
+        <translation>Kesalahan saat menulis ke %1: %2</translation>
     </message>
     <message>
         <source>Read error reading from %1: %2</source>
-        <translation type="vanished">Kesalahan saat membaca dari %1: %2</translation>
+        <translation>Kesalahan saat membaca dari %1: %2</translation>
     </message>
     <message>
         <source>Socket error on %1: %2</source>
-        <translation type="vanished">Kesalahan soket pada %1: %2</translation>
+        <translation>Kesalahan soket pada %1: %2</translation>
     </message>
     <message>
         <source>Remote host closed the connection prematurely on %1</source>
-        <translation type="vanished">Host remote menutup koneksi secara dini pada %1</translation>
+        <translation>Host remote menutup koneksi secara dini pada %1</translation>
     </message>
     <message>
         <source>Protocol error: packet of size 0 received</source>
-        <translation type="vanished">Kesalahan protokol: paket berukuran 0 diterima</translation>
+        <translation>Kesalahan protokol: paket berukuran 0 diterima</translation>
     </message>
 </context>
 <context>
     <name>QPPDOptionsModel</name>
     <message>
         <source>Name</source>
-        <translation type="vanished">Nama</translation>
+        <translation>Nama</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="vanished">Nilai</translation>
+        <translation>Nilai</translation>
     </message>
 </context>
 <context>
@@ -3750,7 +3752,7 @@ Anda tetap ingin menghapusnya?</translation>
     <name>QPageSetupWidget</name>
     <message>
         <source>Centimeters (cm)</source>
-        <translation type="vanished">Sentimeter (cm)</translation>
+        <translation>Sentimeter (cm)</translation>
     </message>
     <message>
         <source>Millimeters (mm)</source>
@@ -3830,61 +3832,61 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Page Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Tata Letak Halaman</translation>
     </message>
     <message>
         <source>Page order:</source>
-        <translation type="unfinished"></translation>
+        <translation>Urutan halaman:</translation>
     </message>
     <message>
         <source>Pages per sheet:</source>
-        <translation type="unfinished"></translation>
+        <translation>Halaman per lembar:</translation>
     </message>
     <message>
         <source>Pica (P̸)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pica (P̸)</translation>
     </message>
     <message>
         <source>Didot (DD)</source>
-        <translation type="unfinished"></translation>
+        <translation>Didot (DD)</translation>
     </message>
     <message>
         <source>Cicero (CC)</source>
-        <translation type="unfinished"></translation>
+        <translation>Cicero (CC)</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="unfinished">Gubahan</translation>
+        <translation>Ubahan</translation>
     </message>
     <message>
         <source>mm</source>
         <extracomment>Unit &apos;Millimeter&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>mm</translation>
     </message>
     <message>
         <source>pt</source>
         <extracomment>Unit &apos;Points&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>pt</translation>
     </message>
     <message>
         <source>in</source>
         <extracomment>Unit &apos;Inch&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>in</translation>
     </message>
     <message>
         <source>P̸</source>
         <extracomment>Unit &apos;Pica&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>P̸</translation>
     </message>
     <message>
         <source>DD</source>
         <extracomment>Unit &apos;Didot&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>DD</translation>
     </message>
     <message>
         <source>CC</source>
         <extracomment>Unit &apos;Cicero&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>CC</translation>
     </message>
 </context>
 <context>
@@ -3892,285 +3894,285 @@ Anda tetap ingin menghapusnya?</translation>
     <message>
         <source>Custom (%1mm x %2mm)</source>
         <extracomment>Custom size name in millimeters</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ubahan (%1mm x %2mm)</translation>
     </message>
     <message>
         <source>Custom (%1pt x %2pt)</source>
         <extracomment>Custom size name in points</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ubahan (%1pt x %2pt)</translation>
     </message>
     <message>
         <source>Custom (%1in x %2in)</source>
         <extracomment>Custom size name in inches</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ubahan (%1in x %2in)</translation>
     </message>
     <message>
         <source>Custom (%1pc x %2pc)</source>
         <extracomment>Custom size name in picas</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ubahan (%1pc x %2pc)</translation>
     </message>
     <message>
         <source>Custom (%1DD x %2DD)</source>
         <extracomment>Custom size name in didots</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ubahan (%1DD x %2DD)</translation>
     </message>
     <message>
         <source>Custom (%1CC x %2CC)</source>
         <extracomment>Custom size name in ciceros</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ubahan (%1CC x %2CC)</translation>
     </message>
     <message>
         <source>%1 x %2 in</source>
         <extracomment>Page size in &apos;Inch&apos;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 x %2 in</translation>
     </message>
     <message>
         <source>A0</source>
-        <translation type="unfinished">A0</translation>
+        <translation>A0</translation>
     </message>
     <message>
         <source>A1</source>
-        <translation type="unfinished">A1</translation>
+        <translation>A1</translation>
     </message>
     <message>
         <source>A2</source>
-        <translation type="unfinished">A2</translation>
+        <translation>A2</translation>
     </message>
     <message>
         <source>A3</source>
-        <translation type="unfinished">A3</translation>
+        <translation>A3</translation>
     </message>
     <message>
         <source>A4</source>
-        <translation type="unfinished">A4</translation>
+        <translation>A4</translation>
     </message>
     <message>
         <source>A5</source>
-        <translation type="unfinished">A5</translation>
+        <translation>A5</translation>
     </message>
     <message>
         <source>A6</source>
-        <translation type="unfinished">A6</translation>
+        <translation>A6</translation>
     </message>
     <message>
         <source>A7</source>
-        <translation type="unfinished">A7</translation>
+        <translation>A7</translation>
     </message>
     <message>
         <source>A8</source>
-        <translation type="unfinished">A8</translation>
+        <translation>A8</translation>
     </message>
     <message>
         <source>A9</source>
-        <translation type="unfinished">A9</translation>
+        <translation>A9</translation>
     </message>
     <message>
         <source>A10</source>
-        <translation type="unfinished">A10</translation>
+        <translation>A10</translation>
     </message>
     <message>
         <source>B0</source>
-        <translation type="unfinished">B0</translation>
+        <translation>B0</translation>
     </message>
     <message>
         <source>B1</source>
-        <translation type="unfinished">B1</translation>
+        <translation>B1</translation>
     </message>
     <message>
         <source>B2</source>
-        <translation type="unfinished">B2</translation>
+        <translation>B2</translation>
     </message>
     <message>
         <source>B3</source>
-        <translation type="unfinished">B3</translation>
+        <translation>B3</translation>
     </message>
     <message>
         <source>B4</source>
-        <translation type="unfinished">B4</translation>
+        <translation>B4</translation>
     </message>
     <message>
         <source>B5</source>
-        <translation type="unfinished">B5</translation>
+        <translation>B5</translation>
     </message>
     <message>
         <source>B6</source>
-        <translation type="unfinished">B6</translation>
+        <translation>B6</translation>
     </message>
     <message>
         <source>B7</source>
-        <translation type="unfinished">B7</translation>
+        <translation>B7</translation>
     </message>
     <message>
         <source>B8</source>
-        <translation type="unfinished">B8</translation>
+        <translation>B8</translation>
     </message>
     <message>
         <source>B9</source>
-        <translation type="unfinished">B9</translation>
+        <translation>B9</translation>
     </message>
     <message>
         <source>B10</source>
-        <translation type="unfinished">B10</translation>
+        <translation>B10</translation>
     </message>
     <message>
         <source>Executive (7.5 x 10 in)</source>
-        <translation type="unfinished"></translation>
+        <translation>Executive (7.5 x 10 in)</translation>
     </message>
     <message>
         <source>Executive (7.25 x 10.5 in)</source>
-        <translation type="unfinished"></translation>
+        <translation>Executive (7.25 x 10.5 in)</translation>
     </message>
     <message>
         <source>Folio (8.27 x 13 in)</source>
-        <translation type="unfinished"></translation>
+        <translation>Folio (8.27 x 13 in)</translation>
     </message>
     <message>
         <source>Legal</source>
-        <translation type="unfinished">Legal</translation>
+        <translation>Legal</translation>
     </message>
     <message>
         <source>Letter / ANSI A</source>
-        <translation type="unfinished"></translation>
+        <translation>Letter / ANSI A</translation>
     </message>
     <message>
         <source>Tabloid / ANSI B</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabloid / ANSI B</translation>
     </message>
     <message>
         <source>Ledger / ANSI B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ledger / ANSI B</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="unfinished">Gubahan</translation>
+        <translation>Ubahan</translation>
     </message>
     <message>
         <source>A3 Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>A3 Ekstra</translation>
     </message>
     <message>
         <source>A4 Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>A4 Ekstra</translation>
     </message>
     <message>
         <source>A4 Plus</source>
-        <translation type="unfinished"></translation>
+        <translation>A4 Plus</translation>
     </message>
     <message>
         <source>A4 Small</source>
-        <translation type="unfinished"></translation>
+        <translation>A4 Kecil</translation>
     </message>
     <message>
         <source>A5 Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>A5 Ekstra</translation>
     </message>
     <message>
         <source>B5 Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>B5 Ekstra</translation>
     </message>
     <message>
         <source>JIS B0</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B0</translation>
     </message>
     <message>
         <source>JIS B1</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B1</translation>
     </message>
     <message>
         <source>JIS B2</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B2</translation>
     </message>
     <message>
         <source>JIS B3</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B3</translation>
     </message>
     <message>
         <source>JIS B4</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B4</translation>
     </message>
     <message>
         <source>JIS B5</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B5</translation>
     </message>
     <message>
         <source>JIS B6</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B6</translation>
     </message>
     <message>
         <source>JIS B7</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B7</translation>
     </message>
     <message>
         <source>JIS B8</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B8</translation>
     </message>
     <message>
         <source>JIS B9</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B9</translation>
     </message>
     <message>
         <source>JIS B10</source>
-        <translation type="unfinished"></translation>
+        <translation>JIS B10</translation>
     </message>
     <message>
         <source>ANSI C</source>
-        <translation type="unfinished"></translation>
+        <translation>ANSI C</translation>
     </message>
     <message>
         <source>ANSI D</source>
-        <translation type="unfinished"></translation>
+        <translation>ANSI D</translation>
     </message>
     <message>
         <source>ANSI E</source>
-        <translation type="unfinished"></translation>
+        <translation>ANSI E</translation>
     </message>
     <message>
         <source>Legal Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>Legal Ekstra</translation>
     </message>
     <message>
         <source>Letter Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>Letter Ekstra</translation>
     </message>
     <message>
         <source>Letter Plus</source>
-        <translation type="unfinished"></translation>
+        <translation>Letter Plus</translation>
     </message>
     <message>
         <source>Letter Small</source>
-        <translation type="unfinished"></translation>
+        <translation>Letter Kecil</translation>
     </message>
     <message>
         <source>Tabloid Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabloid Ekstra</translation>
     </message>
     <message>
         <source>Architect A</source>
-        <translation type="unfinished"></translation>
+        <translation>Architect A</translation>
     </message>
     <message>
         <source>Architect B</source>
-        <translation type="unfinished"></translation>
+        <translation>Architect B</translation>
     </message>
     <message>
         <source>Architect C</source>
-        <translation type="unfinished"></translation>
+        <translation>Architect C</translation>
     </message>
     <message>
         <source>Architect D</source>
-        <translation type="unfinished"></translation>
+        <translation>Architect D</translation>
     </message>
     <message>
         <source>Architect E</source>
-        <translation type="unfinished"></translation>
+        <translation>Architect E</translation>
     </message>
     <message>
         <source>Note</source>
-        <translation type="unfinished"></translation>
+        <translation>Note</translation>
     </message>
     <message>
         <source>Quarto</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuarto</translation>
     </message>
     <message>
         <source>Statement</source>
@@ -4178,31 +4180,31 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Super A</source>
-        <translation type="unfinished"></translation>
+        <translation>Super A</translation>
     </message>
     <message>
         <source>Super B</source>
-        <translation type="unfinished"></translation>
+        <translation>Super B</translation>
     </message>
     <message>
         <source>Postcard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartu Pos</translation>
     </message>
     <message>
         <source>Double Postcard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartu Pos Ganda</translation>
     </message>
     <message>
         <source>PRC 16K</source>
-        <translation type="unfinished"></translation>
+        <translation>PRC 16K</translation>
     </message>
     <message>
         <source>PRC 32K</source>
-        <translation type="unfinished"></translation>
+        <translation>PRC 32K</translation>
     </message>
     <message>
         <source>PRC 32K Big</source>
-        <translation type="unfinished"></translation>
+        <translation>PRC 32K Besar</translation>
     </message>
     <message>
         <source>Fan-fold US (14.875 x 11 in)</source>
@@ -4218,226 +4220,226 @@ Anda tetap ingin menghapusnya?</translation>
     </message>
     <message>
         <source>Envelope B4</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop B4</translation>
     </message>
     <message>
         <source>Envelope B5</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop B5</translation>
     </message>
     <message>
         <source>Envelope B6</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop B6</translation>
     </message>
     <message>
         <source>Envelope C0</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C0</translation>
     </message>
     <message>
         <source>Envelope C1</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C1</translation>
     </message>
     <message>
         <source>Envelope C2</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C2</translation>
     </message>
     <message>
         <source>Envelope C3</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C3</translation>
     </message>
     <message>
         <source>Envelope C4</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C4</translation>
     </message>
     <message>
         <source>Envelope C5</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C5</translation>
     </message>
     <message>
         <source>Envelope C6</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C6</translation>
     </message>
     <message>
         <source>Envelope C65</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C65</translation>
     </message>
     <message>
         <source>Envelope C7</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop C7</translation>
     </message>
     <message>
         <source>Envelope DL</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop DL</translation>
     </message>
     <message>
         <source>Envelope US 9</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop US 9</translation>
     </message>
     <message>
         <source>Envelope US 10</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop US 10</translation>
     </message>
     <message>
         <source>Envelope US 11</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop US 11</translation>
     </message>
     <message>
         <source>Envelope US 12</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop US 12</translation>
     </message>
     <message>
         <source>Envelope US 14</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop US 14</translation>
     </message>
     <message>
         <source>Envelope Monarch</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Monarch</translation>
     </message>
     <message>
         <source>Envelope Personal</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Personal</translation>
     </message>
     <message>
         <source>Envelope Chou 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Chou 3</translation>
     </message>
     <message>
         <source>Envelope Chou 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Chou 4</translation>
     </message>
     <message>
         <source>Envelope Invite</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Undangan</translation>
     </message>
     <message>
         <source>Envelope Italian</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Italia</translation>
     </message>
     <message>
         <source>Envelope Kaku 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Kaku 2</translation>
     </message>
     <message>
         <source>Envelope Kaku 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop Kaku 3</translation>
     </message>
     <message>
         <source>Envelope PRC 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 1</translation>
     </message>
     <message>
         <source>Envelope PRC 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 2</translation>
     </message>
     <message>
         <source>Envelope PRC 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 3</translation>
     </message>
     <message>
         <source>Envelope PRC 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 4</translation>
     </message>
     <message>
         <source>Envelope PRC 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 5</translation>
     </message>
     <message>
         <source>Envelope PRC 6</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 6</translation>
     </message>
     <message>
         <source>Envelope PRC 7</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 7</translation>
     </message>
     <message>
         <source>Envelope PRC 8</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 8</translation>
     </message>
     <message>
         <source>Envelope PRC 9</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 9</translation>
     </message>
     <message>
         <source>Envelope PRC 10</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop PRC 10</translation>
     </message>
     <message>
         <source>Envelope You 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplop You 4</translation>
     </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Simpan</translation>
+        <translation>Simpan</translation>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished">Simpan Semua</translation>
+        <translation>Simpan Semua</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Buka</translation>
+        <translation>Buka</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
-        <translation type="unfinished">&amp;Ya</translation>
+        <translation>&amp;Ya</translation>
     </message>
     <message>
         <source>Yes to &amp;All</source>
-        <translation type="unfinished">Ya untuk Semu&amp;a</translation>
+        <translation>Ya untuk Semu&amp;a</translation>
     </message>
     <message>
         <source>&amp;No</source>
-        <translation type="unfinished">&amp;Tidak</translation>
+        <translation>&amp;Tidak</translation>
     </message>
     <message>
         <source>N&amp;o to All</source>
-        <translation type="unfinished">T&amp;idak untuk Semua</translation>
+        <translation>T&amp;idak untuk Semua</translation>
     </message>
     <message>
         <source>Abort</source>
-        <translation type="unfinished">Gugurkan</translation>
+        <translation>Gugurkan</translation>
     </message>
     <message>
         <source>Retry</source>
-        <translation type="unfinished">Coba Lagi</translation>
+        <translation>Coba Lagi</translation>
     </message>
     <message>
         <source>Ignore</source>
-        <translation type="unfinished">Abaikan</translation>
+        <translation>Abaikan</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation type="unfinished">Buang</translation>
+        <translation>Buang</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Bantuan</translation>
+        <translation>Bantuan</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Terapkan</translation>
+        <translation>Terapkan</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Reset</translation>
+        <translation>Reset</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
-        <translation type="unfinished">Kembalikan Bawaan</translation>
+        <translation>Kembalikan Bawaan</translation>
     </message>
 </context>
 <context>
@@ -4455,15 +4457,15 @@ Anda tetap ingin menghapusnya?</translation>
     <name>QPrintDialog</name>
     <message>
         <source>locally connected</source>
-        <translation type="vanished">tersambung secara lokal</translation>
+        <translation>tersambung secara lokal</translation>
     </message>
     <message>
         <source>Aliases: %1</source>
-        <translation type="vanished">Alias: %1</translation>
+        <translation>Alias: %1</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="vanished">tak dikenal</translation>
+        <translation>tak dikenal</translation>
     </message>
     <message>
         <source>Print To File ...</source>
@@ -4489,127 +4491,127 @@ Silakan pilih nama file lain.</translation>
     </message>
     <message>
         <source>A0</source>
-        <translation type="vanished">A0</translation>
+        <translation>A0</translation>
     </message>
     <message>
         <source>A1</source>
-        <translation type="vanished">A1</translation>
+        <translation>A1</translation>
     </message>
     <message>
         <source>A2</source>
-        <translation type="vanished">A2</translation>
+        <translation>A2</translation>
     </message>
     <message>
         <source>A3</source>
-        <translation type="vanished">A3</translation>
+        <translation>A3</translation>
     </message>
     <message>
         <source>A4</source>
-        <translation type="vanished">A4</translation>
+        <translation>A4</translation>
     </message>
     <message>
         <source>A5</source>
-        <translation type="vanished">A5</translation>
+        <translation>A5</translation>
     </message>
     <message>
         <source>A6</source>
-        <translation type="vanished">A6</translation>
+        <translation>A6</translation>
     </message>
     <message>
         <source>A7</source>
-        <translation type="vanished">A7</translation>
+        <translation>A7</translation>
     </message>
     <message>
         <source>A8</source>
-        <translation type="vanished">A8</translation>
+        <translation>A8</translation>
     </message>
     <message>
         <source>A9</source>
-        <translation type="vanished">A9</translation>
+        <translation>A9</translation>
     </message>
     <message>
         <source>B0</source>
-        <translation type="vanished">B0</translation>
+        <translation>B0</translation>
     </message>
     <message>
         <source>B1</source>
-        <translation type="vanished">B1</translation>
+        <translation>B1</translation>
     </message>
     <message>
         <source>B2</source>
-        <translation type="vanished">B2</translation>
+        <translation>B2</translation>
     </message>
     <message>
         <source>B3</source>
-        <translation type="vanished">B3</translation>
+        <translation>B3</translation>
     </message>
     <message>
         <source>B4</source>
-        <translation type="vanished">B4</translation>
+        <translation>B4</translation>
     </message>
     <message>
         <source>B5</source>
-        <translation type="vanished">B5</translation>
+        <translation>B5</translation>
     </message>
     <message>
         <source>B6</source>
-        <translation type="vanished">B6</translation>
+        <translation>B6</translation>
     </message>
     <message>
         <source>B7</source>
-        <translation type="vanished">B7</translation>
+        <translation>B7</translation>
     </message>
     <message>
         <source>B8</source>
-        <translation type="vanished">B8</translation>
+        <translation>B8</translation>
     </message>
     <message>
         <source>B9</source>
-        <translation type="vanished">B9</translation>
+        <translation>B9</translation>
     </message>
     <message>
         <source>B10</source>
-        <translation type="vanished">B10</translation>
+        <translation>B10</translation>
     </message>
     <message>
         <source>C5E</source>
-        <translation type="vanished">C5E</translation>
+        <translation>C5E</translation>
     </message>
     <message>
         <source>DLE</source>
-        <translation type="vanished">DLE</translation>
+        <translation>DLE</translation>
     </message>
     <message>
         <source>Executive</source>
-        <translation type="vanished">Eksekutif</translation>
+        <translation>Eksekutif</translation>
     </message>
     <message>
         <source>Folio</source>
-        <translation type="vanished">Folio</translation>
+        <translation>Folio</translation>
     </message>
     <message>
         <source>Ledger</source>
-        <translation type="vanished">Ledger</translation>
+        <translation>Ledger</translation>
     </message>
     <message>
         <source>Legal</source>
-        <translation type="vanished">Legal</translation>
+        <translation>Legal</translation>
     </message>
     <message>
         <source>Letter</source>
-        <translation type="vanished">Letter</translation>
+        <translation>Letter</translation>
     </message>
     <message>
         <source>Tabloid</source>
-        <translation type="vanished">Tabloid</translation>
+        <translation>Tabloid</translation>
     </message>
     <message>
         <source>US Common #10 Envelope</source>
-        <translation type="vanished">Amplop Biasa #10 AS</translation>
+        <translation>Amplop Biasa #10 AS</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="vanished">Gubahan</translation>
+        <translation>Gubahan</translation>
     </message>
     <message>
         <source>&amp;Options &gt;&gt;</source>
@@ -4629,7 +4631,7 @@ Silakan pilih nama file lain.</translation>
     </message>
     <message>
         <source>Print to File (Postscript)</source>
-        <translation type="vanished">Cetak ke File (Postscript)</translation>
+        <translation>Cetak ke File (Postscript)</translation>
     </message>
     <message>
         <source>Local file</source>
@@ -4637,83 +4639,83 @@ Silakan pilih nama file lain.</translation>
     </message>
     <message>
         <source>Write %1 file</source>
-        <translation type="vanished">Tulis file %1</translation>
+        <translation>Tulis file %1</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Cetak</translation>
     </message>
     <message>
         <source>Left to Right, Top to Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiri ke Kanan, Puncak ke Dasar</translation>
     </message>
     <message>
         <source>Left to Right, Bottom to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiri ke Kanan, Dasar ke Puncak</translation>
     </message>
     <message>
         <source>Right to Left, Bottom to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanan ke Kiri, Dasar ke Puncak</translation>
     </message>
     <message>
         <source>Right to Left, Top to Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanan ke Kiri, Puncak ke Dasar</translation>
     </message>
     <message>
         <source>Bottom to Top, Left to Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Dasar ke Puncak, Kiri ke Kanan</translation>
     </message>
     <message>
         <source>Bottom to Top, Right to Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Dasar ke Puncak, Kanan ke Kiri</translation>
     </message>
     <message>
         <source>Top to Bottom, Left to Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Puncak ke Dasar, Kiri ke Kanan</translation>
     </message>
     <message>
         <source>Top to Bottom, Right to Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Puncak ke Dasar, Kanan ke Kiri</translation>
     </message>
     <message>
         <source>1 (1x1)</source>
-        <translation type="unfinished"></translation>
+        <translation>1 (1x1)</translation>
     </message>
     <message>
         <source>2 (2x1)</source>
-        <translation type="unfinished"></translation>
+        <translation>2 (2x1)</translation>
     </message>
     <message>
         <source>4 (2x2)</source>
-        <translation type="unfinished"></translation>
+        <translation>4 (2x2)</translation>
     </message>
     <message>
         <source>6 (2x3)</source>
-        <translation type="unfinished"></translation>
+        <translation>6 (2x3)</translation>
     </message>
     <message>
         <source>9 (3x3)</source>
-        <translation type="unfinished"></translation>
+        <translation>9 (3x3)</translation>
     </message>
     <message>
         <source>16 (4x4)</source>
-        <translation type="unfinished"></translation>
+        <translation>16 (4x4)</translation>
     </message>
     <message>
         <source>All Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Semua Halaman</translation>
     </message>
     <message>
         <source>Odd Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Halaman Ganjil</translation>
     </message>
     <message>
         <source>Even Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Halaman Genap</translation>
     </message>
     <message>
         <source>Write PDF file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tulis berkas PDF</translation>
     </message>
     <message>
         <source>Options &apos;Pages Per Sheet&apos; and &apos;Page Set&apos; cannot be used together.
@@ -4726,11 +4728,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatis</translation>
     </message>
 </context>
 <context>
@@ -4805,26 +4807,26 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="vanished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>Export to PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekspor ke PDF</translation>
     </message>
 </context>
 <context>
     <name>QPrintPropertiesDialog</name>
     <message>
         <source>Printer Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Properti Pencetak</translation>
     </message>
     <message>
         <source>Job Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi Tugas</translation>
     </message>
 </context>
 <context>
@@ -4839,7 +4841,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="vanished">Tingkat lanjut</translation>
+        <translation>Tingkat lanjut</translation>
     </message>
 </context>
 <context>
@@ -4922,11 +4924,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Current Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Halaman Saat Ini</translation>
     </message>
     <message>
         <source>Page Set:</source>
-        <translation type="unfinished"></translation>
+        <translation>Set Halaman:</translation>
     </message>
 </context>
 <context>
@@ -4972,43 +4974,43 @@ Please turn one of those options off.</source>
     <name>QProcess</name>
     <message>
         <source>Process failed to start</source>
-        <translation type="unfinished"></translation>
+        <translation>Proses gagal mulai</translation>
     </message>
     <message>
         <source>Process crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>Proses kres</translation>
     </message>
     <message>
         <source>Process operation timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Operasi proses habis waktu</translation>
     </message>
     <message>
         <source>Error reading from process</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan saat membaca dari proses</translation>
     </message>
     <message>
         <source>Error writing to process</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan saat menulis ke proses</translation>
     </message>
     <message>
         <source>No program defined</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada program yang didefinisikan</translation>
     </message>
     <message>
         <source>Could not open input redirection for reading</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa membuka pengalihan masukan untuk membaca</translation>
     </message>
     <message>
         <source>Resource error (fork failure): %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kesalahan sumber daya (kegagalan fork): %1</translation>
     </message>
     <message>
         <source>Could not open output redirection for writing</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa membuka pengalihan keluaran untuk menulis</translation>
     </message>
     <message>
         <source>Process failed to start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Proses gagal mulai: %1</translation>
     </message>
 </context>
 <context>
@@ -5022,28 +5024,28 @@ Please turn one of those options off.</source>
     <name>QPushButton</name>
     <message>
         <source>Open</source>
-        <translation type="vanished">Buka</translation>
+        <translation>Buka</translation>
     </message>
 </context>
 <context>
     <name>QQnxFileDialogHelper</name>
     <message>
         <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Semua berkas (*.*)</translation>
     </message>
 </context>
 <context>
     <name>QQnxFilePicker</name>
     <message>
         <source>Pick a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih suatu berkas</translation>
     </message>
 </context>
 <context>
     <name>QRadioButton</name>
     <message>
         <source>Check</source>
-        <translation type="vanished">Periksa</translation>
+        <translation>Periksa</translation>
     </message>
 </context>
 <context>
@@ -5090,30 +5092,30 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>invalid interval</source>
-        <translation type="unfinished"></translation>
+        <translation>interval tidak valid</translation>
     </message>
     <message>
         <source>invalid category</source>
-        <translation type="unfinished"></translation>
+        <translation>kategori tidak valid</translation>
     </message>
 </context>
 <context>
     <name>QRegularExpression</name>
     <message>
         <source>no error</source>
-        <translation type="unfinished"></translation>
+        <translation>tidak ada kesalahan</translation>
     </message>
     <message>
         <source>\ at end of pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>\ di akhir pola</translation>
     </message>
     <message>
         <source>\c at end of pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>\c di akhir pola</translation>
     </message>
     <message>
         <source>unrecognized character follows \</source>
-        <translation type="unfinished"></translation>
+        <translation>karakter tak dikenal setelah \</translation>
     </message>
     <message>
         <source>numbers out of order in {} quantifier</source>
@@ -5436,7 +5438,7 @@ Please turn one of those options off.</source>
     <name>QSQLite2Driver</name>
     <message>
         <source>Error to open database</source>
-        <translation type="vanished">Kesalahan membuka database</translation>
+        <translation>Kesalahan membuka database</translation>
     </message>
     <message>
         <source>Unable to begin transaction</source>
@@ -5448,15 +5450,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Unable to rollback Transaction</source>
-        <translation type="vanished">Tak bisa rollback transaksi</translation>
+        <translation>Tak bisa rollback transaksi</translation>
     </message>
     <message>
         <source>Error opening database</source>
-        <translation type="unfinished">Kesalahan saat membuka database</translation>
+        <translation>Kesalahan membuka database</translation>
     </message>
     <message>
         <source>Unable to rollback transaction</source>
-        <translation type="unfinished">Tak bisa rollback transaksi</translation>
+        <translation>Tak bisa rollback transaksi</translation>
     </message>
 </context>
 <context>
@@ -5521,22 +5523,22 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Unable to execute multiple statements at a time</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak bisa mengeksekusi beberapa pernyataan pada satu saat</translation>
     </message>
 </context>
 <context>
     <name>QSaveFile</name>
     <message>
         <source>Existing file %1 is not writable</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas %1 yang ada tidak dapat ditulisi</translation>
     </message>
     <message>
         <source>Filename refers to a directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Nama berkas mengacu ke suatu direktori</translation>
     </message>
     <message>
         <source>Writing canceled by application</source>
-        <translation type="unfinished"></translation>
+        <translation>Penulisan dibatalkan oleh aplikasi</translation>
     </message>
 </context>
 <context>
@@ -5595,15 +5597,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Line up</source>
-        <translation type="vanished">Baris naik</translation>
+        <translation>Baris naik</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="vanished">Posisi</translation>
+        <translation>Posisi</translation>
     </message>
     <message>
         <source>Line down</source>
-        <translation type="vanished">Baris turun</translation>
+        <translation>Baris turun</translation>
     </message>
 </context>
 <context>
@@ -5634,7 +5636,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: doesn&apos;t exists</source>
-        <translation type="vanished">%1: tidak ada</translation>
+        <translation>%1: tidak ada</translation>
     </message>
     <message>
         <source>%1: out of resources</source>
@@ -5650,7 +5652,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: unix key file doesn&apos;t exists</source>
-        <translation type="vanished">%1: file kunci unix tak ada</translation>
+        <translation>%1: file kunci unix tak ada</translation>
     </message>
     <message>
         <source>%1: ftok failed</source>
@@ -5670,27 +5672,27 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>%1: bad name</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: nama buruk</translation>
     </message>
     <message>
         <source>%1: UNIX key file doesn&apos;t exist</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: berkas kunci UNIX tidak ada</translation>
     </message>
     <message>
         <source>%1: doesn&apos;t exist</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: tidak ada</translation>
     </message>
     <message>
         <source>%1: invalid size</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: ukuran tak valid</translation>
     </message>
     <message>
         <source>%1: key error</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: kesalahan kunci</translation>
     </message>
     <message>
         <source>%1: size query failed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: kueri ukuran gagal</translation>
     </message>
 </context>
 <context>
@@ -6069,40 +6071,40 @@ Please turn one of those options off.</source>
     <message>
         <source>Media Pause</source>
         <extracomment>Media player pause button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Media Jeda</translation>
     </message>
     <message>
         <source>Toggle Media Play/Pause</source>
         <extracomment>Media player button to toggle between playing and paused</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Jungkitkan Media Putar/Jeda</translation>
     </message>
     <message>
         <source>Monitor Brightness Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Kecerahan Layar Naik</translation>
     </message>
     <message>
         <source>Monitor Brightness Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Kecerahan Layar Turun</translation>
     </message>
     <message>
         <source>Keyboard Light On/Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Cahaya Latar Papan Ketik Nyala/Mati</translation>
     </message>
     <message>
         <source>Keyboard Brightness Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Kecerahan Cahaya Papan Ketik Naik</translation>
     </message>
     <message>
         <source>Keyboard Brightness Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Kecerahan Cahaya Papan Ketik Turun</translation>
     </message>
     <message>
         <source>Power Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Matikan Daya</translation>
     </message>
     <message>
         <source>Wake Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Bangunkan</translation>
     </message>
     <message>
         <source>Eject</source>
@@ -6114,11 +6116,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>WWW</source>
-        <translation type="unfinished"></translation>
+        <translation>WWW</translation>
     </message>
     <message>
         <source>Sleep</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidur</translation>
     </message>
     <message>
         <source>LightBulb</source>
@@ -6126,15 +6128,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Shop</source>
-        <translation type="unfinished"></translation>
+        <translation>Toko</translation>
     </message>
     <message>
         <source>History</source>
-        <translation type="unfinished"></translation>
+        <translation>Riwayat</translation>
     </message>
     <message>
         <source>Add Favorite</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambah Favorit</translation>
     </message>
     <message>
         <source>Hot Links</source>
@@ -6142,15 +6144,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Adjust Brightness</source>
-        <translation type="unfinished"></translation>
+        <translation>Atur Kecerahan</translation>
     </message>
     <message>
         <source>Finance</source>
-        <translation type="unfinished"></translation>
+        <translation>Keuangan</translation>
     </message>
     <message>
         <source>Community</source>
-        <translation type="unfinished"></translation>
+        <translation>Komunitas</translation>
     </message>
     <message>
         <source>Media Rewind</source>
@@ -6162,27 +6164,27 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Application Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiri Aplikasi</translation>
     </message>
     <message>
         <source>Application Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanan Aplikasi</translation>
     </message>
     <message>
         <source>Book</source>
-        <translation type="unfinished"></translation>
+        <translation>Buku</translation>
     </message>
     <message>
         <source>CD</source>
-        <translation type="unfinished"></translation>
+        <translation>CD</translation>
     </message>
     <message>
         <source>Calculator</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalkulator</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Bersihkan</translation>
+        <translation>Bersihkan</translation>
     </message>
     <message>
         <source>Clear Grab</source>
@@ -6190,15 +6192,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Salin</translation>
+        <translation>Salin</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation type="unfinished">Potong</translation>
+        <translation>Potong</translation>
     </message>
     <message>
         <source>Display</source>
@@ -6206,11 +6208,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>DOS</source>
-        <translation type="unfinished"></translation>
+        <translation>DOS</translation>
     </message>
     <message>
         <source>Documents</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumen</translation>
     </message>
     <message>
         <source>Spreadsheet</source>
@@ -6218,11 +6220,11 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Peramban</translation>
     </message>
     <message>
         <source>Game</source>
-        <translation type="unfinished"></translation>
+        <translation>Permainan</translation>
     </message>
     <message>
         <source>Go</source>
@@ -6230,7 +6232,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>iTouch</source>
-        <translation type="unfinished"></translation>
+        <translation>iTouch</translation>
     </message>
     <message>
         <source>Logoff</source>
@@ -6238,15 +6240,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Market</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasar</translation>
     </message>
     <message>
         <source>Meeting</source>
-        <translation type="unfinished"></translation>
+        <translation>Rapat</translation>
     </message>
     <message>
         <source>Keyboard Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Menu Papan Ketik</translation>
     </message>
     <message>
         <source>Menu PB</source>
@@ -6258,7 +6260,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>News</source>
-        <translation type="unfinished"></translation>
+        <translation>Berita</translation>
     </message>
     <message>
         <source>Home Office</source>
@@ -6266,27 +6268,27 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Option</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished">Tempel</translation>
+        <translation>Tempel</translation>
     </message>
     <message>
         <source>Phone</source>
-        <translation type="unfinished"></translation>
+        <translation>Telepon</translation>
     </message>
     <message>
         <source>Reply</source>
-        <translation type="unfinished"></translation>
+        <translation>Jawab</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished">Muat Ulang</translation>
+        <translation>Muat Ulang</translation>
     </message>
     <message>
         <source>Rotate Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Putar Jendela</translation>
     </message>
     <message>
         <source>Rotation PB</source>
@@ -6298,47 +6300,47 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Simpan</translation>
+        <translation>Simpan</translation>
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished"></translation>
+        <translation>Kirim</translation>
     </message>
     <message>
         <source>Spellchecker</source>
-        <translation type="unfinished"></translation>
+        <translation>Pemeriksa Ejaan</translation>
     </message>
     <message>
         <source>Split Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Belah Layar</translation>
     </message>
     <message>
         <source>Support</source>
-        <translation type="unfinished"></translation>
+        <translation>Dukungan</translation>
     </message>
     <message>
         <source>Task Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Panel Tugas</translation>
     </message>
     <message>
         <source>Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal</translation>
     </message>
     <message>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Perkakas</translation>
     </message>
     <message>
         <source>Travel</source>
-        <translation type="unfinished"></translation>
+        <translation>Perjalanan</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <source>Word Processor</source>
-        <translation type="unfinished"></translation>
+        <translation>Pengolah Kata</translation>
     </message>
     <message>
         <source>XFer</source>
@@ -6354,7 +6356,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Away</source>
-        <translation type="unfinished"></translation>
+        <translation>Pergi</translation>
     </message>
     <message>
         <source>Messenger</source>
@@ -6362,7 +6364,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>WebCam</source>
-        <translation type="unfinished"></translation>
+        <translation>WebCam</translation>
     </message>
     <message>
         <source>Mail Forward</source>
@@ -6370,23 +6372,23 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Pictures</source>
-        <translation type="unfinished"></translation>
+        <translation>Gambar</translation>
     </message>
     <message>
         <source>Music</source>
-        <translation type="unfinished">Musik</translation>
+        <translation>Musik</translation>
     </message>
     <message>
         <source>Battery</source>
-        <translation type="unfinished"></translation>
+        <translation>Baterai</translation>
     </message>
     <message>
         <source>Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth</translation>
     </message>
     <message>
         <source>Wireless</source>
-        <translation type="unfinished"></translation>
+        <translation>Nirkabel</translation>
     </message>
     <message>
         <source>Ultra Wide Band</source>
@@ -6414,19 +6416,19 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Waktu</translation>
     </message>
     <message>
         <source>Hibernate</source>
-        <translation type="unfinished"></translation>
+        <translation>Hibernasi</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilik</translation>
     </message>
     <message>
         <source>Top Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Menu Puncak</translation>
     </message>
     <message>
         <source>Power Down</source>
@@ -6434,47 +6436,47 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Suspend</source>
-        <translation type="unfinished"></translation>
+        <translation>Suspensi</translation>
     </message>
     <message>
         <source>Microphone Mute</source>
-        <translation type="unfinished"></translation>
+        <translation>Mikrofon Bisu</translation>
     </message>
     <message>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Merah</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Hijau</translation>
     </message>
     <message>
         <source>Yellow</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuning</translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Biru</translation>
     </message>
     <message>
         <source>Channel Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanal Naik</translation>
     </message>
     <message>
         <source>Channel Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanal Turun</translation>
     </message>
     <message>
         <source>Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>Panduan</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Setelan</translation>
     </message>
     <message>
         <source>Microphone Volume Up</source>
@@ -6486,15 +6488,15 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Baru</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Buka</translation>
+        <translation>Buka</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -6531,51 +6533,51 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Kanji</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanji</translation>
     </message>
     <message>
         <source>Muhenkan</source>
-        <translation type="unfinished"></translation>
+        <translation>Muhenkan</translation>
     </message>
     <message>
         <source>Henkan</source>
-        <translation type="unfinished"></translation>
+        <translation>Henkan</translation>
     </message>
     <message>
         <source>Romaji</source>
-        <translation type="unfinished"></translation>
+        <translation>Romaji</translation>
     </message>
     <message>
         <source>Hiragana</source>
-        <translation type="unfinished"></translation>
+        <translation>Hiragana</translation>
     </message>
     <message>
         <source>Katakana</source>
-        <translation type="unfinished"></translation>
+        <translation>Katakana</translation>
     </message>
     <message>
         <source>Hiragana Katakana</source>
-        <translation type="unfinished"></translation>
+        <translation>Hiragana Katakana</translation>
     </message>
     <message>
         <source>Zenkaku</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Hankaku</source>
-        <translation type="unfinished"></translation>
+        <translation>Hankaku</translation>
     </message>
     <message>
         <source>Zenkaku Hankaku</source>
-        <translation type="unfinished"></translation>
+        <translation>Zenkaku Hankaku</translation>
     </message>
     <message>
         <source>Touroku</source>
-        <translation type="unfinished"></translation>
+        <translation>Touroku</translation>
     </message>
     <message>
         <source>Massyo</source>
-        <translation type="unfinished"></translation>
+        <translation>Massyo</translation>
     </message>
     <message>
         <source>Kana Lock</source>
@@ -6607,7 +6609,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Hangul</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul</translation>
     </message>
     <message>
         <source>Hangul Start</source>
@@ -6619,31 +6621,31 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Hangul Hanja</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul Hanja</translation>
     </message>
     <message>
         <source>Hangul Jamo</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul Jamo</translation>
     </message>
     <message>
         <source>Hangul Romaja</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul Romaja</translation>
     </message>
     <message>
         <source>Hangul Jeonja</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul Jeonja</translation>
     </message>
     <message>
         <source>Hangul Banja</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul Banja</translation>
     </message>
     <message>
         <source>Hangul PreHanja</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul PreHanja</translation>
     </message>
     <message>
         <source>Hangul PostHanja</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangul PostHanja</translation>
     </message>
     <message>
         <source>Hangul Special</source>
@@ -6651,7 +6653,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
     <message>
         <source>Printer</source>
@@ -6671,7 +6673,7 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Keluar</translation>
     </message>
     <message>
         <source>Touchpad Toggle</source>
@@ -6687,37 +6689,37 @@ Please turn one of those options off.</source>
     </message>
     <message>
         <source>Num</source>
-        <translation type="unfinished"></translation>
+        <translation>Num</translation>
     </message>
 </context>
 <context>
     <name>QSlider</name>
     <message>
         <source>Page left</source>
-        <translation type="vanished">Halaman kiri</translation>
+        <translation>Halaman kiri</translation>
     </message>
     <message>
         <source>Page up</source>
-        <translation type="vanished">Halaman naik</translation>
+        <translation>Halaman naik</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="vanished">Posisi</translation>
+        <translation>Posisi</translation>
     </message>
     <message>
         <source>Page right</source>
-        <translation type="vanished">Halaman kanan</translation>
+        <translation>Halaman kanan</translation>
     </message>
     <message>
         <source>Page down</source>
-        <translation type="vanished">Halaman turun</translation>
+        <translation>Halaman turun</translation>
     </message>
 </context>
 <context>
     <name>QSocks5SocketEngine</name>
     <message>
         <source>Socks5 timeout error connecting to socks server</source>
-        <translation type="vanished">Kesalahan habis waktu socks5 saat menyambung ke server socks</translation>
+        <translation>Kesalahan habis waktu socks5 saat menyambung ke server socks</translation>
     </message>
     <message>
         <source>Network operation timed out</source>
@@ -7140,54 +7142,54 @@ Role of an accessible object</extracomment>
     <name>QSpinBox</name>
     <message>
         <source>More</source>
-        <translation type="vanished">Lebih</translation>
+        <translation>Lebih</translation>
     </message>
     <message>
         <source>Less</source>
-        <translation type="vanished">Kurang</translation>
+        <translation>Kurang</translation>
     </message>
 </context>
 <context>
     <name>QSql</name>
     <message>
         <source>Delete</source>
-        <translation type="vanished">Hapus</translation>
+        <translation>Hapus</translation>
     </message>
     <message>
         <source>Delete this record?</source>
-        <translation type="vanished">Hapus record ini?</translation>
+        <translation>Hapus record ini?</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="vanished">Ya</translation>
+        <translation>Ya</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="vanished">Tidak</translation>
+        <translation>Tidak</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation type="vanished">Sisipkan</translation>
+        <translation>Sisipkan</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="vanished">Perbarui</translation>
+        <translation>Perbarui</translation>
     </message>
     <message>
         <source>Save edits?</source>
-        <translation type="vanished">Simpan edit?</translation>
+        <translation>Simpan edit?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="vanished">Batal</translation>
+        <translation>Batal</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation type="vanished">Konfirmasi</translation>
+        <translation>Konfirmasi</translation>
     </message>
     <message>
         <source>Cancel your edits?</source>
-        <translation type="vanished">Batalkan edit Anda?</translation>
+        <translation>Batalkan edit Anda?</translation>
     </message>
 </context>
 <context>
@@ -7234,7 +7236,7 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Private key does not certificate public key, %1</source>
-        <translation type="vanished">Kunci privat tak mensertifikasi kunci publik, %1</translation>
+        <translation>Kunci privat tak mensertifikasi kunci publik, %1</translation>
     </message>
     <message>
         <source>Error when setting the elliptic curves (%1)</source>
@@ -7365,35 +7367,35 @@ Role of an accessible object</extracomment>
     <name>QStandardPaths</name>
     <message>
         <source>Desktop</source>
-        <translation type="unfinished"></translation>
+        <translation>Desktop</translation>
     </message>
     <message>
         <source>Documents</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumen</translation>
     </message>
     <message>
         <source>Fonts</source>
-        <translation type="unfinished">Font</translation>
+        <translation>Font</translation>
     </message>
     <message>
         <source>Applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikasi</translation>
     </message>
     <message>
         <source>Music</source>
-        <translation type="unfinished">Musik</translation>
+        <translation>Musik</translation>
     </message>
     <message>
         <source>Movies</source>
-        <translation type="unfinished"></translation>
+        <translation>Film</translation>
     </message>
     <message>
         <source>Pictures</source>
-        <translation type="unfinished"></translation>
+        <translation>Gambar</translation>
     </message>
     <message>
         <source>Temporary Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Direktori Sementara</translation>
     </message>
     <message>
         <source>Home</source>
@@ -7401,11 +7403,11 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Singgahan</translation>
     </message>
     <message>
         <source>Shared Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Data Bersama</translation>
     </message>
     <message>
         <source>Runtime</source>
@@ -7413,27 +7415,27 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurasi</translation>
     </message>
     <message>
         <source>Shared Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurasi Bersama</translation>
     </message>
     <message>
         <source>Shared Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Singgahan Bersama</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished"></translation>
+        <translation>Unduh</translation>
     </message>
     <message>
         <source>Application Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Data Aplikasi</translation>
     </message>
     <message>
         <source>Application Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurasi Aplikasi</translation>
     </message>
 </context>
 <context>
@@ -7444,7 +7446,7 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Missing default state in history state &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurang keadaan baku dalam keadaan riwayat &apos;%1&apos;</translation>
     </message>
     <message>
         <source>No common ancestor for targets and source of transition from state &apos;%1&apos;</source>
@@ -7452,30 +7454,30 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Kesalahan tak dikenal</translation>
+        <translation>Kesalahan tak dikenal</translation>
     </message>
 </context>
 <context>
     <name>QSystemSemaphore</name>
     <message>
         <source>%1: permission denied</source>
-        <translation type="unfinished">%1: ijin ditolak</translation>
+        <translation>%1: izin ditolak</translation>
     </message>
     <message>
         <source>%1: already exists</source>
-        <translation type="unfinished">%1: telah ada</translation>
+        <translation>%1: telah ada</translation>
     </message>
     <message>
         <source>%1: does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: tidak ada</translation>
     </message>
     <message>
         <source>%1: out of resources</source>
-        <translation type="unfinished">%1: kehabisan sumber daya</translation>
+        <translation>%1: kehabisan sumber daya</translation>
     </message>
     <message>
         <source>%1: unknown error %2</source>
-        <translation type="unfinished">%1: kesalahan tak dikenal %2</translation>
+        <translation>%1: kesalahan tak dikenal %2</translation>
     </message>
 </context>
 <context>
@@ -7504,89 +7506,89 @@ Role of an accessible object</extracomment>
     <name>QTcpServer</name>
     <message>
         <source>Operation on socket is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Operasi pada soket tidak didukung</translation>
     </message>
 </context>
 <context>
     <name>QTextControl</name>
     <message>
         <source>&amp;Undo</source>
-        <translation type="vanished">&amp;Batalkan</translation>
+        <translation>&amp;Batalkan</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="vanished">&amp;Jadi Lagi</translation>
+        <translation>&amp;Jadi Lagi</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="vanished">Po&amp;tong</translation>
+        <translation>Po&amp;tong</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Salin</translation>
+        <translation>&amp;Salin</translation>
     </message>
     <message>
         <source>Copy &amp;Link Location</source>
-        <translation type="vanished">Salin &amp;Lokasi Taut</translation>
+        <translation>Salin &amp;Lokasi Taut</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="vanished">Tem&amp;pel</translation>
+        <translation>Tem&amp;pel</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="vanished">Hapus</translation>
+        <translation>Hapus</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="vanished">Pilih Semua</translation>
+        <translation>Pilih Semua</translation>
     </message>
 </context>
 <context>
     <name>QToolButton</name>
     <message>
         <source>Press</source>
-        <translation type="vanished">Tekan</translation>
+        <translation>Tekan</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="vanished">Buka</translation>
+        <translation>Buka</translation>
     </message>
 </context>
 <context>
     <name>QUdpSocket</name>
     <message>
         <source>This platform does not support IPv6</source>
-        <translation type="vanished">Platform ini tak mendukung IPv6</translation>
+        <translation>Platform ini tak mendukung IPv6</translation>
     </message>
 </context>
 <context>
     <name>QUndoGroup</name>
     <message>
         <source>Undo</source>
-        <translation type="vanished">Batalkan</translation>
+        <translation>Batalkan</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="vanished">Jadi lagi</translation>
+        <translation>Jadi lagi</translation>
     </message>
     <message>
         <source>Undo %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Batalkan %1</translation>
     </message>
     <message>
         <source>Undo</source>
         <comment>Default text for undo action</comment>
-        <translation type="unfinished">Batalkan</translation>
+        <translation>Batalkan</translation>
     </message>
     <message>
         <source>Redo %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Jadi lagi %1</translation>
     </message>
     <message>
         <source>Redo</source>
         <comment>Default text for redo action</comment>
-        <translation type="unfinished">Jadi lagi</translation>
+        <translation>Jadi lagi</translation>
     </message>
 </context>
 <context>
@@ -7600,29 +7602,29 @@ Role of an accessible object</extracomment>
     <name>QUndoStack</name>
     <message>
         <source>Undo</source>
-        <translation type="vanished">Batalkan</translation>
+        <translation>Batalkan</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="vanished">Jadi lagi</translation>
+        <translation>Jadi lagi</translation>
     </message>
     <message>
         <source>Undo %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Batalkan %1</translation>
     </message>
     <message>
         <source>Undo</source>
         <comment>Default text for undo action</comment>
-        <translation type="unfinished">Batalkan</translation>
+        <translation>Batalkan</translation>
     </message>
     <message>
         <source>Redo %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Jadi lagi %1</translation>
     </message>
     <message>
         <source>Redo</source>
         <comment>Default text for redo action</comment>
-        <translation type="unfinished">Jadi lagi</translation>
+        <translation>Jadi lagi</translation>
     </message>
 </context>
 <context>
@@ -7673,297 +7675,297 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>LRI Left-to-right isolate</source>
-        <translation type="unfinished"></translation>
+        <translation>LRI Left-to-right isolate</translation>
     </message>
     <message>
         <source>RLI Right-to-left isolate</source>
-        <translation type="unfinished"></translation>
+        <translation>RLI Right-to-left isolate</translation>
     </message>
     <message>
         <source>FSI First strong isolate</source>
-        <translation type="unfinished"></translation>
+        <translation>FSI First strong isolate</translation>
     </message>
     <message>
         <source>PDI Pop directional isolate</source>
-        <translation type="unfinished"></translation>
+        <translation>PDI Pop directional isolate</translation>
     </message>
 </context>
 <context>
     <name>QWebFrame</name>
     <message>
         <source>Request cancelled</source>
-        <translation type="vanished">Permintaan dibatalkan</translation>
+        <translation>Permintaan dibatalkan</translation>
     </message>
     <message>
         <source>Request blocked</source>
-        <translation type="vanished">Permintaan diblok</translation>
+        <translation>Permintaan diblok</translation>
     </message>
     <message>
         <source>Cannot show URL</source>
-        <translation type="vanished">Tak bisa menampilkan URL</translation>
+        <translation>Tak bisa menampilkan URL</translation>
     </message>
     <message>
         <source>Frame load interruped by policy change</source>
-        <translation type="vanished">Pemuatan frame diinterupsi oleh perubahan kebijakan</translation>
+        <translation>Pemuatan frame diinterupsi oleh perubahan kebijakan</translation>
     </message>
     <message>
         <source>Cannot show mimetype</source>
-        <translation type="vanished">Tak bisa menampilkan mimetype</translation>
+        <translation>Tak bisa menampilkan mimetype</translation>
     </message>
     <message>
         <source>File does not exist</source>
-        <translation type="vanished">File tak ada</translation>
+        <translation>File tak ada</translation>
     </message>
 </context>
 <context>
     <name>QWebPage</name>
     <message>
         <source>Bad HTTP request</source>
-        <translation type="vanished">Permintaan HTTP buruk</translation>
+        <translation>Permintaan HTTP buruk</translation>
     </message>
     <message>
         <source>Submit</source>
         <comment>default label for Submit buttons in forms on web pages</comment>
-        <translation type="vanished">Submit</translation>
+        <translation>Submit</translation>
     </message>
     <message>
         <source>Submit</source>
         <comment>Submit (input element) alt text for &lt;input&gt; elements with no alt, title, or value</comment>
-        <translation type="vanished">Submit</translation>
+        <translation>Submit</translation>
     </message>
     <message>
         <source>Reset</source>
         <comment>default label for Reset buttons in forms on web pages</comment>
-        <translation type="vanished">Reset</translation>
+        <translation>Reset</translation>
     </message>
     <message>
         <source>This is a searchable index. Enter search keywords: </source>
         <comment>text that appears at the start of nearly-obsolete web pages in the form of a &apos;searchable index&apos;</comment>
-        <translation type="vanished">Ini adalah indeks yang dapat dicari. Masukkan kata kunci pencarian: </translation>
+        <translation>Ini adalah indeks yang dapat dicari. Masukkan kata kunci pencarian: </translation>
     </message>
     <message>
         <source>Choose File</source>
         <comment>title for file button used in HTML forms</comment>
-        <translation type="vanished">Pilih File</translation>
+        <translation>Pilih File</translation>
     </message>
     <message>
         <source>No file selected</source>
         <comment>text to display in file button used in HTML forms when no file is selected</comment>
-        <translation type="vanished">Tak ada file yang dipilih</translation>
+        <translation>Tak ada file yang dipilih</translation>
     </message>
     <message>
         <source>Open in New Window</source>
         <comment>Open in New Window context menu item</comment>
-        <translation type="vanished">Buka di Window Baru</translation>
+        <translation>Buka di Window Baru</translation>
     </message>
     <message>
         <source>Save Link...</source>
         <comment>Download Linked File context menu item</comment>
-        <translation type="vanished">Simpan Taut...</translation>
+        <translation>Simpan Taut...</translation>
     </message>
     <message>
         <source>Copy Link</source>
         <comment>Copy Link context menu item</comment>
-        <translation type="vanished">Salin Taut</translation>
+        <translation>Salin Taut</translation>
     </message>
     <message>
         <source>Open Image</source>
         <comment>Open Image in New Window context menu item</comment>
-        <translation type="vanished">Buka Citra</translation>
+        <translation>Buka Citra</translation>
     </message>
     <message>
         <source>Save Image</source>
         <comment>Download Image context menu item</comment>
-        <translation type="vanished">Simpan Citra</translation>
+        <translation>Simpan Citra</translation>
     </message>
     <message>
         <source>Copy Image</source>
         <comment>Copy Link context menu item</comment>
-        <translation type="vanished">Salin Citra</translation>
+        <translation>Salin Citra</translation>
     </message>
     <message>
         <source>Open Frame</source>
         <comment>Open Frame in New Window context menu item</comment>
-        <translation type="vanished">Buka Frame</translation>
+        <translation>Buka Frame</translation>
     </message>
     <message>
         <source>Copy</source>
         <comment>Copy context menu item</comment>
-        <translation type="vanished">Salin</translation>
+        <translation>Salin</translation>
     </message>
     <message>
         <source>Go Back</source>
         <comment>Back context menu item</comment>
-        <translation type="vanished">Mundur</translation>
+        <translation>Mundur</translation>
     </message>
     <message>
         <source>Go Forward</source>
         <comment>Forward context menu item</comment>
-        <translation type="vanished">Maju</translation>
+        <translation>Maju</translation>
     </message>
     <message>
         <source>Stop</source>
         <comment>Stop context menu item</comment>
-        <translation type="vanished">Stop</translation>
+        <translation>Stop</translation>
     </message>
     <message>
         <source>Reload</source>
         <comment>Reload context menu item</comment>
-        <translation type="vanished">Muat Ulang</translation>
+        <translation>Muat Ulang</translation>
     </message>
     <message>
         <source>Cut</source>
         <comment>Cut context menu item</comment>
-        <translation type="vanished">Potong</translation>
+        <translation>Potong</translation>
     </message>
     <message>
         <source>Paste</source>
         <comment>Paste context menu item</comment>
-        <translation type="vanished">Tempel</translation>
+        <translation>Tempel</translation>
     </message>
     <message>
         <source>No Guesses Found</source>
         <comment>No Guesses Found context menu item</comment>
-        <translation type="vanished">Tebakan Tak Ditemukan</translation>
+        <translation>Tebakan Tak Ditemukan</translation>
     </message>
     <message>
         <source>Ignore</source>
         <comment>Ignore Spelling context menu item</comment>
-        <translation type="vanished">Abaikan</translation>
+        <translation>Abaikan</translation>
     </message>
     <message>
         <source>Add To Dictionary</source>
         <comment>Learn Spelling context menu item</comment>
-        <translation type="vanished">Tambahkan Ke Kamus</translation>
+        <translation>Tambahkan Ke Kamus</translation>
     </message>
     <message>
         <source>Search The Web</source>
         <comment>Search The Web context menu item</comment>
-        <translation type="vanished">Cari Di Web</translation>
+        <translation>Cari Di Web</translation>
     </message>
     <message>
         <source>Look Up In Dictionary</source>
         <comment>Look Up in Dictionary context menu item</comment>
-        <translation type="vanished">Lihat Di Kamus</translation>
+        <translation>Lihat Di Kamus</translation>
     </message>
     <message>
         <source>Open Link</source>
         <comment>Open Link context menu item</comment>
-        <translation type="vanished">Buka Taut</translation>
+        <translation>Buka Taut</translation>
     </message>
     <message>
         <source>Ignore</source>
         <comment>Ignore Grammar context menu item</comment>
-        <translation type="vanished">Abaikan</translation>
+        <translation>Abaikan</translation>
     </message>
     <message>
         <source>Spelling</source>
         <comment>Spelling and Grammar context sub-menu item</comment>
-        <translation type="vanished">Ejaan</translation>
+        <translation>Ejaan</translation>
     </message>
     <message>
         <source>Show Spelling and Grammar</source>
         <comment>menu item title</comment>
-        <translation type="vanished">Tampilkan Ejaan dan Tata Bahasa</translation>
+        <translation>Tampilkan Ejaan dan Tata Bahasa</translation>
     </message>
     <message>
         <source>Hide Spelling and Grammar</source>
         <comment>menu item title</comment>
-        <translation type="vanished">Sembunyikan Ejaan dan Tata Bahasa</translation>
+        <translation>Sembunyikan Ejaan dan Tata Bahasa</translation>
     </message>
     <message>
         <source>Check Spelling</source>
         <comment>Check spelling context menu item</comment>
-        <translation type="vanished">Periksa Ejaan</translation>
+        <translation>Periksa Ejaan</translation>
     </message>
     <message>
         <source>Check Spelling While Typing</source>
         <comment>Check spelling while typing context menu item</comment>
-        <translation type="vanished">Periksa Ejaan Ketika Mengetik</translation>
+        <translation>Periksa Ejaan Ketika Mengetik</translation>
     </message>
     <message>
         <source>Check Grammar With Spelling</source>
         <comment>Check grammar with spelling context menu item</comment>
-        <translation type="vanished">Periksa Tata Bahasa Ketika Mengetik</translation>
+        <translation>Periksa Tata Bahasa Ketika Mengetik</translation>
     </message>
     <message>
         <source>Fonts</source>
         <comment>Font context sub-menu item</comment>
-        <translation type="vanished">Font</translation>
+        <translation>Font</translation>
     </message>
     <message>
         <source>Bold</source>
         <comment>Bold context menu item</comment>
-        <translation type="vanished">Tebal</translation>
+        <translation>Tebal</translation>
     </message>
     <message>
         <source>Italic</source>
         <comment>Italic context menu item</comment>
-        <translation type="vanished">Miring</translation>
+        <translation>Miring</translation>
     </message>
     <message>
         <source>Underline</source>
         <comment>Underline context menu item</comment>
-        <translation type="vanished">Garis Bawah</translation>
+        <translation>Garis Bawah</translation>
     </message>
     <message>
         <source>Outline</source>
         <comment>Outline context menu item</comment>
-        <translation type="vanished">Outline</translation>
+        <translation>Outline</translation>
     </message>
     <message>
         <source>Direction</source>
         <comment>Writing direction context sub-menu item</comment>
-        <translation type="vanished">Arah</translation>
+        <translation>Arah</translation>
     </message>
     <message>
         <source>Default</source>
         <comment>Default writing direction context menu item</comment>
-        <translation type="vanished">Bawaan</translation>
+        <translation>Bawaan</translation>
     </message>
     <message>
         <source>LTR</source>
         <comment>Left to Right context menu item</comment>
-        <translation type="vanished">LTR</translation>
+        <translation>LTR</translation>
     </message>
     <message>
         <source>RTL</source>
         <comment>Right to Left context menu item</comment>
-        <translation type="vanished">RTL</translation>
+        <translation>RTL</translation>
     </message>
     <message>
         <source>Inspect</source>
         <comment>Inspect Element context menu item</comment>
-        <translation type="vanished">Periksa</translation>
+        <translation>Periksa</translation>
     </message>
     <message>
         <source>No recent searches</source>
         <comment>Label for only item in menu that appears when clicking on the search field image, when no searches have been performed</comment>
-        <translation type="vanished">Tak ada pencarian terkini</translation>
+        <translation>Tak ada pencarian terkini</translation>
     </message>
     <message>
         <source>Recent searches</source>
         <comment>label for first item in the menu that appears when clicking on the search field image, used as embedded menu title</comment>
-        <translation type="vanished">Pencarian terkini</translation>
+        <translation>Pencarian terkini</translation>
     </message>
     <message>
         <source>Clear recent searches</source>
         <comment>menu item in Recent Searches menu that empties menu&apos;s contents</comment>
-        <translation type="vanished">Bersihkan pencarian terkini</translation>
+        <translation>Bersihkan pencarian terkini</translation>
     </message>
     <message>
         <source>Unknown</source>
         <comment>Unknown filesize FTP directory listing item</comment>
-        <translation type="vanished">Tak Dikenal</translation>
+        <translation>Tak Dikenal</translation>
     </message>
     <message>
         <source>%1 (%2x%3 pixels)</source>
         <comment>Title string for images</comment>
-        <translation type="vanished">%1 (%2x%3 piksel)</translation>
+        <translation>%1 (%2x%3 piksel)</translation>
     </message>
     <message>
         <source>Web Inspector - %2</source>
-        <translation type="vanished">Web Inspector - %2</translation>
+        <translation>Web Inspector - %2</translation>
     </message>
 </context>
 <context>
@@ -7984,35 +7986,35 @@ Role of an accessible object</extracomment>
     <name>QWidgetTextControl</name>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Batalkan</translation>
+        <translation>&amp;Batalkan</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Jadi Lagi</translation>
+        <translation>&amp;Jadi Lagi</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">Po&amp;tong</translation>
+        <translation>Po&amp;tong</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Salin</translation>
+        <translation>&amp;Salin</translation>
     </message>
     <message>
         <source>Copy &amp;Link Location</source>
-        <translation type="unfinished">Salin &amp;Lokasi Taut</translation>
+        <translation>Salin &amp;Lokasi Taut</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished">Tem&amp;pel</translation>
+        <translation>Tem&amp;pel</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Hapus</translation>
+        <translation>Hapus</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished">Pilih Semua</translation>
+        <translation>Pilih Semua</translation>
     </message>
 </context>
 <context>
@@ -8021,11 +8023,13 @@ Role of an accessible object</extracomment>
         <source>Qt cannot load the direct2d platform plugin because the Direct2D version on this system is too old. The minimum system requirement for this platform plugin is Windows 7 SP1 with Platform Update.
 
 The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on this system is %5.%6.%7.%8.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt tidak bisa memuat plugin platform direct2d karena versi Direct2D pada sistem ini terlalu tua. Persyaratan minimum sistem bagi plugin platform ini adalah Windows 7 SP1 dengan Pembaruan Platform.
+
+</translation>
     </message>
     <message>
         <source>Cannot load direct2d platform plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa memuat plugin platform direct2d</translation>
     </message>
 </context>
 <context>
@@ -8048,7 +8052,7 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     </message>
     <message>
         <source>Quit</source>
-        <translation type="vanished">Keluar</translation>
+        <translation>Keluar</translation>
     </message>
     <message>
         <source>Help</source>
@@ -8083,55 +8087,55 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     <name>QWorkspace</name>
     <message>
         <source>&amp;Restore</source>
-        <translation type="vanished">&amp;Kembalikan</translation>
+        <translation>&amp;Kembalikan</translation>
     </message>
     <message>
         <source>&amp;Move</source>
-        <translation type="vanished">&amp;Pindahkan</translation>
+        <translation>&amp;Pindahkan</translation>
     </message>
     <message>
         <source>&amp;Size</source>
-        <translation type="vanished">&amp;Ukuran</translation>
+        <translation>&amp;Ukuran</translation>
     </message>
     <message>
         <source>Mi&amp;nimize</source>
-        <translation type="vanished">Mi&amp;nimalkan</translation>
+        <translation>Mi&amp;nimalkan</translation>
     </message>
     <message>
         <source>Ma&amp;ximize</source>
-        <translation type="vanished">Ma&amp;ksimalkan</translation>
+        <translation>Ma&amp;ksimalkan</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="vanished">Tutu&amp;p</translation>
+        <translation>Tutu&amp;p</translation>
     </message>
     <message>
         <source>Stay on &amp;Top</source>
-        <translation type="vanished">&amp;Tetap di Atas</translation>
+        <translation>&amp;Tetap di Atas</translation>
     </message>
     <message>
         <source>Sh&amp;ade</source>
-        <translation type="vanished">Berb&amp;ayang</translation>
+        <translation>Berb&amp;ayang</translation>
     </message>
     <message>
         <source>%1 - [%2]</source>
-        <translation type="vanished">%1 - [%2]</translation>
+        <translation>%1 - [%2]</translation>
     </message>
     <message>
         <source>Minimize</source>
-        <translation type="vanished">Minimalkan</translation>
+        <translation>Minimalkan</translation>
     </message>
     <message>
         <source>Restore Down</source>
-        <translation type="vanished">Kembali Turun</translation>
+        <translation>Kembali Turun</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="vanished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
     <message>
         <source>&amp;Unshade</source>
-        <translation type="vanished">Hap&amp;us Bayang</translation>
+        <translation>Hap&amp;us Bayang</translation>
     </message>
 </context>
 <context>
@@ -8253,7 +8257,7 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     </message>
     <message>
         <source>Attribute redefined.</source>
-        <translation type="vanished">Atribut didefinisikan ulang.</translation>
+        <translation>Atribut didefinisikan ulang.</translation>
     </message>
     <message>
         <source>Unexpected character &apos;%1&apos; in public id literal.</source>
@@ -8373,656 +8377,656 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     </message>
     <message>
         <source>Attribute &apos;%1&apos; redefined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribut &apos;%1&apos; didefinisikan ulang.</translation>
     </message>
 </context>
 <context>
     <name>QtXmlPatterns</name>
     <message>
         <source>An %1-attribute with value %2 has already been declared.</source>
-        <translation type="vanished">Suatu atribut %1 dengan nilai %2 telah dideklarasikan.</translation>
+        <translation>Suatu atribut %1 dengan nilai %2 telah dideklarasikan.</translation>
     </message>
     <message>
         <source>An %1-attribute must have a valid %2 as value, which %3 isn&apos;t.</source>
-        <translation type="vanished">Suatu atribut %1 mesti memiliki %2 yang valid sebagai nilai, sedangkan %3 tidak.</translation>
+        <translation>Suatu atribut %1 mesti memiliki %2 yang valid sebagai nilai, sedangkan %3 tidak.</translation>
     </message>
     <message>
         <source>Network timeout.</source>
-        <translation type="vanished">Habis waktu jaringan.</translation>
+        <translation>Habis waktu jaringan.</translation>
     </message>
     <message>
         <source>Element %1 can&apos;t be serialized because it appears outside the document element.</source>
-        <translation type="vanished">Elemen %1 tak dapat diserialisasi karena muncul di luar elemen dokumen.</translation>
+        <translation>Elemen %1 tak dapat diserialisasi karena muncul di luar elemen dokumen.</translation>
     </message>
     <message>
         <source>Attribute %1 can&apos;t be serialized because it appears at the top level.</source>
-        <translation type="vanished">Atribut %1 tak dapat diserialisasi karena muncul di level puncak.</translation>
+        <translation>Atribut %1 tak dapat diserialisasi karena muncul di level puncak.</translation>
     </message>
     <message>
         <source>Year %1 is invalid because it begins with %2.</source>
-        <translation type="vanished">Tahun %1 tak valid karena dimulai dengan %2.</translation>
+        <translation>Tahun %1 tak valid karena dimulai dengan %2.</translation>
     </message>
     <message>
         <source>Day %1 is outside the range %2..%3.</source>
-        <translation type="vanished">Tanggal %1 di luar jangkauan %2..%3.</translation>
+        <translation>Tanggal %1 di luar jangkauan %2..%3.</translation>
     </message>
     <message>
         <source>Month %1 is outside the range %2..%3.</source>
-        <translation type="vanished">Bulan %1 di luar jangkauan %2..%3.</translation>
+        <translation>Bulan %1 di luar jangkauan %2..%3.</translation>
     </message>
     <message>
         <source>Overflow: Can&apos;t represent date %1.</source>
-        <translation type="vanished">Overflow: Tak bisa merepresentasikan tanggal %1.</translation>
+        <translation>Overflow: Tak bisa merepresentasikan tanggal %1.</translation>
     </message>
     <message>
         <source>Day %1 is invalid for month %2.</source>
-        <translation type="vanished">Tanggal %1 tak valid bagi bulan %2.</translation>
+        <translation>Tanggal %1 tak valid bagi bulan %2.</translation>
     </message>
     <message>
         <source>Time 24:%1:%2.%3 is invalid. Hour is 24, but minutes, seconds, and milliseconds are not all 0; </source>
-        <translation type="vanished">Waktu 24:%1:%2.%3 tak valid. Jam 24, tapi menit, detik, dan milidetik semua bukan 0; </translation>
+        <translation>Waktu 24:%1:%2.%3 tak valid. Jam 24, tapi menit, detik, dan milidetik semua bukan 0; </translation>
     </message>
     <message>
         <source>Time %1:%2:%3.%4 is invalid.</source>
-        <translation type="vanished">Waktu %1:%2:%3.%4 tak valid.</translation>
+        <translation>Waktu %1:%2:%3.%4 tak valid.</translation>
     </message>
     <message>
         <source>Overflow: Date can&apos;t be represented.</source>
-        <translation type="vanished">Overflow: Tanggal tak bisa direpresentasikan.</translation>
+        <translation>Overflow: Tanggal tak bisa direpresentasikan.</translation>
     </message>
     <message>
         <source>At least one component must be present.</source>
-        <translation type="vanished">Paling tidak mesti ada satu komponen.</translation>
+        <translation>Paling tidak mesti ada satu komponen.</translation>
     </message>
     <message>
         <source>At least one time component must appear after the %1-delimiter.</source>
-        <translation type="vanished">Paling tidak satu komponen waktu mesti ada setelah delimiter %1.</translation>
+        <translation>Paling tidak satu komponen waktu mesti ada setelah delimiter %1.</translation>
     </message>
     <message>
         <source>No operand in an integer division, %1, can be %2.</source>
-        <translation type="vanished">Tidak ada operand dalam pembagian bilangan bulat, %1, bisa jadi %2.</translation>
+        <translation>Tidak ada operand dalam pembagian bilangan bulat, %1, bisa jadi %2.</translation>
     </message>
     <message>
         <source>The first operand in an integer division, %1, cannot be infinity (%2).</source>
-        <translation type="vanished">Operand pertama dalam pembagian bilangan bulat, %1, tak boleh tak hingga (%2).</translation>
+        <translation>Operand pertama dalam pembagian bilangan bulat, %1, tak boleh tak hingga (%2).</translation>
     </message>
     <message>
         <source>The second operand in a division, %1, cannot be zero (%2).</source>
-        <translation type="vanished">Operand kedua dalam suatu pembagian, %1, tak boleh nol (%2).</translation>
+        <translation>Operand kedua dalam suatu pembagian, %1, tak boleh nol (%2).</translation>
     </message>
     <message>
         <source>%1 is not a valid value of type %2.</source>
-        <translation type="vanished">%1 bukan nilai yang valid dari tipe %2.</translation>
+        <translation>%1 bukan nilai yang valid dari tipe %2.</translation>
     </message>
     <message>
         <source>When casting to %1 from %2, the source value cannot be %3.</source>
-        <translation type="vanished">Saat casting ke %1 dari %2, nilai sumber tak boleh %3.</translation>
+        <translation>Saat casting ke %1 dari %2, nilai sumber tak boleh %3.</translation>
     </message>
     <message>
         <source>Integer division (%1) by zero (%2) is undefined.</source>
-        <translation type="vanished">Pembagian bilangan bulat (%1) oleh nol (%2) tak terdefinisi.</translation>
+        <translation>Pembagian bilangan bulat (%1) oleh nol (%2) tak terdefinisi.</translation>
     </message>
     <message>
         <source>Division (%1) by zero (%2) is undefined.</source>
-        <translation type="vanished">Pembagian (%1) oleh nol (%2) tak terdefinisi.</translation>
+        <translation>Pembagian (%1) oleh nol (%2) tak terdefinisi.</translation>
     </message>
     <message>
         <source>Modulus division (%1) by zero (%2) is undefined.</source>
-        <translation type="vanished">Pembagian modulus (%1) oleh nol (%2) tak terdefinisi.</translation>
+        <translation>Pembagian modulus (%1) oleh nol (%2) tak terdefinisi.</translation>
     </message>
     <message>
         <source>Dividing a value of type %1 by %2 (not-a-number) is not allowed.</source>
-        <translation type="vanished">Membagi suatu nilai bertipe %1 dengan %2 (bukan sebuah bilangan) tak diijinkan.</translation>
+        <translation>Membagi suatu nilai bertipe %1 dengan %2 (bukan sebuah bilangan) tak diijinkan.</translation>
     </message>
     <message>
         <source>Dividing a value of type %1 by %2 or %3 (plus or minus zero) is not allowed.</source>
-        <translation type="vanished">Membagi suatu nilai bertipe %1 dengan %2 atau %3 (plus atau minus nol) tak diijinkan.</translation>
+        <translation>Membagi suatu nilai bertipe %1 dengan %2 atau %3 (plus atau minus nol) tak diijinkan.</translation>
     </message>
     <message>
         <source>Multiplication of a value of type %1 by %2 or %3 (plus or minus infinity) is not allowed.</source>
-        <translation type="vanished">Perkalian atas suatu nilai bertipe %1 dengan %2 atau %3 (plus atau minus tak hingga) tak diijinkan.</translation>
+        <translation>Perkalian atas suatu nilai bertipe %1 dengan %2 atau %3 (plus atau minus tak hingga) tak diijinkan.</translation>
     </message>
     <message>
         <source>A value of type %1 cannot have an Effective Boolean Value.</source>
-        <translation type="vanished">Suatu nilai bertipe %1 tak bisa memiliki Effective Boolean Value.</translation>
+        <translation>Suatu nilai bertipe %1 tak bisa memiliki Effective Boolean Value.</translation>
     </message>
     <message>
         <source>Effective Boolean Value cannot be calculated for a sequence containing two or more atomic values.</source>
-        <translation type="vanished">Effective Booelan Value tak bisa dihitung bagi urutan yang memuat dua atau lebih nilai atomik.</translation>
+        <translation>Effective Booelan Value tak bisa dihitung bagi urutan yang memuat dua atau lebih nilai atomik.</translation>
     </message>
     <message>
         <source>Value %1 of type %2 exceeds maximum (%3).</source>
-        <translation type="vanished">Nilai %1 bertipe %2 melebihi maksimum (%3).</translation>
+        <translation>Nilai %1 bertipe %2 melebihi maksimum (%3).</translation>
     </message>
     <message>
         <source>Value %1 of type %2 is below minimum (%3).</source>
-        <translation type="vanished">Nilai %1 bertipe %2 kurang dari minimum (%3).</translation>
+        <translation>Nilai %1 bertipe %2 kurang dari minimum (%3).</translation>
     </message>
     <message>
         <source>A value of type %1 must contain an even number of digits. The value %2 does not.</source>
-        <translation type="vanished">Sebuah nilai bertipe %1 mesti memuat suatu jumlah digit genap. Nilai %2 tidak.</translation>
+        <translation>Sebuah nilai bertipe %1 mesti memuat suatu jumlah digit genap. Nilai %2 tidak.</translation>
     </message>
     <message>
         <source>%1 is not valid as a value of type %2.</source>
-        <translation type="vanished">%1 tak valid sebagai sebuah nilai bertipe %2.</translation>
+        <translation>%1 tak valid sebagai sebuah nilai bertipe %2.</translation>
     </message>
     <message>
         <source>Operator %1 cannot be used on type %2.</source>
-        <translation type="vanished">Operator %1 tak dapat dipakai pada tipe %2.</translation>
+        <translation>Operator %1 tak dapat dipakai pada tipe %2.</translation>
     </message>
     <message>
         <source>Operator %1 cannot be used on atomic values of type %2 and %3.</source>
-        <translation type="vanished">Operator %1 tak dapat dipakai pada nilai atomik bertipe %2 dan %3.</translation>
+        <translation>Operator %1 tak dapat dipakai pada nilai atomik bertipe %2 dan %3.</translation>
     </message>
     <message>
         <source>The namespace URI in the name for a computed attribute cannot be %1.</source>
-        <translation type="vanished">URI namespace dalam nama bagi suatu atribut yang dihitung tak boleh %1.</translation>
+        <translation>URI namespace dalam nama bagi suatu atribut yang dihitung tak boleh %1.</translation>
     </message>
     <message>
         <source>The name for a computed attribute cannot have the namespace URI %1 with the local name %2.</source>
-        <translation type="vanished">Nama bagi atribut yang dihitung tak boleh memiliki URI namespace %1 dengan nama lokal %2.</translation>
+        <translation>Nama bagi atribut yang dihitung tak boleh memiliki URI namespace %1 dengan nama lokal %2.</translation>
     </message>
     <message>
         <source>Type error in cast, expected %1, received %2.</source>
-        <translation type="vanished">Kesalahan tipe dalam cast, diharapkan %1, diterima %2.</translation>
+        <translation>Kesalahan tipe dalam cast, diharapkan %1, diterima %2.</translation>
     </message>
     <message>
         <source>When casting to %1 or types derived from it, the source value must be of the same type, or it must be a string literal. Type %2 is not allowed.</source>
-        <translation type="vanished">Ketika casting ke %1 atau tipe turunannya, nilai sumber mesti bertipe sama, atau berupa literal string. Tipe %2 tak diijinkan.</translation>
+        <translation>Ketika casting ke %1 atau tipe turunannya, nilai sumber mesti bertipe sama, atau berupa literal string. Tipe %2 tak diijinkan.</translation>
     </message>
     <message>
         <source>No casting is possible with %1 as the target type.</source>
-        <translation type="vanished">Tak ada casting yang mungkin untuk tipe target %1.</translation>
+        <translation>Tak ada casting yang mungkin untuk tipe target %1.</translation>
     </message>
     <message>
         <source>It is not possible to cast from %1 to %2.</source>
-        <translation type="vanished">Tak mungkin cast dari %1 ke %2.</translation>
+        <translation>Tak mungkin cast dari %1 ke %2.</translation>
     </message>
     <message>
         <source>Casting to %1 is not possible because it is an abstract type, and can therefore never be instantiated.</source>
-        <translation type="vanished">Casting ke %1 tak mungkin karena itu adalah tipe abstrak, sehingga tak pernah bisa di-instantiasi.</translation>
+        <translation>Casting ke %1 tak mungkin karena itu adalah tipe abstrak, sehingga tak pernah bisa di-instantiasi.</translation>
     </message>
     <message>
         <source>It&apos;s not possible to cast the value %1 of type %2 to %3</source>
-        <translation type="vanished">Tak mungkin cast nilai %1 bertipe %2 ke %3</translation>
+        <translation>Tak mungkin cast nilai %1 bertipe %2 ke %3</translation>
     </message>
     <message>
         <source>Failure when casting from %1 to %2: %3</source>
-        <translation type="vanished">Kegagalan saat casting dari %1 ke %2:%3</translation>
+        <translation>Kegagalan saat casting dari %1 ke %2:%3</translation>
     </message>
     <message>
         <source>A comment cannot contain %1</source>
-        <translation type="vanished">Komentar tak bisa memuat %1</translation>
+        <translation>Komentar tak bisa memuat %1</translation>
     </message>
     <message>
         <source>A comment cannot end with a %1.</source>
-        <translation type="vanished">Komentar tak bisa diakhiri dengan %1.</translation>
+        <translation>Komentar tak bisa diakhiri dengan %1.</translation>
     </message>
     <message>
         <source>No comparisons can be done involving the type %1.</source>
-        <translation type="vanished">Tak ada perbandingan yang dapat dilakukan yang melibatkan tipe %1.</translation>
+        <translation>Tak ada perbandingan yang dapat dilakukan yang melibatkan tipe %1.</translation>
     </message>
     <message>
         <source>Operator %1 is not available between atomic values of type %2 and %3.</source>
-        <translation type="vanished">Operator %1 tak tersedia antara nilai atomik bertipa %2 dan %3.</translation>
+        <translation>Operator %1 tak tersedia antara nilai atomik bertipa %2 dan %3.</translation>
     </message>
     <message>
         <source>An attribute node cannot be a child of a document node. Therefore, the attribute %1 is out of place.</source>
-        <translation type="vanished">Sebuah node atribut tak bisa menjadi anak dari suatu node dokumen. Maka, atribut %1 tidak pada tempatnya.</translation>
+        <translation>Sebuah node atribut tak bisa menjadi anak dari suatu node dokumen. Maka, atribut %1 tidak pada tempatnya.</translation>
     </message>
     <message>
         <source>A library module cannot be evaluated directly. It must be imported from a main module.</source>
-        <translation type="vanished">Sebuah modul pustaka tak bisa dievaluasi secara langsung. Itu harus diimpor dari suatu modul utama.</translation>
+        <translation>Sebuah modul pustaka tak bisa dievaluasi secara langsung. Itu harus diimpor dari suatu modul utama.</translation>
     </message>
     <message>
         <source>A value of type %1 cannot be a predicate. A predicate must have either a numeric type or an Effective Boolean Value type.</source>
-        <translation type="vanished">Sebuah nilai bertipe %1 tak bisa berupa predikat. Suatu predikat mesti memiliki tipe numerik atau bertipe Effective Boolean Value.</translation>
+        <translation>Sebuah nilai bertipe %1 tak bisa berupa predikat. Suatu predikat mesti memiliki tipe numerik atau bertipe Effective Boolean Value.</translation>
     </message>
     <message>
         <source>A positional predicate must evaluate to a single numeric value.</source>
-        <translation type="vanished">Sebuah predikat posisional harus mengevaluasi ke suau nilai numerik tunggal.</translation>
+        <translation>Sebuah predikat posisional harus mengevaluasi ke suau nilai numerik tunggal.</translation>
     </message>
     <message>
         <source>The target name in a processing instruction cannot be %1 in any combination of upper and lower case. Therefore, is %2 invalid.</source>
-        <translation type="vanished">Nama target dalam sebuah instruksi pemrosesan tak bisa %1 dalam kombinasi huruf besar dan kecil. Maka %2 tak valid.</translation>
+        <translation>Nama target dalam sebuah instruksi pemrosesan tak bisa %1 dalam kombinasi huruf besar dan kecil. Maka %2 tak valid.</translation>
     </message>
     <message>
         <source>%1 is not a valid target name in a processing instruction. It must be a %2 value, e.g. %3.</source>
-        <translation type="vanished">%1 bukan nama target yang valid dalam suatu instruksi pemrosesan. Itu harus berupa nilai %2, mis. %3.</translation>
+        <translation>%1 bukan nama target yang valid dalam suatu instruksi pemrosesan. Itu harus berupa nilai %2, mis. %3.</translation>
     </message>
     <message>
         <source>The last step in a path must contain either nodes or atomic values. It cannot be a mixture between the two.</source>
-        <translation type="vanished">Langkah terakhir dalam suatu path mesti memuat nilai node atau atomik. Itu tak bisa berupa campuran antara keduanya.</translation>
+        <translation>Langkah terakhir dalam suatu path mesti memuat nilai node atau atomik. Itu tak bisa berupa campuran antara keduanya.</translation>
     </message>
     <message>
         <source>The data of a processing instruction cannot contain the string %1</source>
-        <translation type="vanished">Data dari instruksi pemrosesan tak boleh memuat string %1</translation>
+        <translation>Data dari instruksi pemrosesan tak boleh memuat string %1</translation>
     </message>
     <message>
         <source>No namespace binding exists for the prefix %1</source>
-        <translation type="vanished">Tidak ada binding namespace bagi prefiks %1</translation>
+        <translation>Tidak ada binding namespace bagi prefiks %1</translation>
     </message>
     <message>
         <source>No namespace binding exists for the prefix %1 in %2</source>
-        <translation type="vanished">Tidak ada binding namespace bagi prefiks %1 dalam %2</translation>
+        <translation>Tidak ada binding namespace bagi prefiks %1 dalam %2</translation>
     </message>
     <message>
         <source>%1 is an invalid %2</source>
-        <translation type="vanished">%1 adalah %2 yang tak valid</translation>
+        <translation>%1 adalah %2 yang tak valid</translation>
     </message>
     <message numerus="yes">
         <source>%1 takes at most %n argument(s). %2 is therefore invalid.</source>
-        <translation type="vanished">
+        <translation>
             <numerusform>%1 menerima paling banyak %n argumen. Maka %2 tak valid.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1 requires at least %n argument(s). %2 is therefore invalid.</source>
-        <translation type="vanished">
+        <translation>
             <numerusform>%1 menerima paling sedikit %n argumen. Maka %2 tak valid.</numerusform>
         </translation>
     </message>
     <message>
         <source>The first argument to %1 cannot be of type %2. It must be a numeric type, xs:yearMonthDuration or xs:dayTimeDuration.</source>
-        <translation type="vanished">Argumen pertama bagi %1 tak boleh bertipe %2. Itu harus berupa tipe numerik, xs:yearMonthDuration, atau xs:dayTimeDuration.</translation>
+        <translation>Argumen pertama bagi %1 tak boleh bertipe %2. Itu harus berupa tipe numerik, xs:yearMonthDuration, atau xs:dayTimeDuration.</translation>
     </message>
     <message>
         <source>The first argument to %1 cannot be of type %2. It must be of type %3, %4, or %5.</source>
-        <translation type="vanished">Argumen pertama bagi %1 tak boleh bertipe %2. Itu harus bertipe %3, %4, atau %5.</translation>
+        <translation>Argumen pertama bagi %1 tak boleh bertipe %2. Itu harus bertipe %3, %4, atau %5.</translation>
     </message>
     <message>
         <source>The second argument to %1 cannot be of type %2. It must be of type %3, %4, or %5.</source>
-        <translation type="vanished">Argumen kedua bagi %1 tak boleh bertipe %2. Itu harus bertipe %3, %4, atau %5.</translation>
+        <translation>Argumen kedua bagi %1 tak boleh bertipe %2. Itu harus bertipe %3, %4, atau %5.</translation>
     </message>
     <message>
         <source>%1 is not a valid XML 1.0 character.</source>
-        <translation type="vanished">%1 bukan karakter XML 1.0 yang valid.</translation>
+        <translation>%1 bukan karakter XML 1.0 yang valid.</translation>
     </message>
     <message>
         <source>The first argument to %1 cannot be of type %2.</source>
-        <translation type="vanished">Argumen pertama ke %1 tak boleh bertipe %2.</translation>
+        <translation>Argumen pertama ke %1 tak boleh bertipe %2.</translation>
     </message>
     <message>
         <source>If both values have zone offsets, they must have the same zone offset. %1 and %2 are not the same.</source>
-        <translation type="vanished">Bila kedua nilai memiliki ofset zone, mereka mesti memiliki ofset zone yang sama. %1 dan %2 tak sama.</translation>
+        <translation>Bila kedua nilai memiliki ofset zone, mereka mesti memiliki ofset zone yang sama. %1 dan %2 tak sama.</translation>
     </message>
     <message>
         <source>%1 was called.</source>
-        <translation type="vanished">%1 dipanggil.</translation>
+        <translation>%1 dipanggil.</translation>
     </message>
     <message>
         <source>%1 must be followed by %2 or %3, not at the end of the replacement string.</source>
-        <translation type="vanished">%1 mesti diikuti oleh %2 atau %3, bukan di akhir string pengganti.</translation>
+        <translation>%1 mesti diikuti oleh %2 atau %3, bukan di akhir string pengganti.</translation>
     </message>
     <message>
         <source>In the replacement string, %1 must be followed by at least one digit when not escaped.</source>
-        <translation type="vanished">Dalam string pengganti, %1 mesti diikuti oleh paling tidak satu digit ketika tidak di-escape.</translation>
+        <translation>Dalam string pengganti, %1 mesti diikuti oleh paling tidak satu digit ketika tidak di-escape.</translation>
     </message>
     <message>
         <source>In the replacement string, %1 can only be used to escape itself or %2, not %3</source>
-        <translation type="vanished">Dalam string pengganti, %1 hanya dapat dipakai untuk meng-escape dirinya sendiri atau %2, bukan %3</translation>
+        <translation>Dalam string pengganti, %1 hanya dapat dipakai untuk meng-escape dirinya sendiri atau %2, bukan %3</translation>
     </message>
     <message>
         <source>%1 matches newline characters</source>
-        <translation type="vanished">%1 cocok dengan karakter baris baru</translation>
+        <translation>%1 cocok dengan karakter baris baru</translation>
     </message>
     <message>
         <source>%1 and %2 match the start and end of a line.</source>
-        <translation type="vanished">%1 dan %2 cocok dengan awal dan akhir dari suatu baris.</translation>
+        <translation>%1 dan %2 cocok dengan awal dan akhir dari suatu baris.</translation>
     </message>
     <message>
         <source>Matches are case insensitive</source>
-        <translation type="vanished">Kecocokan peka huruf besar kecil</translation>
+        <translation>Kecocokan peka huruf besar kecil</translation>
     </message>
     <message>
         <source>Whitespace characters are removed, except when they appear in character classes</source>
-        <translation type="vanished">Karakter whitespace dihapus, kecuali ketika muncul dalam kelas karakter</translation>
+        <translation>Karakter whitespace dihapus, kecuali ketika muncul dalam kelas karakter</translation>
     </message>
     <message>
         <source>%1 is an invalid regular expression pattern: %2</source>
-        <translation type="vanished">%1 adalah pola ekspresi reguler yang tak valid: %2</translation>
+        <translation>%1 adalah pola ekspresi reguler yang tak valid: %2</translation>
     </message>
     <message>
         <source>%1 is an invalid flag for regular expressions. Valid flags are:</source>
-        <translation type="vanished">%1 adalah flag yang tak valid bagi ekspres reguler. Flag yang valid adalah:</translation>
+        <translation>%1 adalah flag yang tak valid bagi ekspres reguler. Flag yang valid adalah:</translation>
     </message>
     <message>
         <source>If the first argument is the empty sequence or a zero-length string (no namespace), a prefix cannot be specified. Prefix %1 was specified.</source>
-        <translation type="vanished">Bila argumen pertama adalah urutan kosong atau string panjang nol (tanpa namespace), suatu prefiks tak dapat dinyatakan. Prefiks %1 telah dinyatakan.</translation>
+        <translation>Bila argumen pertama adalah urutan kosong atau string panjang nol (tanpa namespace), suatu prefiks tak dapat dinyatakan. Prefiks %1 telah dinyatakan.</translation>
     </message>
     <message>
         <source>It will not be possible to retrieve %1.</source>
-        <translation type="vanished">Tak akan mungkin mengambil %1.</translation>
+        <translation>Tak akan mungkin mengambil %1.</translation>
     </message>
     <message>
         <source>The root node of the second argument to function %1 must be a document node. %2 is not a document node.</source>
-        <translation type="vanished">Node akar dari argumen kedia ke fungsi %1 mesti berupa suatu node dokumen. %2 bukan node dokumen.</translation>
+        <translation>Node akar dari argumen kedia ke fungsi %1 mesti berupa suatu node dokumen. %2 bukan node dokumen.</translation>
     </message>
     <message>
         <source>The default collection is undefined</source>
-        <translation type="vanished">Koleksi baku tak didefinisikan</translation>
+        <translation>Koleksi baku tak didefinisikan</translation>
     </message>
     <message>
         <source>%1 cannot be retrieved</source>
-        <translation type="vanished">%1 tak dapat diambil</translation>
+        <translation>%1 tak dapat diambil</translation>
     </message>
     <message>
         <source>The normalization form %1 is unsupported. The supported forms are %2, %3, %4, and %5, and none, i.e. the empty string (no normalization).</source>
-        <translation type="vanished">Bentuk normalisasi %1 tak didukung. Bentuk yang didukung adalah %2, %3, %4, dan %5, serta nihil, yaitu string kosong (tanpa normalisasi).</translation>
+        <translation>Bentuk normalisasi %1 tak didukung. Bentuk yang didukung adalah %2, %3, %4, dan %5, serta nihil, yaitu string kosong (tanpa normalisasi).</translation>
     </message>
     <message>
         <source>A zone offset must be in the range %1..%2 inclusive. %3 is out of range.</source>
-        <translation type="vanished">Ofset zone mesti dalam jangkauan %1..%2. %3 di luar jangkauan.</translation>
+        <translation>Ofset zone mesti dalam jangkauan %1..%2. %3 di luar jangkauan.</translation>
     </message>
     <message>
         <source>%1 is not a whole number of minutes.</source>
-        <translation type="vanished">%1 bukan angka menit yang bulat.</translation>
+        <translation>%1 bukan angka menit yang bulat.</translation>
     </message>
     <message>
         <source>Required cardinality is %1; got cardinality %2.</source>
-        <translation type="vanished">Kardinalitas yang diperlukan adalah %1; kardinalitas yang didapat %2.</translation>
+        <translation>Kardinalitas yang diperlukan adalah %1; kardinalitas yang didapat %2.</translation>
     </message>
     <message>
         <source>The item %1 did not match the required type %2.</source>
-        <translation type="vanished">Butir %1 tak cocok dengan tipe %2 yang diperlukan.</translation>
+        <translation>Butir %1 tak cocok dengan tipe %2 yang diperlukan.</translation>
     </message>
     <message>
         <source>%1 is an unknown schema type.</source>
-        <translation type="vanished">%1 adalah tipe skema yang tak dikenal.</translation>
+        <translation>%1 adalah tipe skema yang tak dikenal.</translation>
     </message>
     <message>
         <source>Only one %1 declaration can occur in the query prolog.</source>
-        <translation type="vanished">Hanya satu deklarasi %1 yang dapat terjadi dalam prolog query.</translation>
+        <translation>Hanya satu deklarasi %1 yang dapat terjadi dalam prolog query.</translation>
     </message>
     <message>
         <source>The initialization of variable %1 depends on itself</source>
-        <translation type="vanished">Inisialisasi variabel %1 bergantung kepada dirinya sendiri</translation>
+        <translation>Inisialisasi variabel %1 bergantung kepada dirinya sendiri</translation>
     </message>
     <message>
         <source>No variable by name %1 exists</source>
-        <translation type="vanished">Tak ada variabel bernama %1</translation>
+        <translation>Tak ada variabel bernama %1</translation>
     </message>
     <message>
         <source>The variable %1 is unused</source>
-        <translation type="vanished">Variabe %1 tak dipakai</translation>
+        <translation>Variabe %1 tak dipakai</translation>
     </message>
     <message>
         <source>Version %1 is not supported. The supported XQuery version is 1.0.</source>
-        <translation type="vanished">Versi %1 tak didukung. Versi XQuery yang didukung adalah 1.0.</translation>
+        <translation>Versi %1 tak didukung. Versi XQuery yang didukung adalah 1.0.</translation>
     </message>
     <message>
         <source>The encoding %1 is invalid. It must contain Latin characters only, must not contain whitespace, and must match the regular expression %2.</source>
-        <translation type="vanished">Pengkodean %1 tak valid. Itu mesti memuat hanya karakter Latin, tak boleh memuat whitespace, dan mesti cocok dengan ekspresi regular %2.</translation>
+        <translation>Pengkodean %1 tak valid. Itu mesti memuat hanya karakter Latin, tak boleh memuat whitespace, dan mesti cocok dengan ekspresi regular %2.</translation>
     </message>
     <message>
         <source>No function with signature %1 is available</source>
-        <translation type="vanished">Tak ada fungsi dengan tanda tangan %1 yang tersedia</translation>
+        <translation>Tak ada fungsi dengan tanda tangan %1 yang tersedia</translation>
     </message>
     <message>
         <source>A default namespace declaration must occur before function, variable, and option declarations.</source>
-        <translation type="vanished">Deklarasi namespace baku mesti terjadi sebelum deklarasi fungsi, variabel, dan opsi.</translation>
+        <translation>Deklarasi namespace baku mesti terjadi sebelum deklarasi fungsi, variabel, dan opsi.</translation>
     </message>
     <message>
         <source>Namespace declarations must occur before function, variable, and option declarations.</source>
-        <translation type="vanished">Deklarasi namespace mesti terjadi sebelum deklarasi fungsi, variabel, dan opsi.</translation>
+        <translation>Deklarasi namespace mesti terjadi sebelum deklarasi fungsi, variabel, dan opsi.</translation>
     </message>
     <message>
         <source>Module imports must occur before function, variable, and option declarations.</source>
-        <translation type="vanished">Impor modul mesti terjadi sebelum deklarasi fungsi, variabel, dan opsi.</translation>
+        <translation>Impor modul mesti terjadi sebelum deklarasi fungsi, variabel, dan opsi.</translation>
     </message>
     <message>
         <source>It is not possible to redeclare prefix %1.</source>
-        <translation type="vanished">Tak mungkin mendeklarasi ulang prefiks %1.</translation>
+        <translation>Tak mungkin mendeklarasi ulang prefiks %1.</translation>
     </message>
     <message>
         <source>Only the prefix %1 can be declared to bind the namespace %2. By default, it is already bound to the prefix %1.</source>
-        <translation type="vanished">Hanya prefiks %1 dapat dideklarasikan untuk bind namespace %2. Secara baku, ia telah di-bind ke prefix %1.</translation>
+        <translation>Hanya prefiks %1 dapat dideklarasikan untuk bind namespace %2. Secara baku, ia telah di-bind ke prefix %1.</translation>
     </message>
     <message>
         <source>Prefix %1 is already declared in the prolog.</source>
-        <translation type="vanished">Prefiks %1 telah dideklarasikan dalam prolog.</translation>
+        <translation>Prefiks %1 telah dideklarasikan dalam prolog.</translation>
     </message>
     <message>
         <source>The name of an option must have a prefix. There is no default namespace for options.</source>
-        <translation type="vanished">Nama dari suatu opsi mesti memiliki prefiks. Tak ada namespace baku bagi opsi.</translation>
+        <translation>Nama dari suatu opsi mesti memiliki prefiks. Tak ada namespace baku bagi opsi.</translation>
     </message>
     <message>
         <source>The Schema Import feature is not supported, and therefore %1 declarations cannot occur.</source>
-        <translation type="vanished">Fitur Impor Skema tak didukung, sehingga deklarasi %1 tak bisa muncul.</translation>
+        <translation>Fitur Impor Skema tak didukung, sehingga deklarasi %1 tak bisa muncul.</translation>
     </message>
     <message>
         <source>The target namespace of a %1 cannot be empty.</source>
-        <translation type="vanished">Namespace tujuan dari %1 tak boleh kosong.</translation>
+        <translation>Namespace tujuan dari %1 tak boleh kosong.</translation>
     </message>
     <message>
         <source>The module import feature is not supported</source>
-        <translation type="vanished">Fitur impor modul tak didukung</translation>
+        <translation>Fitur impor modul tak didukung</translation>
     </message>
     <message>
         <source>A variable by name %1 has already been declared in the prolog.</source>
-        <translation type="vanished">Variabel bernama %1 telah dideklarasikan dalam prolog.</translation>
+        <translation>Variabel bernama %1 telah dideklarasikan dalam prolog.</translation>
     </message>
     <message>
         <source>No value is available for the external variable by name %1.</source>
-        <translation type="vanished">Tak ada nilai yang tersedia bagi variabel eksternal berdasarkan nama %1.</translation>
+        <translation>Tak ada nilai yang tersedia bagi variabel eksternal berdasarkan nama %1.</translation>
     </message>
     <message>
         <source>The namespace for a user defined function cannot be empty (try the predefined prefix %1 which exists for cases like this)</source>
-        <translation type="vanished">Namespace bagi fungsi yang didefinisikan oleh pengguna tak boleh kosong (coba prefiks terpradefinisi %1 yang ada untuk kasus-kasus seperti ini)</translation>
+        <translation>Namespace bagi fungsi yang didefinisikan oleh pengguna tak boleh kosong (coba prefiks terpradefinisi %1 yang ada untuk kasus-kasus seperti ini)</translation>
     </message>
     <message>
         <source>The namespace %1 is reserved; therefore user defined functions may not use it. Try the predefined prefix %2, which exists for these cases.</source>
-        <translation type="vanished">Namespace %1 dicadangkan; maka fungsi yang didefinisikan oleh pengguna tak boleh memakainya. Cobalah prefiks terpradefinisi %2, yang ada untuk kasus-kasus tersebut.</translation>
+        <translation>Namespace %1 dicadangkan; maka fungsi yang didefinisikan oleh pengguna tak boleh memakainya. Cobalah prefiks terpradefinisi %2, yang ada untuk kasus-kasus tersebut.</translation>
     </message>
     <message>
         <source>The namespace of a user defined function in a library module must be equivalent to the module namespace. In other words, it should be %1 instead of %2</source>
-        <translation type="vanished">Namespace dari suatu fungsi yang didefinisikan oleh pengguna dalam sebuah modul pustaka mesti ekuivalen dengan namespace modul. Dengan kata lain, itu mesti %1 dan bukan %2</translation>
+        <translation>Namespace dari suatu fungsi yang didefinisikan oleh pengguna dalam sebuah modul pustaka mesti ekuivalen dengan namespace modul. Dengan kata lain, itu mesti %1 dan bukan %2</translation>
     </message>
     <message>
         <source>A function already exists with the signature %1.</source>
-        <translation type="vanished">Telah ada fungsi dengan tanda tangan %1.</translation>
+        <translation>Telah ada fungsi dengan tanda tangan %1.</translation>
     </message>
     <message>
         <source>No external functions are supported. All supported functions can be used directly, without first declaring them as external</source>
-        <translation type="vanished">Tak ada fungsi eksternal yang didukung. Semua fungsi yang didukung dapat langsung dipakai, tanpa perlu mendeklarasikan mereka sebelumnya sebagai eksternal</translation>
+        <translation>Tak ada fungsi eksternal yang didukung. Semua fungsi yang didukung dapat langsung dipakai, tanpa perlu mendeklarasikan mereka sebelumnya sebagai eksternal</translation>
     </message>
     <message>
         <source>An argument by name %1 has already been declared. Every argument name must be unique.</source>
-        <translation type="vanished">Sebuah argumen bernama %1 telah dideklarasikan. Setiap nama argumen mesti unik.</translation>
+        <translation>Sebuah argumen bernama %1 telah dideklarasikan. Setiap nama argumen mesti unik.</translation>
     </message>
     <message>
         <source>The name of a variable bound in a for-expression must be different from the positional variable. Hence, the two variables named %1 collide.</source>
-        <translation type="vanished">Nama dari suatu variabel yang di-bind bagi ekspresi-for mesti berbeda dengan variable posisional. Maka, dua variabel bernam %1 bertabrakan.</translation>
+        <translation>Nama dari suatu variabel yang di-bind bagi ekspresi-for mesti berbeda dengan variable posisional. Maka, dua variabel bernam %1 bertabrakan.</translation>
     </message>
     <message>
         <source>The Schema Validation Feature is not supported. Hence, %1-expressions may not be used.</source>
-        <translation type="vanished">Fitur Validasi Skema tak didukung. Maka ekspresi %1 tak boleh dipakai.</translation>
+        <translation>Fitur Validasi Skema tak didukung. Maka ekspresi %1 tak boleh dipakai.</translation>
     </message>
     <message>
         <source>None of the pragma expressions are supported. Therefore, a fallback expression must be present</source>
-        <translation type="vanished">Tak satupun dari ekspresi pragman didukung. Maka, ekspresi fallback mesti ada</translation>
+        <translation>Tak satupun dari ekspresi pragman didukung. Maka, ekspresi fallback mesti ada</translation>
     </message>
     <message>
         <source>The %1-axis is unsupported in XQuery</source>
-        <translation type="vanished">Sumbu %1 tak didukung dalam XQuery</translation>
+        <translation>Sumbu %1 tak didukung dalam XQuery</translation>
     </message>
     <message>
         <source>%1 is not a valid numeric literal.</source>
-        <translation type="vanished">%1 bukan literal numerik yang valid.</translation>
+        <translation>%1 bukan literal numerik yang valid.</translation>
     </message>
     <message>
         <source>No function by name %1 is available.</source>
-        <translation type="vanished">Tak ada fungsi dengan nama %1 yang tersedia.</translation>
+        <translation>Tak ada fungsi dengan nama %1 yang tersedia.</translation>
     </message>
     <message>
         <source>The namespace URI cannot be the empty string when binding to a prefix, %1.</source>
-        <translation type="vanished">URI namespace tak boleh berupa string kosong ketika mem-bind ke suatu prefiks, %1.</translation>
+        <translation>URI namespace tak boleh berupa string kosong ketika mem-bind ke suatu prefiks, %1.</translation>
     </message>
     <message>
         <source>%1 is an invalid namespace URI.</source>
-        <translation type="vanished">%1 adalah URI namespace yang tak valid.</translation>
+        <translation>%1 adalah URI namespace yang tak valid.</translation>
     </message>
     <message>
         <source>It is not possible to bind to the prefix %1</source>
-        <translation type="vanished">Tak mungkin bind ke prefiks %1</translation>
+        <translation>Tak mungkin bind ke prefiks %1</translation>
     </message>
     <message>
         <source>Namespace %1 can only be bound to %2 (and it is, in either case, pre-declared).</source>
-        <translation type="vanished">Namespace %1 hanya dapat di-bind ke %2 (dan itu, pada kasus manapun, di pradeklarasikan).</translation>
+        <translation>Namespace %1 hanya dapat di-bind ke %2 (dan itu, pada kasus manapun, di pradeklarasikan).</translation>
     </message>
     <message>
         <source>Prefix %1 can only be bound to %2 (and it is, in either case, pre-declared).</source>
-        <translation type="vanished">Prefiks %1 hanya dapat di-bind ke %2 (dan itu, pada kasus manapun, di pradeklarasikan).</translation>
+        <translation>Prefiks %1 hanya dapat di-bind ke %2 (dan itu, pada kasus manapun, di pradeklarasikan).</translation>
     </message>
     <message>
         <source>Two namespace declaration attributes have the same name: %1.</source>
-        <translation type="vanished">Dua atribut deklarasi namespace memiliki nama yang sama: %1.</translation>
+        <translation>Dua atribut deklarasi namespace memiliki nama yang sama: %1.</translation>
     </message>
     <message>
         <source>The namespace URI must be a constant and cannot use enclosed expressions.</source>
-        <translation type="vanished">URI namespace mesti berupa konstanta dan tak boleh memakai ekspresi yang di-enclose.</translation>
+        <translation>URI namespace mesti berupa konstanta dan tak boleh memakai ekspresi yang di-enclose.</translation>
     </message>
     <message>
         <source>An attribute by name %1 has already appeared on this element.</source>
-        <translation type="vanished">Sebuah atribut bernama %1 telah muncul pada elemen ini.</translation>
+        <translation>Sebuah atribut bernama %1 telah muncul pada elemen ini.</translation>
     </message>
     <message>
         <source>A direct element constructor is not well-formed. %1 is ended with %2.</source>
-        <translation type="vanished">Susunan sebuah konstruktor elemen langsung tidak baik. %1 diakhiri dengan %2.</translation>
+        <translation>Susunan sebuah konstruktor elemen langsung tidak baik. %1 diakhiri dengan %2.</translation>
     </message>
     <message>
         <source>The name %1 does not refer to any schema type.</source>
-        <translation type="vanished">Nama %1 tak mengacu ke tipe skema apapun.</translation>
+        <translation>Nama %1 tak mengacu ke tipe skema apapun.</translation>
     </message>
     <message>
         <source>%1 is an complex type. Casting to complex types is not possible. However, casting to atomic types such as %2 works.</source>
-        <translation type="vanished">%1 adahal suatu tipe kompleks. Casting ke tipe kompleks tidak mungkin. Namun casting ke tipe atomik seperti %2 bisa.</translation>
+        <translation>%1 adahal suatu tipe kompleks. Casting ke tipe kompleks tidak mungkin. Namun casting ke tipe atomik seperti %2 bisa.</translation>
     </message>
     <message>
         <source>%1 is not an atomic type. Casting is only possible to atomic types.</source>
-        <translation type="vanished">%1 bukan tipe atomik. Casting hanya mungkin bagi tipe atomik.</translation>
+        <translation>%1 bukan tipe atomik. Casting hanya mungkin bagi tipe atomik.</translation>
     </message>
     <message>
         <source>%1 is not a valid name for a processing-instruction. Therefore this name test will never match.</source>
-        <translation type="vanished">%1 bukan nama yang valid bagi sebuah instruksi pemrosesan. Maka uji nama ini tak akan pernah cocok.</translation>
+        <translation>%1 bukan nama yang valid bagi sebuah instruksi pemrosesan. Maka uji nama ini tak akan pernah cocok.</translation>
     </message>
     <message>
         <source>%1 is not in the in-scope attribute declarations. Note that the schema import feature is not supported.</source>
-        <translation type="vanished">%1 tak di dalam deklarasi atribu in-scope. Perhatikan bahwa fitur impor skema tak didukung.</translation>
+        <translation>%1 tak di dalam deklarasi atribu in-scope. Perhatikan bahwa fitur impor skema tak didukung.</translation>
     </message>
     <message>
         <source>The name of an extension expression must be in a namespace.</source>
-        <translation type="vanished">Nama dari ekspresi ekstensi mesti dalam suatu namespace.</translation>
+        <translation>Nama dari ekspresi ekstensi mesti dalam suatu namespace.</translation>
     </message>
     <message>
         <source>empty</source>
-        <translation type="vanished">kosong</translation>
+        <translation>kosong</translation>
     </message>
     <message>
         <source>zero or one</source>
-        <translation type="vanished">nol atau satu</translation>
+        <translation>nol atau satu</translation>
     </message>
     <message>
         <source>exactly one</source>
-        <translation type="vanished">tepat satu</translation>
+        <translation>tepat satu</translation>
     </message>
     <message>
         <source>one or more</source>
-        <translation type="vanished">satu atau lebih</translation>
+        <translation>satu atau lebih</translation>
     </message>
     <message>
         <source>zero or more</source>
-        <translation type="vanished">nol atau lebih</translation>
+        <translation>nol atau lebih</translation>
     </message>
     <message>
         <source>Required type is %1, but %2 was found.</source>
-        <translation type="vanished">Tipe yang diperlukan adalah %1, tapi yang ditemukan %2.</translation>
+        <translation>Tipe yang diperlukan adalah %1, tapi yang ditemukan %2.</translation>
     </message>
     <message>
         <source>Promoting %1 to %2 may cause loss of precision.</source>
-        <translation type="vanished">Mempromosikan %1 ke %2 dapat menyebabkan kehilangan presisi.</translation>
+        <translation>Mempromosikan %1 ke %2 dapat menyebabkan kehilangan presisi.</translation>
     </message>
     <message>
         <source>The focus is undefined.</source>
-        <translation type="vanished">Fokus tak terdefinisi.</translation>
+        <translation>Fokus tak terdefinisi.</translation>
     </message>
     <message>
         <source>It&apos;s not possible to add attributes after any other kind of node.</source>
-        <translation type="vanished">Tak mungkin menambah atribut setelah sebarang jenis node lain.</translation>
+        <translation>Tak mungkin menambah atribut setelah sebarang jenis node lain.</translation>
     </message>
     <message>
         <source>An attribute by name %1 has already been created.</source>
-        <translation type="vanished">Sebuah atribut bernama %1 telah dibuat.</translation>
+        <translation>Sebuah atribut bernama %1 telah dibuat.</translation>
     </message>
     <message>
         <source>Only the Unicode Codepoint Collation is supported(%1). %2 is unsupported.</source>
-        <translation type="vanished">Hanya Unicode Codepoint Collation yang didukung(%1). %2 tak didukung.</translation>
+        <translation>Hanya Unicode Codepoint Collation yang didukung(%1). %2 tak didukung.</translation>
     </message>
 </context>
 <context>
     <name>VolumeSlider</name>
     <message>
         <source>Muted</source>
-        <translation type="vanished">Hening</translation>
+        <translation>Hening</translation>
     </message>
     <message>
         <source>Volume: %1%</source>
-        <translation type="vanished">Volume: %1%</translation>
+        <translation>Volume: %1%</translation>
     </message>
 </context>
 <context>
     <name>WebCore::PlatformScrollbar</name>
     <message>
         <source>Scroll here</source>
-        <translation type="vanished">Gulung ke sini</translation>
+        <translation>Gulung ke sini</translation>
     </message>
     <message>
         <source>Left edge</source>
-        <translation type="vanished">Tepi kiri</translation>
+        <translation>Tepi kiri</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="vanished">Puncak</translation>
+        <translation>Puncak</translation>
     </message>
     <message>
         <source>Right edge</source>
-        <translation type="vanished">Tepi kanan</translation>
+        <translation>Tepi kanan</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="vanished">Dasar</translation>
+        <translation>Dasar</translation>
     </message>
     <message>
         <source>Page left</source>
-        <translation type="vanished">Halaman kiri</translation>
+        <translation>Halaman kiri</translation>
     </message>
     <message>
         <source>Page up</source>
-        <translation type="vanished">Halaman naik</translation>
+        <translation>Halaman naik</translation>
     </message>
     <message>
         <source>Page right</source>
-        <translation type="vanished">Halaman kanan</translation>
+        <translation>Halaman kanan</translation>
     </message>
     <message>
         <source>Page down</source>
-        <translation type="vanished">Halaman turun</translation>
+        <translation>Halaman turun</translation>
     </message>
     <message>
         <source>Scroll left</source>
-        <translation type="vanished">Gulung kiri</translation>
+        <translation>Gulung kiri</translation>
     </message>
     <message>
         <source>Scroll up</source>
-        <translation type="vanished">Gulung atas</translation>
+        <translation>Gulung atas</translation>
     </message>
     <message>
         <source>Scroll right</source>
-        <translation type="vanished">Gulung kanan</translation>
+        <translation>Gulung kanan</translation>
     </message>
     <message>
         <source>Scroll down</source>
-        <translation type="vanished">Gulung bawah</translation>
+        <translation>Gulung bawah</translation>
     </message>
 </context>
 </TS>

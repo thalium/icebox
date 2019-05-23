@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -26,12 +26,6 @@
 #include <VBox/hgcmsvc.h> /* For PVBOXHGCMSVCPARM. */
 #include <VBox/GuestHost/DragAndDrop.h>
 #include <VBox/HostServices/DragAndDropSvc.h>
-
-#ifdef LOG_GROUP
- #undef LOG_GROUP
-#endif
-#define LOG_GROUP LOG_GROUP_GUEST_DND
-#include <VBox/log.h>
 
 /**
  * Forward prototype declarations.

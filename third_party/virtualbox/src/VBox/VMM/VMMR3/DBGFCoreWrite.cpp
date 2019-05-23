@@ -52,6 +52,7 @@
 #include <iprt/param.h>
 #include <iprt/file.h>
 #include <iprt/mem.h>
+#include <iprt/formats/elf64.h>
 
 #include "DBGFInternal.h"
 
@@ -67,8 +68,6 @@
 #include <VBox/err.h>
 #include <VBox/log.h>
 #include <VBox/version.h>
-
-#include "../../Runtime/include/internal/ldrELF64.h"
 
 
 /*********************************************************************************************************************************

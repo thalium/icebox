@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -67,6 +67,7 @@
 
 /* External includes: */
 #ifdef VBOX_WS_X11
+#include "VBoxX11Helper.h"
 # include <xcb/xcb.h>
 #endif
 
@@ -473,7 +474,7 @@ void UIMouseHandler::sltMousePointerShapeChanged()
     {
         QList<ulong> screenIds = m_viewports.keys();
         for (int i = 0; i < screenIds.size(); ++i)
-            m_viewports[screenIds[i]]->setCursor(Qt::BlankCursor);
+            VBoxGlobal::setCursor(m_viewports[screenIds[i]], Qt::BlankCursor);
     }
 
     else
@@ -487,7 +488,7 @@ void UIMouseHandler::sltMousePointerShapeChanged()
     {
         QList<ulong> screenIds = m_viewports.keys();
         for (int i = 0; i < screenIds.size(); ++i)
-            m_viewports[screenIds[i]]->setCursor(uisession()->cursor());
+            VBoxGlobal::setCursor(m_viewports[screenIds[i]], uisession()->cursor());
     }
 
     else
@@ -500,7 +501,7 @@ void UIMouseHandler::sltMousePointerShapeChanged()
     {
         QList<ulong> screenIds = m_viewports.keys();
         for (int i = 0; i < screenIds.size(); ++i)
-            m_viewports[screenIds[i]]->unsetCursor();
+            VBoxGlobal::unsetCursor(m_viewports[screenIds[i]]);
     }
 }
 
@@ -1252,4 +1253,3 @@ void UIMouseHandler::updateMouseCursorClipping()
     }
 }
 #endif /* VBOX_WS_WIN */
-

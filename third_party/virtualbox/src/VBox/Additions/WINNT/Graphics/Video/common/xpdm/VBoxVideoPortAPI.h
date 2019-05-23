@@ -1,11 +1,10 @@
 /* $Id: VBoxVideoPortAPI.h $ */
-
 /** @file
  * VBox video port functions header
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -85,4 +84,4 @@ typedef struct VBOXVIDEOPORTPROCS
     PFNCREATESECONDARYDISPLAY pfnCreateSecondaryDisplay;
 } VBOXVIDEOPORTPROCS;
 
-#endif /*VBOXVIDEOPORTAPI_H*/
+#endif /* !VBOXVIDEOPORTAPI_H */

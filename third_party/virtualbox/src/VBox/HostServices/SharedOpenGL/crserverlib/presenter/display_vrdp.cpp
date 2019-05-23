@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -338,7 +338,7 @@ int CrFbDisplayVrdp::vrdpCreate(HCR_FRAMEBUFFER hFb, HCR_FRAMEBUFFER_ENTRY hEntr
     }
 
     int rc = cr_server.outputRedirect.CRORContextProperty(cr_server.outputRedirect.pvContext,
-                                                          0 /* H3DOR_PROP_FORMATS */, // @todo from a header
+                                                          0 /* H3DOR_PROP_FORMATS */, /// @todo from a header
                                                           pachFormats, cbFormats, &cbFormats);
     if (RT_SUCCESS(rc))
     {
@@ -347,7 +347,7 @@ int CrFbDisplayVrdp::vrdpCreate(HCR_FRAMEBUFFER hFb, HCR_FRAMEBUFFER_ENTRY hEntr
             cr_server.outputRedirect.CRORBegin(
                 cr_server.outputRedirect.pvContext,
                 &pVrdp,
-                "H3DOR_FMT_RGBA_TOPDOWN"); // @todo from a header
+                "H3DOR_FMT_RGBA_TOPDOWN"); /// @todo from a header
 
             if (pVrdp)
             {

@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1114,7 +1114,7 @@ static DECLCALLBACK(void) serialReset(PPDMDEVINS pDevIns)
     pThis->rbr = 0;
     pThis->ier = 0;
     pThis->iir = UART_IIR_NO_INT;
-    pThis->lcr = 0;
+    pThis->lcr = 3; /* 8 data bits, no parity, 1 stop bit */
     pThis->lsr = UART_LSR_TEMT | UART_LSR_THRE;
     pThis->msr = UART_MSR_DCD | UART_MSR_DSR | UART_MSR_CTS;
     /* Default to 9600 baud, 1 start bit, 8 data bits, 1 stop bit, no parity. */
@@ -1125,6 +1125,9 @@ static DECLCALLBACK(void) serialReset(PPDMDEVINS pDevIns)
     uint64_t tf = TMTimerGetFreq(CTX_SUFF(pThis->transmit_timer));
     pThis->char_transmit_time = (tf / 9600) * 10;
     serial_tsr_retry_update_parameters(pThis, tf);
+
+    /* Update parameters of the underlying driver to stay in sync. */
+    serial_update_parameters(pThis);
 
     fifo_clear(pThis, RECV_FIFO);
     fifo_clear(pThis, XMIT_FIFO);
@@ -1309,8 +1312,6 @@ static DECLCALLBACK(int) serialConstruct(PPDMDEVINS pDevIns, int iInstance, PCFG
     pThis->transmit_timerR0 = TMTimerR0Ptr(pThis->transmit_timerR3);
     pThis->transmit_timerRC = TMTimerRCPtr(pThis->transmit_timerR3);
 
-    serialReset(pDevIns);
-
 #ifdef VBOX_SERIAL_PCI
     /*
      * Register the PCI Device and region.
@@ -1386,6 +1387,7 @@ static DECLCALLBACK(int) serialConstruct(PPDMDEVINS pDevIns, int iInstance, PCFG
         return rc;
     }
 
+    serialReset(pDevIns);
     return VINF_SUCCESS;
 }
 

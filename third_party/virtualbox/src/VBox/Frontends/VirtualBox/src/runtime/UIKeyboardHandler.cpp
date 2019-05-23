@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -827,17 +827,6 @@ bool UIKeyboardHandler::nativeEventFilter(void *pMessage, ulong uScreenId)
                 break;
             }
 
-//            /* Fix for http://www.virtualbox.org/ticket/1296:
-//             * when X11 sends events for repeated keys, it always inserts an XKeyRelease before the XKeyPress. */
-//            XEvent returnEvent;
-//            if ((pEvent->type == XKeyRelease) && (XCheckIfEvent(pEvent->xkey.display, &returnEvent,
-//                UIKeyboardHandlerCompEvent, (XPointer)pEvent) == True))
-//            {
-//                XPutBackEvent(pEvent->xkey.display, &returnEvent);
-//                fResult = true;
-//                break;
-//            }
-
             /* Calculate flags: */
             int iflags = 0;
             if (uScan >> 8)
@@ -1028,6 +1017,11 @@ void UIKeyboardHandler::loadSettings()
 #ifdef VBOX_WS_X11
     /* Initialize the X keyboard subsystem: */
     initMappedX11Keyboard(QX11Info::display(), gEDataManager->remappedScanCodes());
+    /* Fix for http://www.virtualbox.org/ticket/1296:
+     * when X11 sends events for repeated keys, it always inserts an XKeyRelease
+     * before the XKeyPress. */
+    /* Disable key release events during key auto-repeat: */
+    XkbSetDetectableAutoRepeat(QX11Info::display(), True, NULL);
 #endif /* VBOX_WS_X11 */
 
     /* Extra data settings: */
@@ -1202,7 +1196,7 @@ bool UIKeyboardHandler::eventFilter(QObject *pWatchedObject, QEvent *pEvent)
                 m_iKeyboardHookViewIndex = -1;
 
                 /* Release keyboard: */
-                if (isSessionRunning())
+                if (isSessionRunning() || isSessionStuck())
                     releaseKeyboard();
                 /* And all pressed keys: */
                 releaseAllPressedKeys(true);
@@ -1901,6 +1895,11 @@ bool UIKeyboardHandler::viewHasFocus(ulong uScreenId)
 bool UIKeyboardHandler::isSessionRunning()
 {
     return uisession()->isRunning();
+}
+
+bool UIKeyboardHandler::isSessionStuck()
+{
+    return uisession()->isStuck();
 }
 
 UIMachineWindow* UIKeyboardHandler::isItListenedWindow(QObject *pWatchedObject) const

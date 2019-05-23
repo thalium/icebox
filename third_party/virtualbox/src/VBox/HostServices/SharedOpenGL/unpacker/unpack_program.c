@@ -42,11 +42,20 @@ void crUnpackExtendProgramParameters4dvNV(void)
 	GLenum target = READ_DATA(8, GLenum);
 	GLuint index = READ_DATA(12, GLuint);
 	GLuint num = READ_DATA(16, GLuint);
-	GLdouble *params = (GLdouble *) crAlloc(num * 4 * sizeof(GLdouble));
+    GLdouble *params;
+
+    if (num >= UINT32_MAX / (4 * sizeof(GLdouble)))
+    {
+        crError("crUnpackExtendProgramParameters4dvNV: parameter 'num' is out of range");
+        return;
+    }
+
+    params = (GLdouble *)crAlloc(num * 4 * sizeof(GLdouble));
+
 	if (params) {
 		GLuint i;
 		for (i = 0; i < 4 * num; i++) {
-			params[i] = READ_DATA(20 + i * 8, GLdouble);
+            params[i] = READ_DATA(20 + i * sizeof(GLdouble), GLdouble);
 		}
 		cr_unpackDispatch.ProgramParameters4dvNV(target, index, num, params);
 		crFree(params);
@@ -59,11 +68,20 @@ void crUnpackExtendProgramParameters4fvNV(void)
 	GLenum target = READ_DATA(8, GLenum);
 	GLuint index = READ_DATA(12, GLuint);
 	GLuint num = READ_DATA(16, GLuint);
-	GLfloat *params = (GLfloat *) crAlloc(num * 4 * sizeof(GLfloat));
+    GLfloat *params;
+
+    if (num >= UINT32_MAX / (4 * sizeof(GLfloat)))
+    {
+        crError("crUnpackExtendProgramParameters4fvNV: parameter 'num' is out of range");
+        return;
+    }
+
+    params = (GLfloat *)crAlloc(num * 4 * sizeof(GLfloat));
+
 	if (params) {
 		GLuint i;
 		for (i = 0; i < 4 * num; i++) {
-			params[i] = READ_DATA(20 + i * 4, GLfloat);
+            params[i] = READ_DATA(20 + i * sizeof(GLfloat), GLfloat);
 		}
 		cr_unpackDispatch.ProgramParameters4fvNV(target, index, num, params);
 		crFree(params);

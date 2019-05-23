@@ -814,7 +814,7 @@ void UIHostNetworkManagerWidget::prepareWidgets()
 #ifdef VBOX_WS_MAC
         layout()->setSpacing(10);
 #else
-        layout()->setSpacing(4);
+        layout()->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 2);
 #endif
 
         /* Prepare toolbar: */
@@ -1138,6 +1138,11 @@ void UIHostNetworkManager::configureButtonBox()
             button(ButtonType_Reset), &QPushButton::setEnabled);
     connect(buttonBox(), &QIDialogButtonBox::clicked,
             this, &UIHostNetworkManager::sltHandleButtonBoxClick);
+    // WORKAROUND:
+    // Since we connected signals later than extra-data loaded
+    // for signals above, we should handle that stuff here again:
+    button(ButtonType_Apply)->setVisible(gEDataManager->hostNetworkManagerDetailsExpanded());
+    button(ButtonType_Reset)->setVisible(gEDataManager->hostNetworkManagerDetailsExpanded());
 }
 
 void UIHostNetworkManager::finalize()

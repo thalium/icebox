@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -22,6 +22,7 @@
 #define LOG_GROUP LOG_GROUP_DEV_PC_ARCH
 #include <VBox/vmm/pdmdev.h>
 #include <VBox/vmm/mm.h>
+#include <VBox/vmm/pgm.h>
 #include <VBox/log.h>
 #include <VBox/err.h>
 #include <iprt/assert.h>
@@ -185,15 +186,75 @@ pcarchIOPortPS2SysControlPortAWrite(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT P
 
 
 /**
+ * @callback_method_impl{FNIOMMMIOWRITE, Ignores writes to the reserved memory.}
+ */
+static DECLCALLBACK(int) pcarchReservedMemoryWrite(PPDMDEVINS pDevIns, void *pvUser, RTGCPHYS GCPhysAddr,
+                                                   void const *pv, unsigned cb)
+{
+    Log2(("pcarchReservedMemoryRead: %#RGp LB %#x %.*Rhxs\n", GCPhysAddr, cb, RT_MIN(cb, 16), pv));
+    NOREF(pDevIns); NOREF(pvUser); NOREF(GCPhysAddr); NOREF(pv); NOREF(cb);
+    return VINF_SUCCESS;
+}
+
+
+/**
+ * @callback_method_impl{FNIOMMMIOREAD, The reserved memory reads as 0xff.}
+ */
+static DECLCALLBACK(int) pcarchReservedMemoryRead(PPDMDEVINS pDevIns, void *pvUser, RTGCPHYS GCPhysAddr, void *pv, unsigned cb)
+{
+    Log2(("pcarchReservedMemoryRead: %#RGp LB %#x\n", GCPhysAddr, cb));
+    NOREF(pDevIns); NOREF(pvUser); NOREF(GCPhysAddr);
+    memset(pv, 0xff, cb);
+    return VINF_SUCCESS;
+}
+
+
+/**
+ * @interface_method_impl{PDMDEVREG,pfnInitComplete,
+ *      Turn RAM pages between 0xa0000 and 0xeffff into reserved memory.}
+ * NB: At least some OS X versions (El Capitan, Sierra) get upset and panic
+ * early in the boot when we make memory between 0x0f0000-0x100000 reserved
+ * and non-writable.
+ */
+static DECLCALLBACK(int) pcarchInitComplete(PPDMDEVINS pDevIns)
+{
+    PVM             pVM       = PDMDevHlpGetVM(pDevIns);
+    int             iRegion   = 0;
+    RTGCPHYS const  GCPhysEnd = 0x0f0000;
+    RTGCPHYS        GCPhysCur = 0x0a0000;
+    do
+    {
+        if (!PGMPhysIsGCPhysNormal(pVM, GCPhysCur))
+            GCPhysCur += X86_PAGE_SIZE;
+        else
+        {
+            RTGCPHYS const GCPhysStart = GCPhysCur;
+            do
+                GCPhysCur += X86_PAGE_SIZE;
+            while (GCPhysCur < GCPhysEnd && PGMPhysIsGCPhysNormal(pVM, GCPhysCur));
+
+            int rc = PDMDevHlpMMIORegister(pDevIns, GCPhysStart, GCPhysCur - GCPhysStart, NULL /*pvUser*/,
+                                           IOMMMIO_FLAGS_READ_PASSTHRU | IOMMMIO_FLAGS_WRITE_PASSTHRU,
+                                           pcarchReservedMemoryWrite, pcarchReservedMemoryRead,
+                                           MMR3HeapAPrintf(pVM, MM_TAG_PGM_PHYS /* bad bird*/, "PC Arch Reserved #%u", iRegion));
+            AssertLogRelRCReturn(rc, rc);
+            iRegion++;
+        }
+    } while (GCPhysCur < GCPhysEnd);
+
+    return VINF_SUCCESS;
+}
+
+
+/**
  * @interface_method_impl{PDMDEVREG,pfnConstruct}
  */
 static DECLCALLBACK(int)  pcarchConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
-    RT_NOREF1(iInstance);
     PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     PDEVPCARCH  pThis = PDMINS_2_DATA(pDevIns, PDEVPCARCH);
     int         rc;
-    Assert(iInstance == 0);
+    Assert(iInstance == 0); RT_NOREF(iInstance);
 
     /*
      * Validate configuration.
@@ -270,7 +331,7 @@ const PDMDEVREG g_DevicePcArch =
     /* pfnQueryInterface. */
     NULL,
     /* pfnInitComplete. */
-    NULL,
+    pcarchInitComplete,
     /* pfnPowerOff */
     NULL,
     /* pfnSoftReset */

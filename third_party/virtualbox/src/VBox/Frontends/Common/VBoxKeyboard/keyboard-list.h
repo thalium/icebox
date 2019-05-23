@@ -1,11 +1,11 @@
 /* $Id: keyboard-list.h $ */
 /** @file
  * VBox/Frontends/Common - X11 keyboard driver translation tables (keyboard layouts)
+ *
+ * This file was originally generated from the X.org file
+ * /etc/X11/xkb/rules/xorg.xml, in an attempt to support all
+ * keyboard layouts known to X.org.
  */
-
-/* This file was originally generated from the X.org file
-   /etc/X11/xkb/rules/xorg.xml, in an attempt to support all
-   keyboard layouts known to X.org. */
 
 /*
  * This library is free software; you can redistribute it and/or

@@ -58,4 +58,3 @@ padding:
 times 510 - (padding - start) db 0
     db 055h, 0aah
 
-

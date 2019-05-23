@@ -34,6 +34,7 @@
 # include "UIMediumManager.h"
 # include "UIWizardCloneVD.h"
 # include "UIMessageCenter.h"
+# include "QIFileDialog.h"
 # include "QITabWidget.h"
 # include "QITreeWidget.h"
 # include "QILabel.h"
@@ -71,11 +72,15 @@ public:
     UIMediumItem(const UIMedium &guiMedium, UIMediumItem *pParent);
 
     /** Copies UIMedium wrapped by <i>this</i> item. */
-    virtual bool copy() = 0;
+    virtual bool copy();
+    /** Moves UIMedium wrapped by <i>this</i> item. */
+    virtual bool move();
     /** Removes UIMedium wrapped by <i>this</i> item. */
     virtual bool remove() = 0;
-    /** Releases UIMedium wrapped by <i>this</i> item. */
-    virtual bool release();
+    /** Releases UIMedium wrapped by <i>this</i> item.
+      * @param  fInduced  Brings whether this action is caused by other user's action,
+      *                   not a direct order to release particularly selected medium. */
+    virtual bool release(bool fInduced = false);
 
     /** Refreshes item fully. */
     void refreshAll();
@@ -109,6 +114,8 @@ public:
     /** Returns QString <i>tool-tip</i> of the wrapped UIMedium. */
     QString toolTip() const { return m_guiMedium.toolTip(); }
 
+    /** Returns a vector of IDs of all machines wrapped UIMedium is attached to. */
+    const QList<QString> &machineIds() const { return m_guiMedium.machineIds(); }
     /** Returns QString <i>usage</i> of the wrapped UIMedium. */
     QString usage() const { return m_guiMedium.usage(); }
     /** Returns whether wrapped UIMedium is used. */
@@ -159,8 +166,6 @@ public:
 
 protected:
 
-    /** Copies UIMedium wrapped by <i>this</i> item. */
-    virtual bool copy() /* override */;
     /** Removes UIMedium wrapped by <i>this</i> item. */
     virtual bool remove() /* override */;
     /** Releases UIMedium wrapped by <i>this</i> item from virtual @a comMachine. */
@@ -184,8 +189,6 @@ public:
 
 protected:
 
-    /** Copies UIMedium wrapped by <i>this</i> item. */
-    virtual bool copy() /* override */;
     /** Removes UIMedium wrapped by <i>this</i> item. */
     virtual bool remove() /* override */;
     /** Releases UIMedium wrapped by <i>this</i> item from virtual @a comMachine. */
@@ -204,8 +207,6 @@ public:
 
 protected:
 
-    /** Copies UIMedium wrapped by <i>this</i> item. */
-    virtual bool copy() /* override */;
     /** Removes UIMedium wrapped by <i>this</i> item. */
     virtual bool remove() /* override */;
     /** Releases UIMedium wrapped by <i>this</i> item from virtual @a comMachine. */
@@ -242,63 +243,6 @@ private:
 };
 
 
-/** Medium manager progress-bar.
-  * Reflects medium-enumeration progress, stays hidden otherwise. */
-class UIEnumerationProgressBar : public QWidget
-{
-    Q_OBJECT;
-
-public:
-
-    /** Constructor on the basis of passed @a pParent. */
-    UIEnumerationProgressBar(QWidget *pParent = 0)
-        : QWidget(pParent)
-    {
-        /* Prepare: */
-        prepare();
-    }
-
-    /** Defines progress-bar label-text. */
-    void setText(const QString &strText) { m_pLabel->setText(strText); }
-
-    /** Returns progress-bar current-value. */
-    int value() const { return m_pProgressBar->value(); }
-    /** Defines progress-bar current-value. */
-    void setValue(int iValue) { m_pProgressBar->setValue(iValue); }
-    /** Defines progress-bar maximum-value. */
-    void setMaximum(int iValue) { m_pProgressBar->setMaximum(iValue); }
-
-private:
-
-    /** Prepares progress-bar content. */
-    void prepare()
-    {
-        /* Create layout: */
-        QHBoxLayout *pLayout = new QHBoxLayout(this);
-        {
-            /* Configure layout: */
-            pLayout->setContentsMargins(0, 0, 0, 0);
-            /* Create label: */
-            m_pLabel = new QLabel;
-            /* Create progress-bar: */
-            m_pProgressBar = new QProgressBar;
-            {
-                /* Configure progress-bar: */
-                m_pProgressBar->setTextVisible(false);
-            }
-            /* Add widgets into layout: */
-            pLayout->addWidget(m_pLabel);
-            pLayout->addWidget(m_pProgressBar);
-        }
-    }
-
-    /** Progress-bar label. */
-    QLabel *m_pLabel;
-    /** Progress-bar itself. */
-    QProgressBar *m_pProgressBar;
-};
-
-
 /*********************************************************************************************************************************
 *   Class UIMediumItem implementation.                                                                                           *
 *********************************************************************************************************************************/
@@ -317,7 +261,77 @@ UIMediumItem::UIMediumItem(const UIMedium &guiMedium, UIMediumItem *pParent)
     refresh();
 }
 
-bool UIMediumItem::release()
+bool UIMediumItem::move()
+{
+    /* Open file-save dialog to choose location for current medium: */
+    const QString strFileName = QIFileDialog::getSaveFileName(location(),
+                                                              UIMediumManager::tr("Current extension (*.%1)")
+                                                                 .arg(QFileInfo(location()).suffix()),
+                                                              treeWidget(),
+                                                              UIMediumManager::tr("Choose the location of this medium"),
+                                                              0, true, true);
+    /* Negative if nothing changed: */
+    if (strFileName.isNull())
+        return false;
+
+    /* Search for corresponding medium: */
+    CMedium comMedium = medium().medium();
+
+    /* Try to assign new medium location: */
+    if (   comMedium.isOk()
+        && strFileName != location())
+    {
+        /* Prepare move storage progress: */
+        CProgress comProgress = comMedium.SetLocation(strFileName);
+
+        /* Show error message if necessary: */
+        if (!comMedium.isOk())
+        {
+            msgCenter().cannotMoveMediumStorage(comMedium, location(),
+                                                strFileName, treeWidget());
+            /* Negative if failed: */
+            return false;
+        }
+        else
+        {
+            /* Show move storage progress: */
+            msgCenter().showModalProgressDialog(comProgress, UIMediumManager::tr("Moving medium..."),
+                                                ":/progress_media_move_90px.png", treeWidget());
+
+            /* Show error message if necessary: */
+            if (!comProgress.isOk() || comProgress.GetResultCode() != 0)
+            {
+                msgCenter().cannotMoveMediumStorage(comProgress, location(),
+                                                    strFileName, treeWidget());
+                /* Negative if failed: */
+                return false;
+            }
+        }
+    }
+
+    /* Recache item: */
+    refreshAll();
+
+    /* Positive: */
+    return true;
+}
+
+bool UIMediumItem::copy()
+{
+    /* Show Clone VD wizard: */
+    UISafePointerWizard pWizard = new UIWizardCloneVD(treeWidget(), medium().medium());
+    pWizard->prepare();
+    pWizard->exec();
+
+    /* Delete if still exists: */
+    if (pWizard)
+        delete pWizard;
+
+    /* True by default: */
+    return true;
+}
+
+bool UIMediumItem::release(bool fInduced /* = false */)
 {
     /* Refresh medium and item: */
     m_guiMedium.refresh();
@@ -328,7 +342,7 @@ bool UIMediumItem::release()
         return true;
 
     /* Confirm release: */
-    if (!msgCenter().confirmMediumRelease(medium(), treeWidget()))
+    if (!msgCenter().confirmMediumRelease(medium(), fInduced, treeWidget()))
         return false;
 
     /* Release: */
@@ -385,6 +399,7 @@ void UIMediumItem::refresh()
                && m_guiMedium.state() != KMediumState_Inaccessible;
     m_enmType = m_guiMedium.type();
     m_enmVariant = m_guiMedium.mediumVariant();
+    m_fHasChildren = m_guiMedium.hasChildren();
     /* Gather medium options data: */
     m_options.m_enmType = m_guiMedium.mediumType();
     m_options.m_strLocation = m_guiMedium.location();
@@ -487,21 +502,6 @@ UIMediumItemHD::UIMediumItemHD(const UIMedium &guiMedium, QITreeWidget *pParent)
 UIMediumItemHD::UIMediumItemHD(const UIMedium &guiMedium, UIMediumItem *pParent)
     : UIMediumItem(guiMedium, pParent)
 {
-}
-
-bool UIMediumItemHD::copy()
-{
-    /* Show Clone VD wizard: */
-    UISafePointerWizard pWizard = new UIWizardCloneVD(treeWidget(), medium().medium());
-    pWizard->prepare();
-    pWizard->exec();
-
-    /* Delete if still exists: */
-    if (pWizard)
-        delete pWizard;
-
-    /* True by default: */
-    return true;
 }
 
 bool UIMediumItemHD::remove()
@@ -626,11 +626,6 @@ UIMediumItemCD::UIMediumItemCD(const UIMedium &guiMedium, QITreeWidget *pParent)
 {
 }
 
-bool UIMediumItemCD::copy()
-{
-    AssertMsgFailedReturn(("That functionality in not supported!\n"), false);
-}
-
 bool UIMediumItemCD::remove()
 {
     /* Confirm medium removal: */
@@ -697,11 +692,6 @@ UIMediumItemFD::UIMediumItemFD(const UIMedium &guiMedium, QITreeWidget *pParent)
 {
 }
 
-bool UIMediumItemFD::copy()
-{
-    AssertMsgFailedReturn(("That functionality in not supported!\n"), false);
-}
-
 bool UIMediumItemFD::remove()
 {
     /* Confirm medium removal: */
@@ -760,6 +750,59 @@ bool UIMediumItemFD::releaseFrom(CMachine comMachine)
 
 
 /*********************************************************************************************************************************
+*   Class UIEnumerationProgressBar implementation.                                                                               *
+*********************************************************************************************************************************/
+
+UIEnumerationProgressBar::UIEnumerationProgressBar(QWidget *pParent /* = 0 */)
+    : QWidget(pParent)
+{
+    /* Prepare: */
+    prepare();
+}
+
+void UIEnumerationProgressBar::setText(const QString &strText)
+{
+    m_pLabel->setText(strText);
+}
+
+int UIEnumerationProgressBar::value() const
+{
+    return m_pProgressBar->value();
+}
+
+void UIEnumerationProgressBar::setValue(int iValue)
+{
+    m_pProgressBar->setValue(iValue);
+}
+
+void UIEnumerationProgressBar::setMaximum(int iValue)
+{
+    m_pProgressBar->setMaximum(iValue);
+}
+
+void UIEnumerationProgressBar::prepare()
+{
+    /* Create layout: */
+    QHBoxLayout *pLayout = new QHBoxLayout(this);
+    {
+        /* Configure layout: */
+        pLayout->setContentsMargins(0, 0, 0, 0);
+        /* Create label: */
+        m_pLabel = new QLabel;
+        /* Create progress-bar: */
+        m_pProgressBar = new QProgressBar;
+        {
+            /* Configure progress-bar: */
+            m_pProgressBar->setTextVisible(false);
+        }
+        /* Add widgets into layout: */
+        pLayout->addWidget(m_pLabel);
+        pLayout->addWidget(m_pProgressBar);
+    }
+}
+
+
+/*********************************************************************************************************************************
 *   Class UIMediumManagerWidget implementation.                                                                                  *
 *********************************************************************************************************************************/
 
@@ -779,13 +822,22 @@ UIMediumManagerWidget::UIMediumManagerWidget(EmbedTo enmEmbedding, QWidget *pPar
     , m_pToolBar(0)
     , m_pContextMenu(0)
     , m_pMenu(0)
-    , m_pActionCopy(0), m_pActionRemove(0)
+    , m_pActionCopy(0), m_pActionMove(0), m_pActionRemove(0)
     , m_pActionRelease(0), m_pActionDetails(0)
     , m_pActionRefresh(0)
     , m_pProgressBar(0)
 {
     /* Prepare: */
     prepare();
+}
+
+void UIMediumManagerWidget::setProgressBar(UIEnumerationProgressBar *pProgressBar)
+{
+    /* Cache progress-bar reference:*/
+    m_pProgressBar = pProgressBar;
+
+    /* Update translation: */
+    retranslateUi();
 }
 
 void UIMediumManagerWidget::retranslateUi()
@@ -800,6 +852,12 @@ void UIMediumManagerWidget::retranslateUi()
         m_pActionCopy->setText(UIMediumManager::tr("&Copy..."));
         m_pActionCopy->setToolTip(UIMediumManager::tr("Copy Disk Image File (%1)").arg(m_pActionCopy->shortcut().toString()));
         m_pActionCopy->setStatusTip(UIMediumManager::tr("Copy selected disk image file"));
+    }
+    if (m_pActionMove)
+    {
+        m_pActionMove->setText(UIMediumManager::tr("&Move..."));
+        m_pActionMove->setToolTip(UIMediumManager::tr("Move Disk Image File (%1)").arg(m_pActionMove->shortcut().toString()));
+        m_pActionMove->setStatusTip(UIMediumManager::tr("Move selected disk image file"));
     }
     if (m_pActionRemove)
     {
@@ -925,11 +983,22 @@ void UIMediumManagerWidget::sltApplyMediumDetailsChanges()
     if (   comMedium.isOk()
         && newData.m_options.m_enmType != oldData.m_options.m_enmType)
     {
-        comMedium.SetType(newData.m_options.m_enmType);
+        /* Check if we need to release medium first: */
+        bool fDo = true;
+        if (   pMediumItem->machineIds().size() > 1
+            || (   (   newData.m_options.m_enmType == KMediumType_Immutable
+                    || newData.m_options.m_enmType == KMediumType_MultiAttach)
+                && pMediumItem->machineIds().size() > 0))
+            fDo = pMediumItem->release(true);
 
-        /* Show error message if necessary: */
-        if (!comMedium.isOk())
-            msgCenter().cannotChangeMediumType(comMedium, oldData.m_options.m_enmType, newData.m_options.m_enmType, this);
+        if (fDo)
+        {
+            comMedium.SetType(newData.m_options.m_enmType);
+
+            /* Show error message if necessary: */
+            if (!comMedium.isOk())
+                msgCenter().cannotChangeMediumType(comMedium, oldData.m_options.m_enmType, newData.m_options.m_enmType, this);
+        }
     }
 
     /* Try to assign new medium location: */
@@ -1053,6 +1122,10 @@ void UIMediumManagerWidget::sltHandleMediumEnumerationStart()
     if (m_pActionRefresh)
         m_pActionRefresh->setEnabled(false);
 
+    /* Disable details-widget: */
+    if (m_pDetailsWidget)
+        m_pDetailsWidget->setOptionsEnabled(false);
+
     /* Reset and show progress-bar: */
     if (m_pProgressBar)
     {
@@ -1110,6 +1183,10 @@ void UIMediumManagerWidget::sltHandleMediumEnumerationFinish()
     if (m_pProgressBar)
         m_pProgressBar->hide();
 
+    /* Enable details-widget: */
+    if (m_pDetailsWidget)
+        m_pDetailsWidget->setOptionsEnabled(true);
+
     /* Enable 'refresh' action: */
     if (m_pActionRefresh)
         m_pActionRefresh->setEnabled(true);
@@ -1128,6 +1205,20 @@ void UIMediumManagerWidget::sltCopyMedium()
 
     /* Copy current medium-item: */
     pMediumItem->copy();
+}
+
+void UIMediumManagerWidget::sltMoveMedium()
+{
+    /* Get current medium-item: */
+    UIMediumItem *pMediumItem = currentMediumItem();
+    AssertMsgReturnVoid(pMediumItem, ("Current item must not be null"));
+    AssertReturnVoid(!pMediumItem->id().isNull());
+
+    /* Copy current medium-item: */
+    pMediumItem->move();
+
+    /* Push the current item data into details-widget: */
+    sltHandleCurrentTabChanged();
 }
 
 void UIMediumManagerWidget::sltRemoveMedium()
@@ -1288,18 +1379,18 @@ void UIMediumManagerWidget::prepareThis()
 void UIMediumManagerWidget::prepareConnections()
 {
     /* Configure medium-processing connections: */
-    connect(&vboxGlobal(), SIGNAL(sigMediumCreated(const QString&)),
-            this, SLOT(sltHandleMediumCreated(const QString&)));
-    connect(&vboxGlobal(), SIGNAL(sigMediumDeleted(const QString&)),
-            this, SLOT(sltHandleMediumDeleted(const QString&)));
+    connect(&vboxGlobal(), &VBoxGlobal::sigMediumCreated,
+            this, &UIMediumManagerWidget::sltHandleMediumCreated);
+    connect(&vboxGlobal(), &VBoxGlobal::sigMediumDeleted,
+            this, &UIMediumManagerWidget::sltHandleMediumDeleted);
 
     /* Configure medium-enumeration connections: */
-    connect(&vboxGlobal(), SIGNAL(sigMediumEnumerationStarted()),
-            this, SLOT(sltHandleMediumEnumerationStart()));
-    connect(&vboxGlobal(), SIGNAL(sigMediumEnumerated(const QString&)),
-            this, SLOT(sltHandleMediumEnumerated(const QString&)));
-    connect(&vboxGlobal(), SIGNAL(sigMediumEnumerationFinished()),
-            this, SLOT(sltHandleMediumEnumerationFinish()));
+    connect(&vboxGlobal(), &VBoxGlobal::sigMediumEnumerationStarted,
+            this, &UIMediumManagerWidget::sltHandleMediumEnumerationStart);
+    connect(&vboxGlobal(), &VBoxGlobal::sigMediumEnumerated,
+            this, &UIMediumManagerWidget::sltHandleMediumEnumerated);
+    connect(&vboxGlobal(), &VBoxGlobal::sigMediumEnumerationFinished,
+            this, &UIMediumManagerWidget::sltHandleMediumEnumerationFinish);
 }
 
 void UIMediumManagerWidget::prepareActions()
@@ -1311,6 +1402,15 @@ void UIMediumManagerWidget::prepareActions()
         /* Configure copy-action: */
         m_pActionCopy->setShortcut(QKeySequence("Ctrl+C"));
         connect(m_pActionCopy, &QAction::triggered, this, &UIMediumManagerWidget::sltCopyMedium);
+    }
+
+    /* Create 'Move' action: */
+    m_pActionMove = new QAction(this);
+    AssertPtrReturnVoid(m_pActionMove);
+    {
+        /* Configure move-action: */
+        m_pActionMove->setShortcut(QKeySequence("Ctrl+M"));
+        connect(m_pActionMove, &QAction::triggered, this, &UIMediumManagerWidget::sltMoveMedium);
     }
 
     /* Create 'Remove' action: */
@@ -1368,9 +1468,11 @@ void UIMediumManagerWidget::prepareMenu()
         /* Configure 'Medium' menu: */
         if (m_pActionCopy)
             m_pMenu->addAction(m_pActionCopy);
+        if (m_pActionMove)
+            m_pMenu->addAction(m_pActionMove);
         if (m_pActionRemove)
             m_pMenu->addAction(m_pActionRemove);
-        if (   (m_pActionCopy || m_pActionRemove)
+        if (   (m_pActionCopy || m_pActionMove || m_pActionRemove)
             && (m_pActionRelease || m_pActionDetails))
             m_pMenu->addSeparator();
         if (m_pActionRelease)
@@ -1394,9 +1496,11 @@ void UIMediumManagerWidget::prepareContextMenu()
         /* Configure contex-menu: */
         if (m_pActionCopy)
             m_pContextMenu->addAction(m_pActionCopy);
+        if (m_pActionMove)
+            m_pContextMenu->addAction(m_pActionMove);
         if (m_pActionRemove)
             m_pContextMenu->addAction(m_pActionRemove);
-        if (   (m_pActionCopy || m_pActionRemove)
+        if (   (m_pActionCopy || m_pActionMove || m_pActionRemove)
             && (m_pActionRelease || m_pActionDetails))
             m_pContextMenu->addSeparator();
         if (m_pActionRelease)
@@ -1417,7 +1521,7 @@ void UIMediumManagerWidget::prepareWidgets()
 #ifdef VBOX_WS_MAC
         layout()->setSpacing(10);
 #else
-        layout()->setSpacing(4);
+        layout()->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 2);
 #endif
 
         /* Prepare toolbar: */
@@ -1442,9 +1546,11 @@ void UIMediumManagerWidget::prepareToolBar()
         /* Add toolbar actions: */
         if (m_pActionCopy)
             m_pToolBar->addAction(m_pActionCopy);
+        if (m_pActionMove)
+            m_pToolBar->addAction(m_pActionMove);
         if (m_pActionRemove)
             m_pToolBar->addAction(m_pActionRemove);
-        if (   (m_pActionCopy || m_pActionRemove)
+        if (   (m_pActionCopy || m_pActionMove || m_pActionRemove)
             && (m_pActionRelease || m_pActionDetails))
             m_pToolBar->addSeparator();
         if (m_pActionRelease)
@@ -1485,7 +1591,7 @@ void UIMediumManagerWidget::prepareTabWidget()
         m_pTabWidget->setTabIcon(tabIndex(UIMediumType_HardDisk), m_iconHD);
         m_pTabWidget->setTabIcon(tabIndex(UIMediumType_DVD), m_iconCD);
         m_pTabWidget->setTabIcon(tabIndex(UIMediumType_Floppy), m_iconFD);
-        connect(m_pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(sltHandleCurrentTabChanged()));
+        connect(m_pTabWidget, &QITabWidget::currentChanged, this, &UIMediumManagerWidget::sltHandleCurrentTabChanged);
 
         /* Add tab-widget into central layout: */
         layout()->addWidget(m_pTabWidget);
@@ -1541,17 +1647,17 @@ void UIMediumManagerWidget::prepareTreeWidget(UIMediumType type, int iColumns)
             pTreeWidget->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
         pTreeWidget->header()->setStretchLastSection(false);
         pTreeWidget->setSortingEnabled(true);
-        connect(pTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-                this, SLOT(sltHandleCurrentItemChanged()));
+        connect(pTreeWidget, &QITreeWidget::currentItemChanged,
+                this, &UIMediumManagerWidget::sltHandleCurrentItemChanged);
         if (m_pActionDetails)
             connect(pTreeWidget, &QITreeWidget::itemDoubleClicked,
                     m_pActionDetails, &QAction::setChecked);
-        connect(pTreeWidget, SIGNAL(customContextMenuRequested(const QPoint&)),
-                this, SLOT(sltHandleContextMenuCall(const QPoint&)));
-        connect(pTreeWidget, SIGNAL(resized(const QSize&, const QSize&)),
-                this, SLOT(sltPerformTablesAdjustment()), Qt::QueuedConnection);
-        connect(pTreeWidget->header(), SIGNAL(sectionResized(int, int, int)),
-                this, SLOT(sltPerformTablesAdjustment()), Qt::QueuedConnection);
+        connect(pTreeWidget, &QITreeWidget::customContextMenuRequested,
+                this, &UIMediumManagerWidget::sltHandleContextMenuCall);
+        connect(pTreeWidget, &QITreeWidget::resized,
+                this, &UIMediumManagerWidget::sltPerformTablesAdjustment, Qt::QueuedConnection);
+        connect(pTreeWidget->header(), &QHeaderView::sectionResized,
+                this, &UIMediumManagerWidget::sltPerformTablesAdjustment, Qt::QueuedConnection);
         /* Add tree-widget into tab layout: */
         tab(type)->layout()->addWidget(pTreeWidget);
     }
@@ -1560,7 +1666,7 @@ void UIMediumManagerWidget::prepareTreeWidget(UIMediumType type, int iColumns)
 void UIMediumManagerWidget::prepareDetailsWidget()
 {
     /* Create details-widget: */
-    m_pDetailsWidget = new UIMediumDetailsWidget(m_enmEmbedding);
+    m_pDetailsWidget = new UIMediumDetailsWidget(this, m_enmEmbedding);
     AssertPtrReturnVoid(m_pDetailsWidget);
     {
         /* Configure details-widget: */
@@ -1579,19 +1685,6 @@ void UIMediumManagerWidget::prepareDetailsWidget()
         layout()->addWidget(m_pDetailsWidget);
     }
 }
-
-//void UIMediumManagerWidget::prepareProgressBar()
-//{
-//    /* Create progress-bar: */
-//    m_pProgressBar = new UIEnumerationProgressBar;
-//    AssertPtrReturnVoid(m_pProgressBar);
-//    {
-//        /* Configure progress-bar: */
-//        m_pProgressBar->hide();
-//        /* Add progress-bar into button-box layout: */
-//        m_pButtonBox->addExtraWidget(m_pProgressBar);
-//    }
-//}
 
 void UIMediumManagerWidget::loadSettings()
 {
@@ -1693,9 +1786,13 @@ void UIMediumManagerWidget::updateActions()
     /* Apply actions accessibility: */
     if (m_pActionCopy)
     {
-        bool fActionEnabledCopy = currentMediumType() == UIMediumType_HardDisk &&
-                                  fNotInEnumeration && pMediumItem && checkMediumFor(pMediumItem, Action_Copy);
+        bool fActionEnabledCopy = fNotInEnumeration && pMediumItem && checkMediumFor(pMediumItem, Action_Copy);
         m_pActionCopy->setEnabled(fActionEnabledCopy);
+    }
+    if (m_pActionMove)
+    {
+        bool fActionEnabledMove = fNotInEnumeration && pMediumItem && checkMediumFor(pMediumItem, Action_Edit);
+        m_pActionMove->setEnabled(fActionEnabledMove);
     }
     if (m_pActionRemove)
     {
@@ -1732,6 +1829,11 @@ void UIMediumManagerWidget::updateActionIcons()
                                                        QString(":/%1_copy_16px.png").arg(strPrefix),
                                                        QString(":/%1_copy_disabled_22px.png").arg(strPrefix),
                                                        QString(":/%1_copy_disabled_16px.png").arg(strPrefix)));
+    if (m_pActionMove)
+        m_pActionMove->setIcon(UIIconPool::iconSetFull(QString(":/%1_move_22px.png").arg(strPrefix),
+                                                       QString(":/%1_move_16px.png").arg(strPrefix),
+                                                       QString(":/%1_move_disabled_22px.png").arg(strPrefix),
+                                                       QString(":/%1_move_disabled_16px.png").arg(strPrefix)));
     if (m_pActionRemove)
         m_pActionRemove->setIcon(UIIconPool::iconSetFull(QString(":/%1_remove_22px.png").arg(strPrefix),
                                                          QString(":/%1_remove_16px.png").arg(strPrefix),
@@ -1836,7 +1938,8 @@ void UIMediumManagerWidget::updateTabIcons(UIMediumItem *pMediumItem, Action act
             break;
         }
 
-        case Action_Copy: case Action_Modify: case Action_Release: break; /* Shut up MSC */
+        default:
+            break;
     }
 }
 
@@ -2213,11 +2316,6 @@ bool UIMediumManagerWidget::checkMediumFor(UIMediumItem *pItem, Action action)
             /* False for children: */
             return pItem->medium().parentID() == UIMedium::nullID();
         }
-        case Action_Modify:
-        {
-            /* False for children: */
-            return pItem->medium().parentID() == UIMedium::nullID();
-        }
         case Action_Remove:
         {
             /* Removable if not attached to anything: */
@@ -2229,7 +2327,8 @@ bool UIMediumManagerWidget::checkMediumFor(UIMediumItem *pItem, Action action)
             return pItem->isUsed() && !pItem->isUsedInSnapshots();
         }
 
-        case Action_Add: break; /* Shut up MSC */
+        default:
+            break;
     }
 
     AssertFailedReturn(false);
@@ -2259,6 +2358,7 @@ void UIMediumManagerFactory::create(QIManagerDialog *&pDialog, QWidget *pCenterW
 
 UIMediumManager::UIMediumManager(QWidget *pCenterWidget)
     : QIWithRetranslateUI<QIManagerDialog>(pCenterWidget)
+    , m_pProgressBar(0)
 {
 }
 
@@ -2337,6 +2437,23 @@ void UIMediumManager::configureButtonBox()
             button(ButtonType_Reset), &QPushButton::setEnabled);
     connect(buttonBox(), &QIDialogButtonBox::clicked,
             this, &UIMediumManager::sltHandleButtonBoxClick);
+    // WORKAROUND:
+    // Since we connected signals later than extra-data loaded
+    // for signals above, we should handle that stuff here again:
+    button(ButtonType_Apply)->setVisible(gEDataManager->virtualMediaManagerDetailsExpanded());
+    button(ButtonType_Reset)->setVisible(gEDataManager->virtualMediaManagerDetailsExpanded());
+
+    /* Create progress-bar: */
+    m_pProgressBar = new UIEnumerationProgressBar;
+    AssertPtrReturnVoid(m_pProgressBar);
+    {
+        /* Configure progress-bar: */
+        m_pProgressBar->hide();
+        /* Add progress-bar into button-box layout: */
+        buttonBox()->addExtraWidget(m_pProgressBar);
+        /* Notify widget it has progress-bar: */
+        widget()->setProgressBar(m_pProgressBar);
+    }
 }
 
 void UIMediumManager::finalize()
@@ -2349,6 +2466,4 @@ UIMediumManagerWidget *UIMediumManager::widget()
 {
     return qobject_cast<UIMediumManagerWidget*>(QIManagerDialog::widget());
 }
-
-#include "UIMediumManager.moc"
 

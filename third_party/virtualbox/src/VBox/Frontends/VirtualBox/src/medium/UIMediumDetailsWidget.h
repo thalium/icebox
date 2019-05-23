@@ -33,12 +33,15 @@
 class QAbstractButton;
 class QComboBox;
 class QLabel;
+class QLineEdit;
 class QStackedLayout;
 class QTextEdit;
 class QWidget;
 class QILabel;
 class QITabWidget;
-class UIFilePathSelector;
+class QIToolButton;
+class UIEnumerationProgressBar;
+class UIMediumManagerWidget;
 class UIMediumSizeEditor;
 
 
@@ -118,6 +121,7 @@ struct UIDataMedium
         : m_fValid(false)
         , m_enmType(UIMediumType_Invalid)
         , m_enmVariant(KMediumVariant_Max)
+        , m_fHasChildren(false)
         , m_options(UIDataMediumOptions())
         , m_details(UIDataMediumDetails())
     {}
@@ -127,6 +131,7 @@ struct UIDataMedium
         : m_fValid(false)
         , m_enmType(enmType)
         , m_enmVariant(KMediumVariant_Max)
+        , m_fHasChildren(false)
         , m_options(UIDataMediumOptions())
         , m_details(UIDataMediumDetails())
     {}
@@ -138,6 +143,7 @@ struct UIDataMedium
                && (m_fValid == other.m_fValid)
                && (m_enmType == other.m_enmType)
                && (m_enmVariant == other.m_enmVariant)
+               && (m_fHasChildren == other.m_fHasChildren)
                && (m_options == other.m_options)
                && (m_details == other.m_details)
                ;
@@ -154,6 +160,8 @@ struct UIDataMedium
     UIMediumType m_enmType;
     /** Holds the medium variant. */
     KMediumVariant m_enmVariant;
+    /** Holds whether medium has children. */
+    bool m_fHasChildren;
 
     /** Holds the medium options. */
     UIDataMediumOptions m_options;
@@ -183,7 +191,7 @@ public:
 
     /** Constructs medium details dialog passing @a pParent to the base-class.
       * @param  enmEmbedding  Brings embedding type. */
-    UIMediumDetailsWidget(EmbedTo enmEmbedding, QWidget *pParent = 0);
+    UIMediumDetailsWidget(UIMediumManagerWidget *pParent, EmbedTo enmEmbedding);
 
     /** Defines the raised details @a enmType. */
     void setCurrentType(UIMediumType enmType);
@@ -192,6 +200,11 @@ public:
     const UIDataMedium &data() const { return m_newData; }
     /** Defines the @a data for passed @a enmType. */
     void setData(const UIDataMedium &data);
+
+public slots:
+
+    /** Defines whether the options tab is @a fEnabled. */
+    void setOptionsEnabled(bool fEnabled);
 
 protected:
 
@@ -206,6 +219,8 @@ private slots:
         void sltTypeIndexChanged(int iIndex);
         /** Handles location change. */
         void sltLocationPathChanged(const QString &strPath);
+        /** Handles request to choose location. */
+        void sltChooseLocationPath();
         /** Handles description text change. */
         void sltDescriptionTextChanged();
         /** Handles size editor change. */
@@ -249,6 +264,9 @@ private:
         void retranslateValidation(QWidget *pWidget = 0);
         /** Updates button states. */
         void updateButtonStates();
+
+        /** Returns tool-tip for passed medium @a enmType. */
+        static QString mediumTypeTip(KMediumType enmType);
     /** @} */
 
     /** @name Details stuff.
@@ -263,6 +281,8 @@ private:
 
     /** @name General variables.
       * @{ */
+        /** Holds the parent reference. */
+        UIMediumManagerWidget *m_pParent;
         /** Holds the parent widget embedding type. */
         const EmbedTo m_enmEmbedding;
 
@@ -285,11 +305,13 @@ private:
         QLabel    *m_pErrorPaneType;
 
         /** Holds the location label. */
-        QLabel             *m_pLabelLocation;
-        /** Holds the location selector. */
-        UIFilePathSelector *m_pSelectorLocation;
+        QLabel       *m_pLabelLocation;
+        /** Holds the location editor. */
+        QLineEdit    *m_pEditorLocation;
         /** Holds the location error pane. */
-        QLabel             *m_pErrorPaneLocation;
+        QLabel       *m_pErrorPaneLocation;
+        /** Holds the location button. */
+        QIToolButton *m_pButtonLocation;
 
         /** Holds the description label. */
         QLabel    *m_pLabelDescription;
@@ -306,7 +328,9 @@ private:
         QLabel             *m_pErrorPaneSize;
 
         /** Holds the button-box instance. */
-        QIDialogButtonBox *m_pButtonBox;
+        QIDialogButtonBox        *m_pButtonBox;
+        /** Holds the progress-bar widget instance. */
+        UIEnumerationProgressBar *m_pProgressBar;
 
         /** Holds whether options are valid. */
         bool m_fValid;

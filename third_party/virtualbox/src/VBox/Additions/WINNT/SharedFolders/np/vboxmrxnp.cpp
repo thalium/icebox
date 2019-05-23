@@ -1,10 +1,10 @@
-/* $Id: vboxmrxnp.cpp 117860 2017-09-05 11:33:54Z bird $ */
+/* $Id: vboxmrxnp.cpp $ */
 /** @file
  * VirtualBox Windows Guest Shared Folders - Network provider dll
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -14,6 +14,7 @@
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
+
 
 /*********************************************************************************************************************************
 *   Header Files                                                                                                                 *

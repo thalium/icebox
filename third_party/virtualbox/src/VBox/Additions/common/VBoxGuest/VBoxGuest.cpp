@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -2057,6 +2057,8 @@ static int vgdrvCheckIfVmmReqIsAllowed(PVBOXGUESTDEVEXT pDevExt, PVBOXGUESTSESSI
                 return VINF_SUCCESS;
             break;
         case kLevel_TrustedUsers:
+            if (pSession->fUserSession)
+                break;
         case kLevel_AllUsers:
             return VINF_SUCCESS;
     }

@@ -550,7 +550,7 @@ pfprint_time822(dtrace_hdl_t *dtp, FILE *fp, const char *format,
 	RT_NOREF3(pfd, size, normal);
 
 	RTTimeLocalExplode(&Time, RTTimeSpecSetNano(&TimeSpec, *(uint64_t *)addr));
-	RTStrPrintf(buf, sizeof(buf), "%s, %u %s %02u:%02u:%02u %s%u%s",
+	RTStrPrintf(buf, sizeof(buf), "%s, %u %s %02u:%02u:%02u %s%d%s",
 				g_aszDay[Time.u8WeekDay], Time.u8MonthDay, g_aszMonth[Time.u8Month - 1],
 				Time.u8Hour, Time.u8Minute, Time.u8Second,
 				Time.offUTC >= 0 ? "UTC+" : "UTC", Time.offUTC / 60,

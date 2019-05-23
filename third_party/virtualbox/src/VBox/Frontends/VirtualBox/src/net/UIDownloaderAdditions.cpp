@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -30,6 +30,7 @@
 # include "VBoxGlobal.h"
 # include "UIMessageCenter.h"
 # include "UIModalWindowManager.h"
+# include "UIVersion.h"
 
 #endif /* !VBOX_WITH_PRECOMPILED_HEADERS */
 
@@ -60,32 +61,13 @@ UIDownloaderAdditions::UIDownloaderAdditions()
     if (!m_spInstance)
         m_spInstance = this;
 
-    /* Get version number and adjust it for test and trunk builds, both have
-       odd build numbers.  The server only has official releases. */
-    QString strVersion = vboxGlobal().vboxVersionStringNormalized();
-    QChar qchLastDigit = strVersion[strVersion.length() - 1];
-    if (   qchLastDigit == '1'
-        || qchLastDigit == '3'
-        || qchLastDigit == '5'
-        || qchLastDigit == '7'
-        || qchLastDigit == '9')
-    {
-        if (   !strVersion.endsWith(".51")
-            && !strVersion.endsWith(".53")
-            && !strVersion.endsWith(".97")
-            && !strVersion.endsWith(".99"))
-            strVersion[strVersion.length() - 1] = qchLastDigit.toLatin1() - 1;
-        else
-        {
-            strVersion.chop(2);
-            strVersion += "10"; /* Current for 5.0.x */
-        }
-    }
+    /* Get version number and adjust it for test and trunk builds. The server only has official releases. */
+    const QString strVersion = UIVersion(vboxGlobal().vboxVersionStringNormalized()).effectiveRelasedVersion().toString();
 
     /* Prepare source/target: */
-    const QString strSourceName = QString("VBoxGuestAdditions_%1.iso").arg(strVersion);
-    const QString strSourceFolder = QString("http://download.virtualbox.org/virtualbox/%1/").arg(strVersion);
-    const QString strSource = strSourceFolder + strSourceName;
+    const QString strSourceName = QString("%1_%2.iso").arg(GUI_GuestAdditionsName, strVersion);
+    const QString strSourcePath = QString("https://download.virtualbox.org/virtualbox/%1/").arg(strVersion);
+    const QString strSource = strSourcePath + strSourceName;
     const QString strPathSHA256SumsFile = QString("https://www.virtualbox.org/download/hashes/%1/SHA256SUMS").arg(strVersion);
     const QString strTarget = QDir(vboxGlobal().homeFolder()).absoluteFilePath(strSourceName);
 

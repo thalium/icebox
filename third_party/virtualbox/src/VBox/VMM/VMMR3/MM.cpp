@@ -854,4 +854,3 @@ VMMR3DECL(uint32_t) MMR3PhysGet4GBRamHoleSize(PVM pVM)
     return pVM->mm.s.cbRamHole;
 }
 
-

@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -553,7 +553,7 @@ HRESULT HostNetworkInterface::enableStaticIPConfigV6(const com::Utf8Str &aIPV6Ad
     {
         fAddrChanged = true;
     }
-   
+
     if (   fAddrChanged
         || m.realIPV6PrefixLength != aIPV6NetworkMaskPrefixLength)
     {

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -196,9 +196,9 @@ QVariant UIGChooserItemMachine::data(int iKey) const
     switch (iKey)
     {
         /* Layout hints: */
-        case MachineItemData_Margin: return 5;
-        case MachineItemData_MajorSpacing: return 10;
-        case MachineItemData_MinorSpacing: return 4;
+        case MachineItemData_Margin: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+        case MachineItemData_MajorSpacing: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 2;
+        case MachineItemData_MinorSpacing: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
         case MachineItemData_TextSpacing: return 0;
 
         /* Pixmaps: */
@@ -973,7 +973,7 @@ void UIGChooserItemMachine::paintMachineInfo(QPainter *pPainter, const QStyleOpt
     {
         /* Prepare variables: */
         int iMachinePixmapX = iLeftColumnIndent;
-        int iMachinePixmapY = (iFullHeight - m_pixmapSize.height()) / 2;
+        int iMachinePixmapY = (iFullHeight - m_pixmap.height() / m_pixmap.devicePixelRatio()) / 2;
         /* Paint pixmap: */
         paintPixmap(/* Painter: */
                     pPainter,

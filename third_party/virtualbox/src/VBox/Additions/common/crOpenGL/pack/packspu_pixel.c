@@ -2,7 +2,7 @@
    All rights reserved.
 
    See the file LICENSE.txt for information on redistributing this software. */
-    
+
 #include "cr_packfunctions.h"
 #include "cr_glstate.h"
 #include "cr_pixeldata.h"
@@ -139,7 +139,7 @@ static GLboolean packspu_CheckTexImageInternalFormat(GLint internalformat)
         && internalformat!=GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT
 # endif
 #endif
-        /*@todo ARB_texture_float*/
+        /** @todo ARB_texture_float*/
         && internalformat!=GL_RGBA32F_ARB
         && internalformat!=GL_RGB32F_ARB
         && internalformat!=GL_ALPHA32F_ARB
@@ -300,7 +300,7 @@ void PACKSPU_APIENTRY packspu_ReadPixels( GLint x, GLint y, GLsizei width, GLsiz
     GET_THREAD(thread);
     ContextInfo *ctx = thread->currentContext;
     CRClientState *clientState = &(ctx->clientState->client);
-    int writeback;    
+    int writeback;
 
     if (crStateIsBufferBound(GL_PIXEL_PACK_BUFFER_ARB))
     {
@@ -325,7 +325,7 @@ void PACKSPU_APIENTRY packspu_ReadPixels( GLint x, GLint y, GLsizei width, GLsiz
     }
 }
 
-/*@todo check with pbo's*/
+/** @todo check with pbo's*/
 void PACKSPU_APIENTRY packspu_CopyPixels( GLint x, GLint y, GLsizei width, GLsizei height, GLenum type )
 {
     GET_THREAD(thread);

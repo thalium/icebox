@@ -469,9 +469,9 @@ void* CrFbDDataEntryGet(HCR_FRAMEBUFFER_ENTRY hEntry, CRHTABLE_HANDLE hSlot);
 CR_TEXDATA* CrFbTexDataCreate(const VBOXVR_TEXTURE *pTex);
 void CrFbTexDataInit(CR_TEXDATA* pFbTex, const VBOXVR_TEXTURE *pTex, PFNCRTEXDATA_RELEASED pfnTextureReleased);
 
-int8_t crVBoxServerCrCmdBltProcess(const VBOXCMDVBVA_BLT_HDR *pCmd, uint32_t cbCmd);
-int8_t crVBoxServerCrCmdClrFillProcess(const VBOXCMDVBVA_CLRFILL_HDR *pCmd, uint32_t cbCmd);
-int8_t crVBoxServerCrCmdFlipProcess(const VBOXCMDVBVA_FLIP *pFlip, uint32_t cbCmd);
+int8_t crVBoxServerCrCmdBltProcess(VBOXCMDVBVA_BLT_HDR const RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd);
+int8_t crVBoxServerCrCmdClrFillProcess(VBOXCMDVBVA_CLRFILL_HDR const RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd);
+int8_t crVBoxServerCrCmdFlipProcess(VBOXCMDVBVA_FLIP const RT_UNTRUSTED_VOLATILE_GUEST *pFlip, uint32_t cbCmd);
 
 
 int32_t crVBoxServerClientGet(uint32_t u32ClientID, CRClient **ppClient);

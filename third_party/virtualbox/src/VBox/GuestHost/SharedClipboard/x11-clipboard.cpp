@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -48,10 +48,18 @@
 #include <iprt/thread.h>
 
 #include <VBox/log.h>
+#include <VBox/version.h>
 
 #include <VBox/GuestHost/SharedClipboard.h>
 #include <VBox/GuestHost/clipboard-helper.h>
 #include <VBox/HostServices/VBoxClipboardSvc.h>
+
+/* The serialisation mechanism looks like it is not needed (everything using it
+ * runs on one thread, and the flag is always cleared at the end of calls which
+ * use it).  So we will remove it after the 5.2 series. */
+#if (VBOX_VERSION_MAJOR * 100000 + VBOX_VERSION_MINOR * 1000 + VBOX_VERION_BUILD >= 502051)
+# define VBOX_AFTER_5_2
+#endif
 
 class formats;
 static Atom clipGetAtom(CLIPBACKEND *pCtx, const char *pszName);
@@ -214,12 +222,14 @@ struct _CLIPBACKEND
     void (*fixesSelectInput)(Display *, Window, Atom, unsigned long);
     /** The first XFixes event number */
     int fixesEventBase;
+#ifndef VBOX_AFTER_5_2
     /** The Xt Intrinsics can only handle one outstanding clipboard operation
      * at a time, so we keep track of whether one is in process. */
     bool fBusy;
     /** We can't handle a clipboard update event while we are busy, so remember
      * it for later. */
     bool fUpdateNeeded;
+#endif
 };
 
 /** The number of simultaneous instances we support.  For all normal purposes
@@ -529,6 +539,7 @@ static void clipUpdateX11Targets(CLIPBACKEND *pCtx, CLIPX11FORMAT *pTargets,
                                  size_t cTargets)
 {
     LogRel2 (("%s: called\n", __FUNCTION__));
+#ifndef VBOX_AFTER_5_2
     pCtx->fBusy = false;
     if (pCtx->fUpdateNeeded)
     {
@@ -537,6 +548,7 @@ static void clipUpdateX11Targets(CLIPBACKEND *pCtx, CLIPX11FORMAT *pTargets,
         clipQueryX11CBFormats(pCtx);
         return;
     }
+#endif
     if (pTargets == NULL) {
         /* No data available */
         clipReportEmptyX11CB(pCtx);
@@ -619,12 +631,14 @@ static void clipQueryX11CBFormats(CLIPBACKEND *pCtx)
 {
     LogRel2 (("%s: requesting the targets that the X11 clipboard offers\n",
            __PRETTY_FUNCTION__));
+#ifndef VBOX_AFTER_5_2
     if (pCtx->fBusy)
     {
         pCtx->fUpdateNeeded = true;
         return;
     }
     pCtx->fBusy = true;
+#endif
 #ifndef TESTCASE
     XtGetSelectionValue(pCtx->widget,
                         clipGetAtom(pCtx, "CLIPBOARD"),
@@ -919,16 +933,12 @@ CLIPBACKEND *ClipConstructX11(VBOXCLIPBOARDCONTEXT *pFrontend, bool fHeadless)
  */
 void ClipDestructX11(CLIPBACKEND *pCtx)
 {
-    /*
-     * Immediately return if we are not connected to the X server.
-     */
-    if (!pCtx->fHaveX11)
-        return;
-
-    /* We set this to NULL when the event thread exits.  It really should
-     * have exited at this point, when we are about to unload the code from
-     * memory. */
-    Assert(pCtx->widget == NULL);
+    if (pCtx->fHaveX11)
+        /* We set this to NULL when the event thread exits.  It really should
+         * have exited at this point, when we are about to unload the code from
+         * memory. */
+        Assert(pCtx->widget == NULL);
+    RTMemFree(pCtx);
 }
 
 /**
@@ -1739,13 +1749,17 @@ static void clipConvertX11CB(void *pClientData, void *pvSrc, unsigned cbSrc)
     AssertPtr(pReq->mCtx);
     Assert(pReq->mFormat != 0);  /* sanity */
     int rc = VINF_SUCCESS;
+#ifndef VBOX_AFTER_5_2
     CLIPBACKEND *pCtx = pReq->mCtx;
+#endif
     void *pvDest = NULL;
     uint32_t cbDest = 0;
 
+#ifndef VBOX_AFTER_5_2
     pCtx->fBusy = false;
     if (pCtx->fUpdateNeeded)
         clipQueryX11CBFormats(pCtx);
+#endif
     if (pvSrc == NULL)
         /* The clipboard selection may have changed before we could get it. */
         rc = VERR_NO_DATA;
@@ -1914,12 +1928,15 @@ static void vboxClipboardReadX11Worker(void *pUserData,
     LogRelFlowFunc (("pReq->mFormat = %02X\n", pReq->mFormat));
 
     int rc = VINF_SUCCESS;
+#ifndef VBOX_AFTER_5_2
     bool fBusy = pCtx->fBusy;
     pCtx->fBusy = true;
     if (fBusy)
         /* If the clipboard is busy just fend off the request. */
         rc = VERR_TRY_AGAIN;
-    else if (pReq->mFormat == VBOX_SHARED_CLIPBOARD_FMT_UNICODETEXT)
+    else
+#endif
+    if (pReq->mFormat == VBOX_SHARED_CLIPBOARD_FMT_UNICODETEXT)
     {
         /*
          * VBox wants to read data in the given format.
@@ -1958,7 +1975,12 @@ static void vboxClipboardReadX11Worker(void *pUserData,
             getSelectionValue(pCtx, pCtx->X11HTMLFormat, pReq);
     }
     else
+    {
         rc = VERR_NOT_IMPLEMENTED;
+#ifndef VBOX_AFTER_5_2
+        pCtx->fBusy = false;
+#endif
+    }
     if (RT_FAILURE(rc))
     {
         /* The clipboard callback was never scheduled, so we must signal
@@ -2185,6 +2207,8 @@ void testRequestData(CLIPBACKEND *pCtx, CLIPX11FORMAT target, void *closure)
         format = 0;
     }
     clipConvertX11CB(closure, pValue, count * format / 8);
+    if (pValue)
+        RTMemFree(pValue);
 }
 
 /* The formats currently on offer from X11 via the shared clipboard */
@@ -2344,7 +2368,8 @@ void ClipCompleteDataRequestFromX11(VBOXCLIPBOARDCONTEXT *pCtx, int rc, CLIPREAD
     if (cb <= MAX_BUF_SIZE)
     {
         g_completedRC = rc;
-        memcpy(g_completedBuf, pv, cb);
+        if (cb != 0)
+            memcpy(g_completedBuf, pv, cb);
     }
     else
         g_completedRC = VERR_BUFFER_OVERFLOW;
@@ -2552,6 +2577,32 @@ static void testNoSelectionOwnership(CLIPBACKEND *pCtx, const char *pcszTestCtx)
     RTTESTI_CHECK_MSG(!g_ownsSel, ("context: %s\n", pcszTestCtx));
 }
 
+static void testBadFormatRequestFromHost(RTTEST hTest, CLIPBACKEND *pCtx)
+{
+    clipSetSelectionValues("UTF8_STRING", XA_STRING, "hello world",
+                           sizeof("hello world"), 8);
+    clipSendTargetUpdate(pCtx);
+    if (clipQueryFormats() != VBOX_SHARED_CLIPBOARD_FMT_UNICODETEXT)
+        RTTestFailed(hTest, "Wrong targets reported: %02X\n",
+                     clipQueryFormats());
+    else
+    {
+        char *pc;
+        CLIPREADCBREQ *pReq = (CLIPREADCBREQ *)&pReq, *pReqRet = NULL;
+        ClipRequestDataFromX11(pCtx, 100, pReq);  /* Bad format. */
+        int rc = VINF_SUCCESS;
+        uint32_t cbActual = 0;
+        clipGetCompletedRequest(&rc, &pc, &cbActual, &pReqRet);
+        if (rc != VERR_NOT_IMPLEMENTED)
+            RTTestFailed(hTest, "Wrong return code, expected VERR_NOT_IMPLEMENTED, got %Rrc\n",
+                         rc);
+        clipSetSelectionValues("", XA_STRING, "", sizeof(""), 8);
+        clipSendTargetUpdate(pCtx);
+        if (clipQueryFormats() == VBOX_SHARED_CLIPBOARD_FMT_UNICODETEXT)
+            RTTestFailed(hTest, "Failed to report targets after bad host request.\n");
+    }
+}
+
 int main()
 {
     /*
@@ -2755,6 +2806,11 @@ int main()
     RTTEST_CHECK_MSG(hTest, g_ownsSel,
                      (hTest, "VBox grabbed the clipboard with unknown data and we ignored it\n"));
     testStringFromVBoxFailed(hTest, pCtx, "UTF8_STRING");
+
+    /*** VBox requests a bad format ***/
+    RTTestSub(hTest, "recovery from a bad format request");
+    testBadFormatRequestFromHost(hTest, pCtx);
+
     rc = ClipStopX11(pCtx);
     AssertRCReturn(rc, 1);
     ClipDestructX11(pCtx);

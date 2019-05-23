@@ -1,11 +1,10 @@
 /* $Id: VBoxDispVrdpBmp.h $ */
-
 /** @file
  * VBox XPDM Display driver
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -79,4 +78,4 @@ typedef struct _VRDPBC
 void vrdpbmpReset (VRDPBC *pCache);
 int vrdpbmpCacheSurface (VRDPBC *pCache, const SURFOBJ *pso, VRDPBCHASH *phash, VRDPBCHASH *phashDeleted, BOOL bForce);
 
-#endif /*VBOXDISPVRDPBMP_H*/
+#endif /* !VBOXDISPVRDPBMP_H */

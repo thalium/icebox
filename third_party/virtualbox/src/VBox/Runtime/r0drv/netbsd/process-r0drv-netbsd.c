@@ -4,6 +4,8 @@
  */
 
 /*
+ * Copyright (c) 2007 knut st. osmundsen <bird-src-spam@anduin.net>
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -46,3 +48,4 @@ RTR0DECL(RTR0PROCESS) RTR0ProcHandleSelf(void)
 {
     return (RTR0PROCESS)curproc;
 }
+

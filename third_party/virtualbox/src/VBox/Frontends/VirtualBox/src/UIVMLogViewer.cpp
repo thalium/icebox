@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -141,8 +141,6 @@ private:
         AssertPtrReturnVoid(m_pMainLayout);
         {
             /* Configure main-layout: */
-            m_pMainLayout->setSpacing(5);
-            /* Not sure 0 margins are default, but just to be safe: */
             m_pMainLayout->setContentsMargins(0, 0, 0, 0);
 
             /* Create close-button: */
@@ -606,9 +604,7 @@ private:
         m_pMainLayout = new QHBoxLayout(this);
         AssertPtrReturnVoid(m_pMainLayout);
         {
-            /* Prepare main-layout: */
-            m_pMainLayout->setSpacing(5);
-            /* Not sure 0 margins are default, but just to be safe: */
+            /* Configure main-layout: */
             m_pMainLayout->setContentsMargins(0, 0, 0, 0);
 
             /* Create close-button: */
@@ -1170,9 +1166,6 @@ QTextEdit* UIVMLogViewer::createLogPage(const QString &strName)
         /* Create page-layout: */
         QVBoxLayout *pPageLayout = new QVBoxLayout(pPageContainer);
         AssertPtrReturn(pPageLayout, 0);
-        {
-            pPageLayout->setContentsMargins(10, 10, 10, 10);
-        }
         /* Create Log-Viewer: */
         QTextEdit *pLogViewer = new QTextEdit(pPageContainer);
         AssertPtrReturn(pLogViewer, 0);

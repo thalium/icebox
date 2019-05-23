@@ -38,7 +38,7 @@ packspu_MapBufferARB( GLenum target, GLenum access )
         pBufObj = crStateGetBoundBufferObject(target, &ctx->clientState->bufferobject);
         CRASSERT(pBufObj);
 
-        if (pBufObj->bResyncOnRead && 
+        if (pBufObj->bResyncOnRead &&
             access != GL_WRITE_ONLY_ARB)
         {
             /*fetch data from host side*/
@@ -65,7 +65,7 @@ void PACKSPU_APIENTRY packspu_GetBufferSubDataARB( GLenum target, GLintptrARB of
         return;
     }
 #endif
-    
+
     crStateGetBufferSubDataARB(target, offset, size, data);
 }
 

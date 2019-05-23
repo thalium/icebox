@@ -14,7 +14,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -2715,7 +2715,16 @@ static int e1kRegWriteCTRL(PE1KSTATE pThis, uint32_t offset, uint32_t index, uin
             /* It should take about 2 seconds for the link to come up */
             e1kArmTimer(pThis, pThis->CTX_SUFF(pLUTimer), E1K_INIT_LINKUP_DELAY_US);
         }
-#endif /* E1K_LSC_ON_SLU */
+#else /* !E1K_LSC_ON_SLU */
+        if (   (value & CTRL_SLU)
+            && !(CTRL & CTRL_SLU)
+            && pThis->fCableConnected
+            && !TMTimerIsActive(pThis->CTX_SUFF(pLUTimer)))
+        {
+            /* PXE does not use LSC interrupts, see @bugref{9113}. */
+            STATUS |= STATUS_LU;
+        }
+#endif /* !E1K_LSC_ON_SLU */
         if ((value & CTRL_VME) != (CTRL & CTRL_VME))
         {
             E1kLog(("%s VLAN Mode %s\n", pThis->szPrf, (value & CTRL_VME) ? "Enabled" : "Disabled"));
@@ -4429,7 +4438,7 @@ static int e1kFallbackAddToFrame(PE1KSTATE pThis, E1KTXDESC *pDesc, bool fOnWork
         e1kXmitFreeBuf(pThis);
     }
 
-    return VINF_SUCCESS; // @todo consider rc;
+    return VINF_SUCCESS; /// @todo consider rc;
 }
 #endif /* E1K_WITH_TXD_CACHE */
 
@@ -5842,6 +5851,7 @@ static int e1kRegReadUnaligned(PE1KSTATE pThis, uint32_t offReg, void *pv, uint3
     }
     if (index != -1)
     {
+        RT_UNTRUSTED_VALIDATED_FENCE(); /* paranoia because of port I/O. */
         if (g_aE1kRegMap[index].readable)
         {
             /* Make the mask correspond to the bits we are about to read. */
@@ -5906,6 +5916,7 @@ static int e1kRegReadAlignedU32(PE1KSTATE pThis, uint32_t offReg, uint32_t *pu32
     int idxReg = e1kRegLookup(offReg);
     if (RT_LIKELY(idxReg != -1))
     {
+        RT_UNTRUSTED_VALIDATED_FENCE(); /* paranoia because of port I/O. */
         if (RT_UNLIKELY(g_aE1kRegMap[idxReg].readable))
         {
             /*
@@ -5952,6 +5963,7 @@ static int e1kRegWriteAlignedU32(PE1KSTATE pThis, uint32_t offReg, uint32_t u32V
     int         index = e1kRegLookup(offReg);
     if (RT_LIKELY(index != -1))
     {
+        RT_UNTRUSTED_VALIDATED_FENCE(); /* paranoia because of port I/O. */
         if (RT_LIKELY(g_aE1kRegMap[index].writable))
         {
             /*

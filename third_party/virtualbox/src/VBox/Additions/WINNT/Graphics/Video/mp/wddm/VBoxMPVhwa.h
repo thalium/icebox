@@ -1,11 +1,10 @@
 /* $Id: VBoxMPVhwa.h $ */
-
 /** @file
  * VBox WDDM Miniport driver
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -23,27 +22,28 @@
 
 #include "VBoxMPShgsmi.h"
 
-VBOXVHWACMD* vboxVhwaCommandCreate(PVBOXMP_DEVEXT pDevExt,
-        D3DDDI_VIDEO_PRESENT_SOURCE_ID srcId,
-        VBOXVHWACMD_TYPE enmCmd,
-        VBOXVHWACMD_LENGTH cbCmd);
+VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST * vboxVhwaCommandCreate(PVBOXMP_DEVEXT pDevExt,
+                                                               D3DDDI_VIDEO_PRESENT_SOURCE_ID srcId,
+                                                               VBOXVHWACMD_TYPE enmCmd,
+                                                               VBOXVHWACMD_LENGTH cbCmd);
 
-void vboxVhwaCommandFree(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD* pCmd);
-int vboxVhwaCommandSubmit(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD* pCmd);
-int vboxVhwaCommandSubmit(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD* pCmd);
-void vboxVhwaCommandSubmitAsynchAndComplete(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD* pCmd);
+void vboxVhwaCommandFree(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd);
+int  vboxVhwaCommandSubmit(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST * pCmd);
+void vboxVhwaCommandSubmitAsynchAndComplete(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd);
 
 #ifndef VBOXVHWA_WITH_SHGSMI
-typedef DECLCALLBACK(void) FNVBOXVHWACMDCOMPLETION(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD * pCmd, void * pContext);
+typedef DECLCALLBACK(void) FNVBOXVHWACMDCOMPLETION(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST * pCmd,
+                                                   void *pvContext);
 typedef FNVBOXVHWACMDCOMPLETION *PFNVBOXVHWACMDCOMPLETION;
 
-void vboxVhwaCommandSubmitAsynch(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD* pCmd, PFNVBOXVHWACMDCOMPLETION pfnCompletion, void * pContext);
-void vboxVhwaCommandSubmitAsynchByEvent(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD* pCmd, RTSEMEVENT hEvent);
+void vboxVhwaCommandSubmitAsynch(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd,
+                                 PFNVBOXVHWACMDCOMPLETION pfnCompletion, void * pContext);
+void vboxVhwaCommandSubmitAsynchByEvent(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd, RTSEMEVENT hEvent);
 
-#define VBOXVHWA_CMD2LISTENTRY(_pCmd) ((PVBOXVTLIST_ENTRY)&(_pCmd)->u.pNext)
-#define VBOXVHWA_LISTENTRY2CMD(_pEntry) ( (VBOXVHWACMD*)((uint8_t *)(_pEntry) - RT_OFFSETOF(VBOXVHWACMD, u.pNext)) )
+#define VBOXVHWA_CMD2LISTENTRY(_pCmd)   ((PVBOXVTLIST_ENTRY)&(_pCmd)->u.pNext)
+#define VBOXVHWA_LISTENTRY2CMD(_pEntry) ( (VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *)((uint8_t *)(_pEntry) - RT_OFFSETOF(VBOXVHWACMD, u.pNext)) )
 
-DECLINLINE(void) vboxVhwaPutList(VBOXVTLIST *pList, VBOXVHWACMD* pCmd)
+DECLINLINE(void) vboxVhwaPutList(VBOXVTLIST *pList, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     vboxVtListPut(pList, VBOXVHWA_CMD2LISTENTRY(pCmd), VBOXVHWA_CMD2LISTENTRY(pCmd));
 }
@@ -51,10 +51,6 @@ DECLINLINE(void) vboxVhwaPutList(VBOXVTLIST *pList, VBOXVHWACMD* pCmd)
 void vboxVhwaCompletionListProcess(PVBOXMP_DEVEXT pDevExt, VBOXVTLIST *pList);
 #endif
 
-void vboxVhwaFreeHostInfo1(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD_QUERYINFO1* pInfo);
-void vboxVhwaFreeHostInfo2(PVBOXMP_DEVEXT pDevExt, VBOXVHWACMD_QUERYINFO2* pInfo);
-VBOXVHWACMD_QUERYINFO1* vboxVhwaQueryHostInfo1(PVBOXMP_DEVEXT pDevExt, D3DDDI_VIDEO_PRESENT_SOURCE_ID srcId);
-VBOXVHWACMD_QUERYINFO2* vboxVhwaQueryHostInfo2(PVBOXMP_DEVEXT pDevExt, D3DDDI_VIDEO_PRESENT_SOURCE_ID srcId, uint32_t numFourCC);
 int vboxVhwaEnable(PVBOXMP_DEVEXT pDevExt, D3DDDI_VIDEO_PRESENT_SOURCE_ID srcId);
 int vboxVhwaDisable(PVBOXMP_DEVEXT pDevExt, D3DDDI_VIDEO_PRESENT_SOURCE_ID srcId);
 void vboxVhwaInit(PVBOXMP_DEVEXT pDevExt);

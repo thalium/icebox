@@ -1519,11 +1519,11 @@ int AudioMixBufReadAtEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt,
  * @param   pMixBuf                 Mixing buffer to read audio frames from.
  * @param   pvBuf                   Pointer to buffer to write output to.
  * @param   cbBuf                   Size (in bytes) of buffer to write to.
- * @param   pcRead                  Number of audio frames read. Optional.
+ * @param   pcBlock                 Returns acquired block to read (in audio frames).
  */
-int AudioMixBufReadCirc(PPDMAUDIOMIXBUF pMixBuf, void *pvBuf, uint32_t cbBuf, uint32_t *pcRead)
+int AudioMixBufAcquireReadBlock(PPDMAUDIOMIXBUF pMixBuf, void *pvBuf, uint32_t cbBuf, uint32_t *pcBlock)
 {
-    return AudioMixBufReadCircEx(pMixBuf, pMixBuf->AudioFmt, pvBuf, cbBuf, pcRead);
+    return AudioMixBufAcquireReadBlockEx(pMixBuf, pMixBuf->AudioFmt, pvBuf, cbBuf, pcBlock);
 }
 
 /**
@@ -1536,14 +1536,15 @@ int AudioMixBufReadCirc(PPDMAUDIOMIXBUF pMixBuf, void *pvBuf, uint32_t cbBuf, ui
  * @param   enmFmt                  Audio format to use for output.
  * @param   pvBuf                   Pointer to buffer to write output to.
  * @param   cbBuf                   Size (in bytes) of buffer to write to.
- * @param   pcRead                  Number of audio frames read. Optional.
+ * @param   pcBlock                 Returns acquired block to read (in audio frames).
  */
-int AudioMixBufReadCircEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, void *pvBuf, uint32_t cbBuf, uint32_t *pcRead)
+int AudioMixBufAcquireReadBlockEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, void *pvBuf, uint32_t cbBuf,
+                                  uint32_t *pcBlock)
 {
     AssertPtrReturn(pMixBuf, VERR_INVALID_POINTER);
     AssertReturn(cbBuf,      VERR_INVALID_PARAMETER);
     AssertPtrReturn(pvBuf,   VERR_INVALID_POINTER);
-    /* pcRead is optional. */
+    AssertPtrReturn(pcBlock, VERR_INVALID_POINTER);
 
     /* Make sure that we at least have space for a full audio frame. */
     AssertReturn(AUDIOMIXBUF_B2F(pMixBuf, cbBuf), VERR_INVALID_PARAMETER);
@@ -1558,8 +1559,7 @@ int AudioMixBufReadCircEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, voi
 #ifdef DEBUG
         audioMixBufDbgPrintInternal(pMixBuf, __FUNCTION__);
 #endif
-        if (pcRead)
-            *pcRead = 0;
+        *pcBlock = 0;
         return VINF_SUCCESS;
     }
 
@@ -1596,13 +1596,9 @@ int AudioMixBufReadCircEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, voi
             RTFileClose(fh);
         }
 #endif
-        pMixBuf->offRead  = (pMixBuf->offRead + cToRead) % pMixBuf->cFrames;
-        Assert(pMixBuf->cUsed >= cToRead);
-        pMixBuf->cUsed   -= cToRead;
     }
 
-    if (pcRead)
-        *pcRead = cToRead;
+    *pcBlock = cToRead;
 
 #ifdef DEBUG
     audioMixBufDbgValidate(pMixBuf);
@@ -1610,6 +1606,24 @@ int AudioMixBufReadCircEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, voi
 
     AUDMIXBUF_LOG(("cRead=%RU32 (%RU32 bytes)\n", cToRead, AUDIOMIXBUF_F2B(pMixBuf, cToRead)));
     return VINF_SUCCESS;
+}
+
+/**
+ * Releases a formerly acquired read block again.
+ *
+ * @param   pMixBuf             Mixing buffer to release acquired read block for.
+ * @param   cBlock              Size of the block to release (in audio frames).
+ */
+void AudioMixBufReleaseReadBlock(PPDMAUDIOMIXBUF pMixBuf, uint32_t cBlock)
+{
+    AssertPtrReturnVoid(pMixBuf);
+
+    if (!cBlock)
+        return;
+
+    pMixBuf->offRead  = (pMixBuf->offRead + cBlock) % pMixBuf->cFrames;
+    Assert(pMixBuf->cUsed >= cBlock);
+    pMixBuf->cUsed   -= RT_MIN(cBlock, pMixBuf->cUsed);
 }
 
 /**

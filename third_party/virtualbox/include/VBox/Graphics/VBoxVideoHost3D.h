@@ -41,7 +41,9 @@ typedef struct VBOXCMDVBVA_HDR *PVBOXCMDVBVA_HDR;
 
 typedef DECLCALLBACKPTR(void, PFNVBOXCRCMD_CLTSCR_UPDATE_BEGIN)(HVBOXCRCMDCLTSCR hClt, unsigned u32Screen);
 typedef DECLCALLBACKPTR(void, PFNVBOXCRCMD_CLTSCR_UPDATE_END)(HVBOXCRCMDCLTSCR hClt, unsigned uScreenId, int32_t x, int32_t y, uint32_t cx, uint32_t cy);
-typedef DECLCALLBACKPTR(void, PFNVBOXCRCMD_CLTSCR_UPDATE_PROCESS)(HVBOXCRCMDCLTSCR hClt, unsigned u32Screen, const struct VBVACMDHDR *pCmd, size_t cbCmd);
+typedef DECLCALLBACKPTR(void, PFNVBOXCRCMD_CLTSCR_UPDATE_PROCESS)(HVBOXCRCMDCLTSCR hClt, unsigned u32Screen,
+                                                                  struct VBVACMDHDR const RT_UNTRUSTED_VOLATILE_GUEST *pCmd,
+                                                                  size_t cbCmd);
 
 /*client callbacks to be used by the server
  * when working in the CrCmd mode */
@@ -82,23 +84,26 @@ typedef struct VBOXCRCLIENT_INFO
 
 typedef void * HVBOXCRCMDSVR;
 
-/* enables the CrCmd interface, thus the hgcm interface gets disabled.
+/** enables the CrCmd interface, thus the hgcm interface gets disabled.
  * all subsequent calls will be done in the thread Enable was done,
  * until the Disable is called */
 typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_ENABLE)(HVBOXCRCMDSVR hSvr, VBOXCRCMD_SVRENABLE_INFO *pInfo);
-/* Opposite to Enable (see above) */
+/** Opposite to Enable (see above) */
 typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_DISABLE)(HVBOXCRCMDSVR hSvr);
-/* process command */
-typedef DECLCALLBACKPTR(int8_t, PFNVBOXCRCMD_SVR_CMD)(HVBOXCRCMDSVR hSvr, const VBOXCMDVBVA_HDR *pCmd, uint32_t cbCmd);
-/* process host control */
-typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_HOSTCTL)(HVBOXCRCMDSVR hSvr, uint8_t* pCtl, uint32_t cbCmd);
-/* process guest control */
-typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_GUESTCTL)(HVBOXCRCMDSVR hSvr, uint8_t* pCtl, uint32_t cbCmd);
-/* screen resize */
-typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_RESIZE)(HVBOXCRCMDSVR hSvr, const struct VBVAINFOSCREEN *pScreen, const uint32_t *pTargetMap);
-/* process SaveState */
+/** process command */
+typedef DECLCALLBACKPTR(int8_t, PFNVBOXCRCMD_SVR_CMD)(HVBOXCRCMDSVR hSvr,
+                                                      const VBOXCMDVBVA_HDR RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd);
+/** process host control */
+typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_HOSTCTL)(HVBOXCRCMDSVR hSvr, uint8_t *pCtl, uint32_t cbCmd);
+/** process guest control */
+typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_GUESTCTL)(HVBOXCRCMDSVR hSvr, uint8_t RT_UNTRUSTED_VOLATILE_GUEST *pCtl,
+                                                        uint32_t cbCmd);
+/** screen resize */
+typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_RESIZE)(HVBOXCRCMDSVR hSvr, const struct VBVAINFOSCREEN *pScreen,
+                                                      const uint32_t *pTargetMap);
+/** process SaveState */
 typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_SAVESTATE)(HVBOXCRCMDSVR hSvr, PSSMHANDLE pSSM);
-/* process LoadState */
+/** process LoadState */
 typedef DECLCALLBACKPTR(int, PFNVBOXCRCMD_SVR_LOADSTATE)(HVBOXCRCMDSVR hSvr, PSSMHANDLE pSSM, uint32_t u32Version);
 
 
@@ -123,7 +128,7 @@ typedef struct VBOXVDMACMD_CHROMIUM_CTL_CRHGSMI_SETUP
     {
         void *pvVRamBase;
         uint64_t uAlignment;
-    };
+    } RT_UNION_NM(u);
     uint64_t cbVRam;
     PPDMLED pLed;
     VBOXCRCLIENT_INFO CrClientInfo;
@@ -149,7 +154,7 @@ typedef struct VBOXCRCMDCTL
     VBOXCRCMDCTL_CALLOUT_LIST CalloutList;
     union
     {
-        void (*pfnInternal)(void);
+        PFNRT  pfnInternal;
         void  *pvInternal;
     } u;
 } VBOXCRCMDCTL;

@@ -32,6 +32,9 @@
 #include "internal/magics.h"
 
 
+/** Pointer to the data behind an open directory handle. */
+typedef struct RTDIRINTERNAL *PRTDIRINTERNAL;
+
 /**
  * Filter a the filename in the against a filter.
  *
@@ -40,7 +43,7 @@
  * @param   pDir        The directory handle.
  * @param   pszName     The path to match to the filter.
  */
-typedef DECLCALLBACK(bool) FNRTDIRFILTER(PRTDIR pDir, const char *pszName);
+typedef DECLCALLBACK(bool) FNRTDIRFILTER(PRTDIRINTERNAL pDir, const char *pszName);
 /** Pointer to a filter function. */
 typedef FNRTDIRFILTER *PFNRTDIRFILTER;
 
@@ -48,7 +51,7 @@ typedef FNRTDIRFILTER *PFNRTDIRFILTER;
 /**
  * Open directory.
  */
-typedef struct RTDIR
+typedef struct RTDIRINTERNAL
 {
     /** Magic value, RTDIR_MAGIC. */
     uint32_t            u32Magic;
@@ -72,8 +75,6 @@ typedef struct RTDIR
     const char         *pszPath;
     /** The length of the path. */
     size_t              cchPath;
-    /** Set to indicate that the Data member contains unread data. */
-    bool                fDataUnread;
     /** Pointer to the converted filename.
      * This can be NULL. */
 #ifdef RT_OS_WINDOWS
@@ -85,6 +86,10 @@ typedef struct RTDIR
     size_t              cchName;
     /** The size of this structure. */
     size_t              cbSelf;
+    /** The RTDIR_F_XXX flags passed to RTDirOpenFiltered */
+    uint32_t            fFlags;
+    /** Set to indicate that the Data member contains unread data. */
+    bool                fDataUnread;
 
 #ifndef RTDIR_AGNOSTIC
 # ifdef RT_OS_WINDOWS
@@ -135,7 +140,8 @@ typedef struct RTDIR
     struct dirent       Data;
 # endif
 #endif
-} RTDIR;
+} RTDIRINTERNAL;
+
 
 
 /**
@@ -143,7 +149,7 @@ typedef struct RTDIR
  * @returns true if valid.
  * @returns false if valid after having bitched about it first.
  */
-DECLINLINE(bool) rtDirValidHandle(PRTDIR pDir)
+DECLINLINE(bool) rtDirValidHandle(PRTDIRINTERNAL pDir)
 {
     AssertMsgReturn(VALID_PTR(pDir), ("%p\n", pDir), false);
     AssertMsgReturn(pDir->u32Magic == RTDIR_MAGIC, ("%#RX32\n", pDir->u32Magic), false);
@@ -156,13 +162,17 @@ DECLINLINE(bool) rtDirValidHandle(PRTDIR pDir)
  * Called by rtDirOpenCommon().
  *
  * @returns IPRT status code.
- * @param   pDir        The directory to open. The pszPath member contains the
- *                      path to the directory.
- * @param   pszPathBuf  Pointer to a RTPATH_MAX sized buffer containing pszPath.
- *                      Find-first style systems can use this to setup the
- *                      wildcard expression.
+ * @param   pDir                The directory to open. The pszPath member contains the
+ *                              path to the directory.
+ * @param   pszPathBuf          Pointer to a RTPATH_MAX sized buffer containing
+ *                              pszPath.  Find-first style systems can use this
+ *                              to setup the wildcard expression.
+ * @param   hRelativeDir        The directory @a pvNativeRelative is relative,
+ *                              ~(uintptr_t)0 if absolute.
+ * @param   pvNativeRelative    The native relative path.  NULL if absolute or
+ *                              we're to use (consume) hRelativeDir.
  */
-int rtDirNativeOpen(PRTDIR pDir, char *pszPathBuf);
+int rtDirNativeOpen(PRTDIRINTERNAL pDir, char *pszPathBuf, uintptr_t hRelativeDir, void *pvNativeRelative);
 
 /**
  * Returns the size of the directory structure.
@@ -171,5 +181,9 @@ int rtDirNativeOpen(PRTDIR pDir, char *pszPathBuf);
  * @param   pszPath     The path to the directory we're about to open.
  */
 size_t rtDirNativeGetStructSize(const char *pszPath);
+
+
+DECLHIDDEN(int) rtDirOpenRelativeOrHandle(RTDIR *phDir, const char *pszRelativeAndFilter, RTDIRFILTER enmFilter,
+                                          uint32_t fFlags, uintptr_t hRelativeDir, void *pvNativeRelative);
 
 #endif

@@ -47,80 +47,76 @@
 /**
  * GPT on disk header.
  */
-#pragma pack(1)
-typedef struct GptHdr
+typedef struct GPTHDR
 {
-    /** Signature ("EFI PART"). */
+    /** 0x00: Signature ("EFI PART"). */
     char     abSignature[8];
-    /** Revision. */
+    /** 0x08: Revision. */
     uint32_t u32Revision;
-    /** Header size. */
+    /** 0x0c: Header size. */
     uint32_t cbHeader;
-    /** CRC of header. */
+    /** 0x10: CRC of header. */
     uint32_t u32Crc;
-} GptHdr;
+} GPTHDR;
 /** Pointer to a GPT header. */
-typedef struct GptHdr *PGptHdr;
-#pragma pack()
-AssertCompileSize(GptHdr, 20);
+typedef struct GPTHDR *PGPTHDR;
+AssertCompileSize(GPTHDR, 20);
 
 /**
  * Complete GPT table header for revision 1.0.
  */
 #pragma pack(1)
-typedef struct GptHdrRev1
+typedef struct GPTHDRREV1
 {
-    /** Header. */
-    GptHdr   Hdr;
-    /** Reserved. */
+    /** 0x00: Header. */
+    GPTHDR   Hdr;
+    /** 0x14: Reserved. */
     uint32_t u32Reserved;
-    /** Current LBA. */
+    /** 0x18: Current LBA. */
     uint64_t u64LbaCurrent;
-    /** Backup LBA. */
+    /** 0x20: Backup LBA. */
     uint64_t u64LbaBackup;
-    /** First usable LBA for partitions. */
+    /** 0x28:First usable LBA for partitions. */
     uint64_t u64LbaFirstPartition;
-    /** Last usable LBA for partitions. */
+    /** 0x30: Last usable LBA for partitions. */
     uint64_t u64LbaLastPartition;
-    /** Disk UUID. */
+    /** 0x38: Disk UUID. */
     RTUUID   DiskUuid;
-    /** LBA of first partition entry. */
+    /** 0x48: LBA of first partition entry. */
     uint64_t u64LbaPartitionEntries;
-    /** Number of partition entries. */
+    /** 0x50: Number of partition entries. */
     uint32_t cPartitionEntries;
-    /** Partition entry size. */
+    /** 0x54: Partition entry size. */
     uint32_t cbPartitionEntry;
-    /** CRC of partition entries. */
+    /** 0x58: CRC of partition entries. */
     uint32_t u32CrcPartitionEntries;
-} GptHdrRev1;
+} GPTHDRREV1;
 /** Pointer to a revision 1.0 GPT header. */
-typedef GptHdrRev1 *PGptHdrRev1;
+typedef GPTHDRREV1 *PGPTHDRREV1;
 #pragma pack()
-AssertCompileSize(GptHdrRev1, 92);
+AssertCompileSize(GPTHDRREV1, 92);
 
 /**
  * GPT partition table entry.
  */
-#pragma pack(1)
-typedef struct GptEntry
+typedef struct GPTENTRY
 {
-    /** Partition type UUID. */
+    /** 0x00: Partition type UUID. */
     RTUUID   UuidType;
-    /** Partition UUID. */
+    /** 0x10: Partition UUID. */
     RTUUID   UuidPartition;
-    /** First LBA. */
+    /** 0x20: First LBA. */
     uint64_t u64LbaFirst;
-    /** Last LBA. */
+    /** 0x28: Last LBA. */
     uint64_t u64LbaLast;
-    /** Attribute flags. */
+    /** 0x30: Attribute flags. */
     uint64_t u64Flags;
-    /** Partition name (UTF-16LE code units). */
+    /** 0x38: Partition name (UTF-16LE code units). */
     RTUTF16  aPartitionName[36];
-} GptEntry;
+} GPTENTRY;
 /** Pointer to a GPT entry. */
-typedef struct GptEntry *PGptEntry;
-#pragma pack()
-AssertCompileSize(GptEntry, 128);
+typedef struct GPTENTRY *PGPTENTRY;
+AssertCompileSize(GPTENTRY, 128);
 
 /** Partition flags - System partition. */
 #define RTDVM_GPT_ENTRY_SYSTEM          RT_BIT_64(0)
@@ -139,9 +135,9 @@ typedef struct RTDVMFMTINTERNAL
     /** Pointer to the underlying disk. */
     PCRTDVMDISK     pDisk;
     /** GPT header. */
-    GptHdrRev1      HdrRev1;
+    GPTHDRREV1      HdrRev1;
     /** GPT array. */
-    PGptEntry       paGptEntries;
+    PGPTENTRY       paGptEntries;
     /** Number of occupied partition entries. */
     uint32_t        cPartitions;
 } RTDVMFMTINTERNAL;
@@ -162,7 +158,7 @@ typedef struct RTDVMVOLUMEFMTINTERNAL
     /** Size of the volume. */
     uint64_t          cbVolume;
     /** Pointer to the GPT entry in the array. */
-    PGptEntry         pGptEntry;
+    PGPTENTRY         pGptEntry;
 } RTDVMVOLUMEFMTINTERNAL;
 /** Pointer to an MBR volume. */
 typedef RTDVMVOLUMEFMTINTERNAL *PRTDVMVOLUMEFMTINTERNAL;
@@ -231,18 +227,18 @@ static const RTDVMGPTPARTTYPE2VOLTYPE g_aPartType2DvmVolTypes[] =
 static DECLCALLBACK(int) rtDvmFmtGptProbe(PCRTDVMDISK pDisk, uint32_t *puScore)
 {
     int rc = VINF_SUCCESS;
-    GptHdr Hdr;
+    GPTHDR Hdr;
 
     *puScore = RTDVM_MATCH_SCORE_UNSUPPORTED;
 
     if (rtDvmDiskGetSectors(pDisk) >= 2)
     {
         /* Read from the disk and check for the signature. */
-        rc = rtDvmDiskRead(pDisk, RTDVM_GPT_LBA2BYTE(1, pDisk), &Hdr, sizeof(GptHdr));
+        rc = rtDvmDiskRead(pDisk, RTDVM_GPT_LBA2BYTE(1, pDisk), &Hdr, sizeof(GPTHDR));
         if (   RT_SUCCESS(rc)
             && !strncmp(&Hdr.abSignature[0], RTDVM_GPT_SIGNATURE, RT_ELEMENTS(Hdr.abSignature))
             && RT_LE2H_U32(Hdr.u32Revision) == 0x00010000
-            && RT_LE2H_U32(Hdr.cbHeader)    == sizeof(GptHdrRev1))
+            && RT_LE2H_U32(Hdr.cbHeader)    == sizeof(GPTHDRREV1))
             *puScore = RTDVM_MATCH_SCORE_PERFECT;
     }
 
@@ -277,9 +273,9 @@ static DECLCALLBACK(int) rtDvmFmtGptOpen(PCRTDVMDISK pDisk, PRTDVMFMT phVolMgrFm
             pThis->HdrRev1.cbPartitionEntry       = RT_LE2H_U32(pThis->HdrRev1.cbPartitionEntry);
             pThis->HdrRev1.u32CrcPartitionEntries = RT_LE2H_U32(pThis->HdrRev1.u32CrcPartitionEntries);
 
-            if (pThis->HdrRev1.cbPartitionEntry == sizeof(GptEntry))
+            if (pThis->HdrRev1.cbPartitionEntry == sizeof(GPTENTRY))
             {
-                pThis->paGptEntries = (PGptEntry)RTMemAllocZ(pThis->HdrRev1.cPartitionEntries * pThis->HdrRev1.cbPartitionEntry);
+                pThis->paGptEntries = (PGPTENTRY)RTMemAllocZ(pThis->HdrRev1.cPartitionEntries * pThis->HdrRev1.cbPartitionEntry);
                 if (pThis->paGptEntries)
                 {
                     rc = rtDvmDiskRead(pDisk, RTDVM_GPT_LBA2BYTE(pThis->HdrRev1.u64LbaPartitionEntries, pDisk),
@@ -380,7 +376,7 @@ static DECLCALLBACK(uint32_t) rtDvmFmtGptGetMaxVolumes(RTDVMFMT hVolMgrFmt)
  * @param   idx           The index in the partition array.
  * @param   phVolFmt      Where to store the volume data on success.
  */
-static int rtDvmFmtMbrVolumeCreate(PRTDVMFMTINTERNAL pThis, PGptEntry pGptEntry,
+static int rtDvmFmtMbrVolumeCreate(PRTDVMFMTINTERNAL pThis, PGPTENTRY pGptEntry,
                                  uint32_t idx, PRTDVMVOLUMEFMT phVolFmt)
 {
     int rc = VINF_SUCCESS;
@@ -404,48 +400,38 @@ static int rtDvmFmtMbrVolumeCreate(PRTDVMFMTINTERNAL pThis, PGptEntry pGptEntry,
 
 static DECLCALLBACK(int) rtDvmFmtGptQueryFirstVolume(RTDVMFMT hVolMgrFmt, PRTDVMVOLUMEFMT phVolFmt)
 {
-    int rc = VINF_SUCCESS;
     PRTDVMFMTINTERNAL pThis = hVolMgrFmt;
 
     if (pThis->cPartitions != 0)
     {
-        PGptEntry pGptEntry = &pThis->paGptEntries[0];
+        PGPTENTRY pGptEntry = &pThis->paGptEntries[0];
 
         /* Search for the first non empty entry. */
         for (unsigned i = 0; i < pThis->HdrRev1.cPartitionEntries; i++)
         {
             if (!RTUuidIsNull(&pGptEntry->UuidType))
-            {
-                rc = rtDvmFmtMbrVolumeCreate(pThis, pGptEntry, i, phVolFmt);
-                break;
-            }
+                return rtDvmFmtMbrVolumeCreate(pThis, pGptEntry, i, phVolFmt);
             pGptEntry++;
         }
+        AssertFailed();
     }
-    else
-        rc = VERR_DVM_MAP_EMPTY;
-
-    return rc;
+    return VERR_DVM_MAP_EMPTY;
 }
 
 static DECLCALLBACK(int) rtDvmFmtGptQueryNextVolume(RTDVMFMT hVolMgrFmt, RTDVMVOLUMEFMT hVolFmt, PRTDVMVOLUMEFMT phVolFmtNext)
 {
-    int rc = VERR_DVM_MAP_NO_VOLUME;
     PRTDVMFMTINTERNAL pThis = hVolMgrFmt;
     PRTDVMVOLUMEFMTINTERNAL pVol = hVolFmt;
-    PGptEntry pGptEntry = pVol->pGptEntry + 1;
+    PGPTENTRY pGptEntry = pVol->pGptEntry + 1;
 
     for (unsigned i = pVol->idxEntry + 1; i < pThis->HdrRev1.cPartitionEntries; i++)
     {
         if (!RTUuidIsNull(&pGptEntry->UuidType))
-        {
-            rc = rtDvmFmtMbrVolumeCreate(pThis, pGptEntry, i, phVolFmtNext);
-            break;
-        }
+            return rtDvmFmtMbrVolumeCreate(pThis, pGptEntry, i, phVolFmtNext);
         pGptEntry++;
     }
 
-    return rc;
+    return VERR_DVM_MAP_NO_VOLUME;
 }
 
 static DECLCALLBACK(void) rtDvmFmtGptVolumeClose(RTDVMVOLUMEFMT hVolFmt)
@@ -470,28 +456,21 @@ static DECLCALLBACK(uint64_t) rtDvmFmtGptVolumeGetSize(RTDVMVOLUMEFMT hVolFmt)
 static DECLCALLBACK(int) rtDvmFmtGptVolumeQueryName(RTDVMVOLUMEFMT hVolFmt, char **ppszVolName)
 {
     PRTDVMVOLUMEFMTINTERNAL pVol = hVolFmt;
-    int rc = VINF_SUCCESS;
 
     *ppszVolName = NULL;
-    rc = RTUtf16ToUtf8Ex(&pVol->pGptEntry->aPartitionName[0], RT_ELEMENTS(pVol->pGptEntry->aPartitionName),
-                         ppszVolName, 0, NULL);
-
-    return rc;
+    return RTUtf16ToUtf8Ex(&pVol->pGptEntry->aPartitionName[0], RT_ELEMENTS(pVol->pGptEntry->aPartitionName),
+                           ppszVolName, 0, NULL);
 }
 
 static DECLCALLBACK(RTDVMVOLTYPE) rtDvmFmtGptVolumeGetType(RTDVMVOLUMEFMT hVolFmt)
 {
-    RTDVMVOLTYPE enmVolType = RTDVMVOLTYPE_UNKNOWN;
     PRTDVMVOLUMEFMTINTERNAL pVol = hVolFmt;
 
     for (unsigned i = 0; i < RT_ELEMENTS(g_aPartType2DvmVolTypes); i++)
         if (!RTUuidCompareStr(&pVol->pGptEntry->UuidType, g_aPartType2DvmVolTypes[i].pcszUuid))
-        {
-            enmVolType = g_aPartType2DvmVolTypes[i].enmVolType;
-            break;
-        }
+            return g_aPartType2DvmVolTypes[i].enmVolType;
 
-    return enmVolType;
+    return RTDVMVOLTYPE_UNKNOWN;
 }
 
 static DECLCALLBACK(uint64_t) rtDvmFmtGptVolumeGetFlags(RTDVMVOLUMEFMT hVolFmt)
@@ -505,17 +484,15 @@ static DECLCALLBACK(bool) rtDvmFmtGptVolumeIsRangeIntersecting(RTDVMVOLUMEFMT hV
                                                                uint64_t *poffVol,
                                                                uint64_t *pcbIntersect)
 {
-    bool fIntersect = false;
     PRTDVMVOLUMEFMTINTERNAL pVol = hVolFmt;
 
     if (RTDVM_RANGE_IS_INTERSECTING(pVol->offStart, pVol->cbVolume, offStart))
     {
-        fIntersect    = true;
         *poffVol      = offStart - pVol->offStart;
         *pcbIntersect = RT_MIN(cbRange, pVol->offStart + pVol->cbVolume - offStart);
+        return true;
     }
-
-    return fIntersect;
+    return false;
 }
 
 static DECLCALLBACK(int) rtDvmFmtGptVolumeRead(RTDVMVOLUMEFMT hVolFmt, uint64_t off, void *pvBuf, size_t cbRead)
@@ -536,8 +513,10 @@ static DECLCALLBACK(int) rtDvmFmtGptVolumeWrite(RTDVMVOLUMEFMT hVolFmt, uint64_t
 
 RTDVMFMTOPS g_rtDvmFmtGpt =
 {
-    /* pcszFmt */
+    /* pszFmt */
     "GPT",
+    /* enmFormat, */
+    RTDVMFORMATTYPE_GPT,
     /* pfnProbe */
     rtDvmFmtGptProbe,
     /* pfnOpen */

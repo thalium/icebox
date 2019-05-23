@@ -1,9 +1,10 @@
+/* $Id: vrdpusb.h $ */
 /** @file
- *
+ * Remote Desktop Protocol client - USB Channel
  */
 
 /*
- * Copyright (C) 2006-2011 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -27,4 +28,5 @@
 #define VRDP_USB_CAPS_FLAG_ASYNC    (0)
 #define VRDP_USB_CAPS_FLAG_POLL     (1)
 
-#endif /* __VRDPUSB__H  */
+#endif /* !__VRDPUSB__H  */
+

@@ -133,6 +133,7 @@ static const char * const g_apszVTxExitReasons[MAX_EXITREASON_STAT] =
     EXIT_REASON(VMX_EXIT_INVVPID                ,  53, "INVVPID instruction."),
     EXIT_REASON(VMX_EXIT_WBINVD                 ,  54, "WBINVD instruction."),
     EXIT_REASON(VMX_EXIT_XSETBV                 ,  55, "XSETBV instruction."),
+    EXIT_REASON(VMX_EXIT_APIC_WRITE             ,  56, "APIC write completed to virtual-APIC page."),
     EXIT_REASON(VMX_EXIT_RDRAND                 ,  57, "RDRAND instruction."),
     EXIT_REASON(VMX_EXIT_INVPCID                ,  58, "INVPCID instruction."),
     EXIT_REASON(VMX_EXIT_VMFUNC                 ,  59, "VMFUNC instruction."),
@@ -451,6 +452,9 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
                               "|EnableUX"
                               "|EnableLargePages"
                               "|EnableVPID"
+                              "|IBPBOnVMExit"
+                              "|IBPBOnVMEntry"
+                              "|SpecCtrlByHost"
                               "|TPRPatchingEnabled"
                               "|64bitEnabled"
                               "|VmxPleGap"
@@ -595,6 +599,21 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
      * Whether to make use of the VMX-preemption timer feature of the CPU if it's
      * available. */
     rc = CFGMR3QueryBoolDef(pCfgHm, "UseVmxPreemptTimer", &pVM->hm.s.vmx.fUsePreemptTimer, true);
+    AssertLogRelRCReturn(rc, rc);
+
+    /** @cfgm{/HM/IBPBOnVMExit, bool}
+     * Costly paranoia setting. */
+    rc = CFGMR3QueryBoolDef(pCfgHm, "IBPBOnVMExit", &pVM->hm.s.fIbpbOnVmExit, false);
+    AssertLogRelRCReturn(rc, rc);
+
+    /** @cfgm{/HM/IBPBOnVMEntry, bool}
+     * Costly paranoia setting. */
+    rc = CFGMR3QueryBoolDef(pCfgHm, "IBPBOnVMEntry", &pVM->hm.s.fIbpbOnVmEntry, false);
+    AssertLogRelRCReturn(rc, rc);
+
+    /** @cfgm{/HM/SpecCtrlByHost, bool}
+     * Another expensive paranoia setting. */
+    rc = CFGMR3QueryBoolDef(pCfgHm, "SpecCtrlByHost", &pVM->hm.s.fSpecCtrlByHost, false);
     AssertLogRelRCReturn(rc, rc);
 
     /*
@@ -1147,6 +1166,28 @@ static int hmR3InitFinalizeR0(PVM pVM)
     {
         Assert(!pVM->hm.s.fTprPatchingAllowed); /* paranoia */
         pVM->hm.s.fTprPatchingAllowed = false;
+    }
+
+    /*
+     * Sync options.
+     */
+    /** @todo Move this out of of CPUMCTX and into some ring-0 only HM structure.
+     *        That will require a little bit of work, of course. */
+    for (VMCPUID iCpu = 0; iCpu < pVM->cCpus; iCpu++)
+    {
+        PVMCPU   pVCpu   = &pVM->aCpus[iCpu];
+        PCPUMCTX pCpuCtx = CPUMQueryGuestCtxPtr(pVCpu);
+        pCpuCtx->fWorldSwitcher &= ~(CPUMCTX_WSF_IBPB_EXIT | CPUMCTX_WSF_IBPB_ENTRY);
+        if (pVM->cpum.ro.HostFeatures.fIbpb)
+        {
+            if (pVM->hm.s.fIbpbOnVmExit)
+                pCpuCtx->fWorldSwitcher |= CPUMCTX_WSF_IBPB_EXIT;
+            if (pVM->hm.s.fIbpbOnVmEntry)
+                pCpuCtx->fWorldSwitcher |= CPUMCTX_WSF_IBPB_ENTRY;
+        }
+        if (iCpu == 0)
+            LogRel(("HM: fWorldSwitcher=%#x (fIbpbOnVmExit=%d fIbpbOnVmEntry=%d)\n",
+                    pCpuCtx->fWorldSwitcher, pVM->hm.s.fIbpbOnVmExit, pVM->hm.s.fIbpbOnVmEntry));
     }
 
     /*
@@ -1801,12 +1842,10 @@ VMMR3_INT_DECL(void) HMR3PagingModeChanged(PVM pVM, PVMCPU pVCpu, PGMMODE enmSha
      * extra careful if/when the guest switches back to protected mode.
      */
     if (enmGuestMode == PGMMODE_REAL)
-    {
-        Log(("HMR3PagingModeChanged indicates real mode execution\n"));
         pVCpu->hm.s.vmx.fWasInRealMode = true;
-    }
-    else
-        Log(("HMR3PagingModeChanged indicates %d mode execution\n", enmGuestMode));
+
+    Log4(("HMR3PagingModeChanged: Guest paging mode '%s', shadow paging mode '%s'\n", PGMGetModeName(enmGuestMode),
+          PGMGetModeName(enmShadowMode)));
 }
 
 
@@ -2691,7 +2730,7 @@ VMMR3DECL(bool) HMR3CanExecuteGuest(PVM pVM, PCPUMCTX pCtx)
 
     Assert(HMIsEnabled(pVM));
 
-#if defined(VBOX_WITH_NESTED_HWVIRT) && defined(VBOX_WITH_NESTED_HWVIRT_ONLY_IN_IEM)
+#ifdef VBOX_WITH_NESTED_HWVIRT_ONLY_IN_IEM
     if (CPUMIsGuestInNestedHwVirtMode(pCtx))
     {
         Log(("HMR3CanExecuteGuest: In nested-guest mode - returning false"));

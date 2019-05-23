@@ -1190,50 +1190,9 @@ RTDECL(int)         RTVfsObjQueryInfo(RTVFSOBJ hVfsObj, PRTFSOBJINFO pObjInfo, R
  */
 
 
-
-/**
- * Removes dots from the path.
- *
- * @returns The new @a pszDst value.
- * @param   pPath               The path parsing buffer.
- * @param   pszDst              The current szPath position.  This will be
- *                              updated and returned.
- * @param   fTheEnd             Indicates whether we're at the end of the path
- *                              or not.
- * @param   piRestartComp       The component to restart parsing at.
- */
-static char *rtVfsParsePathHandleDots(PRTVFSPARSEDPATH pPath, char *pszDst, bool fTheEnd, uint16_t *piRestartComp)
-{
-    if (pszDst[-1] != '.')
-        return pszDst;
-
-    if (pszDst[-2] == '/')
-    {
-        pPath->cComponents--;
-        pszDst = &pPath->szPath[pPath->aoffComponents[pPath->cComponents]];
-    }
-    else if (pszDst[-2] == '.' && pszDst[-3] == '/')
-    {
-        pPath->cComponents -= pPath->cComponents > 1 ? 2 : 1;
-        pszDst = &pPath->szPath[pPath->aoffComponents[pPath->cComponents]];
-        if (piRestartComp && *piRestartComp + 1 >= pPath->cComponents)
-            *piRestartComp = pPath->cComponents > 0 ? pPath->cComponents - 1 : 0;
-    }
-    else
-        return pszDst;
-
-    /*
-     * Drop the trailing slash if we're at the end of the source path.
-     */
-    if (fTheEnd && pPath->cComponents == 0)
-        pszDst--;
-    return pszDst;
-}
-
-
 RTDECL(int) RTVfsParsePathAppend(PRTVFSPARSEDPATH pPath, const char *pszPath, uint16_t *piRestartComp)
 {
-    AssertReturn(*pszPath != '/', VERR_INTERNAL_ERROR_4);
+    AssertReturn(*pszPath != '/' && *pszPath != '\\', VERR_INTERNAL_ERROR_4);
 
     /* In case *piRestartComp was set higher than the number of components
        before making the call to this function. */
@@ -1243,55 +1202,106 @@ RTDECL(int) RTVfsParsePathAppend(PRTVFSPARSEDPATH pPath, const char *pszPath, ui
     /*
      * Append a slash to the destination path if necessary.
      */
-    char *pszDst = &pPath->szPath[pPath->cch];
+    char * const pszDst         = pPath->szPath;
+    size_t       offDst         = pPath->cch;
     if (pPath->cComponents > 0)
     {
-        *pszDst++ = '/';
-        if (pszDst - &pPath->szPath[0] >= RTVFSPARSEDPATH_MAX)
+        pszDst[offDst++] = '/';
+        if (offDst >= RTVFSPARSEDPATH_MAX)
             return VERR_FILENAME_TOO_LONG;
     }
-    Assert(pszDst[-1] == '/');
+    if (pPath->fAbsolute)
+        Assert(pszDst[offDst - 1] == '/' && pszDst[0] == '/');
+    else
+        Assert(offDst == 0 || (pszDst[0] != '/' && pszDst[offDst - 1] == '/'));
 
     /*
      * Parse and append the relative path.
      */
     const char *pszSrc = pszPath;
     pPath->fDirSlash   = false;
-    while (pszSrc[0])
+    for (;;)
     {
-        /* Skip unncessary slashes. */
-        while (pszSrc[0] == '/')
-            pszSrc++;
-
         /* Copy until we encounter the next slash. */
-        pPath->aoffComponents[pPath->cComponents++] = pszDst - &pPath->szPath[0];
-        while (pszSrc[0])
+        pPath->aoffComponents[pPath->cComponents++] = (uint16_t)offDst;
+        for (;;)
         {
-            if (pszSrc[0] == '/')
+            char ch = *pszSrc++;
+            if (   ch != '/'
+                && ch != '\\'
+                && ch != '\0')
             {
-                pszSrc++;
-                if (pszSrc[0])
-                    *pszDst++ = '/';
+                pszDst[offDst++] = ch;
+                if (offDst < RTVFSPARSEDPATH_MAX)
+                { /* likely */ }
                 else
-                    pPath->fDirSlash = true;
-                pszDst = rtVfsParsePathHandleDots(pPath, pszDst, pszSrc[0] == '\0', piRestartComp);
+                    return VERR_FILENAME_TOO_LONG;
+            }
+            else
+            {
+                /* Deal with dot components before we processes the slash/end. */
+                if (pszDst[offDst - 1] == '.')
+                {
+                    if (   offDst == 1
+                        || pszDst[offDst - 2] == '/')
+                    {
+                        pPath->cComponents--;
+                        offDst = pPath->aoffComponents[pPath->cComponents];
+                    }
+                    else if (   offDst > 3
+                             && pszDst[offDst - 2] == '.'
+                             && pszDst[offDst - 3] == '/')
+                    {
+                        if (   pPath->fAbsolute
+                            || offDst < 5
+                            || pszDst[offDst - 4] != '.'
+                            || pszDst[offDst - 5] != '.'
+                            || (offDst >= 6 && pszDst[offDst - 6] != '/') )
+                        {
+                            pPath->cComponents -= pPath->cComponents > 1 ? 2 : 1;
+                            offDst = pPath->aoffComponents[pPath->cComponents];
+                            if (piRestartComp && *piRestartComp + 1 >= pPath->cComponents)
+                                *piRestartComp = pPath->cComponents > 0 ? pPath->cComponents - 1 : 0;
+                        }
+                    }
+                }
+
+                if (ch != '\0')
+                {
+                    /* Skip unnecessary slashes and check for end of path. */
+                    while ((ch = *pszSrc) == '/' || ch == '\\')
+                        pszSrc++;
+
+                    if (ch == '\0')
+                        pPath->fDirSlash = true;
+                }
+
+                if (ch == '\0')
+                {
+                    /* Drop trailing slash unless it's the root slash. */
+                    if (   offDst > 0
+                        && pszDst[offDst - 1] == '/'
+                        && (   !pPath->fAbsolute
+                            || offDst > 1))
+                        offDst--;
+
+                    /* Terminate the string and enter its length. */
+                    pszDst[offDst]     = '\0';
+                    pszDst[offDst + 1] = '\0'; /* for aoffComponents[pPath->cComponents] */
+                    pPath->cch = (uint16_t)offDst;
+                    pPath->aoffComponents[pPath->cComponents] = (uint16_t)(offDst + 1);
+                    return VINF_SUCCESS;
+                }
+
+                /* Append component separator before continuing with the next component. */
+                if (offDst > 0 && pszDst[offDst - 1] != '/')
+                    pszDst[offDst++] = '/';
+                if (offDst >= RTVFSPARSEDPATH_MAX)
+                    return VERR_FILENAME_TOO_LONG;
                 break;
             }
-
-            *pszDst++ = *pszSrc++;
-            if (pszDst - &pPath->szPath[0] >= RTVFSPARSEDPATH_MAX)
-                return VERR_FILENAME_TOO_LONG;
         }
     }
-    pszDst = rtVfsParsePathHandleDots(pPath, pszDst, true /*fTheEnd*/, piRestartComp);
-
-    /* Terminate the string and enter its length. */
-    pszDst[0] = '\0';
-    pszDst[1] = '\0';                   /* for aoffComponents */
-    pPath->cch = (uint16_t)(pszDst - &pPath->szPath[0]);
-    pPath->aoffComponents[pPath->cComponents] = pPath->cch + 1;
-
-    return VINF_SUCCESS;
 }
 
 
@@ -1300,12 +1310,29 @@ RTDECL(int) RTVfsParsePath(PRTVFSPARSEDPATH pPath, const char *pszPath, const ch
 {
     if (*pszPath != '/')
     {
-        /*
-         * Relative, recurse and parse pszCwd first.
-         */
-        int rc = RTVfsParsePath(pPath, pszCwd, NULL /*crash if pszCwd is not absolute*/);
-        if (RT_FAILURE(rc))
-            return rc;
+        if (pszCwd)
+        {
+            /*
+             * Relative with a CWD.
+             */
+            int rc = RTVfsParsePath(pPath, pszCwd, NULL /*crash if pszCwd is not absolute*/);
+            if (RT_FAILURE(rc))
+                return rc;
+        }
+        else
+        {
+            /*
+             * Relative.
+             */
+            pPath->cch               = 0;
+            pPath->cComponents       = 0;
+            pPath->fDirSlash         = false;
+            pPath->fAbsolute         = false;
+            pPath->aoffComponents[0] = 0;
+            pPath->aoffComponents[1] = 1;
+            pPath->szPath[0]         = '\0';
+            pPath->szPath[1]         = '\0';
+        }
     }
     else
     {
@@ -1316,6 +1343,7 @@ RTDECL(int) RTVfsParsePath(PRTVFSPARSEDPATH pPath, const char *pszPath, const ch
         pPath->cch               = 1;
         pPath->cComponents       = 0;
         pPath->fDirSlash         = false;
+        pPath->fAbsolute         = true;
         pPath->aoffComponents[0] = 1;
         pPath->aoffComponents[1] = 2;
         pPath->szPath[0]         = '/';
@@ -1494,6 +1522,7 @@ static int rtVfsDirTraverseToParent(RTVFSDIRINTERNAL *pThis, PRTVFSPARSEDPATH pP
             RTVfsLockReleaseRead(pCurDir->Base.hLock);
             *pszEntryEnd = '\0';
             if (   rc == VERR_PATH_NOT_FOUND
+                || rc == VERR_FILE_NOT_FOUND
                 || rc == VERR_NOT_A_DIRECTORY
                 || rc == VERR_NOT_SYMLINK)
                 rc = VINF_SUCCESS;
@@ -2275,7 +2304,7 @@ RTDECL(int) RTVfsDirOpenDir(RTVFSDIR hVfsDir, const char *pszPath, uint32_t fFla
      * Parse the path, it's always relative to the given directory.
      */
     PRTVFSPARSEDPATH pPath;
-    int rc = RTVfsParsePathA(pszPath, "/", &pPath);
+    int rc = RTVfsParsePathA(pszPath, NULL, &pPath);
     if (RT_SUCCESS(rc))
     {
         if (pPath->cComponents > 0)
@@ -2321,6 +2350,65 @@ RTDECL(int) RTVfsDirOpenDir(RTVFSDIR hVfsDir, const char *pszPath, uint32_t fFla
 }
 
 
+RTDECL(int) RTVfsDirCreateDir(RTVFSDIR hVfsDir, const char *pszRelPath, RTFMODE fMode, uint32_t fFlags, PRTVFSDIR phVfsDir)
+{
+    /*
+     * Validate input.
+     */
+    RTVFSDIRINTERNAL *pThis = hVfsDir;
+    AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
+    AssertReturn(pThis->uMagic == RTVFSDIR_MAGIC, VERR_INVALID_HANDLE);
+    AssertPtrReturn(pszRelPath, VERR_INVALID_POINTER);
+    AssertPtrNullReturn(phVfsDir, VERR_INVALID_POINTER);
+    AssertReturn(!(fFlags & ~RTDIRCREATE_FLAGS_VALID_MASK), VERR_INVALID_FLAGS);
+    fMode = rtFsModeNormalize(fMode, pszRelPath, 0);
+    AssertReturn(rtFsModeIsValidPermissions(fMode), VERR_INVALID_FMODE);
+    if (!(fFlags & RTDIRCREATE_FLAGS_NOT_CONTENT_INDEXED_DONT_SET))
+        fMode |= RTFS_DOS_NT_NOT_CONTENT_INDEXED;
+
+    /*
+     * Parse the path, it's always relative to the given directory.
+     */
+    PRTVFSPARSEDPATH pPath;
+    int rc = RTVfsParsePathA(pszRelPath, NULL, &pPath);
+    if (RT_SUCCESS(rc))
+    {
+        if (pPath->cComponents > 0)
+        {
+            /*
+             * Tranverse the path, resolving the parent node, not checking for symbolic
+             * links in the final element, and ask the directory to create the subdir.
+             */
+            RTVFSDIRINTERNAL *pVfsParentDir;
+            rc = rtVfsDirTraverseToParent(pThis, pPath,
+                                            fFlags & RTDIRCREATE_FLAGS_NO_SYMLINKS
+                                          ? RTPATH_F_NO_SYMLINKS | RTPATH_F_ON_LINK : RTPATH_F_FOLLOW_LINK,
+                                          &pVfsParentDir);
+            if (RT_SUCCESS(rc))
+            {
+                const char *pszEntryName = &pPath->szPath[pPath->aoffComponents[pPath->cComponents - 1]];
+
+                RTVfsLockAcquireWrite(pVfsParentDir->Base.hLock);
+                rc = pVfsParentDir->pOps->pfnCreateDir(pVfsParentDir->Base.pvThis, pszEntryName, fMode, phVfsDir);
+                RTVfsLockReleaseWrite(pVfsParentDir->Base.hLock);
+
+                RTVfsDirRelease(pVfsParentDir);
+
+                if (RT_SUCCESS(rc) && phVfsDir)
+                {
+                    AssertPtr(*phVfsDir);
+                    Assert((*phVfsDir)->uMagic == RTVFSDIR_MAGIC);
+                }
+            }
+        }
+        else
+            rc = VERR_PATH_ZERO_LENGTH;
+        RTVfsParsePathFree(pPath);
+    }
+    return rc;
+}
+
+
 RTDECL(int) RTVfsDirOpenFile(RTVFSDIR hVfsDir, const char *pszPath, uint64_t fOpen, PRTVFSFILE phVfsFile)
 {
     /*
@@ -2341,7 +2429,7 @@ RTDECL(int) RTVfsDirOpenFile(RTVFSDIR hVfsDir, const char *pszPath, uint64_t fOp
      * caller context here.
      */
     PRTVFSPARSEDPATH pPath;
-    rc = RTVfsParsePathA(pszPath, "/", &pPath);
+    rc = RTVfsParsePathA(pszPath, NULL, &pPath);
     if (RT_SUCCESS(rc))
     {
         if (   !pPath->fDirSlash
@@ -2410,11 +2498,10 @@ RTDECL(int) RTVfsDirQueryPathInfo(RTVFSDIR hVfsDir, const char *pszPath, PRTFSOB
     AssertMsgReturn(RTPATH_F_IS_VALID(fFlags, 0), ("%#x\n", fFlags), VERR_INVALID_PARAMETER);
 
     /*
-     * Parse the path, assume current directory is root since we've got no
-     * caller context here.  Then traverse to the parent directory.
+     * Parse the relative path.  Then traverse to the parent directory.
      */
     PRTVFSPARSEDPATH pPath;
-    int rc = RTVfsParsePathA(pszPath, "/", &pPath);
+    int rc = RTVfsParsePathA(pszPath, NULL, &pPath);
     if (RT_SUCCESS(rc))
     {
         if (pPath->cComponents > 0)
@@ -2450,6 +2537,52 @@ RTDECL(int) RTVfsDirQueryPathInfo(RTVFSDIR hVfsDir, const char *pszPath, PRTFSOB
     }
     return rc;
 }
+
+
+RTDECL(int) RTVfsDirRemoveDir(RTVFSDIR hVfsDir, const char *pszRelPath, uint32_t fFlags)
+{
+    /*
+     * Validate input.
+     */
+    RTVFSDIRINTERNAL *pThis = hVfsDir;
+    AssertPtrReturn(pThis, VERR_INVALID_HANDLE);
+    AssertReturn(pThis->uMagic == RTVFSDIR_MAGIC, VERR_INVALID_HANDLE);
+    AssertPtrReturn(pszRelPath, VERR_INVALID_POINTER);
+    AssertReturn(!fFlags, VERR_INVALID_FLAGS);
+
+    /*
+     * Parse the path, it's always relative to the given directory.
+     */
+    PRTVFSPARSEDPATH pPath;
+    int rc = RTVfsParsePathA(pszRelPath, NULL, &pPath);
+    if (RT_SUCCESS(rc))
+    {
+        if (pPath->cComponents > 0)
+        {
+            /*
+             * Tranverse the path, resolving the parent node, not checking for symbolic
+             * links in the final element, and ask the directory to remove the subdir.
+             */
+            RTVFSDIRINTERNAL *pVfsParentDir;
+            rc = rtVfsDirTraverseToParent(pThis, pPath, RTPATH_F_ON_LINK, &pVfsParentDir);
+            if (RT_SUCCESS(rc))
+            {
+                const char *pszEntryName = &pPath->szPath[pPath->aoffComponents[pPath->cComponents - 1]];
+
+                RTVfsLockAcquireWrite(pVfsParentDir->Base.hLock);
+                rc = pVfsParentDir->pOps->pfnUnlinkEntry(pVfsParentDir->Base.pvThis, pszEntryName, RTFS_TYPE_DIRECTORY);
+                RTVfsLockReleaseWrite(pVfsParentDir->Base.hLock);
+
+                RTVfsDirRelease(pVfsParentDir);
+            }
+        }
+        else
+            rc = VERR_PATH_ZERO_LENGTH;
+        RTVfsParsePathFree(pPath);
+    }
+    return rc;
+}
+
 
 
 RTDECL(int) RTVfsDirReadEx(RTVFSDIR hVfsDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry, RTFSOBJATTRADD enmAddAttr)

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -113,8 +113,7 @@ protected:
     {
         /* Hints: */
         ElementData_Margin,
-        ElementData_Spacing,
-        ElementData_MinimumTextColumnWidth
+        ElementData_Spacing
     };
 
     /** This event handler is delivered after the widget has been resized. */

@@ -43,6 +43,7 @@
 #include <iprt/sort.h>
 #include <iprt/strcache.h>
 
+
 /*********************************************************************************************************************************
 *   Defined Constants And Macros                                                                                                 *
 *********************************************************************************************************************************/
@@ -194,6 +195,7 @@ typedef struct DBGFFLOWBRANCHTBLITINT
 } DBGFFLOWBRANCHTBLITINT;
 /** Pointer to the internal control flow graph branch table iterator state. */
 typedef DBGFFLOWBRANCHTBLITINT *PDBGFFLOWBRANCHTBLITINT;
+
 
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
@@ -596,7 +598,7 @@ static int dbgfR3FlowBbSplit(PDBGFFLOWINT pThis, PDBGFFLOWBBINT pFlowBb, PDBGFAD
             rc = VERR_NO_MEMORY;
     }
     else
-        AssertFailedStmt(rc = VERR_INVALID_STATE); /** @todo: Proper status code. */
+        AssertFailedStmt(rc = VERR_INVALID_STATE); /** @todo Proper status code. */
 
     return rc;
 }
@@ -772,7 +774,7 @@ static bool dbgfR3FlowSearchMovWithConstantPtrSizeBackwards(PDBGFFLOWBBINT pFlow
 
     for (;;)
     {
-        /** @todo: Avoid to disassemble again. */
+        /** @todo Avoid to disassemble again. */
         PDBGFFLOWBBINSTR pInstr = &pFlowBb->aInstr[idxInstrCur];
         DBGFDISSTATE DisState;
         char szOutput[_4K];
@@ -1092,7 +1094,7 @@ static int dbgfR3FlowBbCheckBranchTblCandidate(PDBGFFLOWINT pThis, PDBGFFLOWBBIN
                 pFlowBb->pFlowBranchTbl = NULL;
                 rc = dbgfR3FlowTryResolveIndirectBranch(pThis, pFlowBb, pUVM, idCpu, pDisParam, fFlagsDisasm);
             }
-            /** @todo: else check that the base register is not modified in this basic block. */
+            /** @todo else check that the base register is not modified in this basic block. */
         }
         else
             dbgfR3FlowBbSetError(pFlowBb, VERR_INVALID_STATE,

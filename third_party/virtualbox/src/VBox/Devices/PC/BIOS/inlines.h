@@ -1,3 +1,4 @@
+/* $Id: inlines.h $ */
 /** @file
  * Inline routines for Watcom C.
  */

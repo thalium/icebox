@@ -30,11 +30,11 @@
  *
  * NOTES:
  *   -- No mechanism for cliprects or resize notification --
- *      assumes this is a fullscreen device.  
- *   -- No locking -- assumes this is the only driver accessing this 
+ *      assumes this is a fullscreen device.
+ *   -- No locking -- assumes this is the only driver accessing this
  *      device.
  *   -- Doesn't (yet) make use of any acceleration or other interfaces
- *      provided by fb.  Would be entirely happy working against any 
+ *      provided by fb.  Would be entirely happy working against any
  *	fullscreen interface.
  *   -- HOWEVER: only a small number of pixelformats are supported, and
  *      the mechanism for choosing between them makes some assumptions
@@ -124,11 +124,11 @@ typedef struct {
    GLcontext *glCtx;		/* Mesa context */
 
    struct {
-      __DRIcontextPrivate *context;	
-      __DRIscreenPrivate *screen;	
+      __DRIcontextPrivate *context;
+      __DRIscreenPrivate *screen;
       __DRIdrawablePrivate *drawable; /* drawable bound to this ctx */
    } dri;
-   
+
 } fbContext, *fbContextPtr;
 
 #define FB_CONTEXT(ctx)		((fbContextPtr)(ctx->DriverCtx))
@@ -420,7 +420,7 @@ static const __DRIconfig **fbFillInModes(unsigned pixel_bits,
 /**
  * This is the driver specific part of the createNewScreen entry point.
  * Called when using legacy DRI.
- * 
+ *
  * return the __GLcontextModes supported by this driver
  */
 static const __DRIconfig **fbInitScreen(__DRIscreenPrivate *psp)
@@ -436,7 +436,7 @@ static const __DRIconfig **fbInitScreen(__DRIscreenPrivate *psp)
           & psp->drm_version, & drm_expected ) ) {
              return NULL;
           }
-      
+
 	     driInitExtensions( NULL, card_extensions, GL_FALSE );
 
 	     return fbFillInModes( psp->fbBPP,
@@ -475,7 +475,7 @@ fbCreateContext( const __GLcontextModes *glVisual,
    else
       shareCtx = NULL;
 
-   ctx = fbmesa->glCtx = _mesa_create_context(glVisual, shareCtx, 
+   ctx = fbmesa->glCtx = _mesa_create_context(glVisual, shareCtx,
 					      &functions, (void *) fbmesa);
    if (!fbmesa->glCtx) {
       _mesa_free(fbmesa);
@@ -541,7 +541,7 @@ fbCreateBuffer( __DRIscreenPrivate *driScrnPriv,
 		GLboolean isPixmap )
 {
    struct gl_framebuffer *mesa_framebuffer;
-   
+
    if (isPixmap) {
       return GL_FALSE; /* not implemented */
    }
@@ -550,7 +550,7 @@ fbCreateBuffer( __DRIscreenPrivate *driScrnPriv,
       const GLboolean swAlpha = mesaVis->alphaBits > 0;
       const GLboolean swAccum = mesaVis->accumRedBits > 0;
       const GLboolean swStencil = mesaVis->stencilBits > 0;
-      
+
       mesa_framebuffer = _mesa_create_framebuffer(mesaVis);
       if (!mesa_framebuffer)
          return 0;
@@ -589,7 +589,7 @@ fbCreateBuffer( __DRIscreenPrivate *driScrnPriv,
                                    swAccum,
                                    swAlpha, /* or always zero? */
                                    GL_FALSE /* aux */);
-      
+
       driDrawPriv->driverPrivate = mesa_framebuffer;
 
       return 1;
@@ -619,7 +619,7 @@ fbSwapBuffers( __DRIdrawablePrivate *dPriv )
    if (dPriv->driContextPriv && dPriv->driContextPriv->driverPrivate) {
       fbContextPtr fbmesa = (fbContextPtr) dPriv->driContextPriv->driverPrivate;
       GLcontext *ctx = fbmesa->glCtx;
-      
+
       if (ctx->Visual.doubleBufferMode) {
 	 int i;
 	 int offset = 0;
@@ -637,7 +637,7 @@ fbSwapBuffers( __DRIdrawablePrivate *dPriv )
                           currentPitch);
             offset += currentPitch;
 	 }
-	    
+
 	 _mesa_free(tmp);
       }
    }
@@ -657,12 +657,12 @@ fbMakeCurrent( __DRIcontextPrivate *driContextPriv,
 	       __DRIdrawablePrivate *driReadPriv )
 {
    if ( driContextPriv ) {
-      fbContextPtr newFbCtx = 
+      fbContextPtr newFbCtx =
             (fbContextPtr) driContextPriv->driverPrivate;
 
       newFbCtx->dri.drawable = driDrawPriv;
 
-      _mesa_make_current( newFbCtx->glCtx, 
+      _mesa_make_current( newFbCtx->glCtx,
                            driDrawPriv->driverPrivate,
                            driReadPriv->driverPrivate);
    } else {

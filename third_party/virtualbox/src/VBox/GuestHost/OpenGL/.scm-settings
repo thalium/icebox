@@ -1,0 +1,49 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for the OpenGL guest/host code.
+#
+
+#
+# Copyright (C) 2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+# The basic config here is external copyright, however there are lots of exceptions
+/*.h:                                      --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+/include/cr_blitter.h:                     --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/cr_compositor.h:                  --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/cr_dump.h:                        --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/cr_glext.h:                       --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/cr_htable.h:                      --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/cr_sortarray.h:                   --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/cr_vreg.h:                        --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/state/cr_framebuffer.h:           --no-external-copyright --convert-tabs --strip-trailing-blanks
+/include/state/cr_glsl.h:                  --no-external-copyright --convert-tabs --strip-trailing-blanks
+/state_tracker/state_bits_globalop.h:      --no-external-copyright --convert-tabs --strip-trailing-blanks
+
+
+/*.c:                                      --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+/packer/pack_framebuffer.c:                --no-external-copyright --convert-tabs --strip-trailing-blanks
+/packer/pack_shaders.c:                    --no-external-copyright --convert-tabs --strip-trailing-blanks
+/packer/pack_visibleregion.c:              --no-external-copyright --convert-tabs --strip-trailing-blanks
+/state_tracker/state_framebuffer.c:        --no-external-copyright --convert-tabs --strip-trailing-blanks
+/state_tracker/state_glsl.c:               --no-external-copyright --convert-tabs --strip-trailing-blanks
+/state_tracker/state_snapshot.c:           --no-external-copyright --convert-tabs --strip-trailing-blanks
+/util/error.c:                             --no-external-copyright --convert-tabs --strip-trailing-blanks
+/util/vboxhgcm.c:                          --no-external-copyright --convert-tabs --strip-trailing-blanks
+/util/vboxhgsmi.c:                         --no-external-copyright --convert-tabs --strip-trailing-blanks
+
+/*.def:                                    --external-copyright
+/*.py:                                     --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+
+--filter-out-files *_special
+--filter-out-files /LICENSE
+--filter-out-files *.txt
+

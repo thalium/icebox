@@ -66,13 +66,11 @@ VMMR3DECL(int) PGMR3MapPT(PVM pVM, RTGCPTR GCPtr, uint32_t cb, uint32_t fFlags, 
 
     /*
      * Validate input.
+     * Note! The lower limit (1 MB) matches how pgmR3PhysMMIOExCreate works.
      */
     Assert(!fFlags || fFlags == PGMR3MAPPT_FLAGS_UNMAPPABLE);
-    if (cb < _2M || cb > 64 * _1M)
-    {
-        AssertMsgFailed(("Serious? cb=%d\n", cb));
-        return VERR_INVALID_PARAMETER;
-    }
+    AssertMsgReturn(cb >= _1M && cb <= _64M, ("Seriously? cb=%d (%#x)\n", cb, cb), VERR_OUT_OF_RANGE);
+
     cb = RT_ALIGN_32(cb, _4M);
     RTGCPTR GCPtrLast = GCPtr + cb - 1;
 

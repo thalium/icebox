@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -667,7 +667,7 @@ static int vbsfOpenDir(SHFLCLIENTDATA *pClient, SHFLROOT root, const char *pszPa
             || (SHFL_CF_ACT_OPEN_IF_EXISTS == BIT_FLAG(pParms->CreateFlags, SHFL_CF_ACT_MASK_IF_EXISTS)))
         {
             /* Open the directory now */
-            rc = RTDirOpenFiltered(&pHandle->dir.Handle, pszPath, RTDIRFILTER_NONE, 0);
+            rc = RTDirOpenFiltered(&pHandle->dir.Handle, pszPath, RTDIRFILTER_NONE, 0 /*fFlags*/);
             if (RT_SUCCESS(rc))
             {
                 RTFSOBJINFO info;
@@ -1093,7 +1093,7 @@ int vbsfWrite(SHFLCLIENTDATA *pClient, SHFLROOT root, SHFLHANDLE Handle, uint64_
     }
     else
     {
-        /** @todo: What writing zero bytes should do? */
+        /** @todo What writing zero bytes should do? */
         rc = VINF_SUCCESS;
     }
 
@@ -1154,7 +1154,7 @@ int vbsfDirList(SHFLCLIENTDATA *pClient, SHFLROOT root, SHFLHANDLE Handle, SHFLS
     uint32_t       cbDirEntry, cbBufferOrg;
     PSHFLDIRINFO   pSFDEntry;
     PRTUTF16       pwszString;
-    PRTDIR         DirHandle;
+    RTDIR          hDir;
     const bool     fUtf8 = BIT_FLAG(pClient->fu32Flags, SHFL_CF_UTF8) != 0;
 
     AssertPtrReturn(pClient, VERR_INVALID_PARAMETER);
@@ -1167,7 +1167,7 @@ int vbsfDirList(SHFLCLIENTDATA *pClient, SHFLROOT root, SHFLHANDLE Handle, SHFLS
         return rc;
 
     Assert(*pIndex == 0);
-    DirHandle = pHandle->dir.Handle;
+    hDir = pHandle->dir.Handle;
 
     cbDirEntry = 4096;
     pDirEntryOrg = pDirEntry  = (PRTDIRENTRYEX)RTMemAlloc(cbDirEntry);
@@ -1199,7 +1199,7 @@ int vbsfDirList(SHFLCLIENTDATA *pClient, SHFLROOT root, SHFLHANDLE Handle, SHFLS
 
             if (RT_SUCCESS(rc))
             {
-                rc = RTDirOpenFiltered(&pHandle->dir.SearchHandle, pszFullPath, RTDIRFILTER_WINNT, 0);
+                rc = RTDirOpenFiltered(&pHandle->dir.SearchHandle, pszFullPath, RTDIRFILTER_WINNT, 0 /*fFlags*/);
 
                 /* free the path string */
                 vbsfFreeFullPath(pszFullPath);
@@ -1211,7 +1211,7 @@ int vbsfDirList(SHFLCLIENTDATA *pClient, SHFLROOT root, SHFLHANDLE Handle, SHFLS
                 goto end;
         }
         Assert(pHandle->dir.SearchHandle);
-        DirHandle = pHandle->dir.SearchHandle;
+        hDir = pHandle->dir.SearchHandle;
     }
 
     while (cbBufferOrg)
@@ -1228,7 +1228,7 @@ int vbsfDirList(SHFLCLIENTDATA *pClient, SHFLROOT root, SHFLHANDLE Handle, SHFLS
         {
             pDirEntry = pDirEntryOrg;
 
-            rc = RTDirReadEx(DirHandle, pDirEntry, &cbDirEntrySize, RTFSOBJATTRADD_NOTHING, SHFL_RT_LINK(pClient));
+            rc = RTDirReadEx(hDir, pDirEntry, &cbDirEntrySize, RTFSOBJATTRADD_NOTHING, SHFL_RT_LINK(pClient));
             if (rc == VERR_NO_MORE_FILES)
             {
                 *pIndex = 0; /* listing completed */
@@ -1525,9 +1525,13 @@ static int vbsfSetFileInfo(SHFLCLIENTDATA *pClient, SHFLROOT root, SHFLHANDLE Ha
 
 #ifndef RT_OS_WINDOWS
                 /* Don't allow the guest to clear the own bit, otherwise the guest wouldn't be
-                 * able to access this file anymore. Only for guests, which set the UNIX mode. */
+                 * able to access this file anymore. Only for guests, which set the UNIX mode.
+                 * Also, clear bits which we don't pass through for security reasons. */
                 if (fMode & RTFS_UNIX_MASK)
+                {
                     fMode |= RTFS_UNIX_IRUSR;
+                    fMode &= ~(RTFS_UNIX_ISUID | RTFS_UNIX_ISGID | RTFS_UNIX_ISTXT);
+                }
 #endif
 
                 rc = RTFileSetMode(pHandle->file.Handle, fMode);

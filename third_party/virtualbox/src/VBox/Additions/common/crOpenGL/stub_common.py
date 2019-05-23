@@ -75,7 +75,7 @@ def LoadAnnotations(filename):
 	except:
 		annotations[filename] = {}
 		return {}
-	
+
 	for line in f.readlines():
 		line = line.strip()
 		if line == "" or line[0] == '#':
@@ -95,7 +95,7 @@ def GetAnnotations( filename, key ):
 		table = annotations[filename]
 	except KeyError:
 		table = LoadAnnotations(filename)
-	
+
 	try:
 		subtable = table[key]
 	except KeyError:
@@ -109,7 +109,7 @@ def FindAnnotation( filename, key, subkey ):
 		table = annotations[filename]
 	except KeyError:
 		table = LoadAnnotations(filename)
-	
+
 	try:
 	    	subtable = table[key]
 	except KeyError:
@@ -119,7 +119,7 @@ def FindAnnotation( filename, key, subkey ):
 		return subtable[subkey]
 	except KeyError:
 		return 0
-		
+
 
 
 specials = {}
@@ -131,13 +131,13 @@ def LoadSpecials( filename ):
 	except:
 		specials[filename] = {}
 		return {}
-	
+
 	for line in f.readlines():
 		line = string.strip(line)
 		if line == "" or line[0] == '#':
 			continue
 		table[line] = 1
-	
+
 	specials[filename] = table
 	return table
 
@@ -148,7 +148,7 @@ def FindSpecial( table_file, glName ):
 		table = specials[filename]
 	except KeyError:
 		table = LoadSpecials( filename )
-	
+
 	try:
 		if (table[glName] == 1):
 			return 1
@@ -164,7 +164,7 @@ def AllSpecials( table_file ):
 		table = specials[filename]
 	except KeyError:
 		table = LoadSpecials( filename )
-	
+
 	return sorted(table.keys())
 
 def AllSpecials( table_file ):
@@ -175,9 +175,9 @@ def AllSpecials( table_file ):
 		table = specials[filename]
 	except KeyError:
 		table = LoadSpecials(filename)
-	
+
 	return sorted(table.keys())
-	
+
 def NumSpecials( table_file ):
 	filename = table_file + "_special"
 
@@ -256,7 +256,7 @@ def ArgumentString( arg_names, arg_types ):
 	"""Return InternalArgumentString inside parenthesis."""
 	output = '( ' + InternalArgumentString(arg_names, arg_types) + ' )'
 	return output
-	
+
 def InternalCallString( arg_names ):
 	output = ''
 	for index in range(0,len(arg_names)):

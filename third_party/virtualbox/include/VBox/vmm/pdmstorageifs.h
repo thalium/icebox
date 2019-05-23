@@ -226,9 +226,29 @@ typedef struct PDMIMEDIAPORT
     DECLR3CALLBACKMEMBER(int, pfnQueryDeviceLocation, (PPDMIMEDIAPORT pInterface, const char **ppcszController,
                                                        uint32_t *piInstance, uint32_t *piLUN));
 
+
+    /**
+     * Queries the vendor and product ID and revision to report for INQUIRY commands in underlying devices.
+     *
+     * @returns VBox status code.
+     * @param   pInterface      Pointer to this interface.
+     * @param   ppszVendorId    Where to store the pointer to the vendor ID string to report.
+     * @param   ppszProductId   Where to store the pointer to the product ID string to report.
+     * @param   ppszRevision    Where to store the pointer to the revision string to report.
+     *
+     * @note The strings for the inquiry data are stored in the storage controller rather than in the device
+     *       because if device attachments change (virtual CD/DVD drive versus host drive) there is currently no
+     *       way to keep the INQUIRY data in extradata keys without causing trouble when the attachment is changed.
+     *       Also Main currently doesn't has any settings for the attachment to store such information in the settings
+     *       properly. Last reason (but not the most important one) is to stay compatible with older versions
+     *       where the drive emulation was in AHCI but it now uses VSCSI and the settings overwrite should still work.
+     */
+    DECLR3CALLBACKMEMBER(int, pfnQueryScsiInqStrings, (PPDMIMEDIAPORT pInterface, const char **ppszVendorId,
+                                                       const char **ppszProductId, const char **ppszRevision));
+
 } PDMIMEDIAPORT;
 /** PDMIMEDIAPORT interface ID. */
-#define PDMIMEDIAPORT_IID                           "9f7e8c9e-6d35-4453-bbef-1f78033174d6"
+#define PDMIMEDIAPORT_IID                           "77180ab8-6485-454f-b440-efca322b7bd7"
 
 /** Pointer to a media interface. */
 typedef struct PDMIMEDIA *PPDMIMEDIA;
@@ -747,6 +767,18 @@ typedef struct PDMIMEDIAEX
      * @param   pfFeatures      Where to store the supported feature flags on success.
      */
     DECLR3CALLBACKMEMBER(int, pfnQueryFeatures, (PPDMIMEDIAEX pInterface, uint32_t *pfFeatures));
+
+    /**
+     * Notifies the driver below that the device received a suspend notification.
+     *
+     * @returns nothing.
+     * @param   pInterface      Pointer to the interface structure containing the called function pointer.
+     *
+     * @note this is required because the PDM drivers in the storage area usually get their suspend notification
+     *       only after the device finished suspending. For some cases it is useful for the driver to know
+     *       as early as possible that a suspend is in progress to stop issuing deferred requests or other things.
+     */
+    DECLR3CALLBACKMEMBER(void, pfnNotifySuspend, (PPDMIMEDIAEX pInterface));
 
     /**
      * Sets the size of the allocator specific memory for a I/O request.

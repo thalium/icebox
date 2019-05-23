@@ -414,8 +414,7 @@ static DECLCALLBACK(int) rtDvmFmtBsdLblQueryFirstVolume(RTDVMFMT hVolMgrFmt, PRT
         {
             if (pThis->DiskLabel.aPartitions[i].cSectors)
             {
-                rc = rtDvmFmtBsdLblVolumeCreate(pThis, &pThis->DiskLabel.aPartitions[i],
-                                              i, phVolFmt);
+                rc = rtDvmFmtBsdLblVolumeCreate(pThis, &pThis->DiskLabel.aPartitions[i], i, phVolFmt);
                 break;
             }
         }
@@ -521,6 +520,8 @@ DECLHIDDEN(RTDVMFMTOPS) g_rtDvmFmtBsdLbl =
 {
     /* pcszFmt */
     "BsdLabel",
+    /* enmFormat, */
+    RTDVMFORMATTYPE_BSD_LABLE,
     /* pfnProbe */
     rtDvmFmtBsdLblProbe,
     /* pfnOpen */

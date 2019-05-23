@@ -234,8 +234,8 @@ OTHER_CLEAN += $(addprefix $(VBOX_FBSD_INST_LIBVBOX_DIR)/,$(VBOX_FBSD_ARCH_FILES
 #
 $(PATH_STAGE_BIN)/vboxdrv.tar.gz: \
 		src
-	$(call MSG_TOOL, export_modules,,$@)
-	$(QUIET)$(PATH_STAGE_BIN)/export_modules $@
+	$(call MSG_TOOL, export_modules.sh,,$@)
+	$(QUIET)$(PATH_STAGE_BIN)/export_modules.sh $@
 
 #
 # The generic installer.

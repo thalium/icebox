@@ -38,28 +38,28 @@ DELETE FROM SchedGroupMembers   WHERE uidAuthor = 1112223331;
 UPDATE TestBoxes SET idSchedGroup = 1 WHERE idSchedGroup IN ( SELECT idSchedGroup FROM SchedGroups WHERE uidAuthor = 1112223331 );
 DELETE FROM SchedGroups         WHERE uidAuthor = 1112223331 OR sName = 'st1-group';
 
-UPDATE TestSets SET idTestResult = NULL 
+UPDATE TestSets SET idTestResult = NULL
     WHERE idTestCase IN ( SELECT idTestCase FROM TestCases WHERE uidAuthor = 1112223331 );
 
 DELETE FROM TestResultValues
-    WHERE idTestResult IN ( SELECT idTestResult FROM TestResults 
-                            WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets  
-                                                  WHERE idTestCase IN ( SELECT idTestCase FROM TestCases 
+    WHERE idTestResult IN ( SELECT idTestResult FROM TestResults
+                            WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets
+                                                  WHERE idTestCase IN ( SELECT idTestCase FROM TestCases
                                                                         WHERE uidAuthor = 1112223331 ) ) );
 DELETE FROM TestResultFiles
-    WHERE idTestResult IN ( SELECT idTestResult FROM TestResults 
-                            WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets  
-                                                  WHERE idTestCase IN ( SELECT idTestCase FROM TestCases 
+    WHERE idTestResult IN ( SELECT idTestResult FROM TestResults
+                            WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets
+                                                  WHERE idTestCase IN ( SELECT idTestCase FROM TestCases
                                                                         WHERE uidAuthor = 1112223331 ) ) );
 DELETE FROM TestResultMsgs
-    WHERE idTestResult IN ( SELECT idTestResult FROM TestResults 
-                            WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets  
-                                                  WHERE idTestCase IN ( SELECT idTestCase FROM TestCases 
+    WHERE idTestResult IN ( SELECT idTestResult FROM TestResults
+                            WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets
+                                                  WHERE idTestCase IN ( SELECT idTestCase FROM TestCases
                                                                         WHERE uidAuthor = 1112223331 ) ) );
-DELETE FROM TestResults         
-    WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets  
+DELETE FROM TestResults
+    WHERE idTestSet IN (  SELECT idTestSet  FROM TestSets
                           WHERE idTestCase IN ( SELECT idTestCase FROM TestCases WHERE uidAuthor = 1112223331 ) );
-DELETE FROM TestSets            
+DELETE FROM TestSets
     WHERE idTestCase IN ( SELECT idTestCase FROM TestCases WHERE uidAuthor = 1112223331 );
 
 DELETE FROM TestCases           WHERE uidAuthor = 1112223331;

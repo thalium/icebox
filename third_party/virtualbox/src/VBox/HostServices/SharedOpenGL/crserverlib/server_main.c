@@ -33,6 +33,7 @@
 #include <iprt/assert.h>
 #include <VBox/err.h>
 #include <VBox/log.h>
+#include <VBox/AssertGuest.h>
 
 #ifdef VBOXCR_LOGFPS
 #include <iprt/timer.h>
@@ -66,7 +67,8 @@ CRServer cr_server;
 
 int tearingdown = 0; /* can't be static */
 
-static DECLCALLBACK(int8_t) crVBoxCrCmdCmd(HVBOXCRCMDSVR hSvr, const VBOXCMDVBVA_HDR *pCmd, uint32_t cbCmd);
+static DECLCALLBACK(int8_t) crVBoxCrCmdCmd(HVBOXCRCMDSVR hSvr,
+                                           const VBOXCMDVBVA_HDR RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd);
 
 DECLINLINE(CRClient*) crVBoxServerClientById(uint32_t u32ClientID)
 {
@@ -944,7 +946,7 @@ static void crVBoxServerSaveMuralCB(unsigned long key, void *data1, void *data2)
     CRASSERT(rc == VINF_SUCCESS);
 }
 
-/* @todo add hashtable walker with result info and intermediate abort */
+/** @todo add hashtable walker with result info and intermediate abort */
 static void crVBoxServerSaveCreateInfoCB(unsigned long key, void *data1, void *data2)
 {
     CRCreateInfo_t *pCreateInfo = (CRCreateInfo_t *)data1;
@@ -1543,7 +1545,7 @@ static int32_t crVBoxServerSaveStatePerform(PSSMHANDLE pSSM)
     /* We shouldn't be called if there's no clients at all*/
     CRASSERT(cr_server.numClients > 0);
 
-    /* @todo it's hack atm */
+    /** @todo it's hack atm */
     /* We want to be called only once to save server state but atm we're being called from svcSaveState
      * for every connected client (e.g. guest opengl application)
      */
@@ -1619,7 +1621,7 @@ static int32_t crVBoxServerSaveStatePerform(PSSMHANDLE pSSM)
 
     Data.pSSM = pSSM;
     /* Save contexts state tracker data */
-    /* @todo For now just some blind data dumps,
+    /** @todo For now just some blind data dumps,
      * but I've a feeling those should be saved/restored in a very strict sequence to
      * allow diff_api to work correctly.
      * Should be tested more with multiply guest opengl apps working when saving VM snapshot.
@@ -2872,8 +2874,10 @@ static void crVBoxServerDefaultContextSet()
 
 #ifdef VBOX_WITH_CRHGSMI
 
-static int32_t crVBoxServerCmdVbvaCrCmdProcess(const struct VBOXCMDVBVA_CRCMD_CMD *pCmd, uint32_t cbCmd)
+/** @todo RT_UNTRUSTED_VOLATILE_GUEST   */
+static int32_t crVBoxServerCmdVbvaCrCmdProcess(VBOXCMDVBVA_CRCMD_CMD const RT_UNTRUSTED_VOLATILE_GUEST *pCmdTodo, uint32_t cbCmd)
 {
+    VBOXCMDVBVA_CRCMD_CMD const *pCmd = (VBOXCMDVBVA_CRCMD_CMD const *)pCmdTodo;
     int32_t rc;
     uint32_t cBuffers = pCmd->cBuffers;
     uint32_t cParams;
@@ -2926,7 +2930,7 @@ static int32_t crVBoxServerCmdVbvaCrCmdProcess(const struct VBOXCMDVBVA_CRCMD_CM
         {
             Log(("svcCall: SHCRGL_GUEST_FN_WRITE\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 1)
             {
                 CRVBOXHGSMIWRITE* pFnCmd = (CRVBOXHGSMIWRITE*)pHdr;
@@ -2978,7 +2982,7 @@ static int32_t crVBoxServerCmdVbvaCrCmdProcess(const struct VBOXCMDVBVA_CRCMD_CM
         {
             WARN(("svcCall: SHCRGL_GUEST_FN_INJECT\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 1)
             {
                 CRVBOXHGSMIINJECT *pFnCmd = (CRVBOXHGSMIINJECT*)pHdr;
@@ -3031,7 +3035,7 @@ static int32_t crVBoxServerCmdVbvaCrCmdProcess(const struct VBOXCMDVBVA_CRCMD_CM
         {
             Log(("svcCall: SHCRGL_GUEST_FN_READ\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 1)
             {
                 CRVBOXHGSMIREAD *pFnCmd = (CRVBOXHGSMIREAD*)pHdr;
@@ -3089,7 +3093,7 @@ static int32_t crVBoxServerCmdVbvaCrCmdProcess(const struct VBOXCMDVBVA_CRCMD_CM
         {
             Log(("svcCall: SHCRGL_GUEST_FN_WRITE_READ\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 2)
             {
                 CRVBOXHGSMIWRITEREAD *pFnCmd = (CRVBOXHGSMIWRITEREAD*)pHdr;
@@ -3232,10 +3236,14 @@ static int crVBoxCrDisconnect(uint32_t u32Client)
     return VINF_SUCCESS;
 }
 
-static int crVBoxCrConnectEx(VBOXCMDVBVA_3DCTL_CONNECT *pConnect, uint32_t u32ClientId)
+static int crVBoxCrConnectEx(VBOXCMDVBVA_3DCTL_CONNECT RT_UNTRUSTED_VOLATILE_GUEST *pConnect, uint32_t u32ClientId)
 {
     CRClient *pClient;
     int rc;
+    uint32_t const uMajorVersion = pConnect->u32MajorVersion;
+    uint32_t const uMinorVersion = pConnect->u32MinorVersion;
+    uint64_t const uPid          = pConnect->u64Pid;
+    RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
 
     if (u32ClientId == CRHTABLE_HANDLE_INVALID)
     {
@@ -3251,10 +3259,10 @@ static int crVBoxCrConnectEx(VBOXCMDVBVA_3DCTL_CONNECT *pConnect, uint32_t u32Cl
     rc = crVBoxServerAddClientObj(u32ClientId, &pClient);
     if (RT_SUCCESS(rc))
     {
-        rc = crVBoxServerClientObjSetVersion(pClient, pConnect->u32MajorVersion, pConnect->u32MinorVersion);
+        rc = crVBoxServerClientObjSetVersion(pClient, uMajorVersion, uMinorVersion);
         if (RT_SUCCESS(rc))
         {
-            rc = crVBoxServerClientObjSetPID(pClient, pConnect->u64Pid);
+            rc = crVBoxServerClientObjSetPID(pClient, uPid);
             if (RT_SUCCESS(rc))
             {
                 rc = CrHTablePutToSlot(&cr_server.clientTable, u32ClientId, pClient);
@@ -3263,8 +3271,7 @@ static int crVBoxCrConnectEx(VBOXCMDVBVA_3DCTL_CONNECT *pConnect, uint32_t u32Cl
                     pConnect->Hdr.u32CmdClientId = u32ClientId;
                     return VINF_SUCCESS;
                 }
-                else
-                    WARN(("CrHTablePutToSlot failed %d", rc));
+                WARN(("CrHTablePutToSlot failed %d", rc));
             }
             else
                 WARN(("crVBoxServerClientObjSetPID failed %d", rc));
@@ -3282,58 +3289,59 @@ static int crVBoxCrConnectEx(VBOXCMDVBVA_3DCTL_CONNECT *pConnect, uint32_t u32Cl
     return rc;
 }
 
-static int crVBoxCrConnect(VBOXCMDVBVA_3DCTL_CONNECT *pConnect)
+static int crVBoxCrConnect(VBOXCMDVBVA_3DCTL_CONNECT RT_UNTRUSTED_VOLATILE_GUEST *pConnect)
 {
     return crVBoxCrConnectEx(pConnect, CRHTABLE_HANDLE_INVALID);
 }
 
-static DECLCALLBACK(int) crVBoxCrCmdGuestCtl(HVBOXCRCMDSVR hSvr, uint8_t* pCmd, uint32_t cbCmd)
+/**
+ * @interface_method_impl{VBOXCRCMD_SVRINFO,pfnGuestCtl}
+ */
+static DECLCALLBACK(int) crVBoxCrCmdGuestCtl(HVBOXCRCMDSVR hSvr, uint8_t RT_UNTRUSTED_VOLATILE_GUEST *pbCmd, uint32_t cbCmd)
 {
-    VBOXCMDVBVA_3DCTL *pCtl = (VBOXCMDVBVA_3DCTL*)pCmd;
-    if (cbCmd < sizeof (VBOXCMDVBVA_3DCTL))
+    /*
+     * Toplevel input validation.
+     */
+    ASSERT_GUEST_LOGREL_RETURN(cbCmd >= sizeof(VBOXCMDVBVA_3DCTL), VERR_INVALID_PARAMETER);
     {
-        WARN(("invalid buffer size"));
-        return VERR_INVALID_PARAMETER;
-    }
+        VBOXCMDVBVA_3DCTL RT_UNTRUSTED_VOLATILE_GUEST *pCtl = (VBOXCMDVBVA_3DCTL RT_UNTRUSTED_VOLATILE_GUEST*)pbCmd;
+        const uint32_t uType = pCtl->u32Type;
+        RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
 
-    switch (pCtl->u32Type)
-    {
-        case VBOXCMDVBVA3DCTL_TYPE_CONNECT:
+        ASSERT_GUEST_LOGREL_RETURN(   uType == VBOXCMDVBVA3DCTL_TYPE_CMD
+                                   || uType == VBOXCMDVBVA3DCTL_TYPE_CONNECT
+                                   || uType == VBOXCMDVBVA3DCTL_TYPE_DISCONNECT
+                                   , VERR_INVALID_PARAMETER);
+        RT_UNTRUSTED_VALIDATED_FENCE();
+
+        /*
+         * Call worker abd process the request.
+         */
+        switch (uType)
         {
-            if (cbCmd != sizeof (VBOXCMDVBVA_3DCTL_CONNECT))
-            {
-                WARN(("invalid command size"));
-                return VERR_INVALID_PARAMETER;
-            }
+            case VBOXCMDVBVA3DCTL_TYPE_CMD:
+                ASSERT_GUEST_LOGREL_RETURN(cbCmd >= sizeof(VBOXCMDVBVA_3DCTL_CMD), VERR_INVALID_PARAMETER);
+                {
+                    VBOXCMDVBVA_3DCTL_CMD RT_UNTRUSTED_VOLATILE_GUEST *p3DCmd
+                        = (VBOXCMDVBVA_3DCTL_CMD RT_UNTRUSTED_VOLATILE_GUEST *)pbCmd;
+                    return crVBoxCrCmdCmd(NULL, &p3DCmd->Cmd, cbCmd - RT_OFFSETOF(VBOXCMDVBVA_3DCTL_CMD, Cmd));
+                }
 
-            return crVBoxCrConnect((VBOXCMDVBVA_3DCTL_CONNECT*)pCtl);
+            case VBOXCMDVBVA3DCTL_TYPE_CONNECT:
+                ASSERT_GUEST_LOGREL_RETURN(cbCmd == sizeof(VBOXCMDVBVA_3DCTL_CONNECT), VERR_INVALID_PARAMETER);
+                return crVBoxCrConnect((VBOXCMDVBVA_3DCTL_CONNECT RT_UNTRUSTED_VOLATILE_GUEST *)pCtl);
+
+            case VBOXCMDVBVA3DCTL_TYPE_DISCONNECT:
+                ASSERT_GUEST_LOGREL_RETURN(cbCmd == sizeof(VBOXCMDVBVA_3DCTL), VERR_INVALID_PARAMETER);
+                {
+                    uint32_t idClient = pCtl->u32CmdClientId;
+                    RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
+                    return crVBoxCrDisconnect(idClient);
+                }
+
+            default:
+                AssertFailedReturn(VERR_IPE_NOT_REACHED_DEFAULT_CASE);
         }
-        case VBOXCMDVBVA3DCTL_TYPE_DISCONNECT:
-        {
-            if (cbCmd != sizeof (VBOXCMDVBVA_3DCTL))
-            {
-                WARN(("invalid command size"));
-                return VERR_INVALID_PARAMETER;
-            }
-
-            return crVBoxCrDisconnect(pCtl->u32CmdClientId);
-        }
-        case VBOXCMDVBVA3DCTL_TYPE_CMD:
-        {
-            VBOXCMDVBVA_3DCTL_CMD *p3DCmd;
-            if (cbCmd < sizeof (VBOXCMDVBVA_3DCTL_CMD))
-            {
-                WARN(("invalid size"));
-                return VERR_INVALID_PARAMETER;
-            }
-
-            p3DCmd = (VBOXCMDVBVA_3DCTL_CMD*)pCmd;
-
-            return crVBoxCrCmdCmd(NULL, &p3DCmd->Cmd, cbCmd - RT_OFFSETOF(VBOXCMDVBVA_3DCTL_CMD, Cmd));
-        }
-        default:
-            WARN(("crVBoxCrCmdGuestCtl: invalid function %d", pCtl->u32Type));
-            return VERR_INVALID_PARAMETER;
     }
 }
 
@@ -3511,68 +3519,52 @@ static DECLCALLBACK(int) crVBoxCrCmdLoadState(HVBOXCRCMDSVR hSvr, PSSMHANDLE pSS
 }
 
 
-static DECLCALLBACK(int8_t) crVBoxCrCmdCmd(HVBOXCRCMDSVR hSvr, const VBOXCMDVBVA_HDR *pCmd, uint32_t cbCmd)
+/**
+ * @interface_method_impl{VBOXCRCMD_SVRINFO,pfnCmd}
+ */
+static DECLCALLBACK(int8_t) crVBoxCrCmdCmd(HVBOXCRCMDSVR hSvr,
+                                           const VBOXCMDVBVA_HDR RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd)
 {
-    switch (pCmd->u8OpCode)
+    uint8_t bOpcode = pCmd->u8OpCode;
+    RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
+    ASSERT_GUEST_LOGREL_MSG_RETURN(   bOpcode == VBOXCMDVBVA_OPTYPE_CRCMD
+                                   || bOpcode == VBOXCMDVBVA_OPTYPE_FLIP
+                                   || bOpcode == VBOXCMDVBVA_OPTYPE_BLT
+                                   || bOpcode == VBOXCMDVBVA_OPTYPE_CLRFILL,
+                                   ("%#x\n", bOpcode), -1);
+    RT_UNTRUSTED_VALIDATED_FENCE();
+
+    switch (bOpcode)
     {
         case VBOXCMDVBVA_OPTYPE_CRCMD:
-        {
-            const VBOXCMDVBVA_CRCMD *pCrCmdDr;
-            const VBOXCMDVBVA_CRCMD_CMD *pCrCmd;
-            int rc;
-            pCrCmdDr = (const VBOXCMDVBVA_CRCMD*)pCmd;
-            pCrCmd = &pCrCmdDr->Cmd;
-            if (cbCmd < sizeof (VBOXCMDVBVA_CRCMD))
+            ASSERT_GUEST_LOGREL_MSG_RETURN(cbCmd >= sizeof(VBOXCMDVBVA_CRCMD), ("cbCmd=%u\n", cbCmd), -1);
             {
-                WARN(("invalid buffer size"));
-                return -1;
-            }
-            rc = crVBoxServerCmdVbvaCrCmdProcess(pCrCmd, cbCmd - RT_OFFSETOF(VBOXCMDVBVA_CRCMD, Cmd));
-            if (RT_SUCCESS(rc))
-            {
-                /* success */
+                VBOXCMDVBVA_CRCMD const RT_UNTRUSTED_VOLATILE_GUEST *pCrCmdDr
+                    = (VBOXCMDVBVA_CRCMD const RT_UNTRUSTED_VOLATILE_GUEST *)pCmd;
+                VBOXCMDVBVA_CRCMD_CMD const RT_UNTRUSTED_VOLATILE_GUEST *pCrCmd = &pCrCmdDr->Cmd;
+                int rc = crVBoxServerCmdVbvaCrCmdProcess(pCrCmd, cbCmd - RT_OFFSETOF(VBOXCMDVBVA_CRCMD, Cmd));
+                ASSERT_GUEST_LOGREL_RC_RETURN(rc, -1);
                 return 0;
             }
 
-            WARN(("crVBoxServerCmdVbvaCrCmdProcess failed, rc %d", rc));
-            return -1;
-        }
         case VBOXCMDVBVA_OPTYPE_FLIP:
-        {
-            const VBOXCMDVBVA_FLIP *pFlip;
-
-            if (cbCmd < VBOXCMDVBVA_SIZEOF_FLIPSTRUCT_MIN)
+            ASSERT_GUEST_LOGREL_MSG_RETURN(cbCmd >= VBOXCMDVBVA_SIZEOF_FLIPSTRUCT_MIN, ("cbCmd=%u\n", cbCmd), -1);
             {
-                WARN(("invalid buffer size (cbCmd(%u) < sizeof(VBOXCMDVBVA_FLIP)(%u))", cbCmd, sizeof(VBOXCMDVBVA_FLIP)));
-                return -1;
+                VBOXCMDVBVA_FLIP const RT_UNTRUSTED_VOLATILE_GUEST *pFlip
+                    = (VBOXCMDVBVA_FLIP const RT_UNTRUSTED_VOLATILE_GUEST *)pCmd;
+                return crVBoxServerCrCmdFlipProcess(pFlip, cbCmd);
             }
 
-            pFlip = (const VBOXCMDVBVA_FLIP*)pCmd;
-            return crVBoxServerCrCmdFlipProcess(pFlip, cbCmd);
-        }
         case VBOXCMDVBVA_OPTYPE_BLT:
-        {
-            if (cbCmd < sizeof (VBOXCMDVBVA_BLT_HDR))
-            {
-                WARN(("invalid buffer size"));
-                return -1;
-            }
+            ASSERT_GUEST_LOGREL_MSG_RETURN(cbCmd >= sizeof(VBOXCMDVBVA_BLT_HDR), ("cbCmd=%u\n", cbCmd), -1);
+            return crVBoxServerCrCmdBltProcess((VBOXCMDVBVA_BLT_HDR const RT_UNTRUSTED_VOLATILE_GUEST *)pCmd, cbCmd);
 
-            return crVBoxServerCrCmdBltProcess((const VBOXCMDVBVA_BLT_HDR*)pCmd, cbCmd);
-        }
         case VBOXCMDVBVA_OPTYPE_CLRFILL:
-        {
-            if (cbCmd < sizeof (VBOXCMDVBVA_CLRFILL_HDR))
-            {
-                WARN(("invalid buffer size"));
-                return -1;
-            }
+            ASSERT_GUEST_LOGREL_MSG_RETURN(cbCmd >= sizeof(VBOXCMDVBVA_CLRFILL_HDR), ("cbCmd=%u\n", cbCmd), -1);
+            return crVBoxServerCrCmdClrFillProcess((VBOXCMDVBVA_CLRFILL_HDR const RT_UNTRUSTED_VOLATILE_GUEST *)pCmd, cbCmd);
 
-            return crVBoxServerCrCmdClrFillProcess((const VBOXCMDVBVA_CLRFILL_HDR*)pCmd, cbCmd);
-        }
         default:
-            WARN(("unsupported command"));
-            return -1;
+            AssertFailedReturn(-1);
     }
     /* not reached */
 }
@@ -3649,7 +3641,7 @@ int32_t crVBoxServerCrHgsmiCmd(struct VBOXVDMACMD_CHROMIUM_CMD *pCmd, uint32_t c
         {
             Log(("svcCall: SHCRGL_GUEST_FN_WRITE\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 1)
             {
                 CRVBOXHGSMIWRITE* pFnCmd = (CRVBOXHGSMIWRITE*)pHdr;
@@ -3703,7 +3695,7 @@ int32_t crVBoxServerCrHgsmiCmd(struct VBOXVDMACMD_CHROMIUM_CMD *pCmd, uint32_t c
         {
             Log(("svcCall: SHCRGL_GUEST_FN_INJECT\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 1)
             {
                 CRVBOXHGSMIINJECT *pFnCmd = (CRVBOXHGSMIINJECT*)pHdr;
@@ -3755,7 +3747,7 @@ int32_t crVBoxServerCrHgsmiCmd(struct VBOXVDMACMD_CHROMIUM_CMD *pCmd, uint32_t c
         {
             Log(("svcCall: SHCRGL_GUEST_FN_READ\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 1)
             {
                 CRVBOXHGSMIREAD *pFnCmd = (CRVBOXHGSMIREAD*)pHdr;
@@ -3810,7 +3802,7 @@ int32_t crVBoxServerCrHgsmiCmd(struct VBOXVDMACMD_CHROMIUM_CMD *pCmd, uint32_t c
         {
             Log(("svcCall: SHCRGL_GUEST_FN_WRITE_READ\n"));
 
-            /* @todo: Verify  */
+            /** @todo Verify  */
             if (cParams == 2)
             {
                 CRVBOXHGSMIWRITEREAD *pFnCmd = (CRVBOXHGSMIWRITEREAD*)pHdr;

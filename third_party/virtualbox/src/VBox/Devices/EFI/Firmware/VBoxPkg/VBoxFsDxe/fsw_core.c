@@ -3,7 +3,26 @@
  * fsw_core.c - Core file system wrapper abstraction layer code.
  */
 
-/*-
+/*
+ * Copyright (C) 2010-2017 Oracle Corporation
+ *
+ * This file is part of VirtualBox Open Source Edition (OSE), as
+ * available from http://www.virtualbox.org. This file is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GPL) as published by the Free Software
+ * Foundation, in version 2 as it comes in the "COPYING" file of the
+ * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ *
+ * The contents of this file may alternatively be used under the terms
+ * of the Common Development and Distribution License Version 1.0
+ * (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+ * VirtualBox OSE distribution, in which case the provisions of the
+ * CDDL are applicable instead of those of the GPL.
+ *
+ * You may elect to license modified versions of this file under the
+ * terms and conditions of either the GPL or the CDDL or both.
+ * ---------------------------------------------------------------------------
  * This code is based on:
  *
  * Copyright (c) 2006 Christoph Pfisterer
@@ -88,7 +107,7 @@ fsw_status_t fsw_mount(void *host_data,
     if (status)
         goto errorexit;
 
-    // TODO: anything else?
+    /// @todo anything else?
 
     *vol_out = vol;
     return FSW_SUCCESS;
@@ -110,7 +129,7 @@ void fsw_unmount(struct fsw_volume *vol)
 {
     if (vol->root)
         fsw_dnode_release(vol->root);
-    // TODO: check that no other dnodes are still around
+    /// @todo check that no other dnodes are still around
 
     vol->fstype_table->volume_free(vol);
 
@@ -146,7 +165,7 @@ fsw_status_t fsw_volume_stat(struct fsw_volume *vol, struct fsw_volume_stat *sb)
 
 void fsw_set_blocksize(struct fsw_volume *vol, fsw_u32 phys_blocksize, fsw_u32 log_blocksize)
 {
-    // TODO: Check the sizes. Both must be powers of 2. log_blocksize must not be smaller than
+    /// @todo Check the sizes. Both must be powers of 2. log_blocksize must not be smaller than
     //  phys_blocksize.
 
     // drop core block cache if present
@@ -184,7 +203,7 @@ fsw_status_t fsw_block_get(struct VOLSTRUCTNAME *vol, fsw_u32 phys_bno, fsw_u32 
     fsw_u32         i, discard_level, new_bcache_size;
     struct fsw_blockcache *new_bcache;
 
-    // TODO: allow the host driver to do its own caching; just call through if
+    /// @todo allow the host driver to do its own caching; just call through if
     //  the appropriate function pointers are set
 
     if (cache_level > MAX_CACHE_LEVEL)
@@ -270,7 +289,7 @@ void fsw_block_release(struct VOLSTRUCTNAME *vol, fsw_u32 phys_bno, void *buffer
 {
     fsw_u32 i;
 
-    // TODO: allow the host driver to do its own caching; just call through if
+    /// @todo allow the host driver to do its own caching; just call through if
     //  the appropriate function pointers are set
 
     // update block cache
@@ -339,7 +358,7 @@ fsw_status_t fsw_dnode_create_root(struct fsw_volume *vol, fsw_u32 dnode_id, str
     dno->type = FSW_DNODE_TYPE_DIR;
     dno->refcount = 1;
     dno->name.type = FSW_STRING_TYPE_EMPTY;
-    // TODO: instead, call a function to create an empty string in the native string type
+    /// @todo instead, call a function to create an empty string in the native string type
 
     fsw_dnode_register(vol, dno);
 
@@ -466,7 +485,7 @@ void fsw_dnode_release(struct fsw_dnode *dno)
 
 fsw_status_t fsw_dnode_fill(struct fsw_dnode *dno)
 {
-    // TODO: check a flag right here, call fstype's dnode_fill only once per dnode
+    /// @todo check a flag right here, call fstype's dnode_fill only once per dnode
 
     return dno->vol->fstype_table->dnode_fill(dno->vol, dno);
 }

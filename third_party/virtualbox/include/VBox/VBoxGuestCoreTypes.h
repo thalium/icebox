@@ -200,6 +200,9 @@ typedef VBGLIOCHGCMCALL const RT_FAR *PCVBGLIOCHGCMCALL;
  */
 # define VBGL_HGCM_HDR_INIT_TIMED(a_pHdr, a_idClient, a_idFunction, a_cParameters, a_cMsTimeout) \
     do { \
+        VBGLREQHDR_INIT_EX(&(a_pHdr)->Hdr, \
+                           sizeof(VBGLIOCHGCMCALL) + (a_cParameters) * sizeof(HGCMFunctionParameter), \
+                           sizeof(VBGLIOCHGCMCALL) + (a_cParameters) * sizeof(HGCMFunctionParameter)); \
         (a_pHdr)->u32ClientID    = (a_idClient); \
         (a_pHdr)->u32Function    = (a_idFunction); \
         (a_pHdr)->cMsTimeout     = (a_cMsTimeout); \

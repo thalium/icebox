@@ -566,7 +566,7 @@
       <xsl:text> \setlength{\parskip}{0pt}&#x0a;</xsl:text>
       <xsl:text> \setlength{\itemsep}{0pt}&#x0a;</xsl:text>
       <xsl:text> \setlength{\topsep}{0pt}&#x0a;</xsl:text>
-      <xsl:text> \setlength{\parsep}{0pt}&#x0a;</xsl:text> 
+      <xsl:text> \setlength{\parsep}{0pt}&#x0a;</xsl:text>
       <xsl:text> \setlength{\partopsep}{0pt}&#x0a;</xsl:text>
     </xsl:if>
     <xsl:apply-templates />

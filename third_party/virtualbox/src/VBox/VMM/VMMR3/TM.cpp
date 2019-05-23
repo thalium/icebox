@@ -147,6 +147,7 @@
 #include <iprt/asm.h>
 #include <iprt/asm-math.h>
 #include <iprt/assert.h>
+#include <iprt/file.h>
 #include <iprt/thread.h>
 #include <iprt/time.h>
 #include <iprt/timer.h>
@@ -346,6 +347,7 @@ VMM_INT_DECL(int) TMR3Init(PVM pVM)
                               "CatchUpPrecentage4|CatchUpPrecentage5|CatchUpPrecentage6|CatchUpPrecentage7|"
                               "CatchUpPrecentage8|CatchUpPrecentage9|"
                               "UTCOffset|"
+                              "UTCTouchFileOnJump|"
                               "WarpDrivePercentage|"
                               "HostHzMax|"
                               "HostHzFudgeFactorTimerCpu|"
@@ -353,7 +355,8 @@ VMM_INT_DECL(int) TMR3Init(PVM pVM)
                               "HostHzFudgeFactorCatchUp100|"
                               "HostHzFudgeFactorCatchUp200|"
                               "HostHzFudgeFactorCatchUp400|"
-                              "TimerMillies",
+                              "TimerMillies"
+                              ,
                               "",
                               "TM", 0);
     if (RT_FAILURE(rc))
@@ -537,6 +540,15 @@ VMM_INT_DECL(int) TMR3Init(PVM pVM)
     else if (RT_FAILURE(rc))
         return VMSetError(pVM, rc, RT_SRC_POS,
                           N_("Configuration error: Failed to querying 64-bit integer value \"UTCOffset\""));
+
+    /** @cfgm{/TM/UTCTouchFileOnJump, string, none}
+     * File to be written to everytime the host time jumps.  */
+    rc = CFGMR3QueryStringAlloc(pCfgHandle, "UTCTouchFileOnJump", &pVM->tm.s.pszUtcTouchFileOnJump);
+    if (rc == VERR_CFGM_VALUE_NOT_FOUND)
+        pVM->tm.s.pszUtcTouchFileOnJump = NULL;
+    else if (RT_FAILURE(rc))
+        return VMSetError(pVM, rc, RT_SRC_POS,
+                          N_("Configuration error: Failed to querying string value \"UTCTouchFileOnJump\""));
 
     /*
      * Setup the warp drive.
@@ -2809,7 +2821,9 @@ VMMR3DECL(int) TMR3TimerSetCritSect(PTMTIMERR3 pTimer, PPDMCRITSECT pCritSect)
  */
 VMMR3_INT_DECL(PRTTIMESPEC) TMR3UtcNow(PVM pVM, PRTTIMESPEC pTime)
 {
-    /* Get a stable set of VirtualSync parameters before querying UTC. */
+    /*
+     * Get a stable set of VirtualSync parameters and calc the lag.
+     */
     uint64_t offVirtualSync;
     uint64_t offVirtualSyncGivenUp;
     do
@@ -2821,9 +2835,42 @@ VMMR3_INT_DECL(PRTTIMESPEC) TMR3UtcNow(PVM pVM, PRTTIMESPEC pTime)
     Assert(offVirtualSync >= offVirtualSyncGivenUp);
     uint64_t const offLag = offVirtualSync - offVirtualSyncGivenUp;
 
+    /*
+     * Get current time and adjust for virtual sync lag and do time displacement.
+     */
     RTTimeNow(pTime);
     RTTimeSpecSubNano(pTime, offLag);
     RTTimeSpecAddNano(pTime, pVM->tm.s.offUTC);
+
+    /*
+     * Log details if the time changed radically (also triggers on first call).
+     */
+    int64_t nsPrev = ASMAtomicXchgS64(&pVM->tm.s.nsLastUtcNow, RTTimeSpecGetNano(pTime));
+    int64_t cNsDelta = RTTimeSpecGetNano(pTime) - nsPrev;
+    if ((uint64_t)RT_ABS(cNsDelta) > RT_NS_1HOUR / 2)
+    {
+        RTTIMESPEC NowAgain;
+        RTTimeNow(&NowAgain);
+        LogRel(("TMR3UtcNow: nsNow=%'RI64 nsPrev=%'RI64 -> cNsDelta=%'RI64 (offLag=%'RI64 offVirtualSync=%'RU64 offVirtualSyncGivenUp=%'RU64, NowAgain=%'RI64)\n",
+                RTTimeSpecGetNano(pTime), nsPrev, cNsDelta, offLag, offVirtualSync, offVirtualSyncGivenUp, RTTimeSpecGetNano(&NowAgain)));
+        if (pVM->tm.s.pszUtcTouchFileOnJump && nsPrev != 0)
+        {
+            RTFILE hFile;
+            int rc = RTFileOpen(&hFile, pVM->tm.s.pszUtcTouchFileOnJump,
+                                RTFILE_O_WRITE | RTFILE_O_APPEND | RTFILE_O_OPEN_CREATE | RTFILE_O_DENY_NONE);
+            if (RT_SUCCESS(rc))
+            {
+                char   szMsg[256];
+                size_t cch;
+                cch = RTStrPrintf(szMsg, sizeof(szMsg),
+                                  "TMR3UtcNow: nsNow=%'RI64 nsPrev=%'RI64 -> cNsDelta=%'RI64 (offLag=%'RI64 offVirtualSync=%'RU64 offVirtualSyncGivenUp=%'RU64, NowAgain=%'RI64)\n",
+                                  RTTimeSpecGetNano(pTime), nsPrev, cNsDelta, offLag, offVirtualSync, offVirtualSyncGivenUp, RTTimeSpecGetNano(&NowAgain));
+                RTFileWrite(hFile, szMsg, cch, NULL);
+                RTFileClose(hFile);
+            }
+        }
+    }
+
     return pTime;
 }
 

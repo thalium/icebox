@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -562,8 +562,8 @@ static DECLCALLBACK(VOID) vboxWddmChildStatusReportCompletion(PVBOXMP_DEVEXT pDe
 
     PVBOXWDDMCHILDSTATUSCB pCtx = (PVBOXWDDMCHILDSTATUSCB)pvContext;
     PVBOXVDMACBUF_DR pDr = pCtx->pDr;
-    PVBOXVDMACMD pHdr = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
-    VBOXVDMACMD_CHILD_STATUS_IRQ *pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHILD_STATUS_IRQ);
+    VBOXVDMACMD                  RT_UNTRUSTED_VOLATILE_HOST *pHdr = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
+    VBOXVDMACMD_CHILD_STATUS_IRQ RT_UNTRUSTED_VOLATILE_HOST *pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHILD_STATUS_IRQ);
 
     vboxWddmChildStatusHandleRequest(pDevExt, pBody);
 
@@ -591,10 +591,11 @@ NTSTATUS VBoxWddmChildStatusReportReconnected(PVBOXMP_DEVEXT pDevExt, uint32_t i
         pDr->cbBuf = cbCmd;
         pDr->rc = VERR_NOT_IMPLEMENTED;
 
-        PVBOXVDMACMD pHdr = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
+        VBOXVDMACMD RT_UNTRUSTED_VOLATILE_HOST *pHdr = VBOXVDMACBUF_DR_TAIL(pDr, VBOXVDMACMD);
         pHdr->enmType = VBOXVDMACMD_TYPE_CHILD_STATUS_IRQ;
         pHdr->u32CmdSpecific = 0;
-        PVBOXVDMACMD_CHILD_STATUS_IRQ pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHILD_STATUS_IRQ);
+
+        VBOXVDMACMD_CHILD_STATUS_IRQ RT_UNTRUSTED_VOLATILE_HOST *pBody = VBOXVDMACMD_BODY(pHdr, VBOXVDMACMD_CHILD_STATUS_IRQ);
         pBody->cInfos = 1;
         if (iChild == D3DDDI_ID_ALL)
         {

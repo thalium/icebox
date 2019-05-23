@@ -1003,6 +1003,35 @@
         automatically enables the APIC feature when set.
       </desc>
     </const>
+    <const name="IBPBOnVMExit"          value="6">
+      <desc>
+        If set, force an indirect branch prediction barrier on VM exits if the
+        host CPU supports it.  This setting will significantly slow down workloads
+        causing many VM exits, so it is only recommended for situation where there
+        is a real need to be paranoid.
+      </desc>
+    </const>
+    <const name="IBPBOnVMEntry"         value="7">
+      <desc>
+        If set, force an indirect branch prediction barrier on VM entry if the
+        host CPU supports it.  This setting will significantly slow down workloads
+        causing many VM exits, so it is only recommended for situation where there
+        is a real need to be paranoid.
+      </desc>
+    </const>
+    <const name="SpecCtrl"              value="9">
+      <desc>
+        If set, the speculation control CPUID bits and MSRs, when available on the
+        host, are exposed to the guest. Depending on the host CPU and operating
+        system, this may significantly slow down workloads causing many VM exits.
+      </desc>
+    </const>
+    <const name="SpecCtrlByHost"        value="10">
+      <desc>
+        If set, the speculation controls are managed by the host. This is intended
+        for guests which do not set the speculation controls themselves.
+      </desc>
+    </const>
   </enum>
 
 
@@ -16927,7 +16956,7 @@ Snapshot 1 (B.vdi)            Snapshot 1 (B.vdi)
 
   <interface
     name="IFramebuffer" extends="$unknown"
-    uuid="8b82295f-415f-1aa1-17fd-9fbbac8edf44"
+    uuid="1e8d3f27-b45c-48ae-8b36-d35e83d207aa"
     wsmap="managed"
     >
     <attribute name="width" type="unsigned long" readonly="yes">
@@ -17145,6 +17174,12 @@ Snapshot 1 (B.vdi)            Snapshot 1 (B.vdi)
 
       <param name="command" type="octet" mod="ptr" dir="in">
         <desc>Pointer to VBOXVHWACMD containing the command to execute.</desc>
+      </param>
+      <param name="enmCmd" type="long" dir="in">
+        <desc>The validated VBOXVHWACMD::enmCmd value from the command.</desc>
+      </param>
+      <param name="fromGuest" type="boolean" dir="in">
+        <desc>Set when the command origins from the guest, clear if host.</desc>
       </param>
     </method>
 
@@ -24372,16 +24407,45 @@ Snapshot 1 (B.vdi)            Snapshot 1 (B.vdi)
 >
 
 <if target="midl">
+
+  <!--
+  // IVBoxSVC
+  // Note! This actually extends IUnknown rather than IDispatch, notdual=yes
+  //       sees to that.
+  //////////////////////////////////////////////////////////////////////////
+  -->
+  <interface
+    name="IVBoxSVCRegistration" extends="$unknown" notdual="yes"
+    uuid="f22181fb-921b-4f2a-7801-0cc5ec28cdae"
+    wsmap="suppress" internal="yes"
+    reservedMethods="0" reservedAttributes="0"
+    >
+      <desc>
+          Implemented by the VirtualBox class factory and registered with VBoxSDS
+          so it can retrieve IVirtualBox on behalf of other VBoxSVCs.
+      </desc>
+
+      <method name="getVirtualBox" >
+        <desc> Gets an IUnknown interface to the VirtualBox object in the VBoxSVC process. </desc>
+        <param name="result" type="$unknown" dir="return" >
+          <desc> Where to return the IUnknown interface. </desc>
+        </param>
+      </method>
+
+  </interface>
+
   <!--
   // IVirtualBoxSDS
+  // Note! This actually extends IUnknown rather than IDispatch, notdual=yes
+  //       sees to that.
   //////////////////////////////////////////////////////////////////////////
   -->
 
   <interface
-    name="IVirtualBoxSDS" extends="$unknown"
-    uuid="28932695-fb72-4708-8904-e1077dac7f9a"
-    wsmap="suppress"
-    reservedMethods="4" reservedAttributes="8"
+    name="IVirtualBoxSDS" extends="$unknown" notdual="yes"
+    uuid="787d20ed-faf3-4170-6697-3a2a7de6e086"
+    wsmap="suppress" internal="yes"
+    reservedMethods="0" reservedAttributes="0"
     >
       <desc>
           The IVirtualBoxSDS interface represents the system-wide directory service
@@ -24392,22 +24456,34 @@ Snapshot 1 (B.vdi)            Snapshot 1 (B.vdi)
           behavior.
       </desc>
 
-      <method name="getVirtualBox" >
-       <param name="result" type="IVirtualBox" dir="out" >
-        <desc>
-          Reference to the server-side API root object.
-        </desc>
-      </param>
-      <param name="token" type="IToken" dir="out">
-        <desc>
-          Reference to the token object given to client and linked with IVirtualBox.
-          Client should keep it till the end.
-        </desc>
-      </param>
+      <method name="registerVBoxSVC">
+        <desc>Registers a VBoxSVC instance with the SDS.</desc>
+        <param name="vboxSVC" type="IVBoxSVCRegistration" dir="in">
+          <desc>Interface implemented by the VirtualBox class factory.</desc>
+        </param>
+        <param name="pid" type="long" dir="in">
+          <desc>The process ID of the VBoxSVC instance.</desc>
+        </param>
+        <param name="existingVirtualBox" type="$unknown" dir="return">
+          <desc>If there is already an VBoxSVC for this user, the an IUnknown
+            interface to its VirtualBox object is returned here, otherwise it
+            is set to NULL.</desc>
+        </param>
+      </method>
+
+      <method name="deregisterVBoxSVC">
+        <desc>Registers a VBoxSVC instance with the SDS.</desc>
+        <param name="vboxSVC" type="IVBoxSVCRegistration" dir="in">
+          <desc>Same as specified during registration.</desc>
+        </param>
+        <param name="pid" type="long" dir="in">
+          <desc>The process ID of the VBoxSVC instance (same as during registration).</desc>
+        </param>
       </method>
 
   </interface>
-</if>
+
+</if> <!-- bird: shouldn't this if-element at leat include the VBoxSDS module, if not the whole system service application? -->
 
   <module name="VBoxSDS" context="LocalService">
     <class name="VirtualBoxSDS" uuid="74ab5ffe-8726-4435-aa7e-876d705bcba5"

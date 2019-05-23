@@ -49,7 +49,7 @@ INSERT INTO BuildSources (uidAuthor, sName, sProduct, sBranch, asTypes, asOsArch
 
 INSERT INTO SchedGroups (sName, sDescription, fEnabled, idBuildSrc, idBuildSrcTestSuite)
     VALUES ('VirtualBox Trunk', NULL, TRUE,
-            (SELECT idBuildSrc FROM BuildSources WHERE sName = 'VBox trunk builds'), 
+            (SELECT idBuildSrc FROM BuildSources WHERE sName = 'VBox trunk builds'),
             (SELECT idBuildSrc FROM BuildSources WHERE sName = 'VBox TestSuite trunk builds') );
 \set idSchedGroupQuery '(SELECT idSchedGroup FROM SchedGroups WHERE sName = \'VirtualBox Trunk\')'
 
@@ -79,8 +79,8 @@ INSERT INTO SchedGroupMembers (idSchedGroup, idTestGroup, uidAuthor, idTestGroup
 -- Testcases
 --
 INSERT INTO TestCases (uidAuthor, sName, fEnabled, cSecTimeout, sBaseCmd, sTestSuiteZips)
-    VALUES (:idUserQuery, 'VBox install', TRUE, 600,  
-            'validationkit/testdriver/vboxinstaller.py --vbox-build @BUILD_BINARIES@ @ACTION@ -- testdriver/base.py @ACTION@', 
+    VALUES (:idUserQuery, 'VBox install', TRUE, 600,
+            'validationkit/testdriver/vboxinstaller.py --vbox-build @BUILD_BINARIES@ @ACTION@ -- testdriver/base.py @ACTION@',
             '@VALIDATIONKIT_ZIP@');
 INSERT INTO TestCaseArgs (idTestCase, uidAuthor, sArgs)
     VALUES ((SELECT idTestCase FROM TestCases WHERE sName = 'VBox install'), :idUserQuery, '');
@@ -88,5 +88,4 @@ INSERT INTO TestGroupMembers (idTestGroup, idTestCase, uidAuthor)
     VALUES (:idGrpSmokeQuery, (SELECT idTestCase FROM TestCases WHERE sName = 'VBox install'), :idUserQuery);
 
 COMMIT WORK;
-
 

@@ -78,7 +78,7 @@ log_command()
     echo "** Date:      `date -R`" >> "${MY_LOGFILE}"
     echo "** Executing: $*" >> "${MY_LOGFILE}"
     "$@" 2>&1 | tee -a "${MY_LOGFILE}"
-    MY_TMP_EXITCODE="${PIPESTATUS[0]}"
+    MY_TMP_EXITCODE="${PIPESTATUS[0]}"      # bashism - whatever.
     if [ "${MY_TMP_EXITCODE}" != "0" ]; then
         if [ "${MY_TMP_EXITCODE}" != "${MY_IGNORE_EXITCODE}" ]; then
             echo "** exit code: ${MY_TMP_EXITCODE}" | tee -a "${MY_LOGFILE}"
@@ -214,15 +214,15 @@ if [ -d "${MY_UNIT_PATH}" ]; then
     log_command_in_target systemctl -q enable vboxtxs
 
 # System V like:
-elif [ -e /etc/init.d/ ]; then
+elif [ -e "${MY_TARGET}/etc/init.d/" ]; then
 
     # Install the script.  On rhel6 scripts are under /etc/rc.d/ with /etc/init.d and /etc/rc?.d being symlinks.
-    if [ -d /etc/rc.d/init.d/ ]; then
-        MY_INIT_D_PATH="${MY_TARGET}/etc/rc.d"
-        log_command ln -s "../../../opt/validationkit/linux/vboxtxs" "${MY_INIT_D_PATH}/init.d/"
+    if [ -d "${MY_TARGET}/etc/rc.d/init.d/" ]; then
+        MY_INIT_D_PARENT_PATH="${MY_TARGET}/etc/rc.d"
+        log_command ln -s "../../../opt/validationkit/linux/vboxtxs" "${MY_INIT_D_PARENT_PATH}/init.d/"
     else
-        MY_INIT_D_PATH="${MY_TARGET}/etc"
-        log_command ln -s    "../../opt/validationkit/linux/vboxtxs" "${MY_INIT_D_PATH}/init.d/"
+        MY_INIT_D_PARENT_PATH="${MY_TARGET}/etc"
+        log_command ln -s    "../../opt/validationkit/linux/vboxtxs" "${MY_INIT_D_PARENT_PATH}/init.d/"
     fi
 
     # Use runlevel management script if found.
@@ -236,13 +236,13 @@ elif [ -e /etc/init.d/ ]; then
         log_command_in_target rc-update add vboxtxs default
     # Fall back on hardcoded symlinking.
     else
-        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PATH}/rc0.d/K65vboxtxs"
-        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PATH}/rc1.d/K65vboxtxs"
-        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PATH}/rc6.d/K65vboxtxs"
-        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PATH}/rc2.d/S35vboxtxs"
-        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PATH}/rc3.d/S35vboxtxs"
-        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PATH}/rc4.d/S35vboxtxs"
-        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PATH}/rc5.d/S35vboxtxs"
+        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PARENT_PATH}/rc0.d/K65vboxtxs"
+        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PARENT_PATH}/rc1.d/K65vboxtxs"
+        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PARENT_PATH}/rc6.d/K65vboxtxs"
+        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PARENT_PATH}/rc2.d/S35vboxtxs"
+        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PARENT_PATH}/rc3.d/S35vboxtxs"
+        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PARENT_PATH}/rc4.d/S35vboxtxs"
+        log_command ln -s "../init.d/vboxtxs" "${MY_INIT_D_PARENT_PATH}/rc5.d/S35vboxtxs"
     fi
 else
     echo "** error: Unknown init script system." | tee -a "${MY_LOGFILE}"

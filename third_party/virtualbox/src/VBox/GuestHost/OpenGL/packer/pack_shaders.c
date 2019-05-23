@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -55,7 +55,7 @@ void PACK_APIENTRY crPackShaderSource(GLuint shader, GLsizei count, const char *
         pLocalLength[i] = ((length && (length[i]>=0)) ? length[i] : crStrlen(string[i]))+1;
         packet_length += pLocalLength[i];
     }
-    
+
     if (length)
     {
         packet_length += count*sizeof(*length);
@@ -407,7 +407,7 @@ void PACK_APIENTRY crPackDrawBuffers(GLsizei n, const GLenum *bufs)
     CR_UNLOCK_PACKER_CONTEXT(pc);
 }
 
-/*@todo next 8 functions are bit hacky, 
+/** @todo next 8 functions are bit hacky,
  * we expect packspu to pass a single structure with all output parameters via first output pointer.
  * it'd be better to add CRMessageMultiReadback one day.
  */
@@ -473,35 +473,35 @@ void PACK_APIENTRY crPackGetAttachedShaders(GLuint program, GLsizei maxCount, GL
 
 void PACK_APIENTRY crPackGetAttachedObjectsARB(VBoxGLhandleARB containerObj, GLsizei maxCount, GLsizei * count, VBoxGLhandleARB * obj, int * writeback)
 {
-	CR_GET_PACKER_CONTEXT(pc);
-	unsigned char *data_ptr;
-	(void) pc; (void) obj;
-	CR_GET_BUFFERED_POINTER(pc, 32);
-	WRITE_DATA(0, GLint, 32);
-	WRITE_DATA(4, GLenum, CR_GETATTACHEDOBJECTSARB_EXTEND_OPCODE);
-	WRITE_DATA(8, VBoxGLhandleARB, containerObj);
-	WRITE_DATA(12, GLsizei, maxCount);
-	WRITE_NETWORK_POINTER(16, (void *) count);
-	WRITE_NETWORK_POINTER(24, (void *) writeback);
-	WRITE_OPCODE(pc, CR_EXTEND_OPCODE);
-	CR_CMDBLOCK_CHECK_FLUSH(pc);
+        CR_GET_PACKER_CONTEXT(pc);
+        unsigned char *data_ptr;
+        (void) pc; (void) obj;
+        CR_GET_BUFFERED_POINTER(pc, 32);
+        WRITE_DATA(0, GLint, 32);
+        WRITE_DATA(4, GLenum, CR_GETATTACHEDOBJECTSARB_EXTEND_OPCODE);
+        WRITE_DATA(8, VBoxGLhandleARB, containerObj);
+        WRITE_DATA(12, GLsizei, maxCount);
+        WRITE_NETWORK_POINTER(16, (void *) count);
+        WRITE_NETWORK_POINTER(24, (void *) writeback);
+        WRITE_OPCODE(pc, CR_EXTEND_OPCODE);
+        CR_CMDBLOCK_CHECK_FLUSH(pc);
     CR_UNLOCK_PACKER_CONTEXT(pc);
 }
 
 void PACK_APIENTRY crPackGetInfoLogARB(VBoxGLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * infoLog, int * writeback)
 {
-	CR_GET_PACKER_CONTEXT(pc);
-	unsigned char *data_ptr;
-	(void) pc; (void) infoLog;
-	CR_GET_BUFFERED_POINTER(pc, 32);
-	WRITE_DATA(0, GLint, 32);
-	WRITE_DATA(4, GLenum, CR_GETINFOLOGARB_EXTEND_OPCODE);
-	WRITE_DATA(8, VBoxGLhandleARB, obj);
-	WRITE_DATA(12, GLsizei, maxLength);
-	WRITE_NETWORK_POINTER(16, (void *) length);
-	WRITE_NETWORK_POINTER(24, (void *) writeback);
-	WRITE_OPCODE(pc, CR_EXTEND_OPCODE);
-	CR_CMDBLOCK_CHECK_FLUSH(pc);
+        CR_GET_PACKER_CONTEXT(pc);
+        unsigned char *data_ptr;
+        (void) pc; (void) infoLog;
+        CR_GET_BUFFERED_POINTER(pc, 32);
+        WRITE_DATA(0, GLint, 32);
+        WRITE_DATA(4, GLenum, CR_GETINFOLOGARB_EXTEND_OPCODE);
+        WRITE_DATA(8, VBoxGLhandleARB, obj);
+        WRITE_DATA(12, GLsizei, maxLength);
+        WRITE_NETWORK_POINTER(16, (void *) length);
+        WRITE_NETWORK_POINTER(24, (void *) writeback);
+        WRITE_OPCODE(pc, CR_EXTEND_OPCODE);
+        CR_CMDBLOCK_CHECK_FLUSH(pc);
     CR_UNLOCK_PACKER_CONTEXT(pc);
 }
 
@@ -561,7 +561,7 @@ void PACK_APIENTRY crPackGetShaderSource(GLuint shader, GLsizei bufSize, GLsizei
 
 void PACK_APIENTRY crPackGetUniformsLocations(GLuint program, GLsizei maxcbData, GLsizei * cbData, GLvoid * pData, int * writeback)
 {
-	CR_GET_PACKER_CONTEXT(pc);
+        CR_GET_PACKER_CONTEXT(pc);
     unsigned char *data_ptr;
     (void) pData;
     CR_GET_BUFFERED_POINTER(pc, 32);

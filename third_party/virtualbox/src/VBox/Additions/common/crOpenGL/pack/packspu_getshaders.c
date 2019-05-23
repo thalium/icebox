@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -23,7 +23,7 @@
 #include "cr_mem.h"
 #include <iprt/assert.h>
 
-/*@todo combine with the one from server_getshaders.c*/
+/** @todo combine with the one from server_getshaders.c*/
 typedef struct _crGetActive_t
 {
     GLsizei length;

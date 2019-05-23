@@ -1,0 +1,69 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for the Main API.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+# cbindings have different licences.
+/cbinding/*.h:                          --license-lgpl
+/cbinding/VBoxCAPIGlue.c:               --license-mit
+/cbinding/VBoxCAPIGlue.h.in:            --license-mit --treat-as .h
+/cbinding/makefile.tstCAPIGlue:         --license-mit --treat-as Makefile
+
+# The Python bindings is licensed under dual GPL and CDDL.
+/glue/vboxapi.py:                       --license-ose-dual
+
+# Source dirs.
+--filter-out-files /src-all/VBoxAPI-end.d
+--filter-out-files /src-client/README.testing
+--filter-out-files /src-server/custom.ids
+--filter-out-files /src-server/usb.ids
+
+# IDL and XML
+/idl/VirtualBox.xidl:                   --treat-as .xml
+/idl/VirtualBox.dtd:                    --treat-as .xml
+
+/xml/VirtualBox-settings.xsd:           --treat-as .xml
+--filter-out-files /xml/samples/*.xml
+
+# We don't have any copyright or license in the .cfg and .sif files.
+# Exploint --external-copyright to check that this remains the case.
+# This does not imply anything wrt to the copyright status of the files.
+/UnattendedTemplates/*.cfg:             --external-copyright --treat-as .sh
+/UnattendedTemplates/*.sif:             --external-copyright
+/UnattendedTemplates/*.xml:             --dont-set-svn-eol --no-convert-eol
+
+# The webservice is fun.
+/webservice/Makefile.webtest:           --treat-as Makefile
+--filter-out-files /webservice/types.txt
+--filter-out-files /webservice/MANIFEST.MF.in
+--filter-out-dirs  /webservice/jaxlibs/.
+
+# The webservice samples are MIT and need some hacks to handle unusual file types.
+/webservice/samples/*:                  --license-mit
+/webservice/samples/*/Makefile.glue:    --treat-as Makefile
+/webservice/samples/php/clienttest.php: --treat-as .c
+
+
+# Testcases.
+/testcase/makefile.tstVBoxAPIWin:       --treat-as Makefile
+/testcase/makefile.tstVBoxAPIXPCOM:     --treat-as Makefile
+--filter-out-files /testcase/ovf-dummy.vmdk
+--filter-out-files /testcase/ovf-joomla-0.9/joomla-1.1.4-ovf.ovf
+--filter-out-files /testcase/ovf-winhost-audio-nodisks/WinXP.ovf
+--filter-out-files /testcase/ovf-winxp-vbox-sharedfolders/winxp.ovf
+--filter-out-files /testcase/VBoxVBTest/TestForm.frm
+--filter-out-files /testcase/VBoxVBTest/TestForm.frx
+--filter-out-files /testcase/VBoxVBTest/VBoxVBTest.vbp
+

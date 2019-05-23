@@ -155,38 +155,39 @@ g_apfnStaticTrapHandlersGuest:
 ;
 ALIGNCODE(16)
 BEGINPROC_EXPORTED TRPMGCHandlerGeneric
-%macro TRPMGenericEntry 1
+%macro TRPMGenericEntry 2
+EXPORTEDNAME_EX RT_CONCAT(TRPMRCHandlerAsmTrap,%2), function
     db 06ah, i                          ; push imm8 - note that this is a signextended value.
     jmp   %1
     ALIGNCODE(8)
 %assign i i+1
 %endmacro
 
-%assign i 0                             ; start counter.
-    TRPMGenericEntry GenericTrap        ; 0
-    TRPMGenericEntry GenericTrap        ; 1
-    TRPMGenericEntry GenericTrap        ; 2
-    TRPMGenericEntry GenericTrap        ; 3
-    TRPMGenericEntry GenericTrap        ; 4
-    TRPMGenericEntry GenericTrap        ; 5
-    TRPMGenericEntry GenericTrap        ; 6
-    TRPMGenericEntry GenericTrap        ; 7
-    TRPMGenericEntry GenericTrapErrCode ; 8
-    TRPMGenericEntry GenericTrap        ; 9
-    TRPMGenericEntry GenericTrapErrCode ; a
-    TRPMGenericEntry GenericTrapErrCode ; b
-    TRPMGenericEntry GenericTrapErrCode ; c
-    TRPMGenericEntry GenericTrapErrCode ; d
-    TRPMGenericEntry GenericTrapErrCode ; e
-    TRPMGenericEntry GenericTrap        ; f  (reserved)
-    TRPMGenericEntry GenericTrap        ; 10
-    TRPMGenericEntry GenericTrapErrCode ; 11
-    TRPMGenericEntry GenericTrap        ; 12
-    TRPMGenericEntry GenericTrap        ; 13
-    TRPMGenericEntry GenericTrap        ; 14 (reserved)
-    TRPMGenericEntry GenericTrap        ; 15 (reserved)
-    TRPMGenericEntry GenericTrap        ; 16 (reserved)
-    TRPMGenericEntry GenericTrap        ; 17 (reserved)
+%assign i 0                                     ; start counter.
+    TRPMGenericEntry GenericTrap       , 00     ; 0
+    TRPMGenericEntry GenericTrap       , 01     ; 1
+    TRPMGenericEntry GenericTrap       , 02     ; 2
+    TRPMGenericEntry GenericTrap       , 03     ; 3
+    TRPMGenericEntry GenericTrap       , 04     ; 4
+    TRPMGenericEntry GenericTrap       , 05     ; 5
+    TRPMGenericEntry GenericTrap       , 06     ; 6
+    TRPMGenericEntry GenericTrap       , 07     ; 7
+    TRPMGenericEntry GenericTrapErrCode, 08     ; 8
+    TRPMGenericEntry GenericTrap       , 09     ; 9
+    TRPMGenericEntry GenericTrapErrCode, 0a     ; a
+    TRPMGenericEntry GenericTrapErrCode, 0b     ; b
+    TRPMGenericEntry GenericTrapErrCode, 0c     ; c
+    TRPMGenericEntry GenericTrapErrCode, 0d     ; d
+    TRPMGenericEntry GenericTrapErrCode, 0e     ; e
+    TRPMGenericEntry GenericTrap       , 0f     ; f  (reserved)
+    TRPMGenericEntry GenericTrap       , 10     ; 10
+    TRPMGenericEntry GenericTrapErrCode, 11     ; 11
+    TRPMGenericEntry GenericTrap       , 12     ; 12
+    TRPMGenericEntry GenericTrap       , 13     ; 13
+    TRPMGenericEntry GenericTrap       , 14     ; 14 (reserved)
+    TRPMGenericEntry GenericTrap       , 15     ; 15 (reserved)
+    TRPMGenericEntry GenericTrap       , 16     ; 16 (reserved)
+    TRPMGenericEntry GenericTrap       , 17     ; 17 (reserved)
 %undef i
 %undef TRPMGenericEntry
 
@@ -612,6 +613,8 @@ ALIGNCODE(16)
     cmp     eax, VINF_EM_DBG_HYPER_BREAKPOINT
     je short .rc_to_host
     cmp     eax, VINF_EM_DBG_HYPER_ASSERTION
+    je short .rc_to_host
+    cmp     eax, VINF_EM_RAW_GUEST_TRAP ; Special #DB case, see bugref:9171.
     je short .rc_to_host
     jmp     .rc_abandon_ship
 

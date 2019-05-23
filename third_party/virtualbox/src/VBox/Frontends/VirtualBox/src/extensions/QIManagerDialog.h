@@ -163,6 +163,9 @@ private:
       * @{ */
         /** Holds the widget reference to center Host Network Manager according. */
         QWidget *pCenterWidget;
+
+        /** Holds whether the manager had emitted command to be closed. */
+        bool m_fCloseEmitted;
     /** @} */
 
     /** @name Widget stuff.

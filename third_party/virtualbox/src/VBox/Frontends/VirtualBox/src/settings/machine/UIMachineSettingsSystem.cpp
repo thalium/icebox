@@ -754,6 +754,8 @@ void UIMachineSettingsSystem::prepareTabMotherboard()
             /* We need a little space for the focus rect: */
             m_pLayoutBootOrder->setContentsMargins(3, 3, 3, 3);
             m_pLayoutBootOrder->setSpacing(3);
+#else
+            m_pLayoutBootOrder->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 3);
 #endif
 
             /* Boot-order tree-widget created in the .ui file. */

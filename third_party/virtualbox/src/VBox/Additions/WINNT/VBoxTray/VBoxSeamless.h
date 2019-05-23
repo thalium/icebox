@@ -1,10 +1,10 @@
-/* $Id:  $ */
+/* $Id: VBoxSeamless.h $ */
 /** @file
  * VBoxSeamless - Seamless windows
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -24,5 +24,5 @@ void VBoxSeamlessCheckWindows(bool fForce);
 
 void VBoxSeamlessSetSupported(BOOL fSupported);
 
-#endif /* __VBOXSERVICESEAMLESS__H */
+#endif /* !__VBOXSERVICESEAMLESS__H */
 

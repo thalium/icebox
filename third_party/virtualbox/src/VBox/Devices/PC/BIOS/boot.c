@@ -1,5 +1,10 @@
+/* $Id: boot.c $ */
+/** @file
+ * PC BIOS - ???
+ */
+
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -36,6 +41,15 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  *
+ */
+
+/*
+ * Oracle LGPL Disclaimer: For the avoidance of doubt, except that if any license choice
+ * other than GPL or LGPL is available it will apply instead, Oracle elects to use only
+ * the Lesser General Public License version 2.1 (LGPLv2) at this time for any software where
+ * a choice of LGPL license versions is made available with the language indicating
+ * that LGPLv2 or any later version may be used, or where a choice of which version
+ * of the LGPL is applied is otherwise unspecified.
  */
 
 
@@ -309,7 +323,7 @@ uint32_t BIOSCALL int19_function(uint8_t bseqnr)
     // NB: It is somewhat common for failed OS installs to have the
     // 0x55AA signature and a valid partition table but zeros in the
     // rest of the boot sector. We do a quick check by comparing the first
-    // two words of boot sector; if identical, the boot sector is
+    // and third word of boot sector; if identical, the boot sector is
     // extremely unlikely to be valid.
     if (bootdrv != 0) bootchk = 0;
     else bootchk = 1; /* disable 0x55AA signature check on drive A: */
@@ -320,7 +334,7 @@ uint32_t BIOSCALL int19_function(uint8_t bseqnr)
         bootchk = 1;
 #endif // BX_ELTORITO_BOOT
 
-    if (read_word(bootseg,0) == read_word(bootseg,2)
+    if (read_word(bootseg,0) == read_word(bootseg,4)
       || (bootchk == 0 && read_word(bootseg,0x1fe) != 0xaa55))
     {
         print_boot_failure(bootcd, bootlan, bootdrv, 0, lastdrive);

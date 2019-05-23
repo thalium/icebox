@@ -1,10 +1,26 @@
+# $Id: vbox_accel.te $
+## @file
+# VirtualBox Guest Additions - selinux policy for Redhat/Fedora guests
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
 
 module check 1.0;
 
 require {
-	type xserver_misc_device_t;
-	type xdm_t;
-	class chr_file { open read write };
+        type xserver_misc_device_t;
+        type xdm_t;
+        class chr_file { open read write };
 }
 
 #============= xdm_t ==============

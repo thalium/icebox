@@ -1,7 +1,478 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- Release change log structure
+
+Each release has a matching log of changes which were made for that and
+earlier releases. Earlier releases means anything with a lower number (e.g.
+5.0.18 is lower than 5.1.2) which was released before this one. The log is
+kept in the file doc/manual/user_ChangeLogImpl.xml. Anything worth mentioning,
+particularly new features and fixed bugs, with a trac bug number if possible,
+should be added to the top of the change log (that is, the section for the
+upcoming release) for the branch in which it first appears - stable or
+development - before the next release. If you back-port it to older branches
+please add an entry there too. When a new major release is made, change log
+sections for earlier releases are merged in.
+
+Change log sections are split into two groups: major new features (normally
+only for dot zero releases) and fixes. In addition, the entries in each group
+are ordered as follows:
+
+    VMM-related entries (most important)
+    GUI-related entries (most visible for users)
+    Device-related entries
+    VBoxManage/API/Main-related entries
+    Host-related entries
+    Guest-related entries -->
+
 <chapter> <!-- HACK ALERT! Seems we must have a single top level element for xi:include to work.
                            So, we use chapter and xpointer="xpointer(/chapter/)" with xi:include. -->
+
+   <sect1>
+    <title>Version 5.2.14 (2018-07-02)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>User interface: fixed a segmentation fault when accessing the
+           interface through VNC (bug #16348)</para>
+      </listitem>
+
+
+      <listitem>
+        <para>User interface: X11: handle repeating keys on the host system
+           correctly (bug #1296, previously fixed, 5.1.0 regression)</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: Fixed emulation of the undocumented SALC instruction</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: Fixed emulation of so-called "huge unreal mode" (bug #17744); this
+           in practice only affected Intel CPUs with VT-x without unrestricted
+           execution.</para>
+      </listitem>
+
+      <listitem>
+        <para>Keyboard: The PS/2 keyboard emulation has been corrected to
+           not queue partial scan code sequences (bug #17709); this problem
+           was likely only visible on Linux hosts due to losing the fix for bug #1296</para>
+      </listitem>
+
+      <listitem>
+        <para>Storage: Fixed CUE file support to correct REM keyword parsing
+           (bug #17783)</para>
+      </listitem>
+
+      <listitem>
+        <para>USB: Fixed a problem where the emulated xHCI device under very
+           rare circumstances failed to report an empty isochronous transfer
+           ring error, causing the transfers on the corresponding endpoint to stop.
+           </para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: fixed Linux kernel log flooding (bug #17759)
+           </para>
+      </listitem>
+
+      <listitem>
+        <para>Apple hosts: make kernel driver load with Mac OS Mojave pre-release
+           (bug #17805).
+           </para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: made vboxvideo driver build with kernel
+           4.17 (bug #17801) and with pre-3.14 and EL 7.1 kernels
+           (bug #17771)
+           </para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.12 (2018-05-09)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>VBoxManage: fixed MODIFYVM_AUDIOOUT (bug #17409)</para>
+      </listitem>
+
+      <listitem>
+        <para>Serial: fixed possible data corruption when sending data under
+          certain circumstances</para>
+      </listitem>
+
+      <listitem>
+        <para>Video recording: fixed starting / stopping recording under certain
+          circumstances</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux hosts: support Linux 4.17 changes.  Thank you Larry Finger</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: support Linux 4.16 and EL 7.5 kernels (bugs #17676 and
+          #17678)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: 3D fixes for recent guests (bug #17623)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.10 (2018-04-17)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>VMM: fixed missing NULL pointer check in MMIO code</para>
+      </listitem>
+
+      <listitem>
+        <para>Storage: fixed having multiple NVMe controllers with ICH9 enabled
+           (5.2.0 regression)</para>
+      </listitem>
+
+      <listitem>
+        <para>Network: fixed wireless detection regression when bridging to
+          adapters with unbound IP protocols (bug #17543)</para>
+      </listitem>
+
+      <listitem>
+        <para>Network: fixed VERR_INTNET_FLT_IF_NOT_FOUND when bridging to some
+          adapters on Windows hosts (possibly related bugs #15294, #15060, #13481)</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: fixed interrupt storm in FreeBSD guests with HDA (bug #17219)</para>
+      </listitem>
+
+      <listitem>
+        <para>Keyboard: introduced a small delay to fix old software which expects
+          to be able to read an incoming scan code more than once (bug #17592)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows installer: removed the "Ignore" action in the case the current
+          VBox installation is still running, as the (successful) update will not work
+          until a host reboot is performed</para>
+      </listitem>
+
+      <listitem>
+        <para>NAT: handle <computeroutput>nameserver 0.0.0.0</computeroutput>
+          which is a valid setting (bug #17584)</para>
+      </listitem>
+
+      <listitem>
+        <para>BIOS: INT 15h/87h service must disable A20 gate when done</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Guest Additions: fix a hang starting KDE Plasma</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.8 (2018-02-27)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>VMM: added support for FSGSBASE, PCID, INVPCID CPU features for guests</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: fixed EMM386 issue with detecting suitable page frame base (bug #10022)</para>
+      </listitem>
+
+      <listitem>
+        <para>Front end: Linux: prevent VM window from jumping and auto-resizing to tiny size after resizing it on HiDPI screen</para>
+      </listitem>
+
+      <listitem>
+        <para>Front end: Linux: fixed seamless regression caused by wm_class functionality (bugs #12534, #17304)</para>
+      </listitem>
+
+      <listitem>
+        <para>Front end: switched to https downloads</para>
+      </listitem>
+
+      <listitem>
+        <para>Front end: fixed crash while opening New machine wizard (s.a. forums topic 86592)</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: added support for distinguishing recording sources in the PulseAudio
+          mixer on the host when multiple VMs are running</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: various fixes for the DirectSound backend</para>
+      </listitem>
+
+      <listitem>
+        <para>Video recording: added better file seeking support and fixed playback
+          of recorded files with certain players (e.g. Firefox)</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: various fixes for Windows guest surround setups</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: various fixes for HDA emulation</para>
+      </listitem>
+
+      <listitem>
+        <para>Serial: fixed an issue where the serial port parameters in the emulation
+          and host serial port got out of sync (bug #17116)</para>
+      </listitem>
+
+      <listitem>
+        <para>Storage: fixed overwriting certain INQUIRY data for the DVD/CD drive
+          attached to a AHCI controller</para>
+      </listitem>
+
+      <listitem>
+        <para>Storage: fixed handling VMDK images created by Amazon EC2 VM export</para>
+      </listitem>
+
+      <listitem>
+        <para>Network: fixed PXE boot regression in e1000</para>
+      </listitem>
+
+      <listitem>
+        <para>Network: Added a workaround for older guests which do not enable
+        bus mastering for the virtio PCI device</para>
+      </listitem>
+
+      <listitem>
+        <para>3D: add environment variable to configure presenting 3D content on
+           main thread (see bug #13653)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows hosts: fixed indiscriminate binding of NDIS5 bridged driver,
+          that caused PPPOE malfunction (bugs #16407, #17489)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows guests: fixed incorrect function error when using
+          shared folders in certain applications (bug #14118)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: Linux 4.15 support (bugs #17311, #17320, #17282)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: fixed black screen when 3D enabled in guests
+           (bug #17463, 5.2.6 regression)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: suppress setuid and setgid in shared folders</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.6 (2018-01-15)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>GUI: fixed occasional screen corruption when host screen resolution
+          is changed</para>
+      </listitem>
+
+      <listitem>
+        <para>User interface: increase proposed disk size when creating new VMs
+          for Windows 7 and newer</para>
+      </listitem>
+
+      <listitem>
+        <para>User interface: various improvements for high resolution
+           screens</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: Fixed problems using 256MB VRAM in raw-mode VMs</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: implemented support for audio playback and recording for
+          macOS guests</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: further timing improvements for Windows 10 guests</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux hosts: fixed problem accessing mini-toolbar under
+           XFCE (bug #17280, contributed by Dusan Gallo)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.4 (2017-12-19)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>User interface: Adjusting desktop file for X11 window managers
+          (bug #17312)</para>
+      </listitem>
+
+      <listitem>
+        <para>User interface: various high resolution display adjustments</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: fixed SB16 volume handling (5.2 regression)</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: various fixes</para>
+      </listitem>
+
+      <listitem>
+        <para>USB/OHCI: fixed a problem where OHCI emulation might sporadically drop data transfers</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux hosts: fixed screen corruption when the host screen changes
+          and a virtual machine window is maximized</para>
+      </listitem>
+
+      <listitem>
+        <para>X11 Guest Additions: fixed a hang at the GNOME Shell login screen
+          with 3D enabled (5.2 regression, bugs #17189 and #17190)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.2 (2017-11-22)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>User interface: various improvements for high resolution screens</para>
+      </listitem>
+
+      <listitem>
+        <para>User interface: added functionality to duplicate optical and floppy
+          images</para>
+      </listitem>
+
+      <listitem>
+        <para>User interface: various improvements for the virtual media manager</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM: fixed emulation so that Plan 9 guests can start once more
+          (5.1.0 regression)</para>
+      </listitem>
+
+      <listitem>
+        <para>Storage: fixed regression breaking iSCSI (bug #17196)</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: added HDA support for more exotic guests (e.g. Haiku)</para
+>
+      </listitem>
+
+      <listitem>
+        <para>Serial: fixed hanging I/O when using named pipes on Windows
+          (5.2.0 regression; bug #17227)</para>
+      </listitem>
+
+      <listitem>
+        <para>Serial: fixed broken communication with certain devices on Linux
+          hosts</para>
+      </listitem>
+
+      <listitem>
+        <para>USB/OHCI: improved behavior so that the controller state after a VM reset
+           is closer to the initial state after VM start</para>
+      </listitem>
+
+      <listitem>
+        <para>EFI: fixed HFS+ driver which in rare cases failed to access most files
+          on a volume</para>
+      </listitem>
+
+      <listitem>
+        <para>Shared clipboard: fixed hang with OS X host and Linux guest
+         (bug #15782)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux hosts: fixed kernel module compilation and start failures
+          with Linux kernel 4.14 (bug #17267)</para>
+      </listitem>
+
+      <listitem>
+        <para>X11 hosts: better handle WM_CLASS setting (bug #12534)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: fixed kernel module compilation and other problems
+         with Linux kernel 4.14 (bug #12534)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: fixed kernel module compilation and other problems
+         with Linux kernel 4.14</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: fixed various 5.2.0 regressions (bug #17163)</para>
+      </listitem>
+
+      <listitem>
+        <para>Bridged networking: fixed duplicate EtherType in VLAN/priority tags
+          on Linux (5.2.0 regression; bug #17277)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
 
   <sect1>
     <title>Version 5.2.0 (2017-10-17)</title>
@@ -168,83 +639,6 @@
   </sect1>
 
   <sect1>
-    <title>Version 5.1.28 (2017-09-13)</title>
-
-    <para>This is a maintenance release. The following items were fixed and/or
-      added:</para>
-
-    <itemizedlist>
-
-      <listitem>
-        <para>GUI: mouse events did not reach host windows behind the transparent
-          VM window (Mac OS X hosts only; bug #16246)</para>
-      </listitem>
-
-      <listitem>
-        <para>Audio: fixed accidental crashes when using the AC'97 sound
-          emulation (bug #16959)</para>
-      </listitem>
-
-      <listitem>
-        <para>Audio: fixed crash when default input or output devices have changed
-          (bugs #16968, #16969, #17004)</para>
-      </listitem>
-      <listitem>
-        <para>Audio: fixed recording when using the ALSA backend</para>
-      </listitem>
-
-      <listitem>
-        <para>Audio: fixed handle leak when using the OSS backend</para>
-      </listitem>
-
-      <listitem>
-        <para>E1000: fixed a crash related to VLAN traffic over internal
-          network (5.1.26 regression; bug #16960)</para>
-      </listitem>
-
-      <listitem>
-        <para>NAT: apply <emphasis>--natbindip1</emphasis> to TCP connections
-          (bug #16478)</para>
-      </listitem>
-
-      <listitem>
-        <para>OVF: when importing an appliance with XHCI controller, don't
-          add an OHCI controller</para>
-      </listitem>
-
-      <listitem>
-        <para>Mac OS X hosts: fixed a GUI crash if Spotlight is used from
-          file dialogs (5.1.20 regression; bugs #16935, #16953)</para>
-      </listitem>
-
-      <listitem>
-        <para>Linux hosts: fixed creating fixed sized VDI images
-          (bug #17010)</para>
-      </listitem>
-
-      <listitem>
-        <para>Linux hosts / guests: fixes for Linux 4.4 of openSUSE Leap 42.3
-          (bug #16966)</para>
-      </listitem>
-
-      <listitem>
-        <para>Bridged networking: align outgoing packet at word boundary,
-          preventing Windows host crash in MsLbfoProvider</para>
-      </listitem>
-
-      <listitem>
-        <para>Linux Additions: kernel drm driver support for custom EL7
-          Linux 3.10 kernel</para>
-      </listitem>
-
-      <listitem>
-        <para>Solaris Additions: hide an informational message on the bootup
-          console</para>
-      </listitem>
-
-    </itemizedlist>
-  </sect1>
-  <sect1>
     <title>Version 5.1.30 (2017-10-16)</title>
 
     <para>This is a maintenance release. The following items were fixed and/or
@@ -258,7 +652,7 @@
 
       <listitem>
         <para>GUI: Fixed double mouse cursor when using mouse integration
-          without Guest Additions, actually a Qt 5.6 bug fixed with QT 5.6.3 
+          without Guest Additions, actually a Qt 5.6 bug fixed with QT 5.6.3
           (Mac OS X hosts only; bug #15610)</para>
       </listitem>
 

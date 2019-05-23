@@ -393,7 +393,7 @@ bool UIMachineSettingsGeneral::validate(QList<UIValidationMessage> &messages)
         const CExtPack extPack = vboxGlobal().virtualBox().GetExtensionPackManager().Find(GUI_ExtPackName);
         if (extPack.isNull() || !extPack.GetUsable())
         {
-            message.second << tr("You are trying to encrypt this virtual machine. "
+            message.second << tr("You are trying to enable disk encryption for this virtual machine. "
                                  "However, this requires the <i>%1</i> to be installed. "
                                  "Please install the Extension Pack from the VirtualBox download site.")
                                  .arg(GUI_ExtPackName);
@@ -407,7 +407,7 @@ bool UIMachineSettingsGeneral::validate(QList<UIValidationMessage> &messages)
             m_fEncryptionCipherChanged)
         {
             if (m_pComboCipher->currentIndex() == 0)
-                message.second << tr("Encryption cipher type not specified.");
+                message.second << tr("Disk encryption cipher type not specified.");
             fPass = false;
         }
 
@@ -418,11 +418,11 @@ bool UIMachineSettingsGeneral::validate(QList<UIValidationMessage> &messages)
             m_fEncryptionPasswordChanged)
         {
             if (m_pEditorEncryptionPassword->text().isEmpty())
-                message.second << tr("Encryption password empty.");
+                message.second << tr("Disk encryption password empty.");
             else
             if (m_pEditorEncryptionPassword->text() !=
                 m_pEditorEncryptionPasswordConfirm->text())
-                message.second << tr("Encryption passwords do not match.");
+                message.second << tr("Disk encryption passwords do not match.");
             fPass = false;
         }
     }
@@ -945,4 +945,3 @@ bool UIMachineSettingsGeneral::saveEncryptionData()
     /* Return result: */
     return fSuccess;
 }
-

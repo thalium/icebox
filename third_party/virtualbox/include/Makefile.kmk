@@ -19,7 +19,7 @@
 SUB_DEPTH = ..
 include $(KBUILD_PATH)/subheader.kmk
 
-LIBRARIES += SyntaxVBoxIncludeR3 SyntaxVBoxIncludeR0 SyntaxVBoxIncludeRC
+LIBRARIES += SyntaxVBoxIncludeR3 SyntaxVBoxIncludeR0
 
 # Omit headers that are using C++ features and upsets gcc.
 VBOX_HDRS_CPP_FEATURES := \
@@ -105,6 +105,7 @@ VBOX_HDRS_OMIT := \
 		VBox/VBoxDrvCfg-win.h \
 		VBox/VBoxNetCfg-win.h \
 		VBox/usblib-win.h \
+		VBox/com/microatl.h \
 	,$(VBOX_HDRS_GCC_ONLY)) \
 	\
 	VBox/dbus-calls.h \
@@ -151,7 +152,7 @@ VBOX_HDRS_ALL_RC_C := $(filter-out $(VBOX_HDRS_CPP_FEATURES), $(VBOX_HDRS_ALL_RC
 
 SyntaxVBoxIncludeR3_TEMPLATE = VBOXMAINEXE
 SyntaxVBoxIncludeR3_DEFS = VBOX_WITH_HGCM
-SyntaxVBoxIncludeR3_CDEFS = VBOX_WITHOUT_UNNAMED_UNIONS
+SyntaxVBoxIncludeR3_CDEFS = IPRT_WITHOUT_NAMED_UNIONS_AND_STRUCTS
 SyntaxVBoxIncludeR3_SOURCES := \
 	$(addprefix $(PATH_OBJ)/include/c/,  $(addsuffix .c,  $(basename $(VBOX_HDRS_ALL_R3_C)))) \
 	$(addprefix $(PATH_OBJ)/include/cpp/,$(addsuffix .cpp,$(basename $(VBOX_HDRS_ALL_R3))))
@@ -160,20 +161,22 @@ SyntaxVBoxIncludeR3_CLEAN = $(SyntaxVBoxIncludeR3_SOURCES)
 
 SyntaxVBoxIncludeR0_TEMPLATE = VBoxR0
 SyntaxVBoxIncludeR0_DEFS = VBOX_WITH_HGCM
-SyntaxVBoxIncludeR0_CDEFS = VBOX_WITHOUT_UNNAMED_UNIONS
+SyntaxVBoxIncludeR0_CDEFS = IPRT_WITHOUT_NAMED_UNIONS_AND_STRUCTS
 SyntaxVBoxIncludeR0_SOURCES := \
 	$(addprefix $(PATH_OBJ)/include/c/,  $(addsuffix .c,  $(basename $(VBOX_HDRS_ALL_R0_C)))) \
 	$(addprefix $(PATH_OBJ)/include/cpp/,$(addsuffix .cpp,$(basename $(VBOX_HDRS_ALL_R0))))
 SyntaxVBoxIncludeR0_CLEAN = $(SyntaxVBoxIncludeR0_SOURCES)
 
-SyntaxVBoxIncludeRC_TEMPLATE = VBoxRc
-SyntaxVBoxIncludeRC_DEFS = VBOX_WITH_HGCM
-SyntaxVBoxIncludeRC_CDEFS = VBOX_WITHOUT_UNNAMED_UNIONS
-SyntaxVBoxIncludeRC_SOURCES := \
-	$(addprefix $(PATH_OBJ)/include/c/,  $(addsuffix .c,  $(basename $(VBOX_HDRS_ALL_RC_C)))) \
-	$(addprefix $(PATH_OBJ)/include/cpp/,$(addsuffix .cpp,$(basename $(VBOX_HDRS_ALL_RC))))
-SyntaxVBoxIncludeRC_CLEAN = $(SyntaxVBoxIncludeRC_SOURCES)
-
+ifdef VBOX_WITH_RAW_MODE
+ LIBRARIES += SyntaxVBoxIncludeRC
+ SyntaxVBoxIncludeRC_TEMPLATE = VBoxRc
+ SyntaxVBoxIncludeRC_DEFS = VBOX_WITH_HGCM
+ SyntaxVBoxIncludeRC_CDEFS = IPRT_WITHOUT_NAMED_UNIONS_AND_STRUCTS
+ SyntaxVBoxIncludeRC_SOURCES := \
+ 	$(addprefix $(PATH_OBJ)/include/c/,  $(addsuffix .c,  $(basename $(VBOX_HDRS_ALL_RC_C)))) \
+ 	$(addprefix $(PATH_OBJ)/include/cpp/,$(addsuffix .cpp,$(basename $(VBOX_HDRS_ALL_RC))))
+ SyntaxVBoxIncludeRC_CLEAN = $(SyntaxVBoxIncludeRC_SOURCES)
+endif
 
 
 # Headers that must only be included once.

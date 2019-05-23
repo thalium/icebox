@@ -1391,9 +1391,8 @@ RTDECL(int) RTLocalIpcSessionWrite(RTLOCALIPCSESSION hSession, const void *pvBuf
                     BOOL fRc = ResetEvent(pThis->Write.OverlappedIO.hEvent); Assert(fRc == TRUE);
                     RTCritSectLeave(&pThis->CritSect);
 
-                    fRc = WriteFile(pThis->hNmPipe, pvBuf,
-                                    cbToWrite <= ~(DWORD)0 ? (DWORD)cbToWrite : ~(DWORD)0,
-                                    &cbWritten, &pThis->Write.OverlappedIO);
+                    DWORD const cbToWriteInThisIteration = cbToWrite <= ~(DWORD)0 ? (DWORD)cbToWrite : ~(DWORD)0;
+                    fRc = WriteFile(pThis->hNmPipe, pvBuf, cbToWriteInThisIteration, &cbWritten, &pThis->Write.OverlappedIO);
                     if (fRc)
                         rc = VINF_SUCCESS;
                     else
@@ -1421,6 +1420,9 @@ RTDECL(int) RTLocalIpcSessionWrite(RTLOCALIPCSESSION hSession, const void *pvBuf
                         else
                             rc = RTErrConvertFromWin32(dwErr);
                     }
+
+                    if (cbWritten > cbToWriteInThisIteration) /* paranoia^3 */
+                        cbWritten = cbToWriteInThisIteration;
 
                     RTCritSectEnter(&pThis->CritSect);
                     if (RT_FAILURE(rc))

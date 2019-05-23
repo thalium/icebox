@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -148,7 +148,7 @@ vboxDDUpdateState(GLcontext * ctx, GLuint new_state)
 }
 
 #if 0  /* See comment in vboxdriInitFuncs */
-static void 
+static void
 vboxDDGetBufferSize(GLframebuffer *buffer, GLuint *width, GLuint *height)
 {
     /*do something, note it's obsolete*/
@@ -222,7 +222,7 @@ vboxDDTexImage2D(GLcontext *ctx, GLenum target, GLint level,
                  struct gl_texture_image *texImage)
 {
 }
-   
+
 static void
 vboxDDTexImage3D(GLcontext *ctx, GLenum target, GLint level,
                  GLint internalFormat,
@@ -244,7 +244,7 @@ vboxDDTexSubImage1D(GLcontext *ctx, GLenum target, GLint level,
                     struct gl_texture_image *texImage)
 {
 }
-   
+
 static void
 vboxDDTexSubImage2D(GLcontext *ctx, GLenum target, GLint level,
                     GLint xoffset, GLint yoffset,
@@ -257,7 +257,7 @@ vboxDDTexSubImage2D(GLcontext *ctx, GLenum target, GLint level,
 {
 }
 
-   
+
 static void
 vboxDDTexSubImage3D(GLcontext *ctx, GLenum target, GLint level,
                     GLint xoffset, GLint yoffset, GLint zoffset,
@@ -316,13 +316,13 @@ vboxDDClipPlane(GLcontext *ctx, GLenum plane, const GLfloat *equation)
 {
 }
 
-/*@todo Enable or disable server-side gl capabilities, not related to glEnable? */
+/** @todo Enable or disable server-side gl capabilities, not related to glEnable? */
 static void
 vboxDDEnable(GLcontext *ctx, GLenum cap, GLboolean state)
 {
-    if (state) 
+    if (state)
         cr_glEnable(cap);
-    else 
+    else
         cr_glDisable(cap);
 }
 
@@ -339,46 +339,46 @@ vboxDDTexParameter(GLcontext *ctx, GLenum target,
 {
 }
 
-/*Note, checking glGetError before and after those calls is the only way 
+/*Note, checking glGetError before and after those calls is the only way
  *to return if we succeeded to get value or not, but it will add 2 sync calls and
  *will reset glGetError value returned in case application calls it explicitly
  */
-static GLboolean 
+static GLboolean
 vboxDDGetBooleanv(GLcontext *ctx, GLenum pname, GLboolean *result)
 {
     cr_glGetBooleanv(pname, result);
     return GL_TRUE;
 }
 
-static GLboolean 
+static GLboolean
 vboxDDGetDoublev(GLcontext *ctx, GLenum pname, GLdouble *result)
 {
     cr_glGetDoublev(pname, result);
     return GL_TRUE;
 }
 
-static GLboolean 
+static GLboolean
 vboxDDGetFloatv(GLcontext *ctx, GLenum pname, GLfloat *result)
 {
     cr_glGetFloatv(pname, result);
     return GL_TRUE;
 }
 
-static GLboolean 
+static GLboolean
 vboxDDGetIntegerv(GLcontext *ctx, GLenum pname, GLint *result)
 {
     cr_glGetIntegerv(pname, result);
     return GL_TRUE;
 }
 
-static GLboolean 
+static GLboolean
 vboxDDGetPointerv(GLcontext *ctx, GLenum pname, GLvoid **result)
 {
     cr_glGetPointerv(pname, result);
     return GL_TRUE;
 }
 
-/** @todo 
+/** @todo
  * change stub's createcontext to reuse driver private part of mesa's ctx to store stub ctx info.
  */
 #define VBOX_GL_FUNC(func) vboxDD_gl##func
@@ -527,7 +527,7 @@ vboxdriInitFuncs(struct dd_function_table *driver)
    driver->GetIntegerv = vboxDDGetIntegerv;
    driver->GetPointerv = vboxDDGetPointerv;
 
-/** @todo */   
+/** @todo */
 #if FEATURE_ARB_vertex_buffer_object
    // driver->NewBufferObject = _mesa_new_buffer_object;
    // driver->DeleteBuffer = _mesa_delete_buffer_object;
@@ -776,7 +776,7 @@ static __GLcontextModes *vboxdriFillInModes(unsigned pixel_bits,
 /**
  * This is the driver specific part of the createNewScreen entry point.
  * Called when using legacy DRI.
- * 
+ *
  * return the __GLcontextModes supported by this driver
  */
 static const __DRIconfig **vboxdriInitScreen(__DRIscreenPrivate *psp)
@@ -875,7 +875,7 @@ vboxdriCreateContext(const __GLcontextModes * mesaVis,
     /* Allocate context information for Mesa. */
     if (sharedContextPrivate)
       shareCtx = ((tdfxContextPtr) sharedContextPrivate)->glCtx;
-   else 
+   else
       shareCtx = NULL;
     /** @todo save ctx, or be more confident that we can don't need to. */
     ctx = _mesa_create_context(mesaVis, shareCtx, &functions,
@@ -890,7 +890,7 @@ vboxdriCreateContext(const __GLcontextModes * mesaVis,
      * driParseConfigFiles.  We will probably get any information via guest
      * properties. */
 
-   /* Set various context configuration.  We take these values from the 
+   /* Set various context configuration.  We take these values from the
     * TDFX driver. */
    /** @r=Leonid, stub.spu->dispatch_table.GetIntegerv(GL_MAX_TEXTURE_UNITS_ARB,&value) etc.
     * Those would be cached where possible, see include/state/cr_limits.h, VBoxOGLgen/packspu_get.c

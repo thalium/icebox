@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -5135,6 +5135,13 @@ static void lsilogicR3SuspendOrPowerOff(PPDMDEVINS pDevIns)
         ASMAtomicWriteBool(&pThis->fSignalIdle, false);
 
         AssertMsg(!pThis->fNotificationSent, ("The PDM Queue should be empty at this point\n"));
+    }
+
+    for (uint32_t i = 0; i < pThis->cDeviceStates; i++)
+    {
+        PLSILOGICDEVICE pThisDevice = &pThis->paDeviceStates[i];
+        if (pThisDevice->pDrvMediaEx)
+            pThisDevice->pDrvMediaEx->pfnNotifySuspend(pThisDevice->pDrvMediaEx);
     }
 }
 

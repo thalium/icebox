@@ -265,14 +265,23 @@ ifdef VBOX_GSOAP_INSTALLED
 	$(VBOXWEB_OUT_DIR)/soapC-17.cpp \
 	$(VBOXWEB_OUT_DIR)/soapC-18.cpp \
 	$(VBOXWEB_OUT_DIR)/soapC-19.cpp \
-	$(VBOXWEB_OUT_DIR)/soapC-20.cpp
+	$(VBOXWEB_OUT_DIR)/soapC-20.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-21.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-22.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-23.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-24.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-25.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-26.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-27.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-28.cpp \
+	$(VBOXWEB_OUT_DIR)/soapC-29.cpp
   vboxsoap_CXXFLAGS += \
   	$(VBOX_GCC_Wno-vla) \
 	$(if-expr $(KBUILD_TARGET) == "win",,-Wno-format) \
   	$(if-expr $(KBUILD_TARGET) == "win",,-Wno-deprecated-declarations)
   endif
   vboxsoap_CLEAN := $(vboxsoap_SOURCES) # lazy bird
-  vboxsoap_SOURCES += \
+  vboxsoap_SOURCES <= \
   	$(VBOX_GSOAP_CXX_SOURCES)
   vboxsoap_ORDERDEPS = \
   	$(VBOXWEB_IDL_SRC) \
@@ -816,9 +825,18 @@ $(VBOXWEB_OUT_DIR)/soapC-1.cpp \
 + $(VBOXWEB_OUT_DIR)/soapC-18.cpp \
 + $(VBOXWEB_OUT_DIR)/soapC-19.cpp \
 + $(VBOXWEB_OUT_DIR)/soapC-20.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-21.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-22.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-23.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-24.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-25.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-26.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-27.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-28.cpp \
++ $(VBOXWEB_OUT_DIR)/soapC-29.cpp \
 : $(VBOXWEB_OUT_DIR)/soapC.cpp $$(split-soapC_1_TARGET) | $$(dir $$@)
 	$(RM) -f -- $(wildcard $(VBOXWEB_OUT_DIR)/soapC-?.cpp $(VBOXWEB_OUT_DIR)/soapC-??.cpp)
-	$(split-soapC_1_TARGET) $(VBOXWEB_OUT_DIR)/soapC.cpp $(VBOXWEB_OUT_DIR) 20
+	$(split-soapC_1_TARGET) $(VBOXWEB_OUT_DIR)/soapC.cpp $(VBOXWEB_OUT_DIR) 29
 endif # !VBOX_WITHOUT_SPLIT_SOAPC
 
 endif # VBOX_GSOAP_INSTALLED

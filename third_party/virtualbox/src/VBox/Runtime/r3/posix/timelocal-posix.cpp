@@ -31,6 +31,8 @@
 #define LOG_GROUP RTLOGGROUP_TIME
 #define RTTIME_INCL_TIMEVAL
 #include <iprt/types.h>
+#include <iprt/assert.h>
+
 #include <sys/time.h>
 #include <time.h>
 
@@ -61,43 +63,86 @@ static int64_t rtTimeLocalUTCOffset(PCRTTIMESPEC pTime, bool fCurrentTime)
         return fCurrentTime ? 0 : rtTimeLocalUTCOffset(RTTimeNow(&Fallback), true);
 
     /*
-     * Explode it as both local and uct time.
+     * Explode it as both local and UTC time.
      */
     struct tm TmLocal;
     if (    !localtime_r(&UnixTime, &TmLocal)
         ||  !TmLocal.tm_year)
         return fCurrentTime ? 0 : rtTimeLocalUTCOffset(RTTimeNow(&Fallback), true);
-    struct tm TmUct;
-    if (!gmtime_r(&UnixTime, &TmUct))
+    struct tm TmUtc;
+    if (!gmtime_r(&UnixTime, &TmUtc))
         return fCurrentTime ? 0 : rtTimeLocalUTCOffset(RTTimeNow(&Fallback), true);
 
     /*
      * Calc the difference (if any).
      * We ASSUME that the difference is less that 24 hours.
      */
-    if (    TmLocal.tm_hour == TmUct.tm_hour
-        &&  TmLocal.tm_min  == TmUct.tm_min
-        &&  TmLocal.tm_sec  == TmUct.tm_sec
-        &&  TmLocal.tm_mday == TmUct.tm_mday)
+    if (    TmLocal.tm_hour == TmUtc.tm_hour
+        &&  TmLocal.tm_min  == TmUtc.tm_min
+        &&  TmLocal.tm_sec  == TmUtc.tm_sec
+        &&  TmLocal.tm_mday == TmUtc.tm_mday)
         return 0;
 
-    int LocalSecs = TmLocal.tm_hour * 3600
-                  + TmLocal.tm_min * 60
-                  + TmLocal.tm_sec;
-    int UctSecs   = TmUct.tm_hour * 3600
-                  + TmUct.tm_min * 60
-                  + TmUct.tm_sec;
-    if (TmLocal.tm_mday != TmUct.tm_mday)
+    int cLocalSecs = TmLocal.tm_hour * 3600
+                   + TmLocal.tm_min * 60
+                   + TmLocal.tm_sec;
+    int cUtcSecs   = TmUtc.tm_hour * 3600
+                   + TmUtc.tm_min * 60
+                   + TmUtc.tm_sec;
+    if (TmLocal.tm_mday != TmUtc.tm_mday)
     {
-        if (    (   TmLocal.tm_mday > TmUct.tm_mday
-                 && TmUct.tm_mday != 1)
-            ||  TmLocal.tm_mday == 1)
-            LocalSecs += 24*60*60;
+        /*
+         * Must add 24 hours to the value that is ahead of the other.
+         *
+         * To determine which is ahead was busted for a long long time (bugref:9078),
+         * so here are some examples and two different approaches.
+         *
+         *  TmLocal              TmUtc              => Add 24:00 to     => Diff
+         *  2007-04-02 01:00     2007-04-01 23:00   => TmLocal          => +02:00
+         *  2007-04-01 01:00     2007-03-31 23:00   => TmLocal          => +02:00
+         *  2007-03-31 01:00     2007-03-30 23:00   => TmLocal          => +02:00
+         *
+         *  2007-04-01 01:00     2007-04-02 23:00   => TmUtc            => -02:00
+         *  2007-03-31 23:00     2007-04-01 01:00   => TmUtc            => -02:00
+         *  2007-03-30 23:00     2007-03-31 01:00   => TmUtc            => -02:00
+         *
+         */
+#if 0
+        /* Using day of month turned out to be a little complicated. */
+        if (   (   TmLocal.tm_mday > TmUtc.tm_mday
+                && (TmUtc.tm_mday != 1 || TmLocal.tm_mday < 28) )
+            || (TmLocal.tm_mday == 1 && TmUtc.tm_mday >= 28) )
+        {
+            cLocalSecs += 24*60*60;
+            Assert(   TmLocal.tm_yday - TmUtc.tm_yday == 1
+                   || (TmLocal.tm_yday == 0 && TmUtc.tm_yday >= 364 && TmLocal.tm_year == TmUtc.tm_year + 1));
+        }
         else
-            UctSecs   += 24*60*60;
+        {
+            cUtcSecs   += 24*60*60;
+            Assert(   TmUtc.tm_yday - TmLocal.tm_yday == 1
+                   || (TmUtc.tm_yday == 0 && TmLocal.tm_yday >= 364 && TmUtc.tm_year == TmLocal.tm_year + 1));
+        }
+#else
+        /* Using day of year and year is simpler. */
+        if (   (   TmLocal.tm_year == TmUtc.tm_year
+                && TmLocal.tm_yday > TmUtc.tm_yday)
+            || TmLocal.tm_year > TmUtc.tm_year)
+        {
+            cLocalSecs += 24*60*60;
+            Assert(   TmLocal.tm_yday - TmUtc.tm_yday == 1
+                   || (TmLocal.tm_yday == 0 && TmUtc.tm_yday >= 364 && TmLocal.tm_year == TmUtc.tm_year + 1));
+        }
+        else
+        {
+            cUtcSecs   += 24*60*60;
+            Assert(   TmUtc.tm_yday - TmLocal.tm_yday == 1
+                   || (TmUtc.tm_yday == 0 && TmLocal.tm_yday >= 364 && TmUtc.tm_year == TmLocal.tm_year + 1));
+        }
+#endif
     }
 
-    return (LocalSecs - UctSecs) * INT64_C(1000000000);
+    return (cLocalSecs - cUtcSecs) * INT64_C(1000000000);
 }
 
 
@@ -128,10 +173,14 @@ RTDECL(int64_t) RTTimeLocalDeltaNano(void)
 RTDECL(PRTTIME) RTTimeLocalExplode(PRTTIME pTime, PCRTTIMESPEC pTimeSpec)
 {
     RTTIMESPEC LocalTime = *pTimeSpec;
-    RTTimeSpecAddNano(&LocalTime, rtTimeLocalUTCOffset(&LocalTime, true /* current time, skip fallback */));
+    int64_t cNsUtcOffset = rtTimeLocalUTCOffset(&LocalTime, true /* current time, skip fallback */);
+    RTTimeSpecAddNano(&LocalTime, cNsUtcOffset);
     pTime = RTTimeExplode(pTime, &LocalTime);
     if (pTime)
+    {
         pTime->fFlags = (pTime->fFlags & ~RTTIME_FLAGS_TYPE_MASK) | RTTIME_FLAGS_TYPE_LOCAL;
+        pTime->offUTC = cNsUtcOffset / RT_NS_1MIN;
+    }
     return pTime;
 }
 

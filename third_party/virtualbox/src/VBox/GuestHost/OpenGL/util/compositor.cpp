@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,15 +15,16 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include "../include/cr_compositor.h"
 
 
-/*******************************************************************************
-*   Defined Constants And Macros                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
 #define VBOXVR_SCR_COMPOSITOR_RECTS_UNDEFINED UINT32_MAX
 #ifdef IN_VMSVGA3D
 # define WARN AssertMsgFailed
@@ -513,7 +514,7 @@ VBOXVREGDECL(int) CrVrScrCompositorEntryRegionsSet(PVBOXVR_SCR_COMPOSITOR pCompo
                                                    PCRTPOINT pPos, uint32_t cRegions, PCRTRECT paRegions,
                                                    bool fPosRelated, bool *pfChanged)
 {
-    /* @todo: the fChanged sate calculation is really rough now, this is enough for now though */
+    /** @todo the fChanged sate calculation is really rough now, this is enough for now though */
     bool fChanged = false, fPosChanged = false;
     bool fWasInList = CrVrScrCompositorEntryIsInList(pEntry);
     RTRECT *paTranslatedRects = NULL;

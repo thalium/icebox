@@ -4,7 +4,7 @@
 ;
 
 ;
-; Copyright (C) 2006-2016 Oracle Corporation
+; Copyright (C) 2006-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as
 ; available from http://www.virtualbox.org. This file is free software;
@@ -27,7 +27,7 @@
 [Version]
 Signature="$Windows NT$"
 Class=System
-ClassGuid={ce4a90b5-1d8c-435d-b349-232ce55cb17f}
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
 Provider=%ORACLE%
 ;edit-DriverVer=08/26/2008,2.00.0000
 DriverPackageType=KernelService
@@ -36,23 +36,34 @@ DriverPackageType=KernelService
 [DestinationDirs]
 DefaultDestDir = 12
 
-[DefaultInstall]
-CopyFiles=VBoxDrv.CopyFiles
+[DefaultInstall@DOT-NT-ARCH@]
+CopyFiles=VBoxDrv_CopyFiles
 
-[DefaultInstall.Services]
+[DefaultInstall@DOT-NT-ARCH@.Services]
 AddService=VBoxDrv,0x00000002,VBoxDrv_Service
 
-[Manufacturer]
-;x86 %ORACLE%=ORACLE
-;amd64 %ORACLE%=ORACLE, NTamd64
+;; This doesn't actually work either (see VBoxUSBMon), though it triggers in the
+;; installer rather at manual installation on my test system (could be polluted & confused).
+;; [Manufacturer]
+;; %ORACLE%=Oracle@COMMA-NT-ARCH@
+;;
+;; ; Models section (referenced by [Manufacturer]).
+;; [Oracle@DOT-NT-ARCH@]
+;; %VBoxDrv.DRVDESC%=VBoxDrvInstall,root\VBoxDrv
+;;
+;; [VBoxDrvInstall@DOT-NT-ARCH@]
+;; CopyFiles=VBoxDrv_CopyFiles
+;;
+;; [VBoxDrvInstall@DOT-NT-ARCH@.Services]
+;; AddService=VBoxDrv,0x00000002,VBoxDrv_Service
 
 [SourceDisksFiles]
 VBoxDrv.sys=1
 
 [SourceDisksNames]
-1=%DISK_NAME%,
+1=%VBoxDrv.DSKDESC%,
 
-[VBoxDrv.CopyFiles]
+[VBoxDrv_CopyFiles]
 VBoxDrv.sys
 
 [VBoxDrv_Service]
@@ -67,4 +78,4 @@ ServiceBinary  = %12%\VBoxDrv.sys
 ORACLE = "Oracle Corporation"
 VBoxDrv.SVCDESC = "VirtualBox Service"
 VBoxDrv.DRVDESC = "VirtualBox Driver"
-DISK_NAME = "VirtualBox Driver Installation Disk"
+VBoxDrv.DSKDESC = "VirtualBox Driver Installation Disk"

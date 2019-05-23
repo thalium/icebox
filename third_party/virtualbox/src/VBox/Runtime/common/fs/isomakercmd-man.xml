@@ -21,11 +21,11 @@
     You may elect to license modified versions of this file under the
     terms and conditions of either the GPL or the CDDL or both.
  -->
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <refentry id="viso" lang="en">
 
   <refentryinfo>
-    <pubdate>$Date: 2017-10-17 16:21:35 +0200 (Tue, 17 Oct 2017) $</pubdate>
+    <pubdate>$Date: 2017-11-09 19:13:13 +0100 (Thu, 09 Nov 2017) $</pubdate>
     <title>VISO file format / RTIsoMaker</title>
   </refentryinfo>
 

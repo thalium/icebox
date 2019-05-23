@@ -54,7 +54,7 @@ RT_C_DECLS_END
         if (size != sizeof(type)) \
         { \
             printf("error! sizeof(%s): %#x (%d)  Off by %d!! (expected %#x)\n", \
-                   #type, (int)sizeof(type), (int)sizeof(type), (int)(sizeof(type) - size), (int)size); \
+                   #type, (int)sizeof(type), (int)sizeof(type), (int)sizeof(type) - (int)size, (int)size); \
             rc++; \
         } \
         else \

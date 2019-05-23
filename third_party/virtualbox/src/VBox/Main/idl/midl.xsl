@@ -68,7 +68,7 @@ import "unknwn.idl";
 </xsl:text>
   <xsl:apply-templates/>
 </xsl:template>
-    
+
 
 <!--
  *  ignore all |if|s except those for MIDL target
@@ -218,7 +218,7 @@ import "unknwn.idl";
 <xsl:template match="interface" name="template_interface">[
     uuid(<xsl:value-of select="@uuid"/>),
     object,
-    dual,
+<xsl:if test="not(@notdual = 'yes')">    dual,</xsl:if>
     oleautomation
 <xsl:if test="$g_fGenProxy = 'yes'">
   <!-- Indicates to the typelib that we are using a proxy stub DLL and that interfaces
@@ -231,6 +231,7 @@ import "unknwn.idl";
   <xsl:value-of select="$name"/>
   <xsl:text> : </xsl:text>
   <xsl:choose>
+    <xsl:when test="(@extends = '$unknown') and (@notdual = 'yes')">IUnknown</xsl:when>
     <xsl:when test="@extends='$unknown'">IDispatch</xsl:when>
     <xsl:when test="@extends='$errorinfo'">IErrorInfo</xsl:when>
     <!-- TODO/FIXME/BUGBUG: The above $errorinfo value causes the following warning (/W4):
@@ -881,28 +882,28 @@ warning MIDL2460 : dual interface should be derived from IDispatch : IVirtualBox
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
-    
-    
+
+
 <!-- Filters for switch on/off VBoxSDS definitions -->
-  
+
 <xsl:template match="application[@uuid='ec0e78e8-fa43-43e8-ac0a-02c784c4a4fa']//module/class" >
     <xsl:if test="$g_fVBoxWithSDS='yes'" >
         <xsl:call-template name="template_class" />
     </xsl:if>
 </xsl:template>
-    
-<xsl:template match="application[@uuid='ec0e78e8-fa43-43e8-ac0a-02c784c4a4fa']/if//interface 
+
+<xsl:template match="application[@uuid='ec0e78e8-fa43-43e8-ac0a-02c784c4a4fa']/if//interface
                                 | application[@uuid='ec0e78e8-fa43-43e8-ac0a-02c784c4a4fa']//interface" >
     <xsl:if test="$g_fVBoxWithSDS='yes'" >
         <xsl:call-template name="template_interface" />
     </xsl:if>
 </xsl:template>
-    
+
 <xsl:template match="application[@uuid='ec0e78e8-fa43-43e8-ac0a-02c784c4a4fa']//interface" mode="forward" >
     <xsl:if test="$g_fVBoxWithSDS='yes'" >
         <xsl:call-template name="template_interface_forward" />
     </xsl:if>
 </xsl:template>
-      
+
 
 </xsl:stylesheet>

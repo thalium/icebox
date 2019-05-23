@@ -1572,6 +1572,67 @@
 #endif
 
 
+/** @name Untrusted data classifications.
+ * @{ */
+/** @def RT_UNTRUSTED_USER
+ * For marking non-volatile (race free) data from user mode as untrusted.
+ * This is just for visible documentation. */
+#define RT_UNTRUSTED_USER
+/** @def RT_UNTRUSTED_VOLATILE_USER
+ * For marking volatile data shared with user mode as untrusted.
+ * This is more than just documentation as it specifies the 'volatile' keyword,
+ * because the guest could modify the data at any time. */
+#define RT_UNTRUSTED_VOLATILE_USER              volatile
+
+/** @def RT_UNTRUSTED_GUEST
+ * For marking non-volatile (race free) data from the guest as untrusted.
+ * This is just for visible documentation. */
+#define RT_UNTRUSTED_GUEST
+/** @def RT_UNTRUSTED_VOLATILE_GUEST
+ * For marking volatile data shared with the guest as untrusted.
+ * This is more than just documentation as it specifies the 'volatile' keyword,
+ * because the guest could modify the data at any time. */
+#define RT_UNTRUSTED_VOLATILE_GUEST             volatile
+
+/** @def RT_UNTRUSTED_HOST
+ * For marking non-volatile (race free) data from the host as untrusted.
+ * This is just for visible documentation. */
+#define RT_UNTRUSTED_HOST
+/** @def RT_UNTRUSTED_VOLATILE_HOST
+ * For marking volatile data shared with the host as untrusted.
+ * This is more than just documentation as it specifies the 'volatile' keyword,
+ * because the host could modify the data at any time. */
+#define RT_UNTRUSTED_VOLATILE_HOST              volatile
+
+/** @def RT_UNTRUSTED_HSTGST
+ * For marking non-volatile (race free) data from the host/gust as untrusted.
+ * This is just for visible documentation. */
+#define RT_UNTRUSTED_HSTGST
+/** @def RT_UNTRUSTED_VOLATILE_HSTGST
+ * For marking volatile data shared with the host/guest as untrusted.
+ * This is more than just documentation as it specifies the 'volatile' keyword,
+ * because the host could modify the data at any time. */
+#define RT_UNTRUSTED_VOLATILE_HSTGST            volatile
+/** @} */
+
+/** @name Fences for use when handling untrusted data.
+ * @{ */
+/** For use after copying untruated volatile data to a non-volatile location.
+ * This translates to a compiler memory barrier and will help ensure that the
+ * compiler uses the non-volatile copy of the data. */
+#define RT_UNTRUSTED_NONVOLATILE_COPY_FENCE()   ASMCompilerBarrier()
+/** For use after finished validating guest input.
+ * What this translates to is architecture dependent.  On intel it will
+ * translate to a CPU load+store fence as well as a compiler memory barrier. */
+#if defined(RT_ARCH_AMD64) || (defined(RT_ARCH_X86) && !defined(RT_WITH_OLD_CPU_SUPPORT))
+# define RT_UNTRUSTED_VALIDATED_FENCE()         do { ASMCompilerBarrier(); ASMReadFence(); } while (0)
+#elif defined(RT_ARCH_X86)
+# define RT_UNTRUSTED_VALIDATED_FENCE()         do { ASMCompilerBarrier(); ASMMemoryFence(); } while (0)
+#else
+# define RT_UNTRUSTED_VALIDATED_FENCE()         do { ASMCompilerBarrier(); } while (0)
+#endif
+/** @} */
+
 
 /** @def RT_LIKELY
  * Give the compiler a hint that an expression is very likely to hold true.
@@ -2391,6 +2452,22 @@
 # define RT_FLEXIBLE_ARRAY_IN_NESTED_UNION      RT_FLEXIBLE_ARRAY_NESTED
 #else
 # define RT_FLEXIBLE_ARRAY_IN_NESTED_UNION      1
+#endif
+
+/** @def RT_UNION_NM
+ * For compilers (like DTrace) that does not grok nameless unions, we have a
+ * little hack to make them palatable.
+ */
+/** @def RT_STRUCT_NM
+ * For compilers (like DTrace) that does not grok nameless structs (it is
+ * non-standard C++), we have a little hack to make them palatable.
+ */
+#ifdef IPRT_WITHOUT_NAMED_UNIONS_AND_STRUCTS
+# define RT_UNION_NM(a_Nm)  a_Nm
+# define RT_STRUCT_NM(a_Nm) a_Nm
+#else
+# define RT_UNION_NM(a_Nm)
+# define RT_STRUCT_NM(a_Nm)
 #endif
 
 /**

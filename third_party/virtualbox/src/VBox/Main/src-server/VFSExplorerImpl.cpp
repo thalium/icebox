@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -284,43 +284,41 @@ HRESULT VFSExplorer::i_updateFS(TaskVFSExplorer *aTask)
     HRESULT rc = S_OK;
 
     std::list<VFSExplorer::Data::DirEntry> fileList;
-    char *pszPath = NULL;
-    PRTDIR pDir = NULL;
-    try
+    RTDIR hDir;
+    int vrc = RTDirOpen(&hDir, m->strPath.c_str());
+    if (RT_SUCCESS(vrc))
     {
-        int vrc = RTDirOpen(&pDir, m->strPath.c_str());
-        if (RT_FAILURE(vrc))
-            throw setError(VBOX_E_FILE_ERROR, tr ("Can't open directory '%s' (%Rrc)"), pszPath, vrc);
-
-        if (aTask->m_ptrProgress)
-            aTask->m_ptrProgress->SetCurrentOperationProgress(33);
-        RTDIRENTRYEX entry;
-        while (RT_SUCCESS(vrc))
+        try
         {
-            vrc = RTDirReadEx(pDir, &entry, NULL, RTFSOBJATTRADD_NOTHING, RTPATH_F_ON_LINK);
-            if (RT_SUCCESS(vrc))
+            if (aTask->m_ptrProgress)
+                aTask->m_ptrProgress->SetCurrentOperationProgress(33);
+            RTDIRENTRYEX entry;
+            while (RT_SUCCESS(vrc))
             {
-                Utf8Str name(entry.szName);
-                if (   name != "."
-                    && name != "..")
-                    fileList.push_back(VFSExplorer::Data::DirEntry(name, i_iprtToVfsObjType(entry.Info.Attr.fMode),
-                                       entry.Info.cbObject,
-                                       entry.Info.Attr.fMode & (RTFS_UNIX_IRWXU | RTFS_UNIX_IRWXG | RTFS_UNIX_IRWXO)));
+                vrc = RTDirReadEx(hDir, &entry, NULL, RTFSOBJATTRADD_NOTHING, RTPATH_F_ON_LINK);
+                if (RT_SUCCESS(vrc))
+                {
+                    Utf8Str name(entry.szName);
+                    if (   name != "."
+                        && name != "..")
+                        fileList.push_back(VFSExplorer::Data::DirEntry(name, i_iprtToVfsObjType(entry.Info.Attr.fMode),
+                                           entry.Info.cbObject,
+                                           entry.Info.Attr.fMode & (RTFS_UNIX_IRWXU | RTFS_UNIX_IRWXG | RTFS_UNIX_IRWXO)));
+                }
             }
+            if (aTask->m_ptrProgress)
+                aTask->m_ptrProgress->SetCurrentOperationProgress(66);
         }
-        if (aTask->m_ptrProgress)
-            aTask->m_ptrProgress->SetCurrentOperationProgress(66);
-    }
-    catch(HRESULT aRC)
-    {
-        rc = aRC;
-    }
+        catch (HRESULT aRC)
+        {
+            rc = aRC;
+        }
 
-    /* Clean up */
-    if (pszPath)
-        RTStrFree(pszPath);
-    if (pDir)
-        RTDirClose(pDir);
+        /* Clean up */
+        RTDirClose(hDir);
+    }
+    else
+        rc = setError(VBOX_E_FILE_ERROR, tr ("Can't open directory '%s' (%Rrc)"), m->strPath.c_str(), vrc);
 
     if (aTask->m_ptrProgress)
         aTask->m_ptrProgress->SetCurrentOperationProgress(99);

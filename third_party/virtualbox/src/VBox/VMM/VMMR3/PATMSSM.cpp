@@ -1502,7 +1502,7 @@ static int patmCorrectFixup(PVM pVM, unsigned uVersion, PATM &patmInfo, PPATCHIN
                 rc = PGMR3HandlerVirtualRegister(pVM, VMMGetCpu(pVM), pVM->patm.s.hMonitorPageType,
                                                  pPage,
                                                  pPage + (PAGE_SIZE - 1) /* inclusive! */,
-                                                 (void *)(uintptr_t)pPage, pPage, NULL /*pszDesc*/);
+                                                 (void *)(uintptr_t)pPage, NIL_RTRCPTR /*pvUserRC*/, NULL /*pszDesc*/);
                 Assert(RT_SUCCESS(rc) || rc == VERR_PGM_HANDLER_VIRTUAL_CONFLICT);
             }
             else

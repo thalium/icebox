@@ -4512,7 +4512,7 @@ DECLINLINE(int) PDMDevHlpSSMRegister(PPDMDEVINS pDevIns, uint32_t uVersion, size
  * @param   pfnLoadExec         Execute load callback, optional.
  */
 DECLINLINE(int) PDMDevHlpSSMRegister3(PPDMDEVINS pDevIns, uint32_t uVersion, size_t cbGuess,
-                                      FNSSMDEVLIVEEXEC pfnLiveExec, PFNSSMDEVSAVEEXEC pfnSaveExec, PFNSSMDEVLOADEXEC pfnLoadExec)
+                                      PFNSSMDEVLIVEEXEC pfnLiveExec, PFNSSMDEVSAVEEXEC pfnSaveExec, PFNSSMDEVLOADEXEC pfnLoadExec)
 {
     return pDevIns->pHlpR3->pfnSSMRegister(pDevIns, uVersion, cbGuess, NULL /*pszBefore*/,
                                               NULL /*pfnLivePrep*/, pfnLiveExec,  NULL /*pfnLiveDone*/,

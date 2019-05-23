@@ -243,14 +243,18 @@ int pdmR3DevInit(PVM pVM)
     Assert(i == cDevs);
 
     /*
-     * Sort the device array ascending on u32Order. (bubble)
+     * Sort (bubble) the device array ascending on u32Order and instance number
+     * for a device.
      */
     unsigned c = cDevs - 1;
     while (c)
     {
         unsigned j = 0;
         for (i = 0; i < c; i++)
-            if (paDevs[i].u32Order > paDevs[i + 1].u32Order)
+            if (   paDevs[i].u32Order > paDevs[i + 1].u32Order
+                || (   paDevs[i].u32Order  == paDevs[i + 1].u32Order
+                    && paDevs[i].iInstance >  paDevs[i + 1].iInstance
+                    && paDevs[i].pDev      == paDevs[i + 1].pDev) )
             {
                 paDevs[cDevs] = paDevs[i + 1];
                 paDevs[i + 1] = paDevs[i];

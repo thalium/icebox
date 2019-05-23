@@ -302,14 +302,14 @@ static int usbTestDeviceQueryBusAndDevId(uint16_t *pu16BusId, uint16_t *pu16DevI
 
 #define USBTEST_USB_DEV_SYSFS "/sys/bus/usb/devices/"
 
-    PRTDIR pDirUsb = NULL;
-    int rc = RTDirOpen(&pDirUsb, USBTEST_USB_DEV_SYSFS);
+    RTDIR hDirUsb = NULL;
+    int rc = RTDirOpen(&hDirUsb, USBTEST_USB_DEV_SYSFS);
     if (RT_SUCCESS(rc))
     {
         do
         {
             RTDIRENTRY DirUsbBus;
-            rc = RTDirRead(pDirUsb, &DirUsbBus, NULL);
+            rc = RTDirRead(hDirUsb, &DirUsbBus, NULL);
             if (   RT_SUCCESS(rc)
                 && RTStrNCmp(DirUsbBus.szName, "usb", 3)
                 && RTLinuxSysFsExists(USBTEST_USB_DEV_SYSFS "%s/idVendor", DirUsbBus.szName))
@@ -367,7 +367,7 @@ static int usbTestDeviceQueryBusAndDevId(uint16_t *pu16BusId, uint16_t *pu16DevI
         if (rc == VERR_NO_MORE_FILES)
             rc = VINF_SUCCESS;
 
-        RTDirClose(pDirUsb);
+        RTDirClose(hDirUsb);
     }
 
     if (RT_SUCCESS(rc) && !fFound)
@@ -389,27 +389,27 @@ static char *usbTestFindDevice(void)
      */
     char *pszDevPath = NULL;
 
-    PRTDIR pDirUsb = NULL;
-    int rc = RTDirOpen(&pDirUsb, "/dev/bus/usb");
+    RTDIR hDirUsb = NULL;
+    int rc = RTDirOpen(&hDirUsb, "/dev/bus/usb");
     if (RT_SUCCESS(rc))
     {
         do
         {
             RTDIRENTRY DirUsbBus;
-            rc = RTDirRead(pDirUsb, &DirUsbBus, NULL);
+            rc = RTDirRead(hDirUsb, &DirUsbBus, NULL);
             if (RT_SUCCESS(rc))
             {
                 char aszPath[RTPATH_MAX + 1];
                 RTStrPrintf(&aszPath[0], RT_ELEMENTS(aszPath), "/dev/bus/usb/%s", DirUsbBus.szName);
 
-                PRTDIR pDirUsbBus = NULL;
-                rc = RTDirOpen(&pDirUsbBus, &aszPath[0]);
+                RTDIR hDirUsbBus = NULL;
+                rc = RTDirOpen(&hDirUsbBus, &aszPath[0]);
                 if (RT_SUCCESS(rc))
                 {
                     do
                     {
                         RTDIRENTRY DirUsbDev;
-                        rc = RTDirRead(pDirUsbBus, &DirUsbDev, NULL);
+                        rc = RTDirRead(hDirUsbBus, &DirUsbDev, NULL);
                         if (RT_SUCCESS(rc))
                         {
                             char aszPathDev[RTPATH_MAX + 1];
@@ -440,7 +440,7 @@ static char *usbTestFindDevice(void)
                              && !pszDevPath);
 
                     rc = VINF_SUCCESS;
-                    RTDirClose(pDirUsbBus);
+                    RTDirClose(hDirUsbBus);
                 }
             }
             else if (rc != VERR_NO_MORE_FILES)
@@ -448,7 +448,7 @@ static char *usbTestFindDevice(void)
         } while (   RT_SUCCESS(rc)
                  && !pszDevPath);
 
-        RTDirClose(pDirUsb);
+        RTDirClose(hDirUsb);
     }
 
     return pszDevPath;

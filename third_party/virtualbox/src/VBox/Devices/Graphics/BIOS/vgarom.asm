@@ -37,7 +37,7 @@ include commondefs.inc
 
 public  vgabios_int10_handler
 
-VGAROM	segment	public 'CODE'
+VGAROM  segment public 'CODE'
 
 ; Implemented in C
 extrn   _int10_func:near
@@ -45,19 +45,19 @@ extrn   _vgabios_init_func:near
 
 ifdef VBE
 ; Implemented in separate assembly module
-extrn	vbe_biosfn_return_current_mode:near
-extrn	vbe_biosfn_display_window_control:near
-extrn	vbe_biosfn_set_get_display_start:near
-extrn	vbe_biosfn_set_get_dac_palette_format:near
-extrn	vbe_biosfn_set_get_palette_data:near
-extrn	vbe_biosfn_return_protected_mode_interface:near
+extrn   vbe_biosfn_return_current_mode:near
+extrn   vbe_biosfn_display_window_control:near
+extrn   vbe_biosfn_set_get_display_start:near
+extrn   vbe_biosfn_set_get_dac_palette_format:near
+extrn   vbe_biosfn_set_get_palette_data:near
+extrn   vbe_biosfn_return_protected_mode_interface:near
 endif
 
 ifdef VGA_DEBUG
-extrn	_int10_debugmsg:near
-extrn	_printf:near
-extrn	_unimplemented:near
-extrn	_unknown:near
+extrn   _int10_debugmsg:near
+extrn   _printf:near
+extrn   _unimplemented:near
+extrn   _unknown:near
 endif
 
 vgabios_start:
@@ -70,9 +70,9 @@ vgabios_entry_point:
 
   jmp _vgabios_init_func
 
-	org	1Eh
+        org     1Eh
 
-	db	'IBM',0
+        db      'IBM',0
 
 ;;
 ;;  int10 handled here
@@ -830,7 +830,7 @@ get_dac_16_page:
 ifdef VBOX
   mov   dx, VGAREG_ACTL_RESET
   in    al, dx
-endif ; VBOX 
+endif ; VBOX
   pop   dx
   pop   ax
   ret
@@ -1088,6 +1088,6 @@ msg_alt_dcc:
 db "Alternate Display code (%02x) was discarded", 13, 10, 0
 endif
 
-VGAROM	ends
+VGAROM  ends
 
-	end
+        end

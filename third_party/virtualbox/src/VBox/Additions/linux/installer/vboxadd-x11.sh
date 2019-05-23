@@ -1,10 +1,11 @@
 #! /bin/sh
-#
-# Linux Additions X11 setup init script ($Revision: 117937 $)
+# $Id: vboxadd-x11.sh $
+## @file
+# Linux Additions X11 setup init script ($Revision: 120778 $)
 #
 
 #
-# Copyright (C) 2006-2012 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -331,7 +332,7 @@ setup()
             autokeyboard=""
             case $x_version in
                 6.8.* )
-                    autokeyboard="true"
+                    autokeyboard="--autoKeyboard"
                     ;;
                 4.2.* | 4.3.* )
                     main_cfg="/etc/X11/XF86Config"
@@ -549,6 +550,7 @@ EOF
 
     # Remove other files
     rm /usr/share/xserver-xorg/pci/vboxvideo.ids 2>/dev/null
+    return 0
 }
 
 dmnstatus()

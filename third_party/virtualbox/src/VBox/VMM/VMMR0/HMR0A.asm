@@ -49,6 +49,20 @@
 ; Use define because I'm too lazy to convert the struct.
 %define XMM_OFF_IN_X86FXSTATE   160
 
+;; Spectre filler for 32-bit mode.
+; Some user space address that points to a 4MB page boundrary in hope that it
+; will somehow make it less useful.
+%define SPECTRE_FILLER32        0x227fffff
+;; Spectre filler for 64-bit mode.
+; Choosen to be an invalid address (also with 5 level paging).
+%define SPECTRE_FILLER64        0x02204204207fffff
+;; Spectre filler for the current CPU mode.
+%ifdef RT_ARCH_AMD64
+ %define SPECTRE_FILLER         SPECTRE_FILLER64
+%else
+ %define SPECTRE_FILLER         SPECTRE_FILLER32
+%endif
+
 ;;
 ; Determine skipping restoring of GDTR, IDTR, TR across VMX non-root operation
 ;
@@ -223,6 +237,21 @@
  %define MYPUSHSEGS     MYPUSHSEGS32
  %define MYPOPSEGS      MYPOPSEGS32
 %endif
+
+;;
+; Creates an indirect branch prediction barrier on CPUs that need and supports that.
+; @clobbers eax, edx, ecx
+; @param    1   How to address CPUMCTX.
+; @param    2   Which flag to test for (CPUMCTX_WSF_IBPB_ENTRY or CPUMCTX_WSF_IBPB_EXIT)
+%macro INDIRECT_BRANCH_PREDICTION_BARRIER 2
+    test    byte [%1 + CPUMCTX.fWorldSwitcher], %2
+    jz      %%no_indirect_branch_barrier
+    mov     ecx, MSR_IA32_PRED_CMD
+    mov     eax, MSR_IA32_PRED_CMD_F_IBPB
+    xor     edx, edx
+    wrmsr
+%%no_indirect_branch_barrier:
+%endmacro
 
 
 ;*********************************************************************************************************************************
@@ -1184,11 +1213,17 @@ ENDPROC   hmR0SVMRunWrapXMM
  %endif
 
     mov     [ss:xDI + CPUMCTX.eax], eax
+    mov     xAX, SPECTRE_FILLER
     mov     [ss:xDI + CPUMCTX.ebx], ebx
+    mov     xBX, xAX
     mov     [ss:xDI + CPUMCTX.ecx], ecx
+    mov     xCX, xAX
     mov     [ss:xDI + CPUMCTX.edx], edx
+    mov     xDX, xAX
     mov     [ss:xDI + CPUMCTX.esi], esi
+    mov     xSI, xAX
     mov     [ss:xDI + CPUMCTX.ebp], ebp
+    mov     xBP, xAX
     mov     xAX, cr2
     mov     [ss:xDI + CPUMCTX.cr2], xAX
 
@@ -1198,6 +1233,9 @@ ENDPROC   hmR0SVMRunWrapXMM
  %else
     pop     dword [ss:xDI + CPUMCTX.edi]        ; The guest edi we pushed above.
  %endif
+
+    ; Fight spectre.
+    INDIRECT_BRANCH_PREDICTION_BARRIER ss:xDI, CPUMCTX_WSF_IBPB_EXIT
 
  %ifndef VMX_SKIP_TR
     ; Restore TSS selector; must mark it as not busy before using ltr (!)
@@ -1415,6 +1453,9 @@ ALIGN(16)
     ; Note: assumes success!
     ; Don't mess with ESP anymore!!!
 
+    ; Fight spectre.
+    INDIRECT_BRANCH_PREDICTION_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY
+
     ; Load guest general purpose registers.
     mov     eax, [xSI + CPUMCTX.eax]
     mov     ebx, [xSI + CPUMCTX.ebx]
@@ -1489,24 +1530,41 @@ ENDPROC VMXR0StartVM32
  %endif
 
     mov     qword [xDI + CPUMCTX.eax], rax
+    mov     rax, SPECTRE_FILLER64
     mov     qword [xDI + CPUMCTX.ebx], rbx
+    mov     rbx, rax
     mov     qword [xDI + CPUMCTX.ecx], rcx
+    mov     rcx, rax
     mov     qword [xDI + CPUMCTX.edx], rdx
+    mov     rdx, rax
     mov     qword [xDI + CPUMCTX.esi], rsi
+    mov     rsi, rax
     mov     qword [xDI + CPUMCTX.ebp], rbp
+    mov     rbp, rax
     mov     qword [xDI + CPUMCTX.r8],  r8
+    mov     r8, rax
     mov     qword [xDI + CPUMCTX.r9],  r9
+    mov     r9, rax
     mov     qword [xDI + CPUMCTX.r10], r10
+    mov     r10, rax
     mov     qword [xDI + CPUMCTX.r11], r11
+    mov     r11, rax
     mov     qword [xDI + CPUMCTX.r12], r12
+    mov     r12, rax
     mov     qword [xDI + CPUMCTX.r13], r13
+    mov     r13, rax
     mov     qword [xDI + CPUMCTX.r14], r14
+    mov     r14, rax
     mov     qword [xDI + CPUMCTX.r15], r15
+    mov     r15, rax
     mov     rax, cr2
     mov     qword [xDI + CPUMCTX.cr2], rax
 
     pop     xAX                                 ; The guest rdi we pushed above
     mov     qword [xDI + CPUMCTX.edi], rax
+
+    ; Fight spectre.
+    INDIRECT_BRANCH_PREDICTION_BARRIER xDI, CPUMCTX_WSF_IBPB_EXIT
 
  %ifndef VMX_SKIP_TR
     ; Restore TSS selector; must mark it as not busy before using ltr (!)
@@ -1704,6 +1762,9 @@ ALIGN(16)
     ; Note: assumes success!
     ; Don't mess with ESP anymore!!!
 
+    ; Fight spectre.
+    INDIRECT_BRANCH_PREDICTION_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY
+
     ; Load guest general purpose registers.
     mov     rax, qword [xSI + CPUMCTX.eax]
     mov     rbx, qword [xSI + CPUMCTX.ebx]
@@ -1832,6 +1893,9 @@ BEGINPROC SVMR0VMRun
     push    xAX                                     ; save for the vmload after vmrun
     vmsave
 
+    ; Fight spectre.
+    INDIRECT_BRANCH_PREDICTION_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY
+
     ; Setup xAX for VMLOAD.
     mov     xAX, [xBP + xCB * 2 + RTHCPHYS_CB]      ; HCPhysVmcb (64 bits physical address; x86: take low dword only)
 
@@ -1869,11 +1933,20 @@ BEGINPROC SVMR0VMRun
     pop     xAX
 
     mov     [ss:xAX + CPUMCTX.ebx], ebx
+    mov     xBX, SPECTRE_FILLER
     mov     [ss:xAX + CPUMCTX.ecx], ecx
+    mov     xCX, xBX
     mov     [ss:xAX + CPUMCTX.edx], edx
+    mov     xDX, xBX
     mov     [ss:xAX + CPUMCTX.esi], esi
+    mov     xSI, xBX
     mov     [ss:xAX + CPUMCTX.edi], edi
+    mov     xDI, xBX
     mov     [ss:xAX + CPUMCTX.ebp], ebp
+    mov     xBP, xBX
+
+    ; Fight spectre.  Note! Trashes xAX!
+    INDIRECT_BRANCH_PREDICTION_BARRIER ss:xAX, CPUMCTX_WSF_IBPB_EXIT
 
     ; Restore the host xcr0 if necessary.
     pop     xCX
@@ -1977,6 +2050,9 @@ BEGINPROC SVMR0VMRun64
     push    rax                                     ; save for the vmload after vmrun
     vmsave
 
+    ; Fight spectre.
+    INDIRECT_BRANCH_PREDICTION_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY
+
     ; Setup rax for VMLOAD.
     mov     rax, [rbp + xCB * 2 + RTHCPHYS_CB]      ; HCPhysVmcb (64 bits physical address; take low dword only)
 
@@ -2021,19 +2097,36 @@ BEGINPROC SVMR0VMRun64
     pop     rax
 
     mov     qword [rax + CPUMCTX.ebx], rbx
+    mov     rbx, SPECTRE_FILLER64
     mov     qword [rax + CPUMCTX.ecx], rcx
+    mov     rcx, rbx
     mov     qword [rax + CPUMCTX.edx], rdx
+    mov     rdx, rbx
     mov     qword [rax + CPUMCTX.esi], rsi
+    mov     rsi, rbx
     mov     qword [rax + CPUMCTX.edi], rdi
+    mov     rdi, rbx
     mov     qword [rax + CPUMCTX.ebp], rbp
+    mov     rbp, rbx
     mov     qword [rax + CPUMCTX.r8],  r8
+    mov     r8, rbx
     mov     qword [rax + CPUMCTX.r9],  r9
+    mov     r9, rbx
     mov     qword [rax + CPUMCTX.r10], r10
+    mov     r10, rbx
     mov     qword [rax + CPUMCTX.r11], r11
+    mov     r11, rbx
     mov     qword [rax + CPUMCTX.r12], r12
+    mov     r12, rbx
     mov     qword [rax + CPUMCTX.r13], r13
+    mov     r13, rbx
     mov     qword [rax + CPUMCTX.r14], r14
+    mov     r14, rbx
     mov     qword [rax + CPUMCTX.r15], r15
+    mov     r15, rbx
+
+    ; Fight spectre.  Note! Trashes rax!
+    INDIRECT_BRANCH_PREDICTION_BARRIER rax, CPUMCTX_WSF_IBPB_EXIT
 
     ; Restore the host xcr0 if necessary.
     pop     xCX

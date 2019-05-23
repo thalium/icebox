@@ -82,7 +82,7 @@
             <xsl:call-template name="application_template" />
         </xsl:if>
     </xsl:template>
-    
+
     <!--
     * applications
     -->
@@ -104,7 +104,7 @@
             </xsl:choose>
         </AppId>
     </xsl:template>
-    
+
 
 <!--
  *  classes

@@ -1,10 +1,11 @@
 /* $Id: TestVBox.java $ */
-
-/* Small sample/testcase which demonstrates that the same source code can
- * be used to connect to the webservice and (XP)COM APIs. */
+/*! file
+ * Small sample/testcase which demonstrates that the same source code can
+ * be used to connect to the webservice and (XP)COM APIs.
+ */
 
 /*
- * Copyright (C) 2010-2015 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -14,6 +15,7 @@
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
+
 import org.virtualbox_5_0.*;
 import java.util.List;
 import java.util.Arrays;
@@ -140,7 +142,7 @@ public class TestVBox
         IMachine m = vbox.getMachines().get(0);
         String name = m.getName();
         System.out.println("\nAttempting to start VM '" + name + "'");
-        
+
         ISession session = mgr.getSessionObject();
         IProgress p = m.launchVMProcess(session, "gui", "");
         progressBar(mgr, p, 10000);

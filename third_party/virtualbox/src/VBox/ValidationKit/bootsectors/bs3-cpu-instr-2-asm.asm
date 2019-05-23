@@ -60,4 +60,3 @@ BS3_PROC_END   _bs3CpuInstr2_imul_bl_ud2
 BS3_INSTANTIATE_COMMON_TEMPLATE          "bs3-cpu-instr-2-template.mac"
 BS3_INSTANTIATE_TEMPLATE_WITH_WEIRD_ONES "bs3-cpu-instr-2-template.mac"
 
-

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -122,6 +122,14 @@ void UIWizardImportAppPageBasic2::initializePage()
 {
     /* Acquire appliance and certificate: */
     CAppliance *pAppliance = m_pApplianceWidget->appliance();
+    /* Check if pAppliance is alive. If not just return here. This
+       prevents crashes when an invalid ova file is supllied: */
+    if (!pAppliance)
+    {
+        if (wizard())
+            wizard()->reject();
+        return;
+    }
     CCertificate certificate = pAppliance->GetCertificate();
     if (certificate.isNull())
         m_enmCertText = kCertText_Unsigned;

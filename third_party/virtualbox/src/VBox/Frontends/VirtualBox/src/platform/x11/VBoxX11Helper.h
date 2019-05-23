@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -42,6 +42,7 @@ void X11ScreenSaverSettingsInit();
 void X11ScreenSaverSettingsSave();
 /** X11: Restores previously saved screen saver settings. */
 void X11ScreenSaverSettingsRestore();
+/** X11: Returns true if XLib extension with name @p extensionName is avaible, false otherwise. */
+bool X11CheckExtension(const char *extensionName);
 
 #endif /* !___VBoxX11Helpers_h___ */
-

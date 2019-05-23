@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -139,6 +139,7 @@ const char* UIExtraDataDefs::GUI_Seamless = "GUI/Seamless";
 const char* UIExtraDataDefs::GUI_Scale = "GUI/Scale";
 #ifdef VBOX_WS_X11
 const char* UIExtraDataDefs::GUI_Fullscreen_LegacyMode = "GUI/Fullscreen/LegacyMode";
+const char* UIExtraDataDefs::GUI_DistinguishMachineWindowGroups = "GUI/DistinguishMachineWindowGroups";
 #endif /* VBOX_WS_X11 */
 const char* UIExtraDataDefs::GUI_AutoresizeGuest = "GUI/AutoresizeGuest";
 const char* UIExtraDataDefs::GUI_LastVisibilityStatusForGuestScreen = "GUI/LastVisibilityStatusForGuestScreen";

@@ -86,7 +86,7 @@ GetExtensions(void)
         ext = crStateMergeExtensions(1, &extensions);
 
 #ifdef Linux
-        /*@todo
+        /** @todo
          *That's a hack to allow running Unity, it uses libnux which is calling extension functions
          *without checking if it's being supported/exported.
          *glActiveStencilFaceEXT seems to be actually supported but the extension string isn't exported (for ex. on ATI HD4870),
@@ -122,7 +122,7 @@ const GLubyte * PACKSPU_APIENTRY packspu_GetString( GLenum name )
             if (packspuRunningUnderWine())
             {
                 GetString(GL_REAL_VERSION, ctx->pszRealVersion);
-                return ctx->pszRealVersion;               
+                return ctx->pszRealVersion;
             }
             else
 #endif

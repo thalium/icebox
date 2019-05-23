@@ -330,7 +330,7 @@ void UISnapshotDetailsElement::prepare()
 
 
 /*********************************************************************************************************************************
-*   Class UIScreenshotViewer implementation.                                                                                   *
+*   Class UIScreenshotViewer implementation.                                                                                     *
 *********************************************************************************************************************************/
 
 UIScreenshotViewer::UIScreenshotViewer(const QPixmap &pixmapScreenshot,
@@ -416,7 +416,7 @@ void UIScreenshotViewer::prepare()
     /* Screenshot viewer is an application-modal window: */
     setWindowModality(Qt::ApplicationModal);
     /* With the pointing-hand cursor: */
-    setCursor(Qt::PointingHandCursor);
+    VBoxGlobal::setCursor(this, Qt::PointingHandCursor);
     /* And it's being deleted when closed: */
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -520,7 +520,6 @@ UISnapshotDetailsWidget::UISnapshotDetailsWidget(QWidget *pParent /* = 0 */)
     , m_pButtonBox(0)
     , m_pLayoutDetails(0)
     , m_pScrollAreaDetails(0)
-    , m_fSnapshotNameEdited(false)
 {
     /* Prepare: */
     prepare();
@@ -528,9 +527,6 @@ UISnapshotDetailsWidget::UISnapshotDetailsWidget(QWidget *pParent /* = 0 */)
 
 void UISnapshotDetailsWidget::setData(const CMachine &comMachine)
 {
-    /* Reset defaults: */
-    m_fSnapshotNameEdited = false;
-
     /* Cache old/new data: */
     m_oldData = UIDataSnapshot();
     m_newData = m_oldData;
@@ -547,9 +543,6 @@ void UISnapshotDetailsWidget::setData(const CMachine &comMachine)
 
 void UISnapshotDetailsWidget::setData(const UIDataSnapshot &data, const CSnapshot &comSnapshot)
 {
-    /* Reset defaults: */
-    m_fSnapshotNameEdited = false;
-
     /* Cache old/new data: */
     m_oldData = data;
     m_newData = m_oldData;
@@ -566,9 +559,6 @@ void UISnapshotDetailsWidget::setData(const UIDataSnapshot &data, const CSnapsho
 
 void UISnapshotDetailsWidget::clearData()
 {
-    /* Reset defaults: */
-    m_fSnapshotNameEdited = false;
-
     /* Reset old/new data: */
     m_oldData = UIDataSnapshot();
     m_newData = m_oldData;
@@ -661,11 +651,6 @@ void UISnapshotDetailsWidget::retranslateButtons()
         m_pButtonBox->button(QDialogButtonBox::Ok)->
             setToolTip(tr("Apply Changes (%1)").arg(m_pButtonBox->button(QDialogButtonBox::Ok)->shortcut().toString()));
     }
-}
-
-void UISnapshotDetailsWidget::sltHandleNameEdit()
-{
-    m_fSnapshotNameEdited = true;
 }
 
 void UISnapshotDetailsWidget::sltHandleNameChange()
@@ -783,8 +768,6 @@ void UISnapshotDetailsWidget::prepareTabOptions()
                     QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Minimum);
                     policy.setHorizontalStretch(1);
                     m_pEditorName->setSizePolicy(policy);
-                    connect(m_pEditorName, &QLineEdit::textEdited,
-                            this, &UISnapshotDetailsWidget::sltHandleNameEdit);
                     connect(m_pEditorName, &QLineEdit::textChanged,
                             this, &UISnapshotDetailsWidget::sltHandleNameChange);
 
@@ -885,6 +868,7 @@ void UISnapshotDetailsWidget::prepareTabDetails()
         m_pScrollAreaDetails->setWidgetResizable(true);
         m_pScrollAreaDetails->setFrameShadow(QFrame::Plain);
         m_pScrollAreaDetails->setFrameShape(QFrame::NoFrame);
+        m_pScrollAreaDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
         m_pScrollAreaDetails->viewport()->setAutoFillBackground(false);
 
         /* Create details widget: */
@@ -895,8 +879,11 @@ void UISnapshotDetailsWidget::prepareTabDetails()
             m_pLayoutDetails = new QVBoxLayout(pWidgetDetails);
             AssertPtrReturnVoid(m_pLayoutDetails);
             {
+                /* Metric: */
+                const int iSpacing = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+
                 /* Configure layout: */
-                m_pLayoutDetails->setSpacing(5);
+                m_pLayoutDetails->setSpacing(iSpacing);
 #ifdef VBOX_WS_MAC
                 m_pLayoutDetails->setContentsMargins(10, 10, 10, 10);
 #endif
@@ -910,7 +897,7 @@ void UISnapshotDetailsWidget::prepareTabDetails()
                     AssertPtrReturnVoid(pLayoutLeft);
                     {
                         /* Configure layout: */
-                        pLayoutLeft->setSpacing(5);
+                        pLayoutLeft->setSpacing(iSpacing);
                         pLayoutLeft->setContentsMargins(0, 0, 0, 0);
 
                         /* Create 'General' element: */
@@ -932,6 +919,7 @@ void UISnapshotDetailsWidget::prepareTabDetails()
                     AssertPtrReturnVoid(pLayoutRight);
                     {
                         /* Configure layout: */
+                        pLayoutLeft->setSpacing(iSpacing);
                         pLayoutRight->setContentsMargins(0, 0, 0, 0);
 
                         /* Create 'Preview' element: */
@@ -954,7 +942,7 @@ void UISnapshotDetailsWidget::prepareTabDetails()
                 QIFlowLayout *pLayout2 = new QIFlowLayout;
                 {
                     /* Configure layout: */
-                    pLayout2->setSpacing(5);
+                    pLayout2->setSpacing(iSpacing);
 
                     /* Create 'Display' element: */
                     m_details[DetailsElementType_Display] = createDetailsElement(DetailsElementType_Display);
@@ -1091,7 +1079,7 @@ void UISnapshotDetailsWidget::revalidate(QWidget *pWidget /* = 0 */)
     if (!pWidget || pWidget == m_pErrorPaneName)
     {
         const bool fError = m_newData.m_strName.isEmpty();
-        m_pErrorPaneName->setVisible(fError && m_fSnapshotNameEdited);
+        m_pErrorPaneName->setVisible(fError && m_comMachine.isNull());
     }
     if (!pWidget || pWidget == m_pErrorPaneDescription)
     {

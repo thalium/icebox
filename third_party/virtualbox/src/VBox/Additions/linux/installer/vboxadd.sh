@@ -1,10 +1,11 @@
 #! /bin/sh
-#
-# Linux Additions kernel module init script ($Revision: 118374 $)
+# $Id: vboxadd.sh $
+## @file
+# Linux Additions kernel module init script ($Revision: 122635 $)
 #
 
 #
-# Copyright (C) 2006-2012 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -125,6 +126,14 @@ log()
 {
     setup_log
     echo "${1}" >> "${LOG}"
+}
+
+module_build_log()
+{
+    setup_log
+    echo "${1}" | egrep -v \
+        "^test -e include/generated/autoconf.h|^echo >&2|^/bin/false)$" \
+        >> "${LOG}"
 }
 
 dev=/dev/vboxguest
@@ -252,7 +261,8 @@ start()
     fi  # INSTALL_NO_MODULE_BUILDS
 
     # Put the X.Org driver in place.  This is harmless if it is not needed.
-    "${INSTALL_DIR}/init/vboxadd-x11" setup 2>> "${LOG}"
+    myerr=`"${INSTALL_DIR}/init/vboxadd-x11" setup 2>&1`
+    test -z "${myerr}" || log "${myerr}"
     # Install the guest OpenGL drivers.  For now we don't support
     # multi-architecture installations
     rm -f /etc/ld.so.conf.d/00vboxvideo.conf
@@ -291,14 +301,8 @@ stop()
     if ! umount -a -t vboxsf 2>/dev/null; then
         fail "Cannot unmount vboxsf folders"
     fi
-    test -n "${INSTALL_NO_MODULE_BUILDS}" && return 0
-    modprobe -q -r -a vboxvideo vboxsf vboxguest
-    if egrep -q 'vboxguest|vboxsf|vboxvideo' /proc/modules; then
+    test -n "${INSTALL_NO_MODULE_BUILDS}" ||
         info "You may need to restart your guest system to finish removing the guest drivers."
-    else
-        rm -f $userdev || fail "Cannot unlink $userdev"
-        rm -f $dev || fail "Cannot unlink $dev"
-    fi
     return 0
 }
 
@@ -312,7 +316,6 @@ restart()
 # from the kernel as they may still be in use
 cleanup_modules()
 {
-    log "Removing existing VirtualBox kernel modules."
     for i in ${OLDMODULES}; do
         # We no longer support DKMS, remove any leftovers.
         rm -rf "/var/lib/dkms/${i}"*
@@ -333,32 +336,37 @@ setup_modules()
     test -z "${QUICKSETUP}" && cleanup_modules
     # This does not work for 2.4 series kernels.  How sad.
     test -n "${QUICKSETUP}" && test -f "${MODULE_DIR}/vboxguest.ko" && return 0
-    info "Building the VirtualBox Guest Additions kernel modules."
+    info "Building the VirtualBox Guest Additions kernel modules.  This may take a while."
 
-    # We are allowed to do ">> $LOG" after we have called "log()" once.
     log "Building the main Guest Additions module."
-    if ! $BUILDINTMP \
+    if ! myerr=`$BUILDINTMP \
         --save-module-symvers /tmp/vboxguest-Module.symvers \
         --module-source $MODULE_SRC/vboxguest \
-        --no-print-directory install >> $LOG 2>&1; then
+        --no-print-directory install 2>&1`; then
         # If check_module_dependencies.sh fails it prints a message itself.
+        log "Error building the module:"
+        module_build_log "$myerr"
         "${INSTALL_DIR}"/other/check_module_dependencies.sh 2>&1 &&
             info "Look at $LOG to find out what went wrong"
         return 0
     fi
-    log "Building the shared folder support module"
-    if ! $BUILDINTMP \
+    log "Building the shared folder support module."
+    if ! myerr=`$BUILDINTMP \
         --use-module-symvers /tmp/vboxguest-Module.symvers \
         --module-source $MODULE_SRC/vboxsf \
-        --no-print-directory install >> $LOG 2>&1; then
+        --no-print-directory install 2>&1`; then
+        log "Error building the module:"
+        module_build_log "$myerr"
         info  "Look at $LOG to find out what went wrong"
         return 0
     fi
-    log "Building the graphics driver module"
-    if ! $BUILDINTMP \
+    log "Building the graphics driver module."
+    if ! myerr=`$BUILDINTMP \
         --use-module-symvers /tmp/vboxguest-Module.symvers \
         --module-source $MODULE_SRC/vboxvideo \
-        --no-print-directory install >> $LOG 2>&1; then
+        --no-print-directory install 2>&1`; then
+        log "Error building the module:"
+        module_build_log "$myerr"
         info "Look at $LOG to find out what went wrong"
     fi
     [ -d /etc/depmod.d ] || mkdir /etc/depmod.d
@@ -371,7 +379,6 @@ setup_modules()
 
 create_vbox_user()
 {
-    log "Creating user for the Guest Additions."
     # This is the LSB version of useradd and should work on recent
     # distributions
     useradd -d /var/run/vboxadd -g 1 -r -s /bin/false vboxadd >/dev/null 2>&1
@@ -384,7 +391,6 @@ create_udev_rule()
 {
     # Create udev description file
     if [ -d /etc/udev/rules.d ]; then
-        log "Creating udev rule for the Guest Additions kernel module."
         udev_call=""
         udev_app=`which udevadm 2> /dev/null`
         if [ $? -eq 0 ]; then
@@ -488,7 +494,7 @@ cleanup()
     fi
 
     # Clean-up X11-related bits
-    "${INSTALL_DIR}/init/vboxadd-x11" cleanup 2>> "${LOG}"
+    "${INSTALL_DIR}/init/vboxadd-x11" cleanup
 
     # Remove other files
     rm /sbin/mount.vboxsf 2>/dev/null

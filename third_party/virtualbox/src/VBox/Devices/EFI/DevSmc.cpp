@@ -10,7 +10,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1287,6 +1287,7 @@ PDMBOTHCBDECL(int) smcIoPortWrite(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT Por
      */
     PDEVSMC pThis = PDMINS_2_DATA(pDevIns, PDEVSMC);
     uint32_t uReg = Port - SMC_PORT_FIRST;
+    AssertReturn(uReg < RT_ELEMENTS(g_aSmcRegs), VERR_INTERNAL_ERROR_3); /* impossible*/
     int rc = g_aSmcRegs[uReg].pfnWrite(pThis, uReg, u32);
 
     /*
@@ -1330,6 +1331,7 @@ PDMBOTHCBDECL(int) smcIoPortRead(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT Port
      * The first register, usually only one is accessed.
      */
     uint32_t uReg = Port - SMC_PORT_FIRST;
+    AssertReturn(uReg < RT_ELEMENTS(g_aSmcRegs), VERR_INTERNAL_ERROR_3); /* impossible*/
     Log2(("smcIoPortRead: %#04x read access: LB %u\n", uReg, cb));
     uint8_t bValue = 0xff;
     int rc = g_aSmcRegs[uReg].pfnRead(pThis, uReg, &bValue);

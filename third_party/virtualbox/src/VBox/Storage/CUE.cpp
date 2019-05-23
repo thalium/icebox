@@ -311,7 +311,9 @@ DECLINLINE(bool) cueTokenizerIsEos(PCUETOKENIZER pTokenizer)
  */
 DECLINLINE(void) cueTokenizerSkipCh(PCUETOKENIZER pTokenizer)
 {
-    pTokenizer->pszInput++;
+    /* Never ever go past EOS. */
+    if (!cueTokenizerIsEos(pTokenizer))
+        pTokenizer->pszInput++;
 }
 
 /**
@@ -382,19 +384,6 @@ DECLINLINE(bool) cueTokenizerIsSkipNewLine(PCUETOKENIZER pTokenizer)
 }
 
 /**
- * Skips a multi line comment.
- *
- * @returns nothing.
- * @param   pTokenizer    The tokenizer state.
- */
-DECLINLINE(void) cueTokenizerSkipComment(PCUETOKENIZER pTokenizer)
-{
-    while (   !cueTokenizerIsEos(pTokenizer)
-           && !cueTokenizerIsSkipNewLine(pTokenizer))
-        cueTokenizerSkipCh(pTokenizer);
-}
-
-/**
  * Skip all whitespace starting from the current input buffer position.
  * Skips all present comments too.
  *
@@ -416,6 +405,20 @@ DECLINLINE(void) cueTokenizerSkipWhitespace(PCUETOKENIZER pTokenizer)
 }
 
 /**
+ * Skips a multi line comment.
+ *
+ * @returns nothing.
+ * @param   pTokenizer    The tokenizer state.
+ */
+DECLINLINE(void) cueTokenizerSkipComment(PCUETOKENIZER pTokenizer)
+{
+    while (   !cueTokenizerIsEos(pTokenizer)
+           && !cueTokenizerIsSkipNewLine(pTokenizer))
+        cueTokenizerSkipCh(pTokenizer);
+    cueTokenizerSkipWhitespace(pTokenizer);
+}
+
+/**
  * Get an identifier token from the tokenizer.
  *
  * @returns nothing.
@@ -427,14 +430,15 @@ static void cueTokenizerGetKeyword(PCUETOKENIZER pTokenizer, PCUETOKEN pToken)
     char ch;
     unsigned cchKeyword = 0;
     bool fIsKeyword = false;
-    bool fIsComment = false;
-    const char *pszKeyword = pTokenizer->pszInput;
+    bool fIsComment;
+    const char *pszKeyword;
 
-    Assert(RT_C_IS_ALPHA(*pszKeyword));
+    Assert(RT_C_IS_ALPHA(*pTokenizer->pszInput));
 
     do
     {
         fIsComment = false;
+        pszKeyword = pTokenizer->pszInput;
 
         do
         {
@@ -561,15 +565,21 @@ static void cueTokenizerGetStringConst(PCUETOKENIZER pTokenizer, PCUETOKEN pToke
     pToken->enmType = CUETOKENTYPE_STRING;
     pToken->Type.String.psz = pTokenizer->pszInput;
 
-    while (cueTokenizerGetCh(pTokenizer) != '\"')
+    while (   !cueTokenizerIsEos(pTokenizer)
+           && cueTokenizerGetCh(pTokenizer) != '\"')
     {
         cchStr++;
         cueTokenizerSkipCh(pTokenizer);
     }
 
-    cueTokenizerSkipCh(pTokenizer); /* Skip closing " */
-
-    pToken->Type.String.cch = cchStr;
+    /* End of stream without a closing quote is an error. */
+    if (RT_UNLIKELY(cueTokenizerIsEos(pTokenizer)))
+        pToken->enmType = CUETOKENTYPE_ERROR;
+    else
+    {
+        cueTokenizerSkipCh(pTokenizer); /* Skip closing " */
+        pToken->Type.String.cch = cchStr;
+    }
 }
 
 /**

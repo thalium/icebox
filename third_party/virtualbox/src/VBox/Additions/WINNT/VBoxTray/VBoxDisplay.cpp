@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -545,6 +545,7 @@ static BOOL ResizeDisplayDevice(PVBOXDISPLAYCONTEXT pCtx,
     BOOL fModeReset = (   Width == 0 && Height == 0 && BitsPerPixel == 0
                        && dwNewPosX == 0 && dwNewPosY == 0 && !fChangeOrigin);
     DWORD dmFields = 0;
+    VBOXDISPLAY_DRIVER_TYPE enmDriverType = getVBoxDisplayDriverType(pCtx);
 
     LogFlowFunc(("[%d] %dx%d at %d,%d fChangeOrigin %d fEnabled %d fExtDisSup %d\n",
                  Id, Width, Height, dwNewPosX, dwNewPosY, fChangeOrigin, fEnabled, fExtDispSup));
@@ -675,7 +676,7 @@ static BOOL ResizeDisplayDevice(PVBOXDISPLAYCONTEXT pCtx,
 
     hlpResizeRect(paRects, NumDevices, DevPrimaryNum, Id,
             fEnabled ? Width : 0, fEnabled ? Height : 0, dwNewPosX, dwNewPosY);
-#ifdef Log
+
     for (i = 0; i < NumDevices; i++)
     {
         LogFlowFunc(("ResizeDisplayDevice: [%d]: %d,%d %dx%d\n",
@@ -683,62 +684,56 @@ static BOOL ResizeDisplayDevice(PVBOXDISPLAYCONTEXT pCtx,
                 paRects[i].right - paRects[i].left,
                 paRects[i].bottom - paRects[i].top));
     }
-#endif /* Log */
 
-#ifdef VBOX_WITH_WDDM
-    VBOXDISPLAY_DRIVER_TYPE enmDriverType = getVBoxDisplayDriverType (pCtx);
-    if (enmDriverType == VBOXDISPLAY_DRIVER_TYPE_WDDM)
+    /* Assign the new rectangles to displays. */
+    for (i = 0; i < NumDevices; i++)
     {
-        /* Assign the new rectangles to displays. */
-        for (i = 0; i < NumDevices; i++)
+        paDeviceModes[i].dmPosition.x = paRects[i].left;
+        paDeviceModes[i].dmPosition.y = paRects[i].top;
+        paDeviceModes[i].dmPelsWidth  = paRects[i].right - paRects[i].left;
+        paDeviceModes[i].dmPelsHeight = paRects[i].bottom - paRects[i].top;
+
+        if (i == Id)
+            paDeviceModes[i].dmBitsPerPel = BitsPerPixel;
+
+        if (enmDriverType >= VBOXDISPLAY_DRIVER_TYPE_WDDM)
         {
-            paDeviceModes[i].dmPosition.x = paRects[i].left;
-            paDeviceModes[i].dmPosition.y = paRects[i].top;
-            paDeviceModes[i].dmPelsWidth  = paRects[i].right - paRects[i].left;
-            paDeviceModes[i].dmPelsHeight = paRects[i].bottom - paRects[i].top;
-
-            if (i == Id)
-                paDeviceModes[i].dmBitsPerPel = BitsPerPixel;
-
             paDeviceModes[i].dmFields |= dmFields;
 
             /* On Vista one must specify DM_BITSPERPEL.
-             * Note that the current mode dmBitsPerPel is already in the DEVMODE structure.
-             */
+            * Note that the current mode dmBitsPerPel is already in the DEVMODE structure.
+            */
             if (!(paDeviceModes[i].dmFields & DM_BITSPERPEL))
             {
                 LogFlowFunc(("no DM_BITSPERPEL\n"));
                 paDeviceModes[i].dmFields |= DM_BITSPERPEL;
                 paDeviceModes[i].dmBitsPerPel = 32;
             }
-
-            LogFlowFunc(("ResizeDisplayDevice: pfnChangeDisplaySettingsEx %x: %dx%dx%d at %d,%d fields 0x%X\n",
-                  pCtx->pfnChangeDisplaySettingsEx,
-                  paDeviceModes[i].dmPelsWidth,
-                  paDeviceModes[i].dmPelsHeight,
-                  paDeviceModes[i].dmBitsPerPel,
-                  paDeviceModes[i].dmPosition.x,
-                  paDeviceModes[i].dmPosition.y,
-                  paDeviceModes[i].dmFields));
         }
-
-        LogFlowFunc(("Request to resize the displa\n"));
-        DWORD err = VBoxDispIfResizeModes(&pCtx->pEnv->dispIf, Id, fEnabled, fExtDispSup, paDisplayDevices, paDeviceModes, DevNum);
-        if (err != ERROR_RETRY)
+        else
         {
-            if (err == NO_ERROR)
-                LogFlowFunc(("VBoxDispIfResizeModes succeeded\n"));
-            else
-               LogFlowFunc(("Failure VBoxDispIfResizeModes (%d)\n", err));
-            return FALSE;
+            paDeviceModes[i].dmFields = DM_POSITION | DM_PELSHEIGHT | DM_PELSWIDTH | DM_BITSPERPEL;
         }
 
-        LogFlowFunc(("ResizeDisplayDevice: RETRY requested\n"));
-        return TRUE;
+        LogFlowFunc(("ResizeDisplayDevice: Going to resize display %d to %dx%dx%d at %d,%d fields 0x%X\n",
+            i,
+            paDeviceModes[i].dmPelsWidth,
+            paDeviceModes[i].dmPelsHeight,
+            paDeviceModes[i].dmBitsPerPel,
+            paDeviceModes[i].dmPosition.x,
+            paDeviceModes[i].dmPosition.y,
+            paDeviceModes[i].dmFields));
     }
-#endif
-    /* Without this, Windows will not ask the miniport for its
-     * mode table but uses an internal cache instead.
+
+    if (enmDriverType == VBOXDISPLAY_DRIVER_TYPE_WDDM)
+    {
+        DWORD err = VBoxDispIfResizeModes(&pCtx->pEnv->dispIf, Id, fEnabled, fExtDispSup, paDisplayDevices, paDeviceModes, DevNum);
+
+        return (err == ERROR_RETRY);
+    }
+
+    /* The XPDM code path goes below.
+     * Re-requesting modes with EnumDisplaySettings forces Windows to again ask the miniport for its mode table.
      */
     for (i = 0; i < NumDevices; i++)
     {
@@ -752,31 +747,6 @@ static BOOL ResizeDisplayDevice(PVBOXDISPLAYCONTEXT pCtx,
     /* Assign the new rectangles to displays. */
     for (i = 0; i < NumDevices; i++)
     {
-        paDeviceModes[i].dmPosition.x = paRects[i].left;
-        paDeviceModes[i].dmPosition.y = paRects[i].top;
-        paDeviceModes[i].dmPelsWidth  = paRects[i].right - paRects[i].left;
-        paDeviceModes[i].dmPelsHeight = paRects[i].bottom - paRects[i].top;
-
-        /* On Vista one must specify DM_BITSPERPEL.
-         * Note that the current mode dmBitsPerPel is already in the DEVMODE structure.
-         */
-        paDeviceModes[i].dmFields = DM_POSITION | DM_PELSHEIGHT | DM_PELSWIDTH | DM_BITSPERPEL;
-
-        if (   i == Id
-            && BitsPerPixel != 0)
-        {
-            /* Change dmBitsPerPel if requested. */
-            paDeviceModes[i].dmBitsPerPel = BitsPerPixel;
-        }
-
-        LogFlowFunc(("ResizeDisplayDevice: pfnChangeDisplaySettingsEx Current MonitorId=%d: %dx%dx%d at %d,%d\n",
-              i,
-              paDeviceModes[i].dmPelsWidth,
-              paDeviceModes[i].dmPelsHeight,
-              paDeviceModes[i].dmBitsPerPel,
-              paDeviceModes[i].dmPosition.x,
-              paDeviceModes[i].dmPosition.y));
-
         LONG status = pCtx->pfnChangeDisplaySettingsEx((LPSTR)paDisplayDevices[i].DeviceName,
                                                        &paDeviceModes[i], NULL, CDS_NORESET | CDS_UPDATEREGISTRY, NULL);
         LogFlowFunc(("ResizeDisplayDevice: ChangeDisplaySettingsEx position status %d, err %d\n", status, GetLastError()));
@@ -913,7 +883,7 @@ static DECLCALLBACK(int) VBoxDisplayWorker(void *pvInstance, bool volatile *pfSh
                             ResizeDisplayDeviceNT4(cx, cy, cBits);
                             break;
                         }
-  
+
                         /* Retry the change a bit later. */
                         RTThreadSleep(1000);
                     }

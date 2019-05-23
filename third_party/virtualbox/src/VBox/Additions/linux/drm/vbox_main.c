@@ -172,7 +172,7 @@ int vbox_framebuffer_init(struct drm_device *dev,
 {
 	int ret;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
 	drm_helper_mode_fill_fb_struct(dev, &vbox_fb->base, mode_cmd);
 #else
 	drm_helper_mode_fill_fb_struct(&vbox_fb->base, mode_cmd);
@@ -404,7 +404,7 @@ out_free:
 	return ret;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
 void vbox_driver_unload(struct drm_device *dev)
 #else
 int vbox_driver_unload(struct drm_device *dev)
@@ -426,7 +426,7 @@ int vbox_driver_unload(struct drm_device *dev)
 		pci_iounmap(dev->pdev, vbox->guest_heap);
 	kfree(vbox);
 	dev->dev_private = NULL;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0) && !defined(RHEL_75)
 	return 0;
 #endif
 }

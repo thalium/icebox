@@ -50,14 +50,14 @@ typedef struct TSTRTDVMDISK
     union
     {
         /** File handle of the image. */
-        RTFILE      hImage;
+        RTVFSFILE   hImage;
         /** Handle of the volume. */
         RTDVMVOLUME hVol;
     };
 } TSTRTDVMDISK, *PTSTRTDVMDISK;
 
 
-
+#if 0
 static DECLCALLBACK(int) dvmDiskRead(void *pvUser, uint64_t off, void *pvBuf, size_t cbRead)
 {
     PTSTRTDVMDISK pDisk = (PTSTRTDVMDISK)pvUser;
@@ -170,6 +170,7 @@ static int tstRTDvmVolume(RTTEST hTest, PTSTRTDVMDISK pDisk, uint64_t cb, unsign
 
     return rc;
 }
+#endif
 
 int main(int argc, char **argv)
 {
@@ -191,6 +192,9 @@ int main(int argc, char **argv)
         return RTTestSkipAndDestroy(hTest, "Missing required arguments\n");
     }
 
+#if 1
+    RTTestFailed(hTest, "Needs updating to RTDvm API changes!");
+#else
     /* Open image. */
     RTFILE hFile;
     uint64_t cb = 0;
@@ -220,6 +224,7 @@ int main(int argc, char **argv)
     /*
      * Summary
      */
+#endif
     return RTTestSummaryAndDestroy(hTest);
 }
 

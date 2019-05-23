@@ -1,0 +1,42 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for network devices/drivers.
+#
+
+#
+# Copyright (C) 2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+--filter-out-dirs /lwip-new/src/*
+--filter-out-dirs /lwip-new/test/*
+--filter-out-dirs /lwip-new/doc/*
+--filter-out-dirs /lwip-new/vbox/include/*
+
+--filter-out-files /lwip-new/CHANGELOG
+--filter-out-files /lwip-new/FILES
+--filter-out-files /lwip-new/README
+--filter-out-files /lwip-new/README.vbox
+--filter-out-files /lwip-new/UPGRADING
+--filter-out-files /slirp/libalias/HISTORY
+--filter-out-files /slirp/libalias/*.3
+--filter-out-files /slirp/COPYRIGHT
+
+
+# fun
+/slirp/dnsproxy/dnsproxy.h: --external-copyright --no-convert-tabs
+/slirp/dnsproxy/hash.c:     --external-copyright --no-convert-tabs
+/slirp/libalias/*:          --external-copyright --no-convert-tabs
+/slirp/bsd/*:               --external-copyright --no-convert-tabs --dont-set-svn-keywords
+
+# well...
+/lwipopts.h: --external-copyright
+

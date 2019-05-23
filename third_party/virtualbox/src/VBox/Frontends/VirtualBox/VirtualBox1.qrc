@@ -39,6 +39,10 @@
         <file alias="cd_modify_22px.png">images/cd_modify_22px.png</file>
         <file alias="cd_modify_disabled_16px.png">images/cd_modify_disabled_16px.png</file>
         <file alias="cd_modify_disabled_22px.png">images/cd_modify_disabled_22px.png</file>
+        <file alias="cd_move_16px.png">images/cd_move_16px.png</file>
+        <file alias="cd_move_22px.png">images/cd_move_22px.png</file>
+        <file alias="cd_move_disabled_16px.png">images/cd_move_disabled_16px.png</file>
+        <file alias="cd_move_disabled_22px.png">images/cd_move_disabled_22px.png</file>
         <file alias="cd_read_16px.png">images/cd_read_16px.png</file>
         <file alias="cd_release_16px.png">images/cd_release_16px.png</file>
         <file alias="cd_release_22px.png">images/cd_release_22px.png</file>
@@ -62,13 +66,13 @@
         <file alias="commit_host_iface_22px.png">images/commit_host_iface_22px.png</file>
         <file alias="commit_host_iface_disabled_22px.png">images/commit_host_iface_disabled_22px.png</file>
         <file alias="connect_16px.png">images/connect_16px.png</file>
+        <file alias="connect_on_16px.png">images/connect_on_16px.png</file>
         <file alias="controller_add_16px.png">images/controller_add_16px.png</file>
         <file alias="controller_add_disabled_16px.png">images/controller_add_disabled_16px.png</file>
         <file alias="controller_remove_16px.png">images/controller_remove_16px.png</file>
         <file alias="controller_remove_disabled_16px.png">images/controller_remove_disabled_16px.png</file>
         <file alias="cpu_16px.png">images/cpu_16px.png</file>
         <file alias="description_16px.png">images/description_16px.png</file>
-        <file alias="disconnect_16px.png">images/disconnect_16px.png</file>
         <file alias="diskimage_16px.png">images/diskimage_16px.png</file>
         <file alias="diskimage_22px.png">images/diskimage_22px.png</file>
         <file alias="diskimage_32px.png">images/diskimage_32px.png</file>
@@ -128,6 +132,10 @@
         <file alias="fd_modify_22px.png">images/fd_modify_22px.png</file>
         <file alias="fd_modify_disabled_16px.png">images/fd_modify_disabled_16px.png</file>
         <file alias="fd_modify_disabled_22px.png">images/fd_modify_disabled_22px.png</file>
+        <file alias="fd_move_16px.png">images/fd_move_16px.png</file>
+        <file alias="fd_move_22px.png">images/fd_move_22px.png</file>
+        <file alias="fd_move_disabled_16px.png">images/fd_move_disabled_16px.png</file>
+        <file alias="fd_move_disabled_22px.png">images/fd_move_disabled_22px.png</file>
         <file alias="fd_read_16px.png">images/fd_read_16px.png</file>
         <file alias="fd_release_16px.png">images/fd_release_16px.png</file>
         <file alias="fd_release_22px.png">images/fd_release_22px.png</file>
@@ -167,6 +175,10 @@
         <file alias="hd_modify_22px.png">images/hd_modify_22px.png</file>
         <file alias="hd_modify_disabled_16px.png">images/hd_modify_disabled_16px.png</file>
         <file alias="hd_modify_disabled_22px.png">images/hd_modify_disabled_22px.png</file>
+        <file alias="hd_move_16px.png">images/hd_move_16px.png</file>
+        <file alias="hd_move_22px.png">images/hd_move_22px.png</file>
+        <file alias="hd_move_disabled_16px.png">images/hd_move_disabled_16px.png</file>
+        <file alias="hd_move_disabled_22px.png">images/hd_move_disabled_22px.png</file>
         <file alias="hd_new_16px.png">images/hd_new_16px.png</file>
         <file alias="hd_new_disabled_16px.png">images/hd_new_disabled_16px.png</file>
         <file alias="hd_read_16px.png">images/hd_read_16px.png</file>

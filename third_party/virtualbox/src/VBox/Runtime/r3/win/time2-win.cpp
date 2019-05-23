@@ -58,6 +58,10 @@ RTDECL(PRTTIME) RTTimeLocalExplode(PRTTIME pTime, PCRTTIMESPEC pTimeSpec)
     /*
      * FileTimeToLocalFileTime does not do the right thing, so we'll have
      * to convert to system time and SystemTimeToTzSpecificLocalTime instead.
+     *
+     * Note! FileTimeToSystemTime drops resoultion down to milliseconds, thus
+     *       we have to do the offUTC calculation using milliseconds and adjust
+     *       u32Nanosecons by sub milliseconds digits.
      */
     RTTIMESPEC LocalTime;
     SYSTEMTIME SystemTimeIn;
@@ -74,7 +78,11 @@ RTDECL(PRTTIME) RTTimeLocalExplode(PRTTIME pTime, PCRTTIMESPEC pTimeSpec)
                 RTTimeSpecSetNtFileTime(&LocalTime, &FileTime);
                 pTime = RTTimeExplode(pTime, &LocalTime);
                 if (pTime)
+                {
                     pTime->fFlags = (pTime->fFlags & ~RTTIME_FLAGS_TYPE_MASK) | RTTIME_FLAGS_TYPE_LOCAL;
+                    pTime->offUTC = (RTTimeSpecGetMilli(&LocalTime) - RTTimeSpecGetMilli(pTimeSpec)) / RT_MS_1MIN;
+                    pTime->u32Nanosecond += RTTimeSpecGetNano(pTimeSpec) % RT_NS_1MS;
+                }
                 return pTime;
             }
         }
@@ -85,10 +93,14 @@ RTDECL(PRTTIME) RTTimeLocalExplode(PRTTIME pTime, PCRTTIMESPEC pTimeSpec)
      * (A better fallback would be to use the offset of the same time of the year.)
      */
     LocalTime = *pTimeSpec;
-    RTTimeSpecAddNano(&LocalTime, RTTimeLocalDeltaNano());
+    int64_t cNsUtcOffset = RTTimeLocalDeltaNano();
+    RTTimeSpecAddNano(&LocalTime, cNsUtcOffset);
     pTime = RTTimeExplode(pTime, &LocalTime);
     if (pTime)
+    {
         pTime->fFlags = (pTime->fFlags & ~RTTIME_FLAGS_TYPE_MASK) | RTTIME_FLAGS_TYPE_LOCAL;
+        pTime->offUTC = cNsUtcOffset / RT_NS_1MIN;
+    }
     return pTime;
 }
 

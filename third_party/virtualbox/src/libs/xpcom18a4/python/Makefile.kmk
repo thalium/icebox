@@ -124,6 +124,10 @@ VBoxPythonBase_LIBS     = \
 	$(PATH_STAGE_LIB)/VBoxCOM$(VBOX_SUFF_LIB) \
 	$(PATH_STAGE_BIN)/VBoxXPCOM$(VBOX_SUFF_DLL)
 
+# pymalloc abi variant.
+VBoxPythonBase_m_EXTENDS    = VBoxPythonBase
+VBoxPythonBase_m_DEFS       = MODULE_NAME_SUFFIX=m $(VBoxPythonBase_DEFS)
+
 # 32-bit base.
 VBoxPythonBase_x86_TEMPLATE = XPCOM-x86
 VBoxPythonBase_x86_EXTENDS  = VBoxPythonBase
@@ -131,6 +135,10 @@ VBoxPythonBase_x86_DEFS     = MODULE_NAME_SUFFIX=_x86 $(VBoxPythonBase_DEFS)
 VBoxPythonBase_x86_LIBS     = \
 	$(PATH_STAGE_LIB)/VBoxCOM-x86$(VBOX_SUFF_LIB) \
 	$(PATH_STAGE_BIN)/VBoxXPCOM-x86$(VBOX_SUFF_DLL)
+
+# 32-bit pymalloc abi variant.
+VBoxPythonBase_x86_m_EXTENDS    = VBoxPythonBase_x86
+VBoxPythonBase_x86_m_DEFS       = MODULE_NAME_SUFFIX=_x86m $(VBoxPythonBase_DEFS)
 
 
 ifdef VBOX_PYTHON26_INC
@@ -230,16 +238,17 @@ ifdef VBOX_PYTHON32M_INC
 # Python 3.2 version with pymalloc
 #
 DLLS += VBoxPython3_2m
-VBoxPython3_2m_EXTENDS    = VBoxPythonBase
+VBoxPython3_2m_EXTENDS    = VBoxPythonBase_m
 VBoxPython3_2m_EXTENDS_BY = appending
 VBoxPython3_2m_TEMPLATE   = XPCOM
 VBoxPython3_2m_INCS       = $(VBOX_PYTHON32M_INC)
 VBoxPython3_2m_LIBS       = $(VBOX_PYTHON32M_LIB)
+VBoxPython3_2m_DEFS       = MODULE_NAME_SUFFIX
 
  ifdef VBOX_WITH_32_ON_64_MAIN_API
   ifdef VBOX_PYTHON32M_LIB_X86
 DLLS += VBoxPython3_2m_x86
-VBoxPython3_2m_x86_EXTENDS    = VBoxPythonBase_x86
+VBoxPython3_2m_x86_EXTENDS    = VBoxPythonBase_x86_m
 VBoxPython3_2m_x86_EXTENDS_BY = appending
 VBoxPython3_2m_x86_TEMPLATE   = XPCOM
 VBoxPython3_2m_x86_INCS       = $(VBOX_PYTHON32M_INC)
@@ -276,7 +285,7 @@ ifdef VBOX_PYTHON33M_INC
 # Python 3.3 version with pymalloc
 #
 DLLS += VBoxPython3_3m
-VBoxPython3_3m_EXTENDS    = VBoxPythonBase
+VBoxPython3_3m_EXTENDS    = VBoxPythonBase_m
 VBoxPython3_3m_EXTENDS_BY = appending
 VBoxPython3_3m_TEMPLATE   = XPCOM
 VBoxPython3_3m_INCS       = $(VBOX_PYTHON33M_INC)
@@ -285,7 +294,7 @@ VBoxPython3_3m_LIBS       = $(VBOX_PYTHON33M_LIB)
  ifdef VBOX_WITH_32_ON_64_MAIN_API
   ifdef VBOX_PYTHON33M_LIB_X86
 DLLS += VBoxPython3_3m_x86
-VBoxPython3_3m_x86_EXTENDS    = VBoxPythonBase_x86
+VBoxPython3_3m_x86_EXTENDS    = VBoxPythonBase_x86_m
 VBoxPython3_3m_x86_EXTENDS_BY = appending
 VBoxPython3_3m_x86_TEMPLATE   = XPCOM
 VBoxPython3_3m_x86_INCS       = $(VBOX_PYTHON33M_INC)
@@ -322,7 +331,7 @@ ifdef VBOX_PYTHON34M_INC
 # Python 3.4 version with pymalloc
 #
 DLLS += VBoxPython3_4m
-VBoxPython3_4m_EXTENDS    = VBoxPythonBase
+VBoxPython3_4m_EXTENDS    = VBoxPythonBase_m
 VBoxPython3_4m_EXTENDS_BY = appending
 VBoxPython3_4m_TEMPLATE   = XPCOM
 VBoxPython3_4m_INCS       = $(VBOX_PYTHON34M_INC)
@@ -331,7 +340,7 @@ VBoxPython3_4m_LIBS       = $(VBOX_PYTHON34M_LIB)
  ifdef VBOX_WITH_32_ON_64_MAIN_API
   ifdef VBOX_PYTHON34M_LIB_X86
 DLLS += VBoxPython3_4m_x86
-VBoxPython3_4m_x86_EXTENDS    = VBoxPythonBase_x86
+VBoxPython3_4m_x86_EXTENDS    = VBoxPythonBase_x86_m
 VBoxPython3_4m_x86_EXTENDS_BY = appending
 VBoxPython3_4m_x86_TEMPLATE   = XPCOM
 VBoxPython3_4m_x86_INCS       = $(VBOX_PYTHON34M_INC)
@@ -368,7 +377,7 @@ ifdef VBOX_PYTHON35M_INC
 # Python 3.5 version with pymalloc
 #
 DLLS += VBoxPython3_5m
-VBoxPython3_5m_EXTENDS    = VBoxPythonBase
+VBoxPython3_5m_EXTENDS    = VBoxPythonBase_m
 VBoxPython3_5m_EXTENDS_BY = appending
 VBoxPython3_5m_TEMPLATE   = XPCOM
 VBoxPython3_5m_INCS       = $(VBOX_PYTHON35M_INC)
@@ -377,7 +386,7 @@ VBoxPython3_5m_LIBS       = $(VBOX_PYTHON35M_LIB)
  ifdef VBOX_WITH_32_ON_64_MAIN_API
   ifdef VBOX_PYTHON35M_LIB_X86
 DLLS += VBoxPython3_5m_x86
-VBoxPython3_5m_x86_EXTENDS    = VBoxPythonBase_x86
+VBoxPython3_5m_x86_EXTENDS    = VBoxPythonBase_x86_m
 VBoxPython3_5m_x86_EXTENDS_BY = appending
 VBoxPython3_5m_x86_TEMPLATE   = XPCOM
 VBoxPython3_5m_x86_INCS       = $(VBOX_PYTHON35M_INC)
@@ -414,7 +423,7 @@ ifdef VBOX_PYTHON36M_INC
 # Python 3.6 version with pymalloc
 #
 DLLS += VBoxPython3_6m
-VBoxPython3_6m_EXTENDS    = VBoxPythonBase
+VBoxPython3_6m_EXTENDS    = VBoxPythonBase_m
 VBoxPython3_6m_EXTENDS_BY = appending
 VBoxPython3_6m_TEMPLATE   = XPCOM
 VBoxPython3_6m_INCS       = $(VBOX_PYTHON36M_INC)
@@ -423,7 +432,7 @@ VBoxPython3_6m_LIBS       = $(VBOX_PYTHON36M_LIB)
  ifdef VBOX_WITH_32_ON_64_MAIN_API
   ifdef VBOX_PYTHON36M_LIB_X86
 DLLS += VBoxPython3_6m_x86
-VBoxPython3_6m_x86_EXTENDS    = VBoxPythonBase_x86
+VBoxPython3_6m_x86_EXTENDS    = VBoxPythonBase_x86_m
 VBoxPython3_6m_x86_EXTENDS_BY = appending
 VBoxPython3_6m_x86_TEMPLATE   = XPCOM
 VBoxPython3_6m_x86_INCS       = $(VBOX_PYTHON36M_INC)
@@ -460,7 +469,7 @@ ifdef VBOX_PYTHON37M_INC
 # Python 3.7 version with pymalloc
 #
 DLLS += VBoxPython3_7m
-VBoxPython3_7m_EXTENDS    = VBoxPythonBase
+VBoxPython3_7m_EXTENDS    = VBoxPythonBase_m
 VBoxPython3_7m_EXTENDS_BY = appending
 VBoxPython3_7m_TEMPLATE   = XPCOM
 VBoxPython3_7m_INCS       = $(VBOX_PYTHON37M_INC)
@@ -469,9 +478,9 @@ VBoxPython3_7m_LIBS       = $(VBOX_PYTHON37M_LIB)
  ifdef VBOX_WITH_32_ON_64_MAIN_API
   ifdef VBOX_PYTHON37M_LIB_X86
 DLLS += VBoxPython3_7m_x86
-VBoxPython3_7m_x86_EXTENDS    = VBoxPythonBase_x86
+VBoxPython3_7m_x86_EXTENDS    = VBoxPythonBase_x86_m
 VBoxPython3_7m_x86_EXTENDS_BY = appending
-VBoxPython3_7m_x86_TEMPLATE   = XPCOM
+VBoxPython3_7m_x86_TEMPLATE_   = XPCOM
 VBoxPython3_7m_x86_INCS       = $(VBOX_PYTHON37M_INC)
 VBoxPython3_7m_x86_LIBS       = $(VBOX_PYTHON37M_LIB_X86)
   endif

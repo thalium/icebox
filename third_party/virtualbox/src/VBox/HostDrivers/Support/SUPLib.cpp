@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -275,8 +275,8 @@ SUPR3DECL(int) SUPR3InitEx(bool fUnrestricted, PSUPDRVSESSION *ppSession)
         CookieReq.Hdr.rc = VERR_INTERNAL_ERROR;
         strcpy(CookieReq.u.In.szMagic, SUPCOOKIE_MAGIC);
         CookieReq.u.In.u32ReqVersion = SUPDRV_IOC_VERSION;
-        const uint32_t uMinVersion = (SUPDRV_IOC_VERSION & 0xffff0000) == 0x00280000
-                                   ? 0x00280002
+        const uint32_t uMinVersion = (SUPDRV_IOC_VERSION & 0xffff0000) == 0x00290000
+                                   ? 0x00290001
                                    : SUPDRV_IOC_VERSION & 0xffff0000;
         CookieReq.u.In.u32MinVersion = uMinVersion;
         rc = suplibOsIOCtl(&g_supLibData, SUP_IOCTL_COOKIE, &CookieReq, SUP_IOCTL_COOKIE_SIZE);
@@ -1688,13 +1688,13 @@ SUPR3DECL(int) SUPR3QueryVTCaps(uint32_t *pfCaps)
     Req.Hdr.cbOut = SUP_IOCTL_VT_CAPS_SIZE_OUT;
     Req.Hdr.fFlags = SUPREQHDR_FLAGS_DEFAULT;
     Req.Hdr.rc = VERR_INTERNAL_ERROR;
-    Req.u.Out.Caps = 0;
+    Req.u.Out.fCaps = 0;
     int rc = suplibOsIOCtl(&g_supLibData, SUP_IOCTL_VT_CAPS, &Req, SUP_IOCTL_VT_CAPS_SIZE);
     if (RT_SUCCESS(rc))
     {
         rc = Req.Hdr.rc;
         if (RT_SUCCESS(rc))
-            *pfCaps = Req.u.Out.Caps;
+            *pfCaps = Req.u.Out.fCaps;
     }
     return rc;
 }

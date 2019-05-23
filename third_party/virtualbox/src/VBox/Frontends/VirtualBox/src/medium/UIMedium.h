@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -216,6 +216,11 @@ public:
       * @note  In "don't show diffs" mode, this method returns the disk format of root in the given hard drive chain. */
     QString hardDiskFormat(bool fNoDiffs = false) const { return fNoDiffs ? root().m_strHardDiskFormat : m_strHardDiskFormat; }
 
+    /** Returns whether the hard drive medium disk has childred.
+      * @param fNoDiffs @c true to enable user-friendly "don't show diffs" mode.
+      * @note  In "don't show diffs" mode, this method returns the disk format of root in the given hard drive chain. */
+    bool hasChildren(bool fNoDiffs = false) const { return fNoDiffs ? root().m_fHasChildren : m_fHasChildren; }
+
     /** Returns the hard drive medium storage details. */
     QString storageDetails() const { return m_strStorageDetails; }
     /** Returns the hard drive medium encryption password ID. */
@@ -378,6 +383,8 @@ private:
     QString m_strHardDiskType;
     /** Holds the hard drive medium disk format. */
     QString m_strHardDiskFormat;
+    /** Holds whether the hard drive medium disk has children. */
+    bool m_fHasChildren;
     /** Holds the hard drive medium storage details. */
     QString m_strStorageDetails;
     /** Holds the hard drive medium encryption password ID. */

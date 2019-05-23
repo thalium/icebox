@@ -156,7 +156,9 @@ PROGRAMS.win += \
 	tstRTProcWait \
 	tstFileAppendWin-1 \
 	tstRTNtPath-1 \
-	ntGetTimerResolution
+	ntGetTimerResolution \
+	tstRTDarwinMachKernel
+
 PROGRAMS.linux += \
 	tstRTProcWait \
 	tstRTProcIsRunningByName \

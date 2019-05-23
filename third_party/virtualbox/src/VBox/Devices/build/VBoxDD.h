@@ -40,6 +40,7 @@ extern const PDMDEVREG g_DeviceI8254;
 extern const PDMDEVREG g_DeviceI8259;
 extern const PDMDEVREG g_DeviceHPET;
 extern const PDMDEVREG g_DeviceSmc;
+extern const PDMDEVREG g_DeviceFlash;
 extern const PDMDEVREG g_DeviceMC146818;
 extern const PDMDEVREG g_DevicePIIX3IDE;
 extern const PDMDEVREG g_DeviceFloppyController;

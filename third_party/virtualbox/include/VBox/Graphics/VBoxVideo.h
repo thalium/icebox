@@ -6,24 +6,26 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sub license, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
- * USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #ifndef ___VBox_Graphics_VBoxVideo_h
@@ -344,49 +346,55 @@ typedef enum
     , VBOXVHWACMD_TYPE_HH_SAVESTATE_LOADPERFORM
 } VBOXVHWACMD_TYPE;
 
-/* the command processing was asynch, set by the host to indicate asynch command completion
- * must not be cleared once set, the command completion is performed by issuing a host->guest completion command
- * while keeping this flag unchanged */
-#define VBOXVHWACMD_FLAG_HG_ASYNCH               0x00010000
-/* asynch completion is performed by issuing the event */
-#define VBOXVHWACMD_FLAG_GH_ASYNCH_EVENT         0x00000001
-/* issue interrupt on asynch completion */
-#define VBOXVHWACMD_FLAG_GH_ASYNCH_IRQ           0x00000002
-/* guest does not do any op on completion of this command, the host may copy the command and indicate that it does not need the command anymore
+/** The command processing was asynch, set by the host to indicate asynch
+ * command completion. Must not be cleared once set, the command completion is
+ * performed by issuing a host->guest completion command while keeping this
+ * flag unchanged */
+#define VBOXVHWACMD_FLAG_HG_ASYNCH               UINT32_C(0x00010000)
+/** asynch completion is performed by issuing the event */
+#define VBOXVHWACMD_FLAG_GH_ASYNCH_EVENT         UINT32_C(0x00000001)
+/** issue interrupt on asynch completion */
+#define VBOXVHWACMD_FLAG_GH_ASYNCH_IRQ           UINT32_C(0x00000002)
+/** Guest does not do any op on completion of this command, the host may copy
+ * the command and indicate that it does not need the command anymore
  * by setting the VBOXVHWACMD_FLAG_HG_ASYNCH_RETURNED flag */
-#define VBOXVHWACMD_FLAG_GH_ASYNCH_NOCOMPLETION  0x00000004
-/* the host has copied the VBOXVHWACMD_FLAG_GH_ASYNCH_NOCOMPLETION command and returned it to the guest */
-#define VBOXVHWACMD_FLAG_HG_ASYNCH_RETURNED      0x00020000
-/* this is the host->host cmd, i.e. a configuration command posted by the host to the framebuffer */
-#define VBOXVHWACMD_FLAG_HH_CMD                  0x10000000
+#define VBOXVHWACMD_FLAG_GH_ASYNCH_NOCOMPLETION  UINT32_C(0x00000004)
+/** the host has copied the VBOXVHWACMD_FLAG_GH_ASYNCH_NOCOMPLETION command and returned it to the guest */
+#define VBOXVHWACMD_FLAG_HG_ASYNCH_RETURNED      UINT32_C(0x00020000)
+/** this is the host->host cmd, i.e. a configuration command posted by the host to the framebuffer */
+#define VBOXVHWACMD_FLAG_HH_CMD                  UINT32_C(0x10000000)
 
 typedef struct VBOXVHWACMD
 {
-    VBOXVHWACMD_TYPE enmCmd; /* command type */
-    volatile int32_t rc; /* command result */
-    int32_t iDisplay; /* display index */
-    volatile int32_t Flags; /* ored VBOXVHWACMD_FLAG_xxx values */
-    uint64_t GuestVBVAReserved1; /* field internally used by the guest VBVA cmd handling, must NOT be modified by clients */
-    uint64_t GuestVBVAReserved2; /* field internally used by the guest VBVA cmd handling, must NOT be modified by clients */
+    VBOXVHWACMD_TYPE enmCmd;     /**< command type */
+    volatile int32_t rc;         /**< command result */
+    int32_t iDisplay;            /**< display index */
+    volatile int32_t Flags;      /**< ORed VBOXVHWACMD_FLAG_xxx values */
+    uint64_t GuestVBVAReserved1; /**< field internally used by the guest VBVA cmd handling, must NOT be modified by clients */
+    uint64_t GuestVBVAReserved2; /**< field internally used by the guest VBVA cmd handling, must NOT be modified by clients */
     volatile uint32_t cRefs;
     int32_t Reserved;
     union
     {
         struct VBOXVHWACMD *pNext;
-        uint32_t             offNext;
-        uint64_t Data; /* the body is 64-bit aligned */
+        uint32_t            offNext;
+        uint64_t Data;                  /**< the body is 64-bit aligned */
     } u;
     char body[1];
 } VBOXVHWACMD;
 
-#define VBOXVHWACMD_HEADSIZE() (RT_OFFSETOF(VBOXVHWACMD, body))
-#define VBOXVHWACMD_SIZE_FROMBODYSIZE(_s) (VBOXVHWACMD_HEADSIZE() + (_s))
-#define VBOXVHWACMD_SIZE(_tCmd) (VBOXVHWACMD_SIZE_FROMBODYSIZE(sizeof(_tCmd)))
+#define VBOXVHWACMD_HEADSIZE()                          (RT_OFFSETOF(VBOXVHWACMD, body))
+#define VBOXVHWACMD_SIZE_FROMBODYSIZE(a_cbBody)         (VBOXVHWACMD_HEADSIZE() + (a_cbBody))
+#define VBOXVHWACMD_SIZE(a_tTypeCmd)                    (VBOXVHWACMD_SIZE_FROMBODYSIZE(sizeof(a_tTypeCmd)))
 typedef unsigned int VBOXVHWACMD_LENGTH;
 typedef uint64_t VBOXVHWA_SURFHANDLE;
-#define VBOXVHWA_SURFHANDLE_INVALID 0ULL
-#define VBOXVHWACMD_BODY(_p, _t) ((_t*)(_p)->body)
-#define VBOXVHWACMD_HEAD(_pb) ((VBOXVHWACMD*)((uint8_t *)(_pb) - RT_OFFSETOF(VBOXVHWACMD, body)))
+#define VBOXVHWA_SURFHANDLE_INVALID                     UINT64_C(0)
+#define VBOXVHWACMD_BODY(a_pHdr, a_TypeBody)            ( (a_TypeBody RT_UNTRUSTED_VOLATILE_HSTGST *)&(a_pHdr)->body[0] )
+#if !defined(IN_GUEST) && defined(IN_RING3)
+# define VBOXVHWACMD_BODY_HOST_HEAP(a_pHdr, a_TypeBody) ( (a_TypeBody *)&(a_pHdr)->body[0] )
+#endif
+#define VBOXVHWACMD_HEAD(a_pBody)\
+    ( (VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HSTGST *)((uint8_t *)(a_pBody) - RT_OFFSETOF(VBOXVHWACMD, body)))
 
 typedef struct VBOXVHWA_RECTL
 {
@@ -965,12 +973,13 @@ typedef struct VBVAHOSTCMD
         uint64_t Data; /* the body is 64-bit aligned */
     } u;
     char body[1];
-}VBVAHOSTCMD;
+} VBVAHOSTCMD;
 
-#define VBVAHOSTCMD_SIZE(_size) (sizeof(VBVAHOSTCMD) + (_size))
-#define VBVAHOSTCMD_BODY(_pCmd, _tBody) ((_tBody*)(_pCmd)->body)
-#define VBVAHOSTCMD_HDR(_pBody) ((VBVAHOSTCMD*)(((uint8_t*)_pBody) - RT_OFFSETOF(VBVAHOSTCMD, body)))
-#define VBVAHOSTCMD_HDRSIZE (RT_OFFSETOF(VBVAHOSTCMD, body))
+#define VBVAHOSTCMD_SIZE(a_cb)                  (sizeof(VBVAHOSTCMD) + (a_cb))
+#define VBVAHOSTCMD_BODY(a_pCmd, a_TypeBody)    ((a_TypeBody RT_UNTRUSTED_VOLATILE_HSTGST *)&(a_pCmd)->body[0])
+#define VBVAHOSTCMD_HDR(a_pBody) \
+    ( (VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HSTGST *)( (uint8_t *)(a_pBody) - RT_OFFSETOF(VBVAHOSTCMD, body)) )
+#define VBVAHOSTCMD_HDRSIZE                     (RT_OFFSETOF(VBVAHOSTCMD, body))
 
 #pragma pack()
 
@@ -1352,16 +1361,17 @@ typedef enum
 #define VBOXSHGSMI_FLAG_GH_SYNCH                0x00000040
 
 
-DECLINLINE(uint8_t *) VBoxSHGSMIBufferData (const VBOXSHGSMIHEADER* pHeader)
+DECLINLINE(uint8_t RT_UNTRUSTED_VOLATILE_GUEST *)
+VBoxSHGSMIBufferData(const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_GUEST *pHeader)
 {
-    return (uint8_t *)pHeader + sizeof (VBOXSHGSMIHEADER);
+    return (uint8_t RT_UNTRUSTED_VOLATILE_GUEST *)pHeader + sizeof(VBOXSHGSMIHEADER);
 }
 
-#define VBoxSHGSMIBufferHeaderSize() (sizeof (VBOXSHGSMIHEADER))
+#define VBoxSHGSMIBufferHeaderSize() (sizeof(VBOXSHGSMIHEADER))
 
-DECLINLINE(PVBOXSHGSMIHEADER) VBoxSHGSMIBufferHeader (const void *pvData)
+DECLINLINE(VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_GUEST *) VBoxSHGSMIBufferHeader(const void RT_UNTRUSTED_VOLATILE_GUEST *pvData)
 {
-    return (PVBOXSHGSMIHEADER)((uint8_t *)pvData - sizeof (VBOXSHGSMIHEADER));
+    return (VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_GUEST *)((uintptr_t)pvData - sizeof(VBOXSHGSMIHEADER));
 }
 
 #ifdef VBOX_WITH_VDMA
@@ -1377,7 +1387,8 @@ typedef enum
     VBOXVDMA_CTL_TYPE_ENABLE,
     VBOXVDMA_CTL_TYPE_DISABLE,
     VBOXVDMA_CTL_TYPE_FLUSH,
-    VBOXVDMA_CTL_TYPE_WATCHDOG
+    VBOXVDMA_CTL_TYPE_WATCHDOG,
+    VBOXVDMA_CTL_TYPE_END
 } VBOXVDMA_CTL_TYPE;
 
 typedef struct VBOXVDMA_CTL
@@ -1385,7 +1396,7 @@ typedef struct VBOXVDMA_CTL
     VBOXVDMA_CTL_TYPE enmCtl;
     uint32_t u32Offset;
     int32_t  i32Result;
-} VBOXVDMA_CTL, *PVBOXVDMA_CTL;
+} VBOXVDMA_CTL;
 
 typedef struct VBOXVDMA_RECTL
 {
@@ -1455,7 +1466,7 @@ typedef uint64_t VBOXVDMASURFHANDLE;
 /* command buffer follows the VBOXVDMACBUF_DR in VRAM, VBOXVDMACBUF_DR::phBuf is ignored */
 #define VBOXVDMACBUF_FLAG_BUF_FOLLOWS_DR  0x00000002
 
-/*
+/**
  * We can not submit the DMA command via VRAM since we do not have control over
  * DMA command buffer [de]allocation, i.e. we only control the buffer contents.
  * In other words the system may call one of our callbacks to fill a command buffer
@@ -1480,22 +1491,26 @@ typedef struct VBOXVDMACBUF_DR
     uint64_t aGuestData[7];
 } VBOXVDMACBUF_DR, *PVBOXVDMACBUF_DR;
 
-#define VBOXVDMACBUF_DR_TAIL(_pCmd, _t) ( (_t*)(((uint8_t*)(_pCmd)) + sizeof (VBOXVDMACBUF_DR)) )
-#define VBOXVDMACBUF_DR_FROM_TAIL(_pCmd) ( (VBOXVDMACBUF_DR*)(((uint8_t*)(_pCmd)) - sizeof (VBOXVDMACBUF_DR)) )
+#define VBOXVDMACBUF_DR_TAIL(a_pCmd, a_TailType)       \
+    ( (a_TailType      RT_UNTRUSTED_VOLATILE_HSTGST *)( ((uint8_t*)(a_pCmd)) + sizeof(VBOXVDMACBUF_DR)) )
+#define VBOXVDMACBUF_DR_FROM_TAIL(a_pCmd) \
+    ( (VBOXVDMACBUF_DR RT_UNTRUSTED_VOLATILE_HSTGST *)( ((uint8_t*)(a_pCmd)) - sizeof(VBOXVDMACBUF_DR)) )
 
 typedef struct VBOXVDMACMD
 {
     VBOXVDMACMD_TYPE enmType;
     uint32_t u32CmdSpecific;
-} VBOXVDMACMD, *PVBOXVDMACMD;
+} VBOXVDMACMD;
 
-#define VBOXVDMACMD_HEADER_SIZE() sizeof (VBOXVDMACMD)
-#define VBOXVDMACMD_SIZE_FROMBODYSIZE(_s) (VBOXVDMACMD_HEADER_SIZE() + (_s))
-#define VBOXVDMACMD_SIZE(_t) (VBOXVDMACMD_SIZE_FROMBODYSIZE(sizeof (_t)))
-#define VBOXVDMACMD_BODY(_pCmd, _t) ( (_t*)(((uint8_t*)(_pCmd)) + VBOXVDMACMD_HEADER_SIZE()) )
-#define VBOXVDMACMD_BODY_SIZE(_s) ( (_s) - VBOXVDMACMD_HEADER_SIZE() )
-#define VBOXVDMACMD_FROM_BODY(_pCmd) ( (VBOXVDMACMD*)(((uint8_t*)(_pCmd)) - VBOXVDMACMD_HEADER_SIZE()) )
-#define VBOXVDMACMD_BODY_FIELD_OFFSET(_ot, _t, _f) ( (_ot)(uintptr_t)( VBOXVDMACMD_BODY(0, uint8_t) + RT_OFFSETOF(_t, _f) ) )
+#define VBOXVDMACMD_HEADER_SIZE()                   sizeof(VBOXVDMACMD)
+#define VBOXVDMACMD_SIZE_FROMBODYSIZE(_s)           (VBOXVDMACMD_HEADER_SIZE() + (_s))
+#define VBOXVDMACMD_SIZE(_t)                        (VBOXVDMACMD_SIZE_FROMBODYSIZE(sizeof (_t)))
+#define VBOXVDMACMD_BODY(a_pCmd, a_TypeBody)        \
+    ( (a_TypeBody RT_UNTRUSTED_VOLATILE_HSTGST  *)( ((uint8_t *)(a_pCmd)) + VBOXVDMACMD_HEADER_SIZE()) )
+#define VBOXVDMACMD_BODY_SIZE(_s)                   ( (_s) - VBOXVDMACMD_HEADER_SIZE() )
+#define VBOXVDMACMD_FROM_BODY(a_pBody)                \
+    ( (VBOXVDMACMD RT_UNTRUSTED_VOLATILE_HSTGST *)( ((uint8_t *)(a_pBody)) - VBOXVDMACMD_HEADER_SIZE()) )
+#define VBOXVDMACMD_BODY_FIELD_OFFSET(_ot, _t, _f)  ( (_ot)(uintptr_t)( VBOXVDMACMD_BODY(0, uint8_t) + RT_OFFSETOF(_t, _f) ) )
 
 typedef struct VBOXVDMACMD_DMA_PRESENT_BLT
 {

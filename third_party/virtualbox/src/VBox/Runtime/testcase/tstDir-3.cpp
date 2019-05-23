@@ -35,14 +35,14 @@ static int tstDirOpenFiltered(const char *pszFilter, unsigned *pcFilesMatch, int
 {
     int rcRet = 0;
     unsigned cFilesMatch = 0;
-    PRTDIR pDir;
-    int rc = RTDirOpenFiltered(&pDir, pszFilter, RTDIRFILTER_WINNT, 0);
+    RTDIR hDir;
+    int rc = RTDirOpenFiltered(&hDir, pszFilter, RTDIRFILTER_WINNT, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         for (;;)
         {
             RTDIRENTRY DirEntry;
-            rc = RTDirRead(pDir, &DirEntry, NULL);
+            rc = RTDirRead(hDir, &DirEntry, NULL);
             if (RT_FAILURE(rc))
                 break;
             cFilesMatch++;
@@ -55,7 +55,7 @@ static int tstDirOpenFiltered(const char *pszFilter, unsigned *pcFilesMatch, int
         }
 
         /* close up */
-        rc = RTDirClose(pDir);
+        rc = RTDirClose(hDir);
         if (RT_FAILURE(rc))
         {
             RTPrintf("tstDir-3: Failed to close dir '%s'! rc=%Rrc\n", pszFilter, rc);
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
         RTPrintf("tstDir-3: filter '%s' failed! rc=%Rrc\n", pszFilter2, rc);
     if (!cMatch)
         RTPrintf("tstDir-3: filter '%s' gave wrong result count! cMatch=%u\n", pszFilter2, cMatch);
-    
+
     RTStrFree(pszFilter2);
     RTStrFree(pszFilter1);
 

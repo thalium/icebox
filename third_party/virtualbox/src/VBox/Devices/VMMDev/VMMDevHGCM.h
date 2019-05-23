@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -21,10 +21,10 @@
 #include "VMMDevState.h"
 
 RT_C_DECLS_BEGIN
-int vmmdevHGCMConnect(VMMDevState *pVMMDevState, VMMDevHGCMConnect *pHGCMConnect, RTGCPHYS GCPtr);
-int vmmdevHGCMDisconnect(VMMDevState *pVMMDevState, VMMDevHGCMDisconnect *pHGCMDisconnect, RTGCPHYS GCPtr);
-int vmmdevHGCMCall(VMMDevState *pVMMDevState, VMMDevHGCMCall *pHGCMCall, uint32_t cbHGCMCall, RTGCPHYS GCPtr, bool f64Bits);
-int vmmdevHGCMCancel(VMMDevState *pVMMDevState, VMMDevHGCMCancel *pHGCMCancel, RTGCPHYS GCPtr);
+int vmmdevHGCMConnect(VMMDevState *pVMMDevState, const VMMDevHGCMConnect *pHGCMConnect, RTGCPHYS GCPtr);
+int vmmdevHGCMDisconnect(VMMDevState *pVMMDevState, const VMMDevHGCMDisconnect *pHGCMDisconnect, RTGCPHYS GCPtr);
+int vmmdevHGCMCall(VMMDevState *pVMMDevState, const VMMDevHGCMCall *pHGCMCall, uint32_t cbHGCMCall, RTGCPHYS GCPtr, VMMDevRequestType enmRequestType);
+int vmmdevHGCMCancel(VMMDevState *pVMMDevState, const VMMDevHGCMCancel *pHGCMCancel, RTGCPHYS GCPtr);
 int vmmdevHGCMCancel2(VMMDevState *pVMMDevState, RTGCPHYS GCPtr);
 
 DECLCALLBACK(void) hgcmCompleted(PPDMIHGCMPORT pInterface, int32_t result, PVBOXHGCMCMD pCmdPtr);

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -103,6 +103,12 @@ public:
 
     static QString qtRTVersionString();
     static uint qtRTVersion();
+    /** Returns Qt runtime major version. */
+    static uint qtRTMajorVersion();
+    /** Returns Qt runtime minor version. */
+    static uint qtRTMinorVersion();
+    /** Returns Qt runtime revision number. */
+    static uint qtRTRevisionNumber();
     static QString qtCTVersionString();
     static uint qtCTVersion();
 
@@ -296,6 +302,8 @@ public:
     /* details generators */
 
     QString details(const CMedium &medium, bool fPredictDiff, bool fUseHtml = true);
+        static void unsetCursor(QWidget *pWidget);
+        static void unsetCursor(QGraphicsWidget *pWidget);
 
     QString details (const CUSBDevice &aDevice) const;
     QString toolTip (const CUSBDevice &aDevice) const;
@@ -383,6 +391,9 @@ public:
     static QString systemLanguageId();
 
     static bool activateWindow (WId aWId, bool aSwitchDesktop = true);
+    /** Does some checks on certain platforms before calling QWidget::setCursor(...). */
+    static void setCursor(QWidget *pWidget, const QCursor &cursor);
+    static void setCursor(QGraphicsWidget *pWidget, const QCursor &cursor);
 
 #ifdef VBOX_WS_X11
     /** X11: Test whether the current window manager supports full screen mode. */
@@ -451,6 +462,11 @@ public:
     /** Assigns top-level @a pWidget geometry passed as @a rect.
       * @note  Take into account that this request may fail on X11. */
     static void setTopLevelGeometry(QWidget *pWidget, const QRect &rect);
+
+#ifdef VBOX_WS_X11
+    /** Assigns WM_CLASS property for passed @a pWidget. */
+    static void setWMClass(QWidget *pWidget, const QString &strNameString, const QString &strClassString);
+#endif
 
 signals:
 
@@ -648,4 +664,3 @@ private:
 inline VBoxGlobal& vboxGlobal() { return *VBoxGlobal::instance(); }
 
 #endif /* !___VBoxGlobal_h___ */
-

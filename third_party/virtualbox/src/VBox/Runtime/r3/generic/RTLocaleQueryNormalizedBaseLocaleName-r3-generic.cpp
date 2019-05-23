@@ -90,4 +90,3 @@ RTDECL(int) RTLocaleQueryNormalizedBaseLocaleName(char *pszName, size_t cbName)
     return rc;
 }
 
-

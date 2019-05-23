@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,9 +15,10 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #ifdef IN_VMSVGA3D
 # include "../include/cr_vreg.h"
 # define WARN AssertMsgFailed
@@ -98,15 +99,15 @@ DECLINLINE(int) vboxVrLaCreate(LOOKASIDE_LIST_EX *pCache, size_t cbElement)
 #endif /* IN_RING0 */
 
 
-/*******************************************************************************
-*   Defined Constants And Macros                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
 #define VBOXVR_INVALID_COORD    (~0U)
 
 
-/*******************************************************************************
-*   Global Variables                                                           *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
 static volatile int32_t g_cVBoxVrInits = 0;
 
 
@@ -811,7 +812,7 @@ static int vboxVrListIntersectNoJoin(PVBOXVR_LIST pList, PCVBOXVR_LIST pList2, b
                     /*just to ensure the VBoxRectCovers is true for equal rects */
                     Assert(VBoxRectCmp(pRect2, &RegRect1));
 
-                    /* @todo: this can have false-alarming sometimes if the separated rects will then be joind into the original rect,
+                    /** @todo this can have false-alarming sometimes if the separated rects will then be joind into the original rect,
                      * so far this should not be a problem for VReg clients, so keep it this way for now  */
                     fChanged = true;
 
@@ -960,7 +961,7 @@ VBOXVREGDECL(int) VBoxVrListRectsSet(PVBOXVR_LIST pList, uint32_t cRects, PCRTRE
     if (!cRects && VBoxVrListIsEmpty(pList))
         return VINF_SUCCESS;
 
-    /* @todo: fChanged will have false alarming here, fix if needed */
+    /** @todo fChanged will have false alarming here, fix if needed */
     VBoxVrListClear(pList);
 
     int rc = VBoxVrListRectsAdd(pList, cRects, aRects, NULL);

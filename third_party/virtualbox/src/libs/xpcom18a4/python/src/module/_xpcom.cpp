@@ -75,6 +75,7 @@ extern PYXPCOM_EXPORT void PyXPCOM_InterpreterState_Ensure();
 
 #ifdef VBOX_PYXPCOM
 # include <iprt/cdefs.h>
+# include <VBox/com/com.h>
 # ifndef MODULE_NAME_SUFFIX
 #  define MANGLE_MODULE_NAME(a_szName)  a_szName
 #  define MANGLE_MODULE_INIT(a_Name)    a_Name
@@ -617,15 +618,16 @@ PyXPCOMMethod_InterruptWait(PyObject *self, PyObject *args)
   return PyBool_FromLong(RT_SUCCESS(rc));
 }
 
-static void deinitVBoxPython();
+static nsresult deinitVBoxPython();
 
 static PyObject*
 PyXPCOMMethod_DeinitCOM(PyObject *self, PyObject *args)
 {
+    nsresult nr;
     Py_BEGIN_ALLOW_THREADS;
-    deinitVBoxPython();
+    nr = deinitVBoxPython();
     Py_END_ALLOW_THREADS;
-    return PyInt_FromLong(0);
+    return PyInt_FromLong(nr);
 }
 
 static NS_DEFINE_CID(kEventQueueServiceCID, NS_EVENTQUEUESERVICE_CID);
@@ -726,11 +728,11 @@ static struct PyMethodDef xpcom_methods[]=
 	{"MakeVariant", PyXPCOMMethod_MakeVariant, 1},
 	{"GetVariantValue", PyXPCOMMethod_GetVariantValue, 1},
 #ifdef VBOX
-    {"WaitForEvents", PyXPCOMMethod_WaitForEvents, 1},
-    {"InterruptWait", PyXPCOMMethod_InterruptWait, 1},
-    {"DeinitCOM",     PyXPCOMMethod_DeinitCOM, 1},
-    {"AttachThread",  PyXPCOMMethod_AttachThread, 1},
-    {"DetachThread",  PyXPCOMMethod_DetachThread, 1},
+	{"WaitForEvents", PyXPCOMMethod_WaitForEvents, 1},
+	{"InterruptWait", PyXPCOMMethod_InterruptWait, 1},
+	{"DeinitCOM",     PyXPCOMMethod_DeinitCOM, 1},
+	{"AttachThread",  PyXPCOMMethod_AttachThread, 1},
+	{"DetachThread",  PyXPCOMMethod_DetachThread, 1},
 #endif
 #ifdef VBOX_DEBUG_LIFETIMES
 	{"_DumpInterfaces", PyXPCOMMethod_DumpInterfaces, 1},
@@ -853,33 +855,38 @@ init_xpcom() {
 }
 
 #ifdef VBOX_PYXPCOM
-#include <VBox/com/com.h>
+# include <VBox/com/com.h>
 using namespace com;
 
-#include <iprt/initterm.h>
-#include <iprt/string.h>
-#include <iprt/alloca.h>
-#include <iprt/stream.h>
+# include <iprt/initterm.h>
+# include <iprt/string.h>
+# include <iprt/alloca.h>
+# include <iprt/stream.h>
 
-#if PY_MAJOR_VERSION <= 2
+/** Set if NS_ShutdownXPCOM has been called successfully already and we don't 
+ * need to do it again during module termination.  This avoids assertion in the 
+ * VBoxCOM glue code. */
+static bool g_fComShutdownAlready = true;
+
+# if PY_MAJOR_VERSION <= 2
 extern "C" NS_EXPORT
 void
-#else
+# else
 /** @todo r=klaus this is hacky, but as Python3 doesn't deal with ELF
  * visibility, assuming that all globals are visible (which is ugly and not
  * true in our case). */
-#undef PyMODINIT_FUNC
-#define PyMODINIT_FUNC extern "C" NS_EXPORT PyObject*
+#  undef PyMODINIT_FUNC
+#  define PyMODINIT_FUNC extern "C" NS_EXPORT PyObject*
 PyMODINIT_FUNC
-#endif
+# endif
 initVBoxPython() { /* NOTE! This name is redefined at the top of the file! */
   static bool s_vboxInited = false;
   if (!s_vboxInited) {
-    int rc = 0;
+    int rc = 0; /* Error handling in this code is NON-EXISTING. Sigh. */
 
-#if defined(VBOX_PATH_APP_PRIVATE_ARCH) && defined(VBOX_PATH_SHARED_LIBS)
+# if defined(VBOX_PATH_APP_PRIVATE_ARCH) && defined(VBOX_PATH_SHARED_LIBS)
     rc = RTR3InitDll(RTR3INIT_FLAGS_UNOBTRUSIVE);
-#else
+# else
     const char *home = getenv("VBOX_PROGRAM_PATH");
     if (home) {
       size_t len = strlen(home);
@@ -890,25 +897,35 @@ initVBoxPython() { /* NOTE! This name is redefined at the top of the file! */
     } else {
       rc = RTR3InitDll(RTR3INIT_FLAGS_UNOBTRUSIVE);
     }
-#endif
+# endif
 
     rc = com::Initialize();
+    g_fComShutdownAlready = false;
 
-#if PY_MAJOR_VERSION <= 2
+# if PY_MAJOR_VERSION <= 2
     init_xpcom();
-#else
+# else
     return init_xpcom();
-#endif
+# endif
   }
-#if PY_MAJOR_VERSION >= 3
+# if PY_MAJOR_VERSION >= 3
   return NULL;
-#endif
+# endif
 }
 
 static
-void deinitVBoxPython()
+nsresult deinitVBoxPython()
 {
-  com::Shutdown();
+  nsresult nr;
+  if (!g_fComShutdownAlready)
+  {
+    nr = com::Shutdown();
+    if (!NS_FAILED(nr))
+      g_fComShutdownAlready = true;
+  }
+  else
+    nr = NS_ERROR_NOT_INITIALIZED;
+  return nr;
 }
 
 #endif /* VBOX_PYXPCOM */

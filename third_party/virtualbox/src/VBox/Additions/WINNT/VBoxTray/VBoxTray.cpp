@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -558,7 +558,7 @@ static int vboxTrayLogCreate(const char *pszLogFile)
 #if defined(RT_OS_WINDOWS) || defined(RT_OS_OS2)
     fFlags |= RTLOGFLAGS_USECRLF;
 #endif
-    char szError[RTPATH_MAX + 128] = "";
+    RTERRINFOSTATIC ErrInfo;
     int rc = RTLogCreateEx(&g_pLoggerRelease, fFlags,
 #ifdef DEBUG
                            "all.e.l.f",
@@ -569,7 +569,7 @@ static int vboxTrayLogCreate(const char *pszLogFile)
 #endif
                            RT_ELEMENTS(s_apszGroups), s_apszGroups, RTLOGDEST_STDOUT,
                            vboxTrayLogHeaderFooter, g_cHistory, g_uHistoryFileSize, g_uHistoryFileTime,
-                           szError, sizeof(szError), pszLogFile);
+                           RTErrInfoInitStatic(&ErrInfo), pszLogFile);
     if (RT_SUCCESS(rc))
     {
 #ifdef DEBUG
@@ -582,8 +582,7 @@ static int vboxTrayLogCreate(const char *pszLogFile)
         RTLogFlush(g_pLoggerRelease);
     }
     else
-        MessageBox(GetDesktopWindow(),
-                   szError, "VBoxTray - Logging Error", MB_OK | MB_ICONERROR);
+        MessageBoxA(GetDesktopWindow(), ErrInfo.szMsg, "VBoxTray - Logging Error", MB_OK | MB_ICONERROR);
 
     return rc;
 }

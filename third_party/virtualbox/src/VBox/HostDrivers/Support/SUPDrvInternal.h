@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -849,6 +849,7 @@ RTCCUINTREG VBOXCALL supdrvOSChangeCR4(RTCCUINTREG fOrMask, RTCCUINTREG fAndMask
 bool VBOXCALL   supdrvOSSuspendVTxOnCpu(void);
 void VBOXCALL   supdrvOSResumeVTxOnCpu(bool fSuspended);
 int  VBOXCALL   supdrvOSGetCurrentGdtRw(RTHCUINTPTR *pGdtRw);
+int  VBOXCALL   supdrvOSGetRawModeUsability(void);
 
 /**
  * Try open the image using the native loader.

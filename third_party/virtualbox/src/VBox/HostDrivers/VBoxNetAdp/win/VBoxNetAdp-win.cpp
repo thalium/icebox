@@ -3,7 +3,7 @@
  * VBoxNetAdp-win.cpp - NDIS6 Host-only Networking Driver, Windows-specific code.
  */
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -12,6 +12,15 @@
  * Foundation, in version 2 as it comes in the "COPYING" file of the
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ *
+ * The contents of this file may alternatively be used under the terms
+ * of the Common Development and Distribution License Version 1.0
+ * (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+ * VirtualBox OSE distribution, in which case the provisions of the
+ * CDDL are applicable instead of those of the GPL.
+ *
+ * You may elect to license modified versions of this file under the
+ * terms and conditions of either the GPL or the CDDL or both.
  */
 
 #define LOG_GROUP LOG_GROUP_NET_ADP_DRV
@@ -147,7 +156,7 @@ typedef struct _VBOXNETADP_ADAPTER {
     /** Pointer to global data */
     PVBOXNETADPGLOBALS pGlobals;
     /** Adapter state in NDIS, used for assertions only */
-    VBOXNETADPWIN_ADAPTER_STATE volatile enmAdapterState; // @todo do we need it really?
+    VBOXNETADPWIN_ADAPTER_STATE volatile enmAdapterState; /// @todo do we need it really?
     /** The trunk state. */
     INTNETTRUNKIFSTATE volatile enmTrunkState;
     /** Number of pending operations, when it reaches zero we signal EventIdle. */
@@ -724,7 +733,7 @@ static DECLCALLBACK(void) vboxNetAdpWinPortNotifyMacAddress(PINTNETTRUNKIFPORT p
     AssertPtr(pThis);
     Assert(pThis->MyPort.u32Version == INTNETTRUNKIFPORT_VERSION);
 
-    // @todo Do we really need to handle this?
+    /// @todo Do we really need to handle this?
 }
 
 
@@ -852,16 +861,16 @@ static DECLCALLBACK(int) vboxNetAdpWinFactoryCreateAndConnect(PINTNETTRUNKFACTOR
         {
             pAdapter->pSwitchPort = pSwitchPort;
             *ppIfPort = &pAdapter->MyPort;
-            NdisReleaseSpinLock(&g_VBoxNetAdpGlobals.Lock); // @todo too early? adp should have been connected by the time we do this
+            NdisReleaseSpinLock(&g_VBoxNetAdpGlobals.Lock); /// @todo too early? adp should have been connected by the time we do this
             Log(("vboxNetAdpWinFactoryCreateAndConnect: found matching adapter, name=%s\n", pszName));
             vboxNetAdpWinReportCapabilities(pAdapter);
-            // @todo I guess there is no need in vboxNetAdpWinRegisterIpAddrNotifier(pThis);
+            /// @todo I guess there is no need in vboxNetAdpWinRegisterIpAddrNotifier(pThis);
             LogFlow(("<==vboxNetAdpWinFactoryCreateAndConnect: return VINF_SUCCESS\n"));
             return VINF_SUCCESS;
         }
     }
     NdisReleaseSpinLock(&pGlobals->Lock);
-    // @todo vboxNetAdpLogErrorEvent(IO_ERR_INTERNAL_ERROR, STATUS_SUCCESS, 6);
+    /// @todo vboxNetAdpLogErrorEvent(IO_ERR_INTERNAL_ERROR, STATUS_SUCCESS, 6);
     LogFlow(("<==vboxNetAdpWinFactoryCreateAndConnect: return VERR_INTNET_FLT_IF_NOT_FOUND\n"));
     return VERR_INTNET_FLT_IF_NOT_FOUND;
 }
@@ -1285,7 +1294,7 @@ DECLHIDDEN(NDIS_STATUS) vboxNetAdpWinPause(IN NDIS_HANDLE MiniportAdapterContext
     if (!NdisWaitEvent(&pThis->EventIdle, 1000 /* ms */))
     {
         LogError(("vboxNetAdpWinPause: timed out while pausing the adapter\n"));
-        // @todo implement NDIS_STATUS_PENDING case? probably not.
+        /// @todo implement NDIS_STATUS_PENDING case? probably not.
     }
     enmPrevState = vboxNetAdpWinSetState(pThis, kVBoxNetAdpWinState_Paused);
     Assert(enmPrevState == kVBoxNetAdpWinState_Pausing);
@@ -1302,7 +1311,7 @@ DECLHIDDEN(NDIS_STATUS) vboxNetAdpWinRestart(IN NDIS_HANDLE MiniportAdapterConte
     LogFlow(("==>vboxNetAdpWinRestart\n"));
     VBOXNETADPWIN_ADAPTER_STATE enmPrevState = vboxNetAdpWinSetState(pThis, kVBoxNetAdpWinState_Restarting);
     Assert(enmPrevState == kVBoxNetAdpWinState_Paused);
-    // @todo anything?
+    /// @todo anything?
     enmPrevState = vboxNetAdpWinSetState(pThis, kVBoxNetAdpWinState_Running);
     Assert(enmPrevState == kVBoxNetAdpWinState_Restarting);
     LogFlow(("<==vboxNetAdpWinRestart: status=0x%x\n", Status));

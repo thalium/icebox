@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -35,6 +35,32 @@
 *********************************************************************************************************************************/
 #define VBOX_DEVICE_STRUCT_TESTCASE
 #define VBOX_WITH_HGCM                  /* grumble */
+
+/* Check that important preprocessor macros does not get redefined: */
+#include <VBox/cdefs.h>
+#include <VBox/log.h>
+#ifdef DEBUG
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_DEBUG
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_DEBUG
+#endif
+#ifdef LOG_ENABLED
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_LOG_ENABLED
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_LOG_ENABLED
+#endif
+#ifdef VBOX_STRICT
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_VBOX_STRICT
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_VBOX_STRICT
+#endif
+#ifdef RT_STRICT
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_RT_STRICT
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_RT_STRICT
+#endif
+
+/* The structures we're checking: */
 #undef LOG_GROUP
 #include "../Bus/DevPciInternal.h"
 #undef LOG_GROUP
@@ -103,14 +129,29 @@
 #endif
 #undef LOG_GROUP
 #include "../PC/DevHPET.cpp"
-# undef LOG_GROUP
-# include "../Audio/DevIchAc97.cpp"
-# undef LOG_GROUP
-# include "../Audio/DevHDA.cpp"
+#undef LOG_GROUP
+#include "../Audio/DevIchAc97.cpp"
+#undef LOG_GROUP
+#include "../Audio/DevHDA.cpp"
 #ifdef VBOX_WITH_NVME_IMPL
 # undef LOG_GROUP
 # include "../Storage/DevNVMe.cpp"
 #endif
+
+/* Check that important preprocessor macros didn't get redefined: */
+#if defined(DEBUG)       != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_DEBUG)
+# error "DEBUG was modified!  This may throw off structure tests."
+#endif
+#if defined(LOG_ENABLED) != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_LOG_ENABLED)
+# error "LOG_ENABLED was modified!  This may throw off structure tests."
+#endif
+#if defined(RT_STRICT)   != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_RT_STRICT)
+# error "RT_STRICT was modified!  This may throw off structure tests."
+#endif
+#if defined(VBOX_STRICT) != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_VBOX_STRICT)
+# error "VBOX_STRICT was modified!  This may throw off structure tests."
+#endif
+
 
 /* we don't use iprt here because we're pretending to be in GC! */
 #include <stdio.h>
@@ -431,17 +472,21 @@ int main()
     GEN_CHECK_OFF(PS2K, fScanning);
     GEN_CHECK_OFF(PS2K, fNumLockOn);
     GEN_CHECK_OFF(PS2K, u8ScanSet);
-    GEN_CHECK_OFF(PS2K, u8Typematic);
+    GEN_CHECK_OFF(PS2K, u8TypematicCfg);
     GEN_CHECK_OFF(PS2K, enmTypematicState);
     GEN_CHECK_OFF(PS2K, keyQ);
     GEN_CHECK_OFF(PS2K, cmdQ);
     GEN_CHECK_OFF(PS2K, uTypematicDelay);
+    GEN_CHECK_OFF(PS2K, fThrottleActive);
     GEN_CHECK_OFF(PS2K, pKbdDelayTimerRC);
     GEN_CHECK_OFF(PS2K, pKbdDelayTimerR3);
     GEN_CHECK_OFF(PS2K, pKbdDelayTimerR0);
     GEN_CHECK_OFF(PS2K, pKbdTypematicTimerRC);
     GEN_CHECK_OFF(PS2K, pKbdTypematicTimerR3);
     GEN_CHECK_OFF(PS2K, pKbdTypematicTimerR0);
+    GEN_CHECK_OFF(PS2K, pThrottleTimerRC);
+    GEN_CHECK_OFF(PS2K, pThrottleTimerR3);
+    GEN_CHECK_OFF(PS2K, pThrottleTimerR0);
     GEN_CHECK_OFF(PS2K, pCritSectR3);
     GEN_CHECK_OFF(PS2K, Keyboard.IBase);
     GEN_CHECK_OFF(PS2K, Keyboard.IPort);
@@ -1585,7 +1630,7 @@ int main()
     GEN_CHECK_OFF(VMMDEV, fKeepCredentials);
     GEN_CHECK_OFF(VMMDEV, fHeapEnabled);
 #ifdef VBOX_WITH_HGCM
-    GEN_CHECK_OFF(VMMDEV, pHGCMCmdList);
+    GEN_CHECK_OFF(VMMDEV, listHGCMCmd);
     GEN_CHECK_OFF(VMMDEV, critsectHGCMCmdList);
     GEN_CHECK_OFF(VMMDEV, u32HGCMEnabled);
 #endif
@@ -1803,6 +1848,48 @@ int main()
     GEN_CHECK_OFF(AC97DRIVER, MicIn);
     GEN_CHECK_OFF(AC97DRIVER, Out);
 
+    GEN_CHECK_SIZE(AC97STATE);
+    GEN_CHECK_OFF(AC97STATE, CritSect);
+    GEN_CHECK_OFF(AC97STATE, pDevInsR3);
+    GEN_CHECK_OFF(AC97STATE, pDevInsR0);
+    GEN_CHECK_OFF(AC97STATE, pDevInsRC);
+    GEN_CHECK_OFF(AC97STATE, fRZEnabled);
+    GEN_CHECK_OFF(AC97STATE, glob_cnt);
+    GEN_CHECK_OFF(AC97STATE, glob_sta);
+    GEN_CHECK_OFF(AC97STATE, cas);
+    GEN_CHECK_OFF(AC97STATE, last_samp);
+    GEN_CHECK_OFF(AC97STATE, mixer_data);
+    GEN_CHECK_OFF(AC97STATE, StreamLineIn);
+    GEN_CHECK_OFF(AC97STATE, StreamMicIn);
+    GEN_CHECK_OFF(AC97STATE, StreamOut);
+    GEN_CHECK_OFF(AC97STATE, cStreamsActive);
+#ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+    GEN_CHECK_OFF(AC97STATE, pTimerR3);
+    GEN_CHECK_OFF(AC97STATE, pTimerR0);
+    GEN_CHECK_OFF(AC97STATE, pTimerRC);
+    GEN_CHECK_OFF(AC97STATE, fTimerActive);
+    GEN_CHECK_OFF(AC97STATE, u8Padding1);
+    GEN_CHECK_OFF(AC97STATE, cTimerTicks);
+    GEN_CHECK_OFF(AC97STATE, uTimerTS);
+#endif
+#ifdef VBOX_WITH_STATISTICS
+    GEN_CHECK_OFF(AC97STATE, StatTimer);
+    GEN_CHECK_OFF(AC97STATE, StatIn);
+    GEN_CHECK_OFF(AC97STATE, StatOut);
+    GEN_CHECK_OFF(AC97STATE, StatBytesRead);
+    GEN_CHECK_OFF(AC97STATE, StatBytesWritten);
+#endif
+    GEN_CHECK_OFF(AC97STATE, lstDrv);
+    GEN_CHECK_OFF(AC97STATE, pMixer);
+    GEN_CHECK_OFF(AC97STATE, pSinkOut);
+    GEN_CHECK_OFF(AC97STATE, pSinkLineIn);
+    GEN_CHECK_OFF(AC97STATE, pSinkMicIn);
+    GEN_CHECK_OFF(AC97STATE, silence);
+    GEN_CHECK_OFF(AC97STATE, bup_flag);
+    GEN_CHECK_OFF(AC97STATE, IBase);
+    GEN_CHECK_OFF(AC97STATE, IOPortBase);
+    GEN_CHECK_OFF(AC97STATE, uCodecModel);
+
     GEN_CHECK_SIZE(HDADRIVERSTREAM);
     GEN_CHECK_OFF(HDADRIVERSTREAM, DestSource);
     GEN_CHECK_OFF(HDADRIVERSTREAM, pMixStrm);
@@ -1841,10 +1928,14 @@ int main()
     GEN_CHECK_SIZE(HDASTREAMSTATE);
     GEN_CHECK_OFF(HDASTREAMSTATE, uCurBDLE);
     GEN_CHECK_OFF(HDASTREAMSTATE, fInReset);
-    GEN_CHECK_OFF(HDASTREAMSTATE, CritSect);
     GEN_CHECK_OFF(HDASTREAMSTATE, Mapping);
     GEN_CHECK_OFF(HDASTREAMSTATE, BDLE);
     GEN_CHECK_OFF(HDASTREAMSTATE, pCircBuf);
+
+    GEN_CHECK_SIZE(HDASTREAMDBGINFORT);
+
+    GEN_CHECK_SIZE(HDASTREAMDBGINFO);
+    GEN_CHECK_OFF(HDASTREAMDBGINFO, Runtime);
 
     GEN_CHECK_SIZE(HDASTREAM);
     GEN_CHECK_OFF(HDASTREAM, u8SD);
@@ -1853,6 +1944,8 @@ int main()
     GEN_CHECK_OFF(HDASTREAM, u16FIFOS);
     GEN_CHECK_OFF(HDASTREAM, u16LVI);
     GEN_CHECK_OFF(HDASTREAM, State);
+    GEN_CHECK_OFF(HDASTREAM, Dbg);
+    GEN_CHECK_OFF(HDASTREAM, CritSect);
 
     GEN_CHECK_SIZE(HDASTATE);
     GEN_CHECK_OFF(HDASTATE, PciDev);
@@ -1872,12 +1965,7 @@ int main()
     GEN_CHECK_OFF(HDASTATE, cbCorbBuf);
     GEN_CHECK_OFF(HDASTATE, pu64RirbBuf);
     GEN_CHECK_OFF(HDASTATE, cbRirbBuf);
-    GEN_CHECK_OFF(HDASTATE, fR0Enabled);
-    GEN_CHECK_OFF(HDASTATE, fRCEnabled);
-#ifndef VBOX_WITH_AUDIO_CALLBACKS
-    GEN_CHECK_OFF(HDASTATE, pTimer);
-    GEN_CHECK_OFF(HDASTATE, cTimerTicks);
-#endif
+    GEN_CHECK_OFF(HDASTATE, fRZEnabled);
 #ifdef VBOX_WITH_STATISTICS
 # ifndef VBOX_WITH_AUDIO_CALLBACKS
     GEN_CHECK_OFF(HDASTATE, StatTimer);
@@ -1898,7 +1986,8 @@ int main()
     GEN_CHECK_OFF(HDASTATE, SinkMicIn);
 #endif
     GEN_CHECK_OFF(HDASTATE, u64WalClk);
-    GEN_CHECK_OFF(HDASTATE, u8RespIntCnt);
+    GEN_CHECK_OFF(HDASTATE, u16RespIntCnt);
+    GEN_CHECK_OFF(HDASTATE, cPosAdjustFrames);
     GEN_CHECK_OFF(HDASTATE, u8IRQL);
 
 #ifdef VBOX_WITH_NVME_IMPL

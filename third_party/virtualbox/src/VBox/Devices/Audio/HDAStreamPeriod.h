@@ -22,11 +22,12 @@
 #ifdef DEBUG
 # include <iprt/time.h>
 #endif
+#include <VBox/log.h> /* LOG_ENABLED */
 
 struct HDASTREAM;
 typedef HDASTREAM *PHDASTREAM;
 
-#ifdef DEBUG
+#ifdef LOG_ENABLED
 /**
  * Structure for debug information of an HDA stream's period.
  */
@@ -50,14 +51,15 @@ typedef struct HDASTREAMPERIODDBGINFO
  */
 typedef struct HDASTREAMPERIOD
 {
+    /** Critical section for serializing access. */
+    RTCRITSECT              CritSect;
     /** Associated HDA stream descriptor (SD) number. */
     uint8_t                 u8SD;
     /** The period's status flags. */
     uint8_t                 fStatus;
-    uint8_t                 Padding1[6];
-    /** Critical section for serializing access. */
-    RTCRITSECT              CritSect;
-    uint32_t                Padding2[1];
+    /** Number of pending interrupts required for this period. */
+    uint8_t                 cIntPending;
+    uint8_t                 bPadding0;
     /** Hertz (Hz) rate this period runs with. */
     uint32_t                u32Hz;
     /** Period start time (in wall clock counts). */
@@ -72,37 +74,37 @@ typedef struct HDASTREAMPERIOD
     uint32_t                framesToTransfer;
     /** Number of audio frames already transfered. */
     uint32_t                framesTransferred;
-    /** Number of pending interrupts required for this period. */
-    uint8_t                 cIntPending;
-    uint8_t                 Padding3[7];
-#ifdef DEBUG
+#ifdef LOG_ENABLED
     /** Debugging information. */
     HDASTREAMPERIODDBGINFO  Dbg;
 #endif
-} HDASTREAMPERIOD, *PHDASTREAMPERIOD;
+} HDASTREAMPERIOD;
+AssertCompileSizeAlignment(HDASTREAMPERIOD, 8);
+/** Pointer to a HDA stream's time period keeper. */
+typedef HDASTREAMPERIOD *PHDASTREAMPERIOD;
 
 #ifdef IN_RING3
-int      hdaStreamPeriodCreate(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodDestroy(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodInit(PHDASTREAMPERIOD pPeriod, uint8_t u8SD, uint16_t u16LVI, uint32_t u32CBL, PPDMAUDIOSTREAMCFG pStreamCfg);
-void     hdaStreamPeriodReset(PHDASTREAMPERIOD pPeriod);
-int      hdaStreamPeriodBegin(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk);
-void     hdaStreamPeriodEnd(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodPause(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodResume(PHDASTREAMPERIOD pPeriod);
-bool     hdaStreamPeriodLock(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodUnlock(PHDASTREAMPERIOD pPeriod);
-uint64_t hdaStreamPeriodFramesToWalClk(PHDASTREAMPERIOD pPeriod, uint32_t uFrames);
-uint64_t hdaStreamPeriodGetAbsEndWalClk(PHDASTREAMPERIOD pPeriod);
-uint64_t hdaStreamPeriodGetAbsElapsedWalClk(PHDASTREAMPERIOD pPeriod);
-uint32_t hdaStreamPeriodGetRemainingFrames(PHDASTREAMPERIOD pPeriod);
-bool     hdaStreamPeriodHasElapsed(PHDASTREAMPERIOD pPeriod);
-bool     hdaStreamPeriodHasPassedAbsWalClk(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk);
-bool     hdaStreamPeriodNeedsInterrupt(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodAcquireInterrupt(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodReleaseInterrupt(PHDASTREAMPERIOD pPeriod);
-void     hdaStreamPeriodInc(PHDASTREAMPERIOD pPeriod, uint32_t framesInc);
-bool     hdaStreamPeriodIsComplete(PHDASTREAMPERIOD pPeriod);
+int      hdaR3StreamPeriodCreate(PHDASTREAMPERIOD pPeriod);
+void     hdaR3StreamPeriodDestroy(PHDASTREAMPERIOD pPeriod);
+int      hdaR3StreamPeriodInit(PHDASTREAMPERIOD pPeriod, uint8_t u8SD, uint16_t u16LVI, uint32_t u32CBL, PPDMAUDIOSTREAMCFG pStreamCfg);
+void     hdaR3StreamPeriodReset(PHDASTREAMPERIOD pPeriod);
+int      hdaR3StreamPeriodBegin(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk);
+void     hdaR3StreamPeriodEnd(PHDASTREAMPERIOD pPeriod);
+void     hdaR3StreamPeriodPause(PHDASTREAMPERIOD pPeriod);
+void     hdaR3StreamPeriodResume(PHDASTREAMPERIOD pPeriod);
+bool     hdaR3StreamPeriodLock(PHDASTREAMPERIOD pPeriod);
+void     hdaR3StreamPeriodUnlock(PHDASTREAMPERIOD pPeriod);
+uint64_t hdaR3StreamPeriodFramesToWalClk(PHDASTREAMPERIOD pPeriod, uint32_t uFrames);
+uint64_t hdaR3StreamPeriodGetAbsEndWalClk(PHDASTREAMPERIOD pPeriod);
+uint64_t hdaR3StreamPeriodGetAbsElapsedWalClk(PHDASTREAMPERIOD pPeriod);
+uint32_t hdaR3StreamPeriodGetRemainingFrames(PHDASTREAMPERIOD pPeriod);
+bool     hdaR3StreamPeriodHasElapsed(PHDASTREAMPERIOD pPeriod);
+bool     hdaR3StreamPeriodHasPassedAbsWalClk(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk);
+bool     hdaR3StreamPeriodNeedsInterrupt(PHDASTREAMPERIOD pPeriod);
+void     hdaR3StreamPeriodAcquireInterrupt(PHDASTREAMPERIOD pPeriod);
+void     hdaR3StreamPeriodReleaseInterrupt(PHDASTREAMPERIOD pPeriod);
+void     hdaR3StreamPeriodInc(PHDASTREAMPERIOD pPeriod, uint32_t framesInc);
+bool     hdaR3StreamPeriodIsComplete(PHDASTREAMPERIOD pPeriod);
 #endif /* IN_RING3 */
 
 #endif /* !HDA_STREAMPERIOD_H */

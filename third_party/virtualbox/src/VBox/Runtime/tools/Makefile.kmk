@@ -68,26 +68,36 @@ if !defined(VBOX_ONLY_BUILD)
  PROGRAMS += RTCat
  RTCat_TEMPLATE = VBoxR3Tool
  RTCat_SOURCES = RTCat.cpp
+ RTCat_SOURCES += ../VBox/LoadVBoxDDU.cpp
+
+ # RTChMod - our chmod clone.
+ PROGRAMS += RTChMod
+ RTChMod_TEMPLATE = VBoxR3Tool
+ RTChMod_SOURCES = RTChMod.cpp
 
  # RTIsoMaker - ISO image maker - build version.
  PROGRAMS += RTIsoMaker
  RTIsoMaker_TEMPLATE = VBoxR3Tool
  RTIsoMaker_SOURCES = RTIsoMaker.cpp
+ RTIsoMaker_SOURCES += ../VBox/LoadVBoxDDU.cpp
 
  # RTLs is a tool for listing file information.
  PROGRAMS += RTLs
  RTLs_TEMPLATE = VBoxR3Tool
  RTLs_SOURCES = RTLs.cpp
+ RTLs_SOURCES += ../VBox/LoadVBoxDDU.cpp
 
  # RTRm is a tool for removing files and directories.
  PROGRAMS += RTRm
  RTRm_TEMPLATE = VBoxR3Tool
  RTRm_SOURCES = RTRm.cpp
+ RTRm_SOURCES += ../VBox/LoadVBoxDDU.cpp
 
  # RTManifest is a tool for creating and verifying manifest files.
  PROGRAMS += RTManifest
  RTManifest_TEMPLATE = VBoxR3Tool
  RTManifest_SOURCES = RTManifest.cpp
+ RTManifest_SOURCES += ../VBox/LoadVBoxDDU.cpp
 
  # RTLdrFlt is similar to c++filt, except that it's for VMMR0.r0 stacks.
  PROGRAMS += RTLdrFlt
@@ -98,13 +108,24 @@ if !defined(VBOX_ONLY_BUILD)
  PROGRAMS += RTGzip
  RTGzip_TEMPLATE = VBoxR3Tool
  RTGzip_SOURCES = RTGzip.cpp
+ RTGzip_SOURCES += ../VBox/LoadVBoxDDU.cpp
 
  ifdef VBOX_WITH_LIBCURL
- # RTHttp - our http/https fetcher (for testing the http client API).
- PROGRAMS += RTHttp
- RTHttp_TEMPLATE = VBoxR3Tool
- RTHttp_SOURCES = RTHttp.cpp
+  # RTHttp - our http/https fetcher (for testing the http client API).
+  PROGRAMS += RTHttp
+  RTHttp_TEMPLATE = VBoxR3Tool
+  RTHttp_SOURCES = RTHttp.cpp
  endif
+
+ # RTMkDir - our mkdir clone.
+ PROGRAMS += RTMkDir
+ RTMkDir_TEMPLATE = VBoxR3Tool
+ RTMkDir_SOURCES = RTMkDir.cpp
+
+ # RTRmDir - our mkdir clone.
+ PROGRAMS += RTRmDir
+ RTRmDir_TEMPLATE = VBoxR3Tool
+ RTRmDir_SOURCES = RTRmDir.cpp
 
  # RTShutdown - similar (but not identical) to a typical unix shutdown command.
  PROGRAMS += RTShutdown
@@ -115,11 +136,13 @@ if !defined(VBOX_ONLY_BUILD)
  PROGRAMS += RTTar
  RTTar_TEMPLATE = VBoxR3Tool
  RTTar_SOURCES = RTTar.cpp
+ RTTar_SOURCES += ../VBox/LoadVBoxDDU.cpp
 
  # RTUnzip - our unzip clone (for testing the unzip streaming code)
  PROGRAMS += RTUnzip
  RTUnzip_TEMPLATE = VBoxR3Tool
  RTUnzip_SOURCES = RTUnzip.cpp
+ RTUnzip_SOURCES += ../VBox/LoadVBoxDDU.cpp
 
  # RTNtDbgHelp - our tar clone (for testing the tar/gzip/gunzip streaming code)
  PROGRAMS.win += RTNtDbgHelp
@@ -138,10 +161,10 @@ if !defined(VBOX_ONLY_BUILD)
  RTSignTool_LIBS = $(PATH_STAGE_LIB)/SUPR3$(VBOX_SUFF_LIB)
 
  if1of ($(KBUILD_TARGET), darwin linux solaris win)
- # RTKrnlModInfo - our lsmod/kextstat clone (for testing the RTKrnlMod code).
- PROGRAMS += RTKrnlModInfo
- RTKrnlModInfo_TEMPLATE = VBoxR3Tool
- RTKrnlModInfo_SOURCES = RTKrnlModInfo.cpp
+  # RTKrnlModInfo - our lsmod/kextstat clone (for testing the RTKrnlMod code).
+  PROGRAMS += RTKrnlModInfo
+  RTKrnlModInfo_TEMPLATE = VBoxR3Tool
+  RTKrnlModInfo_SOURCES = RTKrnlModInfo.cpp
  endif
 
 endif # !VBOX_ONLY_BUILD

@@ -96,7 +96,7 @@ BEGINPROC tstRTPRfAMemoryAccess
         shr     RTCCPTR_PRE VAR_XAX, 3
         shl     RTCCPTR_PRE VAR_XAX, 1
         xor     RTCCPTR_PRE VAR_XDX, 01010101h
-              
+
         mov     eax, VAR_ECX
         add     VAR_XAX, eax
         mov     xAX, VAR_XAX
@@ -120,9 +120,9 @@ BEGINPROC tstRTPRfAMemoryAccess
 %undef VAR_XDX
 %undef VAR_ECX
 
-        leave  
         leave
-        ret     
+        leave
+        ret
 ENDPROC   tstRTPRfAMemoryAccess
 
 

@@ -59,7 +59,7 @@ CREATE OR REPLACE FUNCTION UserAccountLogic_checkUniqueUser(a_sUsername TEXT, a_
         END IF;
     END;
 $$ LANGUAGE plpgsql;
-              
+
 ---
 -- Check that the user account exists.
 -- Raises exception if it doesn't.
@@ -83,7 +83,7 @@ $$ LANGUAGE plpgsql;
 -- Historize a row.
 -- @internal
 --
-CREATE OR REPLACE FUNCTION UserAccountLogic_historizeEntry(a_uid INTEGER, a_tsExpire TIMESTAMP WITH TIME ZONE) 
+CREATE OR REPLACE FUNCTION UserAccountLogic_historizeEntry(a_uid INTEGER, a_tsExpire TIMESTAMP WITH TIME ZONE)
     RETURNS VOID AS $$
     DECLARE
         v_cUpdatedRows INTEGER;
@@ -106,7 +106,7 @@ $$ LANGUAGE plpgsql;
 ---
 -- Adds a new user.
 --
-CREATE OR REPLACE FUNCTION UserAccountLogic_addEntry(a_uidAuthor INTEGER, a_sUsername TEXT, a_sEmail TEXT, a_sFullName TEXT, 
+CREATE OR REPLACE FUNCTION UserAccountLogic_addEntry(a_uidAuthor INTEGER, a_sUsername TEXT, a_sEmail TEXT, a_sFullName TEXT,
                                                      a_sLoginName TEXT, a_fReadOnly BOOLEAN)
     RETURNS VOID AS $$
     DECLARE
@@ -118,7 +118,7 @@ CREATE OR REPLACE FUNCTION UserAccountLogic_addEntry(a_uidAuthor INTEGER, a_sUse
     END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION UserAccountLogic_editEntry(a_uidAuthor INTEGER, a_uid INTEGER, a_sUsername TEXT, a_sEmail TEXT, 
+CREATE OR REPLACE FUNCTION UserAccountLogic_editEntry(a_uidAuthor INTEGER, a_uid INTEGER, a_sUsername TEXT, a_sEmail TEXT,
                                                       a_sFullName TEXT, a_sLoginName TEXT, a_fReadOnly BOOLEAN)
     RETURNS VOID AS $$
     BEGIN
@@ -139,7 +139,7 @@ CREATE OR REPLACE FUNCTION UserAccountLogic_delEntry(a_uidAuthor INTEGER, a_uid 
     BEGIN
         --
         -- To preserve the information about who deleted the record, we try to
-        -- add a dummy record which expires immediately.  I say try because of 
+        -- add a dummy record which expires immediately.  I say try because of
         -- the primary key, we must let the new record be valid for 1 us. :-(
         --
 

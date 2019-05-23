@@ -6,7 +6,7 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * This code is based on the X.Org VESA driver with the following copyrights:
+ * This file is based on the X.Org VESA driver:
  *
  * Copyright (c) 2000 by Conectiva S.A. (http://www.conectiva.com)
  * Copyright 2008 Red Hat, Inc.

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2016 Oracle Corporation
+ * Copyright (C) 2016-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -59,7 +59,6 @@ void UIInformationConfiguration::prepareLayout()
     AssertPtrReturnVoid(m_pMainLayout);
     {
         /* Configure layout: */
-        m_pMainLayout->setContentsMargins(2, 0, 0, 0);
         m_pMainLayout->setSpacing(0);
     }
 }

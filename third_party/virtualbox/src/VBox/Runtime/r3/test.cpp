@@ -1359,6 +1359,7 @@ RTR3DECL(int) RTTestSub(RTTEST hTest, const char *pszSubTest)
     pTest->cSubTestAtErrors = ASMAtomicUoReadU32(&pTest->cErrors);
     pTest->pszSubTest = RTStrDup(pszSubTest);
     pTest->cchSubTest = strlen(pszSubTest);
+    Assert(pTest->cchSubTest < 64 /* See g_kcchMaxTestResultName in testmanager/config.py. */);
     pTest->fSubTestSkipped  = false;
     pTest->fSubTestReported = false;
 
@@ -1598,6 +1599,8 @@ RTR3DECL(int) RTTestValue(RTTEST hTest, const char *pszName, uint64_t u64Value, 
 {
     PRTTESTINT pTest = hTest;
     RTTEST_GET_VALID_RETURN(pTest);
+
+    Assert(strlen(pszName) < 56 /* See g_kcchMaxTestValueName in testmanager/config.py. */);
 
     const char *pszUnit = rtTestUnitName(enmUnit);
 

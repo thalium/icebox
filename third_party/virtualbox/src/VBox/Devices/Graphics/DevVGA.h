@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -203,7 +203,7 @@ typedef struct VBOXVDMAHOST *PVBOXVDMAHOST;
 typedef struct _VBOX_VHWA_PENDINGCMD
 {
     RTLISTNODE Node;
-    PVBOXVHWACMD pCommand;
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *pCommand;
 } VBOX_VHWA_PENDINGCMD;
 #endif
 
@@ -518,8 +518,8 @@ bool VBVAIsEnabled(PVGASTATE pVGAState);
 
 void VBVARaiseIrq(PVGASTATE pVGAState, uint32_t fFlags);
 
-int VBVAInfoView(PVGASTATE pVGAState, const VBVAINFOVIEW *pView);
-int VBVAInfoScreen(PVGASTATE pVGAState, const VBVAINFOSCREEN *pScreen);
+int VBVAInfoView(PVGASTATE pVGAState, const VBVAINFOVIEW RT_UNTRUSTED_VOLATILE_HOST *pView);
+int VBVAInfoScreen(PVGASTATE pVGAState, const VBVAINFOSCREEN RT_UNTRUSTED_VOLATILE_HOST *pScreen);
 int VBVAGetInfoViewAndScreen(PVGASTATE pVGAState, uint32_t u32ViewIndex, VBVAINFOVIEW *pView, VBVAINFOSCREEN *pScreen);
 
 /* @return host-guest flags that were set on reset
@@ -528,7 +528,7 @@ int VBVAGetInfoViewAndScreen(PVGASTATE pVGAState, uint32_t u32ViewIndex, VBVAINF
 uint32_t HGSMIReset(PHGSMIINSTANCE pIns);
 
 # ifdef VBOX_WITH_VIDEOHWACCEL
-DECLCALLBACK(int) vbvaVHWACommandCompleteAsync(PPDMIDISPLAYVBVACALLBACKS pInterface, PVBOXVHWACMD pCmd);
+DECLCALLBACK(int) vbvaVHWACommandCompleteAsync(PPDMIDISPLAYVBVACALLBACKS pInterface, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *pCmd);
 int vbvaVHWAConstruct(PVGASTATE pVGAState);
 int vbvaVHWAReset(PVGASTATE pVGAState);
 
@@ -572,10 +572,10 @@ DECLCALLBACK(void) vbvaPortReportHostCursorPosition(PPDMIDISPLAYPORT pInterface,
 # ifdef VBOX_WITH_VDMA
 typedef struct VBOXVDMAHOST *PVBOXVDMAHOST;
 int vboxVDMAConstruct(PVGASTATE pVGAState, uint32_t cPipeElements);
-int vboxVDMADestruct(PVBOXVDMAHOST pVdma);
-int vboxVDMAReset(PVBOXVDMAHOST pVdma);
-void vboxVDMAControl(PVBOXVDMAHOST pVdma, PVBOXVDMA_CTL pCmd, uint32_t cbCmd);
-void vboxVDMACommand(PVBOXVDMAHOST pVdma, PVBOXVDMACBUF_DR pCmd, uint32_t cbCmd);
+void vboxVDMADestruct(PVBOXVDMAHOST pVdma);
+void vboxVDMAReset(PVBOXVDMAHOST pVdma);
+void vboxVDMAControl(PVBOXVDMAHOST pVdma, VBOXVDMA_CTL RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd);
+void vboxVDMACommand(PVBOXVDMAHOST pVdma, VBOXVDMACBUF_DR RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd);
 int vboxVDMASaveStateExecPrep(struct VBOXVDMAHOST *pVdma);
 int vboxVDMASaveStateExecDone(struct VBOXVDMAHOST *pVdma);
 int vboxVDMASaveStateExecPerform(struct VBOXVDMAHOST *pVdma, PSSMHANDLE pSSM);
@@ -586,8 +586,8 @@ int vboxVDMASaveLoadDone(struct VBOXVDMAHOST *pVdma);
 # ifdef VBOX_WITH_CRHGSMI
 int vboxCmdVBVACmdSubmit(PVGASTATE pVGAState);
 int vboxCmdVBVACmdFlush(PVGASTATE pVGAState);
-void vboxCmdVBVACmdTimer(PVGASTATE pVGAState);
-int vboxCmdVBVACmdCtl(PVGASTATE pVGAState, VBOXCMDVBVA_CTL *pCtl, uint32_t cbCtl);
+int vboxCmdVBVACmdCtl(PVGASTATE pVGAState, VBOXCMDVBVA_CTL RT_UNTRUSTED_VOLATILE_GUEST *pCtl, uint32_t cbCtl);
+void vboxCmdVBVATimerRefresh(PVGASTATE pVGAState);
 bool vboxCmdVBVAIsEnabled(PVGASTATE pVGAState);
 # endif /* VBOX_WITH_CRHGSMI */
 #endif /* VBOX_WITH_HGSMI */

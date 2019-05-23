@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -215,7 +215,7 @@ void UIPopupStack::prepareContent()
         m_pScrollArea = new QScrollArea;
         {
             /* Configure scroll-area: */
-            m_pScrollArea->setCursor(Qt::ArrowCursor);
+            VBoxGlobal::setCursor(m_pScrollArea, Qt::ArrowCursor);
             m_pScrollArea->setWidgetResizable(true);
             m_pScrollArea->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
             m_pScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -227,7 +227,7 @@ void UIPopupStack::prepareContent()
             m_pScrollViewport = new UIPopupStackViewport;
             {
                 /* Configure scroll-viewport: */
-                m_pScrollViewport->setCursor(Qt::ArrowCursor);
+                VBoxGlobal::setCursor(m_pScrollViewport, Qt::ArrowCursor);
                 /* Connect scroll-viewport: */
                 connect(this, &UIPopupStack::sigProposeStackViewportSize,
                         m_pScrollViewport, &UIPopupStackViewport::sltHandleProposalForSize);

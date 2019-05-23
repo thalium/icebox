@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -247,6 +247,8 @@ namespace UIExtraDataDefs
 #ifdef VBOX_WS_X11
         /** Holds whether legacy full-screen mode is requested. */
         extern const char* GUI_Fullscreen_LegacyMode;
+        /** Holds whether internal machine-window names should be unique. */
+        extern const char* GUI_DistinguishMachineWindowGroups;
 #endif /* VBOX_WS_X11 */
         /** Holds whether guest-screen auto-resize according machine-window size is enabled. */
         extern const char* GUI_AutoresizeGuest;

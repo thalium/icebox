@@ -1,4 +1,4 @@
-/* $Id:  $ */
+/* $Id: DarwinKeyboard.h $ */
 /** @file
  * VBox Qt GUI - Common GUI Library - Darwin Keyboard routines.
  *
@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;

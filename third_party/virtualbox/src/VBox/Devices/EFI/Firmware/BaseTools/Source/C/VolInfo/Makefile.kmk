@@ -33,5 +33,3 @@ VolInfo_SOURCES = VolInfo.c
 
 include $(FILE_KBUILD_SUB_FOOTER)
 
-
-

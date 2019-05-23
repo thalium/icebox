@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -112,6 +112,7 @@ private:
     QTimer *m_pUpdateTimer;
     QMenu *m_pUpdateTimerMenu;
     QHash<PreviewUpdateIntervalType, QAction*> m_actions;
+    double m_dRatio;
     const int m_iMargin;
     QRect m_vRect;
     AspectRatioPreset m_preset;

@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -16,9 +16,10 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include <iprt/cdefs.h>
 #include <iprt/types.h>
 
@@ -35,9 +36,10 @@
 #define EGL_ASSERT(expr) \
     if (!(expr)) { printf("Assertion failed: %s\n", #expr); exit(1); }
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 
 struct VBEGLTLS
 {
@@ -55,9 +57,10 @@ struct VBEGLTLS
     EGLSurface hCurrentRead;
 };
 
-/*******************************************************************************
-*   Defined Constants And Macros                                               *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
 /** @note IDs returned for surfaces should always be lower than these constants.
  */
 /** This is OR-ed with a surface ID to mark it as a window, as GLX needs to
@@ -71,9 +74,10 @@ struct VBEGLTLS
 #define VBEGL_PIXMAP_SURFACE  0x80000000
 #define VBEGL_ANY_SURFACE     (VBEGL_WINDOW_SURFACE | VBEGL_PBUFFER_SURFACE | VBEGL_PIXMAP_SURFACE)
 
-/*******************************************************************************
-*   Global variables                                                           *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Global variables                                                                                                             *
+*********************************************************************************************************************************/
 
 static pthread_key_t  g_tls;
 static pthread_once_t g_tlsOnce = PTHREAD_ONCE_INIT;
@@ -342,7 +346,11 @@ DECLEXPORT(EGLBoolean) eglChooseConfig (EGLDisplay hDisplay, const EGLint *paAtt
         /* Ignore attributes which are repeated later. */
         for (pAttrib2 = pAttrib + 2; *pAttrib2 != EGL_NONE; pAttrib2 += 2)
             if (*pAttrib2 == *pAttrib)
-                fSkip == true;
+            {
+                fSkip = true;
+                break;
+            }
+
         if (fSkip)
             continue;
         cGLXAttrib = convertEGLAttribToGLX(*pAttrib);

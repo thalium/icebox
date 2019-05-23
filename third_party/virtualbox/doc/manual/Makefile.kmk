@@ -462,7 +462,7 @@ $(VBOX_PATH_MANUAL_OUTBASE)/user_VBoxManage_CommandsOverview.xml: $(VBOXMANAGEHE
 	$(QUIET)$(RM) -f $@ $@.dumpopts
 	$(QUIET)$(APPEND) -tn "$@" \
 		'<?xml version="1.0" encoding="UTF-8"?>' \
-               '<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">' \
+               '<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">' \
                '<sect1> <!-- this will be skipped via xpointer in the include. --> '
 	$(QUIET)$(REDIRECT) -wo $@.dumpopts -E 'VBOX_LOG_FLAGS=disabled' -E 'VBOX_LOG_DEST=nofile' \
 		$(if $(eq $(KBUILD_TARGET),darwin), -E 'DYLD_FALLBACK_LIBRARY_PATH=$(dir $(LIB_RUNTIME))') \
@@ -648,7 +648,7 @@ $(VBOX_PATH_MANUAL_OUTBASE)/en_US/SDKRef.pdf: \
 
 # Handy aliases.
 validate-sdkref:: $(VBOX_PATH_MANUAL_OUTBASE)/en_US/SDKRef.xml
-sdkref:: $(VBOX_PATH_SDK)/docs/SDKRef.pdf
+sdkref:: $(PATH_STAGE_BIN)/sdk/docs/SDKRef.pdf
 
 
 

@@ -242,7 +242,7 @@ renderSPUInit( int id, SPU *child, SPU *self,
 
     if (pcpwSetting)
     {
-        /* TODO: need proper blitter synchronization, do not use so far!
+        /** @todo need proper blitter synchronization, do not use so far!
          * the problem is that rendering can be done in multiple thread: the main command (hgcm) thread and the redraw thread
          * we currently use per-window synchronization, while we'll need a per-blitter synchronization if one blitter is used for multiple windows
          * this is not done currently */

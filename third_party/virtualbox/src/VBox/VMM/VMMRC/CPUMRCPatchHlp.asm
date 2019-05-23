@@ -3,6 +3,7 @@
 ; CPUM - Patch Helpers.
 ;
 
+;
 ; Copyright (C) 2015-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as

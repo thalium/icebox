@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -30,8 +30,9 @@ RT_C_DECLS_END
 void VBoxSetupVideoPortAPI(PVBOXMP_DEVEXT pExt, PVIDEO_PORT_CONFIG_INFO pConfigInfo);
 void VBoxCreateDisplays(PVBOXMP_DEVEXT pExt, PVIDEO_PORT_CONFIG_INFO pConfigInfo);
 int VBoxVbvaEnable(PVBOXMP_DEVEXT pExt, BOOLEAN bEnable, VBVAENABLERESULT *pResult);
-DECLCALLBACK(void) VBoxMPHGSMIHostCmdCompleteCB(HVBOXVIDEOHGSMI hHGSMI, struct VBVAHOSTCMD *pCmd);
-DECLCALLBACK(int) VBoxMPHGSMIHostCmdRequestCB(HVBOXVIDEOHGSMI hHGSMI, uint8_t u8Channel, uint32_t iDisplay, struct VBVAHOSTCMD **ppCmd);
+DECLCALLBACK(void) VBoxMPHGSMIHostCmdCompleteCB(HVBOXVIDEOHGSMI hHGSMI, struct VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST *pCmd);
+DECLCALLBACK(int) VBoxMPHGSMIHostCmdRequestCB(HVBOXVIDEOHGSMI hHGSMI, uint8_t u8Channel, uint32_t iDisplay,
+                                              struct VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST **ppCmd);
 int VBoxVbvaChannelDisplayEnable(PVBOXMP_COMMON pCommon, int iDisplay, uint8_t u8Channel);
 
 /* ==================== System VRP's handlers ==================== */

@@ -27,7 +27,7 @@ CDDL are applicable instead of those of the GPL.
 You may elect to license modified versions of this file under the
 terms and conditions of either the GPL or the CDDL or both.
 """
-__version__ = "$Revision: 118412 $"
+__version__ = "$Revision: 118962 $"
 
 
 # Standard Python imports.
@@ -180,6 +180,7 @@ class tdUnitTest1(vbox.TestDriver):
         # failed or hang
         'testcase/tstCryptoPkcs7Verify': '', # hang
         'tstOVF': '',                       # hang (only ancient version, now in new place)
+        'testcase/tstOVF': '',              # Creates mess when fails, needs to be run in a separate test.
         'testcase/tstRTLockValidator': '',  # Lock validation is not enabled for critical sections
         'testcase/tstGuestControlSvc': '',  # failed: line 288: testHost(&svcTable): expected VINF_SUCCESS, got VERR_NOT_FOUND
         'testcase/tstRTMemEf': '',          # failed w/o error message

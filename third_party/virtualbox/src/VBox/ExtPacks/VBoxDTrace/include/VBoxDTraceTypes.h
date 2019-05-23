@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -16,7 +16,6 @@
  * comes in the "COPYING.CDDL" file of the VirtualBox OSE distribution.
  * VirtualBox OSE is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY of any kind.
- *
  */
 
 #ifndef ___VBoxDTraceTypes_h___
@@ -436,7 +435,7 @@ extern int dtrace_close(struct dtrace_state *state);
 /*
  * gelf
  */
-# include "../../../Runtime/include/internal/ldrELF64.h"
+# include <iprt/formats/elf64.h>
 typedef Elf64_Half  GElf_Half;
 typedef Elf64_Xword GElf_Xword;
 typedef Elf64_Shdr  GElf_Shdr;

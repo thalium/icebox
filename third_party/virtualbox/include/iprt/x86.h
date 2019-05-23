@@ -597,6 +597,28 @@ typedef const X86CPUIDFEATEDX *PCX86CPUIDFEATEDX;
 
 /** ECX Bit 0 - PREFETCHWT1 - Supports the PREFETCHWT1 instruction. */
 #define X86_CPUID_STEXT_FEATURE_ECX_PREFETCHWT1       RT_BIT_32(0)
+/** ECX Bit 2 - UIMP - Supports user mode instruction prevention. */
+#define X86_CPUID_STEXT_FEATURE_ECX_UMIP              RT_BIT_32(2)
+/** ECX Bit 3 - PKU - Supports protection keys for user-mode pages. */
+#define X86_CPUID_STEXT_FEATURE_ECX_PKU               RT_BIT_32(3)
+/** ECX Bit 4 - OSPKE - Protection keys for user mode pages enabled. */
+#define X86_CPUID_STEXT_FEATURE_ECX_OSPKE             RT_BIT_32(4)
+/** ECX Bits 17-21 - MAWAU - Value used by BNDLDX and BNDSTX. */
+#define X86_CPUID_STEXT_FEATURE_ECX_MAWAU             UINT32_C(0x003e0000)
+/** ECX Bit 22 - RDPID - Support pread process ID. */
+#define X86_CPUID_STEXT_FEATURE_ECX_RDPID             RT_BIT_32(2)
+/** ECX Bit 30 - SGX_LC - Supports SGX launch configuration. */
+#define X86_CPUID_STEXT_FEATURE_ECX_SGX_LC            RT_BIT_32(30)
+
+/** EDX Bit 26 - IBRS & IBPB - Supports the IBRS flag in IA32_SPEC_CTRL and
+ *  IBPB command in IA32_PRED_CMD. */
+#define X86_CPUID_STEXT_FEATURE_EDX_IBRS_IBPB         RT_BIT_32(26)
+/** EDX Bit 27 - IBRS & IBPB - Supports the STIBP flag in IA32_SPEC_CTRL. */
+#define X86_CPUID_STEXT_FEATURE_EDX_STIBP             RT_BIT_32(27)
+
+/** EDX Bit 29 - ARCHCAP - Supports the IA32_ARCH_CAPABILITIES MSR. */
+#define X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP           RT_BIT_32(29)
+
 /** @} */
 
 
@@ -741,6 +763,22 @@ typedef const X86CPUIDFEATEDX *PCX86CPUIDFEATEDX;
 /** @} */
 
 
+/** @name CPUID AMD extended feature extensions ID (EBX).
+ * CPUID query with EAX=0x80000008.
+ * @{
+ */
+/** Bit 0 - CLZERO - Clear zero instruction. */
+#define X86_CPUID_AMD_EFEID_EBX_CLZERO       RT_BIT_32(0)
+/** Bit 1 - IRPerf - Instructions retired count support. */
+#define X86_CPUID_AMD_EFEID_EBX_IRPERF       RT_BIT_32(1)
+/** Bit 2 - XSaveErPtr - Always XSAVE* and XRSTR* error pointers. */
+#define X86_CPUID_AMD_EFEID_EBX_XSAVE_ER_PTR RT_BIT_32(2)
+/* AMD pipeline length: 9 feature bits ;-) */
+/** Bit 12 - IBPB - Supports the IBPB command in IA32_PRED_CMD. */
+#define X86_CPUID_AMD_EFEID_EBX_IBPB         RT_BIT_32(12)
+/** @} */
+
+
 /** @name CPUID AMD SVM Feature information.
  * CPUID query with EAX=0x8000000a.
  * @{
@@ -859,6 +897,8 @@ typedef const X86CPUIDFEATEDX *PCX86CPUIDFEATEDX;
 #define X86_CR4_VMXE                        RT_BIT_32(13)
 /** Bit 14 - SMXE - Safer Mode Extensions Enabled. */
 #define X86_CR4_SMXE                        RT_BIT_32(14)
+/** Bit 16 - FSGSBASE - Read/write FSGSBASE instructions Enable. */
+#define X86_CR4_FSGSBASE                    RT_BIT_32(16)
 /** Bit 17 - PCIDE - Process-Context Identifiers Enabled. */
 #define X86_CR4_PCIDE                       RT_BIT_32(17)
 /** Bit 18 - OSXSAVE - Operating System Support for XSAVE and processor
@@ -1113,6 +1153,20 @@ AssertCompile(X86_DR7_ANY_RW_IO(UINT32_C(0x00040000)) == 0);
 /** Per-processor TSC adjust MSR. */
 #define MSR_IA32_TSC_ADJUST                 0x3B
 
+/** Spectre control register.
+ * Logical processor scope. Reset value 0, unaffected by SIPI & INIT. */
+#define MSR_IA32_SPEC_CTRL                  0x48
+/** IBRS - Indirect branch restricted speculation. */
+#define MSR_IA32_SPEC_CTRL_F_IBRS           RT_BIT_32(0)
+/** STIBP - Single thread indirect branch predictors. */
+#define MSR_IA32_SPEC_CTRL_F_STIBP          RT_BIT_32(1)
+
+/** Prediction command register.
+ * Write only, logical processor scope, no state since write only. */
+#define MSR_IA32_PRED_CMD                   0x49
+/** IBPB - Indirect branch prediction barrie when written as 1. */
+#define MSR_IA32_PRED_CMD_F_IBPB            RT_BIT_32(0)
+
 /** BIOS update trigger (microcode update). */
 #define MSR_IA32_BIOS_UPDT_TRIG             0x79
 
@@ -1147,6 +1201,14 @@ AssertCompile(X86_DR7_ANY_RW_IO(UINT32_C(0x00040000)) == 0);
 
 /** MTRR Capabilities. */
 #define MSR_IA32_MTRR_CAP                   0xFE
+
+/** Architecture capabilities (bugfixes).
+ * @note May move  */
+#define MSR_IA32_ARCH_CAPABILITIES          UINT32_C(0x10a)
+/** CPU is no subject to spectre problems. */
+#define MSR_IA32_ARCH_CAP_F_SPECTRE_FIX     RT_BIT_32(0)
+/** CPU has better IBRS and you can leave it on all the time. */
+#define MSR_IA32_ARCH_CAP_F_BETTER_IBRS     RT_BIT_32(1)
 
 /** Cache control/info. */
 #define MSR_BBL_CR_CTL3                     UINT32_C(0x11e)
@@ -2523,6 +2585,20 @@ typedef const X86PML4 *PCX86PML4;
 /** @} */
 
 /** @} */
+
+/**
+ * Intel PCID invalidation types.
+ */
+/** Individual address invalidation. */
+#define X86_INVPCID_TYPE_INDV_ADDR                  0
+/** Single-context invalidation. */
+#define X86_INVPCID_TYPE_SINGLE_CONTEXT             1
+/** All-context including globals invalidation. */
+#define X86_INVPCID_TYPE_ALL_CONTEXT_INCL_GLOBAL    2
+/** All-context excluding globals invalidation. */
+#define X86_INVPCID_TYPE_ALL_CONTEXT_EXCL_GLOBAL    3
+/** The maximum valid invalidation type value.   */
+#define X86_INVPCID_TYPE_MAX_VALID                  X86_INVPCID_TYPE_ALL_CONTEXT_EXCL_GLOBAL
 
 /**
  * 32-bit protected mode FSTENV image.

@@ -13,10 +13,10 @@
     hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 -->
 
-<?include Properties.wxi ?>
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <?include Properties.wxi ?>
 
     <Module Id="msm_VBoxNetworkAdp"
             Language="!(loc.LANG)"
@@ -34,13 +34,14 @@
                  SummaryCodepage="1252"/>
 
 
+        <?include CommonProperties.wxi ?>
         <?include PublicProperties.wxi ?>
 
 <?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
-        <Property Id="localMSMNetworkType" Value="Empty" /> 
-        <Configuration Name="passedNetworkType" Format="Text" DefaultValue="Not passed"/> 
-        <Substitution Table="CustomAction" Row="setNetworkTypeADP" Column="Target" Value="[=passedNetworkType]"/> 
-        <CustomAction Id="setNetworkTypeADP" Property="localMSMNetworkType" Value="[localMSMNetworkType]" Execute="immediate" /> 
+        <Property Id="localMSMNetworkType" Value="Empty" />
+        <Configuration Name="passedNetworkType" Format="Text" DefaultValue="Not passed"/>
+        <Substitution Table="CustomAction" Row="setNetworkTypeADP" Column="Target" Value="[=passedNetworkType]"/>
+        <CustomAction Id="setNetworkTypeADP" Property="localMSMNetworkType" Value="[localMSMNetworkType]" Execute="immediate" />
         <CustomAction Id="correctNetworkTypeADP" Property="localMSMNetworkType" Value="NDIS5" Execute="immediate" />
 <?endif ?>
 
@@ -56,7 +57,7 @@
         <!-- Custom actions -->
         <Binary Id="VBoxInstallHelper" SourceFile="$(env.PATH_OUT)\bin\VBoxInstallHelper.dll" />
         <?include VBoxMergeNetAdpCA.wxi ?>
-        
+
         <InstallExecuteSequence>
 <?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
             <Custom Action="setNetworkTypeADP" After="CostInitialize"/>

@@ -41,7 +41,7 @@ static GLuint desiredVisual = CR_RGB_BIT;
  */
 static GLuint ComputeVisBits( HDC hdc )
 {
-    PIXELFORMATDESCRIPTOR pfd; 
+    PIXELFORMATDESCRIPTOR pfd;
     int iPixelFormat;
     GLuint b = 0;
 
@@ -76,7 +76,7 @@ DECLEXPORT(int) WINAPI wglChoosePixelFormat_prox( HDC hdc, CONST PIXELFORMATDESC
 
     stubInit();
 
-    /* 
+    /*
      * NOTE!!!
      * Here we're telling the renderspu not to use the GDI
      * equivalent's of ChoosePixelFormat/DescribePixelFormat etc
@@ -96,7 +96,7 @@ DECLEXPORT(int) WINAPI wglChoosePixelFormat_prox( HDC hdc, CONST PIXELFORMATDESC
             PFD_DOUBLEBUFFER_DONTCARE |
             PFD_SWAP_EXCHANGE         |
             PFD_SWAP_COPY             |
-            /* @todo: this is disabled due to VSG Open Inventor interop issues
+            /** @todo this is disabled due to VSG Open Inventor interop issues
              * it does not make any sense actually since reporting this
              * as well as choosing a pixel format with this cap would not do anything
              * since ICD stuff has its own pixelformat state var */
@@ -143,7 +143,7 @@ DECLEXPORT(int) WINAPI wglChoosePixelFormat_prox( HDC hdc, CONST PIXELFORMATDESC
     if ( pfd->cDepthBits > 32 ) {
         crError( "wglChoosePixelFormat; asked for too many depth bits\n" );
     }
-    
+
     if ( pfd->cDepthBits > 0 )
         desiredVisual |= CR_DEPTH_BIT;
 
@@ -240,9 +240,9 @@ DECLEXPORT(int) WINAPI wglDescribePixelFormat_prox( HDC hdc, int pixelFormat, UI
 {
     CR_DDI_PROLOGUE();
 
-/*  if ( pixelFormat != 1 ) { 
- *      crError( "wglDescribePixelFormat: pixelFormat=%d?\n", pixelFormat ); 
- *      return 0; 
+/*  if ( pixelFormat != 1 ) {
+ *      crError( "wglDescribePixelFormat: pixelFormat=%d?\n", pixelFormat );
+ *      return 0;
  *  } */
 
     if ( !pfd ) {
@@ -604,7 +604,7 @@ DECLEXPORT(BOOL) WINAPI wglChoosePixelFormatEXT_prox
 
     stubInit();
 
-    /* TODO : Need to check pfAttributes too ! */
+    /** @todo : Need to check pfAttributes too ! */
 
     for ( pi = (int *)piAttributes; *pi != 0; pi++ )
     {
@@ -640,7 +640,7 @@ DECLEXPORT(BOOL) WINAPI wglChoosePixelFormatEXT_prox
             case WGL_STEREO_EXT:
                 if (pi[1] > 0)
                 {
-                    /* @todo: this is disabled due to VSG Open Inventor interop issues
+                    /** @todo this is disabled due to VSG Open Inventor interop issues
                      * it does not make any sense actually since reporting this
                      * as well as choosing a pixel format with this cap would not do anything
                      * since ICD stuff has its own pixelformat state var */
@@ -675,7 +675,7 @@ DECLEXPORT(BOOL) WINAPI wglChoosePixelFormatEXT_prox
             case WGL_SAMPLES_EXT:
                 if (pi[1] > 0)
                 {
-                    /* @todo: this is disabled due to VSG Open Inventor interop issues
+                    /** @todo this is disabled due to VSG Open Inventor interop issues
                      * it does not make any sense actually since reporting this
                      * as well as choosing a pixel format with this cap would not do anything
                      * since ICD stuff has its own pixelformat state var */
@@ -693,7 +693,7 @@ DECLEXPORT(BOOL) WINAPI wglChoosePixelFormatEXT_prox
                 break;
 
             case WGL_PIXEL_TYPE_ARB:
-                if(pi[1]!=WGL_TYPE_RGBA_ARB) 
+                if(pi[1]!=WGL_TYPE_RGBA_ARB)
                 {
                     crWarning("WGL_PIXEL_TYPE 0x%x not supported!", pi[1]);
                     return 0;
@@ -747,7 +747,7 @@ DECLEXPORT(BOOL) WINAPI wglGetPixelFormatAttribivEXT_prox
                 pValues[i] = 1;
                 break;
             case WGL_STEREO_ARB:
-                /* @todo: this is disabled due to VSG Open Inventor interop issues
+                /** @todo this is disabled due to VSG Open Inventor interop issues
                  * it does not make any sense actually since reporting this
                  * as well as choosing a pixel format with this cap would not do anything
                  * since ICD stuff has its own pixelformat state var */
@@ -826,14 +826,14 @@ DECLEXPORT(BOOL) WINAPI wglGetPixelFormatAttribivEXT_prox
                 pValues[i] = 0;
                 break;
             case WGL_SAMPLE_BUFFERS_EXT:
-                /* @todo: this is disabled due to VSG Open Inventor interop issues
+                /** @todo this is disabled due to VSG Open Inventor interop issues
                  * it does not make any sense actually since reporting this
                  * as well as choosing a pixel format with this cap would not do anything
                  * since ICD stuff has its own pixelformat state var */
                 pValues[i] = 0;
                 break;
             case WGL_SAMPLES_EXT:
-                /* @todo: this is disabled due to VSG Open Inventor interop issues
+                /** @todo this is disabled due to VSG Open Inventor interop issues
                  * it does not make any sense actually since reporting this
                  * as well as choosing a pixel format with this cap would not do anything
                  * since ICD stuff has its own pixelformat state var */
@@ -882,7 +882,7 @@ DECLEXPORT(BOOL) WINAPI wglGetPixelFormatAttribfvEXT_prox
                 pValues[i] = 1.f;
                 break;
             case WGL_STEREO_ARB:
-                /* @todo: this is disabled due to VSG Open Inventor interop issues
+                /** @todo this is disabled due to VSG Open Inventor interop issues
                  * it does not make any sense actually since reporting this
                  * as well as choosing a pixel format with this cap would not do anything
                  * since ICD stuff has its own pixelformat state var */
@@ -961,14 +961,14 @@ DECLEXPORT(BOOL) WINAPI wglGetPixelFormatAttribfvEXT_prox
                 pValues[i] = 0.f;
                 break;
             case WGL_SAMPLE_BUFFERS_EXT:
-                /* @todo: this is disabled due to VSG Open Inventor interop issues
+                /** @todo this is disabled due to VSG Open Inventor interop issues
                  * it does not make any sense actually since reporting this
                  * as well as choosing a pixel format with this cap would not do anything
                  * since ICD stuff has its own pixelformat state var */
                 pValues[i] = 0.f;
                 break;
             case WGL_SAMPLES_EXT:
-                /* @todo: this is disabled due to VSG Open Inventor interop issues
+                /** @todo this is disabled due to VSG Open Inventor interop issues
                  * it does not make any sense actually since reporting this
                  * as well as choosing a pixel format with this cap would not do anything
                  * since ICD stuff has its own pixelformat state var */

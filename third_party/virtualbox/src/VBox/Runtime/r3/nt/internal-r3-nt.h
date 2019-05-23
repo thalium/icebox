@@ -68,3 +68,12 @@ DECLINLINE(bool) rtNtCompWideStrAndAscii(WCHAR const *pwsz1, size_t cch1, const 
 
 #endif
 
+/**
+ * Common worker for RTFileSetMode, RTPathSetMode and RTDirRelPathSetMode.
+ *
+ * @returns IPRT status code.
+ * @param   hNativeFile The NT handle to the file system object.
+ * @param   fMode       Valid and normalized file mode mask to set.
+ */
+DECLHIDDEN(int) rtNtFileSetModeWorker(HANDLE hNativeFile, RTFMODE fMode);
+

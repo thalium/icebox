@@ -319,7 +319,7 @@ void crServerSetVBoxConfigurationHGCM()
     defaultMural = (CRMuralInfo *) crHashtableSearch(cr_server.muralTable, 0);
     CRASSERT(defaultMural);
 
-    //@todo should be moved to addclient so we have a chain for each client
+    /// @todo should be moved to addclient so we have a chain for each client
 
     setDefaults();
     

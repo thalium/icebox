@@ -561,6 +561,24 @@ static RTEXITCODE handlerCpuNestedPaging(int argc, char **argv)
             RTFileClose(hFileCpu);
         }
     }
+# elif defined(RT_OS_DARWIN)
+    else if (enmHwVirt == HWVIRTTYPE_VTX)
+    {
+        /*
+         * The kern.hv_support parameter indicates support for the hypervisor API in the
+         * kernel, which in turn is documented require nested paging and unrestricted
+         * guest mode.  So, if it's there and set we've got nested paging.  Howeber, if
+         * it's there and clear we have not definite answer as it might be due to lack
+         * of unrestricted guest mode support.
+         */
+        int32_t fHvSupport = 0;
+        size_t  cbOld = sizeof(fHvSupport);
+        if (sysctlbyname("kern.hv_support", &fHvSupport, &cbOld, NULL, 0) == 0)
+        {
+            if (fHvSupport != 0)
+                fSupported = true;
+        }
+    }
 # endif
 #endif
 

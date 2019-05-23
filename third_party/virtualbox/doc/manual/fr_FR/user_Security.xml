@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="Security">
   <title>Guide de sécurité</title>
 
@@ -52,7 +52,7 @@
               de configuration, par exemple quand vous créez
               /etc/default/virtualbox, voir
               <xref linkend="linux_install_opts"/>. Le mode 0600 serait
-              idéal. 
+              idéal.
             </para>
           </glossdef>
         </glossentry>
@@ -93,9 +93,9 @@
       <title>Aperçu de l'installation</title>
       <para>
         Vous ne devriez télécharger le paquet de base de VirtualBox qu'à partir d'une
-        source de confiance, telle que le site Internet officiel 
+        source de confiance, telle que le site Internet officiel
         <ulink url="http://www.virtualbox.org">http://www.virtualbox.org</ulink>.
-        Vous devriez vérifier l'intégrité du paquet avec la somme de contrôle 
+        Vous devriez vérifier l'intégrité du paquet avec la somme de contrôle
         SHA256 fournie sur le site officiel.
       </para>
       <para>
@@ -139,7 +139,7 @@
         VirtualBox n'est nécessaire. Cependant, sur les hôtes Solaris et Linux,
         il faut configurer les droits adaptés pour que les utilisateurs exécutent
         des VMs et puissent accéder à certaines ressources de l'hôte. Par exemple,
-        les utilisateurs Linux doivent faire partie du groupe <emphasis>vboxusers</emphasis> 
+        les utilisateurs Linux doivent faire partie du groupe <emphasis>vboxusers</emphasis>
         pour pouvoir donner des périphériques USB à un invité. Si vous devriez
         accéder à une interface série à partir d'une VM, il faut donner les bons
         droits à l'utilisateur pour qu'il puisse accéder à ce périphérique. La
@@ -157,21 +157,21 @@
     <sect2>
       <title>Le modèle de sécurité</title>
       <para>
-        Une des propriétés des gestionnaires de machines virtuels (VMMs) comme 
+        Une des propriétés des gestionnaires de machines virtuels (VMMs) comme
         VirtualBox est d'enfermer un invité en l'exécutant dans un environnement
         protégé, une machine virtuelle laquelle fonctionne en tant que processus
         d'un utilisateur du système d'exploitation hôte. L'invité ne peut pas
         communiquer directement avec le matériel hôte ou avec d'autres ordinateurs,
         mais uniquement via le VMM. Le VMM offre des ressources physiques et des
         périphériques émulés à l'invité, auxquels on accède par le système d'exploitation hôte pour effectuer les
-        tâches nécessaires. Les paramètres de la VM contrôlent les ressources 
+        tâches nécessaires. Les paramètres de la VM contrôlent les ressources
         fournies à l'invité, par exemple la quantité de mémoire de l'invité ou
-        le nombre de processeurs invités (voir <xref linkend="generalsettings"/>) 
+        le nombre de processeurs invités (voir <xref linkend="generalsettings"/>)
         et les fonctionnalités activées pour cet invité (par exemple le contrôle à distance, certains paramètres
         d'affichage et autres).
       </para>
     </sect2>
-    
+
     <sect2>
       <title>Configuration sécurisée des machines virtuelles</title>
       <para>
@@ -186,7 +186,7 @@
           <xref linkend="network_nat"/>. L'invité fait partie d'un sous-réseau
           privé appartenant à cette VM et l'adresse IP de l'invité n'est pas visible
           de l'extérieur. Ce mode réseau fonctionne sans paramétrage supplémentaire
-          et il suffit pour la plupart des besoins. 
+          et il suffit pour la plupart des besoins.
         </para>
         <para>
           Si vous utilisez le réseau bridgé, la VM se comporte comme un ordinateur
@@ -288,7 +288,7 @@
           <computeroutput>VBoxManage storageattach</computeroutput>. Tant que
           vous ne fournissez pas de réglage de mots de passe (l'option
           <screen>--settingspwfile</screen> en ligne de commande), ce mot
-          de passe secret est stocké <emphasis role="bold">sans chiffrement</emphasis> 
+          de passe secret est stocké <emphasis role="bold">sans chiffrement</emphasis>
           dans la configuration de la machine et il est donc potentiellement
           lisible sur l'hôte. Voir <xref
           linkend="storage-iscsi" /> et <xref
@@ -356,11 +356,11 @@
           sont contrôlables. Par défaut, le service sonde localhost, empêchant
           toute connexion distante.</para>
         </listitem>
-        
+
         <listitem>
           <para>Le trafic envoyé par une connexion réseau en tunnel UDP n'est
-          pas chiffré. Vous pouvez soit le chiffrer au niveau du réseau hôte 
-          (avec IPsec), soit utiliser des protocoles chiffrés dans le réseau 
+          pas chiffré. Vous pouvez soit le chiffrer au niveau du réseau hôte
+          (avec IPsec), soit utiliser des protocoles chiffrés dans le réseau
           invité (tel que SSH). Les propriétés de sécurité sont similaires à un Ethernet bridgé.</para>
         </listitem>
       </itemizedlist></para>

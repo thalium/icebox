@@ -546,7 +546,10 @@ void UIDesktopPanePrivate::setToolsPaneIcon(const QIcon &icon)
     prepareToolsPane();
 
     /* Assign corresponding icon: */
-    m_pLabelToolsPaneIcon->setPixmap(icon.pixmap(QSize(200, 200)));
+    const QList<QSize> aSizes = icon.availableSizes();
+    const QSize firstOne = aSizes.isEmpty() ? QSize(200, 200) : aSizes.first();
+    const double dRatio = QApplication::style()->pixelMetric(QStyle::PM_LargeIconSize) / 32;
+    m_pLabelToolsPaneIcon->setPixmap(icon.pixmap(QSize(firstOne.width() * dRatio, firstOne.height() * dRatio)));
 
     /* Raise corresponding widget: */
     setCurrentWidget(m_pScrollArea);
@@ -611,14 +614,14 @@ void UIDesktopPanePrivate::prepareErrorPane()
 
     /* Create main layout: */
     QVBoxLayout *pMainLayout = new QVBoxLayout(m_pErrBox);
-#if   defined(VBOX_WS_MAC)
+#ifdef VBOX_WS_MAC
     pMainLayout->setContentsMargins(4, 5, 5, 5);
-#elif defined(VBOX_WS_WIN)
-    pMainLayout->setContentsMargins(3, 5, 5, 0);
-#elif defined(VBOX_WS_X11)
-    pMainLayout->setContentsMargins(0, 5, 5, 5);
-#endif
-    pMainLayout->setSpacing(10);
+#else /* !VBOX_WS_MAC */
+    const int iL = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) / 3;
+    const int iT = qApp->style()->pixelMetric(QStyle::PM_LayoutTopMargin) / 3;
+    const int iR = qApp->style()->pixelMetric(QStyle::PM_LayoutRightMargin) / 3;
+    pMainLayout->setContentsMargins(iL, iT, iR, 0);
+#endif /* !VBOX_WS_MAC */
 
     /* Create error label: */
     m_pErrLabel = new QLabel(m_pErrBox);
@@ -684,12 +687,9 @@ void UIDesktopPanePrivate::prepareToolsPane()
                 QHBoxLayout *pLayoutWelcome = new QHBoxLayout;
                 AssertPtrReturnVoid(pLayoutWelcome);
                 {
-                    /* Invent pixel metric: */
-                    const int iMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
-
                     /* Configure layout: */
-                    pLayoutWelcome->setContentsMargins(iMetric, 0, 0, 0);
-                    pLayoutWelcome->setSpacing(10);
+                    const int iL = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) / 2;
+                    pLayoutWelcome->setContentsMargins(iL, 0, 0, 0);
 
                     /* Create welcome text label: */
                     m_pLabelToolsPaneText = new UILabel;

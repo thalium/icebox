@@ -557,40 +557,6 @@ HRESULT Console::i_attachRawPCIDevices(PUVM pUVM, BusAssignmentManager *pBusMgr,
                 s_pszPCIRawExtPackName);
 # endif
 
-    PCFGMNODE pBridges = CFGMR3GetChild(pDevices, "ich9pcibridge");
-    Assert(pBridges);
-
-    /* Find required bridges, and add missing ones */
-    for (size_t iDev = 0; iDev < assignments.size(); iDev++)
-    {
-        ComPtr<IPCIDeviceAttachment> assignment = assignments[iDev];
-        LONG guest = 0;
-        PCIBusAddress GuestPCIAddress;
-
-        hrc = assignment->COMGETTER(GuestAddress)(&guest);   H();
-        GuestPCIAddress.fromLong(guest);
-        Assert(GuestPCIAddress.valid());
-
-        if (GuestPCIAddress.miBus > 0)
-        {
-            int iBridgesMissed = 0;
-            int iBase = GuestPCIAddress.miBus - 1;
-
-            while (!pBusMgr->hasPCIDevice("ich9pcibridge", iBase) && iBase > 0)
-            {
-                iBridgesMissed++; iBase--;
-            }
-            iBase++;
-
-            for (int iBridge = 0; iBridge < iBridgesMissed; iBridge++)
-            {
-                InsertConfigNode(pBridges, Utf8StrFmt("%d", iBase + iBridge).c_str(), &pInst);
-                InsertConfigInteger(pInst, "Trusted",              1);
-                hrc = pBusMgr->assignPCIDevice("ich9pcibridge", pInst);
-            }
-        }
-    }
-
     /* Now actually add devices */
     PCFGMNODE pPCIDevs = NULL;
 
@@ -1047,6 +1013,11 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             LogRel(("Limiting the firmware APIC level from APIC to Disabled\n"));
         }
 
+        /* Speculation Control. */
+        BOOL fSpecCtrl = FALSE;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_SpecCtrl, &fSpecCtrl);      H();
+        InsertConfigInteger(pCPUM, "SpecCtrl", fSpecCtrl);
+
         /*
          * Hardware virtualization extensions.
          */
@@ -1183,6 +1154,19 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
         BOOL fEnableUX = false;
         hrc = pMachine->GetHWVirtExProperty(HWVirtExPropertyType_UnrestrictedExecution, &fEnableUX); H();
         InsertConfigInteger(pHM, "EnableUX", fEnableUX);
+
+        /* Indirect branch prediction boundraries. */
+        BOOL fIBPBOnVMExit = false;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_IBPBOnVMExit, &fIBPBOnVMExit); H();
+        InsertConfigInteger(pHM, "IBPBOnVMExit", fIBPBOnVMExit);
+
+        BOOL fIBPBOnVMEntry = false;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_IBPBOnVMEntry, &fIBPBOnVMEntry); H();
+        InsertConfigInteger(pHM, "IBPBOnVMEntry", fIBPBOnVMEntry);
+
+        BOOL fSpecCtrlByHost = false;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_SpecCtrlByHost, &fSpecCtrlByHost); H();
+        InsertConfigInteger(pHM, "SpecCtrlByHost", fSpecCtrlByHost);
 
         /* Reset overwrite. */
         if (i_isResetTurnedIntoPowerOff())
@@ -1452,14 +1436,20 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
         switch (chipsetType)
         {
             default:
-                Assert(false);
+                AssertFailed();
                 RT_FALL_THRU();
             case ChipsetType_PIIX3:
+                /* Create the base for adding bridges on demand */
+                InsertConfigNode(pDevices, "pcibridge", NULL);
+
                 InsertConfigNode(pDevices, "pci", &pDev);
                 uHbcPCIAddress = (0x0 << 16) | 0;
                 uIocPCIAddress = (0x1 << 16) | 0; // ISA controller
                 break;
             case ChipsetType_ICH9:
+                /* Create the base for adding bridges on demand */
+                InsertConfigNode(pDevices, "ich9pcibridge", NULL);
+
                 InsertConfigNode(pDevices, "ich9pci", &pDev);
                 uHbcPCIAddress = (0x1e << 16) | 0;
                 uIocPCIAddress = (0x1f << 16) | 0; // LPC controller
@@ -1475,20 +1465,9 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             InsertConfigInteger(pCfg,  "McfgBase",   uMcfgBase);
             InsertConfigInteger(pCfg,  "McfgLength", cbMcfgLength);
 
-
-            /* And register 2 bridges */
-            InsertConfigNode(pDevices, "ich9pcibridge", &pDev);
-            InsertConfigNode(pDev,     "0", &pInst);
-            InsertConfigInteger(pInst, "Trusted",              1); /* boolean */
-            hrc = pBusMgr->assignPCIDevice("ich9pcibridge", pInst);                         H();
-
-            InsertConfigNode(pDev,     "1", &pInst);
-            InsertConfigInteger(pInst, "Trusted",              1); /* boolean */
-            hrc = pBusMgr->assignPCIDevice("ich9pcibridge", pInst);                         H();
-
 #ifdef VBOX_WITH_PCI_PASSTHROUGH
             /* Add PCI passthrough devices */
-            hrc = i_attachRawPCIDevices(pUVM, pBusMgr, pDevices);                             H();
+            hrc = i_attachRawPCIDevices(pUVM, pBusMgr, pDevices);                           H();
 #endif
         }
 
@@ -2374,19 +2353,6 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
                     hrc = ctrls[i]->COMGETTER(PortCount)(&cPorts);                          H();
                     InsertConfigInteger(pCfg, "NamespacesMax", cPorts);
 
-                    /* For ICH9 we need to create a new PCI bridge if there is more than one NVMe instance. */
-                    if (   ulInstance > 0
-                        && chipsetType == ChipsetType_ICH9
-                        && !pBusMgr->hasPCIDevice("ich9pcibridge", 2))
-                    {
-                        PCFGMNODE pBridges = CFGMR3GetChild(pDevices, "ich9pcibridge");
-                        Assert(pBridges);
-
-                        InsertConfigNode(pBridges, "2", &pInst);
-                        InsertConfigInteger(pInst, "Trusted",              1);
-                        hrc = pBusMgr->assignPCIDevice("ich9pcibridge", pInst);
-                    }
-
                     /* Attach the status driver */
                     AssertRelease(cPorts <= cLedSata);
                     i_attachStatusDriver(pCtlInst, &mapStorageLeds[iLedNvme], 0, cPorts - 1,
@@ -2837,6 +2803,12 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             AudioCodecType_T audioCodec;
             hrc = audioAdapter->COMGETTER(AudioCodec)(&audioCodec);                         H();
 
+            GetExtraDataBoth(virtualBox, pMachine, "VBoxInternal2/Audio/Debug/Enabled", &strTmp);
+            const uint64_t fDebugEnabled = (strTmp.equalsIgnoreCase("true") || strTmp.equalsIgnoreCase("1")) ? 1 : 0;
+
+            Utf8Str strDebugPathOut;
+            GetExtraDataBoth(virtualBox, pMachine, "VBoxInternal2/Audio/Debug/PathOut", &strDebugPathOut);
+
             switch (audioController)
             {
                 case AudioControllerType_AC97:
@@ -2887,6 +2859,9 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
                     InsertConfigInteger(pInst,    "Trusted",               1); /* boolean */
                     hrc = pBusMgr->assignPCIDevice(strAudioDevice.c_str(), pInst);          H();
                     InsertConfigNode   (pInst,    "Config",                &pCfg);
+
+                        InsertConfigInteger(pCfg, "DebugEnabled", fDebugEnabled);
+                        InsertConfigString (pCfg, "DebugPathOut", strDebugPathOut);
                 }
             }
 
@@ -2977,21 +2952,22 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
                 default: AssertFailedBreak();
             }
 
-            uint8_t u8AudioLUN = 0;
+            unsigned uAudioLUN = 0;
 
-            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", u8AudioLUN++);
+            BOOL fAudioEnabledIn = FALSE;
+            hrc = audioAdapter->COMGETTER(EnabledIn)(&fAudioEnabledIn);                     H();
+            BOOL fAudioEnabledOut = FALSE;
+            hrc = audioAdapter->COMGETTER(EnabledOut)(&fAudioEnabledOut);                   H();
+
+            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
             InsertConfigString(pLunL0, "Driver", "AUDIO");
+
             InsertConfigNode(pLunL0,   "Config", &pCfg);
-
-                InsertConfigString(pCfg, "DriverName", strAudioDriver.c_str());
-
-                BOOL fAudioEnabledIn = FALSE;
-                hrc = audioAdapter->COMGETTER(EnabledIn)(&fAudioEnabledIn);                     H();
+                InsertConfigString (pCfg, "DriverName",    strAudioDriver.c_str());
                 InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
-
-                BOOL fAudioEnabledOut = FALSE;
-                hrc = audioAdapter->COMGETTER(EnabledOut)(&fAudioEnabledOut);                   H();
                 InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
+                InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
+                InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
 
                 InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
 
@@ -3006,13 +2982,15 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             /*
              * The VRDE audio backend driver.
              */
-            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", u8AudioLUN++);
+            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
             InsertConfigString(pLunL0, "Driver", "AUDIO");
 
             InsertConfigNode(pLunL0,   "Config", &pCfg);
                 InsertConfigString (pCfg, "DriverName",    "AudioVRDE");
                 InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
                 InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
+                InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
+                InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
 
             InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
                 InsertConfigString(pLunL1, "Driver", "AudioVRDE");
@@ -3029,26 +3007,28 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             {
                 /* Note: Don't do any driver attaching (fAttachDetach) here, as this will
                  *       be done automatically as part of the VM startup process. */
-                pDisplay->i_videoRecConfigure(pDisplay, pDisplay->i_videoRecGetConfig(), false /* fAttachDetach */);
+                rc = pDisplay->i_videoRecConfigure(pDisplay, pDisplay->i_videoRecGetConfig(), false /* fAttachDetach */,
+                                                   &uAudioLUN);
+                if (RT_SUCCESS(rc)) /* Successfully configured, use next LUN for drivers below. */
+                    uAudioLUN++;
             }
 #endif /* VBOX_WITH_AUDIO_VIDEOREC */
 
-            GetExtraDataBoth(virtualBox, pMachine, "VBoxInternal2/Audio/Debug/Enabled", &strTmp);
-
-            if (!strTmp.isEmpty())
+            if (fDebugEnabled)
             {
-                LogRel(("Audio: Debugging enabled\n"));
-
 #ifdef VBOX_WITH_AUDIO_DEBUG
                 /*
                  * The audio debugging backend.
                  */
-                CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", u8AudioLUN++);
+                CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
                 InsertConfigString(pLunL0, "Driver", "AUDIO");
+
                 InsertConfigNode(pLunL0,   "Config", &pCfg);
-                    InsertConfigString (pCfg, "DriverName", "DebugAudio");
+                    InsertConfigString (pCfg, "DriverName",    "DebugAudio");
                     InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
                     InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
+                    InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
+                    InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
 
                 InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
 
@@ -3078,12 +3058,14 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             /*
              * The ValidationKit backend.
              */
-            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", u8AudioLUN++);
+            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
             InsertConfigString(pLunL0, "Driver", "AUDIO");
             InsertConfigNode(pLunL0,   "Config", &pCfg);
-                InsertConfigString (pCfg, "DriverName",    "DebugAudio");
+                InsertConfigString (pCfg, "DriverName",    "ValidationKitAudio");
                 InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
                 InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
+                InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
+                InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
 
             InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
 

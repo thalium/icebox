@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -79,7 +79,8 @@ namespace UIDefs
         FormatSize_RoundUp
     };
 
-    /* Extension-pack declarations: */
+    /* File name declarations: */
+    extern const char* GUI_GuestAdditionsName;
     extern const char* GUI_ExtPackName;
 
     /* File extensions declarations: */

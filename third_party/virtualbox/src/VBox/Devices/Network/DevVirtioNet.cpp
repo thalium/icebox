@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -514,8 +514,26 @@ static void vnetWakeupReceive(PPDMDEVINS pDevIns)
     {
         STAM_COUNTER_INC(&pThis->StatRxOverflowWakeup);
         Log(("%s Waking up Out-of-RX-space semaphore\n",  INSTANCE(pThis)));
+/**
+ * @todo r=bird: We can wake stuff up from ring-0 too, see vmsvga, nvme,
+ *        buslogic, lsilogic, ata, ahci, xhci.  Also, please address similar
+ *        TODO in E1000.
+ *
+ *        The API Is SUPSem*, btw.
+ */
         RTSemEventSignal(pThis->hEventMoreRxDescAvail);
     }
+}
+
+
+/**
+ * Helper function that raises an interrupt if the guest is ready to receive it.
+ */
+int vnetRaiseInterrupt(PVNETSTATE pThis, int rcBusy, uint8_t u8IntCause)
+{
+    if (pThis->VPCI.uStatus & VPCI_STATUS_DRV_OK)
+        return vpciRaiseInterrupt(&pThis->VPCI, rcBusy, u8IntCause);
+    return rcBusy;
 }
 
 
@@ -535,7 +553,7 @@ static void vnetTempLinkDown(PVNETSTATE pThis)
     if (STATUS & VNET_S_LINK_UP)
     {
         STATUS &= ~VNET_S_LINK_UP;
-        vpciRaiseInterrupt(&pThis->VPCI, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
+        vnetRaiseInterrupt(pThis, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
         /* Restore the link back in 5 seconds. */
         int rc = TMTimerSetMillies(pThis->pLinkUpTimer, pThis->cMsLinkUpDelay);
         AssertRC(rc);
@@ -556,7 +574,7 @@ static DECLCALLBACK(void) vnetLinkUpTimer(PPDMDEVINS pDevIns, PTMTIMER pTimer, v
     if (RT_UNLIKELY(rc != VINF_SUCCESS))
         return;
     STATUS |= VNET_S_LINK_UP;
-    vpciRaiseInterrupt(&pThis->VPCI, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
+    vnetRaiseInterrupt(pThis, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
     vnetWakeupReceive(pDevIns);
     vnetCsLeave(pThis);
     Log(("%s vnetLinkUpTimer: Link is up\n", INSTANCE(pThis)));
@@ -586,6 +604,13 @@ static DECLCALLBACK(void) vnetIoCb_Ready(void *pvState)
 {
     PVNETSTATE pThis = (PVNETSTATE)pvState;
     Log(("%s Driver became ready, waking up RX thread...\n", INSTANCE(pThis)));
+/**
+ * @todo r=bird: We can wake stuff up from ring-0 too, see vmsvga, nvme,
+ *        buslogic, lsilogic, ata, ahci, xhci.  Also, please address similar
+ *        TODO in E1000.
+ *
+ *        The API Is SUPSem*, btw.
+ */
 #ifdef IN_RING3
     vnetWakeupReceive(pThis->VPCI.CTX_SUFF(pDevIns));
 #else
@@ -1061,16 +1086,18 @@ static DECLCALLBACK(int) vnetSetLinkState(PPDMINETWORKCONFIG pInterface, PDMNETW
         if (fNewUp)
         {
             Log(("%s Link is up\n", INSTANCE(pThis)));
+            pThis->fCableConnected = true;
             STATUS |= VNET_S_LINK_UP;
-            vpciRaiseInterrupt(&pThis->VPCI, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
+            vnetRaiseInterrupt(pThis, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
         }
         else
         {
             /* The link was brought down explicitly, make sure it won't come up by timer.  */
             TMTimerStop(pThis->pLinkUpTimer);
             Log(("%s Link is down\n", INSTANCE(pThis)));
+            pThis->fCableConnected = false;
             STATUS &= ~VNET_S_LINK_UP;
-            vpciRaiseInterrupt(&pThis->VPCI, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
+            vnetRaiseInterrupt(pThis, VERR_SEM_BUSY, VPCI_ISR_CONFIG);
         }
         if (pThis->pDrv)
             pThis->pDrv->pfnNotifyLinkChanged(pThis->pDrv, enmState);
@@ -1264,6 +1291,12 @@ static void vnetTransmitPendingPackets(PVNETSTATE pThis, PVQUEUE pQueue, bool fO
         return;
     }
 
+    if (!pThis->fCableConnected)
+    {
+        Log(("%s Ignoring transmit requests while cable is disconnected.\n", INSTANCE(pThis)));
+        return;
+    }
+
     PPDMINETWORKUP pDrv = pThis->pDrv;
     if (pDrv)
     {
@@ -1287,11 +1320,11 @@ static void vnetTransmitPendingPackets(PVNETSTATE pThis, PVQUEUE pQueue, bool fO
 
     vpciSetWriteLed(&pThis->VPCI, true);
 
-    VQUEUEELEM elem;
     /*
      * Do not remove descriptors from available ring yet, try to allocate the
      * buffer first.
      */
+    VQUEUEELEM elem; /* This bugger is big! ~48KB on 64-bit hosts. */
     while (vqueuePeek(&pThis->VPCI, pQueue, &elem))
     {
         unsigned int uOffset = 0;
@@ -1301,60 +1334,63 @@ static void vnetTransmitPendingPackets(PVNETSTATE pThis, PVQUEUE pQueue, bool fO
                  INSTANCE(pThis), elem.nOut, elem.aSegsOut[0].cb, uHdrLen));
             break; /* For now we simply ignore the header, but it must be there anyway! */
         }
-        else
+        RT_UNTRUSTED_VALIDATED_FENCE();
+
+        VNETHDR Hdr;
+        unsigned int uSize = 0;
+        STAM_PROFILE_ADV_START(&pThis->StatTransmit, a);
+
+        /* Compute total frame size. */
+        for (unsigned int i = 1; i < elem.nOut && uSize < VNET_MAX_FRAME_SIZE; i++)
+            uSize += elem.aSegsOut[i].cb;
+        Log5(("%s vnetTransmitPendingPackets: complete frame is %u bytes.\n", INSTANCE(pThis), uSize));
+        Assert(uSize <= VNET_MAX_FRAME_SIZE);
+
+        /* Truncate oversized frames. */
+        if (uSize > VNET_MAX_FRAME_SIZE)
+            uSize = VNET_MAX_FRAME_SIZE;
+        if (pThis->pDrv && vnetReadHeader(pThis, elem.aSegsOut[0].addr, &Hdr, uSize))
         {
-            VNETHDR Hdr;
-            unsigned int uSize = 0;
-            STAM_PROFILE_ADV_START(&pThis->StatTransmit, a);
-            /* Compute total frame size. */
-            for (unsigned int i = 1; i < elem.nOut && uSize < VNET_MAX_FRAME_SIZE; i++)
-                uSize += elem.aSegsOut[i].cb;
-            Log5(("%s vnetTransmitPendingPackets: complete frame is %u bytes.\n", INSTANCE(pThis), uSize));
-            Assert(uSize <= VNET_MAX_FRAME_SIZE);
-            /* Truncate oversized frames. */
-            if (uSize > VNET_MAX_FRAME_SIZE)
-                uSize = VNET_MAX_FRAME_SIZE;
-            if (pThis->pDrv && vnetReadHeader(pThis, elem.aSegsOut[0].addr, &Hdr, uSize))
+            RT_UNTRUSTED_VALIDATED_FENCE();
+            STAM_REL_COUNTER_INC(&pThis->StatTransmitPackets);
+            STAM_PROFILE_START(&pThis->StatTransmitSend, a);
+
+            PDMNETWORKGSO Gso;
+            PDMNETWORKGSO *pGso = vnetSetupGsoCtx(&Gso, &Hdr);
+
+            /** @todo Optimize away the extra copying! (lazy bird) */
+            PPDMSCATTERGATHER pSgBuf;
+            int rc = pThis->pDrv->pfnAllocBuf(pThis->pDrv, uSize, pGso, &pSgBuf);
+            if (RT_SUCCESS(rc))
             {
-                PDMNETWORKGSO Gso, *pGso;
+                Assert(pSgBuf->cSegs == 1);
+                pSgBuf->cbUsed = uSize;
 
-                STAM_REL_COUNTER_INC(&pThis->StatTransmitPackets);
-
-                STAM_PROFILE_START(&pThis->StatTransmitSend, a);
-
-                pGso = vnetSetupGsoCtx(&Gso, &Hdr);
-                /** @todo Optimize away the extra copying! (lazy bird) */
-                PPDMSCATTERGATHER pSgBuf;
-                int rc = pThis->pDrv->pfnAllocBuf(pThis->pDrv, uSize, pGso, &pSgBuf);
-                if (RT_SUCCESS(rc))
+                /* Assemble a complete frame. */
+                for (unsigned int i = 1; i < elem.nOut && uSize > 0; i++)
                 {
-                    Assert(pSgBuf->cSegs == 1);
-                    pSgBuf->cbUsed = uSize;
-                    /* Assemble a complete frame. */
-                    for (unsigned int i = 1; i < elem.nOut && uSize > 0; i++)
-                    {
-                        unsigned int cbSegment = RT_MIN(uSize, elem.aSegsOut[i].cb);
-                        PDMDevHlpPhysRead(pThis->VPCI.CTX_SUFF(pDevIns), elem.aSegsOut[i].addr,
-                                          ((uint8_t*)pSgBuf->aSegs[0].pvSeg) + uOffset,
-                                          cbSegment);
-                        uOffset += cbSegment;
-                        uSize -= cbSegment;
-                    }
-                    rc = vnetTransmitFrame(pThis, pSgBuf, pGso, &Hdr);
+                    unsigned int cbSegment = RT_MIN(uSize, elem.aSegsOut[i].cb);
+                    PDMDevHlpPhysRead(pThis->VPCI.CTX_SUFF(pDevIns), elem.aSegsOut[i].addr,
+                                      ((uint8_t*)pSgBuf->aSegs[0].pvSeg) + uOffset,
+                                      cbSegment);
+                    uOffset += cbSegment;
+                    uSize -= cbSegment;
                 }
-                else
-                {
-                    Log4(("virtio-net: failed to allocate SG buffer: size=%u rc=%Rrc\n", uSize, rc));
-                    STAM_PROFILE_STOP(&pThis->StatTransmitSend, a);
-                    STAM_PROFILE_ADV_STOP(&pThis->StatTransmit, a);
-                    /* Stop trying to fetch TX descriptors until we get more bandwidth. */
-                    break;
-                }
-
-                STAM_PROFILE_STOP(&pThis->StatTransmitSend, a);
-                STAM_REL_COUNTER_ADD(&pThis->StatTransmitBytes, uOffset);
+                rc = vnetTransmitFrame(pThis, pSgBuf, pGso, &Hdr);
             }
+            else
+            {
+                Log4(("virtio-net: failed to allocate SG buffer: size=%u rc=%Rrc\n", uSize, rc));
+                STAM_PROFILE_STOP(&pThis->StatTransmitSend, a);
+                STAM_PROFILE_ADV_STOP(&pThis->StatTransmit, a);
+                /* Stop trying to fetch TX descriptors until we get more bandwidth. */
+                break;
+            }
+
+            STAM_PROFILE_STOP(&pThis->StatTransmitSend, a);
+            STAM_REL_COUNTER_ADD(&pThis->StatTransmitBytes, uOffset);
         }
+
         /* Remove this descriptor chain from the available ring */
         vqueueSkip(&pThis->VPCI, pQueue);
         vqueuePut(&pThis->VPCI, pQueue, &elem, sizeof(VNETHDR) + uOffset);
@@ -1992,8 +2028,8 @@ static DECLCALLBACK(void) vnetRelocate(PPDMDEVINS pDevIns, RTGCINTPTR offDelta)
  */
 static DECLCALLBACK(int) vnetDestruct(PPDMDEVINS pDevIns)
 {
-    PVNETSTATE pThis = PDMINS_2_DATA(pDevIns, PVNETSTATE);
     PDMDEV_CHECK_VERSIONS_RETURN_QUIET(pDevIns);
+    PVNETSTATE pThis = PDMINS_2_DATA(pDevIns, PVNETSTATE);
 
     LogRel(("TxTimer stats (avg/min/max): %7d usec %7d usec %7d usec\n",
             pThis->u32AvgDiff, pThis->u32MinDiff, pThis->u32MaxDiff));
@@ -2017,9 +2053,9 @@ static DECLCALLBACK(int) vnetDestruct(PPDMDEVINS pDevIns)
  */
 static DECLCALLBACK(int) vnetConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
+    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     PVNETSTATE pThis = PDMINS_2_DATA(pDevIns, PVNETSTATE);
     int        rc;
-    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
 
     /* Initialize the instance data suffiencently for the destructor not to blow up. */
     pThis->hEventMoreRxDescAvail = NIL_RTSEMEVENT;
@@ -2043,8 +2079,7 @@ static DECLCALLBACK(int) vnetConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMN
      * Validate configuration.
      */
     if (!CFGMR3AreValuesValid(pCfg, "MAC\0" "CableConnected\0" "LineSpeed\0" "LinkUpDelay\0"))
-                    return PDMDEV_SET_ERROR(pDevIns, VERR_PDM_DEVINS_UNKNOWN_CFG_VALUES,
-                                            N_("Invalid configuration for VirtioNet device"));
+        return PDMDEV_SET_ERROR(pDevIns, VERR_PDM_DEVINS_UNKNOWN_CFG_VALUES, N_("Invalid configuration for VirtioNet device"));
 
     /* Get config params */
     rc = CFGMR3QueryBytes(pCfg, "MAC", pThis->macConfigured.au8,

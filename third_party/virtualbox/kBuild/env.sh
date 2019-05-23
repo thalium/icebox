@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: env.sh 3062 2017-09-30 11:26:21Z bird $
+# $Id: env.sh 3111 2017-10-22 11:38:15Z bird $
 ## @file
 # Environment setup script.
 #
@@ -264,6 +264,18 @@ if test -z "$KBUILD_HOST"; then
             KBUILD_HOST=freebsd
             ;;
 
+        GNU)
+            KBUILD_HOST=gnuhurd
+            ;;
+
+        GNU/kFreeBSD)
+            KBUILD_HOST=gnukfbsd
+            ;;
+
+        GNU/kNetBSD|GNU/NetBSD)
+            KBUILD_HOST=gnuknbsd
+            ;;
+
         Haiku)
             KBUILD_HOST=haiku
             ;;
@@ -325,8 +337,14 @@ if test -z "$KBUILD_HOST_ARCH"; then
     case "$KBUILD_HOST_ARCH" in
         x86_64|AMD64|amd64|k8|k8l|k9|k10)
             KBUILD_HOST_ARCH='amd64'
+            # Try detect debian x32.
+            if test "$KBUILD_HOST" = "linux"; then 
+                case "`uname -v`" in 
+                    *Debian*+x32+*) KBUILD_HOST_ARCH=x32 ;;
+                esac
+            fi
             ;;
-        x86|i86pc|ia32|i[3456789]86|BePC)
+        x86|i86pc|ia32|i[3456789]86|BePC|i[3456789]86-AT[3456789]86)
             KBUILD_HOST_ARCH='x86'
             ;;
         alpha)
@@ -352,6 +370,9 @@ if test -z "$KBUILD_HOST_ARCH"; then
             ;;
         ppc64|ppc64le|powerpc64|powerpc64le)
             KBUILD_HOST_ARCH='ppc64'
+            ;;
+        m68k)
+            KBUILD_HOST_ARCH='m68k'
             ;;
         mips32|mips)
             KBUILD_HOST_ARCH='mips32'

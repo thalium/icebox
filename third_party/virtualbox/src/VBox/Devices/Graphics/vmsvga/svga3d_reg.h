@@ -159,6 +159,8 @@ typedef enum SVGA3dSurfaceFormat {
    /* Video format with alpha */
    SVGA3D_AYUV                         = 45,
 
+   SVGA3D_R8G8B8A8_UNORM               = 68, /// @todo use headers from newer Mesa
+
    SVGA3D_BC4_UNORM                    = 108,
    SVGA3D_BC5_UNORM                    = 111,
 
@@ -166,6 +168,9 @@ typedef enum SVGA3dSurfaceFormat {
    SVGA3D_Z_DF16                       = 118,
    SVGA3D_Z_DF24                       = 119,
    SVGA3D_Z_D24S8_INT                  = 120,
+
+   SVGA3D_R8G8B8A8_SNORM               = 127, /// @todo use headers from newer Mesa
+   SVGA3D_R16G16_UNORM                 = 129, /// @todo use headers from newer Mesa
 
    SVGA3D_FORMAT_MAX
 } SVGA3dSurfaceFormat;

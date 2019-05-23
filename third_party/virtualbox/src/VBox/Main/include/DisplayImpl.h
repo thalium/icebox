@@ -86,7 +86,7 @@ typedef struct _DISPLAYFBINFO
     bool fVBVAEnabled;
     bool fVBVAForceResize;
     bool fRenderThreadMode;
-    PVBVAHOSTFLAGS pVBVAHostFlags;
+    VBVAHOSTFLAGS RT_UNTRUSTED_VOLATILE_GUEST *pVBVAHostFlags;
 #endif /* VBOX_WITH_HGSMI */
 
 #ifdef VBOX_WITH_CROGL
@@ -168,18 +168,17 @@ public:
     void i_handleUpdateGuestVBVACapabilities(uint32_t fNewCapabilities);
     void i_handleUpdateVBVAInputMapping(int32_t xOrigin, int32_t yOrigin, uint32_t cx, uint32_t cy);
 #ifdef VBOX_WITH_VIDEOHWACCEL
-    int  i_handleVHWACommandProcess(PVBOXVHWACMD pCommand);
+    int  i_handleVHWACommandProcess(int enmCmd, bool fGuestCmd, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *pCommand);
 #endif
 #ifdef VBOX_WITH_CRHGSMI
     void i_handleCrHgsmiCommandCompletion(int32_t result, uint32_t u32Function, PVBOXHGCMSVCPARM pParam);
     void i_handleCrHgsmiControlCompletion(int32_t result, uint32_t u32Function, PVBOXHGCMSVCPARM pParam);
-    void i_handleCrHgsmiCommandProcess(PVBOXVDMACMD_CHROMIUM_CMD pCmd, uint32_t cbCmd);
-    void i_handleCrHgsmiControlProcess(PVBOXVDMACMD_CHROMIUM_CTL pCtl, uint32_t cbCtl);
+    void i_handleCrHgsmiCommandProcess(VBOXVDMACMD_CHROMIUM_CMD RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd);
+    void i_handleCrHgsmiControlProcess(VBOXVDMACMD_CHROMIUM_CTL RT_UNTRUSTED_VOLATILE_GUEST *pCtl, uint32_t cbCtl);
 #endif
 #if defined(VBOX_WITH_HGCM) && defined(VBOX_WITH_CROGL)
-    int  i_handleCrHgcmCtlSubmit(struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd,
-                                 PFNCRCTLCOMPLETION pfnCompletion,
-                                 void *pvCompletion);
+    int  i_handleCrHgcmCtlSubmit(struct VBOXCRCMDCTL RT_UNTRUSTED_VOLATILE_GUEST *pCmd, uint32_t cbCmd,
+                                 PFNCRCTLCOMPLETION pfnCompletion, void *pvCompletion);
     void  i_handleCrVRecScreenshotPerform(uint32_t uScreen,
                                           uint32_t x, uint32_t y, uint32_t uPixelFormat, uint32_t uBitsPerPixel,
                                           uint32_t uBytesPerLine, uint32_t uGuestWidth, uint32_t uGuestHeight,
@@ -209,12 +208,12 @@ public:
 
 #ifdef VBOX_WITH_VIDEOREC
     PVIDEORECCFG             i_videoRecGetConfig(void) { return &mVideoRecCfg; }
-    VIDEORECFEATURES         i_videoRecGetEnabled(void);
+    VIDEORECFEATURES         i_videoRecGetFeatures(void);
     bool                     i_videoRecStarted(void);
 # ifdef VBOX_WITH_AUDIO_VIDEOREC
-    int                      i_videoRecConfigureAudioDriver(const Utf8Str& strAdapter, unsigned uInstance, unsigned uLun, bool fAttach);
+    int                      i_videoRecConfigureAudioDriver(const Utf8Str& strAdapter, unsigned uInstance, unsigned uLUN, bool fAttach);
 # endif
-    static DECLCALLBACK(int) i_videoRecConfigure(Display *pThis, PVIDEORECCFG pCfg, bool fAttachDetach);
+    static DECLCALLBACK(int) i_videoRecConfigure(Display *pThis, PVIDEORECCFG pCfg, bool fAttachDetach, unsigned *puLUN);
     int                      i_videoRecSendAudio(const void *pvData, size_t cbData, uint64_t uDurationMs);
     int                      i_videoRecStart(void);
     void                     i_videoRecStop(void);
@@ -341,13 +340,16 @@ private:
                                                                    void *pvVRAM, unsigned uScreenId);
 
 #ifdef VBOX_WITH_VIDEOHWACCEL
-    static DECLCALLBACK(int)  i_displayVHWACommandProcess(PPDMIDISPLAYCONNECTOR pInterface, PVBOXVHWACMD pCommand);
+    static DECLCALLBACK(int)  i_displayVHWACommandProcess(PPDMIDISPLAYCONNECTOR pInterface, int enmCmd, bool fGuestCmd,
+                                                          VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *pCommand);
 #endif
 
 #ifdef VBOX_WITH_CRHGSMI
     static DECLCALLBACK(void)  i_displayCrHgsmiCommandProcess(PPDMIDISPLAYCONNECTOR pInterface,
-                                                              PVBOXVDMACMD_CHROMIUM_CMD pCmd, uint32_t cbCmd);
-    static DECLCALLBACK(void)  i_displayCrHgsmiControlProcess(PPDMIDISPLAYCONNECTOR pInterface, PVBOXVDMACMD_CHROMIUM_CTL pCtl,
+                                                              VBOXVDMACMD_CHROMIUM_CMD RT_UNTRUSTED_VOLATILE_GUEST *pCmd,
+                                                              uint32_t cbCmd);
+    static DECLCALLBACK(void)  i_displayCrHgsmiControlProcess(PPDMIDISPLAYCONNECTOR pInterface,
+                                                              VBOXVDMACMD_CHROMIUM_CTL RT_UNTRUSTED_VOLATILE_GUEST *pCtl,
                                                               uint32_t cbCtl);
 
     static DECLCALLBACK(void)  i_displayCrHgsmiCommandCompletion(int32_t result, uint32_t u32Function, PVBOXHGCMSVCPARM pParam,
@@ -356,20 +358,18 @@ private:
                                                                  void *pvContext);
 #endif
 #if defined(VBOX_WITH_HGCM) && defined(VBOX_WITH_CROGL)
-    static DECLCALLBACK(int)  i_displayCrHgcmCtlSubmit(PPDMIDISPLAYCONNECTOR pInterface,
-                                                       struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd,
-                                                       PFNCRCTLCOMPLETION pfnCompletion,
-                                                       void *pvCompletion);
+    static DECLCALLBACK(int)  i_displayCrHgcmCtlSubmit(PPDMIDISPLAYCONNECTOR pInterface, struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd,
+                                                       PFNCRCTLCOMPLETION pfnCompletion, void *pvCompletion);
     static DECLCALLBACK(void) i_displayCrHgcmCtlSubmitCompletion(int32_t result, uint32_t u32Function, PVBOXHGCMSVCPARM pParam,
                                                                  void *pvContext);
 #endif
 #ifdef VBOX_WITH_HGSMI
     static DECLCALLBACK(int)   i_displayVBVAEnable(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId,
-                                                   PVBVAHOSTFLAGS pHostFlags, bool fRenderThreadMode);
+                                                   VBVAHOSTFLAGS RT_UNTRUSTED_VOLATILE_GUEST *pHostFlags, bool fRenderThreadMode);
     static DECLCALLBACK(void)  i_displayVBVADisable(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId);
     static DECLCALLBACK(void)  i_displayVBVAUpdateBegin(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId);
     static DECLCALLBACK(void)  i_displayVBVAUpdateProcess(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId,
-                                                          PCVBVACMDHDR pCmd, size_t cbCmd);
+                                                          struct VBVACMDHDR const RT_UNTRUSTED_VOLATILE_GUEST *pCmd, size_t cbCmd);
     static DECLCALLBACK(void)  i_displayVBVAUpdateEnd(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId, int32_t x, int32_t y,
                                                       uint32_t cx, uint32_t cy);
     static DECLCALLBACK(int)   i_displayVBVAResize(PPDMIDISPLAYCONNECTOR pInterface, PCVBVAINFOVIEW pView,
@@ -395,7 +395,7 @@ private:
 
     static DECLCALLBACK(void) i_displayVRecCompletion(struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd, int rc, void *pvCompletion);
 #endif
-    static DECLCALLBACK(void) i_displayCrCmdFree(struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd, int rc, void *pvCompletion);
+    static DECLCALLBACK(void) i_displayCrCmdFree(struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd, int rc, void *pvCompletion);
 
     static DECLCALLBACK(void) i_displaySSMSaveScreenshot(PSSMHANDLE pSSM, void *pvUser);
     static DECLCALLBACK(int)  i_displaySSMLoadScreenshot(PSSMHANDLE pSSM, void *pvUser, uint32_t uVersion, uint32_t uPass);
@@ -491,8 +491,8 @@ public:
 #if defined(VBOX_WITH_HGCM) && defined(VBOX_WITH_CROGL)
     static BOOL  i_displayCheckTakeScreenshotCrOgl(Display *pDisplay, ULONG aScreenId, uint8_t *pbData,
                                                    uint32_t u32Width, uint32_t u32Height);
-    int i_crCtlSubmit(struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd, PFNCRCTLCOMPLETION pfnCompletion, void *pvCompletion);
-    int i_crCtlSubmitSync(struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd);
+    int i_crCtlSubmit(struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd, PFNCRCTLCOMPLETION pfnCompletion, void *pvCompletion);
+    int i_crCtlSubmitSync(struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd);
     /* copies the given command and submits it asynchronously,
      * i.e. the pCmd data may be discarded right after the call returns */
     int i_crCtlSubmitAsyncCmdCopy(struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd);

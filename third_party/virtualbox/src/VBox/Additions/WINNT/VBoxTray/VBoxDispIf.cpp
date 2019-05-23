@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1471,81 +1471,64 @@ DWORD vboxDispIfResizeModesWDDM(PCVBOXDISPIF const pIf, UINT iChangedMode, BOOL 
         return winEr;
     }
 
-    VBOXWDDM_RECOMMENDVIDPN VidPnData;
-
-    memset(&VidPnData, 0, sizeof (VidPnData));
-
-    uint32_t cElements = 0;
-
-    for (uint32_t i = 0; i < cDevModes; ++i)
-    {
-        if ((i == iChangedMode) ? fEnable : (paDisplayDevices[i].StateFlags & DISPLAY_DEVICE_ACTIVE))
-        {
-            VidPnData.aSources[cElements].Size.cx = paDeviceModes[i].dmPelsWidth;
-            VidPnData.aSources[cElements].Size.cy = paDeviceModes[i].dmPelsHeight;
-            VidPnData.aTargets[cElements].iSource = cElements;
-            ++cElements;
-        }
-        else
-            VidPnData.aTargets[cElements].iSource = -1;
-    }
-
 /*  The pfnD3DKMTInvalidateActiveVidPn was deprecated since Win7 and causes deadlocks since Win10 TH2.
     Instead, the VidPn Manager can replace an old VidPn as soon as SetDisplayConfig or ChangeDisplaySettingsEx will try to set a new display mode.
     On Vista D3DKMTInvalidateActiveVidPn is still required. TBD: Get rid of it. */
     if (Op.pIf->enmMode < VBOXDISPIF_MODE_WDDM_W7)
     {
-        D3DKMT_INVALIDATEACTIVEVIDPN DdiData = {0};
+        D3DKMT_INVALIDATEACTIVEVIDPN ddiArgInvalidateVidPN;
+        VBOXWDDM_RECOMMENDVIDPN vboxRecommendVidPN;
 
-        DdiData.hAdapter = Op.Adapter.hAdapter;
-        DdiData.pPrivateDriverData = &VidPnData;
-        DdiData.PrivateDriverDataSize = sizeof (VidPnData);
+        memset(&ddiArgInvalidateVidPN, 0, sizeof(ddiArgInvalidateVidPN));
+        memset(&vboxRecommendVidPN, 0, sizeof(vboxRecommendVidPN));
+
+        uint32_t cElements = 0;
+
+        for (uint32_t i = 0; i < cDevModes; ++i)
+        {
+            if ((i == iChangedMode) ? fEnable : (paDisplayDevices[i].StateFlags & DISPLAY_DEVICE_ACTIVE))
+            {
+                vboxRecommendVidPN.aSources[cElements].Size.cx = paDeviceModes[i].dmPelsWidth;
+                vboxRecommendVidPN.aSources[cElements].Size.cy = paDeviceModes[i].dmPelsHeight;
+                vboxRecommendVidPN.aTargets[cElements].iSource = cElements;
+                ++cElements;
+            }
+            else
+                vboxRecommendVidPN.aTargets[cElements].iSource = -1;
+        }
+
+        ddiArgInvalidateVidPN.hAdapter = Op.Adapter.hAdapter;
+        ddiArgInvalidateVidPN.pPrivateDriverData = &vboxRecommendVidPN;
+        ddiArgInvalidateVidPN.PrivateDriverDataSize = sizeof (vboxRecommendVidPN);
 
         NTSTATUS Status;
-        Status = Op.pIf->modeData.wddm.KmtCallbacks.pfnD3DKMTInvalidateActiveVidPn(&DdiData);
+        Status = Op.pIf->modeData.wddm.KmtCallbacks.pfnD3DKMTInvalidateActiveVidPn(&ddiArgInvalidateVidPN);
         LogFunc(("D3DKMTInvalidateActiveVidPn returned %d)\n", Status));
     }
 
     vboxDispIfTargetConnectivityWDDM(&Op, iChangedMode, fEnable? 1: 0);
 
-    /* Resize displays always to keep the display layout because
-     * "the D3DKMTInvalidateActiveVidPn function always resets a multimonitor desktop to the default configuration".
-     */
-    for (uint32_t i = 0; i < cDevModes; ++i)
+    /* Whether the current display is already or should be enabled. */
+    BOOL fChangedEnable = fEnable || RT_BOOL(paDisplayDevices[iChangedMode].StateFlags & DISPLAY_DEVICE_ACTIVE);
+
+    if (fChangedEnable)
     {
+        RTRECTSIZE Size;
+
+        Size.cx = paDeviceModes[iChangedMode].dmPelsWidth;
+        Size.cy = paDeviceModes[iChangedMode].dmPelsHeight;
+
+        LogFunc(("Calling vboxDispIfUpdateModesWDDM to change target %d mode to (%d x %d)\n", iChangedMode, Size.cx, Size.cy));
+        winEr = vboxDispIfUpdateModesWDDM(&Op, iChangedMode, &Size);
+    }
+
+    winEr = vboxDispIfResizePerform(pIf, iChangedMode, fEnable, fExtDispSup, paDisplayDevices, paDeviceModes, cDevModes);
+
+    if (winEr == ERROR_RETRY)
+    {
+        VBoxRrRetrySchedule(pIf, iChangedMode, fEnable, fExtDispSup, paDisplayDevices, paDeviceModes, cDevModes);
+
         winEr = NO_ERROR;
-
-        /* Whether the current display should be enabled. */
-        BOOL fCurrentEnable = i == iChangedMode?
-                                 fEnable:
-                                 RT_BOOL(paDisplayDevices[i].StateFlags & DISPLAY_DEVICE_ACTIVE);
-
-        if (i == iChangedMode && fCurrentEnable)
-        {
-            RTRECTSIZE Size;
-            Size.cx = paDeviceModes[iChangedMode].dmPelsWidth;
-            Size.cy = paDeviceModes[iChangedMode].dmPelsHeight;
-            LogFunc(("Calling vboxDispIfUpdateModesWDDM to change target %d mode to (%d x %d)\n", iChangedMode, Size.cx, Size.cy));
-            winEr = vboxDispIfUpdateModesWDDM(&Op, iChangedMode, &Size);
-            LogFunc(("vboxDispIfUpdateModesWDDM returned %d\n", winEr));
-
-            if (winEr != NO_ERROR)
-                WARN(("vboxDispIfUpdateModesWDDM failed %d\n", winEr));
-        }
-
-        if (winEr == NO_ERROR)
-        {
-            winEr = vboxDispIfResizePerform(pIf, i, fCurrentEnable, fExtDispSup, paDisplayDevices, paDeviceModes, cDevModes);
-
-            LogFunc(("vboxDispIfResizePerform returned %d\n", winEr));
-
-            if (winEr == ERROR_RETRY)
-            {
-                VBoxRrRetrySchedule(pIf, i, fCurrentEnable, fExtDispSup, paDisplayDevices, paDeviceModes, cDevModes);
-
-                winEr = NO_ERROR;
-            }
-        }
     }
 
     vboxDispIfOpEnd(&Op);

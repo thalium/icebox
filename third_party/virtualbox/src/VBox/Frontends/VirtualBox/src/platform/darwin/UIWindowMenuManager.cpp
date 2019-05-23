@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -286,7 +286,7 @@ bool UIWindowMenuManager::eventFilter(QObject *pObject, QEvent *pEvent)
     /* Acquire event type: */
     const QEvent::Type type = pEvent->type();
 
-#ifdef VBOX_OSE // TODO: Do we still need it?
+#ifdef VBOX_OSE /// @todo Do we still need it?
     /* Stupid Qt: Qt doesn't check if a window is minimized when a command is
      * executed. This leads to strange behaviour. The minimized window is
      * partly restored, but not usable. As a workaround we raise the parent

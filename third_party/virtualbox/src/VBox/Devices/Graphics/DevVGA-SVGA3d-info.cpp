@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -96,6 +96,8 @@ static const VMSVGAINFOENUM g_aSVGA3dSurfaceFormats[] =
     { SVGA3D_Z_DF16             , "Z_DF16" },
     { SVGA3D_Z_DF24             , "Z_DF24" },
     { SVGA3D_Z_D24S8_INT        , "Z_D24S8_INT" },
+    { SVGA3D_R8G8B8A8_SNORM     , "R8G8B8A8_SNORM" },
+    { SVGA3D_R16G16_UNORM       , "R16G16_UNORM" },
 };
 VMSVGAINFOENUMMAP_MAKE(RT_NOTHING, g_SVGA3dSurfaceFormat2String, g_aSVGA3dSurfaceFormats, "SVGA3D_");
 
@@ -266,10 +268,7 @@ static int vmsvga3dSurfaceUpdateHeapBuffers(PVMSVGA3DSTATE pState, PVMSVGA3DSURF
      * surfaces both for OpenGL and D3D, so skip these here (don't
      * wast memory on them).
      */
-    uint32_t const fSwitchFlags = pSurface->flags
-                                & (  SVGA3D_SURFACE_HINT_INDEXBUFFER  | SVGA3D_SURFACE_HINT_VERTEXBUFFER
-                                   | SVGA3D_SURFACE_HINT_TEXTURE      | SVGA3D_SURFACE_HINT_RENDERTARGET
-                                   | SVGA3D_SURFACE_HINT_DEPTHSTENCIL | SVGA3D_SURFACE_CUBEMAP);
+    uint32_t const fSwitchFlags = pSurface->surfaceFlags & VMSVGA3D_SURFACE_HINT_SWITCH_MASK;
     if (   fSwitchFlags != SVGA3D_SURFACE_HINT_DEPTHSTENCIL
         && fSwitchFlags != (SVGA3D_SURFACE_HINT_DEPTHSTENCIL | SVGA3D_SURFACE_HINT_TEXTURE))
     {
@@ -298,7 +297,7 @@ static int vmsvga3dSurfaceUpdateHeapBuffers(PVMSVGA3DSTATE pState, PVMSVGA3DSURF
 #endif
                 {
                     Assert(pMipmapLevel->cbSurface);
-                    Assert(pMipmapLevel->cbSurface == pMipmapLevel->cbSurfacePitch * pMipmapLevel->size.height); /* correct for depth stuff? */
+                    Assert(pMipmapLevel->cbSurface == pMipmapLevel->cbSurfacePlane * pMipmapLevel->mipmapSize.depth);
 
                     /*
                      * Make sure we've got surface memory buffer.
@@ -314,23 +313,37 @@ static int vmsvga3dSurfaceUpdateHeapBuffers(PVMSVGA3DSTATE pState, PVMSVGA3DSURF
                     /*
                      * D3D specifics.
                      */
-                    HRESULT  hr;
-                    switch (fSwitchFlags)
+                    Assert(pSurface->enmD3DResType != VMSVGA3D_D3DRESTYPE_NONE);
+
+                    HRESULT hr;
+                    switch (pSurface->enmD3DResType)
                     {
-                        case SVGA3D_SURFACE_HINT_TEXTURE:
-                        case SVGA3D_SURFACE_HINT_RENDERTARGET:
-                        case SVGA3D_SURFACE_HINT_TEXTURE | SVGA3D_SURFACE_HINT_RENDERTARGET:
+                        case VMSVGA3D_D3DRESTYPE_VOLUME_TEXTURE:
+                            AssertFailed(); /// @todo
+                            break;
+
+                        case VMSVGA3D_D3DRESTYPE_SURFACE:
+                        case VMSVGA3D_D3DRESTYPE_TEXTURE:
+                        case VMSVGA3D_D3DRESTYPE_CUBE_TEXTURE:
                         {
                             /*
                              * Lock the buffer and make it accessible to memcpy.
                              */
                             D3DLOCKED_RECT LockedRect;
-                            if (fSwitchFlags & SVGA3D_SURFACE_HINT_TEXTURE)
+                            if (pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_CUBE_TEXTURE)
+                            {
+                                hr = pSurface->u.pCubeTexture->LockRect(vmsvga3dCubemapFaceFromIndex(iFace),
+                                                                        i, /* texture level */
+                                                                        &LockedRect,
+                                                                        NULL,
+                                                                        D3DLOCK_READONLY);
+                            }
+                            else if (pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_TEXTURE)
                             {
                                 if (pSurface->bounce.pTexture)
                                 {
                                     if (    !pSurface->fDirty
-                                        &&  fSwitchFlags == (SVGA3D_SURFACE_HINT_TEXTURE | SVGA3D_SURFACE_HINT_RENDERTARGET)
+                                        &&  RT_BOOL(fSwitchFlags & SVGA3D_SURFACE_HINT_RENDERTARGET)
                                         &&  i == 0 /* only the first time */)
                                     {
                                         /** @todo stricter checks for associated context */
@@ -381,7 +394,7 @@ static int vmsvga3dSurfaceUpdateHeapBuffers(PVMSVGA3DSTATE pState, PVMSVGA3DSURF
                             if (pMipmapLevel->cbSurfacePitch == (uint32_t)LockedRect.Pitch)
                                 memcpy(pbDst, LockedRect.pBits, pMipmapLevel->cbSurface);
                             else
-                                for (uint32_t j = 0; j < pMipmapLevel->size.height; j++)
+                                for (uint32_t j = 0; j < pMipmapLevel->cBlocksY; j++)
                                     memcpy(pbDst + j * pMipmapLevel->cbSurfacePitch,
                                            (uint8_t *)LockedRect.pBits + j * LockedRect.Pitch,
                                            pMipmapLevel->cbSurfacePitch);
@@ -405,34 +418,31 @@ static int vmsvga3dSurfaceUpdateHeapBuffers(PVMSVGA3DSTATE pState, PVMSVGA3DSURF
                             break;
                         }
 
-                        case SVGA3D_SURFACE_HINT_VERTEXBUFFER:
+                        case VMSVGA3D_D3DRESTYPE_VERTEX_BUFFER:
+                        case VMSVGA3D_D3DRESTYPE_INDEX_BUFFER:
                         {
+                            /* Current type of the buffer. */
+                            const bool fVertex = (pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_VERTEX_BUFFER);
+
                             void *pvD3DData = NULL;
-                            hr = pSurface->u.pVertexBuffer->Lock(0, 0, &pvD3DData, D3DLOCK_READONLY);
-                            AssertMsgReturn(hr == D3D_OK, ("Lock vertex failed with %x\n", hr), VERR_INTERNAL_ERROR);
+                            if (fVertex)
+                                hr = pSurface->u.pVertexBuffer->Lock(0, 0, &pvD3DData, D3DLOCK_READONLY);
+                            else
+                                hr = pSurface->u.pIndexBuffer->Lock(0, 0, &pvD3DData, D3DLOCK_READONLY);
+                            AssertMsgReturn(hr == D3D_OK, ("Lock %s failed with %x\n", fVertex ? "vertex" : "index", hr), VERR_INTERNAL_ERROR);
 
                             memcpy(pbDst, pvD3DData, pMipmapLevel->cbSurface);
 
-                            hr = pSurface->u.pVertexBuffer->Unlock();
-                            AssertMsg(hr == D3D_OK, ("Unlock vertex failed with %x\n", hr));
-                            break;
-                        }
-
-                        case SVGA3D_SURFACE_HINT_INDEXBUFFER:
-                        {
-                            void *pvD3DData = NULL;
-                            hr = pSurface->u.pIndexBuffer->Lock(0, 0, &pvD3DData, D3DLOCK_READONLY);
-                            AssertMsgReturn(hr == D3D_OK, ("Lock index failed with %x\n", hr), VERR_INTERNAL_ERROR);
-
-                            memcpy(pbDst, pvD3DData, pMipmapLevel->cbSurface);
-
-                            hr = pSurface->u.pIndexBuffer->Unlock();
-                            AssertMsg(hr == D3D_OK, ("Unlock index failed with %x\n", hr));
+                            if (fVertex)
+                                hr = pSurface->u.pVertexBuffer->Unlock();
+                            else
+                                hr = pSurface->u.pIndexBuffer->Unlock();
+                            AssertMsg(hr == D3D_OK, ("Unlock %s failed with %x\n", fVertex ? "vertex" : "index", hr));
                             break;
                         }
 
                         default:
-                            AssertMsgFailed(("%#x\n", fSwitchFlags));
+                            AssertMsgFailed(("flags %#x, type %d\n", fSwitchFlags, pSurface->enmD3DResType));
                     }
 
 #elif defined(VMSVGA3D_OPENGL)
@@ -471,6 +481,7 @@ static int vmsvga3dSurfaceUpdateHeapBuffers(PVMSVGA3DSTATE pState, PVMSVGA3DSURF
                             break;
                         }
 
+                        case SVGA3D_SURFACE_HINT_VERTEXBUFFER | SVGA3D_SURFACE_HINT_INDEXBUFFER:
                         case SVGA3D_SURFACE_HINT_VERTEXBUFFER:
                         case SVGA3D_SURFACE_HINT_INDEXBUFFER:
                         {
@@ -844,7 +855,7 @@ void vmsvga3dAsciiPrint(PFMVMSVGAASCIIPRINTLN pfnPrintLine, void *pvUser, void c
     uint32_t cyPerChar = cy / cchMaxY + 1;
     /** @todo try keep aspect...   */
     uint32_t const cchLine = (cx + cxPerChar - 1) / cxPerChar;
-    uint32_t const cbSrcPixel = vmsvga3dSurfaceFormatSize(enmFormat);
+    uint32_t const cbSrcPixel = vmsvga3dSurfaceFormatSize(enmFormat, NULL, NULL);
 
     /*
      * The very simple conversion we're doing in this function is based on
@@ -1542,9 +1553,9 @@ static void vmsvga3dInfoContextWorkerOne(PCDBGFINFOHLP pHlp, PVMSVGA3DCONTEXT pC
 #endif
     pHlp->pfnPrintf(pHlp, "sidRenderTarget:         %#x\n", pContext->sidRenderTarget);
 
-    for (uint32_t i = 0; i < RT_ELEMENTS(pContext->aSidActiveTexture); i++)
-        if (pContext->aSidActiveTexture[i] != SVGA3D_INVALID_ID)
-            pHlp->pfnPrintf(pHlp, "aSidActiveTexture[%u]:    %#x\n", i, pContext->aSidActiveTexture[i]);
+    for (uint32_t i = 0; i < RT_ELEMENTS(pContext->aSidActiveTextures); i++)
+        if (pContext->aSidActiveTextures[i] != SVGA3D_INVALID_ID)
+            pHlp->pfnPrintf(pHlp, "aSidActiveTextures[%u]:    %#x\n", i, pContext->aSidActiveTextures[i]);
 
     pHlp->pfnPrintf(pHlp, "fUpdateFlags:            %#x\n", pContext->state.u32UpdateFlags);
 
@@ -1553,11 +1564,11 @@ static void vmsvga3dInfoContextWorkerOne(PCDBGFINFOHLP pHlp, PVMSVGA3DCONTEXT pC
             pHlp->pfnPrintf(pHlp, "aRenderState[%3d]: %s\n", i,
                             vmsvga3dFormatRenderState(szTmp, sizeof(szTmp), &pContext->state.aRenderState[i]));
 
-    for (uint32_t i = 0; i < RT_ELEMENTS(pContext->state.aTextureState); i++)
-        for (uint32_t j = 0; j < RT_ELEMENTS(pContext->state.aTextureState[i]); j++)
-            if (pContext->state.aTextureState[i][j].name != SVGA3D_TS_INVALID)
-                pHlp->pfnPrintf(pHlp, "aTextureState[%3d][%3d]: %s\n", i, j,
-                                vmsvga3dFormatTextureState(szTmp, sizeof(szTmp), &pContext->state.aTextureState[i][j]));
+    for (uint32_t i = 0; i < RT_ELEMENTS(pContext->state.aTextureStates); i++)
+        for (uint32_t j = 0; j < RT_ELEMENTS(pContext->state.aTextureStates[i]); j++)
+            if (pContext->state.aTextureStates[i][j].name != SVGA3D_TS_INVALID)
+                pHlp->pfnPrintf(pHlp, "aTextureStates[%3d][%3d]: %s\n", i, j,
+                                vmsvga3dFormatTextureState(szTmp, sizeof(szTmp), &pContext->state.aTextureStates[i][j]));
 
     AssertCompile(RT_ELEMENTS(g_apszTransformTypes) == SVGA3D_TRANSFORM_MAX);
     for (uint32_t i = 0; i < RT_ELEMENTS(pContext->state.aTransformState); i++)
@@ -1682,8 +1693,8 @@ static void vmsvga3dInfoContextWorkerOne(PCDBGFINFOHLP pHlp, PVMSVGA3DCONTEXT pC
                 if (paConsts[i].ctype == SVGA3D_CONST_TYPE_FLOAT)
                     pHlp->pfnPrintf(pHlp, "%s[%#x(%u)] = [" FLOAT_FMT_STR ", " FLOAT_FMT_STR ", " FLOAT_FMT_STR ", " FLOAT_FMT_STR "] ctype=FLOAT\n",
                                     pszName, i, i,
-                                    FLOAT_FMT_ARGS(paConsts[i].value[0]), FLOAT_FMT_ARGS(paConsts[i].value[1]),
-                                    FLOAT_FMT_ARGS(paConsts[i].value[2]), FLOAT_FMT_ARGS(paConsts[i].value[3]));
+                                    FLOAT_FMT_ARGS(*(float *)&paConsts[i].value[0]), FLOAT_FMT_ARGS(*(float *)&paConsts[i].value[1]),
+                                    FLOAT_FMT_ARGS(*(float *)&paConsts[i].value[2]), FLOAT_FMT_ARGS(*(float *)&paConsts[i].value[3]));
                 else
                     pHlp->pfnPrintf(pHlp, "%s[%#x(%u)] = [%#x, %#x, %#x, %#x] ctype=%s\n",
                                     pszName, i, i,
@@ -1814,8 +1825,8 @@ static void vmsvga3dInfoSurfaceWorkerOne(PCDBGFINFOHLP pHlp, PVMSVGA3DSURFACE pS
 #endif
     pHlp->pfnPrintf(pHlp, "Format:                  %s\n",
                     vmsvgaFormatEnumValueEx(szTmp, sizeof(szTmp), NULL, (int)pSurface->format, false, &g_SVGA3dSurfaceFormat2String));
-    pHlp->pfnPrintf(pHlp, "Flags:                   %#x", pSurface->flags);
-    vmsvga3dInfoU32Flags(pHlp, pSurface->flags, "SVGA3D_SURFACE_", g_aSvga3DSurfaceFlags, RT_ELEMENTS(g_aSvga3DSurfaceFlags));
+    pHlp->pfnPrintf(pHlp, "Flags:                   %#x", pSurface->surfaceFlags);
+    vmsvga3dInfoU32Flags(pHlp, pSurface->surfaceFlags, "SVGA3D_SURFACE_", g_aSvga3DSurfaceFlags, RT_ELEMENTS(g_aSvga3DSurfaceFlags));
     pHlp->pfnPrintf(pHlp, "\n");
     if (pSurface->cFaces == 0)
         pHlp->pfnPrintf(pHlp, "Faces:                   %u\n", pSurface->cFaces);
@@ -1830,9 +1841,9 @@ static void vmsvga3dInfoSurfaceWorkerOne(PCDBGFINFOHLP pHlp, PVMSVGA3DSURFACE pS
         {
             pHlp->pfnPrintf(pHlp, "Face #%u, mipmap #%u[%u]:%s  cx=%u, cy=%u, cz=%u, cbSurface=%#x, cbPitch=%#x",
                             iFace, iLevel, iMipmap, iMipmap < 10 ? " " : "",
-                            pSurface->pMipmapLevels[iMipmap].size.width,
-                            pSurface->pMipmapLevels[iMipmap].size.height,
-                            pSurface->pMipmapLevels[iMipmap].size.depth,
+                            pSurface->pMipmapLevels[iMipmap].mipmapSize.width,
+                            pSurface->pMipmapLevels[iMipmap].mipmapSize.height,
+                            pSurface->pMipmapLevels[iMipmap].mipmapSize.depth,
                             pSurface->pMipmapLevels[iMipmap].cbSurface,
                             pSurface->pMipmapLevels[iMipmap].cbSurfacePitch);
             if (pSurface->pMipmapLevels[iMipmap].pSurfaceData)
@@ -1889,14 +1900,14 @@ static void vmsvga3dInfoSurfaceWorkerOne(PCDBGFINFOHLP pHlp, PVMSVGA3DSURFACE pS
                     {
                         pHlp->pfnPrintf(pHlp, "--- Face #%u, mipmap #%u[%u]: cx=%u, cy=%u, cz=%u ---\n",
                                         iFace, iLevel, iMipmap,
-                                        pSurface->pMipmapLevels[iMipmap].size.width,
-                                        pSurface->pMipmapLevels[iMipmap].size.height,
-                                        pSurface->pMipmapLevels[iMipmap].size.depth);
+                                        pSurface->pMipmapLevels[iMipmap].mipmapSize.width,
+                                        pSurface->pMipmapLevels[iMipmap].mipmapSize.height,
+                                        pSurface->pMipmapLevels[iMipmap].mipmapSize.depth);
                         vmsvga3dAsciiPrint(vmsvga3dAsciiPrintlnInfo, (void *)pHlp,
                                            pSurface->pMipmapLevels[iMipmap].pSurfaceData,
                                            pSurface->pMipmapLevels[iMipmap].cbSurface,
-                                           pSurface->pMipmapLevels[iMipmap].size.width,
-                                           pSurface->pMipmapLevels[iMipmap].size.height,
+                                           pSurface->pMipmapLevels[iMipmap].mipmapSize.width,
+                                           pSurface->pMipmapLevels[iMipmap].mipmapSize.height,
                                            pSurface->pMipmapLevels[iMipmap].cbSurfacePitch,
                                            pSurface->format,
                                            fInvY,

@@ -64,7 +64,7 @@ int main()
     if (rc)
         return rc;
     RTTestBanner(hTest);
-    
+
     tstCorrectness(hTest);
 
     return RTTestSummaryAndDestroy(hTest);

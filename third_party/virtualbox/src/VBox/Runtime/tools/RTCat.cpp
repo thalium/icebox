@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include <iprt/vfs.h>
 
 #include <iprt/buildconfig.h>
@@ -41,9 +41,9 @@
 #include <iprt/string.h>
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /**
  * CAT command options.
  */
@@ -194,106 +194,118 @@ RTEXITCODE RTCmdCat(unsigned cArgs, char **papszArgs)
     RTGETOPTSTATE GetState;
     rc = RTGetOptInit(&GetState, cArgs, papszArgs, s_aOptions, RT_ELEMENTS(s_aOptions), 1,
                       RTGETOPTINIT_FLAGS_OPTS_FIRST);
-    if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_SYNTAX, "RTGetOptInit: %Rrc", rc);
-
-    for (;;)
+    if (RT_SUCCESS(rc))
     {
-        RTGETOPTUNION ValueUnion;
-        int chOpt = RTGetOpt(&GetState, &ValueUnion);
-        switch (chOpt)
+        bool fContinue = true;
+        do
         {
-            case 0:
-                /*
-                 * If we've processed any files we're done.  Otherwise take
-                 * input from stdin and write the output to stdout.
-                 */
-                if (cProcessed > 0)
-                    return rcExit;
-                ValueUnion.psz = "-";
-                RT_FALL_THRU();
-            case VINF_GETOPT_NOT_OPTION:
+            RTGETOPTUNION ValueUnion;
+            int chOpt = RTGetOpt(&GetState, &ValueUnion);
+            switch (chOpt)
             {
-                RTVFSIOSTREAM hVfsSrc;
-                RTEXITCODE rcExit2 = rtCmdCatOpenInput(ValueUnion.psz, &hVfsSrc);
-                if (rcExit2 == RTEXITCODE_SUCCESS)
+                case 0:
+                    /*
+                     * If we've processed any files we're done.  Otherwise take
+                     * input from stdin and write the output to stdout.
+                     */
+                    if (cProcessed > 0)
+                    {
+                        fContinue = false;
+                        break;
+                    }
+                    ValueUnion.psz = "-";
+                    RT_FALL_THRU();
+                case VINF_GETOPT_NOT_OPTION:
                 {
-                    if (   Opts.fShowEnds
-                        || Opts.fShowTabs
-                        || Opts.fShowNonPrinting
-                        || Opts.fSqueezeBlankLines
-                        || Opts.fNumberLines
-                        || Opts.fNumberNonBlankLines)
-                        rcExit2 = rtCmdCatShowComplicated(hVfsOutput, hVfsSrc, ValueUnion.psz, &Opts);
-                    else
-                        rcExit2 = rtCmdCatShowRaw(hVfsOutput, hVfsSrc, ValueUnion.psz);
-                    RTVfsIoStrmRelease(hVfsSrc);
+                    RTVFSIOSTREAM hVfsSrc;
+                    RTEXITCODE rcExit2 = rtCmdCatOpenInput(ValueUnion.psz, &hVfsSrc);
+                    if (rcExit2 == RTEXITCODE_SUCCESS)
+                    {
+                        if (   Opts.fShowEnds
+                            || Opts.fShowTabs
+                            || Opts.fShowNonPrinting
+                            || Opts.fSqueezeBlankLines
+                            || Opts.fNumberLines
+                            || Opts.fNumberNonBlankLines)
+                            rcExit2 = rtCmdCatShowComplicated(hVfsOutput, hVfsSrc, ValueUnion.psz, &Opts);
+                        else
+                            rcExit2 = rtCmdCatShowRaw(hVfsOutput, hVfsSrc, ValueUnion.psz);
+                        RTVfsIoStrmRelease(hVfsSrc);
+                    }
+                    if (rcExit2 != RTEXITCODE_SUCCESS)
+                        rcExit = rcExit2;
+                    cProcessed++;
+                    break;
                 }
-                if (rcExit2 != RTEXITCODE_SUCCESS)
-                    rcExit = rcExit2;
-                cProcessed++;
-                break;
+
+                case 'A':
+                    Opts.fShowNonPrinting       = true;
+                    Opts.fShowEnds              = true;
+                    Opts.fShowTabs              = true;
+                    break;
+
+                case 'b':
+                    Opts.fNumberNonBlankLines   = true;
+                    break;
+
+                case 'e':
+                    Opts.fShowNonPrinting       = true;
+                    RT_FALL_THRU();
+                case 'E':
+                    Opts.fShowEnds              = true;
+                    break;
+
+                case 'l':
+                    Opts.fAdvisoryOutputLock    = true;
+                    break;
+
+                case 'n':
+                    Opts.fNumberLines           = true;
+                    Opts.fNumberNonBlankLines   = false;
+                    break;
+
+                case 's':
+                    Opts.fSqueezeBlankLines     = true;
+                    break;
+
+                case 't':
+                    Opts.fShowNonPrinting       = true;
+                    RT_FALL_THRU();
+                case 'T':
+                    Opts.fShowTabs              = true;
+                    break;
+
+                case 'u': /* currently ignored */
+                    Opts.fUnbufferedOutput      = true;
+                    break;
+
+                case 'v':
+                    Opts.fShowNonPrinting       = true;
+                    break;
+
+                case 'h':
+                    RTPrintf("Usage: to be written\nOption dump:\n");
+                    for (unsigned i = 0; i < RT_ELEMENTS(s_aOptions); i++)
+                        RTPrintf(" -%c,%s\n", s_aOptions[i].iShort, s_aOptions[i].pszLong);
+                    fContinue = false;
+                    break;
+
+                case 'V':
+                    RTPrintf("%sr%d\n", RTBldCfgVersion(), RTBldCfgRevision());
+                    fContinue = false;
+                    break;
+
+                default:
+                    rcExit = RTGetOptPrintError(chOpt, &ValueUnion);
+                    fContinue = false;
+                    break;
             }
-
-            case 'A':
-                Opts.fShowNonPrinting       = true;
-                Opts.fShowEnds              = true;
-                Opts.fShowTabs              = true;
-                break;
-
-            case 'b':
-                Opts.fNumberNonBlankLines   = true;
-                break;
-
-            case 'e':
-                Opts.fShowNonPrinting       = true;
-                RT_FALL_THRU();
-            case 'E':
-                Opts.fShowEnds              = true;
-                break;
-
-            case 'l':
-                Opts.fAdvisoryOutputLock    = true;
-                break;
-
-            case 'n':
-                Opts.fNumberLines           = true;
-                Opts.fNumberNonBlankLines   = false;
-                break;
-
-            case 's':
-                Opts.fSqueezeBlankLines     = true;
-                break;
-
-            case 't':
-                Opts.fShowNonPrinting       = true;
-                RT_FALL_THRU();
-            case 'T':
-                Opts.fShowTabs              = true;
-                break;
-
-            case 'u': /* currently ignored */
-                Opts.fUnbufferedOutput      = true;
-                break;
-
-            case 'v':
-                Opts.fShowNonPrinting       = true;
-                break;
-
-            case 'h':
-                RTPrintf("Usage: to be written\nOption dump:\n");
-                for (unsigned i = 0; i < RT_ELEMENTS(s_aOptions); i++)
-                    RTPrintf(" -%c,%s\n", s_aOptions[i].iShort, s_aOptions[i].pszLong);
-                return RTEXITCODE_SUCCESS;
-
-            case 'V':
-                RTPrintf("%sr%d\n", RTBldCfgVersion(), RTBldCfgRevision());
-                return RTEXITCODE_SUCCESS;
-
-            default:
-                return RTGetOptPrintError(chOpt, &ValueUnion);
-        }
+        } while (fContinue);
     }
+    else
+        rcExit = RTMsgErrorExit(RTEXITCODE_SYNTAX, "RTGetOptInit: %Rrc", rc);
+    RTVfsIoStrmRelease(hVfsOutput);
+    return rcExit;
 }
 
 
@@ -304,5 +316,4 @@ int main(int argc, char **argv)
         return RTMsgInitFailure(rc);
     return RTCmdCat(argc, argv);
 }
-
 

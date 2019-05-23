@@ -527,7 +527,7 @@ CREATE INDEX TestGroups_id_index ON TestGroups (idTestGroup, tsExpire DESC, tsEf
 
 
 --- @table TestGroupMembers
--- The N:M relation ship between test case configurations and test groups.
+-- The N:M relationship between test case configurations and test groups.
 --
 -- @remarks This table stores history.  Never update or delete anything.  The
 --          equivalent of deleting is done by setting the 'tsExpire' field to
@@ -692,11 +692,11 @@ CREATE TABLE SchedGroupMembers (
 -- String table for the test boxes.
 --
 -- This is a string cache for all string members in TestBoxes except the name.
--- The rational is to avoid duplicating large strings like sReport when the 
--- testbox reports a new cMbScratch value or the box when the test sheriff 
--- sends a reboot command or similar.  
--- 
--- At the time this table was introduced, we had 400558 TestBoxes rows,  where 
+-- The rational is to avoid duplicating large strings like sReport when the
+-- testbox reports a new cMbScratch value or the box when the test sheriff
+-- sends a reboot command or similar.
+--
+-- At the time this table was introduced, we had 400558 TestBoxes rows,  where
 -- the SUM(LENGTH(sReport)) was 993MB.  There were really just 1066 distinct
 -- sReport values, with a total length of 0x3 MB.
 --
@@ -1170,7 +1170,7 @@ CREATE TABLE BuildBlacklist (
 
     PRIMARY KEY (idBlacklisting, tsExpire)
 );
-CREATE INDEX BuildBlacklistIdx ON BuildBlacklist (iLastRevision DESC, iFirstRevision ASC, sProduct, sBranch, 
+CREATE INDEX BuildBlacklistIdx ON BuildBlacklist (iLastRevision DESC, iFirstRevision ASC, sProduct, sBranch,
                                                   tsExpire DESC, tsEffective ASC);
 
 --- @table BuildCategories
@@ -1444,7 +1444,7 @@ CREATE INDEX TestResultsParentIdx ON TestResults (idTestResultParent);
 CREATE INDEX TestResultsNameIdx ON TestResults (idStrName, tsCreated DESC);
 CREATE INDEX TestResultsNameIdx2 ON TestResults (idTestResult, idStrName);
 
-ALTER TABLE TestResultFailures ADD CONSTRAINT TestResultFailures_idTestResult_idTestSet_fkey 
+ALTER TABLE TestResultFailures ADD CONSTRAINT TestResultFailures_idTestResult_idTestSet_fkey
     FOREIGN KEY (idTestResult, idTestSet) REFERENCES TestResults(idTestResult, idTestSet) MATCH FULL;
 
 

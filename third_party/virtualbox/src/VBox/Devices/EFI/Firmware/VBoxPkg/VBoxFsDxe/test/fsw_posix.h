@@ -42,7 +42,6 @@
 
 #include <fcntl.h>
 #include <sys/types.h>
-#include <sys/dir.h>
 
 
 /**
@@ -79,6 +78,29 @@ struct fsw_posix_dir {
 };
 
 
+#define NAME_MAX    4096
+
+#define DT_UNKNOWN  'u'
+#define DT_REG      'r'
+#define DT_DIR      'd'
+#define DT_LNK      'l'
+
+
+/**
+ * POSIX Host: Private structure for an open directory.
+ */
+
+struct fsw_posix_dirent {
+    char                d_attr;             /* file's attribute */
+    unsigned            d_type;
+    unsigned short int  d_time;             /* file's time */
+    unsigned short int  d_date;             /* file's date */
+    long                d_size;             /* file's size */
+    char                d_name[NAME_MAX+1]; /* file's name */
+    unsigned            d_fileno;           /* file number/inode */
+};
+typedef struct fsw_posix_dirent DIR;
+
 /* functions */
 
 struct fsw_posix_volume * fsw_posix_mount(const char *path, struct fsw_fstype_table *fstype_table);
@@ -90,7 +112,7 @@ off_t fsw_posix_lseek(struct fsw_posix_file *file, off_t offset, int whence);
 int fsw_posix_close(struct fsw_posix_file *file);
 
 struct fsw_posix_dir * fsw_posix_opendir(struct fsw_posix_volume *pvol, const char *path);
-struct dirent * fsw_posix_readdir(struct fsw_posix_dir *dir);
+struct fsw_posix_dirent * fsw_posix_readdir(struct fsw_posix_dir *dir);
 void fsw_posix_rewinddir(struct fsw_posix_dir *dir);
 int fsw_posix_closedir(struct fsw_posix_dir *dir);
 

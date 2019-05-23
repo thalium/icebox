@@ -46,8 +46,8 @@
 #include "internal/path.h"
 
 
-static DECLCALLBACK(bool) rtDirFilterWinNtMatch(PRTDIR pDir, const char *pszName);
-static DECLCALLBACK(bool) rtDirFilterWinNtMatchNoWildcards(PRTDIR pDir, const char *pszName);
+static DECLCALLBACK(bool) rtDirFilterWinNtMatch(PRTDIRINTERNAL pDir, const char *pszName);
+static DECLCALLBACK(bool) rtDirFilterWinNtMatchNoWildcards(PRTDIRINTERNAL pDir, const char *pszName);
 DECLINLINE(bool) rtDirFilterWinNtMatchEon(PCRTUNICP puszFilter);
 static bool rtDirFilterWinNtMatchDosStar(unsigned iDepth, RTUNICP uc, const char *pszNext, PCRTUNICP puszFilter);
 static bool rtDirFilterWinNtMatchStar(unsigned iDepth, RTUNICP uc, const char *pszNext, PCRTUNICP puszFilter);
@@ -116,7 +116,7 @@ RTDECL(int) RTDirCreateFullPath(const char *pszPath, RTFMODE fMode)
  * @param   pDir        The directory handle.
  * @param   pszName     The path to match to the filter.
  */
-static DECLCALLBACK(bool) rtDirFilterWinNtMatchNoWildcards(PRTDIR pDir, const char *pszName)
+static DECLCALLBACK(bool) rtDirFilterWinNtMatchNoWildcards(PRTDIRINTERNAL pDir, const char *pszName)
 {
     /*
      * Walk the string and compare.
@@ -446,7 +446,7 @@ static bool rtDirFilterWinNtMatchBase(unsigned iDepth, const char *pszName, PCRT
  * @param   pDir        The directory handle.
  * @param   pszName     The path to match to the filter.
  */
-static DECLCALLBACK(bool) rtDirFilterWinNtMatch(PRTDIR pDir, const char *pszName)
+static DECLCALLBACK(bool) rtDirFilterWinNtMatch(PRTDIRINTERNAL pDir, const char *pszName)
 {
     return rtDirFilterWinNtMatchBase(0, pszName, pDir->puszFilter);
 }
@@ -459,7 +459,7 @@ static DECLCALLBACK(bool) rtDirFilterWinNtMatch(PRTDIR pDir, const char *pszName
  * @returns NULL if the filter doesn't filter out anything.
  * @param   pDir        The directory handle (not yet opened).
  */
-static PFNRTDIRFILTER rtDirFilterWinNtInit(PRTDIR pDir)
+static PFNRTDIRFILTER rtDirFilterWinNtInit(PRTDIRINTERNAL pDir)
 {
     /*
      * Check for the usual * and <"< (*.* in DOS language) patterns.
@@ -505,12 +505,19 @@ static PFNRTDIRFILTER rtDirFilterWinNtInit(PRTDIR pDir)
  * Common worker for opening a directory.
  *
  * @returns IPRT status code.
- * @param   ppDir       Where to store the directory handle.
- * @param   pszPath     The specified path.
- * @param   pszFilter   Pointer to where the filter start in the path. NULL if no filter.
- * @param   enmFilter   The type of filter to apply.
+ * @param   phDir               Where to store the directory handle.
+ * @param   pszPath             The specified path.
+ * @param   pszFilter           Pointer to where the filter start in the path.
+ *                              NULL if no filter.
+ * @param   enmFilter           The type of filter to apply.
+ * @param   fFlags              RTDIR_F_XXX.
+ * @param   hRelativeDir        The directory @a pvNativeRelative is relative
+ *                              to, ~(uintptr_t)0 if absolute.
+ * @param   pvNativeRelative    The native relative path.  NULL if absolute or
+ *                              we're to use (consume) hRelativeDir.
  */
-static int rtDirOpenCommon(PRTDIR *ppDir, const char *pszPath, const char *pszFilter, RTDIRFILTER enmFilter)
+static int rtDirOpenCommon(RTDIR *phDir, const char *pszPath, const char *pszFilter, RTDIRFILTER enmFilter,
+                           uint32_t fFlags, uintptr_t hRelativeDir, void *pvNativeRelative)
 {
     /*
      * Expand the path.
@@ -568,7 +575,7 @@ static int rtDirOpenCommon(PRTDIR *ppDir, const char *pszPath, const char *pszFi
                              + cucFilter0 * sizeof(RTUNICP)
                              + cbFilter
                              + cchRealPath + 1 + 4;
-    PRTDIR pDir = (PRTDIR)RTMemAllocZ(cbAllocated);
+    PRTDIRINTERNAL pDir = (PRTDIRINTERNAL)RTMemAllocZ(cbAllocated);
     if (!pDir)
         return VERR_NO_MEMORY;
     uint8_t *pb = (uint8_t *)pDir + cbDir;
@@ -613,16 +620,17 @@ static int rtDirOpenCommon(PRTDIR *ppDir, const char *pszPath, const char *pszFi
     pDir->cchPath = cchRealPath;
     pDir->pszPath = (char *)memcpy(pb, szRealPath, cchRealPath + 1);
     Assert(pb - (uint8_t *)pDir + cchRealPath + 1 <= cbAllocated);
-    pDir->fDataUnread = false;
     pDir->pszName = NULL;
     pDir->cchName = 0;
+    pDir->fFlags  = fFlags;
+    pDir->fDataUnread = false;
 
     /*
      * Hand it over to the native part.
      */
-    rc = rtDirNativeOpen(pDir, szRealPath);
+    rc = rtDirNativeOpen(pDir, szRealPath, hRelativeDir, pvNativeRelative);
     if (RT_SUCCESS(rc))
-        *ppDir = pDir;
+        *phDir = pDir;
     else
         RTMemFree(pDir);
 
@@ -630,32 +638,32 @@ static int rtDirOpenCommon(PRTDIR *ppDir, const char *pszPath, const char *pszFi
 }
 
 
-
-RTDECL(int) RTDirOpen(PRTDIR *ppDir, const char *pszPath)
+RTDECL(int) RTDirOpen(RTDIR *phDir, const char *pszPath)
 {
     /*
      * Validate input.
      */
-    AssertMsgReturn(VALID_PTR(ppDir), ("%p\n", ppDir), VERR_INVALID_POINTER);
+    AssertMsgReturn(VALID_PTR(phDir), ("%p\n", phDir), VERR_INVALID_POINTER);
     AssertMsgReturn(VALID_PTR(pszPath), ("%p\n", pszPath), VERR_INVALID_POINTER);
 
     /*
      * Take common cause with RTDirOpenFiltered().
      */
-    int rc = rtDirOpenCommon(ppDir, pszPath, NULL,  RTDIRFILTER_NONE);
-    LogFlow(("RTDirOpen(%p:{%p}, %p:{%s}): return %Rrc\n", ppDir, *ppDir, pszPath, pszPath, rc));
+    int rc = rtDirOpenCommon(phDir, pszPath, NULL, RTDIRFILTER_NONE, 0 /*fFlags*/, ~(uintptr_t)0, NULL);
+    LogFlow(("RTDirOpen(%p:{%p}, %p:{%s}): return %Rrc\n", phDir, *phDir, pszPath, pszPath, rc));
     return rc;
 }
 
 
-RTDECL(int) RTDirOpenFiltered(PRTDIR *ppDir, const char *pszPath, RTDIRFILTER enmFilter, uint32_t fOpen)
+DECLHIDDEN(int) rtDirOpenRelativeOrHandle(RTDIR *phDir, const char *pszPath, RTDIRFILTER enmFilter, uint32_t fFlags,
+                                          uintptr_t hRelativeDir, void *pvNativeRelative)
 {
     /*
      * Validate input.
      */
-    AssertMsgReturn(VALID_PTR(ppDir), ("%p\n", ppDir), VERR_INVALID_POINTER);
+    AssertMsgReturn(VALID_PTR(phDir), ("%p\n", phDir), VERR_INVALID_POINTER);
     AssertMsgReturn(VALID_PTR(pszPath), ("%p\n", pszPath), VERR_INVALID_POINTER);
-    AssertReturn(!(fOpen & ~RTDIROPEN_FLAGS_NO_SYMLINKS), VERR_INVALID_FLAGS);
+    AssertReturn(!(fFlags & ~RTDIR_F_VALID_MASK), VERR_INVALID_FLAGS);
     switch (enmFilter)
     {
         case RTDIRFILTER_UNIX:
@@ -686,11 +694,24 @@ RTDECL(int) RTDirOpenFiltered(PRTDIR *ppDir, const char *pszPath, RTDIRFILTER en
      * Call worker common with RTDirOpen which will verify the path, allocate
      * and initialize the handle, and finally call the backend.
      */
-    int rc = rtDirOpenCommon(ppDir, pszPath, pszFilter, enmFilter);
+    int rc = rtDirOpenCommon(phDir, pszPath, pszFilter, enmFilter, fFlags, hRelativeDir, pvNativeRelative);
 
-    LogFlow(("RTDirOpenFiltered(%p:{%p}, %p:{%s}, %d): return %Rrc\n",
-             ppDir, *ppDir, pszPath, pszPath, enmFilter, rc));
+    LogFlow(("RTDirOpenFiltered(%p:{%p}, %p:{%s}, %d, %#x, %p, %p): return %Rrc\n",
+             phDir,*phDir, pszPath, pszPath, enmFilter, fFlags, hRelativeDir, pvNativeRelative, rc));
     return rc;
+}
+
+
+RTDECL(int) RTDirOpenFiltered(RTDIR *phDir, const char *pszPath, RTDIRFILTER enmFilter, uint32_t fFlags)
+{
+    return rtDirOpenRelativeOrHandle(phDir, pszPath, enmFilter, fFlags, ~(uintptr_t)0, NULL);
+}
+
+
+RTDECL(bool) RTDirIsValid(RTDIR hDir)
+{
+    return RT_VALID_PTR(hDir)
+        && hDir->u32Magic == RTDIR_MAGIC;
 }
 
 
@@ -771,5 +792,63 @@ RTDECL(bool) RTDirEntryExIsStdDotLink(PCRTDIRENTRYEX pDirEntryEx)
     if (pDirEntryEx->cbName != 2)
         return false;
     return pDirEntryEx->szName[1] == '.';
+}
+
+
+RTDECL(int) RTDirReadExA(RTDIR hDir, PRTDIRENTRYEX *ppDirEntry, size_t *pcbDirEntry, RTFSOBJATTRADD enmAddAttr, uint32_t fFlags)
+{
+    PRTDIRENTRYEX pDirEntry  = *ppDirEntry;
+    size_t        cbDirEntry = *pcbDirEntry;
+    if (pDirEntry != NULL && cbDirEntry >= sizeof(RTDIRENTRYEX))
+    { /* likely */ }
+    else
+    {
+        Assert(pDirEntry == NULL);
+        Assert(cbDirEntry == 0);
+
+        cbDirEntry  = RT_ALIGN_Z(sizeof(RTDIRENTRYEX), 16);
+        *ppDirEntry = pDirEntry = (PRTDIRENTRYEX)RTMemTmpAlloc(cbDirEntry);
+        if (pDirEntry)
+            *pcbDirEntry = cbDirEntry;
+        else
+        {
+            *pcbDirEntry = 0;
+            return VERR_NO_TMP_MEMORY;
+        }
+    }
+
+    for (;;)
+    {
+        int rc = RTDirReadEx(hDir, pDirEntry, &cbDirEntry, enmAddAttr, fFlags);
+        if (rc != VERR_BUFFER_OVERFLOW)
+            return rc;
+
+        /* Grow the buffer. */
+        RTMemTmpFree(pDirEntry);
+        cbDirEntry = RT_MAX(RT_ALIGN_Z(cbDirEntry, 64), *pcbDirEntry + 64);
+        *ppDirEntry = pDirEntry = (PRTDIRENTRYEX)RTMemTmpAlloc(cbDirEntry);
+        if (pDirEntry)
+            *pcbDirEntry = cbDirEntry;
+        else
+        {
+            *pcbDirEntry = 0;
+            return VERR_NO_TMP_MEMORY;
+        }
+    }
+}
+
+
+RTDECL(void) RTDirReadExAFree(PRTDIRENTRYEX *ppDirEntry, size_t *pcbDirEntry)
+{
+    PRTDIRENTRYEX pDirEntry = *ppDirEntry;
+    if (pDirEntry != NULL && *pcbDirEntry >= sizeof(*pcbDirEntry))
+        RTMemTmpFree(pDirEntry);
+    else
+    {
+        Assert(pDirEntry == NULL);
+        Assert(*pcbDirEntry == 0);
+    }
+    *ppDirEntry  = NULL;
+    *pcbDirEntry = 0;
 }
 

@@ -289,7 +289,7 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchChromiumParametervCR(GLenum target
               crDebug("Frustum: left, right, bottom, top, near, far: %f, %f, %f, %f, %f, %f", left, right, bottom, top, znear, zfar);
             }
             else {
-                /* Todo: Add debug output for orthographic projection*/
+                /** @todo Add debug output for orthographic projection*/
             }
 
         }
@@ -399,7 +399,7 @@ static int copynum=0;
 void SERVER_DISPATCH_APIENTRY
 crServerDispatchCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
-    /*@todo pbo/fbo disabled for now as it's slower, check on other gpus*/
+    /** @todo pbo/fbo disabled for now as it's slower, check on other gpus*/
     static int siHavePBO = 0;
     static int siHaveFBO = 0;
 
@@ -486,7 +486,7 @@ crServerDispatchCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLi
             }
 #endif
         }
-        else if (siHaveFBO==1) /*@todo more states to set and restore here*/
+        else if (siHaveFBO==1) /** @todo more states to set and restore here*/
         {
             GLuint tID, fboID;
             GLenum status;

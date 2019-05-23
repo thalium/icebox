@@ -1,4 +1,4 @@
-/* $Id: krnlmod-linux.cpp $ */
+/* $Id: krnlmod-win.cpp $ */
 /** @file
  * IPRT - Kernel module, Windows.
  */

@@ -50,12 +50,12 @@ static GLboolean crPackIsPixelStoreParm(GLenum pname)
 
 from get_sizes import *
 
-easy_swaps = { 
+easy_swaps = {
     'GenTextures': '(unsigned int) n',
     'GetClipPlane': '4',
     'GetPolygonStipple': '0'
 }
-    
+
 simple_funcs = [ 'GetIntegerv', 'GetFloatv', 'GetDoublev', 'GetBooleanv' ]
 simple_swaps = [ 'SWAP32', 'SWAPFLOAT', 'SWAPDOUBLE', '(GLboolean) SWAP32' ]
 
@@ -122,7 +122,7 @@ for func_name in keys:
 #ifdef GL_EXT_framebuffer_object
         || pname == GL_FRAMEBUFFER_BINDING_EXT
         || pname == GL_READ_FRAMEBUFFER_BINDING_EXT
-        || pname == GL_DRAW_FRAMEBUFFER_BINDING_EXT 
+        || pname == GL_DRAW_FRAMEBUFFER_BINDING_EXT
 #endif
         || pname == GL_ARRAY_BUFFER_BINDING
         || pname == GL_ELEMENT_ARRAY_BUFFER_BINDING
@@ -160,10 +160,10 @@ for func_name in keys:
                 crState%s(pname, params);
                 return;
             }
-            
+
         }
             """ % (params[-1][1], params[-1][1], func_name, func_name, apiutil.MakeCallString(params), func_name, func_name))
-            
+
         if func_name in vertattr_get_funcs:
             print("""
     if (pname != GL_CURRENT_VERTEX_ATTRIB_ARB)
@@ -188,7 +188,7 @@ for func_name in keys:
         crState%s(pname, params);
 #endif
         return;
-    } 
+    }
             """ % (params[-1][1], params[-1][1], func_name, func_name, apiutil.MakeCallString(params), func_name, func_name))
 
         params.append( ("&writeback", "foo", 0) )

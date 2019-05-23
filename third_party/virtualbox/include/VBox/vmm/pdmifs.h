@@ -714,7 +714,7 @@ typedef struct PDMIDISPLAYPORT
 
 
 /** Pointer to a 2D graphics acceleration command. */
-typedef struct VBOXVHWACMD *PVBOXVHWACMD;
+typedef struct VBOXVHWACMD VBOXVHWACMD;
 /** Pointer to a VBVA command header. */
 typedef struct VBVACMDHDR *PVBVACMDHDR;
 /** Pointer to a const VBVA command header. */
@@ -735,7 +735,9 @@ struct VBOXVDMACMD_CHROMIUM_CTL; /* <- chromium [hgsmi] command */
 /** Pointer to a display connector interface. */
 typedef struct PDMIDISPLAYCONNECTOR *PPDMIDISPLAYCONNECTOR;
 struct VBOXCRCMDCTL;
-typedef DECLCALLBACKPTR(void, PFNCRCTLCOMPLETION)(struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd, int rc, void *pvCompletion);
+typedef DECLCALLBACK(void) FNCRCTLCOMPLETION(struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd, int rc,  void *pvCompletion);
+typedef FNCRCTLCOMPLETION *PFNCRCTLCOMPLETION;
+
 /**
  * Display connector interface (up).
  * Pair with PDMIDISPLAYPORT.
@@ -839,31 +841,42 @@ typedef struct PDMIDISPLAYCONNECTOR
      * Process the guest Video HW Acceleration command.
      *
      * @param   pInterface          Pointer to this interface.
+     * @param   enmCmd              The command type (don't re-read from pCmd).
+     * @param   fGuestCmd           Set if the command origins with the guest and
+     *                              pCmd must be considered volatile.
      * @param   pCmd                Video HW Acceleration Command to be processed.
-     * @returns VINF_SUCCESS - command is completed,
-     * VINF_CALLBACK_RETURN - command will by asynchronously completed via complete callback
-     * VERR_INVALID_STATE - the command could not be processed (most likely because the framebuffer was disconnected) - the post should be retried later
-     * @thread  The emulation thread.
+     * @retval  VINF_SUCCESS - command is completed,
+     * @retval  VINF_CALLBACK_RETURN if command will by asynchronously completed via
+     *          complete callback.
+     * @retval  VERR_INVALID_STATE if the command could not be processed (most
+     *          likely because the framebuffer was disconnected) - the post should
+     *          be retried later.
+     * @thread  EMT
      */
-    DECLR3CALLBACKMEMBER(int, pfnVHWACommandProcess,(PPDMIDISPLAYCONNECTOR pInterface, PVBOXVHWACMD pCmd));
+    DECLR3CALLBACKMEMBER(int, pfnVHWACommandProcess,(PPDMIDISPLAYCONNECTOR pInterface, int enmCmd, bool fGuestCmd,
+                                                     VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *pCmd));
 
     /**
      * Process the guest chromium command.
      *
      * @param   pInterface          Pointer to this interface.
      * @param   pCmd                Video HW Acceleration Command to be processed.
-     * @thread  The emulation thread.
+     * @thread  EMT
      */
-    DECLR3CALLBACKMEMBER(void, pfnCrHgsmiCommandProcess,(PPDMIDISPLAYCONNECTOR pInterface, struct VBOXVDMACMD_CHROMIUM_CMD* pCmd, uint32_t cbCmd));
+    DECLR3CALLBACKMEMBER(void, pfnCrHgsmiCommandProcess,(PPDMIDISPLAYCONNECTOR pInterface,
+                                                         struct VBOXVDMACMD_CHROMIUM_CMD RT_UNTRUSTED_VOLATILE_GUEST *pCmd,
+                                                         uint32_t cbCmd));
 
     /**
      * Process the guest chromium control command.
      *
      * @param   pInterface          Pointer to this interface.
      * @param   pCmd                Video HW Acceleration Command to be processed.
-     * @thread  The emulation thread.
+     * @thread  EMT
      */
-    DECLR3CALLBACKMEMBER(void, pfnCrHgsmiControlProcess,(PPDMIDISPLAYCONNECTOR pInterface, struct VBOXVDMACMD_CHROMIUM_CTL* pCtl, uint32_t cbCtl));
+    DECLR3CALLBACKMEMBER(void, pfnCrHgsmiControlProcess,(PPDMIDISPLAYCONNECTOR pInterface,
+                                                         struct VBOXVDMACMD_CHROMIUM_CTL RT_UNTRUSTED_VOLATILE_GUEST *pCtl,
+                                                         uint32_t cbCtl));
 
     /**
      * Process the guest chromium control command.
@@ -873,7 +886,7 @@ typedef struct PDMIDISPLAYCONNECTOR
      * @param   cbCmd               Undocumented!
      * @param   pfnCompletion       Undocumented!
      * @param   pvCompletion        Undocumented!
-     * @thread  The emulation thread.
+     * @thread  EMT
      */
     DECLR3CALLBACKMEMBER(int, pfnCrHgcmCtlSubmit,(PPDMIDISPLAYCONNECTOR pInterface, struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd,
                                                   PFNCRCTLCOMPLETION pfnCompletion, void *pvCompletion));
@@ -894,7 +907,7 @@ typedef struct PDMIDISPLAYCONNECTOR
      * @thread  if fRenderThreadMode is TRUE - the render thread, otherwise - the emulation thread.
      */
     DECLR3CALLBACKMEMBER(int, pfnVBVAEnable,(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId,
-                                             PVBVAHOSTFLAGS pHostFlags, bool fRenderThreadMode));
+                                             struct VBVAHOSTFLAGS RT_UNTRUSTED_VOLATILE_GUEST *pHostFlags, bool fRenderThreadMode));
 
     /**
      * The specified screen leaves VBVA mode.
@@ -927,7 +940,7 @@ typedef struct PDMIDISPLAYCONNECTOR
      *          otherwise - the emulation thread.
      */
     DECLR3CALLBACKMEMBER(void, pfnVBVAUpdateProcess,(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId,
-                                                     PCVBVACMDHDR pCmd, size_t cbCmd));
+                                                     struct VBVACMDHDR const RT_UNTRUSTED_VOLATILE_GUEST *pCmd, size_t cbCmd));
 
     /**
      * A sequence of pfnVBVAUpdateProcess calls ends.
@@ -941,7 +954,8 @@ typedef struct PDMIDISPLAYCONNECTOR
      * @thread  if render thread mode is on (fRenderThreadMode that was passed to pfnVBVAEnable is TRUE) - the render thread pfnVBVAEnable was called in,
      *          otherwise - the emulation thread.
      */
-    DECLR3CALLBACKMEMBER(void, pfnVBVAUpdateEnd,(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId, int32_t x, int32_t y, uint32_t cx, uint32_t cy));
+    DECLR3CALLBACKMEMBER(void, pfnVBVAUpdateEnd,(PPDMIDISPLAYCONNECTOR pInterface, unsigned uScreenId, int32_t x, int32_t y,
+                                                 uint32_t cx, uint32_t cy));
 
     /**
      * Resize the display.
@@ -965,7 +979,8 @@ typedef struct PDMIDISPLAYCONNECTOR
      * @thread  if render thread mode is on (fRenderThreadMode that was passed to pfnVBVAEnable is TRUE) - the render thread pfnVBVAEnable was called in,
      *          otherwise - the emulation thread.
      */
-    DECLR3CALLBACKMEMBER(int, pfnVBVAResize,(PPDMIDISPLAYCONNECTOR pInterface, PCVBVAINFOVIEW pView, PCVBVAINFOSCREEN pScreen, void *pvVRAM, bool fResetInputMapping));
+    DECLR3CALLBACKMEMBER(int, pfnVBVAResize,(PPDMIDISPLAYCONNECTOR pInterface, PCVBVAINFOVIEW pView, PCVBVAINFOSCREEN pScreen,
+                                             void *pvVRAM, bool fResetInputMapping));
 
     /**
      * Update the pointer shape.
@@ -2254,22 +2269,20 @@ typedef struct PDMIDISPLAYVBVACALLBACKS
      * @param   pCmd                The Video HW Acceleration Command that was
      *                              completed.
      */
-    DECLR3CALLBACKMEMBER(int, pfnVHWACommandCompleteAsync, (PPDMIDISPLAYVBVACALLBACKS pInterface,
-                                                             PVBOXVHWACMD pCmd));
+    DECLR3CALLBACKMEMBER(int, pfnVHWACommandCompleteAsync,(PPDMIDISPLAYVBVACALLBACKS pInterface,
+                                                           VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *pCmd));
 
-    DECLR3CALLBACKMEMBER(int, pfnCrHgsmiCommandCompleteAsync, (PPDMIDISPLAYVBVACALLBACKS pInterface,
-                                                               struct VBOXVDMACMD_CHROMIUM_CMD* pCmd, int rc));
+    DECLR3CALLBACKMEMBER(int, pfnCrHgsmiCommandCompleteAsync,(PPDMIDISPLAYVBVACALLBACKS pInterface,
+                                                              struct VBOXVDMACMD_CHROMIUM_CMD *pCmd, int rc));
 
-    DECLR3CALLBACKMEMBER(int, pfnCrHgsmiControlCompleteAsync, (PPDMIDISPLAYVBVACALLBACKS pInterface,
-                                                               struct VBOXVDMACMD_CHROMIUM_CTL* pCmd, int rc));
+    DECLR3CALLBACKMEMBER(int, pfnCrHgsmiControlCompleteAsync,(PPDMIDISPLAYVBVACALLBACKS pInterface,
+                                                              struct VBOXVDMACMD_CHROMIUM_CTL *pCmd, int rc));
 
-    DECLR3CALLBACKMEMBER(int, pfnCrCtlSubmit, (PPDMIDISPLAYVBVACALLBACKS pInterface,
-                                                                   struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd,
-                                                                   PFNCRCTLCOMPLETION pfnCompletion,
-                                                                   void *pvCompletion));
+    DECLR3CALLBACKMEMBER(int, pfnCrCtlSubmit,(PPDMIDISPLAYVBVACALLBACKS pInterface, struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd,
+                                              PFNCRCTLCOMPLETION pfnCompletion, void *pvCompletion));
 
-    DECLR3CALLBACKMEMBER(int, pfnCrCtlSubmitSync, (PPDMIDISPLAYVBVACALLBACKS pInterface,
-                                                                   struct VBOXCRCMDCTL* pCmd, uint32_t cbCmd));
+    DECLR3CALLBACKMEMBER(int, pfnCrCtlSubmitSync,(PPDMIDISPLAYVBVACALLBACKS pInterface,
+                                                  struct VBOXCRCMDCTL *pCmd, uint32_t cbCmd));
 } PDMIDISPLAYVBVACALLBACKS;
 /** PDMIDISPLAYVBVACALLBACKS  */
 #define PDMIDISPLAYVBVACALLBACKS_IID            "ddac0bd0-332d-4671-8853-732921a80216"

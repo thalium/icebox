@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2016-2017 Oracle Corporation
+ * Copyright (C) 2016-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -18,9 +18,8 @@
 #ifndef DEV_HDA_H
 #define DEV_HDA_H
 
-/*********************************************************************************************************************************
-*   Header Files                                                                                                                 *
-*********************************************************************************************************************************/
+#include <iprt/path.h>
+
 #include <VBox/vmm/pdmdev.h>
 
 #include "AudioMixer.h"
@@ -31,14 +30,6 @@
 #include "HDAStreamPeriod.h"
 
 
-/*********************************************************************************************************************************
-*   Defines                                                                                                                      *
-*********************************************************************************************************************************/
-
-
-/*********************************************************************************************************************************
-*   Structures and Typedefs                                                                                                      *
-*********************************************************************************************************************************/
 
 /**
  * Structure defining an HDA mixer sink.
@@ -53,11 +44,7 @@
  */
 typedef struct HDAMIXERSINK
 {
-    /** SDn ID this sink is assigned to. 0 if not assigned. */
-    uint8_t                uSD;
-    /** Channel ID of SDn ID. Only valid if SDn ID is valid. */
-    uint8_t                uChannel;
-    uint8_t                Padding[3];
+    R3PTRTYPE(PHDASTREAM)  pStream;
     /** Pointer to the actual audio mixer sink. */
     R3PTRTYPE(PAUDMIXSINK) pMixSink;
 } HDAMIXERSINK, *PHDAMIXERSINK;
@@ -74,10 +61,10 @@ typedef struct HDATAG
     R3PTRTYPE(PHDASTREAM) pStream;
 } HDATAG, *PHDATAG;
 
-#ifdef DEBUG
 /** @todo Make STAM values out of this? */
 typedef struct HDASTATEDBGINFO
 {
+#ifdef DEBUG
     /** Timestamp (in ns) of the last timer callback (hdaTimer).
      * Used to calculate the time actually elapsed between two timer callbacks. */
     uint64_t                           tsTimerLastCalledNs;
@@ -99,8 +86,13 @@ typedef struct HDASTATEDBGINFO
         /** Accumulated elapsed time (in ns) of all IRQ being deasserted. */
         uint64_t                       tsDeassertedTotalNs;
     } IRQ;
-} HDASTATEDBGINFO, *PHDASTATEDBGINFO;
 #endif
+    /** Whether debugging is enabled or not. */
+    bool                               fEnabled;
+    /** Path where to dump the debug output to.
+     *  Defaults to VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH. */
+    char                               szOutPath[RTPATH_MAX + 1];
+} HDASTATEDBGINFO, *PHDASTATEDBGINFO;
 
 /**
  * ICH Intel HD Audio Controller state.
@@ -147,27 +139,16 @@ typedef struct HDASTATE
     uint32_t                           cbRirbBuf;
     /** DMA position buffer enable bit. */
     bool                               fDMAPosition;
-    /** Flag whether the R0 part is enabled. */
-    bool                               fR0Enabled;
-    /** Flag whether the RC part is enabled. */
-    bool                               fRCEnabled;
+    /** Flag whether the R0 and RC parts are enabled. */
+    bool                               fRZEnabled;
+    /** Reserved. */
+    bool                               fPadding1b;
     /** Number of active (running) SDn streams. */
     uint8_t                            cStreamsActive;
-#ifndef VBOX_WITH_AUDIO_HDA_CALLBACKS
-    /** The timer for pumping data thru the attached LUN drivers. */
-    PTMTIMERR3                         pTimer;
-    /** Flag indicating whether the timer is active or not. */
-    bool                               fTimerActive;
-    uint8_t                            u8Padding1[7];
-    /** Timer ticks per Hz. */
-    uint64_t                           cTimerTicks;
-    /** The current timer expire time (in timer ticks). */
-    uint64_t                           tsTimerExpire;
-#endif
+    /** The stream timers for pumping data thru the attached LUN drivers. */
+    PTMTIMERR3                         pTimer[HDA_MAX_STREAMS];
 #ifdef VBOX_WITH_STATISTICS
-# ifndef VBOX_WITH_AUDIO_HDA_CALLBACKS
     STAMPROFILE                        StatTimer;
-# endif
     STAMPROFILE                        StatIn;
     STAMPROFILE                        StatOut;
     STAMCOUNTER                        StatBytesRead;
@@ -203,23 +184,35 @@ typedef struct HDASTATE
     uint8_t                            au8Padding2[7];
 #endif
     /** Response Interrupt Count (RINTCNT). */
-    uint8_t                            u8RespIntCnt;
+    uint16_t                           u16RespIntCnt;
+    /** Position adjustment (in audio frames).
+     *
+     *  This is not an official feature of the HDA specs, but used by
+     *  certain OS drivers (e.g. snd_hda_intel) to work around certain
+     *  quirks by "real" HDA hardware implementations.
+     *
+     *  The position adjustment specifies how many audio frames
+     *  a stream is ahead from its actual reading/writing position when
+     *  starting a stream.
+     */
+    uint16_t                           cPosAdjustFrames;
+    /** Whether the position adjustment is enabled or not. */
+    bool                               fPosAdjustEnabled;
+    uint8_t                            Padding1[3];
     /** Current IRQ level. */
     uint8_t                            u8IRQL;
+    /** The device timer Hz rate. Defaults to HDA_TIMER_HZ_DEFAULT. */
+    uint16_t                           u16TimerHz;
     /** Padding for alignment. */
-    uint8_t                            au8Padding3[6];
-#ifdef DEBUG
+    uint8_t                            au8Padding3[3];
     HDASTATEDBGINFO                    Dbg;
-#endif
+    /** This is for checking that the build was correctly configured in all contexts.
+     * This is set to HDASTATE_ALIGNMENT_CHECK_MAGIC.  */
+    uint64_t                            uAlignmentCheckMagic;
 } HDASTATE, *PHDASTATE;
 
-#ifdef VBOX_WITH_AUDIO_HDA_CALLBACKS
-typedef struct HDACALLBACKCTX
-{
-    PHDASTATE  pThis;
-    PHDADRIVER pDriver;
-} HDACALLBACKCTX, *PHDACALLBACKCTX;
-#endif
+/** Value for HDASTATE:uAlignmentCheckMagic. */
+#define HDASTATE_ALIGNMENT_CHECK_MAGIC  UINT64_C(0x1298afb75893e059)
 
 #endif /* !DEV_HDA_H */
 

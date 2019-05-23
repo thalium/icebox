@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -30,6 +30,7 @@
 #include <iprt/string.h>
 
 #include "VSCSIInternal.h"
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -936,7 +937,7 @@ static int vscsiLunMmcReadTrackInformation(PVSCSILUNMMC pVScsiLunMmc, PVSCSIREQI
                                                          &cBlocks, &cbBlock, &enmDataForm);
             }
             else
-                rc = VERR_NOT_FOUND; /** @todo: Return lead-in information. */
+                rc = VERR_NOT_FOUND; /** @todo Return lead-in information. */
             break;
         }
         case 0x02:
@@ -1101,9 +1102,16 @@ static DECLCALLBACK(int) vscsiLunMmcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
                 ScsiInquiryReply.u3AnsiVersion          = 0x05; /* MMC-?? compliant */
                 ScsiInquiryReply.fCmdQue                = 1;    /* Command queuing supported. */
                 ScsiInquiryReply.fWBus16                = 1;
-                scsiPadStrS(ScsiInquiryReply.achVendorId, "VBOX", 8);
-                scsiPadStrS(ScsiInquiryReply.achProductId, "CD-ROM", 16);
-                scsiPadStrS(ScsiInquiryReply.achProductLevel, "1.0", 4);
+
+                const char *pszVendorId = "VBOX";
+                const char *pszProductId = "CD-ROM";
+                const char *pszProductLevel = "1.0";
+                int rcTmp = vscsiLunQueryInqStrings(pVScsiLun, &pszVendorId, &pszProductId, &pszProductLevel);
+                Assert(RT_SUCCESS(rcTmp) || rcTmp == VERR_NOT_FOUND); RT_NOREF(rcTmp);
+
+                scsiPadStrS(ScsiInquiryReply.achVendorId, pszVendorId, 8);
+                scsiPadStrS(ScsiInquiryReply.achProductId, pszProductId, 16);
+                scsiPadStrS(ScsiInquiryReply.achProductLevel, pszProductLevel, 4);
 
                 RTSgBufCopyFromBuf(&pVScsiReq->SgBuf, (uint8_t *)&ScsiInquiryReply, sizeof(SCSIINQUIRYDATA));
                 rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);

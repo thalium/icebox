@@ -1,7 +1,7 @@
 Correctness issues:
 
 - some eflags manipulation incorrectly reset the bit 0x2.
-- SVM: test, cpu save/restore, SMM save/restore. 
+- SVM: test, cpu save/restore, SMM save/restore.
 - x86_64: lcall/ljmp intel/amd differences ?
 - better code fetch (different exception handling + CS.limit support)
 - user/kernel PUSHL/POPL in helper.c
@@ -9,7 +9,7 @@ Correctness issues:
 - return UD exception if LOCK prefix incorrectly used
 - test ldt limit < 7 ?
 - fix some 16 bit sp push/pop overflow (pusha/popa, lcall lret)
-- full support of segment limit/rights 
+- full support of segment limit/rights
 - full x87 exception support
 - improve x87 bit exactness (use bochs code ?)
 - DRx register support

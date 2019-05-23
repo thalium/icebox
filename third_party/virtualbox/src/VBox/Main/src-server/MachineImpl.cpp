@@ -194,6 +194,10 @@ Machine::HWData::HWData()
     mTripleFaultReset = false;
     mAPIC = true;
     mX2APIC = false;
+    mIBPBOnVMExit = false;
+    mIBPBOnVMEntry = false;
+    mSpecCtrl = false;
+    mSpecCtrlByHost = false;
     mHPETEnabled = false;
     mCpuExecutionCap = 100; /* Maximum CPU execution cap by default. */
     mCpuIdPortabilityLevel = 0;
@@ -2254,6 +2258,22 @@ HRESULT Machine::getCPUProperty(CPUPropertyType_T aProperty, BOOL *aValue)
             *aValue = mHWData->mX2APIC;
             break;
 
+        case CPUPropertyType_IBPBOnVMExit:
+            *aValue = mHWData->mIBPBOnVMExit;
+            break;
+
+        case CPUPropertyType_IBPBOnVMEntry:
+            *aValue = mHWData->mIBPBOnVMEntry;
+            break;
+
+        case CPUPropertyType_SpecCtrl:
+            *aValue = mHWData->mSpecCtrl;
+            break;
+
+        case CPUPropertyType_SpecCtrlByHost:
+            *aValue = mHWData->mSpecCtrlByHost;
+            break;
+
         default:
             return E_INVALIDARG;
     }
@@ -2301,6 +2321,30 @@ HRESULT Machine::setCPUProperty(CPUPropertyType_T aProperty, BOOL aValue)
             mHWData->mX2APIC = !!aValue;
             if (aValue)
                 mHWData->mAPIC = !!aValue;
+            break;
+
+        case CPUPropertyType_IBPBOnVMExit:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mIBPBOnVMExit = !!aValue;
+            break;
+
+        case CPUPropertyType_IBPBOnVMEntry:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mIBPBOnVMEntry = !!aValue;
+            break;
+
+        case CPUPropertyType_SpecCtrl:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mSpecCtrl = !!aValue;
+            break;
+
+        case CPUPropertyType_SpecCtrlByHost:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mSpecCtrlByHost = !!aValue;
             break;
 
         default:
@@ -8898,6 +8942,10 @@ HRESULT Machine::i_loadHardware(const Guid *puuidRegistry,
         mHWData->mTripleFaultReset            = data.fTripleFaultReset;
         mHWData->mAPIC                        = data.fAPIC;
         mHWData->mX2APIC                      = data.fX2APIC;
+        mHWData->mIBPBOnVMExit                = data.fIBPBOnVMExit;
+        mHWData->mIBPBOnVMEntry               = data.fIBPBOnVMEntry;
+        mHWData->mSpecCtrl                    = data.fSpecCtrl;
+        mHWData->mSpecCtrlByHost              = data.fSpecCtrlByHost;
         mHWData->mCPUCount                    = data.cCPUs;
         mHWData->mCPUHotPlugEnabled           = data.fCpuHotPlug;
         mHWData->mCpuExecutionCap             = data.ulCpuExecutionCap;
@@ -10221,6 +10269,10 @@ HRESULT Machine::i_saveHardware(settings::Hardware &data, settings::Debugging *p
         data.fTripleFaultReset      = !!mHWData->mTripleFaultReset;
         data.fAPIC                  = !!mHWData->mAPIC;
         data.fX2APIC                = !!mHWData->mX2APIC;
+        data.fIBPBOnVMExit          = !!mHWData->mIBPBOnVMExit;
+        data.fIBPBOnVMEntry         = !!mHWData->mIBPBOnVMEntry;
+        data.fSpecCtrl              = !!mHWData->mSpecCtrl;
+        data.fSpecCtrlByHost        = !!mHWData->mSpecCtrlByHost;
         data.cCPUs                  = mHWData->mCPUCount;
         data.fCpuHotPlug            = !!mHWData->mCPUHotPlugEnabled;
         data.ulCpuExecutionCap      = mHWData->mCpuExecutionCap;

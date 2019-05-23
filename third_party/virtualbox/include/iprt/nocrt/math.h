@@ -56,6 +56,7 @@
 #else
 #define __GNUC_PREREQ__(ma, mi) 0
 #endif
+#undef  __pure2 /* darwin: avoid conflict with system headers when doing syntax checking of the headers */
 #define __pure2
 
 

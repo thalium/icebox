@@ -708,4 +708,3 @@ CPU 286
         jmp     Bs3Trap16DoubleFaultHandler80386.common
 BS3_PROC_END   Bs3Trap16DoubleFaultHandler80286
 
-

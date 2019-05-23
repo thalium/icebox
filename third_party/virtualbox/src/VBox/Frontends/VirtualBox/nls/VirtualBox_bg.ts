@@ -7564,19 +7564,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>&amp;Криптиране</translation>
+        <translation type="vanished">&amp;Криптиране</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>Когато е избрано, позволява криптиране за тази виртуална машина.</translation>
+        <translation type="vanished">Когато е избрано, позволява криптиране за тази виртуална машина.</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>По&amp;зволяване на криптиране</translation>
+        <translation type="vanished">По&amp;зволяване на криптиране</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>Криптиращ &amp;шифър:</translation>
+        <translation type="vanished">Криптиращ &amp;шифър:</translation>
     </message>
     <message>
         <source>Holds the cipher to be used for encrypting the virtual machine disks.</source>
@@ -7588,7 +7588,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>Задава паролата, която да се зададе към виртуалната машина.</translation>
+        <translation type="vanished">Задава паролата, която да се зададе към виртуалната машина.</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -7596,23 +7596,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>Потвърждение на паролата, която да се зададе към виртуалната машина.</translation>
+        <translation type="vanished">Потвърждение на паролата, която да се зададе към виртуалната машина.</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>Опитвате се да криптирате тази виртуална машина. Но това изисква &lt;i&gt;%1&lt;/i&gt; да бъде инсталиран. Моля, инсталирайте пакета с разширения от сайта на VirtualBox.</translation>
+        <translation type="vanished">Опитвате се да криптирате тази виртуална машина. Но това изисква &lt;i&gt;%1&lt;/i&gt; да бъде инсталиран. Моля, инсталирайте пакета с разширения от сайта на VirtualBox.</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>Не е указан тип на криптиращия шифър.</translation>
+        <translation type="vanished">Не е указан тип на криптиращия шифър.</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>Криптиращата парола е празна.</translation>
+        <translation type="vanished">Криптиращата парола е празна.</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>Криптиращите пароли не съвпадат.</translation>
+        <translation type="vanished">Криптиращите пароли не съвпадат.</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -7626,6 +7626,46 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>Указва пътя, където да се пазят снимките на тази виртуална машина. Имайте предвид, че снимките могат да заемат много дисково пространство.</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9724,6 +9764,38 @@ p, li { white-space: pre-wrap; }
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation type="unfinished">Този тип съхранение е закачен директно или индиректно, запазва се при правене на снимки.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation type="unfinished">Този тип съхранение е закачен индиректно, промените се заличават при следващото зареждане на виртуалната машина.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation type="unfinished">Този тип съхранение е закачен директно, игнорира се при правене на снимки.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation type="unfinished">Този тип съхранение е закачен директно, позволено е едновременното му използване от няколко машини.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation type="unfinished">Този тип съхранение е закачен директно и може да се използва от няколко машини.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation type="unfinished">Този тип съхранение е закачен индиректно, така че едно основно съхранение може да се използва от няколко ВМ, които имат свое различаващо съхранение, на което да запазват собствените си модификации.</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -9921,6 +9993,26 @@ p, li { white-space: pre-wrap; }
         <source>Refresh Disk Image Files (%1)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UIMediumSizeEditor</name>
@@ -9937,39 +10029,39 @@ p, li { white-space: pre-wrap; }
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>Промяна атрибутите на медията</translation>
+        <translation type="vanished">Промяна атрибутите на медията</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Предстои да промените атрибутите на виртуалния диск, разположен в &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Моля, изберете един от следните типове медия и натиснете &lt;b&gt;%2&lt;/b&gt;, за да продължите или &lt;b&gt;%3&lt;/b&gt; в противен случай.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Предстои да промените атрибутите на виртуалния диск, разположен в &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Моля, изберете един от следните типове медия и натиснете &lt;b&gt;%2&lt;/b&gt;, за да продължите или &lt;b&gt;%3&lt;/b&gt; в противен случай.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>Изберете тип медия:</translation>
+        <translation type="vanished">Изберете тип медия:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>Този тип съхранение е закачен директно или индиректно, запазва се при правене на снимки.</translation>
+        <translation type="vanished">Този тип съхранение е закачен директно или индиректно, запазва се при правене на снимки.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>Този тип съхранение е закачен индиректно, промените се заличават при следващото зареждане на виртуалната машина.</translation>
+        <translation type="vanished">Този тип съхранение е закачен индиректно, промените се заличават при следващото зареждане на виртуалната машина.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>Този тип съхранение е закачен директно, игнорира се при правене на снимки.</translation>
+        <translation type="vanished">Този тип съхранение е закачен директно, игнорира се при правене на снимки.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>Този тип съхранение е закачен директно, позволено е едновременното му използване от няколко машини.</translation>
+        <translation type="vanished">Този тип съхранение е закачен директно, позволено е едновременното му използване от няколко машини.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>Този тип съхранение е закачен директно и може да се използва от няколко машини.</translation>
+        <translation type="vanished">Този тип съхранение е закачен директно и може да се използва от няколко машини.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>Този тип съхранение е закачен индиректно, така че едно основно съхранение може да се използва от няколко ВМ, които имат свое различаващо съхранение, на което да запазват собствените си модификации.</translation>
+        <translation type="vanished">Този тип съхранение е закачен индиректно, така че едно основно съхранение може да се използва от няколко ВМ, които имат свое различаващо съхранение, на което да запазват собствените си модификации.</translation>
     </message>
 </context>
 <context>
@@ -11906,19 +11998,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;p&gt;You are about to install a VirtualBox extension pack. Extension packs complement the functionality of VirtualBox and can contain system level software that could be potentially harmful to your system. Please review the description below and only proceed if you have obtained the extension pack from a trusted source.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Предстои да инсталирате пакет с разширения на VirtualBox. Пакетите с разширения допълват функционалността на VirtualBox, но може да съдържат софтуер на системно ниво, който да е потенциално опасен за системата. Моля, прегледайте описанието по-долу и продължете, само ако сте взели пакета с разширения от доверен източник.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {0 ?} {5&gt;?} {1&lt;?} {2&lt;?} {3&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Предстои да инсталирате пакет с разширения на VirtualBox. Пакетите с разширения допълват функционалността на VirtualBox, но може да съдържат софтуер на системно ниво, който да е потенциално опасен за системата. Моля, прегледайте описанието по-долу и продължете, само ако сте взели пакета с разширения от доверен източник.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An older version of the extension pack is already installed, would you like to upgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Вече има инсталирана по-стара версия на пакета с разширения. Искате ли да я надградите? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Нова версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текуща версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Вече има инсталирана по-стара версия на пакета с разширения. Искате ли да я надградите? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Нова версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текуща версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An newer version of the extension pack is already installed, would you like to downgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Вече има инсталирана по-нова версия на пакета с разширения. Искате ли да я понижите? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Нова версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текуща версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Вече има инсталирана по-нова версия на пакета с разширения. Искате ли да я понижите? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Нова версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текуща версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The extension pack is already installed with the same version, would you like reinstall it? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Вече има инсталирана същата версия на пакета с разширения. Искате ли да я преинсталирате? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Вече има инсталирана същата версия на пакета с разширения. Искате ли да я преинсталирате? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Име:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to enable the audio adapter output for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -11942,6 +12034,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14230,7 +14330,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_копие</translation>
+        <translation type="vanished">%1_копие</translation>
     </message>
     <message>
         <source>Hard drive to &amp;copy</source>
@@ -14246,27 +14346,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>Копиране на виртуален твърд диск</translation>
+        <translation type="vanished">Копиране на виртуален твърд диск</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>Твърд диск за копиране</translation>
+        <translation type="vanished">Твърд диск за копиране</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Моля, изберете файла на виртуалния диск, който искате да копирате, ако вече не е избран. Можете да изберете един от списъка или използвайте иконата на папка до списъка, за да изберете един.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Моля, изберете файла на виртуалния диск, който искате да копирате, ако вече не е избран. Можете да изберете един от списъка или използвайте иконата на папка до списъка, за да изберете един.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>Изберете файл с виртуален твърд диск за копиране...</translation>
+        <translation type="vanished">Изберете файл с виртуален твърд диск за копиране...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>Тип файл за твърд диск</translation>
+        <translation type="vanished">Тип файл за твърд диск</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>Моля, изберете типа на файла, който искате да използвате за новия виртуален твърд диск! Ако нямате нужда да използвате този файл с друг виртуализационен софтуер, можете да оставите тази настройка непроменена.</translation>
+        <translation type="vanished">Моля, изберете типа на файла, който искате да използвате за новия виртуален твърд диск! Ако нямате нужда да използвате този файл с друг виртуализационен софтуер, можете да оставите тази настройка непроменена.</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -14274,47 +14374,120 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>Моля, изберете дали файлът на новия виртуален твърд диск ще нараства докато се използва (динамично зададен), или искате да бъде създаден в максималния си размер (фиксиран размер).</translation>
+        <translation type="vanished">Моля, изберете дали файлът на новия виртуален твърд диск ще нараства докато се използва (динамично зададен), или искате да бъде създаден в максималния си размер (фиксиран размер).</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Днамично зададен&lt;/b&gt; файл на виртуален твърд диск ще използва място на вашия физически твърд диск, само когато се запълни (но не повече от максималния &lt;b&gt;фиксиран размер&lt;/b&gt;), но няма да се смали отново автоматично, когато се освободи място на него.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;Днамично зададен&lt;/b&gt; файл на виртуален твърд диск ще използва място на вашия физически твърд диск, само когато се запълни (но не повече от максималния &lt;b&gt;фиксиран размер&lt;/b&gt;), но няма да се смали отново автоматично, когато се освободи място на него.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Файл с&lt;b&gt;фиксиран размер&lt;/b&gt; на виртуален твърд диск може да отнеме повече време при създаване на някои системи, но често е по-бърз при използване.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Файл с&lt;b&gt;фиксиран размер&lt;/b&gt; на виртуален твърд диск може да отнеме повече време при създаване на някои системи, но често е по-бърз при използване.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;Също така, можете да изберете да &lt;b&gt;разделите&lt;/b&gt; виртуалния диск в няколко файла до 2ГБ всеки. Това е полезно, ако искате да съхраните виртуалната машина на преносими USB устройства или стари системи, някои от които не поддържат много големи файлове.</translation>
+        <translation type="vanished">&lt;p&gt;Също така, можете да изберете да &lt;b&gt;разделите&lt;/b&gt; виртуалния диск в няколко файла до 2ГБ всеки. Това е полезно, ако искате да съхраните виртуалната машина на преносими USB устройства или стари системи, някои от които не поддържат много големи файлове.</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>Моля, изберете папка за новия файл на виртуален твърд диск</translation>
+        <translation type="vanished">Моля, изберете папка за новия файл на виртуален твърд диск</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>Нов твърд диск за създаване</translation>
+        <translation type="vanished">Нов твърд диск за създаване</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>Моля, впишете името на файла на новия виртуален твърд диск в кутийката по-долу или щракнете на иконата с папка, за да изберете друга папка, в която да се създаде файлът.</translation>
+        <translation type="vanished">Моля, впишете името на файла на новия виртуален твърд диск в кутийката по-долу или щракнете на иконата с папка, за да изберете друга папка, в която да се създаде файлът.</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>Изберете папка за новия файл на виртуален твърд диск...</translation>
+        <translation type="vanished">Изберете папка за новия файл на виртуален твърд диск...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>Твърд диск за &amp;копиране</translation>
+        <translation type="vanished">Твърд диск за &amp;копиране</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>&amp;Нов твърд диск за създаване</translation>
+        <translation type="vanished">&amp;Нов твърд диск за създаване</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>&amp;Тип файл за твърд диск</translation>
+        <translation type="vanished">&amp;Тип файл за твърд диск</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation type="unfinished">%1_копие</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -381,11 +381,11 @@ QVariant UIGChooserItemGroup::data(int iKey) const
     switch (iKey)
     {
         /* Layout hints: */
-        case GroupItemData_HorizonalMargin: return 5;
-        case GroupItemData_VerticalMargin: return 5;
-        case GroupItemData_MajorSpacing: return 10;
-        case GroupItemData_MinorSpacing: return 3;
-        case GroupItemData_RootIndent: return 2;
+        case GroupItemData_HorizonalMargin: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+        case GroupItemData_VerticalMargin: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+        case GroupItemData_MajorSpacing: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 2;
+        case GroupItemData_MinorSpacing: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 5;
+        case GroupItemData_RootIndent: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 6;
 
         /* Default: */
         default: break;
@@ -409,10 +409,11 @@ void UIGChooserItemGroup::prepare()
     m_nameFont = font();
     m_nameFont.setWeight(QFont::Bold);
     m_infoFont = font();
-    m_groupsPixmap = QPixmap(":/group_abstract_16px.png");
-    m_machinesPixmap = QPixmap(":/machine_abstract_16px.png");
-    m_pixmapSizeGroups = m_groupsPixmap.size();
-    m_pixmapSizeMachines = m_machinesPixmap.size();
+    const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize);
+    m_groupsPixmap = UIIconPool::iconSet(":/group_abstract_16px.png").pixmap(iIconMetric, iIconMetric);
+    m_machinesPixmap = UIIconPool::iconSet(":/machine_abstract_16px.png").pixmap(iIconMetric, iIconMetric);
+    m_pixmapSizeGroups = m_groupsPixmap.size() / m_groupsPixmap.devicePixelRatio();
+    m_pixmapSizeMachines = m_machinesPixmap.size() / m_machinesPixmap.devicePixelRatio();
     m_minimumHeaderSize = QSize(0, 0);
 
     /* Items except roots: */
@@ -1559,6 +1560,9 @@ void UIGChooserItemGroup::paintBackground(QPainter *pPainter, const QRect &rect)
     QColor strokeColor = pal.color(QPalette::Active, QPalette::Mid);
     QColor bodyColor = pal.color(QPalette::Active, QPalette::Base);
 
+    /* Invent pixel metric: */
+    const int iMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 2;
+
     /* Root-item: */
     if (isRoot())
     {
@@ -1581,10 +1585,10 @@ void UIGChooserItemGroup::paintBackground(QPainter *pPainter, const QRect &rect)
             /* Add clipping: */
             QPainterPath path;
             path.moveTo(iRootIndent, 0);
-            path.lineTo(path.currentPosition().x(), iFullHeaderHeight - 10);
-            path.arcTo(QRectF(path.currentPosition(), QSizeF(20, 20)).translated(0, -10), 180, 90);
-            path.lineTo(rect.width() - 10 - iRootIndent, path.currentPosition().y());
-            path.arcTo(QRectF(path.currentPosition(), QSizeF(20, 20)).translated(-10, -20), 270, 90);
+            path.lineTo(path.currentPosition().x(), iFullHeaderHeight - iMetric);
+            path.arcTo(QRectF(path.currentPosition(), QSizeF(2 * iMetric, 2 * iMetric)).translated(0, -iMetric), 180, 90);
+            path.lineTo(rect.width() - iMetric - iRootIndent, path.currentPosition().y());
+            path.arcTo(QRectF(path.currentPosition(), QSizeF(2 * iMetric, 2 * iMetric)).translated(-iMetric, -2 * iMetric), 270, 90);
             path.lineTo(path.currentPosition().x(), 0);
             path.closeSubpath();
             pPainter->setClipPath(path);
@@ -1611,14 +1615,14 @@ void UIGChooserItemGroup::paintBackground(QPainter *pPainter, const QRect &rect)
 
         /* Add clipping: */
         QPainterPath path;
-        path.moveTo(10, 0);
-        path.arcTo(QRectF(path.currentPosition(), QSizeF(20, 20)).translated(-10, 0), 90, 90);
-        path.lineTo(path.currentPosition().x(), iFullHeight - 10);
-        path.arcTo(QRectF(path.currentPosition(), QSizeF(20, 20)).translated(0, -10), 180, 90);
-        path.lineTo(rect.width() - 10, path.currentPosition().y());
-        path.arcTo(QRectF(path.currentPosition(), QSizeF(20, 20)).translated(-10, -20), 270, 90);
-        path.lineTo(path.currentPosition().x(), 10);
-        path.arcTo(QRectF(path.currentPosition(), QSizeF(20, 20)).translated(-20, -10), 0, 90);
+        path.moveTo(iMetric, 0);
+        path.arcTo(QRectF(path.currentPosition(), QSizeF(2 * iMetric, 2 * iMetric)).translated(-iMetric, 0), 90, 90);
+        path.lineTo(path.currentPosition().x(), iFullHeight - iMetric);
+        path.arcTo(QRectF(path.currentPosition(), QSizeF(2 * iMetric, 2 * iMetric)).translated(0, -iMetric), 180, 90);
+        path.lineTo(rect.width() - iMetric, path.currentPosition().y());
+        path.arcTo(QRectF(path.currentPosition(), QSizeF(2 * iMetric, 2 * iMetric)).translated(-iMetric, -2 * iMetric), 270, 90);
+        path.lineTo(path.currentPosition().x(), iMetric);
+        path.arcTo(QRectF(path.currentPosition(), QSizeF(2 * iMetric, 2 * iMetric)).translated(-2 * iMetric, -iMetric), 0, 90);
         path.closeSubpath();
         pPainter->setClipPath(path);
 
@@ -1752,7 +1756,7 @@ void UIGChooserItemGroup::paintHeader(QPainter *pPainter, const QRect &rect)
                       /* Text to paint: */
                       m_strInfoMachines);
 
-            iHorizontalIndent -= m_pixmapSizeMachines.width();
+            iHorizontalIndent -= (m_pixmapSizeMachines.width() + iMinorSpacing);
             int iMachinePixmapX = iHorizontalIndent;
             int iMachinePixmapY = m_pixmapSizeMachines.height() == iFullHeaderHeight ?
                                   iVerticalMargin : iVerticalMargin + (iFullHeaderHeight - m_pixmapSizeMachines.height()) / 2;
@@ -1762,6 +1766,9 @@ void UIGChooserItemGroup::paintHeader(QPainter *pPainter, const QRect &rect)
                         QPoint(iMachinePixmapX, iMachinePixmapY),
                         /* Pixmap to paint: */
                         m_machinesPixmap);
+
+            /* Indent between machines and groups: */
+            iHorizontalIndent -= iMinorSpacing;
         }
 
         /* Should we draw group count info? */
@@ -1782,7 +1789,7 @@ void UIGChooserItemGroup::paintHeader(QPainter *pPainter, const QRect &rect)
                       /* Text to paint: */
                       m_strInfoGroups);
 
-            iHorizontalIndent -= m_pixmapSizeGroups.width();
+            iHorizontalIndent -= (m_pixmapSizeGroups.width() + iMinorSpacing);
             int iGroupPixmapX = iHorizontalIndent;
             int iGroupPixmapY = m_pixmapSizeGroups.height() == iFullHeaderHeight ?
                                 iVerticalMargin : iVerticalMargin + (iFullHeaderHeight - m_pixmapSizeGroups.height()) / 2;

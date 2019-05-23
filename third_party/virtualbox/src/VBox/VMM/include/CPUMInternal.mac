@@ -118,7 +118,7 @@ endstruc
 struc CPUMCPU
     ;
     ; Guest context state
-    ; (Identical to the .Hyper chunk below.)
+    ; (Identical to the .Hyper chunk below and to CPUMCTX in cpum.mac.)
     ;
     .Guest                    resq    0
     .Guest.eax                resq    1
@@ -219,17 +219,17 @@ struc CPUMCPU
     .Guest.msrSFMASK          resb    8
     .Guest.msrKERNELGSBASE    resb    8
     .Guest.uMsrPadding0       resb    8
+    alignb 8
     .Guest.aXcr               resq    2
     .Guest.fXStateMask        resq    1
     .Guest.pXStateR0      RTR0PTR_RES 1
+    alignb 8
     .Guest.pXStateR3      RTR3PTR_RES 1
+    alignb 8
     .Guest.pXStateRC      RTRCPTR_RES 1
     .Guest.aoffXState         resw    64
-%if HC_ARCH_BITS == 64
-    .Guest.abPadding          resb    4
-%else
-    .Guest.abPadding          resb    12
-%endif
+    .Guest.fWorldSwitcher     resd    1
+    alignb 8
     .Guest.hwvirt.svm.uMsrHSavePa            resq         1
     .Guest.hwvirt.svm.GCPhysVmcb             resq         1
     .Guest.hwvirt.svm.pVmcbR0                RTR0PTR_RES  1
@@ -243,7 +243,7 @@ struc CPUMCPU
     .Guest.hwvirt.svm.cPauseFilter           resw         1
     .Guest.hwvirt.svm.cPauseFilterThreshold  resw         1
     .Guest.hwvirt.svm.fInterceptEvents       resb         1
-    .Guest.hwvirt.svm.u8Padding1             resb         1
+    .Guest.hwvirt.svm.fHMCachedVmcb          resb         1
     .Guest.hwvirt.svm.pvMsrBitmapR0          RTR0PTR_RES  1
     .Guest.hwvirt.svm.pvMsrBitmapR3          RTR3PTR_RES  1
     .Guest.hwvirt.svm.pvIoBitmapR0           RTR0PTR_RES  1
@@ -505,17 +505,17 @@ struc CPUMCPU
     .Hyper.msrSFMASK          resb    8
     .Hyper.msrKERNELGSBASE    resb    8
     .Hyper.uMsrPadding0       resb    8
+    alignb 8
     .Hyper.aXcr               resq    2
     .Hyper.fXStateMask        resq    1
     .Hyper.pXStateR0      RTR0PTR_RES 1
+    alignb 8
     .Hyper.pXStateR3      RTR3PTR_RES 1
+    alignb 8
     .Hyper.pXStateRC      RTRCPTR_RES 1
     .Hyper.aoffXState         resw    64
-%if HC_ARCH_BITS == 64
-    .Hyper.abPadding          resb    4
-%else
-    .Hyper.abPadding          resb    12
-%endif
+    .Hyper.fWorldSwitcher     resd    1
+    alignb 8
     .Hyper.hwvirt.svm.uMsrHSavePa            resq         1
     .Hyper.hwvirt.svm.GCPhysVmcb             resq         1
     .Hyper.hwvirt.svm.pVmcbR0                RTR0PTR_RES  1
@@ -529,7 +529,7 @@ struc CPUMCPU
     .Hyper.hwvirt.svm.cPauseFilter           resw         1
     .Hyper.hwvirt.svm.cPauseFilterThreshold  resw         1
     .Hyper.hwvirt.svm.fInterceptEvents       resb         1
-    .Hyper.hwvirt.svm.u8Padding1             resb         1
+    .Hyper.hwvirt.svm.fHMCachedVmcb          resb         1
     .Hyper.hwvirt.svm.pvMsrBitmapR0          RTR0PTR_RES  1
     .Hyper.hwvirt.svm.pvMsrBitmapR3          RTR3PTR_RES  1
     .Hyper.hwvirt.svm.pvIoBitmapR0           RTR0PTR_RES  1

@@ -1,8 +1,10 @@
+/* $Id: VBoxWineEx.h $ */
 /** @file
- *
  * VBox extension to Wine D3D
- *
- * Copyright (C) 2010-2016 Oracle Corporation
+ */
+
+/*
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -12,6 +14,7 @@
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
+
 #ifndef ___VBoxWineEx_h__
 #define ___VBoxWineEx_h__
 
@@ -42,7 +45,7 @@ typedef VBOXWINEEX_DECL(HRESULT) FNVBOXWINEEXD3DDEV9_CREATETEXTURE(IDirect3DDevi
 typedef FNVBOXWINEEXD3DDEV9_CREATETEXTURE *PFNVBOXWINEEXD3DDEV9_CREATETEXTURE;
 
 typedef VBOXWINEEX_DECL(HRESULT) FNVBOXWINEEXD3DDEV9_CREATECUBETEXTURE(IDirect3DDevice9Ex *iface,
-            UINT edge_length, UINT levels, DWORD usage, D3DFORMAT format, 
+            UINT edge_length, UINT levels, DWORD usage, D3DFORMAT format,
             D3DPOOL pool, IDirect3DCubeTexture9 **texture, HANDLE *shared_handle,
             void **pavClientMem);
 typedef FNVBOXWINEEXD3DDEV9_CREATECUBETEXTURE *PFNVBOXWINEEXD3DDEV9_CREATECUBETEXTURE;

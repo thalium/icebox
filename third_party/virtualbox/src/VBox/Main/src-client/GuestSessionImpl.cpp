@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -2456,7 +2456,9 @@ HRESULT GuestSession::fileCopyFromGuest(const com::Utf8Str &aSource, const com::
         for (size_t i = 0; i < aFlags.size(); i++)
             fFlags |= aFlags[i];
     }
-/** @todo r=bird: fend off flags we don't implement here!  */
+
+    if (fFlags)
+        return setError(E_NOTIMPL, tr("Flag(s) not yet implemented"));
 
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
@@ -2529,7 +2531,9 @@ HRESULT GuestSession::fileCopyToGuest(const com::Utf8Str &aSource, const com::Ut
         for (size_t i = 0; i < aFlags.size(); i++)
             fFlags |= aFlags[i];
     }
-/** @todo r=bird: fend off flags we don't implement here!  */
+
+    if (fFlags)
+        return setError(E_NOTIMPL, tr("Flag(s) not yet implemented"));
 
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
@@ -2705,17 +2709,26 @@ HRESULT GuestSession::directoryExists(const com::Utf8Str &aPath, BOOL aFollowSym
         *aExists = objData.mType == FsObjType_Directory;
     else
     {
-        /** @todo r=bird: Looks like this code raises errors if the directory doesn't
-         *        exist... That's of course not right. */
         switch (rc)
         {
             case VERR_GSTCTL_GUEST_ERROR:
-                hr = GuestProcess::i_setErrorExternal(this, guestRc);
+            {
+                switch (guestRc)
+                {
+                    case VERR_PATH_NOT_FOUND:
+                        *aExists = FALSE;
+                        break;
+                    default:
+                        hr = setError(VBOX_E_IPRT_ERROR, tr("Querying directory existence \"%s\" failed: %s"),
+                                                            aPath.c_str(), GuestProcess::i_guestErrorToString(guestRc).c_str());
+                        break;
+                }
                 break;
+            }
 
             default:
                hr = setError(VBOX_E_IPRT_ERROR, tr("Querying directory existence \"%s\" failed: %Rrc"),
-                             aPath.c_str(), rc);
+                                                   aPath.c_str(), rc);
                break;
         }
     }

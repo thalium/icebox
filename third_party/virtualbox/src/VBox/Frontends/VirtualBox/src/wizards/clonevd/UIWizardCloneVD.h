@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,8 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef __UIWizardCloneVD_h__
-#define __UIWizardCloneVD_h__
+#ifndef ___UIWizardCloneVD_h___
+#define ___UIWizardCloneVD_h___
 
 /* GUI includes: */
 #include "UIWizard.h"
@@ -25,14 +25,15 @@
 #include "COMEnums.h"
 #include "CMedium.h"
 
-/* Clone Virtual Hard Drive wizard: */
+
+/** UIWizard subclass to clone virtual disk image files. */
 class UIWizardCloneVD : public UIWizard
 {
     Q_OBJECT;
 
 public:
 
-    /* Page IDs: */
+    /** Basic Page IDs. */
     enum
     {
         Page1,
@@ -41,39 +42,42 @@ public:
         Page4
     };
 
-    /* Page IDs: */
+    /** Expert Page IDs. */
     enum
     {
         PageExpert
     };
 
-    /* Constructor: */
-    UIWizardCloneVD(QWidget *pParent, const CMedium &sourceVirtualDisk);
+    /** Constructs wizard to clone @a comSourceVirtualDisk passing @a pParent to the base-class. */
+    UIWizardCloneVD(QWidget *pParent, const CMedium &comSourceVirtualDisk);
 
-    /* Returns virtual-disk: */
-    CMedium virtualDisk() const { return m_virtualDisk; }
+    /** Returns source virtual-disk. */
+    CMedium sourceVirtualDisk() const { return m_comSourceVirtualDisk; }
+    /** Returns target virtual-disk. */
+    CMedium targetVirtualDisk() const { return m_comTargetVirtualDisk; }
 
-protected:
+    /** Returns the source virtual-disk device type. */
+    KDeviceType sourceVirtualDiskDeviceType() const { return m_enmSourceVirtualDiskDeviceType; }
 
-    /* Copy virtual-disk: */
+    /** Makes a copy of source virtual-disk. */
     bool copyVirtualDisk();
-
-    /* Who will be able to copy virtual-disk: */
-    friend class UIWizardCloneVDPageBasic4;
-    friend class UIWizardCloneVDPageExpert;
 
 private:
 
-    /* Translation stuff: */
-    void retranslateUi();
+    /** Handles translation event. */
+    virtual void retranslateUi() /* override */;
 
-    /* Pages related stuff: */
-    void prepare();
+    /** Prepares all. */
+    virtual void prepare() /* override */;
 
-    /* Variables: */
-    CMedium m_sourceVirtualDisk;
-    CMedium m_virtualDisk;
+    /** Holds the source virtual disk wrapper. */
+    CMedium m_comSourceVirtualDisk;
+    /** Holds the target virtual disk wrapper. */
+    CMedium m_comTargetVirtualDisk;
+
+    /** Holds the source virtual-disk device type. */
+    KDeviceType m_enmSourceVirtualDiskDeviceType;
 };
 
-#endif // __UIWizardCloneVD_h__
+#endif /* !___UIWizardCloneVD_h___ */
 

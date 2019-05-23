@@ -7466,19 +7466,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>&amp;Шифрование</translation>
+        <translation type="vanished">&amp;Шифрование</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>Если галочка стоит, эта виртуальная машина будет зашифрована.</translation>
+        <translation type="vanished">Если галочка стоит, эта виртуальная машина будет зашифрована.</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>&amp;Включить шифрование</translation>
+        <translation type="vanished">&amp;Включить шифрование</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>А&amp;лгоритм шифирования:</translation>
+        <translation type="vanished">А&amp;лгоритм шифирования:</translation>
     </message>
     <message>
         <source>E&amp;nter New Password:</source>
@@ -7486,7 +7486,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>Определяет пароль, который будет назначен зашифрованным дискам виртуальной машины.</translation>
+        <translation type="vanished">Определяет пароль, который будет назначен зашифрованным дискам виртуальной машины.</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -7494,23 +7494,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>Подтверждает пароль, который будет назначен зашифрованным дискам виртуальной машины.</translation>
+        <translation type="vanished">Подтверждает пароль, который будет назначен зашифрованным дискам виртуальной машины.</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>Вы включили шифрование этой виртуальной машины, для чего требуется установить &lt;b&gt;%1&lt;/b&gt;. Если необходимо, установите данный плагин, предварительно скачав его с сайта VirtualBox.</translation>
+        <translation type="vanished">Вы включили шифрование этой виртуальной машины, для чего требуется установить &lt;b&gt;%1&lt;/b&gt;. Если необходимо, установите данный плагин, предварительно скачав его с сайта VirtualBox.</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>Алгоритм шифрования не выбран.</translation>
+        <translation type="vanished">Алгоритм шифрования не выбран.</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>Пароль шифрования не задан.</translation>
+        <translation type="vanished">Пароль шифрования не задан.</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>Пароли шифрования не совпадают.</translation>
+        <translation type="vanished">Пароли шифрования не совпадают.</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -7524,6 +7524,46 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>Определяет путь к папке хранения снимков этой виртуальной машины. Имейте ввиду, что снимки могут занимать достаточно много места на жёстком диске.</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9780,6 +9820,38 @@ p, li { white-space: pre-wrap; }
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation>Невозможно изменить размер носителя с &lt;b&gt;%1&lt;/b&gt; на &lt;b&gt;%2&lt;/b&gt; поскольку уменьшение размера носителя в данный момент не поддерживается.</translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation>Выбрать расположение носителя</translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation>Расположение не может быть пустым.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation>Этот тип носителя подключается как напрямую так и косвенно, защищён при взятии снимков состояния.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation>Этот тип носителя подключается косвенно, любые произведённые изменения будут удалены при следующем запуске машины.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation>Этот тип носителя подключается напрямую и игнорируется при взятии снимков состояния.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation>Этот тип носителя подключается напрямую, предназначен для совместного использования несколькими машинами одновременно.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation>Этот тип носителя подключается напрямую, может быть использован для чтения несколькими машинами одновременно.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation>Этот тип носителя подключается косвенно, чтобы базовый образ мог быть использован несколькими машинами, каждая из которых будет иметь отдельный разностный носитель для хранения своих изменений.</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -9977,6 +10049,26 @@ p, li { white-space: pre-wrap; }
         <source>Refresh Disk Image Files (%1)</source>
         <translation>Обновить файлы образа диска (%1)</translation>
     </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation>Текущее расширение (*.%1)</translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation>Выберите расположение данного носителя</translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation>&amp;Переместить...</translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation>Переместить файл образа диска (%1)</translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation>Переместить выбранный файл образа диска</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManagerWidget</name>
@@ -10016,39 +10108,39 @@ p, li { white-space: pre-wrap; }
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>Изменить атрибуты носителя информации</translation>
+        <translation type="vanished">Изменить атрибуты носителя информации</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Вы собираетесь изменить атрибуты носителя информации, расположенного по адресу &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Пожалуйста, выберите один из следующих типов носителя информации и нажмите &lt;b&gt;%2&lt;/b&gt; чтобы продолжить или &lt;b&gt;%3&lt;/b&gt; в противном случае.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Вы собираетесь изменить атрибуты носителя информации, расположенного по адресу &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Пожалуйста, выберите один из следующих типов носителя информации и нажмите &lt;b&gt;%2&lt;/b&gt; чтобы продолжить или &lt;b&gt;%3&lt;/b&gt; в противном случае.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>Выберите тип носителя информации:</translation>
+        <translation type="vanished">Выберите тип носителя информации:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>Этот тип носителя подключается как напрямую так и косвенно, защищён при взятии снимков состояния.</translation>
+        <translation type="vanished">Этот тип носителя подключается как напрямую так и косвенно, защищён при взятии снимков состояния.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>Этот тип носителя подключается косвенно, любые произведённые изменения будут удалены при следующем запуске машины.</translation>
+        <translation type="vanished">Этот тип носителя подключается косвенно, любые произведённые изменения будут удалены при следующем запуске машины.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>Этот тип носителя подключается напрямую и игнорируется при взятии снимков состояния.</translation>
+        <translation type="vanished">Этот тип носителя подключается напрямую и игнорируется при взятии снимков состояния.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>Этот тип носителя подключается напрямую, предназначен для совместного использования несколькими машинами одновременно.</translation>
+        <translation type="vanished">Этот тип носителя подключается напрямую, предназначен для совместного использования несколькими машинами одновременно.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>Этот тип носителя подключается напрямую, может быть использован для чтения несколькими машинами одновременно.</translation>
+        <translation type="vanished">Этот тип носителя подключается напрямую, может быть использован для чтения несколькими машинами одновременно.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>Этот тип носителя подключается косвенно, чтобы базовый образ мог быть использован несколькими машинами, каждая из которых будет иметь отдельный разностный носитель для хранения своих изменений.</translation>
+        <translation type="vanished">Этот тип носителя подключается косвенно, чтобы базовый образ мог быть использован несколькими машинами, каждая из которых будет иметь отдельный разностный носитель для хранения своих изменений.</translation>
     </message>
 </context>
 <context>
@@ -11956,19 +12048,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;p&gt;You are about to install a VirtualBox extension pack. Extension packs complement the functionality of VirtualBox and can contain system level software that could be potentially harmful to your system. Please review the description below and only proceed if you have obtained the extension pack from a trusted source.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Вы собираетесь установить плагин VirtualBox. Плагины дополняют функциональность VirtualBox и могут представлять собой системные программы потенциально опасные для Вашей системы. Пожалуйста ознакомьтесь с описанием данного плагина и продолжайте лишь в том случае, если Вы получили плагин из достоверного источника.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {0 ?} {5&gt;?} {1&lt;?} {2&lt;?} {3&lt;?}</translation>
+        <translation>&lt;p&gt;Вы собираетесь установить плагин VirtualBox. Плагины дополняют функциональность VirtualBox и могут представлять собой системные программы потенциально опасные для Вашей системы. Пожалуйста ознакомьтесь с описанием данного плагина и продолжайте лишь в том случае, если Вы получили плагин из достоверного источника.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An older version of the extension pack is already installed, would you like to upgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;У Вас установлена более старая версия плагина. Не желаете ли её обновить?&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Новая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текущая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation>&lt;p&gt;У Вас установлена более старая версия плагина. Не желаете ли её обновить?&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Новая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текущая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An newer version of the extension pack is already installed, would you like to downgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;У Вас установлена более новая версия плагина. Желаете ли её откатить?&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Новая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текущая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation>&lt;p&gt;У Вас установлена более новая версия плагина. Желаете ли её откатить?&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Новая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Текущая версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The extension pack is already installed with the same version, would you like reinstall it? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;У Вас установлена та же версия плагина, желаете ли её переустановить?&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?}</translation>
+        <translation>&lt;p&gt;У Вас установлена та же версия плагина, желаете ли её переустановить?&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Имя:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Версия:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Описание:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to enable the audio adapter output for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -11993,6 +12085,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>Не удалось изменить атрибуты снимка &lt;b&gt;%1&lt;/b&gt; виртуальной машины &lt;b&gt;%2&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation>Не удалось создать файл образа диска &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14213,11 +14313,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Dynamically allocated</source>
-        <translation>&amp;Динамический виртуальный жёсткий диск</translation>
+        <translation>&amp;Динамический образ диска</translation>
     </message>
     <message>
         <source>&amp;Fixed size</source>
-        <translation>&amp;Фиксированный виртуальный жёсткий диск</translation>
+        <translation>&amp;Фиксированный образ диска</translation>
     </message>
     <message>
         <source>&amp;Split into files of less than 2GB</source>
@@ -14242,7 +14342,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_копия</translation>
+        <translation type="vanished">%1_копия</translation>
     </message>
     <message>
         <source>Hard drive to &amp;copy</source>
@@ -14258,27 +14358,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>Копировать виртуальный жёсткий диск</translation>
+        <translation type="vanished">Копировать виртуальный жёсткий диск</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>Выберите диск</translation>
+        <translation type="vanished">Выберите диск</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Пожалуйста, выберите виртуальный жёсткий диск, который Вы желаете скопировать, если он ещё не выбран. Вы можете выбрать один из выпадающего списка или использовать кнопку с иконкой папки справа от него.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Пожалуйста, выберите виртуальный жёсткий диск, который Вы желаете скопировать, если он ещё не выбран. Вы можете выбрать один из выпадающего списка или использовать кнопку с иконкой папки справа от него.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>Выбрать файл виртуального жёсткого диска...</translation>
+        <translation type="vanished">Выбрать файл виртуального жёсткого диска...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>Укажите тип</translation>
+        <translation type="vanished">Укажите тип</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>Пожалуйста, укажите тип файла, определяющий формат, который Вы хотите использовать при создании нового жёсткого диска. Если у Вас нет необходимости использовать диск с другими продуктами программной виртуализации, Вы можете оставить данный параметр без изменений.</translation>
+        <translation type="vanished">Пожалуйста, укажите тип файла, определяющий формат, который Вы хотите использовать при создании нового жёсткого диска. Если у Вас нет необходимости использовать диск с другими продуктами программной виртуализации, Вы можете оставить данный параметр без изменений.</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -14286,46 +14386,119 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>Пожалуйста уточните, должен ли новый виртуальный жёсткий диск подстраивать свой размер под размер своего содержимого или быть точно заданного размера.</translation>
+        <translation type="vanished">Пожалуйста уточните, должен ли новый виртуальный жёсткий диск подстраивать свой размер под размер своего содержимого или быть точно заданного размера.</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Файл &lt;b&gt;динамического&lt;/b&gt; жёсткого диска будет занимать необходимое место на Вашем физическом носителе информации лишь по мере заполнения, однако не сможет уменьшиться в размере если место, занятое его содержимым, освободится.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Файл &lt;b&gt;динамического&lt;/b&gt; жёсткого диска будет занимать необходимое место на Вашем физическом носителе информации лишь по мере заполнения, однако не сможет уменьшиться в размере если место, занятое его содержимым, освободится.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Файл &lt;b&gt;фиксированного&lt;/b&gt; жёсткого диска может потребовать больше времени при создании на некоторых файловых системах, однако, обычно, быстрее в использовании.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Файл &lt;b&gt;фиксированного&lt;/b&gt; жёсткого диска может потребовать больше времени при создании на некоторых файловых системах, однако, обычно, быстрее в использовании.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;Вы можете также &lt;b&gt;разделить&lt;/b&gt; жёсткий диск на несколько файлов размером до 2х ГБ. Это может пригодиться если Вы планируете хранить виртуальную машину на съёмных USB носителях или старых файловых системах, некоторые из которых не поддерживают файлы больших размеров.</translation>
+        <translation type="vanished">&lt;p&gt;Вы можете также &lt;b&gt;разделить&lt;/b&gt; жёсткий диск на несколько файлов размером до 2х ГБ. Это может пригодиться если Вы планируете хранить виртуальную машину на съёмных USB носителях или старых файловых системах, некоторые из которых не поддерживают файлы больших размеров.</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>Укажите местоположение нового виртуального жёсткого диска</translation>
+        <translation type="vanished">Укажите местоположение нового виртуального жёсткого диска</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>Укажите имя нового диска</translation>
+        <translation type="vanished">Укажите имя нового диска</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>Пожалуйста укажите имя нового виртуального жёсткого диска в поле снизу или используйте кнопку с иконкой папки справа от него.</translation>
+        <translation type="vanished">Пожалуйста укажите имя нового виртуального жёсткого диска в поле снизу или используйте кнопку с иконкой папки справа от него.</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>Выбрать местоположение нового виртуального жёсткого диска...</translation>
+        <translation type="vanished">Выбрать местоположение нового виртуального жёсткого диска...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>Выберите &amp;диск</translation>
+        <translation type="vanished">Выберите &amp;диск</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>Укажите имя &amp;нового диска</translation>
+        <translation type="vanished">Укажите имя &amp;нового диска</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
+        <translation type="vanished">Укажите &amp;тип</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation>Копировать образ диска</translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation>Выберите образ диска</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Пожалуйста, выберите образ диска, который Вы желаете скопировать, если он ещё не выбран. Вы можете выбрать один из выпадающего списка или использовать кнопку с иконкой папки справа от него.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation>Выбрать файл образа диска...</translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation>Укажите тип</translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation>Пожалуйста, укажите тип файла, определяющий формат, который Вы хотите использовать при создании нового образа диска. Если у Вас нет необходимости использовать диск с другими продуктами программной виртуализации, Вы можете оставить данный параметр без изменений.</translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation>Пожалуйста уточните, должен ли новый образ диска подстраивать свой размер под размер своего содержимого или быть точно заданного размера.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Файл &lt;b&gt;динамического&lt;/b&gt; образа диска будет занимать необходимое место на Вашем физическом носителе информации лишь по мере заполнения, однако не сможет уменьшиться в размере если место, занятое его содержимым, освободится.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Файл &lt;b&gt;фиксированного&lt;/b&gt; образа диска может потребовать больше времени при создании на некоторых файловых системах, однако, обычно, быстрее в использовании.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation>&lt;p&gt;Вы можете также &lt;b&gt;разделить&lt;/b&gt; образ диска на несколько файлов размером до 2х ГБ. Это может пригодиться если Вы планируете хранить виртуальную машину на съёмных USB носителях или старых файловых системах, некоторые из которых не поддерживают файлы больших размеров.</translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation>Укажите местоположение нового образа диска</translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation>Укажите имя нового диска</translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation>Пожалуйста укажите имя нового образа диска в поле снизу или используйте кнопку с иконкой папки справа от него.</translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation>Выбрать местоположение нового образа диска...</translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation>%1_копия</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation>Выберите &amp;диск</translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation>Укажите имя &amp;нового диска</translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
         <translation>Укажите &amp;тип</translation>
     </message>
 </context>

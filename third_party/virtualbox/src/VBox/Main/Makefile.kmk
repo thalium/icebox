@@ -127,7 +127,7 @@ if "$(KBUILD_TARGET)" != "win"
  BLDDIRS += \
 	$(VBOX_PATH_SDK)/bindings/xpcom/idl \
 	$(VBOX_PATH_SDK)/bindings/xpcom/include
- # disable VBoxSDS for XPCOM	
+ # disable VBoxSDS for XPCOM
  override VBOX_WITH_SDS =
 endif # xpcom
 
@@ -277,7 +277,6 @@ testschemadefs: $(VBOX_XML_SCHEMADEFS_H) $(VBOX_XML_SCHEMADEFS_CPP)
 if defined(VBOX_WITH_SDS) && "$(KBUILD_TARGET)" == "win"
  PROGRAMS += VBoxSDS
  VBoxSDS_TEMPLATE = VBOXMAINEXE
- VBoxSDS_DEFS = \
  VBoxSDS_DEFS.win += VBOX_COM_OUTOFPROC_MODULE
  VBoxSDS_DEFS.win += _WIN32_WINNT=0x0510
  VBoxSDS_INCS = \
@@ -366,7 +365,8 @@ VBoxSVC_DEFS = \
 	$(if $(VBOX_WITH_PCI_PASSTHROUGH),VBOX_WITH_PCI_PASSTHROUGH,) \
 	$(if $(VBOX_WITH_NAT_SERVICE),VBOX_WITH_NAT_SERVICE,) \
 	$(if $(VBOX_WITH_CROGL),VBOX_WITH_CROGL,) \
-	$(if $(VBOX_WITH_CRHGSMI),VBOX_WITH_CRHGSMI,)
+	$(if $(VBOX_WITH_CRHGSMI),VBOX_WITH_CRHGSMI,) \
+	$(if-expr defined(VBOX_WITH_SDS),VBOX_WITH_SDS,)
 ifdef VBOX_WITH_USB
  VBoxSVC_DEFS += \
 	VBOX_WITH_USB \
@@ -780,6 +780,9 @@ endif
 VBoxC_SDKS = VBOX_LIBPNG VBOX_ZLIB
 
 ifdef VBOX_WITH_VIDEOREC
+   VBoxC_SOURCES += \
+	src-client/EBMLWriter.cpp \
+	src-client/WebMWriter.cpp
   ifdef VBOX_WITH_LIBVPX
    VBoxC_SDKS += VBOX_VPX
    VBoxC_DEFS += VBOX_WITH_LIBVPX
@@ -889,7 +892,6 @@ VBoxC_SOURCES += \
 	src-client/DisplayImpl.cpp \
 	src-client/DisplayImplLegacy.cpp \
 	src-client/DisplaySourceBitmapImpl.cpp \
-	src-client/EbmlWriter.cpp \
 	src-client/EmulatedUSBImpl.cpp \
 	src-client/GuestImpl.cpp \
 	src-client/GuestCtrlImpl.cpp \

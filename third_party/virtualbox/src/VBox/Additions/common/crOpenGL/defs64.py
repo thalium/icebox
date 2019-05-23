@@ -425,7 +425,7 @@ for func_name in keys:
     if func_name in exports_special:
         print("gl%s = cr_gl%s" % (func_name,func_name))
 
-for func_name in ( "wglChoosePixelFormat", 
+for func_name in ( "wglChoosePixelFormat",
            "wglCopyContext",
            "wglCreateContext",
            "wglCreateLayerContext",
@@ -448,7 +448,7 @@ for func_name in ( "wglChoosePixelFormat",
            "wglUseFontBitmapsA",
            "wglUseFontBitmapsW",
            "wglUseFontOutlinesA",
-           "wglUseFontOutlinesW", 
+           "wglUseFontOutlinesW",
            "wglChoosePixelFormatEXT",
            "wglGetPixelFormatAttribivEXT",
            "wglGetPixelFormatAttribfvEXT",

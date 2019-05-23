@@ -1107,7 +1107,9 @@ static int rtFsIsoMakerCmdWriteImage(PRTFSISOMAKERCMDOPTS pOpts, RTVFSFILE hVfsS
             RTVFSFILE       hVfsDstFile;
             uint32_t        offError;
             RTERRINFOSTATIC ErrInfo;
-            rc = RTVfsChainOpenFile(pOpts->pszOutFile, RTFILE_O_READWRITE | RTFILE_O_CREATE_REPLACE | RTFILE_O_DENY_WRITE,
+            rc = RTVfsChainOpenFile(pOpts->pszOutFile,
+                                    RTFILE_O_READWRITE | RTFILE_O_CREATE_REPLACE | RTFILE_O_DENY_WRITE
+                                    | (0664 << RTFILE_O_CREATE_MODE_SHIFT),
                                     &hVfsDstFile, &offError, RTErrInfoInitStatic(&ErrInfo));
             if (RT_SUCCESS(rc))
             {
@@ -1957,12 +1959,15 @@ static int rtFsIsoMakerCmdAddSomething(PRTFSISOMAKERCMDOPTS pOpts, const char *p
             if (   Parsed.aNames[i].cchPath > 0
                 && (Parsed.aNames[i].fNameSpecifiers & RTFSISOMAKERCMDNAME_MAJOR_MASK))
             {
+                /* Make sure we remove all objects by this name. */
                 pszFirstNm = Parsed.aNames[i].szPath;
-                uint32_t idxObj = RTFsIsoMakerGetObjIdxForPath(pOpts->hIsoMaker,
-                                                               Parsed.aNames[i].fNameSpecifiers & RTFSISOMAKERCMDNAME_MAJOR_MASK,
-                                                               Parsed.aNames[i].szPath);
-                if (idxObj != UINT32_MAX)
+                for (;;)
                 {
+                    uint32_t idxObj = RTFsIsoMakerGetObjIdxForPath(pOpts->hIsoMaker,
+                                                                   Parsed.aNames[i].fNameSpecifiers & RTFSISOMAKERCMDNAME_MAJOR_MASK,
+                                                                   Parsed.aNames[i].szPath);
+                    if (idxObj == UINT32_MAX)
+                        break;
                     rc = RTFsIsoMakerObjRemove(pOpts->hIsoMaker, idxObj);
                     if (RT_FAILURE(rc))
                         return rtFsIsoMakerCmdErrorRc(pOpts, rc, "Failed to remove '%s': %Rrc", pszSpec, rc);

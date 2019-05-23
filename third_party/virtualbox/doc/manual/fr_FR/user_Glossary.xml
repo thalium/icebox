@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <glossary id="Glossary">
   <glossdiv>
     <title>A</title>
@@ -52,7 +52,7 @@
         de l'ancienne PIC (programmable interrupt controller). La plupart des
         CPUs récents incorporent un APIC ("local APIC"). Beaucoup de systèmes intègrent
         aussi un I/O APIC (input output APIC) dans une puce à part qui fournit plus de
-        16 IRQs. Windows 2000 et ultérieur utilise un noyau différent si il est 
+        16 IRQs. Windows 2000 et ultérieur utilise un noyau différent si il est
         détecté un I/O APIC à l'installation. De ce fait un I/O APIC ne doit pas être
         supprimé après l'installation.</para>
       </glossdef>
@@ -162,7 +162,7 @@
       <glossterm>GUI</glossterm>
 
       <glossdef>
-        <para>Graphical User Interface. Communément employé en opposition à 
+        <para>Graphical User Interface. Communément employé en opposition à
         "interface en ligne de commande", dans le contexte VirtualBox, nous nous
         référons au programme graphique principal de
         <computeroutput>VirtualBox</computeroutput> en tant que "GUI", pour le
@@ -231,7 +231,7 @@
         tel que le ICH9; voir <xref linkend="settings-motherboard" />.
         Contrairement aux traditionnelles interruptions pin-based, avec MSI, une petite
         quantité de données peut accompagner le véritable message d'interruption. Ceci réduit la
-        quantité requise de broches sur le matériel, permet plus d'interruptions avec de 
+        quantité requise de broches sur le matériel, permet plus d'interruptions avec de
         meilleures performances.</para>
       </glossdef>
     </glossentry>

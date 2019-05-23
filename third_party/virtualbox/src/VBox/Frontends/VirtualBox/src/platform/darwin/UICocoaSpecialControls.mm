@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2011 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -468,7 +468,7 @@ QAccessibleInterface *UIAccessibilityInterfaceForUICocoaSegmentedButtonSegment::
 
 QRect UIAccessibilityInterfaceForUICocoaSegmentedButtonSegment::rect() const
 {
-    // TODO: Return the -=real=- segment rectangle.
+    /// @todo Return the -=real=- segment rectangle.
     const QRect myRect = m_pParent->rect();
     return QRect(myRect.x() + myRect.width() / 2 * m_iIndex,
                  myRect.y(), myRect.width() / 2, myRect.height());
@@ -597,7 +597,7 @@ void UICocoaSegmentedButton::setToolTip(int iSegment, const QString &strTip)
 
 void UICocoaSegmentedButton::setIcon(int iSegment, const QIcon& icon)
 {
-    QImage image = toGray(icon.pixmap(icon.availableSizes().first()).toImage());
+    QImage image = toGray(icon.pixmap(icon.availableSizes().value(0, QSize(16, 16))).toImage());
 
     NSImage *pNSimage = [::darwinToNSImageRef(&image) autorelease];
     [nativeRef() setImage: pNSimage forSegment: iSegment];

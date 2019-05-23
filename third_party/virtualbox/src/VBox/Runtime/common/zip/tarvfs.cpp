@@ -1530,4 +1530,3 @@ RTDECL(int) RTZipTarFsStreamFromIoStream(RTVFSIOSTREAM hVfsIosIn, uint32_t fFlag
     return rc;
 }
 
-

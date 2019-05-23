@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2016 Oracle Corporation
+ * Copyright (C) 2016-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -25,7 +25,7 @@
  *    screens in any environment which handles kernel resize notifications,
  *    including at log-in screens.  Test GNOME Shell Wayland and GNOME Shell
  *    under X.Org or Unity or KDE at the log-in screen and after log-in.
- *  - Linux 4.10 changed the user-kernel-ABI introduced in 4.6: test both. 
+ *  - Linux 4.10 changed the user-kernel-ABI introduced in 4.6: test both.
  *  - On other guests (than Linux 4.6 or later) running X.Org Server 1.3 or
  *    later, VBoxClient --vmsvga should never be running as root, and should run
  *    (and dynamic resizing and screen enable/disable should work for all

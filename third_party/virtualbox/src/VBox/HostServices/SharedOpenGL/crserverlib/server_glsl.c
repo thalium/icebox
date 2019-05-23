@@ -1,11 +1,10 @@
 /* $Id: server_glsl.c $ */
-
 /** @file
- * VBox OpenGL: GLSL related functions
+ * VBox OpenGL - GLSL related functions
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -179,8 +178,17 @@ GLuint crServerTranslateProgramID( GLuint id )
 
 void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteProgramsARB(GLsizei n, const GLuint * programs)
 {
-    GLuint *pLocalProgs = (GLuint *) crAlloc(n * sizeof(GLuint));
+    GLuint *pLocalProgs;
     GLint i;
+
+    if (n >= UINT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchDeleteProgramsARB: parameter 'n' is out of range");
+        return;
+    }
+
+    pLocalProgs = (GLuint *)crAlloc(n * sizeof(GLuint));
+
     if (!pLocalProgs) {
         crError("crServerDispatchDeleteProgramsARB: out of memory");
         return;
@@ -194,7 +202,7 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteProgramsARB(GLsizei n, const
 }
 
 
-/*@todo will fail for progs loaded from snapshot */
+/** @todo will fail for progs loaded from snapshot */
 GLboolean SERVER_DISPATCH_APIENTRY crServerDispatchIsProgramARB( GLuint program )
 {
     GLboolean retval;

@@ -5529,6 +5529,12 @@ static DECLCALLBACK(int) rtFsIsoMakerOutFile_Close(void *pvThis)
     RTFsIsoMakerRelease(pThis->pIsoMaker);
     pThis->pIsoMaker = NULL;
 
+    if (pThis->hVfsSrcFile != NIL_RTVFSFILE)
+    {
+        RTVfsFileRelease(pThis->hVfsSrcFile);
+        pThis->hVfsSrcFile = NIL_RTVFSFILE;
+    }
+
     return VINF_SUCCESS;
 }
 
@@ -5822,8 +5828,13 @@ static void rtFsIosMakerOutFile_GenerateRockRidge(PRTFSISOMAKERNAME pName, uint8
             pPX->uid.le         = RT_H2LE_U32((uint32_t)pName->uid);
             pPX->gid.be         = RT_H2BE_U32((uint32_t)pName->gid);
             pPX->gid.le         = RT_H2LE_U32((uint32_t)pName->gid);
-            pPX->INode.be       = RT_H2BE_U32((uint32_t)pName->pObj->idxObj);
-            pPX->INode.le       = RT_H2LE_U32((uint32_t)pName->pObj->idxObj);
+#if 0 /* This is confusing solaris.  Looks like it has code assuming inode numbers are block numbers and ends up mistaking files for the root dir.  Sigh. */
+            pPX->INode.be       = RT_H2BE_U32((uint32_t)pName->pObj->idxObj + 1); /* Don't use zero - isoinfo doesn't like it. */
+            pPX->INode.le       = RT_H2LE_U32((uint32_t)pName->pObj->idxObj + 1);
+#else
+            pPX->INode.be       = 0;
+            pPX->INode.le       = 0;
+#endif
             pbSys += sizeof(*pPX);
             cbSys -= sizeof(*pPX);
         }

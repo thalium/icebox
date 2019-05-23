@@ -1,4 +1,4 @@
-; $Id: tstAsmLock-1.asm $
+; $Id: tstAsmFnstsw-1.asm $
 ;; @file
 ; Disassembly testcase - Valid fnstsw* instructitons.
 ;

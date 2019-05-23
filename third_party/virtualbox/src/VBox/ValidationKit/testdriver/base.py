@@ -27,7 +27,7 @@ CDDL are applicable instead of those of the GPL.
 You may elect to license modified versions of this file under the
 terms and conditions of either the GPL or the CDDL or both.
 """
-__version__ = "$Revision: 118412 $"
+__version__ = "$Revision: 118920 $"
 
 
 # Standard Python imports.
@@ -594,7 +594,8 @@ class Process(TdTaskBase):
                     try:
                         (uPid, uStatus) = os.waitpid(self.hWin, 0);
                         if uPid == self.hWin or uPid == self.uPid:
-                            self.hWin = None; # waitpid closed it, so it's now invalid.
+                            self.hWin.Detach(); # waitpid closed it, so it's now invalid.
+                            self.hWin = None;
                             uPid = self.uPid;
                     except:
                         reporter.logXcpt();

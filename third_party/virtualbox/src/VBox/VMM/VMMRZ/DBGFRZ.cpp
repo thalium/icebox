@@ -22,12 +22,18 @@
 #define LOG_GROUP LOG_GROUP_DBGF
 #include <VBox/vmm/dbgf.h>
 #include <VBox/vmm/selm.h>
+#ifdef IN_RC
+# include <VBox/vmm/trpm.h>
+#endif
 #include <VBox/log.h>
 #include "DBGFInternal.h"
 #include <VBox/vmm/vm.h>
 #include <VBox/err.h>
 #include <iprt/assert.h>
 
+#ifdef IN_RC
+DECLASM(void) TRPMRCHandlerAsmTrap03(void);
+#endif
 
 
 /**
@@ -87,15 +93,84 @@ VMMRZ_INT_DECL(int) DBGFRZTrap01Handler(PVM pVM, PVMCPU pVCpu, PCPUMCTXCORE pReg
         return fInHyper ? VINF_EM_DBG_HYPER_STEPPED : VINF_EM_DBG_STEPPED;
     }
 
+#ifdef IN_RC
     /*
      * Either an ICEBP in hypervisor code or a guest related debug exception
      * of sorts.
      */
     if (RT_UNLIKELY(fInHyper))
     {
-        LogFlow(("DBGFRZTrap01Handler: unabled bp at %04x:%RGv\n", pRegFrame->cs.Sel, pRegFrame->rip));
+        /*
+         * Is this a guest debug event that was delayed past a ring transition?
+         *
+         * Since we do no allow sysenter/syscall in raw-mode, the  only
+         * non-trap/fault type transitions that can occur are thru interrupt gates.
+         * Of those, only INT3 (#BP) has a DPL other than 0 with a CS.RPL of 0.
+         * See bugref:9171 and bs3-cpu-weird-1 for more details.
+         *
+         * We need to reconstruct the guest register state from the hypervisor one
+         * here, so here is the layout of the IRET frame on the stack:
+         *    20:[8] GS          (V86 only)
+         *    1C:[7] FS          (V86 only)
+         *    18:[6] DS          (V86 only)
+         *    14:[5] ES          (V86 only)
+         *    10:[4] SS
+         *    0c:[3] ESP
+         *    08:[2] EFLAGS
+         *    04:[1] CS
+         *    00:[0] EIP
+         */
+        if (pRegFrame->rip == (uintptr_t)TRPMRCHandlerAsmTrap03)
+        {
+            uint32_t const *pu32Stack = (uint32_t const *)pRegFrame->esp;
+            if (   (pu32Stack[2] & X86_EFL_VM)
+                || (pu32Stack[1] & X86_SEL_RPL))
+            {
+                LogFlow(("DBGFRZTrap01Handler: Detected guest #DB delayed past ring transition %04x:%RX32 %#x\n",
+                         pu32Stack[1] & 0xffff, pu32Stack[0], pu32Stack[2]));
+                PCPUMCTX pGstCtx = CPUMQueryGuestCtxPtr(pVCpu);
+                pGstCtx->rip      = pu32Stack[0];
+                pGstCtx->cs.Sel   = pu32Stack[1];
+                pGstCtx->eflags.u = pu32Stack[2];
+                pGstCtx->rsp      = pu32Stack[3];
+                pGstCtx->ss.Sel   = pu32Stack[4];
+                if (pu32Stack[2] & X86_EFL_VM)
+                {
+                    pGstCtx->es.Sel = pu32Stack[5];
+                    pGstCtx->ds.Sel = pu32Stack[6];
+                    pGstCtx->fs.Sel = pu32Stack[7];
+                    pGstCtx->gs.Sel = pu32Stack[8];
+                }
+                else
+                {
+                    pGstCtx->es.Sel = pRegFrame->es.Sel;
+                    pGstCtx->ds.Sel = pRegFrame->ds.Sel;
+                    pGstCtx->fs.Sel = pRegFrame->fs.Sel;
+                    pGstCtx->gs.Sel = pRegFrame->gs.Sel;
+                }
+                pGstCtx->rax      = pRegFrame->rax;
+                pGstCtx->rcx      = pRegFrame->rcx;
+                pGstCtx->rdx      = pRegFrame->rdx;
+                pGstCtx->rbx      = pRegFrame->rbx;
+                pGstCtx->rsi      = pRegFrame->rsi;
+                pGstCtx->rdi      = pRegFrame->rdi;
+                pGstCtx->rbp      = pRegFrame->rbp;
+
+                /*
+                 * We should assert a #BP followed by a #DB here, but TRPM cannot
+                 * do that.  So, we'll just assert the #BP and ignore the #DB, even
+                 * if that isn't strictly correct.
+                 */
+                TRPMResetTrap(pVCpu);
+                TRPMAssertTrap(pVCpu, X86_XCPT_BP, TRPM_SOFTWARE_INT);
+                return VINF_EM_RAW_GUEST_TRAP;
+            }
+        }
+
+        LogFlow(("DBGFRZTrap01Handler: Unknown bp at %04x:%RGv\n", pRegFrame->cs.Sel, pRegFrame->rip));
         return VERR_DBGF_HYPER_DB_XCPT;
     }
+#endif
 
     LogFlow(("DBGFRZTrap01Handler: guest debug event %#x at %04x:%RGv!\n", (uint32_t)uDr6, pRegFrame->cs.Sel, pRegFrame->rip));
     return VINF_EM_RAW_GUEST_TRAP;

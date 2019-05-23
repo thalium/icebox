@@ -157,6 +157,11 @@ typedef struct BLDPROGSTRTAB
 } BLDPROGSTRTAB;
 typedef BLDPROGSTRTAB *PBLDPROGSTRTAB;
 
+#if RT_CLANG_PREREQ(4, 0)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 
 /**
  * Initializes the strint table compiler.
@@ -899,7 +904,7 @@ static void BldProgStrTab_PrintCStringLitteral(PBLDPROGSTRTAB pThis, PBLDPROGSTR
         }
 #else
         else
-            fprintf(pOut, "\\x%02", (unsigned)uch);
+            fprintf(pOut, "\\x%02x", (unsigned)uch);
         NOREF(pThis);
 #endif
     }
@@ -1032,6 +1037,10 @@ static void BldProgStrTab_WriteStringTable(PBLDPROGSTRTAB pThis, FILE *pOut,
             "};\n");
 #endif
 }
+
+#if RT_CLANG_PREREQ(4, 0)
+#  pragma GCC diagnostic pop
+#endif
 
 #endif /* __cplusplus && IN_RING3 */
 

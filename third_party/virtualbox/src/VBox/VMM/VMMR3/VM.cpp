@@ -577,6 +577,18 @@ static int vmR3CreateUVM(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods, PUV
  */
 static int vmR3CreateU(PUVM pUVM, uint32_t cCpus, PFNCFGMCONSTRUCTOR pfnCFGMConstructor, void *pvUserCFGM)
 {
+#if (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86)) && !defined(VBOX_WITH_OLD_CPU_SUPPORT)
+    /*
+     * Require SSE2 to be present (already checked for in supdrv, so we
+     * shouldn't ever really get here).
+     */
+    if (!(ASMCpuId_EDX(1) & X86_CPUID_FEATURE_EDX_SSE2))
+    {
+        LogRel(("vboxdrv: Requires SSE2 (cpuid(0).EDX=%#x)\n", ASMCpuId_EDX(1)));
+        return VERR_UNSUPPORTED_CPU;
+    }
+#endif
+
     /*
      * Load the VMMR0.r0 module so that we can call GVMMR0CreateVM.
      */

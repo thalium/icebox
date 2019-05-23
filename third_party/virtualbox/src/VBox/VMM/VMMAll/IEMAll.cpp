@@ -886,6 +886,7 @@ IEM_STATIC VBOXSTRICTRC     iemMemStackPushU32(PVMCPU pVCpu, uint32_t u32Value);
 IEM_STATIC VBOXSTRICTRC     iemMemStackPushU16(PVMCPU pVCpu, uint16_t u16Value);
 IEM_STATIC VBOXSTRICTRC     iemMemMarkSelDescAccessed(PVMCPU pVCpu, uint16_t uSel);
 IEM_STATIC uint16_t         iemSRegFetchU16(PVMCPU pVCpu, uint8_t iSegReg);
+IEM_STATIC uint64_t         iemSRegBaseFetchU64(PVMCPU pVCpu, uint8_t iSegReg);
 
 #if defined(IEM_VERIFICATION_MODE_FULL) && !defined(IEM_VERIFICATION_MODE_MINIMAL)
 IEM_STATIC PIEMVERIFYEVTREC iemVerifyAllocRecord(PVMCPU pVCpu);
@@ -3219,9 +3220,9 @@ DECLINLINE(uint64_t) iemOpcodeGetNextU64Jmp(PVMCPU pVCpu)
 
 /**
  * Gets the exception class for the specified exception vector.
- *  
+ *
  * @returns The class of the specified exception.
- * @param   uVector       The exception vector. 
+ * @param   uVector       The exception vector.
  */
 IEM_STATIC IEMXCPTCLASS iemGetXcptClass(uint8_t uVector)
 {
@@ -3250,8 +3251,8 @@ IEM_STATIC IEMXCPTCLASS iemGetXcptClass(uint8_t uVector)
 /**
  * Evaluates how to handle an exception caused during delivery of another event
  * (exception / interrupt).
- *  
- * @returns How to handle the recursive exception. 
+ *
+ * @returns How to handle the recursive exception.
  * @param   pVCpu               The cross context virtual CPU structure of the
  *                              calling thread.
  * @param   fPrevFlags          The flags of the previous event.
@@ -3338,7 +3339,7 @@ VMM_INT_DECL(IEMXCPTRAISE) IEMEvaluateRecursiveXcpt(PVMCPU pVCpu, uint32_t fPrev
 
     if (pfXcptRaiseInfo)
         *pfXcptRaiseInfo = fRaiseInfo;
-    return enmRaise; 
+    return enmRaise;
 }
 
 
@@ -3638,7 +3639,6 @@ iemRaiseXcptOrIntInRealMode(PVMCPU      pVCpu,
                             uint16_t    uErr,
                             uint64_t    uCr2)
 {
-    AssertReturn(pVCpu->iem.s.enmCpuMode == IEMMODE_16BIT, VERR_IEM_IPE_6);
     NOREF(uErr); NOREF(uCr2);
 
     /*
@@ -6141,6 +6141,20 @@ DECLINLINE(uint16_t) iemSRegFetchU16(PVMCPU pVCpu, uint8_t iSegReg)
 
 
 /**
+ * Fetches the base address value of a segment register.
+ *
+ * @returns The selector value.
+ * @param   pVCpu               The cross context virtual CPU structure of the calling thread.
+ * @param   iSegReg             The segment register.
+ */
+DECLINLINE(uint64_t) iemSRegBaseFetchU64(PVMCPU pVCpu, uint8_t iSegReg)
+{
+    Assert(iSegReg < X86_SREG_COUNT);
+    return IEM_GET_CTX(pVCpu)->aSRegs[iSegReg].u64Base;
+}
+
+
+/**
  * Gets a reference (pointer) to the specified general purpose register.
  *
  * @returns Register reference.
@@ -6220,6 +6234,21 @@ DECLINLINE(uint64_t *) iemGRegRefU64(PVMCPU pVCpu, uint8_t iReg)
     Assert(iReg < 64);
     PCPUMCTX pCtx = IEM_GET_CTX(pVCpu);
     return &pCtx->aGRegs[iReg].u64;
+}
+
+
+/**
+ * Gets a reference (pointer) to the specified segment register's base address.
+ *
+ * @returns Segment register base address reference.
+ * @param   pVCpu               The cross context virtual CPU structure of the calling thread.
+ * @param   iSegReg             The segment selector.
+ */
+DECLINLINE(uint64_t *) iemSRegBaseRefU64(PVMCPU pVCpu, uint8_t iSegReg)
+{
+    Assert(iSegReg < X86_SREG_COUNT);
+    PCPUMCTX pCtx = IEM_GET_CTX(pVCpu);
+    return &pCtx->aSRegs[iSegReg].u64Base;
 }
 
 
@@ -6553,17 +6582,14 @@ IEM_STATIC void iemRegAddToRipAndClearRF(PVMCPU pVCpu, uint8_t cbInstr)
 
     AssertCompile(IEMMODE_16BIT == 0 && IEMMODE_32BIT == 1 && IEMMODE_64BIT == 2);
 #if ARCH_BITS >= 64
-    static uint64_t const s_aRipMasks[] = { UINT64_C(0xffff), UINT64_C(0xffffffff), UINT64_MAX };
+    static uint64_t const s_aRipMasks[] = { UINT64_C(0xffffffff), UINT64_C(0xffffffff), UINT64_MAX };
     Assert(pCtx->rip <= s_aRipMasks[(unsigned)pVCpu->iem.s.enmCpuMode]);
     pCtx->rip = (pCtx->rip + cbInstr) & s_aRipMasks[(unsigned)pVCpu->iem.s.enmCpuMode];
 #else
     if (pVCpu->iem.s.enmCpuMode == IEMMODE_64BIT)
         pCtx->rip += cbInstr;
     else
-    {
-        static uint32_t const s_aEipMasks[] = { UINT32_C(0xffff), UINT32_MAX };
-        pCtx->eip = (pCtx->eip + cbInstr) & s_aEipMasks[(unsigned)pVCpu->iem.s.enmCpuMode];
-    }
+        pCtx->eip += cbInstr;
 #endif
 }
 
@@ -11214,6 +11240,18 @@ IEM_STATIC VBOXSTRICTRC iemMemMarkSelDescAccessed(PVMCPU pVCpu, uint16_t uSel)
         if (!((a_EffAddr) & ((a_cbAlign) - 1))) { /* likely */ } \
         else return iemRaiseGeneralProtectionFault0(pVCpu); \
     } while (0)
+#define IEM_MC_MAYBE_RAISE_FSGSBASE_XCPT() \
+    do { \
+        if (   pVCpu->iem.s.enmCpuMode != IEMMODE_64BIT \
+            || !IEM_GET_GUEST_CPU_FEATURES(pVCpu)->fFsGsBase \
+            || !(IEM_GET_CTX(pVCpu)->cr4 & X86_CR4_FSGSBASE)) \
+            return iemRaiseUndefinedOpcode(pVCpu); \
+    } while (0)
+#define IEM_MC_MAYBE_RAISE_NON_CANONICAL_ADDR_GP0(a_u64Addr) \
+    do { \
+        if (!IEM_IS_CANONICAL(a_u64Addr)) \
+            return iemRaiseGeneralProtectionFault0(pVCpu); \
+    } while (0)
 
 
 #define IEM_MC_LOCAL(a_Type, a_Name)                    a_Type a_Name
@@ -11251,6 +11289,8 @@ IEM_STATIC VBOXSTRICTRC iemMemMarkSelDescAccessed(PVMCPU pVCpu, uint16_t uSel)
 #define IEM_MC_FETCH_SREG_U16(a_u16Dst, a_iSReg)        (a_u16Dst) = iemSRegFetchU16(pVCpu, (a_iSReg))
 #define IEM_MC_FETCH_SREG_ZX_U32(a_u32Dst, a_iSReg)     (a_u32Dst) = iemSRegFetchU16(pVCpu, (a_iSReg))
 #define IEM_MC_FETCH_SREG_ZX_U64(a_u64Dst, a_iSReg)     (a_u64Dst) = iemSRegFetchU16(pVCpu, (a_iSReg))
+#define IEM_MC_FETCH_SREG_BASE_U64(a_u64Dst, a_iSReg)   (a_u64Dst) = iemSRegBaseFetchU64(pVCpu, (a_iSReg));
+#define IEM_MC_FETCH_SREG_BASE_U32(a_u32Dst, a_iSReg)   (a_u32Dst) = iemSRegBaseFetchU64(pVCpu, (a_iSReg));
 #define IEM_MC_FETCH_CR0_U16(a_u16Dst)                  (a_u16Dst) = (uint16_t)(pVCpu)->iem.s.CTX_SUFF(pCtx)->cr0
 #define IEM_MC_FETCH_CR0_U32(a_u32Dst)                  (a_u32Dst) = (uint32_t)(pVCpu)->iem.s.CTX_SUFF(pCtx)->cr0
 #define IEM_MC_FETCH_CR0_U64(a_u64Dst)                  (a_u64Dst) = (pVCpu)->iem.s.CTX_SUFF(pCtx)->cr0
@@ -11276,8 +11316,11 @@ IEM_STATIC VBOXSTRICTRC iemMemMarkSelDescAccessed(PVMCPU pVCpu, uint16_t uSel)
 #define IEM_MC_STORE_GREG_U64_CONST                     IEM_MC_STORE_GREG_U64
 #define IEM_MC_CLEAR_HIGH_GREG_U64(a_iGReg)             *iemGRegRefU64(pVCpu, (a_iGReg)) &= UINT32_MAX
 #define IEM_MC_CLEAR_HIGH_GREG_U64_BY_REF(a_pu32Dst)    do { (a_pu32Dst)[1] = 0; } while (0)
+#define IEM_MC_STORE_SREG_BASE_U64(a_iSeg, a_u64Value)  *iemSRegBaseRefU64(pVCpu, (a_iSeg)) = (a_u64Value)
+#define IEM_MC_STORE_SREG_BASE_U32(a_iSeg, a_u32Value)  *iemSRegBaseRefU64(pVCpu, (a_iSeg)) = (uint32_t)(a_u32Value) /* clear high bits. */
 #define IEM_MC_STORE_FPUREG_R80_SRC_REF(a_iSt, a_pr80Src) \
     do { IEM_GET_CTX(pVCpu)->CTX_SUFF(pXState)->x87.aRegs[a_iSt].r80 = *(a_pr80Src); } while (0)
+
 
 #define IEM_MC_REF_GREG_U8(a_pu8Dst, a_iGReg)           (a_pu8Dst)  = iemGRegRefU8( pVCpu, (a_iGReg))
 #define IEM_MC_REF_GREG_U16(a_pu16Dst, a_iGReg)         (a_pu16Dst) = iemGRegRefU16(pVCpu, (a_iGReg))
@@ -16015,6 +16058,26 @@ VMM_INT_DECL(VBOXSTRICTRC) IEMExecDecodedInvlpg(PVMCPU pVCpu, uint8_t cbInstr, R
 
 
 /**
+ * Interface for HM and EM to emulate the INVPCID instruction.
+ *
+ * @param   pVCpu               The cross context virtual CPU structure.
+ * @param   cbInstr             The instruction length in bytes.
+ * @param   uType               The invalidation type.
+ * @param   GCPtrInvpcidDesc    The effective address of the INVPCID descriptor.
+ *
+ * @remarks In ring-0 not all of the state needs to be synced in.
+ */
+VMM_INT_DECL(VBOXSTRICTRC) IEMExecDecodedInvpcid(PVMCPU pVCpu, uint8_t cbInstr, uint8_t uType, RTGCPTR GCPtrInvpcidDesc)
+{
+    IEMEXEC_ASSERT_INSTR_LEN_RETURN(cbInstr, 4);
+
+    iemInitExec(pVCpu, false /*fBypassHandlers*/);
+    VBOXSTRICTRC rcStrict = IEM_CIMPL_CALL_2(iemCImpl_invpcid, uType, GCPtrInvpcidDesc);
+    return iemUninitExecAndFiddleStatusAndMaybeReenter(pVCpu, rcStrict);
+}
+
+
+/**
  * Checks if IEM is in the process of delivering an event (interrupt or
  * exception).
  *
@@ -16170,7 +16233,8 @@ VMM_INT_DECL(VBOXSTRICTRC) IEMExecDecodedVmrun(PVMCPU pVCpu, uint8_t cbInstr)
  */
 VMM_INT_DECL(VBOXSTRICTRC) IEMExecSvmVmexit(PVMCPU pVCpu, uint64_t uExitCode, uint64_t uExitInfo1, uint64_t uExitInfo2)
 {
-    return iemSvmVmexit(pVCpu, IEM_GET_CTX(pVCpu), uExitCode, uExitInfo1, uExitInfo2);
+    VBOXSTRICTRC rcStrict = iemSvmVmexit(pVCpu, IEM_GET_CTX(pVCpu), uExitCode, uExitInfo1, uExitInfo2);
+    return iemExecStatusCodeFiddling(pVCpu, rcStrict);
 }
 #endif /* VBOX_WITH_NESTED_HWVIRT */
 

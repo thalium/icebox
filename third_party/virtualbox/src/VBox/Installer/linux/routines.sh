@@ -2,7 +2,8 @@
 # VirtualBox installer shell routines
 #
 
-# Copyright (C) 2007-2015 Oracle Corporation
+#
+# Copyright (C) 2007-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -43,12 +44,20 @@ create_log()
     fi
 }
 
-## Writes text to standard error
+## Writes text to standard error, as standard output is masked.
 #
 # Syntax: info text
 info()
 {
     echo 1>&2 "$1"
+}
+
+## Copies standard input to standard error, as standard output is masked.
+#
+# Syntax: info text
+catinfo()
+{
+    cat 1>&2
 }
 
 ## Writes text to the log file
@@ -90,6 +99,15 @@ check_root()
     if [ `id -u` -ne 0 ]; then
         abort "This program must be run with administrator privileges.  Aborting"
     fi
+}
+
+## Abort if dependencies are not found
+check_deps()
+{
+    for i in ${@}; do
+        type "${i}" >/dev/null 2>&1 ||
+            abort "${i} not found.  Please install: ${*}; and try again."
+    done
 }
 
 ## Abort if a copy of VirtualBox is already running

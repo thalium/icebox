@@ -1,0 +1,58 @@
+; $Id: VBoxExtPackPuel.inf $
+;; @file
+; VBoxExtPackPuel - VirtualBox PUEL ExtPack drivers.
+;
+
+;
+; Copyright (C) 2018 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = System
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+CatalogFile = VBoxExtPackPuel.cat
+Provider    = %ORACLE%
+;edit-DriverVer  = 08/26/2008,2.00.0000
+
+[SourceDisksNames]
+1=%VBoxExtPackPuel.DskDesc%,"",,
+
+[SourceDisksFiles]
+VBoxEhciR0.r0=1
+VBoxNvmeR0.r0=1
+;VBoxPciRawR0.r0=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+VBoxExtPackPuelInstall.Files = 12
+
+[Manufacturer]
+;x86 %ORACLE%=VBoxExtPackPuel
+;amd64 %ORACLE%=VBoxExtPackPuel, NTamd64
+
+;x86 [VBoxExtPackPuel]
+;amd64 [VBoxExtPackPuel.NTamd64]
+%VBoxExtPackPuel.DrvDesc% = VBoxExtPackPuelInstall, root\VBoxExtPackPuel
+
+[VBoxExtPackPuelInstall]
+CopyFiles = VBoxExtPackPuelInstall.Files
+
+[VBoxExtPackPuelInstall.Files]
+VBoxEhciR0.r0,,,2
+VBoxNvmeR0.r0,,,2
+;VBoxPciRawR0.r0,,,2
+
+[Strings]
+ORACLE = "Oracle Corporation"
+VBoxExtPackPuel.DrvDesc = "VirtualBox PUEL ExtPack drivers"
+VBoxExtPackPuel.DskDesc = "VirtualBox PUEL ExtPack drivers"
+

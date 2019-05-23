@@ -31,7 +31,7 @@
  * by the #GMM_CHUNK_SIZE \#define.
  *
  * Each chunk is given an unique ID. Each page also has a unique ID. The
- * relation ship between the two IDs is:
+ * relationship between the two IDs is:
  * @code
  *  GMM_CHUNK_SHIFT = log2(GMM_CHUNK_SIZE / PAGE_SIZE);
  *  idPage = (idChunk << GMM_CHUNK_SHIFT) | iPage;

@@ -1282,7 +1282,7 @@ ContentNode *ElementNode::addContent(const char *pcszContent)
 }
 
 /**
- * Changes the contents of node and appends it to the list of 
+ * Changes the contents of node and appends it to the list of
  * children
  *
  * @param pcszContent

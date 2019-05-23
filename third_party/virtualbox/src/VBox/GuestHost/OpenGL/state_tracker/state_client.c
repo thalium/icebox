@@ -2400,7 +2400,12 @@ CRClientPointer* crStateGetClientPointerByIndex(int index, CRVertexArrays *array
 {
     CRASSERT(array && index>=0 && index<CRSTATECLIENT_MAX_VERTEXARRAYS);
 
-    if (index<7)
+    if (array == NULL || index < 0 || index >= CRSTATECLIENT_MAX_VERTEXARRAYS)
+    {
+        return NULL;
+    }
+
+    if (index < 7)
     {
         switch (index)
         {

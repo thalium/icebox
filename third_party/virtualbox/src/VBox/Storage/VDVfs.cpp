@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -588,4 +588,134 @@ VBOXDDU_DECL(int) VDCreateVfsFileFromDisk(PVDISK pDisk, uint32_t fFlags,
 
     return rc;
 }
+
+
+/**
+ * @interface_method_impl{RTVFSCHAINELEMENTREG,pfnValidate}
+ */
+static DECLCALLBACK(int) vdVfsChain_Validate(PCRTVFSCHAINELEMENTREG pProviderReg, PRTVFSCHAINSPEC pSpec,
+                                             PRTVFSCHAINELEMSPEC pElement, uint32_t *poffError, PRTERRINFO pErrInfo)
+{
+    RT_NOREF(pProviderReg, pSpec);
+
+    /*
+     * Basic checks.
+     */
+    if (pElement->enmTypeIn != RTVFSOBJTYPE_INVALID)
+        return VERR_VFS_CHAIN_MUST_BE_FIRST_ELEMENT;
+    if (   pElement->enmType != RTVFSOBJTYPE_FILE
+        && pElement->enmType != RTVFSOBJTYPE_IO_STREAM)
+        return VERR_VFS_CHAIN_ONLY_FILE_OR_IOS;
+
+    if (pElement->cArgs < 1)
+        return VERR_VFS_CHAIN_AT_LEAST_ONE_ARG;
+    if (pElement->cArgs > 2)
+        return VERR_VFS_CHAIN_AT_MOST_TWO_ARGS;
+
+    /*
+     * Parse the flag if present, save in pElement->uProvider.
+     */
+    uint32_t fFlags = (pSpec->fOpenFile & RTFILE_O_ACCESS_MASK) == RTFILE_O_READ
+                    ? VD_OPEN_FLAGS_READONLY : VD_OPEN_FLAGS_NORMAL;
+    if (pElement->cArgs > 1)
+    {
+        const char *psz = pElement->paArgs[1].psz;
+        if (*psz)
+        {
+            if (   !strcmp(psz, "ro")
+                || !strcmp(psz, "r"))
+            {
+                fFlags &= ~(VD_OPEN_FLAGS_READONLY | VD_OPEN_FLAGS_NORMAL);
+                fFlags |= VD_OPEN_FLAGS_READONLY;
+            }
+            else if (!strcmp(psz, "rw"))
+            {
+                fFlags &= ~(VD_OPEN_FLAGS_READONLY | VD_OPEN_FLAGS_NORMAL);
+                fFlags |= VD_OPEN_FLAGS_NORMAL;
+            }
+            else
+            {
+                *poffError = pElement->paArgs[0].offSpec;
+                return RTErrInfoSet(pErrInfo, VERR_VFS_CHAIN_INVALID_ARGUMENT, "Expected 'ro' or 'rw' as argument");
+            }
+        }
+    }
+
+    pElement->uProvider = fFlags;
+    return VINF_SUCCESS;
+}
+
+
+/**
+ * @interface_method_impl{RTVFSCHAINELEMENTREG,pfnInstantiate}
+ */
+static DECLCALLBACK(int) vdVfsChain_Instantiate(PCRTVFSCHAINELEMENTREG pProviderReg, PCRTVFSCHAINSPEC pSpec,
+                                                PCRTVFSCHAINELEMSPEC pElement, RTVFSOBJ hPrevVfsObj,
+                                                PRTVFSOBJ phVfsObj, uint32_t *poffError, PRTERRINFO pErrInfo)
+{
+    RT_NOREF(pProviderReg, pSpec, poffError, pErrInfo);
+    AssertReturn(hPrevVfsObj == NIL_RTVFSOBJ, VERR_VFS_CHAIN_IPE);
+
+    /* Determin the format. */
+    char  *pszFormat = NULL;
+    VDTYPE enmType   = VDTYPE_INVALID;
+    int rc = VDGetFormat(NULL, NULL, pElement->paArgs[0].psz, &pszFormat, &enmType);
+    if (RT_SUCCESS(rc))
+    {
+        PVDISK pDisk = NULL;
+        rc = VDCreate(NULL, enmType, &pDisk);
+        if (RT_SUCCESS(rc))
+        {
+            rc = VDOpen(pDisk, pszFormat, pElement->paArgs[0].psz, (uint32_t)pElement->uProvider, NULL);
+            if (RT_SUCCESS(rc))
+            {
+                RTVFSFILE hVfsFile;
+                rc = VDCreateVfsFileFromDisk(pDisk, VD_VFSFILE_DESTROY_ON_RELEASE, &hVfsFile);
+                if (RT_SUCCESS(rc))
+                {
+                    RTStrFree(pszFormat);
+
+                    *phVfsObj = RTVfsObjFromFile(hVfsFile);
+                    RTVfsFileRelease(hVfsFile);
+
+                    if (*phVfsObj != NIL_RTVFSOBJ)
+                        return VINF_SUCCESS;
+                    return VERR_VFS_CHAIN_CAST_FAILED;
+                }
+            }
+            VDDestroy(pDisk);
+        }
+        RTStrFree(pszFormat);
+    }
+    return rc;
+}
+
+
+/**
+ * @interface_method_impl{RTVFSCHAINELEMENTREG,pfnCanReuseElement}
+ */
+static DECLCALLBACK(bool) vdVfsChain_CanReuseElement(PCRTVFSCHAINELEMENTREG pProviderReg,
+                                                     PCRTVFSCHAINSPEC pSpec, PCRTVFSCHAINELEMSPEC pElement,
+                                                     PCRTVFSCHAINSPEC pReuseSpec, PCRTVFSCHAINELEMSPEC pReuseElement)
+{
+    RT_NOREF(pProviderReg, pSpec, pElement, pReuseSpec, pReuseElement);
+    return false;
+}
+
+
+/** VFS chain element 'file'. */
+static RTVFSCHAINELEMENTREG g_rtVfsChainIsoFsVolReg =
+{
+    /* uVersion = */            RTVFSCHAINELEMENTREG_VERSION,
+    /* fReserved = */           0,
+    /* pszName = */             "vd",
+    /* ListEntry = */           { NULL, NULL },
+    /* pszHelp = */             "Opens a container image using the VD API.\n",
+    /* pfnValidate = */         vdVfsChain_Validate,
+    /* pfnInstantiate = */      vdVfsChain_Instantiate,
+    /* pfnCanReuseElement = */  vdVfsChain_CanReuseElement,
+    /* uEndMarker = */          RTVFSCHAINELEMENTREG_VERSION
+};
+
+RTVFSCHAIN_AUTO_REGISTER_ELEMENT_PROVIDER(&g_rtVfsChainIsoFsVolReg, rtVfsChainIsoFsVolReg);
 

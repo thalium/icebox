@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -49,8 +49,6 @@ UIWizardNewVMPageExpert::UIWizardNewVMPageExpert(const QString &strGroup)
     /* Create widgets: */
     QVBoxLayout *pMainLayout = new QVBoxLayout(this);
     {
-        pMainLayout->setContentsMargins(8, 6, 8, 6);
-        pMainLayout->setSpacing(10);
         m_pNameAndSystemCnt = new QGroupBox(this);
         {
             m_pNameAndSystemCnt->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);

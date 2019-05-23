@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1559,7 +1559,10 @@ void UIMachineLogic::sltTakeSnapshot()
 
     /* Assign corresponding icon: */
     if (uisession() && uisession()->machineWindowIcon())
-        pDlg->setPixmap(uisession()->machineWindowIcon()->pixmap(QSize(32, 32)));
+    {
+        const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_LargeIconSize);
+        pDlg->setPixmap(uisession()->machineWindowIcon()->pixmap(QSize(iIconMetric, iIconMetric)));
+    }
 
     /* Search for the max available filter index: */
     QString strNameTemplate = UITakeSnapshotDialog::tr("Snapshot %1");
@@ -2189,7 +2192,7 @@ void UIMachineLogic::sltInstallGuestAdditions()
 
     /* Check for the already registered image */
     CVirtualBox vbox = vboxGlobal().virtualBox();
-    const QString &name = QString("VBoxGuestAdditions_%1.iso").arg(vboxGlobal().vboxVersionStringNormalized());
+    const QString &strName = QString("%1_%2.iso").arg(GUI_GuestAdditionsName, vboxGlobal().vboxVersionStringNormalized());
 
     CMediumVector vec = vbox.GetDVDImages();
     for (CMediumVector::ConstIterator it = vec.begin(); it != vec.end(); ++ it)
@@ -2197,7 +2200,7 @@ void UIMachineLogic::sltInstallGuestAdditions()
         QString path = it->GetLocation();
         /* Compare the name part ignoring the file case */
         QString fn = QFileInfo(path).fileName();
-        if (RTPathCompare(name.toUtf8().constData(), fn.toUtf8().constData()) == 0)
+        if (RTPathCompare(strName.toUtf8().constData(), fn.toUtf8().constData()) == 0)
             return uisession()->sltInstallGuestAdditionsFrom(path);
     }
 
@@ -2504,7 +2507,7 @@ void UIMachineLogic::updateMenuDevicesNetwork(QMenu *pMenu)
     /* Add new actions: */
     foreach (int iSlot, adapterData.keys())
     {
-        QAction *pAction = pMenu->addAction(UIIconPool::iconSet(adapterData[iSlot] ? ":/connect_16px.png": ":/disconnect_16px.png"),
+        QAction *pAction = pMenu->addAction(UIIconPool::iconSetOnOff(":/connect_on_16px.png", ":/connect_16px.png"),
                                             adapterData.size() == 1 ? UIActionPool::tr("&Connect Network Adapter") :
                                                                       UIActionPool::tr("Connect Network Adapter &%1").arg(iSlot + 1),
                                             this, SLOT(sltToggleNetworkAdapterConnection()));

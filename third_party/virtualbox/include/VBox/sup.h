@@ -1907,6 +1907,7 @@ SUPR0DECL(int) SUPR0PageFree(PSUPDRVSESSION pSession, RTR3PTR pvR3);
 SUPR0DECL(int) SUPR0GipMap(PSUPDRVSESSION pSession, PRTR3PTR ppGipR3, PRTHCPHYS pHCPhysGip);
 SUPR0DECL(int) SUPR0GetSvmUsability(bool fInitSvm);
 SUPR0DECL(int) SUPR0GetVmxUsability(bool *pfIsSmxModeAmbiguous);
+SUPR0DECL(int) SUPR0GetRawModeUsability(void);
 SUPR0DECL(int) SUPR0GetCurrentGdtRw(RTHCUINTPTR *pGdtRw);
 SUPR0DECL(int) SUPR0QueryVTCaps(PSUPDRVSESSION pSession, uint32_t *pfCaps);
 SUPR0DECL(int) SUPR0GipUnmap(PSUPDRVSESSION pSession);

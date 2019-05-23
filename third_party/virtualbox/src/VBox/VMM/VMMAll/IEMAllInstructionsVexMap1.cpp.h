@@ -4052,4 +4052,3 @@ IEM_STATIC const PFNIEMOP g_apfnVexMap1[] =
 AssertCompile(RT_ELEMENTS(g_apfnVexMap1) == 1024);
 /** @}  */
 
-

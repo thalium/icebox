@@ -37,8 +37,7 @@ RT_C_DECLS_BEGIN
 /** @name Base HGSMI host command APIs.
  * @{ */
 
-DECLHIDDEN(void)     VBoxHGSMIHostCmdComplete(PHGSMIHOSTCOMMANDCONTEXT pCtx,
-                                              void *pvMem);
+DECLHIDDEN(void)     VBoxHGSMIHostCmdComplete(PHGSMIHOSTCOMMANDCONTEXT pCtx, void RT_UNTRUSTED_VOLATILE_HOST *pvMem);
 DECLHIDDEN(void)     VBoxHGSMIProcessHostQueue(PHGSMIHOSTCOMMANDCONTEXT pCtx);
 
 /** @}  */

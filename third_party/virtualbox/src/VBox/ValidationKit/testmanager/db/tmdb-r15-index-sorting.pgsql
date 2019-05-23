@@ -60,7 +60,7 @@ ANALYZE VERBOSE TestBoxes;
 
 
 DROP INDEX IF EXISTS BuildBlacklistIdx;
-CREATE INDEX BuildBlacklistIdx ON BuildBlacklist (iLastRevision DESC, iFirstRevision ASC, sProduct, sBranch, 
+CREATE INDEX BuildBlacklistIdx ON BuildBlacklist (iLastRevision DESC, iFirstRevision ASC, sProduct, sBranch,
                                                   tsExpire DESC, tsEffective ASC);
 \d BuildBlacklist;
 ANALYZE VERBOSE BuildBlacklist;

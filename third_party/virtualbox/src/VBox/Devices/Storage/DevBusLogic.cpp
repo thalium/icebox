@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -2349,7 +2349,7 @@ static int buslogicRegisterWrite(PBUSLOGIC pBusLogic, unsigned iRegister, uint8_
             /* Fast path for mailbox execution command. */
             if ((uVal == BUSLOGICCOMMAND_EXECUTE_MAILBOX_COMMAND) && (pBusLogic->uOperationCode == 0xff))
             {
-                ///@todo: Should fail if BL_STAT_INREQ is set
+                /// @todo Should fail if BL_STAT_INREQ is set
                 /* If there are no mailboxes configured, don't even try to do anything. */
                 if (pBusLogic->cMailbox)
                 {
@@ -3855,6 +3855,13 @@ static void buslogicR3SuspendOrPowerOff(PPDMDEVINS pDevIns)
     {
         ASMAtomicWriteBool(&pThis->fSignalIdle, false);
         AssertMsg(!pThis->fNotificationSent, ("The PDM Queue should be empty at this point\n"));
+    }
+
+    for (uint32_t i = 0; i < RT_ELEMENTS(pThis->aDeviceStates); i++)
+    {
+        PBUSLOGICDEVICE pThisDevice = &pThis->aDeviceStates[i];
+        if (pThisDevice->pDrvMediaEx)
+            pThisDevice->pDrvMediaEx->pfnNotifySuspend(pThisDevice->pDrvMediaEx);
     }
 }
 

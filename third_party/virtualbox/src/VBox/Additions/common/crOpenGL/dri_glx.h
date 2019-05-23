@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -52,7 +52,7 @@ extern DECLEXPORT(GLXPixmap) VBOXGLXTAG(glXCreateGLXPixmapMESA)(Display *dpy, XV
 #endif
 
 /*Common glX functions*/
-extern DECLEXPORT(void) VBOXGLXTAG(glXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, 
+extern DECLEXPORT(void) VBOXGLXTAG(glXCopyContext)( Display *dpy, GLXContext src, GLXContext dst,
 #if defined(SunOS)
 unsigned long mask);
 #else

@@ -1,6 +1,10 @@
 /* $Id: tstMvWnd.cpp $ */
+/** @file
+ * ???
+ */
+
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -10,6 +14,7 @@
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
+
 #include <iprt/win/windows.h>
 
 #define Assert(_m) do {} while (0)

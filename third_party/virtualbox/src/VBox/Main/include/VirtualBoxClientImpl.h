@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -71,8 +71,8 @@ private:
 #endif
 
 #ifdef VBOX_WITH_SDS
-    int     getServiceAccount(const wchar_t *pwszServiceName, wchar_t *pwszAccountName, size_t cwcAccountName);
-    HRESULT isServiceDisabled(const wchar_t *pwszServiceName, bool *pfOutIsDisabled);
+    int     i_getServiceAccountAndStartType(const wchar_t *pwszServiceName,
+                                            wchar_t *pwszAccountName, size_t cwcAccountName, uint32_t *puStartType);
 #endif
 
     static DECLCALLBACK(int) SVCWatcherThread(RTTHREAD ThreadSelf, void *pvUser);

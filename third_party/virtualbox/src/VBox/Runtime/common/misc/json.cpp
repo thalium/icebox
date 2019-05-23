@@ -945,6 +945,10 @@ static int rtJsonParseObject(PRTJSONTOKENIZER pTokenizer, PRTJSONVALINT pJsonVal
                     char **papszNamesNew =  (char **)RTMemRealloc(papValues, cMembersMax * sizeof(char *));
                     if (RT_UNLIKELY(!papValuesNew || !papszNamesNew))
                     {
+                        if (papValuesNew)
+                            RTMemFree(papValuesNew);
+                        if (papszNamesNew)
+                            RTMemFree(papszNamesNew);
                         rc = VERR_NO_MEMORY;
                         break;
                     }

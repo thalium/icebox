@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2006-2015 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -58,7 +58,8 @@ SRCS += \
 .PATH:	${.CURDIR}/common/err
 SRCS += \
 	RTErrConvertFromErrno.c \
-	RTErrConvertToErrno.c
+	RTErrConvertToErrno.c \
+	errinfo.c
 
 .PATH:	${.CURDIR}/common/log
 SRCS += \
@@ -87,6 +88,7 @@ SRCS += \
 
 .PATH:	${.CURDIR}/common/string
 SRCS += \
+	RTStrCat.c \
 	RTStrNCmp.c \
 	RTStrNLen.c \
 	RTStrCopy.c \

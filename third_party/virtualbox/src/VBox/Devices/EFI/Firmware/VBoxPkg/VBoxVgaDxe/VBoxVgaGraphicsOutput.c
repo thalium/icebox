@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -385,7 +385,7 @@ Returns:
     // Video Fill: Source is BltBuffer, destination is Video
     //
     if (DestinationX == 0 && Width == ScreenWidth) {
-      // @todo assumes that color depth is 32 (*4, EfiPciIoWidthFillUint32) and format matches EFI_GRAPHICS_OUTPUT_BLT_PIXEL
+      /// @todo assumes that color depth is 32 (*4, EfiPciIoWidthFillUint32) and format matches EFI_GRAPHICS_OUTPUT_BLT_PIXEL
       Status = Private->PciIo->Mem.Write (
                                     Private->PciIo,
                                     EfiPciIoWidthFillUint32,
@@ -397,7 +397,7 @@ Returns:
       ASSERT_EFI_ERROR((Status));
     } else {
       for (SrcY = SourceY, DstY = DestinationY; SrcY < (Height + SourceY); SrcY++, DstY++) {
-        // @todo assumes that color depth is 32 (*4, EfiPciIoWidthFillUint32) and format matches EFI_GRAPHICS_OUTPUT_BLT_PIXEL
+        /// @todo assumes that color depth is 32 (*4, EfiPciIoWidthFillUint32) and format matches EFI_GRAPHICS_OUTPUT_BLT_PIXEL
         Status = Private->PciIo->Mem.Write (
                                       Private->PciIo,
                                       EfiPciIoWidthFillUint32,

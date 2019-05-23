@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -497,15 +497,15 @@ int main(int argc, char *argv[])
         return RTEXITCODE_SUCCESS;
 
     /* create release logger, to stdout */
-    char szError[RTPATH_MAX + 128];
+    RTERRINFOSTATIC ErrInfo;
     rc = com::VBoxLogRelCreate("Autostart", g_fDaemonize ? NULL : pszLogFile,
                                RTLOGFLAGS_PREFIX_THREAD | RTLOGFLAGS_PREFIX_TIME_PROG,
                                "all", "VBOXAUTOSTART_RELEASE_LOG",
                                RTLOGDEST_STDOUT, UINT32_MAX /* cMaxEntriesPerGroup */,
                                g_cHistory, g_uHistoryFileTime, g_uHistoryFileSize,
-                               szError, sizeof(szError));
+                               RTErrInfoInitStatic(&ErrInfo));
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", szError, rc);
+        return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", ErrInfo.Core.pszMsg, rc);
 
 #ifdef VBOXAUTOSTART_DAEMONIZE
     if (g_fDaemonize)
@@ -533,9 +533,9 @@ int main(int argc, char *argv[])
                                    "all", "VBOXAUTOSTART_RELEASE_LOG",
                                    RTLOGDEST_FILE, UINT32_MAX /* cMaxEntriesPerGroup */,
                                    g_cHistory, g_uHistoryFileTime, g_uHistoryFileSize,
-                                   szError, sizeof(szError));
+                                   RTErrInfoInitStatic(&ErrInfo));
         if (RT_FAILURE(rc))
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", szError, rc);
+            return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", ErrInfo.Core.pszMsg, rc);
     }
 #endif
 

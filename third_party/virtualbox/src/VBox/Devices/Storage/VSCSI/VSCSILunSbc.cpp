@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -230,9 +230,16 @@ static DECLCALLBACK(int) vscsiLunSbcReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQ
                 ScsiInquiryReply.u3AnsiVersion          = 0x05; /* SPC-4 compliant */
                 ScsiInquiryReply.fCmdQue                = 1;    /* Command queuing supported. */
                 ScsiInquiryReply.fWBus16                = 1;
-                scsiPadStrS(ScsiInquiryReply.achVendorId, "VBOX", 8);
-                scsiPadStrS(ScsiInquiryReply.achProductId, "HARDDISK", 16);
-                scsiPadStrS(ScsiInquiryReply.achProductLevel, "1.0", 4);
+
+                const char *pszVendorId = "VBOX";
+                const char *pszProductId = "HARDDISK";
+                const char *pszProductLevel = "1.0";
+                int rcTmp = vscsiLunQueryInqStrings(pVScsiLun, &pszVendorId, &pszProductId, &pszProductLevel);
+                Assert(RT_SUCCESS(rcTmp) || rcTmp == VERR_NOT_FOUND); RT_NOREF(rcTmp);
+
+                scsiPadStrS(ScsiInquiryReply.achVendorId, pszVendorId, 8);
+                scsiPadStrS(ScsiInquiryReply.achProductId, pszProductId, 16);
+                scsiPadStrS(ScsiInquiryReply.achProductLevel, pszProductLevel, 4);
 
                 RTSgBufCopyFromBuf(&pVScsiReq->SgBuf, (uint8_t *)&ScsiInquiryReply, sizeof(SCSIINQUIRYDATA));
                 rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);

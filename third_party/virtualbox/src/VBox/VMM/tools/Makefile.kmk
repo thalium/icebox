@@ -59,7 +59,11 @@ VBoxCpuReport_DEFS      = IN_VMM_R3 IN_VBOX_CPU_REPORT
 VBoxCpuReport_INCS      = ../include
 VBoxCpuReport_SOURCES   = \
 	VBoxCpuReport.cpp \
-       ../VMMR3/CPUMR3CpuId.cpp
+	VBoxCpuReportMsrSup.cpp \
+	../VMMR3/CPUMR3CpuId.cpp
+VBoxCpuReport_SOURCES.linux = \
+	VBoxCpuReportMsrLinux.cpp
+VBoxCpuReport_DEFS.linux    = VBCR_HAVE_PLATFORM_MSR_PROBER
 VBoxCpuReport_LIBS      = \
 	$(PATH_STAGE_LIB)/SUPR3Static$(VBOX_SUFF_LIB) \
        $(VBOX_LIB_RUNTIME_STATIC)

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -88,6 +88,13 @@ public:
     /** Returns the request reply. */
     UINetworkReply* reply() { return m_pReply; }
 
+public slots:
+
+    /** Initiates request retrying. */
+    void sltRetry();
+    /** Initiates request cancelling. */
+    void sltCancel();
+
 private slots:
 
     /** Handles reply about progress changed.
@@ -96,11 +103,6 @@ private slots:
     void sltHandleNetworkReplyProgress(qint64 iReceived, qint64 iTotal);
     /** Handles reply about progress finished. */
     void sltHandleNetworkReplyFinish();
-
-    /** Initiates request retrying. */
-    void sltRetry();
-    /** Initiates request cancelling. */
-    void sltCancel();
 
 private:
 

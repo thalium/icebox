@@ -38,6 +38,13 @@
 #include <AudioToolbox/AudioConverter.h>
 #include <AudioToolbox/AudioToolbox.h>
 
+
+/* Audio Queue buffer configuration. */
+#define AQ_BUF_COUNT    32      /* Number of buffers. */
+#define AQ_BUF_SIZE     512     /* Size of each buffer in bytes. */
+#define AQ_BUF_TOTAL    (AQ_BUF_COUNT * AQ_BUF_SIZE)
+#define AQ_BUF_SAMPLES  (AQ_BUF_TOTAL / 4)  /* Hardcoded 4 bytes per sample! */
+
 /* Enables utilizing the Core Audio converter unit for converting
  * input / output from/to our requested formats. That might be more
  * performant than using our own routines later down the road. */
@@ -371,7 +378,7 @@ typedef struct COREAUDIOSTREAM
     /** The actual audio queue being used. */
     AudioQueueRef               audioQueue;
     /** The audio buffers which are used with the above audio queue. */
-    AudioQueueBufferRef         audioBuffer[3];
+    AudioQueueBufferRef         audioBuffer[AQ_BUF_COUNT];
     /** The acquired (final) audio format for this stream. */
     AudioStreamBasicDescription asbdStream;
     /** The audio unit for this stream. */
@@ -1295,7 +1302,7 @@ static DECLCALLBACK(int) coreAudioQueueThread(RTTHREAD hThreadSelf, void *pvUser
     if (err != noErr)
         return VERR_GENERAL_FAILURE; /** @todo Fudge! */
 
-    const size_t cbBufSize = _4K; /** @todo Make this configurable! */
+    const size_t cbBufSize = AQ_BUF_SIZE; /** @todo Make this configurable! */
 
     /*
      * Allocate audio buffers.
@@ -2320,7 +2327,7 @@ static DECLCALLBACK(int) drvHostCoreAudioStreamCreate(PPDMIHOSTAUDIO pInterface,
             rc = coreAudioStreamInitQueue(pCAStream, pCfgReq, pCfgAcq);
             if (RT_SUCCESS(rc))
             {
-                pCfgAcq->cFrameBufferHint = _4K; /** @todo Make this configurable. */
+                pCfgAcq->cFrameBufferHint = AQ_BUF_SAMPLES; /** @todo Make this configurable. */
             }
             if (RT_SUCCESS(rc))
             {

@@ -6,22 +6,25 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
@@ -68,15 +71,15 @@ DECLHIDDEN(int) VBoxHGSMISetupGuestContext(PHGSMIGUESTCOMMANDCONTEXT pCtx,
  * @param  u8Ch     the HGSMI channel to be used, set to the descriptor
  * @param  u16Op    the HGSMI command to be sent, set to the descriptor
  */
-DECLHIDDEN(void *) VBoxHGSMIBufferAlloc(PHGSMIGUESTCOMMANDCONTEXT pCtx,
-                                        HGSMISIZE cbData,
-                                        uint8_t u8Ch,
-                                        uint16_t u16Op)
+DECLHIDDEN(void RT_UNTRUSTED_VOLATILE_HOST *) VBoxHGSMIBufferAlloc(PHGSMIGUESTCOMMANDCONTEXT pCtx,
+                                                                   HGSMISIZE cbData,
+                                                                   uint8_t u8Ch,
+                                                                   uint16_t u16Op)
 {
 #ifdef VBOX_WDDM_MINIPORT
-    return VBoxSHGSMIHeapAlloc (&pCtx->heapCtx, cbData, u8Ch, u16Op);
+    return VBoxSHGSMIHeapAlloc(&pCtx->heapCtx, cbData, u8Ch, u16Op);
 #else
-    return HGSMIHeapAlloc (&pCtx->heapCtx, cbData, u8Ch, u16Op);
+    return HGSMIHeapAlloc(&pCtx->heapCtx, cbData, u8Ch, u16Op);
 #endif
 }
 
@@ -87,13 +90,12 @@ DECLHIDDEN(void *) VBoxHGSMIBufferAlloc(PHGSMIGUESTCOMMANDCONTEXT pCtx,
  * @param  pCtx      the context containing the heap used
  * @param  pvBuffer  the pointer returned by @a VBoxHGSMIBufferAlloc
  */
-DECLHIDDEN(void) VBoxHGSMIBufferFree(PHGSMIGUESTCOMMANDCONTEXT pCtx,
-                                     void *pvBuffer)
+DECLHIDDEN(void) VBoxHGSMIBufferFree(PHGSMIGUESTCOMMANDCONTEXT pCtx, void  RT_UNTRUSTED_VOLATILE_HOST *pvBuffer)
 {
 #ifdef VBOX_WDDM_MINIPORT
-    VBoxSHGSMIHeapFree (&pCtx->heapCtx, pvBuffer);
+    VBoxSHGSMIHeapFree(&pCtx->heapCtx, pvBuffer);
 #else
-    HGSMIHeapFree (&pCtx->heapCtx, pvBuffer);
+    HGSMIHeapFree(&pCtx->heapCtx, pvBuffer);
 #endif
 }
 
@@ -103,11 +105,10 @@ DECLHIDDEN(void) VBoxHGSMIBufferFree(PHGSMIGUESTCOMMANDCONTEXT pCtx,
  * @param  pCtx      the context containing the heap used
  * @param  pvBuffer  the pointer returned by @a VBoxHGSMIBufferAlloc
  */
-DECLHIDDEN(int) VBoxHGSMIBufferSubmit(PHGSMIGUESTCOMMANDCONTEXT pCtx,
-                                      void *pvBuffer)
+DECLHIDDEN(int) VBoxHGSMIBufferSubmit(PHGSMIGUESTCOMMANDCONTEXT pCtx, void RT_UNTRUSTED_VOLATILE_HOST *pvBuffer)
 {
     /* Initialize the buffer and get the offset for port IO. */
-    HGSMIOFFSET offBuffer = HGSMIHeapBufferOffset (HGSMIGUESTCMDHEAP_GET(&pCtx->heapCtx), pvBuffer);
+    HGSMIOFFSET offBuffer = HGSMIHeapBufferOffset(HGSMIGUESTCMDHEAP_GET(&pCtx->heapCtx), pvBuffer);
 
     Assert(offBuffer != HGSMIOFFSET_VOID);
     if (offBuffer != HGSMIOFFSET_VOID)

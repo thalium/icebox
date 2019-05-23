@@ -68,7 +68,9 @@
 #if defined(IN_RC) || defined(VBOX_WITH_2X_4GB_ADDR_SPACE_IN_R0)
 # define VERIFY_VRAM_WRITE_OFF_RETURN(pThis, off) \
     do { \
-        if ((off) >= VGA_MAPPING_SIZE) \
+        if ((off) < VGA_MAPPING_SIZE) \
+            RT_UNTRUSTED_VALIDATED_FENCE(); \
+        else \
         { \
             AssertMsgReturn((off) < (pThis)->vram_size, ("%RX32 !< %RX32\n", (uint32_t)(off), (pThis)->vram_size), VINF_SUCCESS); \
             Log2(("%Rfn[%d]: %RX32 -> R3\n", __PRETTY_FUNCTION__, __LINE__, (off))); \
@@ -77,14 +79,19 @@
     } while (0)
 #else
 # define VERIFY_VRAM_WRITE_OFF_RETURN(pThis, off) \
-        AssertMsgReturn((off) < (pThis)->vram_size, ("%RX32 !< %RX32\n", (uint32_t)(off), (pThis)->vram_size), VINF_SUCCESS)
+    do { \
+       AssertMsgReturn((off) < (pThis)->vram_size, ("%RX32 !< %RX32\n", (uint32_t)(off), (pThis)->vram_size), VINF_SUCCESS); \
+       RT_UNTRUSTED_VALIDATED_FENCE(); \
+    } while (0)
 #endif
 
 /** Check buffer if an VRAM offset is within the right range or not. */
 #if defined(IN_RC) || defined(VBOX_WITH_2X_4GB_ADDR_SPACE_IN_R0)
 # define VERIFY_VRAM_READ_OFF_RETURN(pThis, off, rcVar) \
     do { \
-        if ((off) >= VGA_MAPPING_SIZE) \
+        if ((off) < VGA_MAPPING_SIZE) \
+            RT_UNTRUSTED_VALIDATED_FENCE(); \
+        else \
         { \
             AssertMsgReturn((off) < (pThis)->vram_size, ("%RX32 !< %RX32\n", (uint32_t)(off), (pThis)->vram_size), 0xff); \
             Log2(("%Rfn[%d]: %RX32 -> R3\n", __PRETTY_FUNCTION__, __LINE__, (off))); \
@@ -96,6 +103,7 @@
 # define VERIFY_VRAM_READ_OFF_RETURN(pThis, off, rcVar) \
     do { \
         AssertMsgReturn((off) < (pThis)->vram_size, ("%RX32 !< %RX32\n", (uint32_t)(off), (pThis)->vram_size), 0xff); \
+        RT_UNTRUSTED_VALIDATED_FENCE(); \
         NOREF(rcVar); \
     } while (0)
 #endif
@@ -103,6 +111,7 @@
 /* VGA text mode blinking constants (cursor and blinking chars). */
 #define VGA_BLINK_PERIOD_FULL   (RT_NS_100MS * 4)   /* Blink cycle length. */
 #define VGA_BLINK_PERIOD_ON     (RT_NS_100MS * 2)   /* How long cursor/text is visible. */
+
 
 /*********************************************************************************************************************************
 *   Header Files                                                                                                                 *
@@ -643,6 +652,7 @@ static uint32_t vga_ioport_read(PVGASTATE pThis, uint32_t addr)
             val = pThis->dac_write_index;
             break;
         case 0x3c9:
+            Assert(pThis->dac_sub_index < 3);
             val = pThis->palette[pThis->dac_read_index * 3 + pThis->dac_sub_index];
             if (++pThis->dac_sub_index == 3) {
                 pThis->dac_sub_index = 0;
@@ -775,6 +785,7 @@ static void vga_ioport_write(PVGASTATE pThis, uint32_t addr, uint32_t val)
         pThis->dac_state = 0;
         break;
     case 0x3c9:
+        Assert(pThis->dac_sub_index < 3);
         pThis->dac_cache[pThis->dac_sub_index] = val;
         if (++pThis->dac_sub_index == 3) {
             memcpy(&pThis->palette[pThis->dac_write_index * 3], pThis->dac_cache, 3);
@@ -787,6 +798,7 @@ static void vga_ioport_write(PVGASTATE pThis, uint32_t addr, uint32_t val)
         break;
     case 0x3cf:
         Log2(("vga: write GR%x = 0x%02x\n", pThis->gr_index, val));
+        Assert(pThis->gr_index < RT_ELEMENTS(gr_mask));
         pThis->gr[pThis->gr_index] = val & gr_mask[pThis->gr_index];
 
 #ifndef IN_RC
@@ -857,40 +869,48 @@ static uint32_t vbe_ioport_read_data(PVGASTATE pThis, uint32_t addr)
     uint32_t val;
     NOREF(addr);
 
-    if (pThis->vbe_index < VBE_DISPI_INDEX_NB) {
-      if (pThis->vbe_regs[VBE_DISPI_INDEX_ENABLE] & VBE_DISPI_GETCAPS) {
-          switch(pThis->vbe_index) {
+    uint16_t const idxVbe = pThis->vbe_index;
+    if (idxVbe < VBE_DISPI_INDEX_NB)
+    {
+        RT_UNTRUSTED_VALIDATED_FENCE();
+        if (pThis->vbe_regs[VBE_DISPI_INDEX_ENABLE] & VBE_DISPI_GETCAPS)
+        {
+            switch (idxVbe)
+            {
                 /* XXX: do not hardcode ? */
-            case VBE_DISPI_INDEX_XRES:
-                val = VBE_DISPI_MAX_XRES;
-                break;
-            case VBE_DISPI_INDEX_YRES:
-                val = VBE_DISPI_MAX_YRES;
-                break;
-            case VBE_DISPI_INDEX_BPP:
-                val = VBE_DISPI_MAX_BPP;
-                break;
-            default:
-                Assert(pThis->vbe_index < VBE_DISPI_INDEX_NB);
-                val = pThis->vbe_regs[pThis->vbe_index];
-                break;
-          }
-      } else {
-          switch(pThis->vbe_index) {
-          case VBE_DISPI_INDEX_VBOX_VIDEO:
-              /* Reading from the port means that the old additions are requesting the number of monitors. */
-              val = 1;
-              break;
-          default:
-              Assert(pThis->vbe_index < VBE_DISPI_INDEX_NB);
-              val = pThis->vbe_regs[pThis->vbe_index];
-              break;
-          }
-      }
-    } else {
-        val = 0;
+                case VBE_DISPI_INDEX_XRES:
+                    val = VBE_DISPI_MAX_XRES;
+                    break;
+                case VBE_DISPI_INDEX_YRES:
+                    val = VBE_DISPI_MAX_YRES;
+                    break;
+                case VBE_DISPI_INDEX_BPP:
+                    val = VBE_DISPI_MAX_BPP;
+                    break;
+                default:
+                    Assert(idxVbe < VBE_DISPI_INDEX_NB);
+                    val = pThis->vbe_regs[idxVbe];
+                    break;
+            }
+        }
+        else
+        {
+            switch (idxVbe)
+            {
+                case VBE_DISPI_INDEX_VBOX_VIDEO:
+                    /* Reading from the port means that the old additions are requesting the number of monitors. */
+                    val = 1;
+                    break;
+                default:
+                    Assert(idxVbe < VBE_DISPI_INDEX_NB);
+                    val = pThis->vbe_regs[idxVbe];
+                    break;
+            }
+        }
     }
-    Log(("VBE: read index=0x%x val=0x%x\n", pThis->vbe_index, val));
+    else
+        val = 0;
+    Log(("VBE: read index=0x%x val=0x%x\n", idxVbe, val));
     return val;
 }
 
@@ -3743,23 +3763,27 @@ PDMBOTHCBDECL(int) vbeIOPortReadVBEExtra(PPDMDEVINS pDevIns, void *pvUser, RTIOP
         Log(("vbeIOPortReadVBEExtra: Requested address is out of VBE data!!! Address=%#x(%d) cbVBEExtraData=%#x(%d)\n",
              pThis->u16VBEExtraAddress, pThis->u16VBEExtraAddress, pThis->cbVBEExtraData, pThis->cbVBEExtraData));
     }
-    else if (cb == 1)
-    {
-        *pu32 = pThis->pbVBEExtraData[pThis->u16VBEExtraAddress] & 0xFF;
-
-        Log(("vbeIOPortReadVBEExtra: cb=%#x %.*Rhxs\n", cb, cb, pu32));
-    }
-    else if (cb == 2)
-    {
-        *pu32 =           pThis->pbVBEExtraData[pThis->u16VBEExtraAddress]
-              | (uint32_t)pThis->pbVBEExtraData[pThis->u16VBEExtraAddress + 1] << 8;
-
-        Log(("vbeIOPortReadVBEExtra: cb=%#x %.*Rhxs\n", cb, cb, pu32));
-    }
     else
     {
-        Log(("vbeIOPortReadVBEExtra: Invalid cb=%d read from the VBE Extra port!!!\n", cb));
-        rc = VERR_IOM_IOPORT_UNUSED;
+        RT_UNTRUSTED_VALIDATED_FENCE();
+        if (cb == 1)
+        {
+            *pu32 = pThis->pbVBEExtraData[pThis->u16VBEExtraAddress] & 0xFF;
+
+            Log(("vbeIOPortReadVBEExtra: cb=%#x %.*Rhxs\n", cb, cb, pu32));
+        }
+        else if (cb == 2)
+        {
+            *pu32 =           pThis->pbVBEExtraData[pThis->u16VBEExtraAddress]
+                  | (uint32_t)pThis->pbVBEExtraData[pThis->u16VBEExtraAddress + 1] << 8;
+
+            Log(("vbeIOPortReadVBEExtra: cb=%#x %.*Rhxs\n", cb, cb, pu32));
+        }
+        else
+        {
+            Log(("vbeIOPortReadVBEExtra: Invalid cb=%d read from the VBE Extra port!!!\n", cb));
+            rc = VERR_IOM_IOPORT_UNUSED;
+        }
     }
 
     return rc;
@@ -4144,13 +4168,13 @@ PDMBOTHCBDECL(int) vbeIOPortReadCMDLogo(PPDMDEVINS pDevIns, void *pvUser, RTIOPO
     NOREF(pvUser);
     NOREF(Port);
 
-
     if (pThis->offLogoData + cb > pThis->cbLogo)
     {
         Log(("vbeIOPortReadCMDLogo: Requested address is out of Logo data!!! offLogoData=%#x(%d) cbLogo=%#x(%d)\n",
              pThis->offLogoData, pThis->offLogoData, pThis->cbLogo, pThis->cbLogo));
         return VINF_SUCCESS;
     }
+    RT_UNTRUSTED_VALIDATED_FENCE();
 
     PCRTUINT64U p = (PCRTUINT64U)&pThis->pbLogo[pThis->offLogoData];
     switch (cb)
@@ -4857,7 +4881,8 @@ static DECLCALLBACK(int) vgaPortQueryVideoMode(PPDMIDISPLAYPORT pInterface, uint
  * @param   pcy                 Where to store the height of the bitmap.
  * @see     PDMIDISPLAYPORT::pfnTakeScreenshot() for details.
  */
-static DECLCALLBACK(int) vgaPortTakeScreenshot(PPDMIDISPLAYPORT pInterface, uint8_t **ppbData, size_t *pcbData, uint32_t *pcx, uint32_t *pcy)
+static DECLCALLBACK(int) vgaPortTakeScreenshot(PPDMIDISPLAYPORT pInterface, uint8_t **ppbData, size_t *pcbData,
+                                               uint32_t *pcx, uint32_t *pcy)
 {
     PVGASTATE pThis = IDISPLAYPORT_2_VGASTATE(pInterface);
     PDMDEV_ASSERT_EMT(VGASTATE2DEVINS(pThis));
@@ -4983,7 +5008,8 @@ static DECLCALLBACK(void) vgaPortFreeScreenshot(PPDMIDISPLAYPORT pInterface, uin
  * @param   cy                  The height of the source and destination rectangles.
  * @see     PDMIDISPLAYPORT::pfnDisplayBlt() for details.
  */
-static DECLCALLBACK(int) vgaPortDisplayBlt(PPDMIDISPLAYPORT pInterface, const void *pvData, uint32_t x, uint32_t y, uint32_t cx, uint32_t cy)
+static DECLCALLBACK(int) vgaPortDisplayBlt(PPDMIDISPLAYPORT pInterface, const void *pvData, uint32_t x, uint32_t y,
+                                           uint32_t cx, uint32_t cy)
 {
     PVGASTATE       pThis = IDISPLAYPORT_2_VGASTATE(pInterface);
     int             rc = VINF_SUCCESS;
@@ -5403,7 +5429,7 @@ static DECLCALLBACK(void) vgaTimerRefresh(PPDMDEVINS pDevIns, PTMTIMER pTimer, v
 #endif
 
 #ifdef VBOX_WITH_CRHGSMI
-    vboxCmdVBVACmdTimer(pThis);
+    vboxCmdVBVATimerRefresh(pThis);
 #endif
 }
 
@@ -6243,8 +6269,8 @@ static DECLCALLBACK(int)   vgaR3Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     else
     {
 #endif /* VBOX_WITH_VMSVGA */
-    PCIDevSetVendorId(  &pThis->Dev, 0x80ee);   /* PCI vendor, just a free bogus value */
-    PCIDevSetDeviceId(  &pThis->Dev, 0xbeef);
+        PCIDevSetVendorId(&pThis->Dev, 0x80ee);   /* PCI vendor, just a free bogus value */
+        PCIDevSetDeviceId(&pThis->Dev, 0xbeef);
 #ifdef VBOX_WITH_VMSVGA
     }
 #endif

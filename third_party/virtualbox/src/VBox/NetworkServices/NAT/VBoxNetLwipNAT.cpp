@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1324,7 +1324,6 @@ static int vboxNetNATLogInit(int argc, char **argv)
     if (cch >= sizeof(szEnvVarBase))
         return VERR_BUFFER_OVERFLOW;
 
-    char szError[RTPATH_MAX + 128];
     rc = com::VBoxLogRelCreate("NAT Network",
                                szLogFile,
                                RTLOGFLAGS_PREFIX_TIME_PROG,
@@ -1335,7 +1334,7 @@ static int vboxNetNATLogInit(int argc, char **argv)
                                0 /* cHistory */,
                                0 /* uHistoryFileTime */,
                                0 /* uHistoryFileSize */,
-                               szError, sizeof(szError));
+                               NULL /*pErrInfo*/);
 
     /*
      * Provide immediate feedback if corresponding LogRel level is

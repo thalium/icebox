@@ -2777,6 +2777,10 @@ Hardware::Hardware() :
     fPAE(false),
     fAPIC(true),
     fX2APIC(false),
+    fIBPBOnVMExit(false),
+    fIBPBOnVMEntry(false),
+    fSpecCtrl(false),
+    fSpecCtrlByHost(false),
     enmLongMode(HC_ARCH_BITS == 64 ? Hardware::LongMode_Enabled : Hardware::LongMode_Disabled),
     cCPUs(1),
     fCpuHotPlug(false),
@@ -2930,6 +2934,10 @@ bool Hardware::operator==(const Hardware& h) const
             && fTripleFaultReset         == h.fTripleFaultReset
             && fAPIC                     == h.fAPIC
             && fX2APIC                   == h.fX2APIC
+            && fIBPBOnVMExit             == h.fIBPBOnVMExit
+            && fIBPBOnVMEntry            == h.fIBPBOnVMEntry
+            && fSpecCtrl                 == h.fSpecCtrl
+            && fSpecCtrlByHost           == h.fSpecCtrlByHost
             && cCPUs                     == h.cCPUs
             && fCpuHotPlug               == h.fCpuHotPlug
             && ulCpuExecutionCap         == h.ulCpuExecutionCap
@@ -3932,6 +3940,18 @@ void MachineConfigFile::readHardware(const xml::ElementNode &elmHardware,
                 pelmCPUChild->getAttributeValue("enabled", hw.fX2APIC);
             if (hw.fX2APIC)
                 hw.fAPIC = true;
+            pelmCPUChild = pelmHwChild->findChildElement("IBPBOn");
+            if (pelmCPUChild)
+            {
+                pelmCPUChild->getAttributeValue("vmexit", hw.fIBPBOnVMExit);
+                pelmCPUChild->getAttributeValue("vmentry", hw.fIBPBOnVMEntry);
+            }
+            pelmCPUChild = pelmHwChild->findChildElement("SpecCtrl");
+            if (pelmCPUChild)
+                pelmCPUChild->getAttributeValue("enabled", hw.fSpecCtrl);
+            pelmCPUChild = pelmHwChild->findChildElement("SpecCtrlByHost");
+            if (pelmCPUChild)
+                pelmCPUChild->getAttributeValue("enabled", hw.fSpecCtrlByHost);
 
             if ((pelmCPUChild = pelmHwChild->findChildElement("CpuIdTree")))
                 readCpuIdTree(*pelmCPUChild, hw.llCpuIdLeafs);
@@ -5258,7 +5278,19 @@ void MachineConfigFile::buildHardwareXML(xml::ElementNode &elmParent,
     pelmCPU->createChild("PAE")->setAttribute("enabled", hw.fPAE);
     if (m->sv >= SettingsVersion_v1_16)
     {
+        if (hw.fIBPBOnVMEntry || hw.fIBPBOnVMExit)
+        {
+            xml::ElementNode *pelmChild = pelmCPU->createChild("IBPBOn");
+            if (hw.fIBPBOnVMExit)
+                pelmChild->setAttribute("vmexit", hw.fIBPBOnVMExit);
+            if (hw.fIBPBOnVMEntry)
+                pelmChild->setAttribute("vmentry", hw.fIBPBOnVMEntry);
+        }
     }
+    if (m->sv >= SettingsVersion_v1_16 && hw.fSpecCtrl)
+        pelmCPU->createChild("SpecCtrl")->setAttribute("enabled", hw.fSpecCtrl);
+    if (m->sv >= SettingsVersion_v1_16 && hw.fSpecCtrlByHost)
+        pelmCPU->createChild("SpecCtrlByHost")->setAttribute("enabled", hw.fSpecCtrlByHost);
     if (m->sv >= SettingsVersion_v1_14 && hw.enmLongMode != Hardware::LongMode_Legacy)
     {
         // LongMode has too crazy default handling, must always save this setting.
@@ -6929,7 +6961,11 @@ void MachineConfigFile::bumpSettingsVersionIfNeeded()
             || (!hardwareMachine.strCpuProfile.equals("host") && hardwareMachine.strCpuProfile.isNotEmpty())
             || hardwareMachine.biosSettings.apicMode != APICMode_APIC
             || !hardwareMachine.fAPIC
-            || hardwareMachine.fX2APIC)
+            || hardwareMachine.fX2APIC
+            || hardwareMachine.fIBPBOnVMExit
+            || hardwareMachine.fIBPBOnVMEntry
+            || hardwareMachine.fSpecCtrl
+            || hardwareMachine.fSpecCtrlByHost)
         {
             m->sv = SettingsVersion_v1_16;
             return;

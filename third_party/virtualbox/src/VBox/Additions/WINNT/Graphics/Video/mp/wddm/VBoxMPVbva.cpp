@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -122,20 +122,21 @@ static int vboxCmdVbvaSubmitHgsmi(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, HGSMIOFFS
 }
 #define vboxCmdVbvaSubmit vboxCmdVbvaSubmitHgsmi
 
-static VBOXCMDVBVA_CTL * vboxCmdVbvaCtlCreate(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, uint32_t cbCtl)
+static VBOXCMDVBVA_CTL RT_UNTRUSTED_VOLATILE_HOST *vboxCmdVbvaCtlCreate(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, uint32_t cbCtl)
 {
     Assert(cbCtl >= sizeof (VBOXCMDVBVA_CTL));
-    return (VBOXCMDVBVA_CTL*)VBoxSHGSMICommandAlloc(&pHGSMICtx->heapCtx, cbCtl, HGSMI_CH_VBVA, VBVA_CMDVBVA_CTL);
+    return (VBOXCMDVBVA_CTL RT_UNTRUSTED_VOLATILE_HOST *)VBoxSHGSMICommandAlloc(&pHGSMICtx->heapCtx, cbCtl,
+                                                                                HGSMI_CH_VBVA, VBVA_CMDVBVA_CTL);
 }
 
-static void vboxCmdVbvaCtlFree(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CTL * pCtl)
+static void vboxCmdVbvaCtlFree(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CTL RT_UNTRUSTED_VOLATILE_HOST *pCtl)
 {
     VBoxSHGSMICommandFree(&pHGSMICtx->heapCtx, pCtl);
 }
 
-static int vboxCmdVbvaCtlSubmitSync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CTL * pCtl)
+static int vboxCmdVbvaCtlSubmitSync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CTL RT_UNTRUSTED_VOLATILE_HOST *pCtl)
 {
-    const VBOXSHGSMIHEADER* pHdr = VBoxSHGSMICommandPrepSynch(&pHGSMICtx->heapCtx, pCtl);
+    const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHdr = VBoxSHGSMICommandPrepSynch(&pHGSMICtx->heapCtx, pCtl);
     if (!pHdr)
     {
         WARN(("VBoxSHGSMICommandPrepSynch returnd NULL"));
@@ -173,9 +174,11 @@ static int vboxCmdVbvaCtlSubmitSync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMD
     return rc;
 }
 
-static int vboxCmdVbvaCtlSubmitAsync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CTL * pCtl, FNVBOXSHGSMICMDCOMPLETION pfnCompletion, void *pvCompletion)
+static int vboxCmdVbvaCtlSubmitAsync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CTL RT_UNTRUSTED_VOLATILE_HOST *pCtl,
+                                     FNVBOXSHGSMICMDCOMPLETION pfnCompletion, void RT_UNTRUSTED_VOLATILE_HOST *pvCompletion)
 {
-    const VBOXSHGSMIHEADER* pHdr = VBoxSHGSMICommandPrepAsynch(&pHGSMICtx->heapCtx, pCtl, pfnCompletion, pvCompletion, VBOXSHGSMI_FLAG_GH_ASYNCH_IRQ);
+    const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHdr = VBoxSHGSMICommandPrepAsynch(&pHGSMICtx->heapCtx, pCtl, pfnCompletion,
+                                                                                          pvCompletion, VBOXSHGSMI_FLAG_GH_ASYNCH_IRQ);
     HGSMIOFFSET offCmd = VBoxSHGSMICommandOffset(&pHGSMICtx->heapCtx, pHdr);
     if (offCmd == HGSMIOFFSET_VOID)
     {
@@ -190,17 +193,16 @@ static int vboxCmdVbvaCtlSubmitAsync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCM
         VBoxSHGSMICommandDoneAsynch(&pHGSMICtx->heapCtx, pHdr);
         return rc;
     }
-    else
-        WARN(("vboxCmdVbvaSubmit returnd %d", rc));
 
+    WARN(("vboxCmdVbvaSubmit returnd %d", rc));
     VBoxSHGSMICommandCancelAsynch(&pHGSMICtx->heapCtx, pHdr);
-
     return rc;
 }
 
 static int vboxVBVAExCtlSubmitEnableDisable(PVBVAEXBUFFERCONTEXT pCtx, PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, bool fEnable)
 {
-    VBOXCMDVBVA_CTL_ENABLE *pCtl = (VBOXCMDVBVA_CTL_ENABLE*)vboxCmdVbvaCtlCreate(pHGSMICtx, sizeof (*pCtl));
+    VBOXCMDVBVA_CTL_ENABLE RT_UNTRUSTED_VOLATILE_HOST *pCtl =
+        (VBOXCMDVBVA_CTL_ENABLE RT_UNTRUSTED_VOLATILE_HOST *)vboxCmdVbvaCtlCreate(pHGSMICtx, sizeof (*pCtl));
     if (!pCtl)
     {
         WARN(("vboxCmdVbvaCtlCreate failed"));
@@ -209,7 +211,7 @@ static int vboxVBVAExCtlSubmitEnableDisable(PVBVAEXBUFFERCONTEXT pCtx, PHGSMIGUE
 
     pCtl->Hdr.u32Type = VBOXCMDVBVACTL_TYPE_ENABLE;
     pCtl->Hdr.i32Result = VERR_NOT_IMPLEMENTED;
-    memset(&pCtl->Enable, 0, sizeof (pCtl->Enable));
+    memset((void *)&pCtl->Enable, 0, sizeof(pCtl->Enable));
     pCtl->Enable.u32Flags  = fEnable? VBVA_F_ENABLE: VBVA_F_DISABLE;
     pCtl->Enable.u32Offset = pCtx->offVRAMBuffer;
     pCtl->Enable.i32Result = VERR_NOT_SUPPORTED;
@@ -1231,7 +1233,9 @@ int vboxCmdVbvaConConnect(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx,
         uint32_t crVersionMajor, uint32_t crVersionMinor,
         uint32_t *pu32ClientID)
 {
-    VBOXCMDVBVA_CTL_3DCTL_CONNECT *pConnect = (VBOXCMDVBVA_CTL_3DCTL_CONNECT*)vboxCmdVbvaCtlCreate(pHGSMICtx, sizeof (VBOXCMDVBVA_CTL_3DCTL_CONNECT));
+    VBOXCMDVBVA_CTL_3DCTL_CONNECT RT_UNTRUSTED_VOLATILE_HOST *pConnect =
+        (VBOXCMDVBVA_CTL_3DCTL_CONNECT RT_UNTRUSTED_VOLATILE_HOST *)vboxCmdVbvaCtlCreate(pHGSMICtx,
+                                                                                         sizeof(VBOXCMDVBVA_CTL_3DCTL_CONNECT));
     if (!pConnect)
     {
         WARN(("vboxCmdVbvaCtlCreate failed"));
@@ -1267,7 +1271,8 @@ int vboxCmdVbvaConConnect(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx,
 
 int vboxCmdVbvaConDisconnect(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, uint32_t u32ClientID)
 {
-    VBOXCMDVBVA_CTL_3DCTL *pDisconnect = (VBOXCMDVBVA_CTL_3DCTL*)vboxCmdVbvaCtlCreate(pHGSMICtx, sizeof (VBOXCMDVBVA_CTL_3DCTL));
+    VBOXCMDVBVA_CTL_3DCTL RT_UNTRUSTED_VOLATILE_HOST *pDisconnect =
+        (VBOXCMDVBVA_CTL_3DCTL RT_UNTRUSTED_VOLATILE_HOST*)vboxCmdVbvaCtlCreate(pHGSMICtx, sizeof(VBOXCMDVBVA_CTL_3DCTL));
     if (!pDisconnect)
     {
         WARN(("vboxCmdVbvaCtlCreate failed"));
@@ -1307,9 +1312,11 @@ int VBoxCmdVbvaConDisconnect(PVBOXMP_DEVEXT pDevExt, VBOXCMDVBVA *pVbva, uint32_
     return vboxCmdVbvaConDisconnect(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx, u32ClientID);
 }
 
-VBOXCMDVBVA_CRCMD_CMD* vboxCmdVbvaConCmdAlloc(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, uint32_t cbCmd)
+static VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *vboxCmdVbvaConCmdAlloc(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, uint32_t cbCmd)
 {
-    VBOXCMDVBVA_CTL_3DCTL_CMD *pCmd = (VBOXCMDVBVA_CTL_3DCTL_CMD*)vboxCmdVbvaCtlCreate(pHGSMICtx, sizeof (VBOXCMDVBVA_CTL_3DCTL_CMD) + cbCmd);
+    VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *pCmd =
+        (VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *)vboxCmdVbvaCtlCreate(pHGSMICtx,
+                                                                                     sizeof(VBOXCMDVBVA_CTL_3DCTL_CMD) + cbCmd);
     if (!pCmd)
     {
         WARN(("vboxCmdVbvaCtlCreate failed"));
@@ -1325,41 +1332,43 @@ VBOXCMDVBVA_CRCMD_CMD* vboxCmdVbvaConCmdAlloc(PHGSMIGUESTCOMMANDCONTEXT pHGSMICt
     pCmd->Cmd.Cmd.u.i8Result = -1;
     pCmd->Cmd.Cmd.u2.u32FenceID = 0;
 
-    return (VBOXCMDVBVA_CRCMD_CMD*)(pCmd+1);
+    return (VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *)(pCmd + 1);
 }
 
-void vboxCmdVbvaConCmdFree(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CRCMD_CMD *pCmd)
+void vboxCmdVbvaConCmdFree(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
-    VBOXCMDVBVA_CTL_3DCTL_CMD *pHdr = ((VBOXCMDVBVA_CTL_3DCTL_CMD*)pCmd)-1;
+    VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *pHdr = ((VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *)pCmd) - 1;
     vboxCmdVbvaCtlFree(pHGSMICtx, &pHdr->Hdr);
 }
 
-int vboxCmdVbvaConSubmitAsync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CRCMD_CMD* pCmd, FNVBOXSHGSMICMDCOMPLETION pfnCompletion, void *pvCompletion)
+int vboxCmdVbvaConSubmitAsync(PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *pCmd,
+                              FNVBOXSHGSMICMDCOMPLETION pfnCompletion, void RT_UNTRUSTED_VOLATILE_HOST *pvCompletion)
 {
-    VBOXCMDVBVA_CTL_3DCTL_CMD *pHdr = ((VBOXCMDVBVA_CTL_3DCTL_CMD*)pCmd)-1;
+    VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *pHdr = ((VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *)pCmd)-1;
     return vboxCmdVbvaCtlSubmitAsync(pHGSMICtx, &pHdr->Hdr, pfnCompletion, pvCompletion);
 }
 
-VBOXCMDVBVA_CRCMD_CMD* VBoxCmdVbvaConCmdAlloc(PVBOXMP_DEVEXT pDevExt, uint32_t cbCmd)
+VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *VBoxCmdVbvaConCmdAlloc(PVBOXMP_DEVEXT pDevExt, uint32_t cbCmd)
 {
     return vboxCmdVbvaConCmdAlloc(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx, cbCmd);
 }
 
-void VBoxCmdVbvaConCmdFree(PVBOXMP_DEVEXT pDevExt, VBOXCMDVBVA_CRCMD_CMD *pCmd)
+void VBoxCmdVbvaConCmdFree(PVBOXMP_DEVEXT pDevExt, VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     vboxCmdVbvaConCmdFree(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx, pCmd);
 }
 
-int VBoxCmdVbvaConCmdSubmitAsync(PVBOXMP_DEVEXT pDevExt, VBOXCMDVBVA_CRCMD_CMD* pCmd, FNVBOXSHGSMICMDCOMPLETION pfnCompletion, void *pvCompletion)
+int VBoxCmdVbvaConCmdSubmitAsync(PVBOXMP_DEVEXT pDevExt, VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *pCmd,
+                                 PFNVBOXSHGSMICMDCOMPLETION pfnCompletion, void RT_UNTRUSTED_VOLATILE_HOST *pvCompletion)
 {
     return vboxCmdVbvaConSubmitAsync(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx, pCmd, pfnCompletion, pvCompletion);
 }
 
-int VBoxCmdVbvaConCmdCompletionData(void *pvCmd, VBOXCMDVBVA_CRCMD_CMD **ppCmd)
+int VBoxCmdVbvaConCmdCompletionData(void RT_UNTRUSTED_VOLATILE_HOST *pvCmd, VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST **ppCmd)
 {
-    VBOXCMDVBVA_CTL_3DCTL_CMD *pCmd = (VBOXCMDVBVA_CTL_3DCTL_CMD*)pvCmd;
+    VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *pCmd = (VBOXCMDVBVA_CTL_3DCTL_CMD RT_UNTRUSTED_VOLATILE_HOST *)pvCmd;
     if (ppCmd)
-        *ppCmd = (VBOXCMDVBVA_CRCMD_CMD*)(pCmd+1);
+        *ppCmd = (VBOXCMDVBVA_CRCMD_CMD RT_UNTRUSTED_VOLATILE_HOST *)(pCmd + 1);
     return pCmd->Hdr.i32Result;
 }
 
@@ -1367,7 +1376,9 @@ int VBoxCmdVbvaConCmdResize(PVBOXMP_DEVEXT pDevExt, const VBOXWDDM_ALLOC_DATA *p
 {
     Assert(KeGetCurrentIrql() < DISPATCH_LEVEL);
 
-    VBOXCMDVBVA_CTL_RESIZE *pResize = (VBOXCMDVBVA_CTL_RESIZE*)vboxCmdVbvaCtlCreate(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx, sizeof (VBOXCMDVBVA_CTL_RESIZE));
+    VBOXCMDVBVA_CTL_RESIZE RT_UNTRUSTED_VOLATILE_HOST *pResize =
+        (VBOXCMDVBVA_CTL_RESIZE RT_UNTRUSTED_VOLATILE_HOST*)vboxCmdVbvaCtlCreate(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx,
+                                                                                 sizeof(VBOXCMDVBVA_CTL_RESIZE));
     if (!pResize)
     {
         WARN(("vboxCmdVbvaCtlCreate failed"));
@@ -1380,9 +1391,9 @@ int VBoxCmdVbvaConCmdResize(PVBOXMP_DEVEXT pDevExt, const VBOXWDDM_ALLOC_DATA *p
     int rc = vboxWddmScreenInfoInit(&pResize->Resize.aEntries[0].Screen, pAllocData, pVScreenPos, fFlags);
     if (RT_SUCCESS(rc))
     {
-        VBOXCMDVBVA_RESIZE_ENTRY* pEntry = &pResize->Resize.aEntries[0];
-        memcpy(pEntry->aTargetMap, pTargetMap, sizeof (pEntry->aTargetMap));
-        LOG(("[%d] %dx%d, TargetMap0 0x%x, flags 0x%x", 
+        VBOXCMDVBVA_RESIZE_ENTRY RT_UNTRUSTED_VOLATILE_HOST *pEntry = &pResize->Resize.aEntries[0];
+        memcpy((void *)&pEntry->aTargetMap[0], pTargetMap, sizeof(pEntry->aTargetMap));
+        LOG(("[%d] %dx%d, TargetMap0 0x%x, flags 0x%x",
             pEntry->Screen.u32ViewIndex, pEntry->Screen.u32Width, pEntry->Screen.u32Height, pEntry->aTargetMap[0], pEntry->Screen.u16Flags));
 
         rc = vboxCmdVbvaCtlSubmitSync(&VBoxCommonFromDeviceExt(pDevExt)->guestCtx, &pResize->Hdr);

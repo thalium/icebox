@@ -171,4 +171,3 @@ BEGINPROC_EXPORTED ASMBitNextSet
         jmp     .return
 ENDPROC ASMBitNextSet
 
-

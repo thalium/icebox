@@ -672,7 +672,7 @@ crPackDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indice
     packet_length += sizeof(GLint);
     if (elementsBuffer && elementsBuffer->id)
     {
-        /*@todo not sure it's possible, and not sure what to do*/
+        /** @todo not sure it's possible, and not sure what to do*/
         if (!elementsBuffer->data)
         {
             crWarning("crPackDrawElements: trying to use bound but empty elements buffer, ignoring.");
@@ -719,7 +719,7 @@ crPackDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count,
     packet_length += sizeof(GLint);
     if (elementsBuffer && elementsBuffer->id)
     {
-        /*@todo not sure it's possible, and not sure what to do*/
+        /** @todo not sure it's possible, and not sure what to do*/
         if (!elementsBuffer->data)
         {
             crWarning("crPackDrawElements: trying to use bound but empty elements buffer, ignoring.");

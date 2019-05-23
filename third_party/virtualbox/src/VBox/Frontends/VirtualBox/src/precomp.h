@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -538,7 +538,6 @@
 #include "UIMediumDefs.h"
 #include "UIMediumEnumerator.h"
 #include "UIMediumManager.h"
-#include "UIMediumTypeChangeDialog.h"
 #include "UIMenuBar.h"
 #include "UIMenuBarEditorWindow.h"
 #include "UIMessageCenter.h"
@@ -657,7 +656,7 @@
          are used as enum constants in VBoxUtils.h.  Don't bother undefining
          the redefinitions, just prevent the inclusion of the header! */
 #include "VBoxUtils.h"
-#include "VBoxVersion.h"
+#include "UIVersion.h"
 #ifdef VBOX_WS_X11
 # include "VBoxX11Helper.h"
 #endif

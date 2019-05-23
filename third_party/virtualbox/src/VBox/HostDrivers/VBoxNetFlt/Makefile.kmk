@@ -14,6 +14,15 @@
 # VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 # hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 #
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
 
 SUB_DEPTH = ../../../..
 include $(KBUILD_PATH)/subheader.kmk
@@ -104,7 +113,7 @@ ifeq ($(KBUILD_TARGET),win)
  # Windows extras.
  #
  INSTALLS.win += VBoxNetFlt-inf
- VBoxNetFlt-inf_INST = $(INST_BIN)
+ VBoxNetFlt-inf_TEMPLATE = VBoxR0DrvInfCat
  VBoxNetFlt-inf_SOURCES = \
  	$(PATH_TARGET)/VBoxNetFltCat.dir/VBoxNetFlt.inf \
  	$(PATH_TARGET)/VBoxNetFltCat.dir/VBoxNetFltM.inf
@@ -184,7 +193,7 @@ $(PATH_TARGET)/VBoxNetFltCat.dir/VBoxNetFlt.cat: \
  # VBoxNetLwf installation.
  #
  INSTALLS.win += VBoxNetLwf-inf
- VBoxNetLwf-inf_INST = $(INST_BIN)
+ VBoxNetLwf-inf_TEMPLATE = VBoxR0DrvInfCat
  VBoxNetLwf-inf_SOURCES = \
  	$(PATH_TARGET)/VBoxNetLwfCat.dir/VBoxNetLwf.inf
  VBoxNetLwf-inf_CLEAN = $(VBoxNetLwf-inf_SOURCES)
@@ -197,7 +206,8 @@ $(PATH_TARGET)/VBoxNetLwfCat.dir/VBoxNetLwf.inf: $(PATH_SUB_CURRENT)/win/drv/VBo
  ifdef VBOX_SIGNING_MODE
 VBoxNetLwf-inf_SOURCES += \
 	$(PATH_TARGET)/VBoxNetLwfCat.dir/VBoxNetLwf.sys \
-	$(PATH_TARGET)/VBoxNetLwfCat.dir/VBoxNetLwf.cat
+	$(PATH_TARGET)/VBoxNetLwfCat.dir/VBoxNetLwf.cat \
+	$(PATH_TARGET)/VBoxNetLwfCat.dir/VBoxNetLwf.cat=>VBoxNetLwf-PreW10.cat
 
 #	$(PATH_TARGET)/VBoxNetLwfCat.dir/VBoxNetLwfNobj.dll \
 
@@ -421,8 +431,7 @@ $$(VBoxNetFltNobj_0_OUTDIR)/VBoxNetFltNobjT_i.c \
 
 
  INSTALLS.win += VBoxNetAdp-inf
- VBoxNetAdp-inf_INST = $(INST_BIN)
- VBoxNetAdp-inf_MODE = a+r,u+w
+ VBoxNetAdp-inf_TEMPLATE = VBoxR0DrvInfCat
  VBoxNetAdp-inf_SOURCES = \
  	$(PATH_TARGET)/VBoxNetAdpCat.dir/VBoxNetAdp.inf
  VBoxNetAdp-inf_CLEAN = $(VBoxNetAdp-inf_SOURCES)

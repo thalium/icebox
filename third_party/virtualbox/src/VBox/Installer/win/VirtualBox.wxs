@@ -16,7 +16,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
 
-    <?include Properties.wxi ?>
+    <?include Defines.wxi ?>
 
 <?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
     <!-- The merge module file names -->
@@ -55,6 +55,8 @@
              InstallerVersion="200"
              InstallPrivileges="elevated"
              Platform="$(var.Property_Platform)"/>
+
+    <?include CommonProperties.wxi ?>
 
     <!-- Global properties -->
     <Property Id="ARPPRODUCTICON">IconVirtualBox</Property>
@@ -237,7 +239,7 @@
     <CustomAction Id="ca_InstallVBoxSDS" Directory="INSTALLDIR" ExeCommand='"[INSTALLDIR]\VBoxSDS.exe" --regservice' Return="check" Impersonate="no" />
     <CustomAction Id="ca_UninstallVBoxSDS" Directory="INSTALLDIR" ExeCommand='"[INSTALLDIR]\VBoxSDS.exe" --unregservice' Return="check" Impersonate="no" />
 <?endif?>
-        
+
 <?if $(env.VBOX_WITH_MSM_INSTALL) = "no" ?>
     <?include VBoxMergeAppCA.wxi ?>
     <?if $(env.VBOX_WITH_32_ON_64_MAIN_API) = "yes" ?>
@@ -431,12 +433,12 @@
     <?if $(env.VBOX_WITH_32_ON_64_MAIN_API) = "yes" ?>
         <ComponentRef Id="cp_MainCOM_x86" />
     <?endif ?>
-        <ComponentRef Id="cp_MainCOM" />
+    <ComponentRef Id="cp_MainCOM" />
     <?if $(env.VBOX_WITH_MIDL_PROXY_STUB) = "yes" ?>
         <ComponentRef Id="cp_ProxyStub" />
         <ComponentRef Id="cp_ProxyStubLegacy" />
     <?endif?>
-        <ComponentRef Id="cp_MainBinaries" />
+    <ComponentRef Id="cp_MainBinaries" />
     <?if $(env.VBOX_WITH_QTGUI) = "yes" ?>
         <ComponentRef Id="cp_QtPlatforms" />
     <?endif ?>
@@ -448,17 +450,20 @@
     <?if $(env.VBOX_WITH_CROGL) = "yes" ?>
         <ComponentRef Id="cp_VBoxCROpenGL" />
     <?endif ?>
-        <ComponentRef Id="cp_VBoxSDLBinaries" />
+    <ComponentRef Id="cp_VBoxSDLBinaries" />
     <?if $(env.VBOX_WITH_WEBSERVICES) = "yes" ?>
         <ComponentRef Id="cp_VBoxWebService" />
     <?endif ?>
-        <ComponentRef Id="cp_VBoxCAPI" />
-        <ComponentRef Id="cp_VBoxDrv" />
-<?endif ?>
-
-<?if $(env.VBOX_WITH_UNATTENDED) = "yes" ?>
+    <ComponentRef Id="cp_VBoxCAPI" />
+    <?if $(env.VBOX_WITH_UNATTENDED) = "yes" ?>
         <!-- unattended template component -->
         <ComponentRef Id="cp_UnattendedTemplates" />
+    <?endif ?>
+    <?if $(env.VBOX_SIGNING_MODE) != none ?>
+        <ComponentRef Id="cp_VBoxDrvCat_PreW10" />
+        <ComponentRef Id="cp_VBoxDrvCat_W10" />
+    <?endif ?>
+    <ComponentRef Id="cp_VBoxDrv" />
 <?endif ?>
 
         <Feature Id="VBoxUSB" Title="VirtualBox USB Support" Level="1"
@@ -468,7 +473,15 @@
 <?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
             <MergeRef Id="msm_VBoxUSB" />
 <?else ?>
+    <?if $(env.VBOX_SIGNING_MODE) != none ?>
+            <ComponentRef Id="cp_USBFilterDriverCat_PreW10" />
+            <ComponentRef Id="cp_USBFilterDriverCat_W10" />
+    <?endif ?>
             <ComponentRef Id="cp_USBFilterDriver" />
+    <?if $(env.VBOX_SIGNING_MODE) != none ?>
+            <ComponentRef Id="cp_USBDeviceDriverCat_PreW10" />
+            <ComponentRef Id="cp_USBDeviceDriverCat_W10" />
+    <?endif ?>
             <ComponentRef Id="cp_USBDeviceDriver" />
 <?endif ?>
         </Feature>
@@ -487,6 +500,10 @@
                 <MergeRef Id="msm_VBoxNetworkLwf" />
     <?else ?>
                 <ComponentRef Id="cp_NetFltDriver" />
+        <?if $(env.VBOX_SIGNING_MODE) != none ?>
+                <ComponentRef Id="cp_NetLwfDriverCat_PreW10" />
+                <ComponentRef Id="cp_NetLwfDriverCat_W10" />
+        <?endif ?>
                 <ComponentRef Id="cp_NetLwfDriver" />
     <?endif ?>
             </Feature>
@@ -499,6 +516,10 @@
                 <MergeRef Id="msm_VBoxNetworkAdp6" />
     <?else ?>
                 <ComponentRef Id="cp_NetAdpDriver" />
+        <?if $(env.VBOX_SIGNING_MODE) != none ?>
+                <ComponentRef Id="cp_NetAdp6DriverCat_PreW10" />
+                <ComponentRef Id="cp_NetAdp6DriverCat_W10" />
+        <?endif ?>
                 <ComponentRef Id="cp_NetAdp6Driver" />
     <?endif ?>
             </Feature>
@@ -569,7 +590,7 @@
 
         <!-- Check + unininstall old TAP instances - we  don't need them anymore -->
         <Custom Action="ca_UninstallTAPInstances" Before="InstallFiles" >1</Custom>
-        
+
         <Custom Action="ca_InstallBrandingArgs" Before="ca_InstallBranding" ><![CDATA[NOT REMOVE]]></Custom>
         <Custom Action="ca_InstallBranding" Before="InstallFinalize" ><![CDATA[NOT REMOVE]]></Custom>
 

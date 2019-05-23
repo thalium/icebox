@@ -6,6 +6,7 @@
 ;
 ; Source file: post.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
 ;  BIOS POST routines. Used only during initialization.
 ;  
 ;  
@@ -23,8 +24,12 @@
 ;
 ; Source file: bios.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -65,8 +70,12 @@
 ;
 ; Source file: print.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -107,8 +116,12 @@
 ;
 ; Source file: ata.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -149,8 +162,12 @@
 ;
 ; Source file: floppy.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -196,7 +213,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2011-2016 Oracle Corporation
+;  Copyright (C) 2011-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -209,8 +226,12 @@
 ;
 ; Source file: eltorito.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -251,8 +272,12 @@
 ;
 ; Source file: boot.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -293,8 +318,12 @@
 ;
 ; Source file: keyboard.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -335,8 +364,12 @@
 ;
 ; Source file: disk.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -377,8 +410,12 @@
 ;
 ; Source file: serial.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -419,8 +456,12 @@
 ;
 ; Source file: system.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -466,7 +507,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2013-2016 Oracle Corporation
+;  Copyright (C) 2013-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -480,7 +521,7 @@
 ; Source file: timepci.c
 ;
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -521,8 +562,12 @@
 ;
 ; Source file: ps2mouse.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -563,8 +608,12 @@
 ;
 ; Source file: parallel.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  PC BIOS - ???
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -610,7 +659,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2004-2016 Oracle Corporation
+;  Copyright (C) 2004-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -628,7 +677,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2004-2016 Oracle Corporation
+;  Copyright (C) 2004-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -646,7 +695,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2011-2016 Oracle Corporation
+;  Copyright (C) 2011-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -664,7 +713,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2004-2016 Oracle Corporation
+;  Copyright (C) 2004-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -682,7 +731,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2004-2016 Oracle Corporation
+;  Copyright (C) 2004-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -695,11 +744,12 @@
 ;
 ; Source file: pciutil.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
 ;  Utility routines for calling the PCI BIOS.
 ;  
 ;  
 ;  
-;  Copyright (C) 2011-2016 Oracle Corporation
+;  Copyright (C) 2011-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -712,11 +762,12 @@
 ;
 ; Source file: vds.c
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
 ;  Utility routines for calling the Virtual DMA Services.
 ;  
 ;  
 ;  
-;  Copyright (C) 2011-2016 Oracle Corporation
+;  Copyright (C) 2011-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -734,7 +785,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2012-2016 Oracle Corporation
+;  Copyright (C) 2012-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -753,7 +804,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2012-2016 Oracle Corporation
+;  Copyright (C) 2012-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -772,7 +823,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2012-2016 Oracle Corporation
+;  Copyright (C) 2012-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -791,7 +842,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2012-2016 Oracle Corporation
+;  Copyright (C) 2012-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -810,7 +861,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2012-2016 Oracle Corporation
+;  Copyright (C) 2012-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -829,7 +880,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2012-2016 Oracle Corporation
+;  Copyright (C) 2012-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -843,8 +894,12 @@
 ;
 ; Source file: pcibio32.asm
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  BIOS32 service directory and 32-bit PCI BIOS entry point
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -853,14 +908,17 @@
 ;  Foundation, in version 2 as it comes in the "COPYING" file of the
 ;  VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 ;  hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
-;  
 ;  --------------------------------------------------------------------
 
 ;
 ; Source file: apm_pm.asm
 ;
+;  $Id:
+;  Protected-mode APM implementation.
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  
+;  
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -870,14 +928,14 @@
 ;  VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 ;  hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 ;  
-;  --------------------------------------------------------------------
-;  
-;  Protected-mode APM implementation.
-;  
 
 ;
 ; Source file: orgs.asm
 ;
+;  $Id: VBoxBiosAlternative8086.asm $
+;  ???
+;  
+;  
 ;  
 ;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
@@ -916,7 +974,6 @@
 ;   License along with this library; if not, write to the Free Software
 ;   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 ;  
-;  
 
 ;
 ; Source file: DoUInt32Div.c
@@ -926,7 +983,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2011-2016 Oracle Corporation
+;  Copyright (C) 2011-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -944,7 +1001,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2006-2016 Oracle Corporation
+;  Copyright (C) 2006-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -963,7 +1020,7 @@
 ;  
 ;  
 ;  
-;  Copyright (C) 2004-2016 Oracle Corporation
+;  Copyright (C) 2004-2017 Oracle Corporation
 ;  
 ;  This file is part of VirtualBox Open Source Edition (OSE), as
 ;  available from http://www.virtualbox.org. This file is free software;
@@ -1115,7 +1172,7 @@ section CONST progbits vstart=0xb0 align=1 ; size=0xcde class=DATA group=DGROUP
 
 section CONST2 progbits vstart=0xd8e align=1 ; size=0x3fa class=DATA group=DGROUP
 _bios_cvs_version_string:                    ; 0xf0d8e LB 0x12
-    db  'VirtualBox 5.2.0', 000h, 000h
+    db  'VirtualBox 5.2.14', 000h
 _bios_prefix_string:                         ; 0xf0da0 LB 0x8
     db  'BIOS: ', 000h, 000h
 _isotag:                                     ; 0xf0da8 LB 0x6
@@ -7206,7 +7263,7 @@ _int19_function:                             ; 0xf4d99 LB 0x28d
     mov ax, si                                ; 89 f0
     call 0166eh                               ; e8 a7 c6
     mov di, ax                                ; 89 c7
-    mov dx, strict word 00002h                ; ba 02 00
+    mov dx, strict word 00004h                ; ba 04 00
     mov ax, si                                ; 89 f0
     call 0166eh                               ; e8 9d c6
     cmp di, ax                                ; 39 c7
@@ -18237,4 +18294,4 @@ biosorg_check_before_or_at_0FFEEh:           ; 0xfff80 LB 0x70
     db  'XM'
 cpu_reset:                                   ; 0xffff0 LB 0x10
     jmp far 0f000h:0e05bh                     ; ea 5b e0 00 f0
-    db  030h, 036h, 02fh, 032h, 033h, 02fh, 039h, 039h, 000h, 0fbh, 03eh
+    db  030h, 036h, 02fh, 032h, 033h, 02fh, 039h, 039h, 000h, 0fbh, 007h

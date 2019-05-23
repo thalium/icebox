@@ -51,6 +51,8 @@ CAPIHeaders_SOURCES = \
 	VBoxCAPI_v4_2.h \
 	VBoxCAPI_v4_3.h \
 	$(CAPIHeaders_0_OUTDIR)/VBoxCAPI.h=>VBoxCAPI_v$(VBOX_API_VERSION).h
+CAPIHeaders_CLEAN = \
+	$(CAPIHeaders_0_OUTDIR)/VBoxCAPI.h
 
 $$(CAPIHeaders_0_OUTDIR)/VBoxCAPIGlue.h: \
 		$(PATH_SUB_CURRENT)/VBoxCAPIGlue.h.in \

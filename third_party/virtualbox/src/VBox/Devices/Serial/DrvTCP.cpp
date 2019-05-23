@@ -4,9 +4,9 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation.
+ * Contributed by Alexey Eromenko (derived from DrvNamedPipe).
  *
- * This file was contributed by Alexey Eromenko (derived from DrvNamedPipe)
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -38,6 +38,7 @@
 
 #include "VBoxDD.h"
 
+
 /*********************************************************************************************************************************
 *   Defined Constants And Macros                                                                                                 *
 *********************************************************************************************************************************/
@@ -47,6 +48,7 @@
 
 #define DRVTCP_WAKEUP_REASON_EXTERNAL       0
 #define DRVTCP_WAKEUP_REASON_NEW_CONNECTION 1
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -539,7 +541,7 @@ static DECLCALLBACK(int) drvTCPConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, uin
                                        N_("DrvTCP#%d: The port part of the location is not a numerical value"),
                                        pDrvIns->iInstance);
 
-        /** @todo: Allow binding to distinct interfaces. */
+        /** @todo Allow binding to distinct interfaces. */
         rc = RTTcpServerCreateEx(NULL, uPort, &pThis->hTcpServ);
         if (RT_FAILURE(rc))
             return PDMDrvHlpVMSetError(pDrvIns, rc,  RT_SRC_POS,

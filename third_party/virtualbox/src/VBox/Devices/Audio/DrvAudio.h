@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -28,14 +28,6 @@
 #include <VBox/vmm/pdmdev.h>
 #include <VBox/vmm/pdm.h>
 #include <VBox/vmm/pdmaudioifs.h>
-
-#ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
-# ifdef RT_OS_WINDOWS
-#  define VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "c:\\temp\\"
-# else
-#  define VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "/tmp/"
-# endif
-#endif
 
 typedef enum
 {
@@ -133,11 +125,19 @@ typedef struct DRVAUDIO
         bool                fEnabled;
         /** Max. number of free output streams.
          *  UINT32_MAX for unlimited streams. */
-    uint32_t                cStreamsFree;
+        uint32_t            cStreamsFree;
 #ifdef VBOX_WITH_AUDIO_CALLBACKS
         RTLISTANCHOR        lstCB;
 #endif
     } Out;
+    struct
+    {
+        /** Whether audio debugging is enabled or not. */
+        bool                    fEnabled;
+        /** Where to store the debugging files.
+         *  Defaults to VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH if not set. */
+        char                    szPathOut[RTPATH_MAX + 1];
+    } Dbg;
 } DRVAUDIO, *PDRVAUDIO;
 
 /** Makes a PDRVAUDIO out of a PPDMIAUDIOCONNECTOR. */
@@ -151,11 +151,13 @@ const char *DrvAudioHlpAudFmtToStr(PDMAUDIOFMT enmFmt);
 void DrvAudioHlpClearBuf(const PPDMAUDIOPCMPROPS pPCMInfo, void *pvBuf, size_t cbBuf, uint32_t cFrames);
 uint32_t DrvAudioHlpCalcBitrate(uint8_t cBits, uint32_t uHz, uint8_t cChannels);
 uint32_t DrvAudioHlpCalcBitrate(const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpMsToBytes(const PPDMAUDIOPCMPROPS pProps, uint32_t uMs);
 bool DrvAudioHlpPCMPropsAreEqual(const PPDMAUDIOPCMPROPS pPCMProps1, const PPDMAUDIOPCMPROPS pPCMProps2);
 bool DrvAudioHlpPCMPropsAreEqual(const PPDMAUDIOPCMPROPS pPCMProps, const PPDMAUDIOSTREAMCFG pCfg);
 bool DrvAudioHlpPCMPropsAreValid(const PPDMAUDIOPCMPROPS pProps);
 void DrvAudioHlpPCMPropsPrint(const PPDMAUDIOPCMPROPS pProps);
 int DrvAudioHlpPCMPropsToStreamCfg(const PPDMAUDIOPCMPROPS pPCMProps, PPDMAUDIOSTREAMCFG pCfg);
+const char *DrvAudioHlpPlaybackDstToStr(const PDMAUDIOPLAYBACKDEST enmPlaybackDst);
 const char *DrvAudioHlpRecSrcToStr(const PDMAUDIORECSOURCE enmRecSource);
 void DrvAudioHlpStreamCfgPrint(const PPDMAUDIOSTREAMCFG pCfg);
 bool DrvAudioHlpStreamCfgIsValid(const PPDMAUDIOSTREAMCFG pCfg);
@@ -166,7 +168,7 @@ const char *DrvAudioHlpStreamCmdToStr(PDMAUDIOSTREAMCMD enmCmd);
 PDMAUDIOFMT DrvAudioHlpStrToAudFmt(const char *pszFmt);
 
 int DrvAudioHlpSanitizeFileName(char *pszPath, size_t cbPath);
-int DrvAudioHlpGetFileName(char *pszFile, size_t cchFile, const char *pszPath, const char *pszName, PDMAUDIOFILETYPE enmType);
+int DrvAudioHlpGetFileName(char *pszFile, size_t cchFile, const char *pszPath, const char *pszName, uint32_t uInstance, PDMAUDIOFILETYPE enmType, PDMAUDIOFILENAMEFLAGS fFlags);
 
 PPDMAUDIODEVICE DrvAudioHlpDeviceAlloc(size_t cbData);
 void DrvAudioHlpDeviceFree(PPDMAUDIODEVICE pDev);
@@ -187,10 +189,14 @@ const char *DrvAudioHlpAudDirToStr(PDMAUDIODIR enmDir);
 const char *DrvAudioHlpAudMixerCtlToStr(PDMAUDIOMIXERCTL enmMixerCtl);
 char *DrvAudioHlpAudDevFlagsToStrA(PDMAUDIODEVFLAG fFlags);
 
-int DrvAudioHlpWAVFileOpen(PPDMAUDIOFILE pFile, const char *pszFile, uint32_t fOpen, const PPDMAUDIOPCMPROPS pProps, PDMAUDIOFILEFLAGS fFlags);
-int DrvAudioHlpWAVFileClose(PPDMAUDIOFILE pFile);
-size_t DrvAudioHlpWAVFileGetDataSize(PPDMAUDIOFILE pFile);
-int DrvAudioHlpWAVFileWrite(PPDMAUDIOFILE pFile, const void *pvBuf, size_t cbBuf, uint32_t fFlags);
+int DrvAudioHlpFileCreate(PDMAUDIOFILETYPE enmType, const char *pszFile, PDMAUDIOFILEFLAGS fFlags, PPDMAUDIOFILE *ppFile);
+void DrvAudioHlpFileDestroy(PPDMAUDIOFILE pFile);
+int DrvAudioHlpFileOpen(PPDMAUDIOFILE pFile, uint32_t fOpen, const PPDMAUDIOPCMPROPS pProps);
+int DrvAudioHlpFileClose(PPDMAUDIOFILE pFile);
+int DrvAudioHlpFileDelete(PPDMAUDIOFILE pFile);
+size_t DrvAudioHlpFileGetDataSize(PPDMAUDIOFILE pFile);
+bool DrvAudioHlpFileIsOpen(PPDMAUDIOFILE pFile);
+int DrvAudioHlpFileWrite(PPDMAUDIOFILE pFile, const void *pvBuf, size_t cbBuf, uint32_t fFlags);
 
 #define AUDIO_MAKE_FOURCC(c0, c1, c2, c3) RT_H2LE_U32_C(RT_MAKE_U32_FROM_U8(c0, c1, c2, c3))
 

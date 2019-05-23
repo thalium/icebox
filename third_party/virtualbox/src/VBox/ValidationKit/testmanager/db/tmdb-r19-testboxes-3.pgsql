@@ -42,14 +42,14 @@ LOCK TABLE TestBoxStatuses      IN ACCESS EXCLUSIVE MODE;
 LOCK TABLE TestSets             IN ACCESS EXCLUSIVE MODE;
 LOCK TABLE TestBoxes            IN ACCESS EXCLUSIVE MODE;
 LOCK TABLE SchedGroupMembers    IN ACCESS EXCLUSIVE MODE;
-      
+
 \d+ TestBoxes;
 
 --
--- Rename the table, drop foreign keys refering to it, and drop constrains 
+-- Rename the table, drop foreign keys refering to it, and drop constrains
 -- within the table itself.  The latter is mostly for naming and we do it
 -- up front in case the database we're running against has different names
--- due to previous conversions. 
+-- due to previous conversions.
 --
 ALTER TABLE TestBoxes RENAME TO OldTestBoxes;
 
@@ -64,17 +64,17 @@ ALTER TABLE TestSets        DROP CONSTRAINT TestSets_idGenTestBox_fkey;
 
 ALTER TABLE OldTestBoxes    DROP CONSTRAINT testboxes_pkey;
 ALTER TABLE OldTestBoxes    DROP CONSTRAINT testboxes_idgentestbox_key;
-                   
+
 DROP INDEX IF EXISTS TestBoxesUuidIdx;
 DROP INDEX IF EXISTS TestBoxesExpireEffectiveIdx;
-             
+
 -- This output should be free of index, constraints and references from other tables.
 \d+ OldTestBoxes;
-      
+
 --
--- Create the two new tables before starting data migration (don't want to spend time 
+-- Create the two new tables before starting data migration (don't want to spend time
 -- on converting strings just to find a typo in the TestBoxes create table syntax).
---                   
+--
 CREATE SEQUENCE TestBoxStrTabIdSeq
     START 1
     INCREMENT BY 1
@@ -250,7 +250,7 @@ SELECT pg_total_relation_size('TestBoxStrTab');
 -- Populate the test box table.
 --
 
-INSERT INTO TestBoxes ( 
+INSERT INTO TestBoxes (
             idTestBox,          --  0
             tsEffective,        --  1
             tsExpire,           --  2
@@ -277,46 +277,46 @@ INSERT INTO TestBoxes (
             fCpuNestedPaging,   -- 23
             fCpu64BitGuest,     -- 24
             fChipsetIoMmu,      -- 25
-            fRawMode,           -- 26 
-            cMbMemory,          -- 27 
-            cMbScratch,         -- 28 
-            idStrReport,        -- 29 
-            iTestBoxScriptRev,  -- 30 
+            fRawMode,           -- 26
+            cMbMemory,          -- 27
+            cMbScratch,         -- 28
+            idStrReport,        -- 29
+            iTestBoxScriptRev,  -- 30
             iPythonHexVersion,  -- 31
             enmPendingCmd       -- 32
             )
-SELECT      idTestBox, 
-            tsEffective, 
-            tsExpire, 
-            uidAuthor, 
-            idGenTestBox, 
-            ip,  
-            uuidSystem,  
-            sName,  
-            st1.idStr, 
-            idSchedGroup,  
-            fEnabled,  
-            enmLomKind,  
-            ipLom,  
-            pctScaleTimeout,  
+SELECT      idTestBox,
+            tsEffective,
+            tsExpire,
+            uidAuthor,
+            idGenTestBox,
+            ip,
+            uuidSystem,
+            sName,
+            st1.idStr,
+            idSchedGroup,
+            fEnabled,
+            enmLomKind,
+            ipLom,
+            pctScaleTimeout,
             NULL,
-            st2.idStr,  
-            st3.idStr,  
-            st4.idStr,  
-            st5.idStr,  
+            st2.idStr,
+            st3.idStr,
+            st4.idStr,
+            st5.idStr,
             st6.idStr,
-            lCpuRevision,         
-            cCpus,  
-            fCpuHwVirt,  
-            fCpuNestedPaging,  
-            fCpu64BitGuest,  
-            fChipsetIoMmu,  
+            lCpuRevision,
+            cCpus,
+            fCpuHwVirt,
+            fCpuNestedPaging,
+            fCpu64BitGuest,
+            fChipsetIoMmu,
             NULL,
-            cMbMemory,  
-            cMbScratch,  
+            cMbMemory,
+            cMbScratch,
             st7.idStr,
-            iTestBoxScriptRev,  
-            iPythonHexVersion,  
+            iTestBoxScriptRev,
+            iPythonHexVersion,
             enmPendingCmd
 FROM        OldTestBoxes
         LEFT OUTER JOIN TestBoxStrTab st1 ON sDescription = st1.sValue
@@ -332,9 +332,9 @@ CREATE UNIQUE INDEX TestBoxesUuidIdx ON TestBoxes (uuidSystem, tsExpire DESC);
 CREATE INDEX TestBoxesExpireEffectiveIdx ON TestBoxes (tsExpire DESC, tsEffective ASC);
 
 -- Restore foreign key references to the table.
-ALTER TABLE TestBoxStatuses ADD  CONSTRAINT TestBoxStatuses_idGenTestBox_fkey  
+ALTER TABLE TestBoxStatuses ADD  CONSTRAINT TestBoxStatuses_idGenTestBox_fkey
     FOREIGN KEY (idGenTestBox) REFERENCES TestBoxes(idGenTestBox);
-ALTER TABLE TestSets        ADD  CONSTRAINT TestSets_idGenTestBox_fkey         
+ALTER TABLE TestSets        ADD  CONSTRAINT TestSets_idGenTestBox_fkey
     FOREIGN KEY (idGenTestBox) REFERENCES TestBoxes(idGenTestBox);
 
 -- Drop the old table.
@@ -343,5 +343,4 @@ DROP TABLE OldTestBoxes;
 COMMIT;
 
 \d TestBoxes;
-
 

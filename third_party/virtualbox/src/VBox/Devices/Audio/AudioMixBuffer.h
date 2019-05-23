@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2017 Oracle Corporation
+ * Copyright (C) 2014-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -65,8 +65,9 @@ int AudioMixBufPeekMutable(PPDMAUDIOMIXBUF pMixBuf, uint32_t cFramesToRead, PPDM
 uint32_t AudioMixBufUsed(PPDMAUDIOMIXBUF pMixBuf);
 int AudioMixBufReadAt(PPDMAUDIOMIXBUF pMixBuf, uint32_t offSamples, void *pvBuf, uint32_t cbBuf, uint32_t *pcbRead);
 int AudioMixBufReadAtEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, uint32_t offSamples, void *pvBuf, uint32_t cbBuf, uint32_t *pcbRead);
-int AudioMixBufReadCirc(PPDMAUDIOMIXBUF pMixBuf, void *pvBuf, uint32_t cbBuf, uint32_t *pcRead);
-int AudioMixBufReadCircEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, void *pvBuf, uint32_t cbBuf, uint32_t *pcRead);
+int AudioMixBufAcquireReadBlock(PPDMAUDIOMIXBUF pMixBuf, void *pvBuf, uint32_t cbBuf, uint32_t *pcBlock);
+int AudioMixBufAcquireReadBlockEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, void *pvBuf, uint32_t cbBuf, uint32_t *pcBlock);
+void AudioMixBufReleaseReadBlock(PPDMAUDIOMIXBUF pMixBuf, uint32_t cBlock);
 uint32_t AudioMixBufReadPos(PPDMAUDIOMIXBUF pMixBuf);
 void AudioMixBufReset(PPDMAUDIOMIXBUF pMixBuf);
 void AudioMixBufSetVolume(PPDMAUDIOMIXBUF pMixBuf, PPDMAUDIOVOLUME pVol);

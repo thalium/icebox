@@ -7629,19 +7629,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>암호화(&amp;R)</translation>
+        <translation type="vanished">암호화(&amp;R)</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>선택하면 이 가상 머신을 암호화합니다.</translation>
+        <translation type="vanished">선택하면 이 가상 머신을 암호화합니다.</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>암호화 사용(&amp;A)</translation>
+        <translation type="vanished">암호화 사용(&amp;A)</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>암호화 방식(&amp;I):</translation>
+        <translation type="vanished">암호화 방식(&amp;I):</translation>
     </message>
     <message>
         <source>Holds the cipher to be used for encrypting the virtual machine disks.</source>
@@ -7653,7 +7653,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>가상 머신에 사용할 암호를 지정합니다.</translation>
+        <translation type="vanished">가상 머신에 사용할 암호를 지정합니다.</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -7661,23 +7661,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>가상 머신에 사용할 암호를 확인합니다.</translation>
+        <translation type="vanished">가상 머신에 사용할 암호를 확인합니다.</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>이 가상 머신을 암호화하려면 &lt;i&gt;%1&lt;/i&gt;을(를) 설치해야 합니다. VirtualBox 다운로드 사이트에서 게스트 확장을 설치하십시오.</translation>
+        <translation type="vanished">이 가상 머신을 암호화하려면 &lt;i&gt;%1&lt;/i&gt;을(를) 설치해야 합니다. VirtualBox 다운로드 사이트에서 게스트 확장을 설치하십시오.</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>암호화 방식을 지정하지 않았습니다.</translation>
+        <translation type="vanished">암호화 방식을 지정하지 않았습니다.</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>암호가 비어 있습니다.</translation>
+        <translation type="vanished">암호가 비어 있습니다.</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>암호가 일치하지 않습니다.</translation>
+        <translation type="vanished">암호가 일치하지 않습니다.</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -7691,6 +7691,46 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>이 가상 머신의 스냅샷을 저장할 경로를 표시합니다. 스냅샷은 많은 디스크 공간을 차지할 수도 있습니다.</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9916,6 +9956,38 @@ p, li { white-space: pre-wrap; }
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation>저장소 축소가 현재 구현되어 있지 않아서 미디어 크기를 &lt;b&gt;%1&lt;/b&gt;에서 &lt;b&gt;%2&lt;/b&gt;(으)로 축소할 수 없습니다.</translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation type="unfinished">이 형식의 미디어는 직접 및 간접적으로 연결되며 스냅샷을 찍을 때 보존됩니다.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation type="unfinished">이 형식의 미디어는 간접적으로 연결되며 가상 머신을 다음에 다시 시작할 때 변경 사항이 삭제됩니다.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation type="unfinished">이 형식의 미디어는 직접적으로 연결되며 스냅샷을 찍을 때 무시합니다.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation type="unfinished">이 형식의 미디어는 직접적으로 연결되며 여러 가상 머신에서 동시에 사용할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation type="unfinished">이 형식의 미디어는 직접적으로 연결되며 여러 가상 머신에서 사용할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation type="unfinished">이 형식의 미디어는 간접적으로 연결되며 한 기반 미디어를 여러 VM에서 사용할 때 가상 머신별 차이를 별도의 미디어에 기록합니다.</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -10113,6 +10185,26 @@ p, li { white-space: pre-wrap; }
         <source>Refresh Disk Image Files (%1)</source>
         <translation type="unfinished">디스크 이미지 파일 새로 고침(%1)</translation>
     </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManagerWidget</name>
@@ -10152,39 +10244,39 @@ p, li { white-space: pre-wrap; }
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>미디어 속성 수정</translation>
+        <translation type="vanished">미디어 속성 수정</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt;의 가상 디스크 속성을 수정할 것입니다.&lt;/p&gt;&lt;p&gt;미디어 종류 중 하나를 선택하시고, 계속 진행하려면 &lt;b&gt;%2&lt;/b&gt;, 취소하려면 &lt;b&gt;%3&lt;/b&gt;을(를) 누르십시오.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;%1&lt;/b&gt;의 가상 디스크 속성을 수정할 것입니다.&lt;/p&gt;&lt;p&gt;미디어 종류 중 하나를 선택하시고, 계속 진행하려면 &lt;b&gt;%2&lt;/b&gt;, 취소하려면 &lt;b&gt;%3&lt;/b&gt;을(를) 누르십시오.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>미디어 종류 선택:</translation>
+        <translation type="vanished">미디어 종류 선택:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>이 형식의 미디어는 직접 및 간접적으로 연결되며 스냅샷을 찍을 때 보존됩니다.</translation>
+        <translation type="vanished">이 형식의 미디어는 직접 및 간접적으로 연결되며 스냅샷을 찍을 때 보존됩니다.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>이 형식의 미디어는 간접적으로 연결되며 가상 머신을 다음에 다시 시작할 때 변경 사항이 삭제됩니다.</translation>
+        <translation type="vanished">이 형식의 미디어는 간접적으로 연결되며 가상 머신을 다음에 다시 시작할 때 변경 사항이 삭제됩니다.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>이 형식의 미디어는 직접적으로 연결되며 스냅샷을 찍을 때 무시합니다.</translation>
+        <translation type="vanished">이 형식의 미디어는 직접적으로 연결되며 스냅샷을 찍을 때 무시합니다.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>이 형식의 미디어는 직접적으로 연결되며 여러 가상 머신에서 동시에 사용할 수 있습니다.</translation>
+        <translation type="vanished">이 형식의 미디어는 직접적으로 연결되며 여러 가상 머신에서 동시에 사용할 수 있습니다.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>이 형식의 미디어는 직접적으로 연결되며 여러 가상 머신에서 사용할 수 있습니다.</translation>
+        <translation type="vanished">이 형식의 미디어는 직접적으로 연결되며 여러 가상 머신에서 사용할 수 있습니다.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>이 형식의 미디어는 간접적으로 연결되며 한 기반 미디어를 여러 VM에서 사용할 때 가상 머신별 차이를 별도의 미디어에 기록합니다.</translation>
+        <translation type="vanished">이 형식의 미디어는 간접적으로 연결되며 한 기반 미디어를 여러 VM에서 사용할 때 가상 머신별 차이를 별도의 미디어에 기록합니다.</translation>
     </message>
 </context>
 <context>
@@ -12146,6 +12238,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14362,7 +14462,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>사본_%1</translation>
+        <translation type="vanished">사본_%1</translation>
     </message>
     <message>
         <source>Hard drive to &amp;copy</source>
@@ -14378,27 +14478,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>가상 하드 디스크 복사</translation>
+        <translation type="vanished">가상 하드 디스크 복사</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>복사할 하드 디스크</translation>
+        <translation type="vanished">복사할 하드 디스크</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;복사할 가상 디스크를 선택하십시오. 목록에서 선택하거나 목록 옆의 폴더 아이콘을 눌러서 복사할 디스크 파일을 지정할 수 있습니다.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;복사할 가상 디스크를 선택하십시오. 목록에서 선택하거나 목록 옆의 폴더 아이콘을 눌러서 복사할 디스크 파일을 지정할 수 있습니다.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>복사할 가상 하드 디스크 파일 선택...</translation>
+        <translation type="vanished">복사할 가상 하드 디스크 파일 선택...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>하드 디스크 파일 종류</translation>
+        <translation type="vanished">하드 디스크 파일 종류</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>새 가상 하드 디스크 파일 형식을 선택하십시오. 다른 가상화 소프트웨어에서 디스크를 사용하지 않으려면 선택을 변경하지 않아도 됩니다.</translation>
+        <translation type="vanished">새 가상 하드 디스크 파일 형식을 선택하십시오. 다른 가상화 소프트웨어에서 디스크를 사용하지 않으려면 선택을 변경하지 않아도 됩니다.</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -14406,47 +14506,120 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>새 가상 하드 디스크 파일을 사용하는 대로 커지게 할 것인지(동적 할당) 최대 크기로 만들 것인지(정적 할당) 선택하십시오.</translation>
+        <translation type="vanished">새 가상 하드 디스크 파일을 사용하는 대로 커지게 할 것인지(동적 할당) 최대 크기로 만들 것인지(정적 할당) 선택하십시오.</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;동적 할당&lt;/b&gt; 하드 디스크 파일은 가상 디스크를 사용할 때 &lt;b&gt;고정된 최대 크기까지&lt;/b&gt; 파일 크기가 커지지만, 사용량이 줄어들어도 자동적으로 작아지지는 않습니다.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;동적 할당&lt;/b&gt; 하드 디스크 파일은 가상 디스크를 사용할 때 &lt;b&gt;고정된 최대 크기까지&lt;/b&gt; 파일 크기가 커지지만, 사용량이 줄어들어도 자동적으로 작아지지는 않습니다.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;고정 크기&lt;/b&gt; 하드 디스크 파일은 만드는 데 더 오래 걸리지만 사용할 때 더 빠릅니다.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;고정 크기&lt;/b&gt; 하드 디스크 파일은 만드는 데 더 오래 걸리지만 사용할 때 더 빠릅니다.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;하드 디스크 파일을 2GB 파일 여러 개로 &lt;b&gt;분할&lt;/b&gt;할 수도 있습니다. 큰 파일을 처리할 수 없는 시스템이나 이동식 디스크 등에 가상 머신을 저장할 때 유용합니다.</translation>
+        <translation type="vanished">&lt;p&gt;하드 디스크 파일을 2GB 파일 여러 개로 &lt;b&gt;분할&lt;/b&gt;할 수도 있습니다. 큰 파일을 처리할 수 없는 시스템이나 이동식 디스크 등에 가상 머신을 저장할 때 유용합니다.</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>새 가상 하드 디스크 파일의 위치를 지정하십시오</translation>
+        <translation type="vanished">새 가상 하드 디스크 파일의 위치를 지정하십시오</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>만들 새 하드 디스크</translation>
+        <translation type="vanished">만들 새 하드 디스크</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>새 가상 하드 디스크 파일의 이름을 아래 상자에 입력하거나 폴더 아이콘을 눌러서 파일을 생성할 폴더를 지정할 수 있습니다.</translation>
+        <translation type="vanished">새 가상 하드 디스크 파일의 이름을 아래 상자에 입력하거나 폴더 아이콘을 눌러서 파일을 생성할 폴더를 지정할 수 있습니다.</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>새 가상 하드 디스크 파일 위치 선택...</translation>
+        <translation type="vanished">새 가상 하드 디스크 파일 위치 선택...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>복사할 하드 디스크(&amp;C)</translation>
+        <translation type="vanished">복사할 하드 디스크(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>만들 새 하드 디스크(&amp;N)</translation>
+        <translation type="vanished">만들 새 하드 디스크(&amp;N)</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>하드 디스크 파일 종류(&amp;T)</translation>
+        <translation type="vanished">하드 디스크 파일 종류(&amp;T)</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation type="unfinished">사본_%1</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

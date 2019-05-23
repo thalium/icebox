@@ -11,7 +11,7 @@
     <message>
         <source>--</source>
         <comment>Native language country name (empty if this language is for all countries)</comment>
-        <translation></translation>
+        <translation>日本</translation>
     </message>
     <message>
         <source>English</source>
@@ -21,7 +21,7 @@
     <message>
         <source>--</source>
         <comment>Language country name, in English (empty if native country name is empty)</comment>
-        <translation></translation>
+        <translation>Japan</translation>
     </message>
     <message>
         <source>Oracle Corporation</source>
@@ -344,7 +344,7 @@
     <message>
         <source>%1, %2: %3, %4: %5, %6: %7</source>
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text, col.4 name: col.4 text</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2: %3, %4: %5, %6: %7</translation>
     </message>
 </context>
 <context>
@@ -1618,95 +1618,95 @@
     </message>
     <message>
         <source>&amp;Host Network Manager...</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークマネージャー(&amp;H)...</translation>
     </message>
     <message>
         <source>Display the Host Network Manager window</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークマネージャーのウィンドウを表示</translation>
     </message>
     <message>
         <source>&amp;Machine Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>マシンツール(&amp;M)</translation>
     </message>
     <message>
         <source>Switch to machine tools</source>
-        <translation type="unfinished"></translation>
+        <translation>マシンツールに切り替え</translation>
     </message>
     <message>
         <source>&amp;Machine Tools Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>マシンツールのメニュー(&amp;M)</translation>
     </message>
     <message>
         <source>Open the machine tools menu</source>
-        <translation type="unfinished"></translation>
+        <translation>マシンツールのメニューを開く</translation>
     </message>
     <message>
         <source>&amp;Details</source>
-        <translation type="unfinished">詳細(&amp;D)</translation>
+        <translation>詳細(&amp;D)</translation>
     </message>
     <message>
         <source>Open the machine details pane</source>
-        <translation type="unfinished"></translation>
+        <translation>マシン詳細ペインを開く</translation>
     </message>
     <message>
         <source>&amp;Snapshots</source>
-        <translation type="unfinished">スナップショット(&amp;S)</translation>
+        <translation>スナップショット(&amp;S)</translation>
     </message>
     <message>
         <source>Open the machine snapshots pane</source>
-        <translation type="unfinished"></translation>
+        <translation>マシンスナップショットペインを開く</translation>
     </message>
     <message>
         <source>&amp;Global Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>グローバルツール(&amp;G)</translation>
     </message>
     <message>
         <source>Switch to global tools</source>
-        <translation type="unfinished"></translation>
+        <translation>グローバルツールに切り替え</translation>
     </message>
     <message>
         <source>&amp;Global Tools Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>グローバルツールのメニュー(&amp;G)</translation>
     </message>
     <message>
         <source>Open the global tools menu</source>
-        <translation type="unfinished"></translation>
+        <translation>グローバルツールのメニューを開く</translation>
     </message>
     <message>
         <source>&amp;Virtual Media Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想メディアマネージャー(&amp;V)</translation>
     </message>
     <message>
         <source>Open the Virtual Media Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想メディアマネージャーを開く</translation>
     </message>
     <message>
         <source>&amp;Host Network Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークマネージャー(&amp;H)</translation>
     </message>
     <message>
         <source>Open the Host Network Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークマネージャーを開く</translation>
     </message>
     <message>
         <source>&amp;Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ(&amp;A)</translation>
     </message>
     <message>
         <source>Audio Output</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ出力</translation>
     </message>
     <message>
         <source>Enable audio output</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ出力を有効化</translation>
     </message>
     <message>
         <source>Audio Input</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ入力</translation>
     </message>
     <message>
         <source>Enable audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ入力を有効化</translation>
     </message>
 </context>
 <context>
@@ -1916,7 +1916,7 @@
     </message>
     <message>
         <source>Detailed list of all components of all virtual machines of the current appliance</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のアプライアンスのすべての仮想マシンのすべてのコンポーネントの詳細リスト</translation>
     </message>
 </context>
 <context>
@@ -1935,12 +1935,12 @@
     <message>
         <source>%1</source>
         <comment>col.1 text</comment>
-        <translation type="unfinished">%1</translation>
+        <translation>%1</translation>
     </message>
     <message>
         <source>%1: %2</source>
         <comment>col.1 text: col.2 text</comment>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
 </context>
 <context>
@@ -2612,7 +2612,7 @@
     </message>
     <message>
         <source>Verifying %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 を検証中...</translation>
     </message>
 </context>
 <context>
@@ -2701,27 +2701,27 @@
     <message>
         <source>Result&amp;nbsp;Code: </source>
         <comment>error info</comment>
-        <translation type="unfinished">終了コード&amp;nbsp;: </translation>
+        <translation>終了コード&amp;nbsp;: </translation>
     </message>
     <message>
         <source>Component: </source>
         <comment>error info</comment>
-        <translation type="unfinished">コンポーネント: </translation>
+        <translation>コンポーネント: </translation>
     </message>
     <message>
         <source>Interface: </source>
         <comment>error info</comment>
-        <translation type="unfinished">インターフェース: </translation>
+        <translation>インターフェース: </translation>
     </message>
     <message>
         <source>Callee: </source>
         <comment>error info</comment>
-        <translation type="unfinished">呼び出し先: </translation>
+        <translation>呼び出し先: </translation>
     </message>
     <message>
         <source>Callee&amp;nbsp;RC: </source>
         <comment>error info</comment>
-        <translation type="unfinished">呼び出し先&amp;nbsp;RC: </translation>
+        <translation>呼び出し先&amp;nbsp;RC: </translation>
     </message>
 </context>
 <context>
@@ -3062,12 +3062,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1, %2: %3, %4</source>
         <comment>col.2 text, col.3 name: col.3 text, col.1 name</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2: %3, %4</translation>
     </message>
     <message>
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2: %3</translation>
     </message>
 </context>
 <context>
@@ -3400,14 +3400,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Virtual Machine group</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシングループ</translation>
     </message>
 </context>
 <context>
     <name>UIGChooserItemMachine</name>
     <message>
         <source>Virtual Machine</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン</translation>
     </message>
 </context>
 <context>
@@ -3421,7 +3421,7 @@ p, li { white-space: pre-wrap; }
     <name>UIGChooserView</name>
     <message>
         <source>Contains a tree of Virtual Machines and their groups</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシンとそのグループのツリーを含む</translation>
     </message>
 </context>
 <context>
@@ -3623,7 +3623,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Generic Driver, &apos;%1&apos;</source>
         <comment>details (network)</comment>
-        <translation>汎用ドライバー, &apos;%1&apos; </translation>
+        <translation>汎用ドライバー, &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Generic Driver, &apos;%1&apos; { %2 }</source>
@@ -3683,7 +3683,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1 (%2 active)</source>
         <comment>details (usb)</comment>
-        <translation>%1 (%2 アクティブ)</translation>
+        <translation>%1 (%2 有効)</translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -3813,57 +3813,57 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Chipset Type</source>
         <comment>details (system)</comment>
-        <translation type="unfinished"></translation>
+        <translation>チップセットのタイプ</translation>
     </message>
     <message>
         <source>Enabled</source>
         <comment>details (system/EFI)</comment>
-        <translation type="unfinished">有効</translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>EFI</source>
         <comment>details (system)</comment>
-        <translation type="unfinished"></translation>
+        <translation>EFI</translation>
     </message>
     <message>
         <source>Disabled</source>
         <comment>details (system/EFI)</comment>
-        <translation type="unfinished">無効</translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>Disabled</source>
         <comment>details (display/Unscaled HiDPI Video Output)</comment>
-        <translation type="unfinished">無効</translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>Audio Output</source>
         <comment>details (audio)</comment>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ出力</translation>
     </message>
     <message>
         <source>Enabled</source>
         <comment>details (audio/output)</comment>
-        <translation type="unfinished">有効</translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>Disabled</source>
         <comment>details (audio/output)</comment>
-        <translation type="unfinished">無効</translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>Audio Input</source>
         <comment>details (audio)</comment>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ入力</translation>
     </message>
     <message>
         <source>Enabled</source>
         <comment>details (audio/input)</comment>
-        <translation type="unfinished">有効</translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>Disabled</source>
         <comment>details (audio/input)</comment>
-        <translation type="unfinished">無効</translation>
+        <translation>無効</translation>
     </message>
 </context>
 <context>
@@ -3871,14 +3871,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1 details</source>
         <comment>like &apos;General details&apos; or &apos;Storage details&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 の詳細</translation>
     </message>
 </context>
 <context>
     <name>UIGDetailsSet</name>
     <message>
         <source>Contains the details of virtual machine &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン &apos;%1&apos; の詳細を含む</translation>
     </message>
 </context>
 <context>
@@ -4083,7 +4083,7 @@ p, li { white-space: pre-wrap; }
     <name>UIGDetailsView</name>
     <message>
         <source>Contains a list of Virtual Machine details</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシンの詳細のリストを含む</translation>
     </message>
 </context>
 <context>
@@ -4425,7 +4425,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source> (built-in)</source>
         <comment>Language</comment>
-        <translation>(内蔵)</translation>
+        <translation> (内蔵)</translation>
     </message>
     <message>
         <source>&lt;unavailable&gt;</source>
@@ -5260,7 +5260,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1: %2</source>
         <comment>&apos;key: value&apos;, like &apos;Name: MyVM&apos;</comment>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
 </context>
 <context>
@@ -5342,170 +5342,170 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Left %1</source>
-        <translation type="unfinished"></translation>
+        <translation>左 %1</translation>
     </message>
     <message>
         <source>Right %1</source>
-        <translation type="unfinished"></translation>
+        <translation>右 %1</translation>
     </message>
 </context>
 <context>
     <name>UIHostNetworkDetailsWidget</name>
     <message>
         <source>&amp;Adapter</source>
-        <translation type="unfinished">アダプター(&amp;A)</translation>
+        <translation>アダプター(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;DHCP Server</source>
-        <translation type="unfinished">DHCP サーバー(&amp;D)</translation>
+        <translation>DHCP サーバー(&amp;D)</translation>
     </message>
     <message>
         <source>Configure Adapter &amp;Automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>アダプターを自動で設定(&amp;A)</translation>
     </message>
     <message>
         <source>Configure Adapter &amp;Manually</source>
-        <translation type="unfinished"></translation>
+        <translation>アダプターを手動で設定(&amp;M)</translation>
     </message>
     <message>
         <source>&amp;IPv4 Address:</source>
-        <translation type="unfinished">IPv4 アドレス(&amp;I):</translation>
+        <translation>&amp;IPv4 アドレス:</translation>
     </message>
     <message>
         <source>Holds the host IPv4 address for this adapter.</source>
-        <translation type="unfinished">このアダプターのホスト IPv4 アドレスを指定します。</translation>
+        <translation>このアダプターのホスト IPv4 アドレスを指定します。</translation>
     </message>
     <message>
         <source>IPv4 Network &amp;Mask:</source>
-        <translation type="unfinished">IPv4 ネットマスク(&amp;M):</translation>
+        <translation>IPv4 ネットマスク(&amp;M):</translation>
     </message>
     <message>
         <source>Holds the host IPv4 network mask for this adapter.</source>
-        <translation type="unfinished">このアダプターのホスト IPv4 ネットマスクを指定します。</translation>
+        <translation>このアダプターのホスト IPv4 ネットマスクを指定します。</translation>
     </message>
     <message>
         <source>I&amp;Pv6 Address:</source>
-        <translation type="unfinished"></translation>
+        <translation>I&amp;Pv6アドレス:</translation>
     </message>
     <message>
         <source>Holds the host IPv6 address for this adapter if IPv6 is supported.</source>
-        <translation type="unfinished">IPv6がサポートされるとき、このアダプターのホスト IPv6 アドレスを指定します。</translation>
+        <translation>IPv6がサポートされるとき、このアダプターのホスト IPv6 アドレスを指定します。</translation>
     </message>
     <message>
         <source>IPv6 Prefix &amp;Length:</source>
-        <translation type="unfinished">IPv6 ネットマスク長(&amp;L):</translation>
+        <translation>IPv6 ネットマスク長(&amp;L):</translation>
     </message>
     <message>
         <source>Holds the host IPv6 prefix length for this adapter if IPv6 is supported.</source>
-        <translation type="unfinished">IPv6がサポートされるとき、このアダプターのホスト IPv6 ネットマスクのプレフィックス長を指定します。</translation>
+        <translation>IPv6がサポートされるとき、このアダプターのホスト IPv6 ネットマスクのプレフィックス長を指定します。</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">リセット</translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Reset changes in current interface details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のインターフェース詳細の変更をリセット</translation>
     </message>
     <message>
         <source>Apply changes in current interface details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のインターフェース詳細の変更を適用</translation>
     </message>
     <message>
         <source>Reset Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更をリセット(%1)</translation>
     </message>
     <message>
         <source>Apply Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更を適用 (%1)</translation>
     </message>
     <message>
         <source>&amp;Enable Server</source>
-        <translation type="unfinished">サーバーを有効化(&amp;E)</translation>
+        <translation>サーバーを有効化(&amp;E)</translation>
     </message>
     <message>
         <source>When checked, the DHCP Server will be enabled for this network on machine start-up.</source>
-        <translation type="unfinished">仮想マシンの起動時にこのネットワークのDHCPサーバーが有効になります。</translation>
+        <translation>仮想マシンの起動時にこのネットワークのDHCPサーバーが有効になります。</translation>
     </message>
     <message>
         <source>Server Add&amp;ress:</source>
-        <translation type="unfinished">サーバー アドレス(&amp;R):</translation>
+        <translation>サーバー アドレス(&amp;R):</translation>
     </message>
     <message>
         <source>Holds the address of the DHCP server servicing the network associated with this host-only adapter.</source>
-        <translation type="unfinished">ホストオンリーアダプターにDHCP サーバーによって割り当てられるIPアドレスを指定します。</translation>
+        <translation>ホストオンリーアダプターにDHCP サーバーによって割り当てられるIPアドレスを指定します。</translation>
     </message>
     <message>
         <source>Server &amp;Mask:</source>
-        <translation type="unfinished">サーバー マスク(&amp;M):</translation>
+        <translation>サーバー マスク(&amp;M):</translation>
     </message>
     <message>
         <source>Holds the network mask of the DHCP server servicing the network associated with this host-only adapter.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーアダプターにDHCP サーバーによって割り当てられるネットマスクを指定します。</translation>
     </message>
     <message>
         <source>&amp;Lower Address Bound:</source>
-        <translation type="unfinished">アドレス下限(&amp;L):</translation>
+        <translation>アドレス下限(&amp;L):</translation>
     </message>
     <message>
         <source>Holds the lower address bound offered by the DHCP server servicing the network associated with this host-only adapter.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーアダプターにDHCP サーバーによって割り当てられるアドレスの下限値を指定します。</translation>
     </message>
     <message>
         <source>&amp;Upper Address Bound:</source>
-        <translation type="unfinished">アドレス上限(&amp;U):</translation>
+        <translation>アドレス上限(&amp;U):</translation>
     </message>
     <message>
         <source>Holds the upper address bound offered by the DHCP server servicing the network associated with this host-only adapter.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーアダプターにDHCP サーバーによって割り当てられるアドレスの上限値を指定します。</translation>
     </message>
     <message>
         <source>Reset changes in current DHCP server details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のDHCPサーバー詳細の変更をリセット</translation>
     </message>
     <message>
         <source>Apply changes in current DHCP server details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のDHCPサーバー詳細の変更を適用</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; is set to obtain the address automatically but the corresponding DHCP server is not enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; はアドレスを自動的に取得するように設定されていますが、該当のDHCPサーバーは有効になっていません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid IPv4 address.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいIPv4アドレスではありません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid IPv4 network mask.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいIPv4ネットワークマスクではありません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid IPv6 address.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいIPv6アドレスではありません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid IPv6 prefix length.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいIPv6ネットワークマスクプレフィックス長ではありません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid DHCP server address.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいDHCPサーバーアドレスではありません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid DHCP server mask.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいDHCPサーバーマスクではありません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid DHCP server lower address bound.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいDHCPサーバーのアドレス下限にありません。</translation>
     </message>
     <message>
         <source>Host interface &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; does not currently have a valid DHCP server upper address bound.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストインターフェース &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; は正しいDHCPサーバーのアドレス上限にありません。</translation>
     </message>
 </context>
 <context>
@@ -5513,191 +5513,191 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Enable</source>
         <comment>DHCP Server</comment>
-        <translation type="unfinished">有効</translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>Adapter</source>
-        <translation type="unfinished">アダプター</translation>
+        <translation>アダプター</translation>
     </message>
     <message>
         <source>Automatically configured</source>
         <comment>interface</comment>
-        <translation type="unfinished">自動構成</translation>
+        <translation>自動構成</translation>
     </message>
     <message>
         <source>Manually configured</source>
         <comment>interface</comment>
-        <translation type="unfinished">手動構成</translation>
+        <translation>手動構成</translation>
     </message>
     <message>
         <source>IPv4 Address</source>
-        <translation type="unfinished">IPv4 アドレス</translation>
+        <translation>IPv4 アドレス</translation>
     </message>
     <message>
         <source>Not set</source>
         <comment>address</comment>
-        <translation type="unfinished">未設定</translation>
+        <translation>未設定</translation>
     </message>
     <message>
         <source>IPv4 Network Mask</source>
-        <translation type="unfinished">IPv4 ネットマスク</translation>
+        <translation>IPv4 ネットマスク</translation>
     </message>
     <message>
         <source>Not set</source>
         <comment>mask</comment>
-        <translation type="unfinished">未設定</translation>
+        <translation>未設定</translation>
     </message>
     <message>
         <source>IPv6 Address</source>
-        <translation type="unfinished">IPv6 アドレス</translation>
+        <translation>IPv6 アドレス</translation>
     </message>
     <message>
         <source>IPv6 Prefix Length</source>
-        <translation type="unfinished">IPv6 ネットマスク</translation>
+        <translation>IPv6 ネットマスク</translation>
     </message>
     <message>
         <source>Not set</source>
         <comment>length</comment>
-        <translation type="unfinished">未設定</translation>
+        <translation>未設定</translation>
     </message>
     <message>
         <source>DHCP Server</source>
-        <translation type="unfinished">DHCP サーバー</translation>
+        <translation>DHCP サーバー</translation>
     </message>
     <message>
         <source>Enabled</source>
         <comment>server</comment>
-        <translation type="unfinished">有効</translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>Disabled</source>
         <comment>server</comment>
-        <translation type="unfinished">無効</translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">アドレス</translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <source>Network Mask</source>
-        <translation type="unfinished">ネットマスク</translation>
+        <translation>ネットマスク</translation>
     </message>
     <message>
         <source>Lower Bound</source>
-        <translation type="unfinished">下限</translation>
+        <translation>下限</translation>
     </message>
     <message>
         <source>Not set</source>
         <comment>bound</comment>
-        <translation type="unfinished">未設定</translation>
+        <translation>未設定</translation>
     </message>
     <message>
         <source>Upper Bound</source>
-        <translation type="unfinished">上限</translation>
+        <translation>上限</translation>
     </message>
     <message>
         <source>&amp;Network</source>
-        <translation type="unfinished">ネットワーク(&amp;N)</translation>
+        <translation>ネットワーク(&amp;N)</translation>
     </message>
     <message>
         <source>&amp;Create</source>
-        <translation type="unfinished">作成(&amp;C)</translation>
+        <translation>作成(&amp;C)</translation>
     </message>
     <message>
         <source>Create Host-only Network (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーネットワークを作成 (%1)</translation>
     </message>
     <message>
         <source>Create new host-only network</source>
-        <translation type="unfinished"></translation>
+        <translation>新しいホストオンリーネットワークを作成</translation>
     </message>
     <message>
         <source>&amp;Remove...</source>
-        <translation type="unfinished">除去(&amp;R)...</translation>
+        <translation>除去(&amp;R)...</translation>
     </message>
     <message>
         <source>Remove Host-only Network (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーネットワークを除去 (%1)</translation>
     </message>
     <message>
         <source>Remove selected host-only network</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したホストオンリーネットワークを除去します</translation>
     </message>
     <message>
         <source>&amp;Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>プロパティ(&amp;P)...</translation>
     </message>
     <message>
         <source>Open Host-only Network Properties (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーネットワークのプロパティを開く (%1)</translation>
     </message>
     <message>
         <source>Open pane with selected host-only network properties</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したホストオンリーネットワークのプロパティをペインで開く</translation>
     </message>
     <message>
         <source>&amp;Refresh...</source>
-        <translation type="unfinished"></translation>
+        <translation>最新の情報に更新(&amp;R)...</translation>
     </message>
     <message>
         <source>Refresh Host-only Networks (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーネットワークを最新の状態に更新 (%1)</translation>
     </message>
     <message>
         <source>Refresh the list of host-only networks</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストオンリーネットワークのリストを最新の状態に更新する</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>IPv4 Address/Mask</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 アドレス/マスク</translation>
     </message>
     <message>
         <source>IPv6 Address/Mask</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv6 アドレス/マスク</translation>
     </message>
     <message>
         <source>Host Network Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークマネージャー</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">リセット</translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <source>Reset changes in current host network details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のホストネットワーク詳細の変更をリセット</translation>
     </message>
     <message>
         <source>Apply changes in current host network details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のホストネットワーク詳細の変更を適用</translation>
     </message>
     <message>
         <source>Close dialog without saving</source>
-        <translation type="unfinished"></translation>
+        <translation>保存しないでダイアログを閉じる</translation>
     </message>
     <message>
         <source>Reset Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更をリセット (%1)</translation>
     </message>
     <message>
         <source>Apply Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更を適用 (%1)</translation>
     </message>
     <message>
         <source>Close Window (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ウィンドウを閉じる (%1)</translation>
     </message>
 </context>
 <context>
@@ -5708,11 +5708,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Adding network...</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワークの追加...</translation>
     </message>
     <message>
         <source>Removing network...</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワークの削除...</translation>
     </message>
 </context>
 <context>
@@ -6184,112 +6184,112 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Adapter %1 (%2)</source>
         <comment>Network tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>アダプター %1 (%2)</translation>
     </message>
     <message>
         <source>IP</source>
         <comment>Network tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>IP</translation>
     </message>
     <message>
         <source>Cable</source>
         <comment>Network tooltip</comment>
-        <translation type="unfinished">ケーブル</translation>
+        <translation>ケーブル</translation>
     </message>
     <message>
         <source>Connected</source>
         <comment>cable (Network tooltip)</comment>
-        <translation type="unfinished">接続</translation>
+        <translation>接続</translation>
     </message>
     <message>
         <source>Disconnected</source>
         <comment>cable (Network tooltip)</comment>
-        <translation type="unfinished">切断</translation>
+        <translation>切断</translation>
     </message>
     <message>
         <source>No USB devices attached</source>
         <comment>USB tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>USBデバイス未割り当て</translation>
     </message>
     <message>
         <source>No shared folders</source>
         <comment>Shared folders tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>共有フォルダーなし</translation>
     </message>
     <message>
         <source>Video memory</source>
         <comment>Display tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>ビデオメモリー</translation>
     </message>
     <message>
         <source>Screens</source>
         <comment>Display tooltip</comment>
-        <translation type="unfinished">スクリーン</translation>
+        <translation>スクリーン</translation>
     </message>
     <message>
         <source>3D acceleration</source>
         <comment>Display tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>3D アクセラレーション</translation>
     </message>
     <message>
         <source>Video capture disabled</source>
         <comment>Video capture tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>ビデオキャプチャー無効</translation>
     </message>
     <message>
         <source>Video capture file</source>
         <comment>Video capture tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>ビデオキャプチャーしたファイル</translation>
     </message>
     <message>
         <source>Indicates whether the host mouse pointer is captured by the guest OS:%1</source>
         <comment>Mouse tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>ホストのマウスポインターをゲストOS (%1) でキャプチャーしているかどうかを示します</translation>
     </message>
     <message>
         <source>pointer is not captured</source>
         <comment>Mouse tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>ポインターがキャプチャーされていません</translation>
     </message>
     <message>
         <source>pointer is captured</source>
         <comment>Mouse tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>ポインターがキャプチャーされています</translation>
     </message>
     <message>
         <source>mouse integration (MI) is On</source>
         <comment>Mouse tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>マウス統合 (MI) が有効です</translation>
     </message>
     <message>
         <source>MI is Off, pointer is captured</source>
         <comment>Mouse tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>MIがオンです。ポインターはキャプチャーされています</translation>
     </message>
     <message>
         <source>MI is Off, pointer is not captured</source>
         <comment>Mouse tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>MIがオフです。ポインターはキャプチャーされていません</translation>
     </message>
     <message>
         <source>Note that the mouse integration feature requires Guest Additions to be installed in the guest OS.</source>
         <comment>Mouse tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>マウス統合機能はインストールしたゲストOSにGuest Additionsが必要です。</translation>
     </message>
     <message>
         <source>Indicates whether the host keyboard is captured by the guest OS:%1</source>
         <comment>Keyboard tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>ホストのキーボードをゲストOS (%1) でキャプチャーしているかどうかを示します</translation>
     </message>
     <message>
         <source>keyboard is not captured</source>
         <comment>Keyboard tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>キーボードがキャプチャーされていません</translation>
     </message>
     <message>
         <source>keyboard is captured</source>
         <comment>Keyboard tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>キーボードがギャプチャーされています</translation>
     </message>
 </context>
 <context>
@@ -6595,7 +6595,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>リクエスト</translation>
     </message>
 </context>
 <context>
@@ -6726,7 +6726,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1 (%2 active)</source>
         <comment>details report (USB)</comment>
-        <translation>%1 (%2 アクティブ)</translation>
+        <translation>%1 (%2 有効)</translation>
     </message>
 </context>
 <context>
@@ -6734,12 +6734,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1, %2</source>
         <comment>col.2 text, col.1 name</comment>
-        <translation type="unfinished">%1: %2 {1,?}</translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>%1</source>
         <comment>col.2 text</comment>
-        <translation type="unfinished">%1</translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
@@ -6860,23 +6860,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Extended Features:</source>
-        <translation type="unfinished">拡張機能:</translation>
+        <translation>拡張機能:</translation>
     </message>
     <message>
         <source>When checked, output to the virtual audio device will reach the host. Otherwise the guest is muted.</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想オーディオデバイスの出力をホストに届けます。そうでなければゲストは無音です。</translation>
     </message>
     <message>
         <source>Enable Audio &amp;Output</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ出力を有効化(&amp;O)</translation>
     </message>
     <message>
         <source>When checked, the guest will be able to capture audio input from the host. Otherwise the guest will capture only silence.</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲストはホストからのオーディオ入力をキャプチャします。そうでなければゲストは無音をキャプチャします。</translation>
     </message>
     <message>
         <source>Enable Audio &amp;Input</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ入力を有効化(&amp;I)</translation>
     </message>
 </context>
 <context>
@@ -7270,11 +7270,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>When checked, VirtualBox will record the audio stream to video file as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>チェックを入れると、VirtualBoxはオーディオストリームもビデオファイルの記録します。</translation>
     </message>
     <message>
         <source>&amp;Record Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオを保存(&amp;R)</translation>
     </message>
 </context>
 <context>
@@ -7541,19 +7541,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>暗号化(&amp;R)</translation>
+        <translation type="vanished">暗号化(&amp;R)</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>この仮想マシンを暗号化します。</translation>
+        <translation type="vanished">この仮想マシンを暗号化します。</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>暗号化を有効化(&amp;A)</translation>
+        <translation type="vanished">暗号化を有効化(&amp;A)</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>暗号化方式(&amp;I):</translation>
+        <translation type="vanished">暗号化方式(&amp;I):</translation>
     </message>
     <message>
         <source>Holds the cipher to be used for encrypting the virtual machine disks.</source>
@@ -7565,7 +7565,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>仮想マシンに割り当てるパスワードを決定します。</translation>
+        <translation type="vanished">仮想マシンに割り当てるパスワードを決定します。</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -7573,23 +7573,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>仮想マシンに割り当てるパスワードを確認します。</translation>
+        <translation type="vanished">仮想マシンに割り当てるパスワードを確認します。</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>この仮想マシンを暗号化しようとしています。しかし、これには&lt;i&gt;%1&lt;/i&gt; のインストールが必要です。VirtualBoxダウンロードサイトから拡張パックをインストールしてください。 </translation>
+        <translation type="vanished">この仮想マシンを暗号化しようとしています。しかし、これには&lt;i&gt;%1&lt;/i&gt; のインストールが必要です。VirtualBoxダウンロードサイトから拡張パックをインストールしてください。</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>暗号化方式が指定されていません。</translation>
+        <translation type="vanished">暗号化方式が指定されていません。</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>暗号化パスワードが空です。</translation>
+        <translation type="vanished">暗号化パスワードが空です。</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>暗号化パスワードが一致しません。</translation>
+        <translation type="vanished">暗号化パスワードが一致しません。</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -7603,6 +7603,46 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>この仮想マシンのスナップショットの保存先パスを指定します。注：スナップショットは多くのディスク容量を消費します。</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8259,11 +8299,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source> Machine Folders</source>
-        <translation>共有フォルダー</translation>
+        <translation> 共有フォルダー</translation>
     </message>
     <message>
         <source> Transient Folders</source>
-        <translation>一時的な共有フォルダー</translation>
+        <translation> 一時的な共有フォルダー</translation>
     </message>
     <message>
         <source>Full</source>
@@ -8339,7 +8379,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Shared &amp;Folders</source>
-        <translation type="unfinished">共有フォルダー(&amp;F)</translation>
+        <translation>共有フォルダー(&amp;F)</translation>
     </message>
 </context>
 <context>
@@ -8668,7 +8708,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>No hard disk is selected for &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation> &lt;i&gt;%1&lt;/i&gt;のためのハードディスクが選択されていません。</translation>
+        <translation>&lt;i&gt;%1&lt;/i&gt;のためのハードディスクが選択されていません。</translation>
     </message>
     <message>
         <source>no name specified for controller at position &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -9144,7 +9184,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Storage Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>ストレージデバイス(&amp;S)</translation>
     </message>
 </context>
 <context>
@@ -9462,19 +9502,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>The I/O APIC feature is not currently enabled in the Motherboard section of the System page. This is needed to support a chipset of type ICH9. It will be enabled automatically if you confirm your changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>I/O APIC機能はシステムページのマザーボードセクションで有効になっていません。チップセットのタイプをICH9にするなら必須です。変更を確認すると自動的に有効になります。</translation>
     </message>
     <message>
         <source>The USB controller emulation is not currently enabled on the USB page. This is needed to support an emulated USB pointing device. It will be enabled automatically if you confirm your changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>USBコントローラーエミュレーションがUSBのページで有効になっていません。USBポインティングデバイスのエミュレーションを使用するのに必要です。変更を確認すると自動的に有効になります。</translation>
     </message>
     <message>
         <source>The I/O APIC feature is not currently enabled in the Motherboard section of the System page. This is needed to support more than one virtual processor. It will be enabled automatically if you confirm your changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>I/O APIC機能はシステムページのマザーボードセクションで有効になっていません。仮想プロセッサーを1つ以上にするのなら必須です。変更を確認すると自動的に有効になります。</translation>
     </message>
     <message>
         <source>The hardware virtualization is not currently enabled in the Acceleration section of the System page. This is needed to support more than one virtual processor. It will be enabled automatically if you confirm your changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>ハードウェア仮想化がシステムページのアクセラレーションセクションで有効になっていません。仮想プロセッサーを1つ以上にするのなら必須です。変更を確認すると自動的に有効になります。</translation>
     </message>
 </context>
 <context>
@@ -9835,7 +9875,7 @@ p, li { white-space: pre-wrap; }
     <name>UIMachineWindow</name>
     <message>
         <source> EXPERIMENTAL build %1r%2 - %3</source>
-        <translation>試験的ビルド %1r%2 - %3</translation>
+        <translation> 試験的ビルド %1r%2 - %3</translation>
     </message>
 </context>
 <context>
@@ -9849,71 +9889,103 @@ p, li { white-space: pre-wrap; }
     <name>UIMediumDetailsWidget</name>
     <message>
         <source>&amp;Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>属性(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Information</source>
-        <translation type="unfinished"></translation>
+        <translation>情報(&amp;I)</translation>
     </message>
     <message>
         <source>&amp;Type:</source>
-        <translation type="unfinished">タイプ(&amp;T):</translation>
+        <translation>タイプ(&amp;T):</translation>
     </message>
     <message>
         <source>&amp;Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>場所(&amp;L):</translation>
     </message>
     <message>
         <source>&amp;Description:</source>
-        <translation type="unfinished">説明(&amp;D):</translation>
+        <translation>説明(&amp;D):</translation>
     </message>
     <message>
         <source>&amp;Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ(&amp;S):</translation>
     </message>
     <message>
         <source>Holds the type of this medium.</source>
-        <translation type="unfinished"></translation>
+        <translation>このメディアのタイプを指定します。</translation>
     </message>
     <message>
         <source>Holds the location of this medium.</source>
-        <translation type="unfinished"></translation>
+        <translation>このメディアの場所を指定します。</translation>
     </message>
     <message>
         <source>Holds the description of this medium.</source>
-        <translation type="unfinished"></translation>
+        <translation>このメディアの説明を指定します。</translation>
     </message>
     <message>
         <source>Holds the size of this medium.</source>
-        <translation type="unfinished"></translation>
+        <translation>このメディアのサイズを指定します。</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">リセット</translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Reset changes in current medium details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のメディアの説明の変更をリセットします</translation>
     </message>
     <message>
         <source>Apply changes in current medium details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のメディアの説明の変更を適用します</translation>
     </message>
     <message>
         <source>Reset Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更をリセット(%1)</translation>
     </message>
     <message>
         <source>Apply Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更の適用 (%1)</translation>
     </message>
     <message>
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt;から&lt;b&gt;%2&lt;/b&gt;へのメディアサイズの縮小は現在サポートしていません。</translation>
+    </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation>メディアの場所を選択</translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation>場所は空にできません。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation>このタイプのメディアは直接あるいは間接的に割り当てられます。スナップショットでは保持されます。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation>このタイプのメディアは間接的に割り当てられます。変更は次に仮想マシンが起動するときには消去しています。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation>このタイプのメディアは直接割り当てられます。スナップショットでは無視されます。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation>このタイプのメディアは直接割り当てられます。いくつかのマシンから同時利用できます。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation>このタイプのメディアは直接割り当てられます。いくつかのマシンから使用されることもあります。</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation>このタイプのメディアは間接的に割り当てられます。一つのベースとなるメディアを元に独自の変更を加えた上で、いくつかのVMから使用されています。</translation>
     </message>
 </context>
 <context>
@@ -9949,218 +10021,238 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%1, %2: %3, %4: %5</source>
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2: %3, %4: %5</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished">フォーマット:</translation>
+        <translation>フォーマット:</translation>
     </message>
     <message>
         <source>Storage details:</source>
-        <translation type="unfinished">ストレージの詳細:</translation>
+        <translation>ストレージの詳細:</translation>
     </message>
     <message>
         <source>Attached to:</source>
-        <translation type="unfinished">割り当て:</translation>
+        <translation>割り当て:</translation>
     </message>
     <message>
         <source>Encrypted with key:</source>
-        <translation type="unfinished">暗号化の鍵:</translation>
+        <translation>暗号化の鍵:</translation>
     </message>
     <message>
         <source>UUID:</source>
-        <translation type="unfinished">UUID:</translation>
+        <translation>UUID:</translation>
     </message>
     <message>
         <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
-        <translation type="unfinished">&lt;i&gt;未割り当て&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;未割り当て&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;i&gt;Not&amp;nbsp;Encrypted&lt;/i&gt;</source>
-        <translation type="unfinished">&lt;i&gt;暗号化なし&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;暗号化なし&lt;/i&gt;</translation>
     </message>
     <message>
         <source>--</source>
         <comment>no info</comment>
-        <translation type="unfinished">--</translation>
+        <translation>--</translation>
     </message>
     <message>
         <source>&amp;Medium</source>
-        <translation type="unfinished"></translation>
+        <translation>メディア(&amp;M)</translation>
     </message>
     <message>
         <source>&amp;Copy...</source>
-        <translation type="unfinished">コピー(&amp;C)...</translation>
+        <translation>コピー(&amp;C)...</translation>
     </message>
     <message>
         <source>Copy selected disk image file</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したディスクイメージファイルをコピー</translation>
     </message>
     <message>
         <source>&amp;Remove...</source>
-        <translation type="unfinished">除去(&amp;R)...</translation>
+        <translation>除去(&amp;R)...</translation>
     </message>
     <message>
         <source>Remove selected disk image file</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したディスクイメージファイルを除去</translation>
     </message>
     <message>
         <source>Re&amp;lease...</source>
-        <translation type="unfinished"></translation>
+        <translation>解放(&amp;L)...</translation>
     </message>
     <message>
         <source>Release selected disk image file by detaching it from machines</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したメディアを仮想マシンから割り当て解除して解放する</translation>
     </message>
     <message>
         <source>&amp;Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>プロパティ(&amp;P)...</translation>
     </message>
     <message>
         <source>Open pane with selected disk image file properties</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したディスクイメージファイルのプロパティをペインで開く</translation>
     </message>
     <message>
         <source>Re&amp;fresh</source>
-        <translation type="unfinished">最新の情報に更新(&amp;F)</translation>
+        <translation>最新の情報に更新(&amp;F)</translation>
     </message>
     <message>
         <source>Refresh the list of disk image files</source>
-        <translation type="unfinished">メディアリストを最新の情報に更新</translation>
+        <translation>メディアリストを最新の情報に更新</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Virtual Size</source>
-        <translation type="unfinished">仮想的なサイズ</translation>
+        <translation>仮想的なサイズ</translation>
     </message>
     <message>
         <source>Actual Size</source>
-        <translation type="unfinished">実際のサイズ</translation>
+        <translation>実際のサイズ</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">サイズ</translation>
+        <translation>サイズ</translation>
     </message>
     <message>
         <source>Checking accessibility</source>
-        <translation type="unfinished">アクセス可否を確認</translation>
+        <translation>アクセス可否を確認</translation>
     </message>
     <message>
         <source>Moving medium...</source>
-        <translation type="unfinished"></translation>
+        <translation>メディアを移動中...</translation>
     </message>
     <message>
         <source>Virtual Media Manager</source>
-        <translation type="unfinished">仮想メディアマネージャー</translation>
+        <translation>仮想メディアマネージャー</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">リセット</translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <source>Reset changes in current medium details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のメディアの説明の変更をリセットします</translation>
     </message>
     <message>
         <source>Apply changes in current medium details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のメディアの説明の変更を適用します</translation>
     </message>
     <message>
         <source>Close dialog without saving</source>
-        <translation type="unfinished"></translation>
+        <translation>保存しないでダイアログを閉じる</translation>
     </message>
     <message>
         <source>Reset Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更をリセット (%1)</translation>
     </message>
     <message>
         <source>Apply Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更を適用 (%1)</translation>
     </message>
     <message>
         <source>Close Window (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ウィンドウを閉じる (%1)</translation>
     </message>
     <message>
         <source>Copy Disk Image File (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ディスクイメージファイル ( %1) をコピー</translation>
     </message>
     <message>
         <source>Remove Disk Image File (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ディスクイメージファイルを除去 (%1)</translation>
     </message>
     <message>
         <source>Release Disk Image File (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ディスクイメージファイルを解放 (%1)</translation>
     </message>
     <message>
         <source>Open Disk Image File Properties (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ディスクイメージファイルのプロパティを開く (%1)</translation>
     </message>
     <message>
         <source>Refresh Disk Image Files (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ディスクイメージファイルを最新の情報に更新 (%1)</translation>
+    </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation>現在の拡張機能 (*.%1)</translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation>このメディアの場所を選択</translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation>移動(&amp;M)...</translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation>ディスクイメージファイル (%1) を移動</translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation>選択したディスクイメージファイルを移動</translation>
     </message>
 </context>
 <context>
     <name>UIMediumSizeEditor</name>
     <message>
         <source>Holds the size of this medium.</source>
-        <translation type="unfinished"></translation>
+        <translation>このメディアのサイズを指定します。</translation>
     </message>
     <message>
         <source>&lt;nobr&gt;%1 (%2 B)&lt;/nobr&gt;</source>
-        <translation type="unfinished">&lt;nobr&gt;%1 (%2 B)&lt;/nobr&gt;</translation>
+        <translation>&lt;nobr&gt;%1 (%2 B)&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>メディアの属性を変更</translation>
+        <translation type="vanished">メディアの属性を変更</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; にある仮想ディスクの属性を変更しようとしています。&lt;/p&gt;&lt;p&gt;メディアタイプを選択し &lt;b&gt;%2&lt;/b&gt; を押して開始するか、それ以外の &lt;b&gt;%3&lt;/b&gt; を行なってください。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; にある仮想ディスクの属性を変更しようとしています。&lt;/p&gt;&lt;p&gt;メディアタイプを選択し &lt;b&gt;%2&lt;/b&gt; を押して開始するか、それ以外の &lt;b&gt;%3&lt;/b&gt; を行なってください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>メディアタイプを選択:</translation>
+        <translation type="vanished">メディアタイプを選択:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>このタイプのメディアは直接あるいは間接的に割り当てられます。スナップショットでは保持されます。</translation>
+        <translation type="vanished">このタイプのメディアは直接あるいは間接的に割り当てられます。スナップショットでは保持されます。</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>このタイプのメディアは間接的に割り当てられます。変更は次に仮想マシンが起動するときには消去しています。</translation>
+        <translation type="vanished">このタイプのメディアは間接的に割り当てられます。変更は次に仮想マシンが起動するときには消去しています。</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>このタイプのメディアは直接割り当てられます。スナップショットでは無視されます。</translation>
+        <translation type="vanished">このタイプのメディアは直接割り当てられます。スナップショットでは無視されます。</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>このタイプのメディアは直接割り当てられます。いくつかのマシンから同時利用できます。</translation>
+        <translation type="vanished">このタイプのメディアは直接割り当てられます。いくつかのマシンから同時利用できます。</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>このタイプのメディアは直接割り当てられます。いくつかのマシンから使用されることもあります。</translation>
+        <translation type="vanished">このタイプのメディアは直接割り当てられます。いくつかのマシンから使用されることもあります。</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>このタイプのメディアは間接的に割り当てられます。一つのベースとなるメディアを元に独自の変更を加えた上で、いくつかのVMから使用されています。</translation>
+        <translation type="vanished">このタイプのメディアは間接的に割り当てられます。一つのベースとなるメディアを元に独自の変更を加えた上で、いくつかのVMから使用されています。</translation>
     </message>
 </context>
 <context>
@@ -10187,11 +10279,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Toggle menu %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>要確認</translatorcomment>
+        <translation>トグルメニュー %1</translation>
     </message>
     <message>
         <source>Popup menu %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ポップアップメニュー %1</translation>
     </message>
 </context>
 <context>
@@ -10591,7 +10684,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Failed to create DHCP server.</source>
-        <translation type="vanished">DHCPサーバーの作成しに失敗しました。</translation>
+        <translation type="vanished">DHCPサーバーの作成に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to remove DHCP server for network interface &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -10599,7 +10692,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Failed to create the host network interface.</source>
-        <translation type="vanished">ホストネットワークインターフェースの作成しに失敗しました。</translation>
+        <translation type="vanished">ホストネットワークインターフェースの作成に失敗しました。</translation>
     </message>
     <message>
         <source>Create &amp;new disk</source>
@@ -10723,7 +10816,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Severity: </source>
         <comment>runtime error info</comment>
-        <translation>重要度:</translation>
+        <translation>重要度: </translation>
     </message>
     <message>
         <source>&lt;p&gt;A fatal error has occurred during virtual machine execution! The virtual machine will be powered off. Please copy the following error message using the clipboard to help diagnose the problem:&lt;/p&gt;</source>
@@ -12117,132 +12210,140 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;p&gt;Failed to acquire the VirtualBox COM object.&lt;/p&gt;&lt;p&gt;The application will now terminate.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;VirtualBox COMオブジェクトの作成に失敗しました。&lt;/p&gt;&lt;p&gt;アプリケーションを終了します。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;VirtualBox COMオブジェクトの確保に失敗しました。&lt;/p&gt;&lt;p&gt;アプリケーションを終了します。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Delete</source>
         <comment>extension pack</comment>
-        <translation type="unfinished">削除</translation>
+        <translation>削除</translation>
     </message>
     <message>
         <source>Do you want to delete the downloaded file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?</source>
-        <translation type="unfinished"></translation>
+        <translation>ダウンロードしたファイル &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; を本当に削除しますか？</translation>
     </message>
     <message>
         <source>Do you want to delete following list of files &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?</source>
-        <translation type="unfinished"></translation>
+        <translation>次のリストのファイル &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; を本当に削除しますか？</translation>
     </message>
     <message>
         <source>&lt;p&gt;The reason for this error are most likely wrong permissions of the IPC daemon socket due to an installation problem. Please check the permissions of &lt;font color=blue&gt;&apos;/tmp&apos;&lt;/font&gt; and &lt;font color=blue&gt;&apos;/tmp/.vbox-*-ipc/&apos;&lt;/font&gt;&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;このエラーが表示される主な理由として、インストールの問題によりIPCデーモンソケットのパーミッションが誤っていることが考えられます。&lt;font color=blue&gt;&apos;/tmp&apos;&lt;/font&gt;  と &lt;font color=blue&gt;&apos;/tmp/.vbox-*-ipc/&apos;&lt;/font&gt;のパーミッションを確認してください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The &lt;b&gt;VirtualBox Guest Additions&lt;/b&gt; disk image file has been successfully downloaded from &lt;nobr&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;/nobr&gt; and saved locally as &lt;nobr&gt;&lt;b&gt;%2&lt;/b&gt;, &lt;/nobr&gt;but the SHA-256 checksum verification failed.&lt;/p&gt;&lt;p&gt;Please do the download, installation and verification manually.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;VirtualBox Guest Additions&lt;/b&gt; ディスクイメージを&lt;nobr&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;/nobr&gt;からダウンロードし、&lt;nobr&gt;&lt;b&gt;%2&lt;/b&gt;に保存しました&lt;/nobr&gt;が、SHA256チェックサムの照合に失敗しました。&lt;/p&gt;&lt;p&gt;ダウンロードとインストールと認証を手動で行ってください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The &lt;b&gt;&lt;nobr&gt;%1&lt;/nobr&gt;&lt;/b&gt; has been successfully downloaded from &lt;nobr&gt;&lt;a href=&quot;%2&quot;&gt;%2&lt;/a&gt;&lt;/nobr&gt; and saved locally as &lt;nobr&gt;&lt;b&gt;%3&lt;/b&gt;, &lt;/nobr&gt;but the SHA-256 checksum verification failed.&lt;/p&gt;&lt;p&gt;Please do the download, installation and verification manually.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; を &lt;nobr&gt;&lt;a href=&quot;%2&quot;&gt;%2&lt;/a&gt;&lt;/nobr&gt;からダウンロードし、&lt;nobr&gt;&lt;b&gt;%3&lt;/b&gt;に保存しました&lt;/nobr&gt;が、SHA256チェックサムの照合に失敗しました。&lt;/p&gt;&lt;p&gt;ダウンロードとインストールと認証を手動で行ってください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to start all of the following virtual machines:&lt;/p&gt;&lt;p&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This could take some time and consume a lot of host system resources. Do you wish to proceed?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;次の仮想マシンを開始しようとしています:&lt;/p&gt;&lt;p&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;&lt;p&gt;これは時間がかかり、ホストのシステムリソースを大量に消費するでしょう。本当に継続しますか？&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Can&apos;t find snapshot with ID=&lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; というIDのスナップショットが見つかりません。</translation>
     </message>
     <message>
         <source>Can&apos;t acquire snapshot attributes.</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットの属性を確保できません。</translation>
     </message>
     <message>
         <source>Failed to move the storage unit of the disk image &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; から &lt;b&gt;%2&lt;/b&gt;への、ディスクイメージのストレージユニットの移動に失敗しました。</translation>
     </message>
     <message>
         <source>&lt;p&gt;Error changing the description of the disk image &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;ディスクイメージ &lt;b&gt;%1&lt;/b&gt; の説明の変更に失敗しました。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to resize the storage unit of the hard disk &lt;b&gt;%1&lt;/b&gt; from &lt;b&gt;%2&lt;/b&gt; to &lt;b&gt;%3&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>ストレージユニットのハードディスク &lt;b&gt;%1&lt;/b&gt; の &lt;b&gt;%2&lt;/b&gt; から &lt;b&gt;%3&lt;/b&gt;へのリサイズに失敗しました。</translation>
     </message>
     <message>
         <source>Failed to acquire host network interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークインターフェースの確保に失敗しました。</translation>
     </message>
     <message>
         <source>Unable to find the host network interface &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークインターフェース &lt;b&gt;%1&lt;/b&gt; が見つかりません。</translation>
     </message>
     <message>
         <source>Failed to create a host network interface.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークインターフェースの作成に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to acquire host network interface parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークインターフェースのパラメーターの確保に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to save host network interface parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>ホストネットワークインターフェースのパラメーターの保存に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to create a DHCP server for the network interface &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワークインターフェース &lt;b&gt;%1&lt;/b&gt; のDHCPサーバーの作成に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to remove the DHCP server for the network interface &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワークインターフェース &lt;b&gt;%1&lt;/b&gt; のDHCPサーバーの除去に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to acquire DHCP server parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>DHCPサーバーのパラメーターの作成に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to save DHCP server parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>DHCPサーバーのパラメーターの保存に失敗しました。</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to install a VirtualBox extension pack. Extension packs complement the functionality of VirtualBox and can contain system level software that could be potentially harmful to your system. Please review the description below and only proceed if you have obtained the extension pack from a trusted source.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;VirtualBox 機能拡張パッケージをインストールします。機能拡張パッケージはVirtualBoxに機能を追加しますが、コンピューターに危害を与えるようなシステムレベルのソフトウェアを含んでいる可能性があります。信頼できる発行元から機能拡張パッケージを入手した場合に限り、以下の内容を確認して、処理を続行してください。&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {0 ?} {5&gt;?} {1&lt;?} {2&lt;?} {3&lt;?}</translation>
+        <translation>&lt;p&gt;VirtualBox 機能拡張パッケージをインストールします。機能拡張パッケージはVirtualBoxに機能を追加しますが、コンピューターに危害を与えるようなシステムレベルのソフトウェアを含んでいる可能性があります。信頼できる発行元から機能拡張パッケージを入手した場合に限り、以下の内容を確認して、処理を続行してください。&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An older version of the extension pack is already installed, would you like to upgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;古いバージョンの機能拡張パッケージがインストールされています。アップグレードしますか？&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;現在のバージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation>&lt;p&gt;古いバージョンの機能拡張パッケージがインストールされています。アップグレードしますか？&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;現在のバージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An newer version of the extension pack is already installed, would you like to downgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;新しいバージョンの機能拡張パッケージがインストールされています。ダウングレードしますか？&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;現在のバージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation>&lt;p&gt;新しいバージョンの機能拡張パッケージがインストールされています。ダウングレードしますか？&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;現在のバージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The extension pack is already installed with the same version, would you like reinstall it? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;同じバージョンの機能拡張パッケージがインストールされています。再インストールしますか？&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?}</translation>
+        <translation>&lt;p&gt;同じバージョンの機能拡張パッケージがインストールされています。再インストールしますか？&lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;名前:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;バージョン:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;説明:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to enable the audio adapter output for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン &lt;b&gt;%1&lt;/b&gt; のオーディオアダプター出力の有効化に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to disable the audio adapter output for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン &lt;b&gt;%1&lt;/b&gt; のオーディオアダプター出力の無効化に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to enable the audio adapter input for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン &lt;b&gt;%1&lt;/b&gt; のオーディオアダプター入力の有効化に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to disable the audio adapter input for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン &lt;b&gt;%1&lt;/b&gt; のオーディオアダプター入力の無効化に失敗しました。</translation>
     </message>
     <message>
         <source>&lt;p&gt;Could not insert the &lt;b&gt;%1&lt;/b&gt; disk image file into the virtual machine &lt;b&gt;%2&lt;/b&gt;, as the machine has no optical drives. Please add a drive using the storage page of the virtual machine settings window.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;仮想マシン&lt;b&gt;&quot;%1&quot;&lt;/b&gt;に光学ドライブがないため、&lt;b&gt;%2&lt;/b&gt;のディスクイメージを仮想マシンに挿入できません。 仮想マシン設定ウィンドウのストレージページでドライブを追加してください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン&lt;b&gt;&quot;%2&quot;&lt;/b&gt;のスナップショット&lt;b&gt;&quot;%1&quot;&lt;/b&gt;の変更に失敗しました。</translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation>仮想ディスクイメージストレージ&lt;nobr&gt;&lt;b&gt;&quot;%1&quot;&lt;/b&gt;の作成に失敗しました。&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;リクエストされたこの変更は仮想マシンにアタッチされているディスクを除去する必要があります。&lt;/p&gt;&lt;p&gt;本当にディスクイメージ &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; の除去を行いますか？&lt;/p&gt;&lt;p&gt;次の仮想マシン &lt;b&gt;%2&lt;/b&gt; からデタッチを行います。&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -13181,11 +13282,11 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <name>UIPopupPane</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Details:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;詳細:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Details:&lt;/b&gt; (%1 of %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;詳細:&lt;/b&gt; (%1 の %2)</translation>
     </message>
 </context>
 <context>
@@ -13359,15 +13460,15 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <name>UIScreenshotViewer</name>
     <message>
         <source>Screenshot of %1 (%2)</source>
-        <translation type="unfinished">%1(%2)のスクリーンショット</translation>
+        <translation>%1(%2)のスクリーンショット</translation>
     </message>
     <message>
         <source>Click to view non-scaled screenshot.</source>
-        <translation type="unfinished">クリックして実寸のスクリーンショットを表示します。</translation>
+        <translation>クリックして実寸のスクリーンショットを表示します。</translation>
     </message>
     <message>
         <source>Click to view scaled screenshot.</source>
-        <translation type="unfinished">クリックしてスクリーンショットを表示します。</translation>
+        <translation>クリックしてスクリーンショットを表示します。</translation>
     </message>
 </context>
 <context>
@@ -13403,7 +13504,7 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>Show Toolbar Text</source>
-        <translation type="unfinished"></translation>
+        <translation>ツールバーテキストを表示</translation>
     </message>
 </context>
 <context>
@@ -13422,7 +13523,7 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <message>
         <source>%1 status-bar indicator</source>
         <comment>like &apos;hard-disk status-bar indicator&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 ステータスバーインジケーター</translation>
     </message>
 </context>
 <context>
@@ -13504,7 +13605,7 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>Allows to navigate through Global Property categories</source>
-        <translation type="unfinished"></translation>
+        <translation>全体のプロパティのカテゴリー間の操作を許可する</translation>
     </message>
 </context>
 <context>
@@ -13591,7 +13692,8 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>Allows to navigate through VM Settings categories</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>要確認</translatorcomment>
+        <translation>VM設定カテゴリ間の操作を許可する</translation>
     </message>
 </context>
 <context>
@@ -13609,79 +13711,79 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <name>UISnapshotDetailsWidget</name>
     <message>
         <source>&amp;Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>属性(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Information</source>
-        <translation type="unfinished"></translation>
+        <translation>情報(&amp;I)</translation>
     </message>
     <message>
         <source>&amp;Name:</source>
-        <translation type="unfinished">名前(&amp;N):</translation>
+        <translation>名前(&amp;N):</translation>
     </message>
     <message>
         <source>&amp;Description:</source>
-        <translation type="unfinished">説明(&amp;D):</translation>
+        <translation>説明(&amp;D):</translation>
     </message>
     <message>
         <source>Holds the snapshot name.</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットの名前を指定します。</translation>
     </message>
     <message>
         <source>Holds the snapshot description.</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットの説明を指定します。</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">リセット</translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Apply changes in current snapshot details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のスナップショット詳細の変更を適用</translation>
     </message>
     <message>
         <source>Reset changes in current snapshot details</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のスナップショット詳細の変更をリセット</translation>
     </message>
     <message>
         <source>Apply Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更を適用 (%1)</translation>
     </message>
     <message>
         <source>Reset Changes (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>変更をリセット(%1)</translation>
     </message>
     <message>
         <source>Click to enlarge the screenshot.</source>
-        <translation type="unfinished">クリックしてスクリーンショットを拡大します。</translation>
+        <translation>クリックしてスクリーンショットを拡大します。</translation>
     </message>
     <message>
         <source>Snapshot name is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットの名前が空白です</translation>
     </message>
     <message>
         <source>Enter a name for the new snapshot...</source>
-        <translation type="unfinished"></translation>
+        <translation>新しいスナップショットの名前を入力...</translation>
     </message>
     <message>
         <source>Enter a name for this snapshot...</source>
-        <translation type="unfinished"></translation>
+        <translation>このスナップショットの名前を入力...</translation>
     </message>
     <message>
         <source>Take</source>
-        <translation type="unfinished"></translation>
+        <translation>作成</translation>
     </message>
     <message>
         <source>Take snapshot on the basis of current machine state</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のマシンの状態に基づいてスナップショットを作成</translation>
     </message>
     <message>
         <source>Take Snapshot (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットを作成 (%1)</translation>
     </message>
 </context>
 <context>
@@ -13689,133 +13791,133 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <message>
         <source>Current State (changed)</source>
         <comment>Current State (Modified)</comment>
-        <translation type="unfinished">最新の状態(変更)</translation>
+        <translation>最新の状態(変更)</translation>
     </message>
     <message>
         <source>Current State</source>
         <comment>Current State (Unmodified)</comment>
-        <translation type="unfinished">最新の状態</translation>
+        <translation>最新の状態</translation>
     </message>
     <message>
         <source>The current state differs from the state stored in the current snapshot</source>
-        <translation type="unfinished">最新の状態は最新のスナップショットに保存されている状態と異なります</translation>
+        <translation>最新の状態は最新のスナップショットに保存されている状態と異なります</translation>
     </message>
     <message>
         <source>The current state is identical to the state stored in the current snapshot</source>
-        <translation type="unfinished">最新の状態は最新のスナップショットに保存されている状態と同じです</translation>
+        <translation>最新の状態は最新のスナップショットに保存されている状態と同じです</translation>
     </message>
     <message>
         <source>%1 (%2 ago)</source>
         <comment>date time (how long ago)</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2 前)</translation>
     </message>
     <message>
         <source>%1 since %2</source>
         <comment>Current State (time or date + time)</comment>
-        <translation type="unfinished">%2からの状態 %1</translation>
+        <translation>%2からの状態 %1</translation>
     </message>
     <message>
         <source>current</source>
         <comment>snapshot</comment>
-        <translation type="unfinished"></translation>
+        <translation>現在</translation>
     </message>
     <message>
         <source>online</source>
         <comment>snapshot</comment>
-        <translation type="unfinished"></translation>
+        <translation>オンライン</translation>
     </message>
     <message>
         <source>offline</source>
         <comment>snapshot</comment>
-        <translation type="unfinished"></translation>
+        <translation>オフライン</translation>
     </message>
     <message>
         <source>Taken at %1</source>
         <comment>Snapshot (time)</comment>
-        <translation type="unfinished">作成時刻 %1</translation>
+        <translation>作成時刻 %1</translation>
     </message>
     <message>
         <source>Taken on %1</source>
         <comment>Snapshot (date + time)</comment>
-        <translation type="unfinished">作成日時 %1</translation>
+        <translation>作成日時 %1</translation>
     </message>
     <message>
         <source>Contains the snapshot tree of the current virtual machine</source>
-        <translation type="unfinished"></translation>
+        <translation>現在の仮想マシンのスナップショットツリーを含む</translation>
     </message>
     <message>
         <source>&amp;Take...</source>
-        <translation type="unfinished"></translation>
+        <translation>作成(&amp;T)...</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">削除(&amp;D)</translation>
+        <translation>削除(&amp;D)</translation>
     </message>
     <message>
         <source>&amp;Restore</source>
-        <translation type="unfinished"></translation>
+        <translation>復元(&amp;R)</translation>
     </message>
     <message>
         <source>&amp;Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>プロパティ(&amp;P)...</translation>
     </message>
     <message>
         <source>&amp;Clone...</source>
-        <translation type="unfinished">クローン(&amp;C)...</translation>
+        <translation>クローン(&amp;C)...</translation>
     </message>
     <message>
         <source>Take Snapshot (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットを作成 (%1)</translation>
     </message>
     <message>
         <source>Delete Snapshot (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットを削除 (%1)</translation>
     </message>
     <message>
         <source>Restore Snapshot (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットをリストア (%1)</translation>
     </message>
     <message>
         <source>Open Snapshot Properties (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショットのプロパティを開く (%1)</translation>
     </message>
     <message>
         <source>Clone Virtual Machine (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシンをクローン (%1)</translation>
     </message>
     <message>
         <source>Take a snapshot of the current virtual machine state</source>
-        <translation type="unfinished">現在の仮想マシンの状態のスナップショットを作成</translation>
+        <translation>現在の仮想マシンの状態のスナップショットを作成</translation>
     </message>
     <message>
         <source>Delete selected snapshot of the virtual machine</source>
-        <translation type="unfinished">選択した仮想マシンのスナップショットを削除</translation>
+        <translation>選択した仮想マシンのスナップショットを削除</translation>
     </message>
     <message>
         <source>Restore selected snapshot of the virtual machine</source>
-        <translation type="unfinished">選択した仮想マシンのスナップショットに復元</translation>
+        <translation>選択した仮想マシンのスナップショットに復元</translation>
     </message>
     <message>
         <source>Open pane with the selected snapshot properties</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したスナップショットのプロパティのペインを開く</translation>
     </message>
     <message>
         <source>Clone selected virtual machine</source>
-        <translation type="unfinished">選択した仮想マシンをクローン</translation>
+        <translation>選択した仮想マシンをクローン</translation>
     </message>
     <message>
         <source>Name</source>
         <comment>snapshot</comment>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Taken</source>
         <comment>snapshot</comment>
-        <translation type="unfinished"></translation>
+        <translation>作成</translation>
     </message>
     <message>
         <source>Snapshot %1</source>
-        <translation type="unfinished">スナップショット %1</translation>
+        <translation>スナップショット %1</translation>
     </message>
 </context>
 <context>
@@ -13844,25 +13946,25 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <name>UITakeSnapshotDialog</name>
     <message>
         <source>Take Snapshot of Virtual Machine</source>
-        <translation type="unfinished">仮想マシンのスナップショット作成</translation>
+        <translation>仮想マシンのスナップショット作成</translation>
     </message>
     <message>
         <source>Snapshot &amp;Name</source>
-        <translation type="unfinished">スナップショットの名前(&amp;N)</translation>
+        <translation>スナップショットの名前(&amp;N)</translation>
     </message>
     <message>
         <source>Snapshot &amp;Description</source>
-        <translation type="unfinished">スナップショットの説明(&amp;D)</translation>
+        <translation>スナップショットの説明(&amp;D)</translation>
     </message>
     <message numerus="yes">
         <source>Warning: You are taking a snapshot of a running machine which has %n immutable image(s) attached to it. As long as you are working from this snapshot the immutable image(s) will not be reset to avoid loss of data.</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>警告：%n 個の変更不可の仮想ディスクを割り当てた仮想マシンのスナップショットを作成しています。データ喪失を避けるため、このスナップショットから起動する限り、仮想ディスクはリセットされません。</numerusform>
         </translation>
     </message>
     <message>
         <source>Snapshot %1</source>
-        <translation type="unfinished">スナップショット %1</translation>
+        <translation>スナップショット %1</translation>
     </message>
 </context>
 <context>
@@ -13892,34 +13994,34 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <name>UIToolsPaneGlobal</name>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;This window represents a set of global tools which are currently opened (or can be opened). They are not related to any particular machine but to the complete VM collection. For a list of currently available tools check the corresponding menu at the right side of the main tool bar located at the top of the window. This list will be extended with new tools in future releases.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;ようこそVirtualBoxへ！&lt;/h3&gt;&lt;p&gt;このウィンドウには現在開いている（あるいは開くことができる）グローバルツールが表示されます。それらは特定のマシンに関連するものではなく、VM全部に関連するものです。現在設定できるツールの一覧に関しては、このウィンドウ上部の右側にあるメインツールバーに同様のメニューがあることを確認してください。このリストは将来のリリースで拡張する予定です。&lt;/p&gt;&lt;p&gt;&lt;b&gt;%1&lt;/b&gt;キーでヘルプを表示できます。または最新情報とニュースを取得するため &lt;a href=http://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; をご覧ください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Tool to observe virtual storage media. Reflects all the chains of &lt;u&gt;virtual disks&lt;/u&gt; you have registered (per each storage type) within your virtual machines and allows for media operations like &lt;u&gt;copy&lt;/u&gt;, &lt;u&gt;remove&lt;/u&gt;, &lt;u&gt;release&lt;/u&gt; (detach it from VMs where it is currently attached to) and observe their properties. Allows to &lt;u&gt;edit&lt;/u&gt; medium attributes like &lt;u&gt;type&lt;/u&gt;, &lt;u&gt;location/name&lt;/u&gt;, &lt;u&gt;description&lt;/u&gt; and &lt;u&gt;size&lt;/u&gt; (for dynamical storages only).</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想ストレージメディアを表示するツールです。仮想マシン内の（ストレージタイプごとに）登録した&lt;u&gt;仮想ディスク&lt;/u&gt;の接続を示し、また&lt;u&gt;コピー&lt;/u&gt;、&lt;u&gt;除去&lt;/u&gt;、&lt;u&gt;開放&lt;/u&gt;（現在アタッチしているものをVMからデタッチする）などのメディアの操作ができ、それらのプロパティを表示します。&lt;u&gt;タイプ&lt;/u&gt;、&lt;u&gt;場所/名前&lt;/u&gt;、&lt;u&gt;説明&lt;/u&gt;と&lt;u&gt;サイズ&lt;/u&gt;（ダイナミックストレージのみ）などのメディアの属性も&lt;u&gt;編集&lt;/u&gt;できます。</translation>
     </message>
     <message>
         <source>Tool to control host-only network interfaces. Reflects &lt;u&gt;host-only networks&lt;/u&gt;, their DHCP servers and allows for operations on the networks like possibility to &lt;u&gt;create&lt;/u&gt;, &lt;u&gt;remove&lt;/u&gt; and observe their properties. Allows to &lt;u&gt;edit&lt;/u&gt; various &lt;u&gt;attributes&lt;/u&gt; for host-only interface and corresponding DHCP server.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;u&gt;ホストオンリーネットワーク&lt;/u&gt;のインターフェースを管理するツールです。ホストオンリーネットワーク、動作させるDHCPサーバー、&lt;u&gt;作成&lt;/u&gt;、&lt;u&gt;削除&lt;/u&gt;などのネットワークの操作とそのプロパティを表示します。ホストオンリーインターフェースのさまざまな&lt;u&gt;属性&lt;/u&gt;と、動作させるDHCPサーバーを&lt;u&gt;編集&lt;/u&gt;できます。</translation>
     </message>
 </context>
 <context>
     <name>UIToolsPaneMachine</name>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;The left part of this window lists all virtual machines and virtual machine groups on your computer. The list is empty now because you haven&apos;t created any virtual machines yet.&lt;/p&gt;&lt;p&gt;In order to create a new virtual machine, press the &lt;b&gt;New&lt;/b&gt; button in the main tool bar located at the top of the window.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;ようこそVirtualBoxへ！&lt;/h3&gt;&lt;p&gt;このウィンドウの左側にはコンピューター上のすべての仮想マシンと仮想マシンのグループがリスト表示されます。しかしまだ仮想マシンが作成されていないため、リストは空です。&lt;/p&gt;&lt;p&gt;新規仮想マシンを作成するにはウィンドウ上部にあるメインツールバーの&lt;b&gt;[新規]&lt;/b&gt;ボタンをクリックしてください。&lt;/p&gt;&lt;p&gt;&lt;b&gt;%1&lt;/b&gt;キーでヘルプを表示できます。または最新情報とニュースを取得するため &lt;a href=http://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; をご覧ください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;The left part of this window lists all virtual machines and virtual machine groups on your computer.&lt;/p&gt;&lt;p&gt;The right part of this window represents a set of tools which are currently opened (or can be opened) for the currently chosen machine. For a list of currently available tools check the corresponding menu at the right side of the main tool bar located at the top of the window. This list will be extended with new tools in future releases.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;ようこそ VirtualBox へ！&lt;/h3&gt;&lt;p&gt;このウィンドウの左側には、このコンピューターにあるすべての仮想マシンと仮想マシンのグループがリストされています。&lt;/p&gt;&lt;p&gt;このウィンドウの右側には現在選択されているマシンの、現在開いている（あるいは開くことができる）ツールのセットを表示しています。現在設定できるツールの一覧に関しては、このウィンドウ上部の右側にあるメインツールバーに同様のメニューがあることを確認してください。このリストは将来のリリースで拡張する予定です。&lt;/p&gt;&lt;p&gt;&lt;b&gt;%1&lt;/b&gt;キーでヘルプを表示できます。または最新情報とニュースを取得するため &lt;a href=http://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; をご覧ください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Tool to observe virtual machine (VM) details. Reflects groups of &lt;u&gt;properties&lt;/u&gt; for the currently chosen VM and allows basic operations on certain properties (like the machine storage devices).</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン(VM)の詳細を表示するツールです。現在選択しているVMの&lt;u&gt;プロパティ&lt;/u&gt;のグループと、いくつかのプロパティの基本的な操作（マシンのストレージデバイスなど）を反映しています。</translation>
     </message>
     <message>
         <source>Tool to control virtual machine (VM) snapshots. Reflects &lt;u&gt;snapshots&lt;/u&gt; created for the currently selected VM and allows snapshot operations like &lt;u&gt;create&lt;/u&gt;, &lt;u&gt;remove&lt;/u&gt;, &lt;u&gt;restore&lt;/u&gt; (make current) and observe their properties. Allows to &lt;u&gt;edit&lt;/u&gt; snapshot attributes like &lt;u&gt;name&lt;/u&gt; and &lt;u&gt;description&lt;/u&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想マシン(VM)のスナップショットを管理するツールです。現在選択しているVMの&lt;u&gt;スナップショット&lt;/u&gt;を作成し、&lt;u&gt;作成&lt;/u&gt;、&lt;u&gt;削除&lt;/u&gt;、（現在の状態に）&lt;u&gt;リストア&lt;/u&gt;などのスナップショットの操作ができ、それらのプロパティを表示します。また、&lt;u&gt;名前&lt;/u&gt;や&lt;u&gt;説明&lt;/u&gt;のようなスナップショットの属性の&lt;u&gt;編集&lt;/u&gt;もできます。</translation>
     </message>
 </context>
 <context>
@@ -13927,12 +14029,12 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <message>
         <source>%1, Active</source>
         <comment>col.1 text, col.1 state</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1, 有効</translation>
     </message>
     <message>
         <source>%1</source>
         <comment>col.1 text</comment>
-        <translation type="unfinished">%1</translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
@@ -14566,7 +14668,7 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_コピー</translation>
+        <translation type="vanished">%1_コピー</translation>
     </message>
     <message>
         <source>Hard drive to &amp;copy</source>
@@ -14582,27 +14684,27 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>仮想ハードディスクをコピー</translation>
+        <translation type="vanished">仮想ハードディスクをコピー</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>コピーするハードディスク</translation>
+        <translation type="vanished">コピーするハードディスク</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;選択していない場合、コピーしたい仮想ハードディスクのファイルを選択してください。リストから選択するか、リストの横にあるフォルダーアイコンからも選択できます。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;選択していない場合、コピーしたい仮想ハードディスクのファイルを選択してください。リストから選択するか、リストの横にあるフォルダーアイコンからも選択できます。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>コピーする仮想ハードドディスクのファイルを選択...</translation>
+        <translation type="vanished">コピーする仮想ハードドディスクのファイルを選択...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>ハードディスクのファイルタイプ</translation>
+        <translation type="vanished">ハードディスクのファイルタイプ</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>新しい仮想ハードディスクで使用したいファイルのタイプを選択してください。もしほかの仮想ソフトウェアで使用する必要がなければ、設定はそのままにしておいてください。</translation>
+        <translation type="vanished">新しい仮想ハードディスクで使用したいファイルのタイプを選択してください。もしほかの仮想ソフトウェアで使用する必要がなければ、設定はそのままにしておいてください。</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -14610,47 +14712,120 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>新しい仮想ハードディスクファイルは使用したぶんだけ大きくなるか（可変サイズ）、または最大サイズで作成するか（固定サイズ）を選択してください。</translation>
+        <translation type="vanished">新しい仮想ハードディスクファイルは使用したぶんだけ大きくなるか（可変サイズ）、または最大サイズで作成するか（固定サイズ）を選択してください。</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;可変サイズ&lt;/b&gt;のハードディスクファイルは使用した分だけ（&lt;b&gt;固定サイズ&lt;/b&gt;を上限として）物理ハードディスクの領域を消費しますが、スペースを開放しても自動的に縮小はしません。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;可変サイズ&lt;/b&gt;のハードディスクファイルは使用した分だけ（&lt;b&gt;固定サイズ&lt;/b&gt;を上限として）物理ハードディスクの領域を消費しますが、スペースを開放しても自動的に縮小はしません。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;固定サイズ&lt;/b&gt;のハードディスクファイルはシステムによっては作成に時間がかかるかもしれませんが、使用すると高速です&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;固定サイズ&lt;/b&gt;のハードディスクファイルはシステムによっては作成に時間がかかるかもしれませんが、使用すると高速です&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;ハードディスクファイルを2ＧＢごとに&lt;b&gt;分割&lt;/b&gt;することもできます。仮想マシンをリムーバブルUSBデバイスに作成したい場合や、非常に大きなファイルを扱うことができない古いシステムで便利でしょう。</translation>
+        <translation type="vanished">&lt;p&gt;ハードディスクファイルを2ＧＢごとに&lt;b&gt;分割&lt;/b&gt;することもできます。仮想マシンをリムーバブルUSBデバイスに作成したい場合や、非常に大きなファイルを扱うことができない古いシステムで便利でしょう。</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>新しい仮想ハードディスクファイルの場所を選択</translation>
+        <translation type="vanished">新しい仮想ハードディスクファイルの場所を選択</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>作成する新しいハードディスク</translation>
+        <translation type="vanished">作成する新しいハードディスク</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>新しい仮想ハードディスクファイルの名前を下のボックスに入力するか、フォルダーアイコンをクリックしてファイルを作成する別のフォルダーを選択してください。</translation>
+        <translation type="vanished">新しい仮想ハードディスクファイルの名前を下のボックスに入力するか、フォルダーアイコンをクリックしてファイルを作成する別のフォルダーを選択してください。</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>新しい仮想ハードディスクファイルの場所を選択...</translation>
+        <translation type="vanished">新しい仮想ハードディスクファイルの場所を選択...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>コピーするハードディスク(&amp;C)</translation>
+        <translation type="vanished">コピーするハードディスク(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>作成する新しいハードディスク(&amp;N)</translation>
+        <translation type="vanished">作成する新しいハードディスク(&amp;N)</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>ハードディスクドライブのファイルタイプ(&amp;T)</translation>
+        <translation type="vanished">ハードディスクドライブのファイルタイプ(&amp;T)</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation>仮想ディスクイメージのコピー</translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation>コピーするディスクイメージ</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;選択していない場合、コピーしたい仮想ディスクイメージのファイルを選択してください。リストから選択するか、リストの横にあるフォルダーアイコンからも選択できます。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation>コピーする仮想ディスクイメージのファイルを選択...</translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation>ディスクイメージのファイルタイプ</translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation>新しい仮想ディスクイメージで使用したいファイルのタイプを選択してください。もしほかの仮想ソフトウェアで使用する必要がなければ、設定はそのままにしておいてください。</translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation>新しい仮想ディスクイメージファイルは使用したぶんだけ大きくなるか（可変サイズ）、または最大サイズで作成するか（固定サイズ）を選択してください。</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;可変サイズ&lt;/b&gt;のディスクイメージファイルは使用した分だけ（&lt;b&gt;固定サイズ&lt;/b&gt;を上限として）物理ハードディスクの領域を消費しますが、スペースを開放しても自動的に縮小はしません。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;固定サイズ&lt;/b&gt;のディスクイメージファイルはシステムによっては作成に時間がかかるかもしれませんが、使用すると高速です&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation>&lt;p&gt;ディスクイメージファイルを2ＧＢごとに&lt;b&gt;分割&lt;/b&gt;することもできます。仮想マシンをリムーバブルUSBデバイスに作成したい場合や、非常に大きなファイルを扱うことができない古いシステムで便利でしょう。</translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation>新しい仮想ディスクイメージファイルの場所を選択</translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation>作成する新しいディスクイメージ</translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation>新しい仮想ディスクイメージファイルの名前を下のボックスに入力するか、フォルダーアイコンをクリックしてファイルを作成する別のフォルダーを選択してください。</translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation>新しい仮想ディスクイメージファイルの場所を選択...</translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation>%1_コピー</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation>コピーするディスクイメージ(&amp;C)</translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation>作成するディスクイメージ(&amp;N)</translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation>ディスクイメージのファイルタイプ(&amp;T)</translation>
     </message>
 </context>
 <context>
@@ -14860,11 +15035,11 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>Open Virtualization Format Archive (%1)</source>
-        <translation>Open Virtualization Format Archive (%1)</translation>
+        <translation>Virtualization Format Archive (%1) を開く</translation>
     </message>
     <message>
         <source>Open Virtualization Format (%1)</source>
-        <translation>Open Virtualization Format (%1)</translation>
+        <translation>Virtualization Format (%1) を開く</translation>
     </message>
     <message>
         <source>F&amp;ormat:</source>
@@ -14924,31 +15099,31 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>Oracle Public Cloud Format Archive (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Oracle Public Cloud フォーマットアーカイブ (%1)</translation>
     </message>
     <message>
         <source>Open Virtualization Format 0.9</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtualization Format 0.9 を開く</translation>
     </message>
     <message>
         <source>Open Virtualization Format 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtualization Format 1.0 を開く</translation>
     </message>
     <message>
         <source>Open Virtualization Format 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtualization Format 2.0 を開く</translation>
     </message>
     <message>
         <source>Oracle Public Cloud Format 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Oracle Public Cloud Format 1.0</translation>
     </message>
     <message>
         <source>Write in new OVF 2.0 format.</source>
-        <translation type="unfinished"></translation>
+        <translation>新しいOVF 2.0フォーマットで書き出します。</translation>
     </message>
     <message>
         <source>Write in Oracle Public Cloud 1.0 format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oracle Public Cloud 1.0 フォーマットで書き出します。</translation>
     </message>
 </context>
 <context>
@@ -14971,7 +15146,7 @@ step and attach hard disks later using the VM Settings dialog.&lt;/p&gt;</source
     </message>
     <message>
         <source>&lt;p&gt;Please choose a filename to export the virtual appliance to.&lt;/p&gt;&lt;p&gt;The &lt;b&gt;Open Virtualization Format&lt;/b&gt; supports only &lt;b&gt;ovf&lt;/b&gt; or &lt;b&gt;ova&lt;/b&gt; extensions. &lt;br&gt;If you use the &lt;b&gt;ovf&lt;/b&gt; extension, several files will be written separately.&lt;br&gt;If you use the &lt;b&gt;ova&lt;/b&gt; extension, all the files will be combined into one Open Virtualization Format archive.&lt;/p&gt;&lt;p&gt;The &lt;b&gt;Oracle Public Cloud Format&lt;/b&gt; supports only the &lt;b&gt;tar.gz&lt;/b&gt; extension.&lt;br&gt;Each virtual disk file will be written separately.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;エクスポートする仮想アプライアンスのファイル名を選択してください。&lt;/p&gt;&lt;p&gt;&lt;b&gt;Open Virtualization Format&lt;/b&gt; がサポートしているのは拡張子 &lt;b&gt;ovf&lt;/b&gt; または &lt;b&gt;ova&lt;/b&gt; だけです。&lt;br&gt;拡張子 &lt;b&gt;ovf&lt;/b&gt; にすると、いくつかのファイルが分割して書き込まれます。&lt;br&gt;拡張子 &lt;b&gt;ova&lt;/b&gt; にすると、全てのファイルが一つのOpen Virtualization Formatアーカイブに結合されます。&lt;/p&gt;&lt;p&gt;&lt;b&gt;Oracle Public Cloud Format&lt;/b&gt; がサポートしているのは拡張子 &lt;b&gt;tar.gz&lt;/b&gt; だけです。&lt;br&gt;それぞれの仮想ディスクファイルが分割して書き込まれます。&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -17758,7 +17933,7 @@ Version %1</source>
     <message>
         <source>Taking Live Snapshot</source>
         <comment>MachineState</comment>
-        <translation>スナップショットの作成中</translation>
+        <translation>スナップショットを作成中</translation>
     </message>
     <message>
         <source>Teleporting Paused VM</source>
@@ -18447,7 +18622,7 @@ Version %1</source>
     <message>
         <source>Taking Online Snapshot</source>
         <comment>MachineState</comment>
-        <translation>オンラインスナップショットの作成中</translation>
+        <translation>オンラインスナップショットを作成中</translation>
     </message>
     <message>
         <source>KVM</source>
@@ -18628,67 +18803,68 @@ Version %1</source>
     <message>
         <source>Hard Disks</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished">ハードディスク</translation>
+        <translation>ハードディスク</translation>
     </message>
     <message>
         <source>Optical Disks</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished"></translation>
+        <translation>光学ディスク</translation>
     </message>
     <message>
         <source>Floppy Disks</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished"></translation>
+        <translation>フロッピーディスク</translation>
     </message>
     <message>
         <source>Network</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished">ネットワーク</translation>
+        <translation>ネットワーク</translation>
     </message>
     <message>
         <source>USB</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished">USB</translation>
+        <translation>USB</translation>
     </message>
     <message>
         <source>Shared Folders</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished">共有フォルダー</translation>
+        <translation>共有フォルダー</translation>
     </message>
     <message>
         <source>Display</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished">ディスプレイ</translation>
+        <translatorcomment>表示？</translatorcomment>
+        <translation>ディスプレイ</translation>
     </message>
     <message>
         <source>Video Capture</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished">ビデオキャプチャー</translation>
+        <translation>ビデオキャプチャー</translation>
     </message>
     <message>
         <source>Features</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished"></translation>
+        <translation>機能</translation>
     </message>
     <message>
         <source>Mouse</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished"></translation>
+        <translation>マウス</translation>
     </message>
     <message>
         <source>Keyboard</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished"></translation>
+        <translation>キーボード</translation>
     </message>
     <message>
         <source>Differencing</source>
         <comment>MediumType</comment>
-        <translation type="unfinished">差分</translation>
+        <translation>差分</translation>
     </message>
     <message>
         <source>Audio</source>
         <comment>IndicatorType</comment>
-        <translation type="unfinished">オーディオ</translation>
+        <translation>オーディオ</translation>
     </message>
 </context>
 <context>

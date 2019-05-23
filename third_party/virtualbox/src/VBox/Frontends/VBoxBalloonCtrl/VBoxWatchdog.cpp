@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1098,15 +1098,15 @@ int main(int argc, char *argv[])
     displayHeader();
 
     /* create release logger, to stdout */
-    char szError[RTPATH_MAX + 128];
+    RTERRINFOSTATIC ErrInfo;
     rc = com::VBoxLogRelCreate("Watchdog", g_fDaemonize ? NULL : pszLogFile,
                                RTLOGFLAGS_PREFIX_THREAD | RTLOGFLAGS_PREFIX_TIME_PROG,
                                "all", "VBOXBALLOONCTRL_RELEASE_LOG",
                                RTLOGDEST_STDOUT, UINT32_MAX /* cMaxEntriesPerGroup */,
                                g_cHistory, g_uHistoryFileTime, g_uHistoryFileSize,
-                               szError, sizeof(szError));
+                               RTErrInfoInitStatic(&ErrInfo));
     if (RT_FAILURE(rc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", szError, rc);
+        return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", ErrInfo.Core.pszMsg, rc);
 
 #if defined(RT_OS_DARWIN) || defined(RT_OS_LINUX) || defined (RT_OS_SOLARIS) || defined(RT_OS_FREEBSD)
     if (g_fDaemonize)
@@ -1134,9 +1134,9 @@ int main(int argc, char *argv[])
                                    "all", "VBOXBALLOONCTRL_RELEASE_LOG",
                                    RTLOGDEST_FILE, UINT32_MAX /* cMaxEntriesPerGroup */,
                                    g_cHistory, g_uHistoryFileTime, g_uHistoryFileSize,
-                                   szError, sizeof(szError));
+                                   RTErrInfoInitStatic(&ErrInfo));
         if (RT_FAILURE(rc))
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", szError, rc);
+            return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", ErrInfo.Core.pszMsg, rc);
     }
 #endif
 

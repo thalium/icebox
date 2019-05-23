@@ -356,8 +356,8 @@ static bool rtDbgCfgIsXxxxAndFixCaseWorker(char *pszPath, size_t offLastComp, RT
     char chSaved = *pszName;
     *pszName = '\0';
 
-    PRTDIR pDir;
-    int rc = RTDirOpen(&pDir, pszPath);
+    RTDIR hDir;
+    int rc = RTDirOpen(&hDir, pszPath);
     if (RT_FAILURE(rc))
         return false;
 
@@ -372,7 +372,7 @@ static bool rtDbgCfgIsXxxxAndFixCaseWorker(char *pszPath, size_t offLastComp, RT
             uint8_t     ab[_4K];
         } u;
         size_t cbBuf = sizeof(u);
-        rc = RTDirRead(pDir, &u.Entry, &cbBuf);
+        rc = RTDirRead(hDir, &u.Entry, &cbBuf);
         if (RT_FAILURE(rc))
             break;
 
@@ -386,13 +386,13 @@ static bool rtDbgCfgIsXxxxAndFixCaseWorker(char *pszPath, size_t offLastComp, RT
                 RTDirQueryUnknownType(pszPath, true /*fFollowSymlinks*/, &u.Entry.enmType);
             if (u.Entry.enmType == enmType)
             {
-                RTDirClose(pDir);
+                RTDirClose(hDir);
                 return true;
             }
         }
     }
 
-    RTDirClose(pDir);
+    RTDirClose(hDir);
     *pszName = '\0';
 
     return false;

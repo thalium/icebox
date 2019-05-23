@@ -64,4 +64,3 @@ BEGINPROC RT_NOCRT(remainderf)
     ret
 ENDPROC   RT_NOCRT(remainderf)
 
-

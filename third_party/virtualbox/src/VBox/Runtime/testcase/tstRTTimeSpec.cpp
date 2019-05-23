@@ -72,6 +72,15 @@ char *ToString(PRTTIME pTime)
                           RTTimeSpecGetNano(&Ts2), RTTimeSpecGetNano(&Ts1), __LINE__); \
     } while (0)
 
+#define TEST_NS_LOCAL(ns) do {\
+        CHECK_NZ(RTTimeLocalExplode(&T1, RTTimeSpecSetNano(&Ts1, ns))); \
+        RTTestIPrintf(RTTESTLVL_ALWAYS, "%RI64 ns - %s\n", ns, ToString(&T1)); \
+        CHECK_NZ(RTTimeImplode(&Ts2, &T1)); \
+        if (!RTTimeSpecIsEqual(&Ts2, &Ts1)) \
+            RTTestIFailed("FAILURE - %RI64 != %RI64, line no. %d\n", \
+                          RTTimeSpecGetNano(&Ts2), RTTimeSpecGetNano(&Ts1), __LINE__); \
+    } while (0)
+
 #define TEST_SEC(sec) do {\
         CHECK_NZ(RTTimeExplode(&T1, RTTimeSpecSetSeconds(&Ts1, sec))); \
         RTTestIPrintf(RTTESTLVL_ALWAYS, "%RI64 sec - %s\n", sec, ToString(&T1)); \
@@ -81,7 +90,7 @@ char *ToString(PRTTIME pTime)
                               RTTimeSpecGetNano(&Ts2), RTTimeSpecGetNano(&Ts1), __LINE__); \
     } while (0)
 
-#define CHECK_TIME(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags)\
+#define CHECK_TIME_EX(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags, _Silent)\
     do { \
         if (    (pTime)->i32Year != (_i32Year) \
             ||  (pTime)->u8Month != (_u8Month) \
@@ -97,13 +106,44 @@ char *ToString(PRTTIME pTime)
             ) \
         { \
             RTTestIFailed("   %s ; line no %d\n" \
-                          "!= %04d-%02d-%02dT%02u-%02u-%02u.%09u [YD%u WD%u UO%d F%#x]\n", \
+                          "!= %04d-%02d-%02dT%02u:%02u:%02u.%09u [YD%u WD%u UO%d F%#x]\n", \
                           ToString(pTime), __LINE__, (_i32Year), (_u8Month), (_u8MonthDay), (_u8Hour), (_u8Minute), \
                           (_u8Second), (_u32Nanosecond), (_u16YearDay), (_u8WeekDay), (_offUTC), (_fFlags)); \
         } \
-        else \
+        else if (!_Silent) \
             RTTestIPrintf(RTTESTLVL_ALWAYS, "=> %s\n", ToString(pTime)); \
     } while (0)
+#define CHECK_TIME(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags) CHECK_TIME_EX(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags, false)
+#define CHECK_TIME_SILENT(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags) CHECK_TIME_EX(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags, true)
+
+#define CHECK_TIME_LOCAL_EX(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags, _Silent)\
+    do { \
+        uint32_t fOrigFlags = (pTime)->fFlags; \
+        CHECK_NZ(RTTimeConvertToZulu(pTime)); \
+        if (    (pTime)->i32Year != (_i32Year) \
+            ||  (pTime)->u8Month != (_u8Month) \
+            ||  (pTime)->u8WeekDay != (_u8WeekDay) \
+            ||  (pTime)->u16YearDay != (_u16YearDay) \
+            ||  (pTime)->u8MonthDay != (_u8MonthDay) \
+            ||  (pTime)->u8Hour != (_u8Hour) \
+            ||  (pTime)->u8Minute != (_u8Minute) \
+            ||  (pTime)->u8Second != (_u8Second) \
+            ||  (pTime)->u32Nanosecond != (_u32Nanosecond) \
+            ||  (pTime)->offUTC != (_offUTC) \
+            ||  (fOrigFlags & RTTIME_FLAGS_TYPE_MASK) != RTTIME_FLAGS_TYPE_LOCAL \
+            ||  (pTime)->fFlags != (_fFlags) \
+            ) \
+        { \
+            RTTestIFailed("   %s ; line no %d\n" \
+                          "!= %04d-%02d-%02dT%02u:%02u:%02u.%09u [YD%u WD%u UO%d F%#x]\n", \
+                          ToString(pTime), __LINE__, (_i32Year), (_u8Month), (_u8MonthDay), (_u8Hour), (_u8Minute), \
+                          (_u8Second), (_u32Nanosecond), (_u16YearDay), (_u8WeekDay), (_offUTC), (_fFlags)); \
+        } \
+        else if (!_Silent) \
+            RTTestIPrintf(RTTESTLVL_ALWAYS, "=> %s\n", ToString(pTime)); \
+    } while (0)
+#define CHECK_TIME_LOCAL(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags) CHECK_TIME_LOCAL_EX(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags, false)
+#define CHECK_TIME_LOCAL_SILENT(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags) CHECK_TIME_LOCAL_EX(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags, true)
 
 #define SET_TIME(pTime, _i32Year, _u8Month, _u8MonthDay, _u8Hour, _u8Minute, _u8Second, _u32Nanosecond, _u16YearDay, _u8WeekDay, _offUTC, _fFlags)\
     do { \
@@ -178,20 +218,83 @@ int main()
     CHECK_TIME(&T1, 1969,12,31, 23,59,59,999999999, 365, 2, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
 
     /*
+     * Some local time tests with dates triggering unexpected wraparound bugs in previous code version
+     * (on 2nd of a month). Test every hour to cover any TZ of the host OS.
+     */
+    RTTestSub(hTest, "Wraparound (local)");
+    TEST_NS_LOCAL(INT64_C(1522576800000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 10,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522580400000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 11,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522584000000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 12,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522587600000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 13,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522591200000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 14,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522594800000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 15,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522598400000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 16,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522602000000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 17,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522605600000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 18,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522609200000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 19,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522612800000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 20,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522616400000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 21,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522620000000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 22,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522623600000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,01, 23,00,00,        0,  91, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522627200000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  0,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522630800000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  1,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522634400000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  2,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522638000000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  3,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522641600000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  4,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522645200000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  5,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522648800000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  6,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522652400000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  7,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522656000000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  8,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522659600000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02,  9,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522663200000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02, 10,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522666800000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02, 11,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522670400000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02, 12,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522674000000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02, 13,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    TEST_NS_LOCAL(INT64_C(1522677600000000000));
+    CHECK_TIME_LOCAL(&T1, 2018,04,02, 14,00,00,        0,  92, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    /*
      * Test the limits.
      */
     RTTestSub(hTest, "Extremes");
     TEST_NS(INT64_MAX);
     TEST_NS(INT64_MIN);
-    TEST_SEC(1095379198);
+    TEST_SEC(INT64_C(1095379198));
     CHECK_TIME(&T1, 2004, 9,16, 23,59,58,        0, 260, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
-    TEST_SEC(1095379199);
+    TEST_SEC(INT64_C(1095379199));
     CHECK_TIME(&T1, 2004, 9,16, 23,59,59,        0, 260, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
-    TEST_SEC(1095379200);
+    TEST_SEC(INT64_C(1095379200));
     CHECK_TIME(&T1, 2004, 9,17, 00,00,00,        0, 261, 4, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
-    TEST_SEC(1095379201);
+    TEST_SEC(INT64_C(1095379201));
     CHECK_TIME(&T1, 2004, 9,17, 00,00,01,        0, 261, 4, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
-
 
     /*
      * Test normalization (UTC).
@@ -307,6 +410,166 @@ int main()
     SET_TIME(  &T1, 2003,00,00, 02,15,23,        1,1801, 0, 0, 0);
     CHECK_NZ(RTTimeNormalize(&T1));
     CHECK_TIME(&T1, 2007,12,06, 02,15,23,        1, 340, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    /*
+     * Test normalization (local).
+     */
+    RTTestSub(hTest, "Normalization (local)");
+    /* simple */
+    CHECK_NZ(RTTimeNow(&Now));
+    CHECK_NZ(RTTimeLocalExplode(&T1, &Now));
+    T2 = T1;
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    if (memcmp(&T1, &T2, sizeof(T1)))
+        RTTestIFailed("simple normalization failed\n");
+    CHECK_NZ(RTTimeImplode(&Ts1, &T1));
+    CHECK_NZ(RTTimeSpecIsEqual(&Ts1, &Now));
+
+    /* a few partial dates. */
+    memset(&T1, 0, sizeof(T1));
+    SET_TIME(  &T1, 1970,01,01, 00,00,00,        0,   0, 0, -60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1970,01,01, 01,00,00,        0,   1, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1970,00,00, 00,00,00,        1,   1, 0, -120, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1970,01,01, 02,00,00,        1,   1, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 2007,12,06, 02,15,23,        1,   0, 0, 120, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2007,12,06, 00,15,23,        1, 340, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1968,01,30, 00,19,24,        5,   0, 0, -480, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1968,01,30,  8,19,24,        5,  30, 1, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
+
+    SET_TIME(  &T1, 1969,01,31, 03, 9, 2,        7,   0, 0, 180, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,01,31, 00, 9, 2,        7,  31, 4, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,03,31, 00, 9, 2,        7,   0, 0, -60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,03,31, 01, 9, 2,        7,  90, 0, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,12,30, 18,00,00,        9,   0, 0, -360, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,31, 00,00,00,        9, 365, 2, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,12,29, 12,00,00,       30,   0, 0, -720, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,30, 00,00,00,       30, 364, 1, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,00,00, 00,00,00,       30, 363, 0, 30, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,28, 23,30,00,       30, 362, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,00,00, 00,00,00,       30, 362, 6, -60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,28, 01,00,00,       30, 362, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,12,27, 00,00,00,       30,   0, 5, -120, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,27, 02,00,00,       30, 361, 5, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,00,00, 00,00,00,       30, 360, 0, -120, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,26, 02,00,00,       30, 360, 4, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,12,25, 00,00,00,       12,   0, 0, 15, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,24, 23,45,00,       12, 358, 2, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 1969,12,24, 00,00,00,       16,   0, 0, -15, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1969,12,24, 00,15,00,       16, 358, 2, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    /* outside the year table range */
+    SET_TIME(  &T1, 1200,01,30, 00,00,00,        2,   0, 0, -720, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1200,01,30, 12,00,00,        2,  30, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
+
+    SET_TIME(  &T1, 2555,11,29, 00,00,00,        2,   0, 0, -480, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2555,11,29,  8,00,00,        2, 333, 5, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 2555,00,00, 00,00,00,        3, 333, 0, 60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2555,11,28, 23,00,00,        3, 332, 4, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    /* time overflow */
+    SET_TIME(  &T1, 1969,12,30, 255,255,255, UINT32_MAX, 364, 0, 60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 1970,01, 9, 18,19,19,294967295,   9, 4, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    /* date overflow */
+    SET_TIME(  &T1, 2007,11,36, 02,15,23,        1,   0, 0, 60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2007,12,06, 01,15,23,        1, 340, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 2007,10,67, 02,15,23,        1,   0, 0, 60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2007,12,06, 01,15,23,        1, 340, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 2007,10,98, 02,15,23,        1,   0, 0, 60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2008,01,06, 01,15,23,        1,   6, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
+
+    SET_TIME(  &T1, 2006,24,06, 02,15,23,        1,   0, 0, 60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2007,12,06, 01,15,23,        1, 340, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    SET_TIME(  &T1, 2003,60,37, 02,15,23,        1,   0, 0, -60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2008,01,06, 03,15,23,        1,   6, 6, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_LEAP_YEAR);
+
+    SET_TIME(  &T1, 2003,00,00, 02,15,23,        1,1801, 0, -60, 0);
+    CHECK_NZ(RTTimeLocalNormalize(&T1));
+    CHECK_TIME_LOCAL(&T1, 2007,12,06, 03,15,23,        1, 340, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+
+    /*
+     * Test UTC and local time explode/implode round trips every 29 minutes for 3 years.
+     * Relies heavily on correct behavior of RTTimeNormalize and does limited sanity checking.
+     */
+    RTTestSub(hTest, "Wraparound 3 year (UTC+local), silent");
+    RTTimeSpecSetNano(&Ts1, 1420070400000000000);
+    RTTIME Tcheck;
+    memset(&Tcheck, 0, sizeof(Tcheck));
+    Tcheck.i32Year = 2015;
+    Tcheck.u16YearDay = 1;
+    CHECK_NZ(RTTimeNormalize(&Tcheck));
+    while (Tcheck.i32Year <= 2017)
+    {
+        if (RTTimeIsLeapYear(Tcheck.i32Year))
+        {
+            if (!(Tcheck.fFlags & RTTIME_FLAGS_LEAP_YEAR))
+                RTTestIFailed("FAILURE - %d is not marked as a leap year, line no. %d\n",
+                              Tcheck.i32Year, __LINE__);
+        }
+        else
+        {
+            if (!(Tcheck.fFlags & RTTIME_FLAGS_COMMON_YEAR))
+                RTTestIFailed("FAILURE - %d is not marked as a common year, line no. %d\n",
+                              Tcheck.i32Year, __LINE__);
+        }
+
+        CHECK_NZ(RTTimeExplode(&T1, &Ts1));
+        CHECK_NZ(RTTimeImplode(&Ts2, &T1));
+        if (!RTTimeSpecIsEqual(&Ts2, &Ts1))
+            RTTestIFailed("FAILURE - %RI64 != %RI64, line no. %d\n",
+                          RTTimeSpecGetNano(&Ts2), RTTimeSpecGetNano(&Ts1), __LINE__);
+        CHECK_TIME_SILENT(&T1, Tcheck.i32Year, Tcheck.u8Month, Tcheck.u8MonthDay, Tcheck.u8Hour, Tcheck.u8Minute, Tcheck.u8Second, Tcheck.u32Nanosecond, Tcheck.u16YearDay, Tcheck.u8WeekDay, Tcheck.offUTC, Tcheck.fFlags);
+
+        CHECK_NZ(RTTimeLocalExplode(&T1, &Ts1));
+        CHECK_NZ(RTTimeImplode(&Ts2, &T1));
+        if (!RTTimeSpecIsEqual(&Ts2, &Ts1))
+            RTTestIFailed("FAILURE - %RI64 != %RI64, line no. %d\n",
+                          RTTimeSpecGetNano(&Ts2), RTTimeSpecGetNano(&Ts1), __LINE__);
+        CHECK_TIME_LOCAL_SILENT(&T1, Tcheck.i32Year, Tcheck.u8Month, Tcheck.u8MonthDay, Tcheck.u8Hour, Tcheck.u8Minute, Tcheck.u8Second, Tcheck.u32Nanosecond, Tcheck.u16YearDay, Tcheck.u8WeekDay, Tcheck.offUTC, Tcheck.fFlags);
+
+        RTTimeSpecAddNano(&Ts1, 29 * RT_NS_1MIN);
+        Tcheck.u8Minute += 29;
+        CHECK_NZ(RTTimeNormalize(&Tcheck));
+    }
 
     /*
      * Conversions.

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -24,6 +24,7 @@
 # include <QLayout>
 
 /* Local includes: */
+# include "UIIconPool.h"
 # include "UIWizard.h"
 # include "UIWizardPage.h"
 # include "VBoxGlobal.h"
@@ -247,9 +248,16 @@ void UIWizard::resizeToGoldenRatio()
         int iCurrentWizardWidth = width();
         int iCurrentWizardHeight = height();
 #ifndef VBOX_WS_MAC
+        /* Calculate metric and ratio: */
+        const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_LargeIconSize);
+        const double dRatio = (double)iIconMetric / 32;
+        /* Load pixmap to icon first: */
+        QIcon icon = UIIconPool::iconSet(m_strWatermarkName);
+        QSize size = icon.availableSizes().value(0, QSize(145, 290));
+        size *= dRatio;
         /* We should take into account watermark like its assigned already: */
-        QPixmap watermarkPixmap(m_strWatermarkName);
-        int iWatermarkWidth = watermarkPixmap.width();
+        QPixmap watermarkPixmap(icon.pixmap(size));
+        const int iWatermarkWidth = watermarkPixmap.width() * dRatio;
         iCurrentWizardWidth += iWatermarkWidth;
 #endif /* !VBOX_WS_MAC */
         /* Calculating nearest to 'golden ratio' label width: */
@@ -477,8 +485,15 @@ int UIWizard::proposedWatermarkHeight()
 
 void UIWizard::assignWatermarkHelper()
 {
+    /* Calculate metric and ratio: */
+    const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_LargeIconSize);
+    const double dRatio = (double)iIconMetric / 32;
+    /* Load pixmap to icon first: */
+    QIcon icon = UIIconPool::iconSet(m_strWatermarkName);
+    QSize size = icon.availableSizes().value(0, QSize(145, 290));
+    size *= dRatio;
     /* Create initial watermark: */
-    QPixmap pixWaterMark(m_strWatermarkName);
+    QPixmap pixWaterMark(icon.pixmap(size));
     /* Convert watermark to image which
      * allows to manage pixel data directly: */
     QImage imgWatermark = pixWaterMark.toImage();

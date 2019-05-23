@@ -146,6 +146,7 @@ endstruc
 
 %define XSTATE_SIZE             8192
 
+;; Note! Updates here must be reflected in CPUMInternal.mac too!
 struc CPUMCTX
     .eax                resq    1
     .ecx                resq    1
@@ -249,14 +250,13 @@ struc CPUMCTX
     .aXcr               resq    2
     .fXStateMask        resq    1
     .pXStateR0      RTR0PTR_RES 1
+    alignb 8
     .pXStateR3      RTR3PTR_RES 1
+    alignb 8
     .pXStateRC      RTRCPTR_RES 1
     .aoffXState         resw    64
-%if HC_ARCH_BITS == 64
-    .abPadding          resb    4
-%else
-    .abPadding          resb    12
-%endif
+    .fWorldSwitcher     resd    1
+    alignb 8
     .hwvirt.svm.uMsrHSavePa            resq          1
     .hwvirt.svm.GCPhysVmcb             resq          1
     .hwvirt.svm.pVmcbR0                RTR0PTR_RES   1
@@ -270,7 +270,7 @@ struc CPUMCTX
     .hwvirt.svm.cPauseFilter           resw          1
     .hwvirt.svm.cPauseFilterThreshold  resw          1
     .hwvirt.svm.fInterceptEvents       resb          1
-    .hwvirt.svm.u8Padding1             resb          1
+    .hwvirt.svm.fHMCachedVmcb          resb          1
     .hwvirt.svm.pvMsrBitmapR0          RTR0PTR_RES   1
     .hwvirt.svm.pvMsrBitmapR3          RTR3PTR_RES   1
     .hwvirt.svm.pvIoBitmapR0           RTR0PTR_RES   1
@@ -283,6 +283,8 @@ struc CPUMCTX
     alignb 64
 endstruc
 
+%define CPUMCTX_WSF_IBPB_EXIT           RT_BIT_32(0)
+%define CPUMCTX_WSF_IBPB_ENTRY          RT_BIT_32(1)
 
 %define CPUMSELREG_FLAGS_VALID      0x0001
 %define CPUMSELREG_FLAGS_STALE      0x0002

@@ -171,4 +171,3 @@ BEGINPROC_EXPORTED ASMBitNextClear
         jmp     .return
 ENDPROC ASMBitNextClear
 
-

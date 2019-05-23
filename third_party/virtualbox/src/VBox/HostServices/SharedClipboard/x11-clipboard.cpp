@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -259,7 +259,7 @@ int vboxClipboardReadData (VBOXCLIPBOARDCLIENTDATA *pClient,
 void ClipCompleteDataRequestFromX11(VBOXCLIPBOARDCONTEXT *pCtx, int rc,
                                     CLIPREADCBREQ *pReq, void *pv, uint32_t cb)
 {
-    if (cb <= pReq->cb)
+    if (cb <= pReq->cb && cb != 0)
         memcpy(pReq->pv, pv, cb);
     RTMemFree(pReq);
     vboxSvcClipboardCompleteReadData(pCtx->pClient, rc, cb);

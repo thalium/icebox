@@ -312,4 +312,3 @@ BITS TMPL_BITS
 
 %include "bootsector2-template-footer.mac"
 
-

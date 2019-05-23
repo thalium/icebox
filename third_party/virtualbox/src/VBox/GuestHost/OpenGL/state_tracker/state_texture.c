@@ -3320,7 +3320,7 @@ crStatePrioritizeTextures(GLsizei n, const GLuint *textures,
         /* so far the code just ensures the tex object is created to make
          * the crserverlib code be able to pass it to host ogl */
 
-        /* TODO: store texture priorities in the state data to be able to restore it properly
+        /** @todo store texture priorities in the state data to be able to restore it properly
          * on save state load */
     }
 
@@ -3335,7 +3335,7 @@ crStateAreTexturesResident(GLsizei n, const GLuint *textures,
     UNUSED(n);
     UNUSED(textures);
     UNUSED(residences);
-    /* TODO: */
+    /** @todo */
     return GL_TRUE;
 }
 

@@ -246,6 +246,7 @@ typedef struct {
     int force_direct;
     int sync;
 #endif
+    int force_present_main_thread;
     int render_to_app_window;
     int render_to_crut_window;
     int crut_drawable;

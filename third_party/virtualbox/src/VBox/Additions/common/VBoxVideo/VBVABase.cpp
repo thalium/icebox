@@ -7,22 +7,25 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
@@ -52,29 +55,20 @@ static bool vboxHwBufferWrite(PVBVABUFFERCONTEXT pCtx,
                               const void *p, uint32_t cb);
 
 
-static bool vboxVBVAInformHost(PVBVABUFFERCONTEXT pCtx,
-                               PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx,
-                               int32_t cScreen, bool bEnable)
+static bool vboxVBVAInformHost(PVBVABUFFERCONTEXT pCtx, PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx, int32_t cScreen, bool fEnable)
 {
-    bool bRc = false;
+    bool fRc = false;
 
 #if 0  /* All callers check this */
     if (ppdev->bHGSMISupported)
 #endif
     {
-        void *p = VBoxHGSMIBufferAlloc(pHGSMICtx,
-                                       sizeof (VBVAENABLE_EX),
-                                       HGSMI_CH_VBVA,
-                                       VBVA_ENABLE);
-        if (!p)
+        VBVAENABLE_EX RT_UNTRUSTED_VOLATILE_HOST *pEnable =
+            (VBVAENABLE_EX RT_UNTRUSTED_VOLATILE_HOST *)VBoxHGSMIBufferAlloc(pHGSMICtx, sizeof(VBVAENABLE_EX),
+                                                                             HGSMI_CH_VBVA, VBVA_ENABLE);
+        if (pEnable != NULL)
         {
-            // LogFunc(("HGSMIHeapAlloc failed\n"));
-        }
-        else
-        {
-            VBVAENABLE_EX *pEnable = (VBVAENABLE_EX *)p;
-
-            pEnable->Base.u32Flags  = bEnable? VBVA_F_ENABLE: VBVA_F_DISABLE;
+            pEnable->Base.u32Flags  = fEnable ? VBVA_F_ENABLE : VBVA_F_DISABLE;
             pEnable->Base.u32Offset = pCtx->offVRAMBuffer;
             pEnable->Base.i32Result = VERR_NOT_SUPPORTED;
             if (cScreen >= 0)
@@ -83,22 +77,22 @@ static bool vboxVBVAInformHost(PVBVABUFFERCONTEXT pCtx,
                 pEnable->u32ScreenId    = cScreen;
             }
 
-            VBoxHGSMIBufferSubmit(pHGSMICtx, p);
+            VBoxHGSMIBufferSubmit(pHGSMICtx, pEnable);
 
-            if (bEnable)
-            {
-                bRc = RT_SUCCESS(pEnable->Base.i32Result);
-            }
+            if (fEnable)
+                fRc = RT_SUCCESS(pEnable->Base.i32Result);
             else
-            {
-                bRc = true;
-            }
+                fRc = true;
 
-            VBoxHGSMIBufferFree(pHGSMICtx, p);
+            VBoxHGSMIBufferFree(pHGSMICtx, pEnable);
+        }
+        else
+        {
+            // LogFunc(("HGSMIHeapAlloc failed\n"));
         }
     }
 
-    return bRc;
+    return fRc;
 }
 
 /*
@@ -108,7 +102,7 @@ DECLHIDDEN(bool) VBoxVBVAEnable(PVBVABUFFERCONTEXT pCtx,
                                 PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx,
                                 VBVABUFFER *pVBVA, int32_t cScreen)
 {
-    bool bRc = false;
+    bool fRc = false;
 
     // LogFlowFunc(("pVBVA %p\n", pVBVA));
 
@@ -132,15 +126,15 @@ DECLHIDDEN(bool) VBoxVBVAEnable(PVBVABUFFERCONTEXT pCtx,
         pCtx->pRecord    = NULL;
         pCtx->pVBVA      = pVBVA;
 
-        bRc = vboxVBVAInformHost(pCtx, pHGSMICtx, cScreen, true);
+        fRc = vboxVBVAInformHost(pCtx, pHGSMICtx, cScreen, true);
     }
 
-    if (!bRc)
+    if (!fRc)
     {
         VBoxVBVADisable(pCtx, pHGSMICtx, cScreen);
     }
 
-    return bRc;
+    return fRc;
 }
 
 DECLHIDDEN(void) VBoxVBVADisable(PVBVABUFFERCONTEXT pCtx,
@@ -154,14 +148,12 @@ DECLHIDDEN(void) VBoxVBVADisable(PVBVABUFFERCONTEXT pCtx,
     pCtx->pVBVA             = NULL;
 
     vboxVBVAInformHost(pCtx, pHGSMICtx, cScreen, false);
-
-    return;
 }
 
 DECLHIDDEN(bool) VBoxVBVABufferBeginUpdate(PVBVABUFFERCONTEXT pCtx,
                                            PHGSMIGUESTCOMMANDCONTEXT pHGSMICtx)
 {
-    bool bRc = false;
+    bool fRc = false;
 
     // LogFunc(("flags = 0x%08X\n", pCtx->pVBVA? pCtx->pVBVA->u32HostEvents: -1));
 
@@ -201,11 +193,11 @@ DECLHIDDEN(bool) VBoxVBVABufferBeginUpdate(PVBVABUFFERCONTEXT pCtx,
             /* Remember which record we are using. */
             pCtx->pRecord = pRecord;
 
-            bRc = true;
+            fRc = true;
         }
     }
 
-    return bRc;
+    return fRc;
 }
 
 DECLHIDDEN(void) VBoxVBVABufferEndUpdate(PVBVABUFFERCONTEXT pCtx)
@@ -224,8 +216,6 @@ DECLHIDDEN(void) VBoxVBVABufferEndUpdate(PVBVABUFFERCONTEXT pCtx)
 
     pCtx->fHwBufferOverflow = false;
     pCtx->pRecord = NULL;
-
-    return;
 }
 
 /*
@@ -241,26 +231,20 @@ static uint32_t vboxHwBufferAvail (const VBVABUFFER *pVBVA)
 static void vboxHwBufferFlush(PHGSMIGUESTCOMMANDCONTEXT pCtx)
 {
     /* Issue the flush command. */
-    void *p = VBoxHGSMIBufferAlloc(pCtx,
-                                   sizeof (VBVAFLUSH),
-                                   HGSMI_CH_VBVA,
-                                   VBVA_FLUSH);
-    if (!p)
+    VBVAFLUSH RT_UNTRUSTED_VOLATILE_HOST *pFlush =
+        (VBVAFLUSH RT_UNTRUSTED_VOLATILE_HOST * )VBoxHGSMIBufferAlloc(pCtx, sizeof(VBVAFLUSH), HGSMI_CH_VBVA, VBVA_FLUSH);
+    if (pFlush != NULL)
     {
-        // LogFunc(("HGSMIHeapAlloc failed\n"));
+        pFlush->u32Reserved = 0;
+
+        VBoxHGSMIBufferSubmit(pCtx, pFlush);
+
+        VBoxHGSMIBufferFree(pCtx, pFlush);
     }
     else
     {
-        VBVAFLUSH *pFlush = (VBVAFLUSH *)p;
-
-        pFlush->u32Reserved = 0;
-
-        VBoxHGSMIBufferSubmit(pCtx, p);
-
-        VBoxHGSMIBufferFree(pCtx, p);
+        // LogFunc(("HGSMIHeapAlloc failed\n"));
     }
-
-    return;
 }
 
 static void vboxHwBufferPlaceDataAt(PVBVABUFFERCONTEXT pCtx, const void *p,
@@ -282,8 +266,6 @@ static void vboxHwBufferPlaceDataAt(PVBVABUFFERCONTEXT pCtx, const void *p,
         memcpy (dst, p, u32BytesTillBoundary);
         memcpy (&pVBVA->au8Data[0], (uint8_t *)p + u32BytesTillBoundary, i32Diff);
     }
-
-    return;
 }
 
 static bool vboxHwBufferWrite(PVBVABUFFERCONTEXT pCtx,

@@ -105,7 +105,7 @@ static void stubCheckWindowState(WindowInfo *window, GLboolean bFlushOnChange)
     bool bChanged = false;
 
 #ifdef WINDOWS
-    /* @todo install hook and track for WM_DISPLAYCHANGE */
+    /** @todo install hook and track for WM_DISPLAYCHANGE */
     {
         DEVMODE devMode;
 
@@ -951,7 +951,7 @@ stubInitLocked(void)
     crDebug("Stub launched for %s", response);
 
 #if defined(CR_NEWWINTRACK) && !defined(WINDOWS)
-    /*@todo when vm boots with compiz turned on, new code causes hang in xcb_wait_for_reply in the sync thread
+    /** @todo when vm boots with compiz turned on, new code causes hang in xcb_wait_for_reply in the sync thread
      * as at the start compiz runs our code under XGrabServer.
      */
     if (!crStrcmp(response, "compiz") || !crStrcmp(response, "compiz_real") || !crStrcmp(response, "compiz.real")
@@ -961,7 +961,7 @@ stubInitLocked(void)
     }
 #endif
 
-    /* @todo check if it'd be of any use on other than guests, no use for windows */
+    /** @todo check if it'd be of any use on other than guests, no use for windows */
     app_id = crGetenv( "CR_APPLICATION_ID_NUMBER" );
 
     crNetInit( NULL, NULL );
@@ -1020,7 +1020,7 @@ stubInitLocked(void)
         disable_sync = 1;
         crDebug("running with %s", VBOX_MODNAME_DISPD3D);
         stub.trackWindowVisibleRgn = 0;
-        /* @todo: should we enable that? */
+        /** @todo should we enable that? */
         stub.trackWindowSize = 0;
         stub.trackWindowPos = 0;
         stub.trackWindowVisibility = 0;
@@ -1478,7 +1478,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
             stub.spu->dispatch_table.VBoxDetachThread();
         }
 
-        
+
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
         VBoxCrHgsmiTerm();
 #endif

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1618,6 +1618,7 @@ static int iscsiLogin(PISCSIIMAGE pImage)
                                     csg = 1;
                                     nsg = 3;
                                     substate = 0;
+                                    break;
                                 }
                                 rc = VERR_PARSE_ERROR;
                                 break;
@@ -1706,7 +1707,7 @@ static int iscsiLogin(PISCSIIMAGE pImage)
         iscsiTransportClose(pImage);
         pImage->state = ISCSISTATE_FREE;
     }
-    else if (RT_FAILURE(rc))
+    else if (rc == VINF_SUCCESS)
         pImage->state = ISCSISTATE_NORMAL;
 
     return rc;
@@ -2160,7 +2161,7 @@ static int iscsiSendPDU(PISCSIIMAGE pImage, PISCSIREQ paReq, uint32_t cnReq,
  *
  * @returns VBOX status
  * @param   pImage      The iSCSI connection state to be used.
- * @param   itt         The initiator task tag. 
+ * @param   itt         The initiator task tag.
  * @param   paRes       Pointer to array of iSCSI response sections.
  * @param   cnRes       Number of valid iSCSI response sections in the array.
  * @param   fRecvFlags  PDU receive flags.

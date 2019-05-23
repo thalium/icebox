@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -101,6 +101,7 @@ UIMedium& UIMedium::operator=(const UIMedium &other)
 
     m_strHardDiskType = other.hardDiskType();
     m_strHardDiskFormat = other.hardDiskFormat();
+    m_fHasChildren = other.hasChildren();
     m_strStorageDetails = other.storageDetails();
     m_strEncryptionPasswordID = other.encryptionPasswordID();
 
@@ -168,6 +169,7 @@ void UIMedium::refresh()
     /* Reset hard drive related parameters: */
     m_strHardDiskType = QString();
     m_strHardDiskFormat = QString();
+    m_fHasChildren = false;
     m_strStorageDetails = QString();
     m_strEncryptionPasswordID = QString();
 
@@ -252,6 +254,9 @@ void UIMedium::refresh()
             m_strHardDiskType = mediumTypeToString(m_medium);
             /* Refresh hard drive format: */
             m_strHardDiskFormat = m_medium.GetFormat();
+
+            /* Refresh hard drive parental status: */
+            m_fHasChildren = m_medium.GetChildren().size();
 
             /* Refresh hard drive storage details: */
             m_strStorageDetails = gpConverter->toString(m_enmMediumVariant);
@@ -467,7 +472,7 @@ QPixmap UIMedium::icon(bool fNoDiffs /* = false */, bool fCheckRO /* = false */)
     if (fCheckRO && m_fReadOnly)
     {
         QIcon icon = UIIconPool::iconSet(":/hd_new_16px.png");
-        pixmap = VBoxGlobal::joinPixmaps(pixmap, icon.pixmap(icon.availableSizes().first()));
+        pixmap = VBoxGlobal::joinPixmaps(pixmap, icon.pixmap(icon.availableSizes().value(0, QSize(16, 16))));
     }
 
     return pixmap;

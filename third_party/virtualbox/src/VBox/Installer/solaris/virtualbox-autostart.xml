@@ -2,7 +2,7 @@
 <!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
 <!--
 # Solaris SMF service manifest for VirtualBox autostart service.
-# $Id$
+# $Id: virtualbox-autostart.xml $
 
     Copyright (C) 2012-2015 Oracle Corporation
 

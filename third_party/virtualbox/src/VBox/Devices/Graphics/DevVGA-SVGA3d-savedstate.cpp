@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -83,11 +83,11 @@ static int vmsvga3dLoadReinitContext(PVGASTATE pThis, PVMSVGA3DCONTEXT pContext)
 
     /* Recreate the texture state */
     Log(("vmsvga3dLoadReinitContext: Recreate texture state BEGIN\n"));
-    for (uint32_t iStage = 0; iStage < SVGA3D_MAX_TEXTURE_STAGE; iStage++)
+    for (uint32_t iStage = 0; iStage < RT_ELEMENTS(pContext->state.aTextureStates); ++iStage)
     {
-        for (uint32_t j = 0; j < SVGA3D_TS_MAX; j++)
+        for (uint32_t j = 0; j < RT_ELEMENTS(pContext->state.aTextureStates[0]); ++j)
         {
-            SVGA3dTextureState *pTextureState = &pContext->state.aTextureState[iStage][j];
+            SVGA3dTextureState *pTextureState = &pContext->state.aTextureStates[iStage][j];
 
             if (pTextureState->name != SVGA3D_TS_INVALID)
                 vmsvga3dSetTextureState(pThis, pContext->id, 1, pTextureState);
@@ -148,7 +148,7 @@ static int vmsvga3dLoadReinitContext(PVGASTATE pThis, PVMSVGA3DCONTEXT pContext)
 
 int vmsvga3dLoadExec(PVGASTATE pThis, PSSMHANDLE pSSM, uint32_t uVersion, uint32_t uPass)
 {
-    RT_NOREF(uVersion, uPass);
+    RT_NOREF(uPass);
     PVMSVGA3DSTATE pState = pThis->svga.p3dState;
     AssertReturn(pState, VERR_NO_MEMORY);
     int            rc;
@@ -308,6 +308,82 @@ int vmsvga3dLoadExec(PVGASTATE pThis, PSSMHANDLE pSSM, uint32_t uVersion, uint32
                     AssertRCReturn(rc, rc);
                 }
             }
+
+            if (uVersion >= VGA_SAVEDSTATE_VERSION_VMSVGA_TEX_STAGES)
+            {
+                /* Load texture stage and samplers state. */
+
+                /* Number of stages/samplers. */
+                uint32_t cStages;
+                rc = SSMR3GetU32(pSSM, &cStages);
+                AssertRCReturn(rc, rc);
+
+                /* Number of states. */
+                uint32_t cTextureStates;
+                rc = SSMR3GetU32(pSSM, &cTextureStates);
+                AssertRCReturn(rc, rc);
+
+                for (uint32_t iStage = 0; iStage < cStages; ++iStage)
+                {
+                    for (uint32_t j = 0; j < cTextureStates; ++j)
+                    {
+                        SVGA3dTextureState textureState;
+                        SSMR3GetU32(pSSM, &textureState.stage);
+                        uint32_t u32Name;
+                        SSMR3GetU32(pSSM, &u32Name);
+                        textureState.name = (SVGA3dTextureStateName)u32Name;
+                        rc = SSMR3GetU32(pSSM, &textureState.value);
+                        AssertRCReturn(rc, rc);
+
+                        if (   iStage < RT_ELEMENTS(pContext->state.aTextureStates)
+                            && j < RT_ELEMENTS(pContext->state.aTextureStates[0]))
+                        {
+                            pContext->state.aTextureStates[iStage][j] = textureState;
+                        }
+                    }
+                }
+            }
+
+#if 0 /** @todo */
+            if (uVersion >= VGA_SAVEDSTATE_VERSION_VMSVGA_TEX_STAGES) /** @todo VGA_SAVEDSTATE_VERSION_VMSVGA_3D */
+            {
+                VMSVGA3DQUERY query;
+                RT_ZERO(query);
+
+                rc = SSMR3GetStructEx(pSSM, &query, sizeof(query), 0, g_aVMSVGA3DQUERYFields, NULL);
+                AssertRCReturn(rc, rc);
+
+                switch (query.enmQueryState)
+                {
+                    case VMSVGA3DQUERYSTATE_BUILDING:
+                        /* Start collecting data. */
+                        vmsvga3dQueryBegin(pThis, cid, SVGA3D_QUERYTYPE_OCCLUSION);
+                        /* Partial result. */
+                        pContext->occlusion.u32QueryResult = query.u32QueryResult;
+                        break;
+
+                    case VMSVGA3DQUERYSTATE_ISSUED:
+                        /* Guest ended the query but did not read result. Result is restored. */
+                        query.enmQueryState = VMSVGA3DQUERYSTATE_SIGNALED;
+                        RT_FALL_THRU();
+                    case VMSVGA3DQUERYSTATE_SIGNALED:
+                        /* Create the query object. */
+                        vmsvga3dOcclusionQueryCreate(pState, pContext);
+
+                        /* Update result and state. */
+                        pContext->occlusion.enmQueryState = query.enmQueryState;
+                        pContext->occlusion.u32QueryResult = query.u32QueryResult;
+                        break;
+
+                    default:
+                        AssertFailed();
+                        RT_FALL_THRU();
+                    case VMSVGA3DQUERYSTATE_NULL:
+                        RT_ZERO(pContext->occlusion);
+                        break;
+                }
+            }
+#endif
         }
     }
 
@@ -352,11 +428,11 @@ int vmsvga3dLoadExec(PVGASTATE pThis, PSSMHANDLE pSSM, uint32_t uVersion, uint32
                         rc = SSMR3GetStructEx(pSSM, &pMipmapLevel[idx], sizeof(pMipmapLevel[idx]), 0, g_aVMSVGA3DMIPMAPLEVELFields, NULL);
                         AssertRCReturn(rc, rc);
 
-                        pMipmapLevelSize[idx] = pMipmapLevel[idx].size;
+                        pMipmapLevelSize[idx] = pMipmapLevel[idx].mipmapSize;
                     }
                 }
 
-                rc = vmsvga3dSurfaceDefine(pThis, sid, surface.flags, surface.format, surface.faces, surface.multiSampleCount, surface.autogenFilter, cMipLevels, pMipmapLevelSize);
+                rc = vmsvga3dSurfaceDefine(pThis, sid, surface.surfaceFlags, surface.format, surface.faces, surface.multiSampleCount, surface.autogenFilter, cMipLevels, pMipmapLevelSize);
                 AssertRCReturn(rc, rc);
 
                 RTMemFree(pMipmapLevelSize);
@@ -374,9 +450,9 @@ int vmsvga3dLoadExec(PVGASTATE pThis, PSSMHANDLE pSSM, uint32_t uVersion, uint32
                 PVMSVGA3DMIPMAPLEVEL pMipmapLevel = &pSurface->pMipmapLevels[j];
                 bool fDataPresent = false;
 
+                /* vmsvga3dSurfaceDefine already allocated the surface data buffer. */
                 Assert(pMipmapLevel->cbSurface);
-                pMipmapLevel->pSurfaceData = RTMemAllocZ(pMipmapLevel->cbSurface);
-                AssertReturn(pMipmapLevel->pSurfaceData, VERR_NO_MEMORY);
+                AssertReturn(pMipmapLevel->pSurfaceData, VERR_INTERNAL_ERROR);
 
                 /* Fetch the data present boolean first. */
                 rc = SSMR3GetBool(pSSM, &fDataPresent);
@@ -500,6 +576,65 @@ static int vmsvga3dSaveContext(PVGASTATE pThis, PSSMHANDLE pSSM, PVMSVGA3DCONTEX
             rc = SSMR3PutStructEx(pSSM, &pContext->state.paVertexShaderConst[j], sizeof(pContext->state.paVertexShaderConst[j]), 0, g_aVMSVGASHADERCONSTFields, NULL);
             AssertRCReturn(rc, rc);
         }
+
+        /* Save texture stage and samplers state. */
+
+        /* Number of stages/samplers. */
+        rc = SSMR3PutU32(pSSM, RT_ELEMENTS(pContext->state.aTextureStates));
+        AssertRCReturn(rc, rc);
+
+        /* Number of texture states. */
+        rc = SSMR3PutU32(pSSM, RT_ELEMENTS(pContext->state.aTextureStates[0]));
+        AssertRCReturn(rc, rc);
+
+        for (uint32_t iStage = 0; iStage < RT_ELEMENTS(pContext->state.aTextureStates); ++iStage)
+        {
+            for (uint32_t j = 0; j < RT_ELEMENTS(pContext->state.aTextureStates[0]); ++j)
+            {
+                SVGA3dTextureState *pTextureState = &pContext->state.aTextureStates[iStage][j];
+
+                SSMR3PutU32(pSSM, pTextureState->stage);
+                SSMR3PutU32(pSSM, pTextureState->name);
+                rc = SSMR3PutU32(pSSM, pTextureState->value);
+                AssertRCReturn(rc, rc);
+            }
+        }
+
+#if 0 /** @todo Enable later. */
+        PVMSVGA3DSTATE pState = pThis->svga.p3dState;
+        /* Occlusion query. */
+        if (!VMSVGA3DQUERY_EXISTS(&pContext->occlusion))
+        {
+            pContext->occlusion.enmQueryState = VMSVGA3DQUERYSTATE_NULL;
+        }
+
+        switch (pContext->occlusion.enmQueryState)
+        {
+            case VMSVGA3DQUERYSTATE_BUILDING:
+                /* Stop collecting data. Fetch partial result. Save result. */
+                vmsvga3dOcclusionQueryEnd(pState, pContext);
+                RT_FALL_THRU();
+            case VMSVGA3DQUERYSTATE_ISSUED:
+                /* Fetch result. Save result. */
+                pContext->occlusion.u32QueryResult = 0;
+                vmsvga3dOcclusionQueryGetData(pState, pContext, &pContext->occlusion.u32QueryResult);
+                RT_FALL_THRU();
+            case VMSVGA3DQUERYSTATE_SIGNALED:
+                /* Save result. Nothing to do here. */
+                break;
+
+            default:
+                AssertFailed();
+                RT_FALL_THRU();
+            case VMSVGA3DQUERYSTATE_NULL:
+                pContext->occlusion.enmQueryState = VMSVGA3DQUERYSTATE_NULL;
+                pContext->occlusion.u32QueryResult = 0;
+                break;
+        }
+
+        rc = SSMR3PutStructEx(pSSM, &pContext->occlusion, sizeof(pContext->occlusion), 0, g_aVMSVGA3DQUERYFields, NULL);
+        AssertRCReturn(rc, rc);
+#endif
     }
 
     return VINF_SUCCESS;
@@ -599,7 +734,6 @@ int vmsvga3dSaveExec(PVGASTATE pThis, PSSMHANDLE pSSM)
                         void            *pData;
                         bool             fRenderTargetTexture = false;
                         bool             fTexture = false;
-                        bool             fVertex = false;
                         bool             fSkipSave = false;
                         HRESULT          hr;
 
@@ -607,21 +741,26 @@ int vmsvga3dSaveExec(PVGASTATE pThis, PSSMHANDLE pSSM)
                         pData = RTMemAllocZ(pMipmapLevel->cbSurface);
                         AssertReturn(pData, VERR_NO_MEMORY);
 
-                        switch (pSurface->flags & (SVGA3D_SURFACE_HINT_INDEXBUFFER | SVGA3D_SURFACE_HINT_VERTEXBUFFER | SVGA3D_SURFACE_HINT_TEXTURE | SVGA3D_SURFACE_HINT_RENDERTARGET | SVGA3D_SURFACE_HINT_DEPTHSTENCIL | SVGA3D_SURFACE_CUBEMAP))
+                        switch (pSurface->enmD3DResType)
                         {
-                        case SVGA3D_SURFACE_HINT_DEPTHSTENCIL:
-                        case SVGA3D_SURFACE_HINT_DEPTHSTENCIL | SVGA3D_SURFACE_HINT_TEXTURE:
-                            /** @todo unable to easily fetch depth surface data in d3d 9 */
+                        case VMSVGA3D_D3DRESTYPE_CUBE_TEXTURE:
+                        case VMSVGA3D_D3DRESTYPE_VOLUME_TEXTURE:
+                            AssertFailed(); /// @todo
                             fSkipSave = true;
                             break;
-                        case SVGA3D_SURFACE_HINT_TEXTURE | SVGA3D_SURFACE_HINT_RENDERTARGET:
-                            fRenderTargetTexture = true;
-                            /* no break */
-                        case SVGA3D_SURFACE_HINT_TEXTURE:
-                            fTexture = true;
-                            /* no break */
-                        case SVGA3D_SURFACE_HINT_RENDERTARGET:
+                        case VMSVGA3D_D3DRESTYPE_SURFACE:
+                        case VMSVGA3D_D3DRESTYPE_TEXTURE:
                         {
+                            if (pSurface->surfaceFlags & SVGA3D_SURFACE_HINT_DEPTHSTENCIL)
+                            {
+                               /** @todo unable to easily fetch depth surface data in d3d 9 */
+                               fSkipSave = true;
+                               break;
+                            }
+
+                            fTexture = (pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_TEXTURE);
+                            fRenderTargetTexture = fTexture && (pSurface->surfaceFlags & SVGA3D_SURFACE_HINT_RENDERTARGET);
+
                             D3DLOCKED_RECT LockedRect;
 
                             if (fTexture)
@@ -675,9 +814,11 @@ int vmsvga3dSaveExec(PVGASTATE pThis, PSSMHANDLE pSSM)
                             AssertMsgReturn(hr == D3D_OK, ("vmsvga3dSaveExec: LockRect failed with %x\n", hr), VERR_INTERNAL_ERROR);
 
                             /* Copy the data one line at a time in case the internal pitch is different. */
-                            for (uint32_t j = 0; j < pMipmapLevel->size.height; j++)
+                            for (uint32_t j = 0; j < pMipmapLevel->cBlocksY; ++j)
                             {
-                                memcpy((uint8_t *)pData + j * pMipmapLevel->cbSurfacePitch, (uint8_t *)LockedRect.pBits + j * LockedRect.Pitch, pMipmapLevel->cbSurfacePitch);
+                                uint8_t *pu8Dst = (uint8_t *)pData + j * pMipmapLevel->cbSurfacePitch;
+                                const uint8_t *pu8Src = (uint8_t *)LockedRect.pBits + j * LockedRect.Pitch;
+                                memcpy(pu8Dst, pu8Src, pMipmapLevel->cbSurfacePitch);
                             }
 
                             if (fTexture)
@@ -696,12 +837,12 @@ int vmsvga3dSaveExec(PVGASTATE pThis, PSSMHANDLE pSSM)
                             break;
                         }
 
-                        case SVGA3D_SURFACE_HINT_VERTEXBUFFER:
-                            fVertex = true;
-                            /* no break */
-
-                        case SVGA3D_SURFACE_HINT_INDEXBUFFER:
+                        case VMSVGA3D_D3DRESTYPE_VERTEX_BUFFER:
+                        case VMSVGA3D_D3DRESTYPE_INDEX_BUFFER:
                         {
+                            /* Current type of the buffer. */
+                            const bool fVertex = (pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_VERTEX_BUFFER);
+
                             uint8_t *pD3DData;
 
                             if (fVertex)
@@ -751,7 +892,7 @@ int vmsvga3dSaveExec(PVGASTATE pThis, PSSMHANDLE pSSM)
 
                         Assert(pMipmapLevel->cbSurface);
 
-                        switch (pSurface->flags & (SVGA3D_SURFACE_HINT_INDEXBUFFER | SVGA3D_SURFACE_HINT_VERTEXBUFFER | SVGA3D_SURFACE_HINT_TEXTURE | SVGA3D_SURFACE_HINT_RENDERTARGET | SVGA3D_SURFACE_HINT_DEPTHSTENCIL | SVGA3D_SURFACE_CUBEMAP))
+                        switch (pSurface->surfaceFlags & VMSVGA3D_SURFACE_HINT_SWITCH_MASK)
                         {
                         default:
                             AssertFailed();
@@ -806,6 +947,7 @@ int vmsvga3dSaveExec(PVGASTATE pThis, PSSMHANDLE pSSM)
                             break;
                         }
 
+                        case SVGA3D_SURFACE_HINT_VERTEXBUFFER | SVGA3D_SURFACE_HINT_INDEXBUFFER:
                         case SVGA3D_SURFACE_HINT_VERTEXBUFFER:
                         case SVGA3D_SURFACE_HINT_INDEXBUFFER:
                         {

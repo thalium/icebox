@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -124,9 +124,21 @@ void VBoxAboutDlg::prepare()
     }
 
     /* Load image: */
+    const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_LargeIconSize);
+    const double dRatio = (double)iIconMetric / 32;
     const QIcon icon = UIIconPool::iconSet(strPath);
-    m_size = icon.availableSizes().first();
+    m_size = icon.availableSizes().value(0, QSize(640, 480));
+    m_size *= dRatio;
     m_pixmap = icon.pixmap(m_size);
+
+    // WORKAROUND:
+    // Since we don't have x3 and x4 HiDPI icons yet,
+    // and we hadn't enabled automatic up-scaling for now,
+    // we have to make sure m_pixmap is upscaled to required size.
+    const QSize actualSize = m_pixmap.size() / m_pixmap.devicePixelRatio();
+    if (   actualSize.width() < m_size.width()
+        || actualSize.height() < m_size.height())
+        m_pixmap = m_pixmap.scaled(m_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     /* Prepare main-layout: */
     prepareMainLayout();

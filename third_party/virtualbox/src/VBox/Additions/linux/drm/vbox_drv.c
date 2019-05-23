@@ -272,7 +272,9 @@ static struct drm_driver driver = {
 	.master_set = vbox_master_set,
 	.master_drop = vbox_master_drop,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
+# if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0) && !defined(RHEL_75)
 	.set_busid = drm_pci_set_busid,
+# endif
 #endif
 
 	.fops = &vbox_fops,
@@ -307,7 +309,7 @@ static struct drm_driver driver = {
 
 static int __init vbox_init(void)
 {
-#ifdef CONFIG_VGA_CONSOLE
+#if defined(CONFIG_VGA_CONSOLE) || LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0)
 	if (vgacon_text_force() && vbox_modeset == -1)
 		return -EINVAL;
 #endif
@@ -315,12 +317,12 @@ static int __init vbox_init(void)
 	if (vbox_modeset == 0)
 		return -EINVAL;
 
-	return drm_pci_init(&driver, &vbox_pci_driver);
+	return pci_register_driver(&vbox_pci_driver);
 }
 
 static void __exit vbox_exit(void)
 {
-	drm_pci_exit(&driver, &vbox_pci_driver);
+	pci_unregister_driver(&vbox_pci_driver);
 }
 
 module_init(vbox_init);

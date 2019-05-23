@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -561,27 +561,30 @@ void HGSMIMAUninit(HGSMIMADATA *pMA)
 {
     HGSMIMABLOCK *pIter;
     HGSMIMABLOCK *pNext;
-    RTListForEachSafe(&pMA->listBlocks, pIter, pNext, HGSMIMABLOCK, nodeBlock)
+    /* If it has been initialized. */
+    if (pMA->listBlocks.pNext)
     {
-        RTListNodeRemove(&pIter->nodeBlock);
-        hgsmiMABlockFree(pMA, pIter);
+        RTListForEachSafe(&pMA->listBlocks, pIter, pNext, HGSMIMABLOCK, nodeBlock)
+        {
+            RTListNodeRemove(&pIter->nodeBlock);
+            hgsmiMABlockFree(pMA, pIter);
+        }
     }
 
     RT_ZERO(*pMA);
 }
 
-HGSMIOFFSET HGSMIMAPointerToOffset(const HGSMIMADATA *pMA, const void *pv)
+HGSMIOFFSET HGSMIMAPointerToOffset(const HGSMIMADATA *pMA, const void RT_UNTRUSTED_VOLATILE_GUEST *pv)
 {
-    if (HGSMIAreaContainsPointer(&pMA->area, pv))
-    {
-        return HGSMIPointerToOffset(&pMA->area, pv);
-    }
+    uintptr_t off = (uintptr_t)pv - (uintptr_t)pMA->area.pu8Base;
+    if (off < pMA->area.cbArea)
+        return pMA->area.offBase + off;
 
     HGSMI_ASSERT_FAILED();
     return HGSMIOFFSET_VOID;
 }
 
-void *HGSMIMAOffsetToPointer(const HGSMIMADATA *pMA, HGSMIOFFSET off)
+static void RT_UNTRUSTED_VOLATILE_HSTGST *HGSMIMAOffsetToPointer(const HGSMIMADATA *pMA, HGSMIOFFSET off)
 {
     if (HGSMIAreaContainsOffset(&pMA->area, off))
     {
@@ -592,13 +595,13 @@ void *HGSMIMAOffsetToPointer(const HGSMIMADATA *pMA, HGSMIOFFSET off)
     return NULL;
 }
 
-void *HGSMIMAAlloc(HGSMIMADATA *pMA, HGSMISIZE cb)
+void RT_UNTRUSTED_VOLATILE_HSTGST *HGSMIMAAlloc(HGSMIMADATA *pMA, HGSMISIZE cb)
 {
     HGSMIOFFSET off = hgsmiMAAlloc(pMA, cb);
     return HGSMIMAOffsetToPointer(pMA, off);
 }
 
-void HGSMIMAFree(HGSMIMADATA *pMA, void *pv)
+void HGSMIMAFree(HGSMIMADATA *pMA, void RT_UNTRUSTED_VOLATILE_GUEST *pv)
 {
     HGSMIOFFSET off = HGSMIMAPointerToOffset(pMA, pv);
     if (off != HGSMIOFFSET_VOID)

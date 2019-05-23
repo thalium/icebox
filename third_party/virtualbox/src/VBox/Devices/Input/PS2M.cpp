@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -104,6 +104,7 @@
 #include "VBoxDD.h"
 #define IN_PS2M
 #include "PS2Dev.h"
+
 
 /*********************************************************************************************************************************
 *   Defined Constants And Macros                                                                                                 *
@@ -301,6 +302,7 @@ AssertCompile(PS2M_STRUCT_FILLER >= sizeof(PS2M));
 #if defined(RT_STRICT) && defined(IN_RING3)
 static void ps2mTestAccumulation(void);
 #endif
+
 
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *

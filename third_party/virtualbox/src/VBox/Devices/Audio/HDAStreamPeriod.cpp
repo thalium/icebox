@@ -2,13 +2,13 @@
 /** @file
  * HDAStreamPeriod.cpp - Stream period functions for HD Audio.
  *
- * Utility functions for handling HDA audio stream periods.
- * Stream period handling is needed in order to keep track of a stream's timing
+ * Utility functions for handling HDA audio stream periods.  Stream period
+ * handling is needed in order to keep track of a stream's timing
  * and processed audio data.
  *
- * As the HDA device only has one bit clock (WALCLK) but audio streams can be processed
- * at certain points in time, these functions can be used to estimate and schedule the
- * wall clock (WALCLK) for all streams accordingly.
+ * As the HDA device only has one bit clock (WALCLK) but audio streams can be
+ * processed at certain points in time, these functions can be used to estimate
+ * and schedule the wall clock (WALCLK) for all streams accordingly.
  */
 
 /*
@@ -38,22 +38,22 @@
 #include "DrvAudio.h"
 #include "HDAStreamPeriod.h"
 
-#ifdef IN_RING3
+
+#ifdef IN_RING3 /* entire file currently */
+
 /**
  * Creates a stream period.
  *
  * @return  IPRT status code.
  * @param   pPeriod             Stream period to initialize.
  */
-int hdaStreamPeriodCreate(PHDASTREAMPERIOD pPeriod)
+int hdaR3StreamPeriodCreate(PHDASTREAMPERIOD pPeriod)
 {
     Assert(!(pPeriod->fStatus & HDASTREAMPERIOD_FLAG_VALID));
 
     int rc = RTCritSectInit(&pPeriod->CritSect);
-    if (RT_SUCCESS(rc))
-    {
-        pPeriod->fStatus = HDASTREAMPERIOD_FLAG_VALID;
-    }
+    AssertRCReturnStmt(rc, pPeriod->fStatus = 0, rc);
+    pPeriod->fStatus = HDASTREAMPERIOD_FLAG_VALID;
 
     return VINF_SUCCESS;
 }
@@ -63,7 +63,7 @@ int hdaStreamPeriodCreate(PHDASTREAMPERIOD pPeriod)
  *
  * @param   pPeriod             Stream period to destroy.
  */
-void hdaStreamPeriodDestroy(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodDestroy(PHDASTREAMPERIOD pPeriod)
 {
     if (pPeriod->fStatus & HDASTREAMPERIOD_FLAG_VALID)
     {
@@ -76,20 +76,22 @@ void hdaStreamPeriodDestroy(PHDASTREAMPERIOD pPeriod)
 /**
  * Initializes a given stream period with needed parameters.
  *
- * @param   pPeriod             Stream period to (re-)initialize. Must be created with hdaStreamPeriodCreate() first.
+ * @return  VBox status code.
+ * @param   pPeriod             Stream period to (re-)initialize. Must be created with hdaR3StreamPeriodCreate() first.
  * @param   u8SD                Stream descriptor (serial data #) number to assign this stream period to.
  * @param   u16LVI              The HDA stream's LVI value to use for the period calculation.
  * @param   u32CBL              The HDA stream's CBL value to use for the period calculation.
  * @param   pStreamCfg          Audio stream configuration to use for this period.
  */
-void hdaStreamPeriodInit(PHDASTREAMPERIOD pPeriod,
-                         uint8_t u8SD, uint16_t u16LVI, uint32_t u32CBL, PPDMAUDIOSTREAMCFG pStreamCfg)
+int hdaR3StreamPeriodInit(PHDASTREAMPERIOD pPeriod,
+                          uint8_t u8SD, uint16_t u16LVI, uint32_t u32CBL, PPDMAUDIOSTREAMCFG pStreamCfg)
 {
-
-    /* Sanity. */
-    AssertReturnVoid(u16LVI);
-    AssertReturnVoid(u32CBL);
-    AssertReturnVoid(DrvAudioHlpStreamCfgIsValid(pStreamCfg));
+    if (   !u16LVI
+        || !u32CBL
+        || !DrvAudioHlpStreamCfgIsValid(pStreamCfg))
+    {
+        return VERR_INVALID_PARAMETER;
+    }
 
     /*
      * Linux guests (at least Ubuntu):
@@ -98,7 +100,7 @@ void hdaStreamPeriodInit(PHDASTREAMPERIOD pPeriod,
      * Windows guests (Win10 AU):
      * 3584  bytes (CBL) / 4 (frame size) = 896 frames / 2 (LVI)  = 448 frames per period
      */
-    unsigned cTotalPeriods = u16LVI;
+    unsigned cTotalPeriods = u16LVI + 1;
 
     if (cTotalPeriods <= 1)
         cTotalPeriods = 2; /* At least two periods *must* be present (LVI >= 1). */
@@ -108,7 +110,7 @@ void hdaStreamPeriodInit(PHDASTREAMPERIOD pPeriod,
     pPeriod->u8SD              = u8SD;
     pPeriod->u64StartWalClk    = 0;
     pPeriod->u32Hz             = pStreamCfg->Props.uHz;
-    pPeriod->u64DurationWalClk = hdaStreamPeriodFramesToWalClk(pPeriod, framesToTransfer);
+    pPeriod->u64DurationWalClk = hdaR3StreamPeriodFramesToWalClk(pPeriod, framesToTransfer);
     pPeriod->u64ElapsedWalClk  = 0;
     pPeriod->i64DelayWalClk    = 0;
     pPeriod->framesToTransfer  = framesToTransfer;
@@ -118,6 +120,8 @@ void hdaStreamPeriodInit(PHDASTREAMPERIOD pPeriod,
     Log3Func(("[SD%RU8] %RU64 long, Hz=%RU32, CBL=%RU32, LVI=%RU16 -> %u periods, %RU32 frames each\n",
               pPeriod->u8SD, pPeriod->u64DurationWalClk, pPeriod->u32Hz, u32CBL, u16LVI,
               cTotalPeriods, pPeriod->framesToTransfer));
+
+    return VINF_SUCCESS;
 }
 
 /**
@@ -125,7 +129,7 @@ void hdaStreamPeriodInit(PHDASTREAMPERIOD pPeriod,
  *
  * @param   pPeriod             Stream period to reset.
  */
-void hdaStreamPeriodReset(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodReset(PHDASTREAMPERIOD pPeriod)
 {
     Log3Func(("[SD%RU8]\n", pPeriod->u8SD));
 
@@ -138,9 +142,9 @@ void hdaStreamPeriodReset(PHDASTREAMPERIOD pPeriod)
     pPeriod->u64ElapsedWalClk  = 0;
     pPeriod->framesTransferred = 0;
     pPeriod->cIntPending       = 0;
-#ifdef DEBUG
+# ifdef LOG_ENABLED
     pPeriod->Dbg.tsStartNs     = 0;
-#endif
+# endif
 }
 
 /**
@@ -150,7 +154,7 @@ void hdaStreamPeriodReset(PHDASTREAMPERIOD pPeriod)
  * @param   pPeriod             Stream period to begin new life span for.
  * @param   u64WalClk           Wall clock (WALCLK) value to set for the period's starting point.
  */
-int hdaStreamPeriodBegin(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk)
+int hdaR3StreamPeriodBegin(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk)
 {
     Assert(!(pPeriod->fStatus & HDASTREAMPERIOD_FLAG_ACTIVE)); /* No nested calls. */
 
@@ -159,13 +163,11 @@ int hdaStreamPeriodBegin(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk)
     pPeriod->u64ElapsedWalClk  = 0;
     pPeriod->framesTransferred = 0;
     pPeriod->cIntPending       = 0;
-#ifdef DEBUG
+# ifdef LOG_ENABLED
     pPeriod->Dbg.tsStartNs     = RTTimeNanoTS();
-#endif
+# endif
 
-    Log3Func(("[SD%RU8] Starting @ %RU64 (%RU64 long)\n",
-              pPeriod->u8SD, pPeriod->u64StartWalClk, pPeriod->u64DurationWalClk));
-
+    Log3Func(("[SD%RU8] Starting @ %RU64 (%RU64 long)\n", pPeriod->u8SD, pPeriod->u64StartWalClk, pPeriod->u64DurationWalClk));
     return VINF_SUCCESS;
 }
 
@@ -174,7 +176,7 @@ int hdaStreamPeriodBegin(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk)
  *
  * @param   pPeriod             Stream period to end life span for.
  */
-void hdaStreamPeriodEnd(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodEnd(PHDASTREAMPERIOD pPeriod)
 {
     Log3Func(("[SD%RU8] Took %zuus\n", pPeriod->u8SD, (RTTimeNanoTS() - pPeriod->Dbg.tsStartNs) / 1000));
 
@@ -185,7 +187,7 @@ void hdaStreamPeriodEnd(PHDASTREAMPERIOD pPeriod)
     AssertMsg(pPeriod->cIntPending == 0,
               ("%RU8 interrupts for stream #%RU8 still pending -- so ending a period might trigger audio hangs\n",
                pPeriod->cIntPending, pPeriod->u8SD));
-    Assert(hdaStreamPeriodIsComplete(pPeriod));
+    Assert(hdaR3StreamPeriodIsComplete(pPeriod));
 
     pPeriod->fStatus &= ~HDASTREAMPERIOD_FLAG_ACTIVE;
 }
@@ -195,7 +197,7 @@ void hdaStreamPeriodEnd(PHDASTREAMPERIOD pPeriod)
  *
  * @param   pPeriod             Stream period to pause.
  */
-void hdaStreamPeriodPause(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodPause(PHDASTREAMPERIOD pPeriod)
 {
     AssertMsg((pPeriod->fStatus & HDASTREAMPERIOD_FLAG_ACTIVE), ("Period %p already in inactive state\n", pPeriod));
 
@@ -209,7 +211,7 @@ void hdaStreamPeriodPause(PHDASTREAMPERIOD pPeriod)
  *
  * @param   pPeriod             Stream period to resume.
  */
-void hdaStreamPeriodResume(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodResume(PHDASTREAMPERIOD pPeriod)
 {
     AssertMsg(!(pPeriod->fStatus & HDASTREAMPERIOD_FLAG_ACTIVE), ("Period %p already in active state\n", pPeriod));
 
@@ -224,7 +226,7 @@ void hdaStreamPeriodResume(PHDASTREAMPERIOD pPeriod)
  * @return  true if locking was successful, false if not.
  * @param   pPeriod             Stream period to lock.
  */
-bool hdaStreamPeriodLock(PHDASTREAMPERIOD pPeriod)
+bool hdaR3StreamPeriodLock(PHDASTREAMPERIOD pPeriod)
 {
     return RT_SUCCESS(RTCritSectEnter(&pPeriod->CritSect));
 }
@@ -234,7 +236,7 @@ bool hdaStreamPeriodLock(PHDASTREAMPERIOD pPeriod)
  *
  * @param   pPeriod             Stream period to unlock.
  */
-void hdaStreamPeriodUnlock(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodUnlock(PHDASTREAMPERIOD pPeriod)
 {
     int rc2 = RTCritSectLeave(&pPeriod->CritSect);
     AssertRC(rc2);
@@ -249,10 +251,10 @@ void hdaStreamPeriodUnlock(PHDASTREAMPERIOD pPeriod)
  *
  * @remark  Calculation depends on the given stream period and assumes a 24 MHz wall clock counter (WALCLK).
  */
-uint64_t hdaStreamPeriodFramesToWalClk(PHDASTREAMPERIOD pPeriod, uint32_t uFrames)
+uint64_t hdaR3StreamPeriodFramesToWalClk(PHDASTREAMPERIOD pPeriod, uint32_t uFrames)
 {
     /* Prevent division by zero. */
-    const uint32_t uHz = (pPeriod->u32Hz ? pPeriod->u32Hz : 1);
+    const uint32_t uHz = pPeriod->u32Hz ? pPeriod->u32Hz : 1;
 
     /* 24 MHz wall clock (WALCLK): 42ns resolution. */
     return ASMMultU64ByU32DivByU32(uFrames, 24000000, uHz);
@@ -265,11 +267,11 @@ uint64_t hdaStreamPeriodFramesToWalClk(PHDASTREAMPERIOD pPeriod, uint32_t uFrame
  * @return  Absolute elapsed time as wall clock (WALCLK) value.
  * @param   pPeriod             Stream period to use.
  */
-uint64_t hdaStreamPeriodGetAbsElapsedWalClk(PHDASTREAMPERIOD pPeriod)
+uint64_t hdaR3StreamPeriodGetAbsElapsedWalClk(PHDASTREAMPERIOD pPeriod)
 {
-    return   pPeriod->u64StartWalClk
-           + pPeriod->u64ElapsedWalClk
-           + pPeriod->i64DelayWalClk;
+    return pPeriod->u64StartWalClk
+         + pPeriod->u64ElapsedWalClk
+         + pPeriod->i64DelayWalClk;
 }
 
 /**
@@ -279,7 +281,7 @@ uint64_t hdaStreamPeriodGetAbsElapsedWalClk(PHDASTREAMPERIOD pPeriod)
  * @return  Absolute end time as wall clock (WALCLK) value.
  * @param   pPeriod             Stream period to use.
  */
-uint64_t hdaStreamPeriodGetAbsEndWalClk(PHDASTREAMPERIOD pPeriod)
+uint64_t hdaR3StreamPeriodGetAbsEndWalClk(PHDASTREAMPERIOD pPeriod)
 {
     return pPeriod->u64StartWalClk + pPeriod->u64DurationWalClk;
 }
@@ -290,7 +292,7 @@ uint64_t hdaStreamPeriodGetAbsEndWalClk(PHDASTREAMPERIOD pPeriod)
  * @return  Number of remaining audio frames to process. 0 if all were processed.
  * @param   pPeriod             Stream period to return value for.
  */
-uint32_t hdaStreamPeriodGetRemainingFrames(PHDASTREAMPERIOD pPeriod)
+uint32_t hdaR3StreamPeriodGetRemainingFrames(PHDASTREAMPERIOD pPeriod)
 {
     Assert(pPeriod->framesToTransfer >= pPeriod->framesTransferred);
     return pPeriod->framesToTransfer - pPeriod->framesTransferred;
@@ -302,7 +304,7 @@ uint32_t hdaStreamPeriodGetRemainingFrames(PHDASTREAMPERIOD pPeriod)
  * @return  true if the stream period has elapsed, false if not.
  * @param   pPeriod             Stream period to get status for.
  */
-bool hdaStreamPeriodHasElapsed(PHDASTREAMPERIOD pPeriod)
+bool hdaR3StreamPeriodHasElapsed(PHDASTREAMPERIOD pPeriod)
 {
     return (pPeriod->u64ElapsedWalClk >= pPeriod->u64DurationWalClk);
 }
@@ -315,13 +317,13 @@ bool hdaStreamPeriodHasElapsed(PHDASTREAMPERIOD pPeriod)
  * @param   pPeriod             Stream period to get status for.
  * @param   u64WalClk           Absolute wall clock (WALCLK) time to check for.
  */
-bool hdaStreamPeriodHasPassedAbsWalClk(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk)
+bool hdaR3StreamPeriodHasPassedAbsWalClk(PHDASTREAMPERIOD pPeriod, uint64_t u64WalClk)
 {
     /* Period not in use? */
     if (!(pPeriod->fStatus & HDASTREAMPERIOD_FLAG_ACTIVE))
         return true; /* ... implies that it has passed. */
 
-    if (hdaStreamPeriodHasElapsed(pPeriod))
+    if (hdaR3StreamPeriodHasElapsed(pPeriod))
         return true; /* Period already has elapsed. */
 
     return (pPeriod->u64StartWalClk + pPeriod->u64ElapsedWalClk) >= u64WalClk;
@@ -333,7 +335,7 @@ bool hdaStreamPeriodHasPassedAbsWalClk(PHDASTREAMPERIOD pPeriod, uint64_t u64Wal
  * @return  true if period has interrupts pending, false if not.
  * @param   pPeriod             Stream period to get status for.
  */
-bool hdaStreamPeriodNeedsInterrupt(PHDASTREAMPERIOD pPeriod)
+bool hdaR3StreamPeriodNeedsInterrupt(PHDASTREAMPERIOD pPeriod)
 {
     return pPeriod->cIntPending > 0;
 }
@@ -346,7 +348,7 @@ bool hdaStreamPeriodNeedsInterrupt(PHDASTREAMPERIOD pPeriod)
  * @remark  This routine does not do any actual interrupt processing; it only
  *          keeps track of the required (pending) interrupts for a stream period.
  */
-void hdaStreamPeriodAcquireInterrupt(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodAcquireInterrupt(PHDASTREAMPERIOD pPeriod)
 {
     uint32_t cIntPending = pPeriod->cIntPending;
     if (cIntPending)
@@ -365,7 +367,7 @@ void hdaStreamPeriodAcquireInterrupt(PHDASTREAMPERIOD pPeriod)
  *
  * @param   pPeriod             Stream period to release pending interrupt for.
  */
-void hdaStreamPeriodReleaseInterrupt(PHDASTREAMPERIOD pPeriod)
+void hdaR3StreamPeriodReleaseInterrupt(PHDASTREAMPERIOD pPeriod)
 {
     Assert(pPeriod->cIntPending);
     pPeriod->cIntPending--;
@@ -380,12 +382,12 @@ void hdaStreamPeriodReleaseInterrupt(PHDASTREAMPERIOD pPeriod)
  * @param   pPeriod             Stream period to add audio frames to.
  * @param   framesInc           Audio frames to add.
  */
-void hdaStreamPeriodInc(PHDASTREAMPERIOD pPeriod, uint32_t framesInc)
+void hdaR3StreamPeriodInc(PHDASTREAMPERIOD pPeriod, uint32_t framesInc)
 {
     pPeriod->framesTransferred += framesInc;
     Assert(pPeriod->framesTransferred <= pPeriod->framesToTransfer);
 
-    pPeriod->u64ElapsedWalClk   = hdaStreamPeriodFramesToWalClk(pPeriod, pPeriod->framesTransferred);
+    pPeriod->u64ElapsedWalClk   = hdaR3StreamPeriodFramesToWalClk(pPeriod, pPeriod->framesTransferred);
     Assert(pPeriod->u64ElapsedWalClk <= pPeriod->u64DurationWalClk);
 
     Log3Func(("[SD%RU8] cbTransferred=%RU32, u64ElapsedWalClk=%RU64\n",
@@ -401,28 +403,29 @@ void hdaStreamPeriodInc(PHDASTREAMPERIOD pPeriod, uint32_t framesInc)
  * @remark  A stream period is considered complete if it has 1) passed (elapsed) its calculated period time
  *          and 2) processed all required audio frames.
  */
-bool hdaStreamPeriodIsComplete(PHDASTREAMPERIOD pPeriod)
+bool hdaR3StreamPeriodIsComplete(PHDASTREAMPERIOD pPeriod)
 {
     const bool fIsComplete = /* Has the period elapsed time-wise? */
-                                hdaStreamPeriodHasElapsed(pPeriod)
+                                hdaR3StreamPeriodHasElapsed(pPeriod)
                              /* All frames transferred? */
                              && pPeriod->framesTransferred >= pPeriod->framesToTransfer;
-#ifdef VBOX_STRICT
+# ifdef VBOX_STRICT
     if (fIsComplete)
     {
         Assert(pPeriod->framesTransferred == pPeriod->framesToTransfer);
         Assert(pPeriod->u64ElapsedWalClk  == pPeriod->u64DurationWalClk);
     }
-#endif
+# endif
 
     Log3Func(("[SD%RU8] Period %s - runtime %RU64 / %RU64 (abs @ %RU64, starts @ %RU64, ends @ %RU64), %RU8 IRQs pending\n",
               pPeriod->u8SD,
               fIsComplete ? "COMPLETE" : "NOT COMPLETE YET",
               pPeriod->u64ElapsedWalClk, pPeriod->u64DurationWalClk,
-              hdaStreamPeriodGetAbsElapsedWalClk(pPeriod), pPeriod->u64StartWalClk,
-              hdaStreamPeriodGetAbsEndWalClk(pPeriod), pPeriod->cIntPending));
+              hdaR3StreamPeriodGetAbsElapsedWalClk(pPeriod), pPeriod->u64StartWalClk,
+              hdaR3StreamPeriodGetAbsEndWalClk(pPeriod), pPeriod->cIntPending));
 
     return fIsComplete;
 }
+
 #endif /* IN_RING3 */
 

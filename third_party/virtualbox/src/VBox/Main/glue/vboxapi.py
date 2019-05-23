@@ -5,27 +5,27 @@ VirtualBox Python API Glue.
 """
 
 __copyright__ = \
-    """
-    Copyright (C) 2009-2016 Oracle Corporation
+"""
+Copyright (C) 2009-2017 Oracle Corporation
 
-    This file is part of VirtualBox Open Source Edition (OSE), as
-    available from http://www.virtualbox.org. This file is free software;
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License (GPL) as published by the Free Software
-    Foundation, in version 2 as it comes in the "COPYING" file of the
-    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
-    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+This file is part of VirtualBox Open Source Edition (OSE), as
+available from http://www.virtualbox.org. This file is free software;
+you can redistribute it and/or modify it under the terms of the GNU
+General Public License (GPL) as published by the Free Software
+Foundation, in version 2 as it comes in the "COPYING" file of the
+VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 
-    The contents of this file may alternatively be used under the terms
-    of the Common Development and Distribution License Version 1.0
-    (CDDL) only, as it comes in the "COPYING.CDDL" file of the
-    VirtualBox OSE distribution, in which case the provisions of the
-    CDDL are applicable instead of those of the GPL.
+The contents of this file may alternatively be used under the terms
+of the Common Development and Distribution License Version 1.0
+(CDDL) only, as it comes in the "COPYING.CDDL" file of the
+VirtualBox OSE distribution, in which case the provisions of the
+CDDL are applicable instead of those of the GPL.
 
-    You may elect to license modified versions of this file under the
-    terms and conditions of either the GPL or the CDDL or both.
-    """
-__version__ = "$Revision: 118418 $"
+You may elect to license modified versions of this file under the
+terms and conditions of either the GPL or the CDDL or both.
+"""
+__version__ = "$Revision: 118906 $"
 
 
 # Note! To set Python bitness on OSX use 'export VERSIONER_PYTHON_PREFER_32_BIT=yes'
@@ -457,7 +457,7 @@ class PlatformMSCOM(PlatformBase):
         # Remember this thread ID and get its handle so we can wait on it in waitForEvents().
         self.tid = GetCurrentThreadId()
         pid = GetCurrentProcess()
-        self.handles = [DuplicateHandle(pid, GetCurrentThread(), pid, 0, 0, DUPLICATE_SAME_ACCESS),];
+        self.aoHandles = [DuplicateHandle(pid, GetCurrentThread(), pid, 0, 0, DUPLICATE_SAME_ACCESS),]; # type: list[PyHANDLE]
 
         # Hack the COM dispatcher base class so we can modify method and
         # attribute names to match those in xpcom.
@@ -617,11 +617,11 @@ class PlatformMSCOM(PlatformBase):
             cMsTimeout = INFINITE
         else:
             cMsTimeout = timeout
-        rc = MsgWaitForMultipleObjects(self.handles, 0, cMsTimeout, QS_ALLINPUT)
-        if WAIT_OBJECT_0 <= rc < WAIT_OBJECT_0 + len(self.handles):
+        rc = MsgWaitForMultipleObjects(self.aoHandles, 0, cMsTimeout, QS_ALLINPUT)
+        if WAIT_OBJECT_0 <= rc < WAIT_OBJECT_0 + len(self.aoHandles):
             # is it possible?
             rc = 2
-        elif rc == WAIT_OBJECT_0 + len(self.handles):
+        elif rc == WAIT_OBJECT_0 + len(self.aoHandles):
             # Waiting messages
             PumpWaitingMessages()
             rc = 0
@@ -661,16 +661,18 @@ class PlatformMSCOM(PlatformBase):
         return True
 
     def deinit(self):
-        import pythoncom
-        from win32file import CloseHandle
+        for oHandle in self.aoHandles:
+            if oHandle is not None:
+                oHandle.Close();
+        self.oHandle = None;
 
-        for h in self.handles:
-            if h is not None:
-                CloseHandle(h)
-        self.handles = None
-        del self.oClient
-        oClient = None
-        pythoncom.CoUninitialize()
+        del self.oClient;
+        self.oClient = None;
+
+        # This non-sense doesn't pair up with any pythoncom.CoInitialize[Ex].
+        # See @bugref{9037}.
+        #import pythoncom
+        #pythoncom.CoUninitialize()
 
     def queryInterface(self, oIUnknown, sClassName):
         from win32com.client import CastTo

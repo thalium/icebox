@@ -38,8 +38,8 @@ pack_specials = []
 
 for func_name in keys:
     if ("get" in apiutil.Properties(func_name) or
-        apiutil.FindSpecial( "packspu", func_name ) or 
-        apiutil.FindSpecial( "packspu_flush", func_name ) or 
+        apiutil.FindSpecial( "packspu", func_name ) or
+        apiutil.FindSpecial( "packspu_flush", func_name ) or
         apiutil.FindSpecial( "packspu_vertex", func_name )):
       pack_specials.append( func_name )
 

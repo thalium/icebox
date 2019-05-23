@@ -1989,10 +1989,11 @@ int emR3ForcedActions(PVM pVM, PVMCPU pVCpu, int rc)
                         if (CPUMIsGuestSvmCtrlInterceptSet(pCtx, SVM_CTRL_INTERCEPT_INTR))
                         {
                             VBOXSTRICTRC rcStrict = IEMExecSvmVmexit(pVCpu, SVM_EXIT_INTR, 0, 0);
-                            if (rcStrict == VINF_SVM_VMEXIT)
+                            if (RT_SUCCESS(rcStrict))
                                 rc2 = VINF_EM_RESCHEDULE;
                             else
                             {
+                                AssertMsgFailed(("INTR #VMEXIT failed! rc=%Rrc\n", VBOXSTRICTRC_VAL(rcStrict)));
                                 Log(("EM: SVM Nested-guest INTR #VMEXIT failed! rc=%Rrc\n", VBOXSTRICTRC_VAL(rcStrict)));
                                 /** @todo should we call iemInitiateCpuShutdown? Should this
                                  *        result in trapping triple-fault intercepts? */
@@ -2028,10 +2029,11 @@ int emR3ForcedActions(PVM pVM, PVMCPU pVCpu, int rc)
                             if (CPUMIsGuestSvmCtrlInterceptSet(pCtx, SVM_CTRL_INTERCEPT_VINTR))
                             {
                                 VBOXSTRICTRC rcStrict = IEMExecSvmVmexit(pVCpu, SVM_EXIT_VINTR, 0, 0);
-                                if (rcStrict == VINF_SVM_VMEXIT)
+                                if (RT_SUCCESS(rcStrict))
                                     rc2 = VINF_EM_RESCHEDULE;
                                 else
                                 {
+                                    AssertMsgFailed(("VINTR #VMEXIT failed! rc=%Rrc\n", VBOXSTRICTRC_VAL(rcStrict)));
                                     Log(("EM: SVM Nested-guest VINTR #VMEXIT failed! rc=%Rrc\n", VBOXSTRICTRC_VAL(rcStrict)));
                                     /** @todo should we call iemInitiateCpuShutdown? Should this
                                      *        result in trapping triple-fault intercepts? */

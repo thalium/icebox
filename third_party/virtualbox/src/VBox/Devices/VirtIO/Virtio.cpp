@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -164,6 +164,7 @@ bool vqueueGet(PVPCISTATE pState, PVQUEUE pQueue, PVQUEUEELEM pElem, bool fRemov
             }
             break;
         }
+        RT_UNTRUSTED_VALIDATED_FENCE();
 
         vringReadDesc(pState, &pQueue->VRing, idx, &desc);
         if (desc.u16Flags & VRINGDESC_F_WRITE)
@@ -550,6 +551,8 @@ int vpciIOPortOut(PPDMDEVINS                pDevIns,
             Assert(cb == 2);
             u32 &= 0xFFFF;
             if (u32 < pState->nQueues)
+            {
+                RT_UNTRUSTED_VALIDATED_FENCE();
                 if (pState->Queues[u32].VRing.addrDescriptors)
                 {
                     // rc = vpciCsEnter(pState, VERR_SEM_BUSY);
@@ -562,6 +565,7 @@ int vpciIOPortOut(PPDMDEVINS                pDevIns,
                 else
                     Log(("%s The queue (#%d) being notified has not been initialized.\n",
                          INSTANCE(pState), u32));
+            }
             else
                 Log(("%s Invalid queue number (%d)\n", INSTANCE(pState), u32));
 #else
@@ -578,7 +582,16 @@ int vpciIOPortOut(PPDMDEVINS                pDevIns,
             if (u32 == 0)
                 rc = pCallbacks->pfnReset(pState);
             else if (fHasBecomeReady)
+            {
+                /* Older hypervisors were lax and did not enforce bus mastering. Older guests
+                 * (Linux prior to 2.6.34, NetBSD 6.x) were lazy and did not enable bus mastering.
+                 * We automagically enable bus mastering on driver initialization to make existing
+                 * drivers work.
+                 */
+                PDMPciDevSetCommand(&pState->pciDevice, PDMPciDevGetCommand(&pState->pciDevice) | PCI_COMMAND_BUSMASTER);
+
                 pCallbacks->pfnReady(pState);
+            }
             break;
 
         default:
@@ -789,6 +802,11 @@ int vpciLoadExec(PVPCISTATE pState, PSSMHANDLE pSSM, uint32_t uVersion, uint32_t
         }
         else
             pState->nQueues = nQueues;
+        AssertLogRelMsgReturn(pState->nQueues <= VIRTIO_MAX_NQUEUES, ("%#x\n", pState->nQueues), VERR_SSM_LOAD_CONFIG_MISMATCH);
+        AssertLogRelMsgReturn(pState->uQueueSelector < pState->nQueues || (pState->nQueues == 0 && pState->uQueueSelector),
+                              ("uQueueSelector=%u nQueues=%u\n", pState->uQueueSelector, pState->nQueues),
+                              VERR_SSM_LOAD_CONFIG_MISMATCH);
+
         for (unsigned i = 0; i < pState->nQueues; i++)
         {
             rc = SSMR3GetU16(pSSM, &pState->Queues[i].VRing.uSize);
@@ -1000,3 +1018,4 @@ PVQUEUE vpciAddQueue(VPCISTATE* pState, unsigned uSize, PFNVPCIQUEUECALLBACK pfn
 #endif /* IN_RING3 */
 
 #endif /* VBOX_DEVICE_STRUCT_TESTCASE */
+

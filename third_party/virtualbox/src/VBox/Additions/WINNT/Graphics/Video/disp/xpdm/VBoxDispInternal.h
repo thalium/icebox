@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -130,7 +130,7 @@ int VBoxDispSetPalette8BPP(PVBOXDISPDEV pDev);
 
 /* VBVA related */
 int VBoxDispVBVAInit(PVBOXDISPDEV pDev);
-void VBoxDispVBVAHostCommandComplete(PVBOXDISPDEV pDev, VBVAHOSTCMD *pCmd);
+void VBoxDispVBVAHostCommandComplete(PVBOXDISPDEV pDev, VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST *pCmd);
 
 void vrdpReportDirtyRect(PVBOXDISPDEV pDev, RECTL *prcl);
 void vbvaReportDirtyRect(PVBOXDISPDEV pDev, RECTL *prcl);

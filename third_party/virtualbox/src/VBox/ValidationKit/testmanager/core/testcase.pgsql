@@ -59,7 +59,7 @@ CREATE OR REPLACE FUNCTION TestCaseLogic_checkUniqueName(a_sName TEXT, a_idTestC
         END IF;
     END;
 $$ LANGUAGE plpgsql;
-              
+
 ---
 -- Check that the test case exists.
 -- Raises exception if it doesn't.
@@ -82,7 +82,7 @@ $$ LANGUAGE plpgsql;
 -- Historize a row.
 -- @internal
 --
-CREATE OR REPLACE FUNCTION TestCaseLogic_historizeEntry(a_idTestCase INTEGER, a_tsExpire TIMESTAMP WITH TIME ZONE) 
+CREATE OR REPLACE FUNCTION TestCaseLogic_historizeEntry(a_idTestCase INTEGER, a_tsExpire TIMESTAMP WITH TIME ZONE)
     RETURNS VOID AS $$
     DECLARE
         v_cUpdatedRows INTEGER;
@@ -102,19 +102,19 @@ CREATE OR REPLACE FUNCTION TestCaseLogic_historizeEntry(a_idTestCase INTEGER, a_
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE function TestCaseLogic_addEntry(a_uidAuthor INTEGER, a_sName TEXT, a_sDescription TEXT, 
-                                                  a_fEnabled BOOL, a_cSecTimeout INTEGER,  a_sTestBoxReqExpr TEXT, 
+CREATE OR REPLACE function TestCaseLogic_addEntry(a_uidAuthor INTEGER, a_sName TEXT, a_sDescription TEXT,
+                                                  a_fEnabled BOOL, a_cSecTimeout INTEGER,  a_sTestBoxReqExpr TEXT,
                                                   a_sBuildReqExpr TEXT, a_sBaseCmd TEXT, a_sTestSuiteZips TEXT,
                                                   a_sComment TEXT)
     RETURNS INTEGER AS $$
-    DECLARE 
+    DECLARE
          v_idTestCase INTEGER;
     BEGIN
         PERFORM TestCaseLogic_checkUniqueName(a_sName, -1);
 
-        INSERT INTO TestCases (uidAuthor, sName, sDescription, fEnabled, cSecTimeout, 
+        INSERT INTO TestCases (uidAuthor, sName, sDescription, fEnabled, cSecTimeout,
                                sTestBoxReqExpr, sBuildReqExpr, sBaseCmd, sTestSuiteZips, sComment)
-            VALUES (a_uidAuthor, a_sName, a_sDescription, a_fEnabled, a_cSecTimeout, 
+            VALUES (a_uidAuthor, a_sName, a_sDescription, a_fEnabled, a_cSecTimeout,
                     a_sTestBoxReqExpr, a_sBuildReqExpr, a_sBaseCmd, a_sTestSuiteZips, a_sComment)
             RETURNING idTestcase INTO v_idTestCase;
         RETURN v_idTestCase;
@@ -122,21 +122,21 @@ CREATE OR REPLACE function TestCaseLogic_addEntry(a_uidAuthor INTEGER, a_sName T
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE function TestCaseLogic_editEntry(a_uidAuthor INTEGER, a_idTestCase INTEGER, a_sName TEXT, a_sDescription TEXT, 
-                                                   a_fEnabled BOOL, a_cSecTimeout INTEGER,  a_sTestBoxReqExpr TEXT, 
+CREATE OR REPLACE function TestCaseLogic_editEntry(a_uidAuthor INTEGER, a_idTestCase INTEGER, a_sName TEXT, a_sDescription TEXT,
+                                                   a_fEnabled BOOL, a_cSecTimeout INTEGER,  a_sTestBoxReqExpr TEXT,
                                                    a_sBuildReqExpr TEXT, a_sBaseCmd TEXT, a_sTestSuiteZips TEXT,
                                                    a_sComment TEXT)
     RETURNS INTEGER AS $$
-    DECLARE 
+    DECLARE
          v_idGenTestCase INTEGER;
     BEGIN
         PERFORM TestCaseLogic_checkExists(a_idTestCase);
         PERFORM TestCaseLogic_checkUniqueName(a_sName, a_idTestCase);
 
         PERFORM TestCaseLogic_historizeEntry(a_idTestCase, CURRENT_TIMESTAMP);
-        INSERT INTO TestCases (idTestCase, uidAuthor, sName, sDescription, fEnabled, cSecTimeout, 
+        INSERT INTO TestCases (idTestCase, uidAuthor, sName, sDescription, fEnabled, cSecTimeout,
                                sTestBoxReqExpr, sBuildReqExpr, sBaseCmd, sTestSuiteZips, sComment)
-            VALUES (a_idTestCase, a_uidAuthor, a_sName, a_sDescription, a_fEnabled, a_cSecTimeout, 
+            VALUES (a_idTestCase, a_uidAuthor, a_sName, a_sDescription, a_fEnabled, a_cSecTimeout,
                     a_sTestBoxReqExpr, a_sBuildReqExpr, a_sBaseCmd, a_sTestSuiteZips, a_sComment)
             RETURNING idGenTestCase INTO v_idGenTestCase;
        RETURN v_idGenTestCase;
@@ -144,7 +144,7 @@ CREATE OR REPLACE function TestCaseLogic_editEntry(a_uidAuthor INTEGER, a_idTest
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION TestCaseLogic_delEntry(a_uidAuthor INTEGER, a_idTestCase INTEGER, a_fCascade BOOLEAN) 
+CREATE OR REPLACE FUNCTION TestCaseLogic_delEntry(a_uidAuthor INTEGER, a_idTestCase INTEGER, a_fCascade BOOLEAN)
     RETURNS VOID AS $$
     DECLARE
         v_Row           TestCases%ROWTYPE;
@@ -155,14 +155,14 @@ CREATE OR REPLACE FUNCTION TestCaseLogic_delEntry(a_uidAuthor INTEGER, a_idTestC
         --
         -- Check preconditions.
         --
-        IF a_fCascade <> TRUE THEN   
+        IF a_fCascade <> TRUE THEN
             IF EXISTS(  SELECT  *
                         FROM    TestCaseDeps
                         WHERE   idTestCasePreReq = a_idTestCase
                             AND tsExpire         = 'infinity'::TIMESTAMP ) THEN
                 v_sErrors := '';
-                FOR v_Rec IN    
-                    SELECT  TestCases.idTestCase AS idTestCase, 
+                FOR v_Rec IN
+                    SELECT  TestCases.idTestCase AS idTestCase,
                             TestCases.sName AS sName
                     FROM    TestCaseDeps, TestCases
                     WHERE   TestCaseDeps.idTestCasePreReq   = a_idTestCase
@@ -177,14 +177,14 @@ CREATE OR REPLACE FUNCTION TestCaseLogic_delEntry(a_uidAuthor INTEGER, a_idTestC
                 END LOOP;
                 RAISE EXCEPTION 'Other test cases depends on test case with ID %: % ', a_idTestCase, v_sErrors;
             END IF;
-            
+
             IF EXISTS(  SELECT  *
                         FROM    TestGroupMembers
                         WHERE   idTestCase = a_idTestCase
                             AND tsExpire   = 'infinity'::TIMESTAMP ) THEN
                 v_sErrors := '';
-                FOR v_Rec IN    
-                    SELECT  TestGroups.idTestGroup AS idTestGroup, 
+                FOR v_Rec IN
+                    SELECT  TestGroups.idTestGroup AS idTestGroup,
                             TestGroups.sName AS sName
                     FROM    TestGroupMembers, TestGroups
                     WHERE   TestGroupMembers.idTestCase     = a_idTestCase
@@ -203,7 +203,7 @@ CREATE OR REPLACE FUNCTION TestCaseLogic_delEntry(a_uidAuthor INTEGER, a_idTestC
 
         --
         -- To preserve the information about who deleted the record, we try to
-        -- add a dummy record which expires immediately.  I say try because of 
+        -- add a dummy record which expires immediately.  I say try because of
         -- the primary key, we must let the new record be valid for 1 us. :-(
         --
         SELECT  * INTO STRICT v_Row
@@ -225,7 +225,7 @@ CREATE OR REPLACE FUNCTION TestCaseLogic_delEntry(a_uidAuthor INTEGER, a_idTestC
 
         --
         -- Delete arguments, test case dependencies and resource dependencies.
-        -- (We don't bother recording who deleted the records here since it's 
+        -- (We don't bother recording who deleted the records here since it's
         -- a lot of work and sufficiently covered in the TestCases table.)
         --
         UPDATE  TestCaseArgs
@@ -248,7 +248,7 @@ CREATE OR REPLACE FUNCTION TestCaseLogic_delEntry(a_uidAuthor INTEGER, a_idTestC
             SET     tsExpire         = CURRENT_TIMESTAMP
             WHERE   idTestCasePreReq = a_idTestCase
                 AND tsExpire         = 'infinity'::TIMESTAMP;
-            
+
             UPDATE  TestGroupMembers
             SET     tsExpire   = CURRENT_TIMESTAMP
             WHERE   idTestCase = a_idTestCase

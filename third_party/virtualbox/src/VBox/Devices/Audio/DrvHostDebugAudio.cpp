@@ -36,7 +36,7 @@ typedef struct DEBUGAUDIOSTREAM
     /** The stream's acquired configuration. */
     PPDMAUDIOSTREAMCFG pCfg;
     /** Audio file to dump output to or read input from. */
-    PDMAUDIOFILE       File;
+    PPDMAUDIOFILE      pFile;
     union
     {
         struct
@@ -149,13 +149,17 @@ static int debugCreateStreamOut(PDRVHOSTDEBUGAUDIO pDrv, PDEBUGAUDIOSTREAM pStre
         if (RT_SUCCESS(rc))
         {
             char szFile[RTPATH_MAX];
-            rc = DrvAudioHlpGetFileName(szFile, RT_ELEMENTS(szFile), szTemp, NULL, PDMAUDIOFILETYPE_WAV);
+            rc = DrvAudioHlpGetFileName(szFile, RT_ELEMENTS(szFile), szTemp, "DebugAudioOut",
+                                        pDrv->pDrvIns->iInstance, PDMAUDIOFILETYPE_WAV, PDMAUDIOFILENAME_FLAG_NONE);
             if (RT_SUCCESS(rc))
             {
-                LogFlowFunc(("%s\n", szFile));
-                rc = DrvAudioHlpWAVFileOpen(&pStreamDbg->File, szFile,
-                                            RTFILE_O_WRITE | RTFILE_O_DENY_WRITE | RTFILE_O_CREATE_REPLACE,
-                                            &pCfgReq->Props, PDMAUDIOFILEFLAG_NONE);
+                rc = DrvAudioHlpFileCreate(PDMAUDIOFILETYPE_WAV, szFile, PDMAUDIOFILE_FLAG_NONE, &pStreamDbg->pFile);
+                if (RT_SUCCESS(rc))
+                {
+                    rc = DrvAudioHlpFileOpen(pStreamDbg->pFile, RTFILE_O_WRITE | RTFILE_O_DENY_WRITE | RTFILE_O_CREATE_REPLACE,
+                                             &pCfgReq->Props);
+                }
+
                 if (RT_FAILURE(rc))
                     LogRel(("DebugAudio: Creating output file '%s' failed with %Rrc\n", szFile, rc));
             }
@@ -227,15 +231,7 @@ static DECLCALLBACK(int) drvHostDebugAudioStreamPlay(PPDMIHOSTAUDIO pInterface,
 
         memcpy(pStreamDbg->Out.auPlayBuffer, (uint8_t *)pvBuf + cbWrittenTotal, cbChunk);
 
-#ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
-        RTFILE fh;
-        RTFileOpen(&fh, VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "AudioDebugOutput.pcm",
-                   RTFILE_O_OPEN_CREATE | RTFILE_O_APPEND | RTFILE_O_WRITE | RTFILE_O_DENY_NONE);
-        RTFileWrite(fh, pStreamDbg->Out.auPlayBuffer, cbChunk, NULL);
-        RTFileClose(fh);
-#endif
-        int rc2 = DrvAudioHlpWAVFileWrite(&pStreamDbg->File,
-                                          pStreamDbg->Out.auPlayBuffer, cbChunk, 0 /* fFlags */);
+        int rc2 = DrvAudioHlpFileWrite(pStreamDbg->pFile, pStreamDbg->Out.auPlayBuffer, cbChunk, 0 /* fFlags */);
         if (RT_FAILURE(rc2))
         {
             LogRel(("DebugAudio: Writing output failed with %Rrc\n", rc2));
@@ -288,24 +284,9 @@ static int debugDestroyStreamOut(PDRVHOSTDEBUGAUDIO pDrv, PDEBUGAUDIOSTREAM pStr
         pStreamDbg->Out.auPlayBuffer = NULL;
     }
 
-    size_t cbDataSize = DrvAudioHlpWAVFileGetDataSize(&pStreamDbg->File);
+    DrvAudioHlpFileDestroy(pStreamDbg->pFile);
 
-    int rc = DrvAudioHlpWAVFileClose(&pStreamDbg->File);
-    if (RT_SUCCESS(rc))
-    {
-        /* Delete the file again if nothing but the header was written to it. */
-        bool fDeleteEmptyFiles = true; /** @todo Make deletion configurable? */
-
-        if (   !cbDataSize
-            && fDeleteEmptyFiles)
-        {
-            rc = RTFileDelete(pStreamDbg->File.szName);
-        }
-        else
-            LogRel(("DebugAudio: Created output file '%s' (%zu bytes)\n", pStreamDbg->File.szName, cbDataSize));
-    }
-
-    return rc;
+    return VINF_SUCCESS;
 }
 
 

@@ -1,7 +1,10 @@
-;
+; $Id: VBoxSF.inf $
+;; @file
 ; INF file for installing the VirtualBox Windows guest driver
 ;
-; Copyright (C) 2006-2016 Oracle Corporation
+
+;
+; Copyright (C) 2006-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as
 ; available from http://www.virtualbox.org. This file is free software;
@@ -68,5 +71,4 @@ ORACLE = "Oracle Corporation"
 VBoxSF.DeviceDesc = "VirtualBox Device"
 VBoxSF_svcdesc = "VirtualBox Shared Folders Driver"
 VBoxMRXNP_svcdesc = "VirtualBox Network Provider Service"
-
 

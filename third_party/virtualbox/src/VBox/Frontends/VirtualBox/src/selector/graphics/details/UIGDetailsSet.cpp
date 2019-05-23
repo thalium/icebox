@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -232,7 +232,7 @@ QVariant UIGDetailsSet::data(int iKey) const
     {
         /* Layout hints: */
         case SetData_Margin: return 0;
-        case SetData_Spacing: return 3;
+        case SetData_Spacing: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 5;
         /* Default: */
         default: break;
     }

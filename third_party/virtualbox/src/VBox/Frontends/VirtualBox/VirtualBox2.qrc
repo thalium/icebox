@@ -275,8 +275,6 @@
         <file alias="vmw_first_run_bg.png">images/vmw_first_run_bg.png</file>
         <file alias="vmw_new_harddisk.png">images/vmw_new_harddisk.png</file>
         <file alias="vmw_new_harddisk_bg.png">images/vmw_new_harddisk_bg.png</file>
-        <file alias="vmw_new_user.png">images/vmw_new_user.png</file>
-        <file alias="vmw_new_user_bg.png">images/vmw_new_user_bg.png</file>
         <file alias="vmw_new_welcome.png">images/vmw_new_welcome.png</file>
         <file alias="vmw_new_welcome_bg.png">images/vmw_new_welcome_bg.png</file>
         <file alias="vmw_ovf_export.png">images/vmw_ovf_export.png</file>

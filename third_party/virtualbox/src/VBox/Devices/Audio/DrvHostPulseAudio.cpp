@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -93,6 +93,10 @@ typedef struct DRVHOSTPULSEAUDIO
     /** Error count for not flooding the release log.
      *  Specify UINT32_MAX for unlimited logging. */
     uint32_t              cLogErrors;
+    /** The stream (base) name; needed for distinguishing
+     *  streams in the PulseAudio mixer controls if multiple
+     *  VMs are running at the same time. */
+    char                  szStreamName[64];
 } DRVHOSTPULSEAUDIO, *PDRVHOSTPULSEAUDIO;
 
 typedef struct PULSEAUDIOSTREAM
@@ -757,8 +761,14 @@ static int paCreateStreamOut(PDRVHOSTPULSEAUDIO pThis, PPULSEAUDIOSTREAM pStream
     LogFunc(("BufAttr tlength=%RU32, maxLength=%RU32, minReq=%RU32\n",
              pStreamPA->BufAttr.tlength, pStreamPA->BufAttr.maxlength, pStreamPA->BufAttr.minreq));
 
+    Assert(pCfgReq->enmDir == PDMAUDIODIR_OUT);
+
+    char szName[256];
+    RTStrPrintf2(szName, sizeof(szName),  "VirtualBox %s [%s]",
+                 DrvAudioHlpPlaybackDstToStr(pCfgReq->DestSource.Dest), pThis->szStreamName);
+
     /* Note that the struct BufAttr is updated to the obtained values after this call! */
-    int rc = paStreamOpen(pThis, pStreamPA, false /* fIn */, "PulseAudio (Out)");
+    int rc = paStreamOpen(pThis, pStreamPA, false /* fIn */, szName);
     if (RT_FAILURE(rc))
         return rc;
 
@@ -799,8 +809,14 @@ static int paCreateStreamIn(PDRVHOSTPULSEAUDIO pThis, PPULSEAUDIOSTREAM  pStream
     pStreamPA->BufAttr.fragsize    = (pa_bytes_per_second(&pStreamPA->SampleSpec) * s_pulseCfg.buffer_msecs_in) / 1000;
     pStreamPA->BufAttr.maxlength   = (pStreamPA->BufAttr.fragsize * 3) / 2;
 
+    Assert(pCfgReq->enmDir == PDMAUDIODIR_IN);
+
+    char szName[256];
+    RTStrPrintf2(szName, sizeof(szName),  "VirtualBox %s [%s]",
+                 DrvAudioHlpRecSrcToStr(pCfgReq->DestSource.Source), pThis->szStreamName);
+
     /* Note: Other members of BufAttr are ignored for record streams. */
-    int rc = paStreamOpen(pThis, pStreamPA, true /* fIn */, "PulseAudio (In)");
+    int rc = paStreamOpen(pThis, pStreamPA, true /* fIn */, szName);
     if (RT_FAILURE(rc))
         return rc;
 
@@ -1576,7 +1592,6 @@ static DECLCALLBACK(uint32_t) drvHostPulseAudioStreamGetWritable(PPDMIHOSTAUDIO 
 }
 
 
-
 /**
  * @interface_method_impl{PDMIHOSTAUDIO,pfnStreamGetStatus}
  */
@@ -1663,6 +1678,9 @@ static DECLCALLBACK(int) drvHostPulseAudioConstruct(PPDMDRVINS pDrvIns, PCFGMNOD
     pDrvIns->IBase.pfnQueryInterface = drvHostPulseAudioQueryInterface;
     /* IHostAudio */
     PDMAUDIO_IHOSTAUDIO_CALLBACKS(drvHostPulseAudio);
+
+    int rc2 = CFGMR3QueryString(pCfg, "StreamName", pThis->szStreamName, sizeof(pThis->szStreamName));
+    AssertMsgRCReturn(rc2, ("Confguration error: No/bad \"StreamName\" value, rc=%Rrc\n", rc2), rc2);
 
     return VINF_SUCCESS;
 }

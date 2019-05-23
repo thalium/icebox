@@ -31,12 +31,18 @@ endif
 VBoxClient_DEFS.linux += _GNU_SOURCE
 VBoxClient_INCS = $(VBOX_GRAPHICS_INCS)
 VBoxClient_SOURCES = \
-	main.cpp
-VBoxClient_SOURCES += \
+	main.cpp \
   	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/clipboard-helper.cpp \
   	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/x11-clipboard.cpp \
 	clipboard.cpp \
-	display-svga.cpp
+	display-svga.cpp \
+	seamless.cpp \
+	seamless-x11.cpp \
+	display.cpp \
+	hostversion.cpp \
+	check3d.cpp
+VBoxClient_SOURCES.linux = \
+	chk_stubs.c
 VBoxClient_LIBPATH = \
 	$(VBOX_LIBPATH32_X11)
 VBoxClient_LIBS.freebsd = \
@@ -46,9 +52,7 @@ VBoxClient_LIBS.linux = \
 VBoxClient_LIBS.solaris = \
 	dl
 VBoxClient_LIBS = \
-	X11 \
-	Xrandr \
-	Xt
+	X11 Xrandr Xt Xext Xmu
 
 # XXX: -L comes from the template, but not rpath
 VBoxClient_LDFLAGS.netbsd = \
@@ -66,17 +70,15 @@ endif
 VBoxClient_LIBS += \
 	supc++ \
 	gcc_eh
-ifdef VBOX_X11_SEAMLESS_GUEST
- VBoxClient_DEFS += SEAMLESS_GUEST DYNAMIC_RESIZE
- VBoxClient_SOURCES += \
-	seamless.cpp \
-	seamless-x11.cpp \
-	display.cpp \
-	hostversion.cpp \
-	check3d.cpp
- VBoxClient_LIBS += \
-	Xext Xmu
+
+# This forces the memcpy references in the static libraries to go to
+# __wrap_memcpy, which we can wrap around memcpy@GLIBC_2.2.5.  I do not know
+# how else to do that without recompiling or implementing our own memcpy.
+ifeq ($(KBUILD_TARGET),linux)
+VBoxClient_LDFLAGS.amd64 += \
+	-Wl,--wrap=memcpy
 endif
+
 ifdef VBOX_WITH_GUEST_PROPS
  VBoxClient_DEFS += VBOX_WITH_GUEST_PROPS
 endif
@@ -90,48 +92,46 @@ ifdef VBOX_WITH_DRAG_AND_DROP
 	$(PATH_STAGE_LIB)/additions/VBoxDnDGuestR3Lib$(VBOX_SUFF_LIB)
 endif
 
-ifdef VBOX_X11_SEAMLESS_GUEST
- if defined(VBOX_WITH_TESTCASES) && !defined(VBOX_ONLY_ADDITIONS) && !defined(VBOX_ONLY_SDK)
-  if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris)
+if defined(VBOX_WITH_TESTCASES) && !defined(VBOX_ONLY_ADDITIONS) && !defined(VBOX_ONLY_SDK)
+ if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris)
 
 # Set this in LocalConfig.kmk if you are working on the X11 clipboard service
 # to automatically run the unit test at build time.
 #       OTHERS += $(tstSeamlessX11-auto_0_OUTDIR)/tstSeamlessX11-auto.run
 
-   PROGRAMS += tstSeamlessX11-auto
-   tstSeamlessX11-auto_TEMPLATE = VBOXR3TSTEXE
-   tstSeamlessX11-auto_SOURCES = \
-           testcase/tstSeamlessX11-auto.cpp \
-           seamless-x11.cpp
-   tstSeamlessX11-auto_DEFS = TESTCASE
-   tstSeamlessX11-auto_LIBS = \
-           $(LIB_RUNTIME)
+  PROGRAMS += tstSeamlessX11-auto
+  tstSeamlessX11-auto_TEMPLATE = VBOXR3TSTEXE
+  tstSeamlessX11-auto_SOURCES = \
+          testcase/tstSeamlessX11-auto.cpp \
+          seamless-x11.cpp
+  tstSeamlessX11-auto_DEFS = TESTCASE
+  tstSeamlessX11-auto_LIBS = \
+          $(LIB_RUNTIME)
 
-   TESTING  += $(tstSeamlessX11-auto_0_OUTDIR)/tstSeamlessX11-auto
+  TESTING  += $(tstSeamlessX11-auto_0_OUTDIR)/tstSeamlessX11-auto
 $$(tstSeamlessX11-auto_0_OUTDIR)/tstSeamlessX11-auto.run: \
-        $$(tstSeamlessX11-auto_1_STAGE_TARGET)
+       $$(tstSeamlessX11-auto_1_STAGE_TARGET)
 	export VBOX_LOG_DEST=nofile; $(tstSeamlessX11-auto_1_STAGE_TARGET) quiet
 	$(QUIET)$(APPEND) -t "$@" "done"
 
-   #
-   # Additional testcase designed to be run manually, which initiates and starts the Linux
-   # guest client part of the seamless additions in the host, faking seamless events from
-   # the host and writing information about guest events to standard output.
-   #
-   PROGRAMS += tstSeamlessX11
-   tstSeamlessX11_TEMPLATE = VBOXR3TSTEXE
-   tstSeamlessX11_SOURCES = \
-           testcase/tstSeamlessX11.cpp \
-           seamless.cpp \
-           seamless-x11.cpp
-   tstSeamlessX11_LIBPATH = \
-           $(VBOX_LIBPATH_X11)
-   tstSeamlessX11_LIBS = \
-           $(LIB_RUNTIME) \
-           Xext \
-           Xmu \
-           X11
-  endif
+  #
+  # Additional testcase designed to be run manually, which initiates and starts the Linux
+  # guest client part of the seamless additions in the host, faking seamless events from
+  # the host and writing information about guest events to standard output.
+  #
+  PROGRAMS += tstSeamlessX11
+  tstSeamlessX11_TEMPLATE = VBOXR3TSTEXE
+  tstSeamlessX11_SOURCES = \
+          testcase/tstSeamlessX11.cpp \
+          seamless.cpp \
+          seamless-x11.cpp
+  tstSeamlessX11_LIBPATH = \
+          $(VBOX_LIBPATH_X11)
+  tstSeamlessX11_LIBS = \
+          $(LIB_RUNTIME) \
+          Xext \
+          Xmu \
+          X11
  endif
 endif
 

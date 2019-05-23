@@ -59,8 +59,8 @@
 # include <ucontext.h>
 #endif  /* RT_OS_SOLARIS */
 
-#include "internal/ldrELF.h"
-#include "internal/ldrELF64.h"
+#include <iprt/formats/elf.h>
+#include <iprt/formats/elf64.h>
 
 
 /*********************************************************************************************************************************

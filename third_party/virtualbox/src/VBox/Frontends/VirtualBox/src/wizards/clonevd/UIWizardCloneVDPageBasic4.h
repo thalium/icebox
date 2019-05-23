@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,8 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef __UIWizardCloneVDPageBasic4_h__
-#define __UIWizardCloneVDPageBasic4_h__
+#ifndef ___UIWizardCloneVDPageBasic4_h___
+#define ___UIWizardCloneVDPageBasic4_h___
 
 /* Qt includes: */
 #include <QVariant>
@@ -24,44 +24,57 @@
 /* GUI includes: */
 #include "UIWizardPage.h"
 
+/* COM includes: */
+#include "COMEnums.h"
+
 /* Forward declarations: */
 class CMediumFormat;
 class QLineEdit;
 class QIToolButton;
 class QIRichTextLabel;
 
-/* 4th page of the Clone Virtual Hard Drive wizard (base part): */
+
+/** 4th page of the Clone Virtual Disk Image wizard (base part): */
 class UIWizardCloneVDPage4 : public UIWizardPageBase
 {
 protected:
 
-    /* Constructor: */
+    /** Constructs page basis. */
     UIWizardCloneVDPage4();
 
-    /* Handlers: */
+    /** Handles command to open target disk. */
     void onSelectLocationButtonClicked();
 
-    /* Location-editors stuff: */
+    /** Helps to compose full file name on the basis of incoming @a strName and @a strExtension. */
     static QString toFileName(const QString &strName, const QString &strExtension);
+    /** Converts the @a strFileName to absolute one if necessary using @a strDefaultPath as advice. */
     static QString absoluteFilePath(const QString &strFileName, const QString &strDefaultPath);
-    static QString defaultExtension(const CMediumFormat &mediumFormatRef);
+    /** Acquires the list of @a aAllowedExtensions and @a strDefaultExtension
+      * on the basis of incoming @a comMediumFormat and @a enmDeviceType. */
+    static void acquireExtensions(const CMediumFormat &comMediumFormat, KDeviceType enmDeviceType,
+                                  QStringList &aAllowedExtensions, QString &strDefaultExtension);
 
-    /* Stuff for 'mediumPath' field: */
+    /** Returns 'mediumPath' field value. */
     QString mediumPath() const;
 
-    /* Stuff for 'mediumSize' field: */
+    /** Returns 'mediumSize' field value. */
     qulonglong mediumSize() const;
 
-    /* Variables: */
-    QString m_strDefaultPath;
-    QString m_strDefaultExtension;
+    /** Holds the default path. */
+    QString      m_strDefaultPath;
+    /** Holds the default extension. */
+    QString      m_strDefaultExtension;
+    /** Holds the allowed extensions. */
+    QStringList  m_aAllowedExtensions;
 
-    /* Widgets: */
-    QLineEdit *m_pDestinationDiskEditor;
+    /** Holds the target disk path editor instance. */
+    QLineEdit    *m_pDestinationDiskEditor;
+    /** Holds the open-target-disk button instance. */
     QIToolButton *m_pDestinationDiskOpenButton;
 };
 
-/* 4th page of the Clone Virtual Hard Drive wizard (basic extension): */
+
+/** 4th page of the Clone Virtual Disk Image wizard (basic extension): */
 class UIWizardCloneVDPageBasic4 : public UIWizardPage, public UIWizardCloneVDPage4
 {
     Q_OBJECT;
@@ -70,36 +83,40 @@ class UIWizardCloneVDPageBasic4 : public UIWizardPage, public UIWizardCloneVDPag
 
 public:
 
-    /* Constructor: */
+    /** Constructs basic page. */
     UIWizardCloneVDPageBasic4();
 
 protected:
 
-    /* Wrapper to access 'this' from base part: */
+    /** Allows to access 'wizard()' from base part. */
+    UIWizard* wizardImp() { return wizard(); }
+    /** Allows to access 'this' from base part. */
     UIWizardPage* thisImp() { return this; }
-    /* Wrapper to access 'wizard-field' from base part: */
+    /** Allows to access 'field()' from base part. */
     QVariant fieldImp(const QString &strFieldName) const { return UIWizardPage::field(strFieldName); }
 
 private slots:
 
-    /* Location editor stuff: */
+    /** Handles command to open target disk. */
     void sltSelectLocationButtonClicked();
 
 private:
 
-    /* Translation stuff: */
-    void retranslateUi();
+    /** Handles translation event. */
+    virtual void retranslateUi() /* override */;
 
-    /* Prepare stuff: */
-    void initializePage();
+    /** Prepares the page. */
+    virtual void initializePage() /* override */;
 
-    /* Validation stuff: */
-    bool isComplete() const;
-    bool validatePage();
+    /** Returns whether the page is complete. */
+    virtual bool isComplete() const /* override */;
 
-    /* Widgets: */
+    /** Returns whether the page is valid. */
+    virtual bool validatePage() /* override */;
+
+    /** Holds the description label instance. */
     QIRichTextLabel *m_pLabel;
 };
 
-#endif // __UIWizardCloneVDPageBasic4_h__
+#endif /* !___UIWizardCloneVDPageBasic4_h___ */
 

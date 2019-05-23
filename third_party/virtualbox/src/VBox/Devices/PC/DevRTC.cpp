@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1074,11 +1074,10 @@ static DECLCALLBACK(void) rtcReset(PPDMDEVINS pDevIns)
  */
 static DECLCALLBACK(int)  rtcConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
-    RT_NOREF1(iInstance);
     PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     PRTCSTATE   pThis = PDMINS_2_DATA(pDevIns, PRTCSTATE);
     int         rc;
-    Assert(iInstance == 0);
+    Assert(iInstance == 0); RT_NOREF(iInstance);
 
     /*
      * Validate configuration.

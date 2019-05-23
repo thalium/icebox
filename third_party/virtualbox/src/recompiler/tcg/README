@@ -4,7 +4,7 @@ Tiny Code Generator - Fabrice Bellard.
 
 TCG (Tiny Code Generator) began as a generic backend for a C
 compiler. It was simplified to be used in QEMU. It also has its roots
-in the QOP code generator written by Paul Brook. 
+in the QOP code generator written by Paul Brook.
 
 2) Definitions
 
@@ -30,7 +30,7 @@ or a memory location which is stored in a register outside QEMU TBs
 (not implemented yet).
 
 A TCG "basic block" corresponds to a list of instructions terminated
-by a branch instruction. 
+by a branch instruction.
 
 3) Intermediate representation
 
@@ -99,7 +99,7 @@ optimizations:
 - Single instructions are simplified, e.g.
 
    and_i32 t0, t0, $0xffffffff
-    
+
   is suppressed.
 
 - A liveness analysis is done at the basic block level. The
@@ -323,7 +323,7 @@ ld32s_i64 t0, t1, offset
 ld32u_i64 t0, t1, offset
 
 t0 = read(t1 + offset)
-Load 8, 16, 32 or 64 bits with or without sign extension from host memory. 
+Load 8, 16, 32 or 64 bits with or without sign extension from host memory.
 offset must be a constant.
 
 * st_i32/i64 t0, t1, offset
@@ -461,7 +461,7 @@ register.
 - The stack grows downwards.
 - The first N parameters are passed in registers.
 - The next parameters are passed on the stack by storing them as words.
-- Some registers are clobbered during the call. 
+- Some registers are clobbered during the call.
 - The function can return 0 or 1 value in registers. On a 32 bit
   target, functions must be able to return 2 values in registers for
   64 bit return type.

@@ -32,6 +32,7 @@
 #include "internal-r3-nt.h"
 
 #include <iprt/path.h>
+#include <iprt/mem.h>
 #include <iprt/string.h>
 #include <iprt/err.h>
 #include <iprt/assert.h>
@@ -405,27 +406,323 @@ RTDECL(int) RTNtPathEnsureSpace(struct _UNICODE_STRING *pNtName, size_t cwcMin)
 
 
 /**
- * Frees the native path and root handle.
+ * Gets the NT path to the object represented by the given handle.
  *
- * @param   pNtName             The NT path after a successful rtNtPathToNative
- *                              call.
- * @param   phRootDir           The root handle variable from the same call.
+ * @returns IPRT status code.
+ * @param   pNtName             Where to return the NT path.  Free using
+ *                              RTUtf16Alloc.
+ * @param   hHandle             The handle.
+ * @param   cwcExtra            How much extra space is needed.
  */
-static void rtNtPathFreeNative(struct _UNICODE_STRING *pNtName, PHANDLE phRootDir)
+static int rtNtPathFromHandle(struct _UNICODE_STRING *pNtName, HANDLE hHandle, size_t cwcExtra)
 {
-    RTUtf16Free(pNtName->Buffer);
-    pNtName->Buffer = NULL;
+    /*
+     * Query the name into a buffer.
+     */
+    ULONG cbBuf = _2K;
+    PUNICODE_STRING pUniStrBuf = (PUNICODE_STRING)RTMemTmpAllocZ(cbBuf);
+    if (!pUniStrBuf)
+        return VERR_NO_TMP_MEMORY;
 
-    RT_NOREF_PV(phRootDir); /* never returned by rtNtPathToNative */
+    ULONG cbNameBuf = cbBuf;
+    NTSTATUS rcNt = NtQueryObject(hHandle, ObjectNameInformation, pUniStrBuf, cbBuf, &cbNameBuf);
+    while (   rcNt == STATUS_BUFFER_OVERFLOW
+           || rcNt == STATUS_BUFFER_TOO_SMALL)
+    {
+        do
+            cbBuf *= 2;
+        while (cbBuf <= cbNameBuf);
+        RTMemTmpFree(pUniStrBuf);
+        pUniStrBuf = (PUNICODE_STRING)RTMemTmpAllocZ(cbBuf);
+        if (!pUniStrBuf)
+            return VERR_NO_TMP_MEMORY;
+
+        cbNameBuf = cbBuf;
+        rcNt = NtQueryObject(hHandle, ObjectNameInformation, pUniStrBuf, cbBuf, &cbNameBuf);
+    }
+    int rc;
+    if (NT_SUCCESS(rcNt))
+    {
+        /*
+         * Copy the result into the return string.
+         */
+        size_t cbNeeded = cwcExtra * sizeof(RTUTF16) + pUniStrBuf->Length + sizeof(RTUTF16);
+        if (cbNeeded < _64K)
+        {
+            pNtName->Length        = pUniStrBuf->Length;
+            pNtName->MaximumLength = (uint16_t)cbNeeded;
+            pNtName->Buffer        = RTUtf16Alloc(cbNeeded);
+            if (pNtName->Buffer)
+            {
+                memcpy(pNtName->Buffer, pUniStrBuf->Buffer, pUniStrBuf->Length);
+                pNtName->Buffer[pUniStrBuf->Length / sizeof(RTUTF16)] = '\0';
+                rc = VINF_SUCCESS;
+            }
+            else
+                rc = VERR_NO_UTF16_MEMORY;
+        }
+        else
+            rc = VERR_FILENAME_TOO_LONG;
+    }
+    else
+        rc = RTErrConvertFromNtStatus(rcNt);
+    RTMemTmpFree(pUniStrBuf);
+    return rc;
+}
+
+static int rtNtPathRelativeToAbs(struct _UNICODE_STRING *pNtName, HANDLE *phRootDir)
+{
+    int rc;
+    if (pNtName->Length == 0)
+    {
+        RTUtf16Free(pNtName->Buffer);
+        rc = rtNtPathFromHandle(pNtName, *phRootDir, pNtName->Length / sizeof(RTUTF16) + 2);
+        if (RT_SUCCESS(rc))
+        {
+            *phRootDir = NULL;
+            return VINF_SUCCESS;
+        }
+    }
+    else
+    {
+
+        UNICODE_STRING RootDir;
+        size_t const   cwcAppend = pNtName->Length / sizeof(RTUTF16);
+        rc = rtNtPathFromHandle(&RootDir, *phRootDir, cwcAppend + 2);
+        if (RT_SUCCESS(rc))
+        {
+            size_t cwcRoot = RootDir.Length / sizeof(RTUTF16);
+            if (RootDir.Buffer[cwcRoot - 1] != '\\')
+                RootDir.Buffer[cwcRoot++] = '\\';
+            memcpy(&RootDir.Buffer[cwcRoot], pNtName->Buffer, cwcAppend * sizeof(RTUTF16));
+            RTUtf16Free(pNtName->Buffer);
+            pNtName->Length        = (uint16_t)((cwcRoot + cwcAppend) * sizeof(RTUTF16));
+            pNtName->MaximumLength = RootDir.MaximumLength;
+            pNtName->Buffer        = RootDir.Buffer;
+
+            *phRootDir = NULL;
+            return VINF_SUCCESS;
+        }
+        RTUtf16Free(pNtName->Buffer);
+    }
+    pNtName->Length        = 0;
+    pNtName->MaximumLength = 0;
+    pNtName->Buffer        = NULL;
+    return rc;
+}
+
+
+/**
+ * Rewinds the path back to the start of the previous component.
+ *
+ * Will preserve root slash.
+ *
+ * @returns Pointer to character after the start-of-component slash, or
+ *          pwszStart.
+ * @param   pwcEnd              The current end of the path.
+ * @param   pwszStart           The start of the path.
+ */
+static PRTUTF16 rtNtPathGetPrevComponent(PRTUTF16 pwcEnd, PRTUTF16 pwszStart)
+{
+    if ((uintptr_t)pwcEnd > (uintptr_t)pwszStart)
+    {
+        RTUTF16 wc = pwcEnd[-1];
+        if (   (wc == '\\' || wc == '/')
+            && (uintptr_t)(pwcEnd - pwszStart) != 1)
+            pwcEnd--;
+
+        while (   (uintptr_t)pwcEnd > (uintptr_t)pwszStart
+               && (wc = pwcEnd[-1]) != '\\'
+               && (wc = pwcEnd[-1]) != '/')
+            pwcEnd--;
+    }
+    return pwcEnd;
+}
+
+
+/**
+ * Converts a relative windows-style path to relative NT format and encoding.
+ *
+ * @returns IPRT status code.
+ * @param   pNtName             Where to return the NT name.  Free using
+ *                              rtTNtPathToNative with phRootDir set to NULL.
+ * @param   phRootDir           On input, the handle to the directory the path
+ *                              is relative to.  On output, the handle to
+ *                              specify as root directory in the object
+ *                              attributes when accessing the path.  If
+ *                              enmAscent is kRTNtPathRelativeAscent_Allow, it
+ *                              may have been set to NULL.
+ * @param   pszPath             The relative UTF-8 path.
+ * @param   enmAscent           How to handle ascent.
+ * @param   fMustReturnAbsolute Must convert to an absolute path.  This
+ *                              is necessary if the root dir is a NT directory
+ *                              object (e.g. /Devices) since they cannot parse
+ *                              relative paths it seems.
+ */
+RTDECL(int) RTNtPathRelativeFromUtf8(struct _UNICODE_STRING *pNtName, PHANDLE phRootDir, const char *pszPath,
+                                     RTNTPATHRELATIVEASCENT enmAscent, bool fMustReturnAbsolute)
+{
+    size_t cwcMax;
+    int rc = RTStrCalcUtf16LenEx(pszPath, RTSTR_MAX, &cwcMax);
+    if (RT_FAILURE(rc))
+        return rc;
+    if (cwcMax + 2 >= _32K)
+        return VERR_FILENAME_TOO_LONG;
+
+    PRTUTF16 pwszDst;
+    pNtName->Length        = 0;
+    pNtName->MaximumLength = (uint16_t)((cwcMax + 2) * sizeof(RTUTF16));
+    pNtName->Buffer        = pwszDst = RTUtf16Alloc((cwcMax + 2) * sizeof(RTUTF16));
+    if (!pwszDst)
+        return VERR_NO_UTF16_MEMORY;
+
+    PRTUTF16 pwszDstCur  = pwszDst;
+    PRTUTF16 pwszDstComp = pwszDst;
+    for (;;)
+    {
+        RTUNICP uc;
+        rc = RTStrGetCpEx(&pszPath, &uc);
+        if (RT_SUCCESS(rc))
+        {
+            switch (uc)
+            {
+                default:
+                    pwszDstCur = RTUtf16PutCp(pwszDstCur, uc);
+                    break;
+
+                case '\\':
+                case '/':
+                    if (pwszDstCur != pwszDstComp)
+                        pwszDstComp = pwszDstCur = RTUtf16PutCp(pwszDstCur, '\\');
+                    /* else: only one slash between components. */
+                    break;
+
+                case '.':
+                    if (pwszDstCur == pwszDstComp)
+                    {
+                        /*
+                         * Single dot changes nothing.
+                         */
+                        char ch2 = *pszPath;
+                        if (ch2 == '\0')
+                        {
+                            /* Trailing single dot means we need to drop trailing slash. */
+                            if (pwszDstCur != pwszDst)
+                                pwszDstCur--;
+                            *pwszDstCur = '\0';
+                            pNtName->Length = (uint16_t)((uintptr_t)pwszDstCur - (uintptr_t)pwszDst);
+                            if (!fMustReturnAbsolute || *phRootDir == NULL)
+                                return VINF_SUCCESS;
+                            return rtNtPathRelativeToAbs(pNtName, phRootDir);
+                        }
+
+                        if (ch2 == '\\' || ch2 == '/')
+                        {
+                            pszPath++; /* Ignore lone dot followed but another component. */
+                            break;
+                        }
+
+                        /*
+                         * Two dots drops off the last directory component.  This gets complicated
+                         * when we start out without any path and we need to consult enmAscent.
+                         */
+                        if (ch2 == '.')
+                        {
+                            char ch3 = pszPath[1];
+                            if (   ch3 == '\\'
+                                || ch3 == '/'
+                                || ch3 == '\0')
+                            {
+                                /* Drop a path component. */
+                                if (pwszDstComp != pwszDst)
+                                    pwszDstComp = pwszDstCur = rtNtPathGetPrevComponent(pwszDstCur, pwszDst);
+                                /* Hit the start, which is a bit complicated. */
+                                else
+                                    switch (enmAscent)
+                                    {
+                                        case kRTNtPathRelativeAscent_Allow:
+                                            if (*phRootDir != NULL)
+                                            {
+                                                RTUtf16Free(pwszDst);
+                                                rc = rtNtPathFromHandle(pNtName, *phRootDir, cwcMax + 2);
+                                                if (RT_FAILURE(rc))
+                                                    return rc;
+
+                                                *phRootDir = NULL;
+                                                pwszDst    = pNtName->Buffer;
+                                                pwszDstCur = &pwszDst[pNtName->Length / sizeof(RTUTF16)];
+                                                if (   pwszDst != pwszDstCur
+                                                    && pwszDstCur[-1] != '\\'
+                                                    && pwszDstCur[-1] != '/')
+                                                    *pwszDstCur++ = '\\';
+                                                pwszDstComp = pwszDstCur = rtNtPathGetPrevComponent(pwszDstCur, pwszDst);
+                                            }
+                                            /* else: ignore attempt to ascend beyond the NT root (won't get here). */
+                                            break;
+
+                                        case kRTNtPathRelativeAscent_Ignore:
+                                            /* nothing to do here */
+                                            break;
+
+                                        default:
+                                        case kRTNtPathRelativeAscent_Fail:
+                                            RTUtf16Free(pwszDst);
+                                            return VERR_PATH_NOT_FOUND;
+                                    }
+
+                                if (ch3 == '\0')
+                                {
+                                    *pwszDstCur = '\0';
+                                    pNtName->Length = (uint16_t)((uintptr_t)pwszDstCur - (uintptr_t)pwszDst);
+                                    if (!fMustReturnAbsolute || *phRootDir == NULL)
+                                        return VINF_SUCCESS;
+                                    return rtNtPathRelativeToAbs(pNtName, phRootDir);
+                                }
+                                pszPath += 2;
+                                break;
+                            }
+                        }
+                    }
+
+                    /* Neither '.' nor '..'. */
+                    pwszDstCur = RTUtf16PutCp(pwszDstCur, '.');
+                    break;
+
+                case '\0':
+                    *pwszDstCur = '\0';
+                    pNtName->Length = (uint16_t)((uintptr_t)pwszDstCur - (uintptr_t)pwszDst);
+                    if (!fMustReturnAbsolute || *phRootDir == NULL)
+                        return VINF_SUCCESS;
+                    return rtNtPathRelativeToAbs(pNtName, phRootDir);
+            }
+        }
+    }
 }
 
 
 /**
  * Frees the native path and root handle.
  *
- * @param   pNtName             The NT path from a successful RTNtPathToNative
- *                              or RTNtPathFromWinUtf16Ex call.
- * @param   phRootDir           The root handle variable from the same call.
+ * @param   pNtName             The NT path after a successful rtNtPathToNative
+ *                              call or RTNtPathRelativeFromUtf8.
+ * @param   phRootDir           The root handle variable from rtNtPathToNative,
+ *                              but NOT RTNtPathRelativeFromUtf8.
+ */
+static void rtNtPathFreeNative(struct _UNICODE_STRING *pNtName, PHANDLE phRootDir)
+{
+    RTUtf16Free(pNtName->Buffer);
+    pNtName->Buffer = NULL;
+
+    RT_NOREF_PV(phRootDir); /* never returned by rtNtPathToNative, shouldn't be freed in connection with RTNtPathRelativeFromUtf8 */
+}
+
+
+/**
+ * Frees the native path and root handle.
+ *
+ * @param   pNtName             The NT path after a successful rtNtPathToNative
+ *                              call or RTNtPathRelativeFromUtf8.
+ * @param   phRootDir           The root handle variable from rtNtPathToNative,
  */
 RTDECL(void) RTNtPathFree(struct _UNICODE_STRING *pNtName, HANDLE *phRootDir)
 {
@@ -516,72 +813,157 @@ RTDECL(int) RTNtPathOpenDir(const char *pszPath, ACCESS_MASK fDesiredAccess, ULO
     int rc = rtNtPathToNative(&NtName, &hRootDir, pszPath);
     if (RT_SUCCESS(rc))
     {
-        HANDLE              hFile = RTNT_INVALID_HANDLE_VALUE;
-        IO_STATUS_BLOCK     Ios   = RTNT_IO_STATUS_BLOCK_INITIALIZER;
-        OBJECT_ATTRIBUTES   ObjAttr;
-        InitializeObjectAttributes(&ObjAttr, &NtName, fObjAttribs, hRootDir, NULL);
-
-        NTSTATUS rcNt = NtCreateFile(&hFile,
-                                     fDesiredAccess,
-                                     &ObjAttr,
-                                     &Ios,
-                                     NULL /* AllocationSize*/,
-                                     FILE_ATTRIBUTE_NORMAL,
-                                     fShareAccess,
-                                     FILE_OPEN,
-                                     fCreateOptions,
-                                     NULL /*EaBuffer*/,
-                                     0 /*EaLength*/);
-        if (NT_SUCCESS(rcNt))
+        if (pfObjDir)
         {
-            if (pfObjDir)
-                *pfObjDir = false;
-            *phHandle = hFile;
-            rc = VINF_SUCCESS;
-        }
+            *pfObjDir = false;
 #ifdef IPRT_WITH_NT_PATH_PASSTHRU
-        else if (   pfObjDir
-                 && (rcNt == STATUS_OBJECT_NAME_INVALID || rcNt == STATUS_OBJECT_TYPE_MISMATCH)
-                 && RTPATH_IS_SLASH(pszPath[0])
-                 && RTPATH_IS_SLASH(pszPath[1])
-                 && pszPath[2] == '!'
-                 && RTPATH_IS_SLASH(pszPath[3]))
-        {
-            /* Strip trailing slash. */
-            if (   NtName.Length > 2
-                && RTPATH_IS_SLASH(NtName.Buffer[(NtName.Length / 2) - 1]))
-                NtName.Length -= 2;
-
-            /* Rought conversion of the access flags. */
-            ULONG fObjDesiredAccess = 0;
-            if (fDesiredAccess & (GENERIC_ALL | STANDARD_RIGHTS_ALL))
-                fObjDesiredAccess = DIRECTORY_ALL_ACCESS;
-            else
-            {
-                if (fDesiredAccess & (FILE_GENERIC_WRITE | GENERIC_WRITE | STANDARD_RIGHTS_WRITE))
-                    fObjDesiredAccess |= DIRECTORY_CREATE_OBJECT | DIRECTORY_CREATE_OBJECT;
-                if (   (fDesiredAccess & (FILE_LIST_DIRECTORY | FILE_GENERIC_READ | GENERIC_READ | STANDARD_RIGHTS_READ))
-                    || !fObjDesiredAccess)
-                    fObjDesiredAccess |= DIRECTORY_QUERY | FILE_LIST_DIRECTORY;
-            }
-
-            rcNt = NtOpenDirectoryObject(&hFile, fObjDesiredAccess, &ObjAttr);
-            if (NT_SUCCESS(rcNt))
-            {
-                *pfObjDir = true;
-                *phHandle = hFile;
-                rc = VINF_SUCCESS;
-            }
-            else
-                rc = RTErrConvertFromNtStatus(rcNt);
-        }
+            if (   !RTPATH_IS_SLASH(pszPath[0])
+                || !RTPATH_IS_SLASH(pszPath[1])
+                || pszPath[2] != '!'
+                || RTPATH_IS_SLASH(pszPath[3]))
 #endif
-        else
-            rc = RTErrConvertFromNtStatus(rcNt);
+                pfObjDir = NULL;
+        }
+        rc = RTNtPathOpenDirEx(hRootDir, &NtName, fDesiredAccess, fShareAccess, fCreateOptions, fObjAttribs, phHandle, pfObjDir);
         rtNtPathFreeNative(&NtName, &hRootDir);
     }
     return rc;
 }
+
+
+
+/**
+ * Wrapper around NtCreateFile, extended version.
+ *
+ * @returns IPRT status code.
+ * @param   hRootDir            The root director the path is relative to.  NULL
+ *                              if none.
+ * @param   pNtName             The NT path.
+ * @param   fDesiredAccess      See NtCreateFile.
+ * @param   fShareAccess        See NtCreateFile.
+ * @param   fCreateOptions      See NtCreateFile.
+ * @param   fObjAttribs         The OBJECT_ATTRIBUTES::Attributes value, see
+ *                              NtCreateFile and InitializeObjectAttributes.
+ * @param   phHandle            Where to return the handle.
+ * @param   pfObjDir            If not NULL, the variable pointed to will be set
+ *                              to @c true if we opened an object directory and
+ *                              @c false if we opened an directory file (normal
+ *                              directory).
+ */
+RTDECL(int) RTNtPathOpenDirEx(HANDLE hRootDir, struct _UNICODE_STRING *pNtName, ACCESS_MASK fDesiredAccess, ULONG fShareAccess,
+                              ULONG fCreateOptions, ULONG fObjAttribs, PHANDLE phHandle, bool *pfObjDir)
+{
+    *phHandle = RTNT_INVALID_HANDLE_VALUE;
+
+    HANDLE              hFile = RTNT_INVALID_HANDLE_VALUE;
+    IO_STATUS_BLOCK     Ios   = RTNT_IO_STATUS_BLOCK_INITIALIZER;
+    OBJECT_ATTRIBUTES   ObjAttr;
+    InitializeObjectAttributes(&ObjAttr, pNtName, fObjAttribs, hRootDir, NULL);
+
+    NTSTATUS rcNt = NtCreateFile(&hFile,
+                                 fDesiredAccess,
+                                 &ObjAttr,
+                                 &Ios,
+                                 NULL /* AllocationSize*/,
+                                 FILE_ATTRIBUTE_NORMAL,
+                                 fShareAccess,
+                                 FILE_OPEN,
+                                 fCreateOptions,
+                                 NULL /*EaBuffer*/,
+                                 0 /*EaLength*/);
+    if (NT_SUCCESS(rcNt))
+    {
+        if (pfObjDir)
+            *pfObjDir = false;
+        *phHandle = hFile;
+        return VINF_SUCCESS;
+    }
+
+    /*
+     * Try add a slash in case this is a device object with a file system attached.
+     */
+    if (   rcNt == STATUS_INVALID_PARAMETER
+        && pNtName->Length < _64K - 4
+        && (   pNtName->Length == 0
+            || pNtName->Buffer[pNtName->Length / sizeof(RTUTF16)] != '\\') )
+    {
+        UNICODE_STRING NtTmp;
+        NtTmp.Length        = pNtName->Length + 2;
+        NtTmp.MaximumLength = NtTmp.Length + 2;
+        NtTmp.Buffer        = (PRTUTF16)RTMemTmpAlloc(NtTmp.MaximumLength);
+        if (NtTmp.Buffer)
+        {
+            memcpy(NtTmp.Buffer, pNtName->Buffer, pNtName->Length);
+            NtTmp.Buffer[pNtName->Length / sizeof(RTUTF16)] = '\\';
+            NtTmp.Buffer[pNtName->Length / sizeof(RTUTF16) + 1] = '\0';
+
+            hFile = RTNT_INVALID_HANDLE_VALUE;
+            Ios.Status = -1;
+            Ios.Information = 0;
+            ObjAttr.ObjectName = &NtTmp;
+
+            rcNt = NtCreateFile(&hFile,
+                                fDesiredAccess,
+                                &ObjAttr,
+                                &Ios,
+                                NULL /* AllocationSize*/,
+                                FILE_ATTRIBUTE_NORMAL,
+                                fShareAccess,
+                                FILE_OPEN,
+                                fCreateOptions,
+                                NULL /*EaBuffer*/,
+                                0 /*EaLength*/);
+            RTMemTmpFree(NtTmp.Buffer);
+            if (NT_SUCCESS(rcNt))
+            {
+                if (pfObjDir)
+                    *pfObjDir = false;
+                *phHandle = hFile;
+                return VINF_SUCCESS;
+            }
+            ObjAttr.ObjectName = pNtName;
+        }
+    }
+
+    /*
+     * Try open it as a directory object if it makes sense.
+     */
+    if (   pfObjDir
+        && (   rcNt == STATUS_OBJECT_NAME_INVALID
+            || rcNt == STATUS_OBJECT_TYPE_MISMATCH ))
+    {
+        /* Strip trailing slash. */
+        struct _UNICODE_STRING NtName2 = *pNtName;
+        if (   NtName2.Length > 2
+            && RTPATH_IS_SLASH(NtName2.Buffer[(NtName2.Length / 2) - 1]))
+            NtName2.Length -= 2;
+        ObjAttr.ObjectName = &NtName2;
+
+        /* Rought conversion of the access flags. */
+        ULONG fObjDesiredAccess = 0;
+        if (fDesiredAccess & (GENERIC_ALL | STANDARD_RIGHTS_ALL))
+            fObjDesiredAccess = DIRECTORY_ALL_ACCESS;
+        else
+        {
+            if (fDesiredAccess & (FILE_GENERIC_WRITE | GENERIC_WRITE | STANDARD_RIGHTS_WRITE))
+                fObjDesiredAccess |= DIRECTORY_CREATE_OBJECT | DIRECTORY_CREATE_OBJECT;
+            if (   (fDesiredAccess & (FILE_LIST_DIRECTORY | FILE_GENERIC_READ | GENERIC_READ | STANDARD_RIGHTS_READ))
+                || !fObjDesiredAccess)
+                fObjDesiredAccess |= DIRECTORY_QUERY | FILE_LIST_DIRECTORY;
+        }
+
+        rcNt = NtOpenDirectoryObject(&hFile, fObjDesiredAccess, &ObjAttr);
+        if (NT_SUCCESS(rcNt))
+        {
+            *pfObjDir = true;
+            *phHandle = hFile;
+            return VINF_SUCCESS;
+        }
+    }
+
+    return RTErrConvertFromNtStatus(rcNt);
+}
+
 
 
 /**

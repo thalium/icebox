@@ -1,10 +1,10 @@
-; $Id$
-; @file
+; $Id: VBoxGuestAdditionsVista.nsh $
+;; @file
 ; VBoxGuestAdditionsVista.nsh - Guest Additions installation for Windows Vista/7.
 ;
 
 ;
-; Copyright (C) 2006-2012 Oracle Corporation
+; Copyright (C) 2006-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as
 ; available from http://www.virtualbox.org. This file is free software;
@@ -32,7 +32,7 @@ Function Vista_CheckForRequirements
   ${If} $0 == "1" ; D3D files are invalid, notify user
     MessageBox MB_ICONSTOP|MB_OKCANCEL $(VBOX_COMPONENT_D3D_INVALID) /SD IDOK IDCANCEL failure
     ; Offer to open up the VBox online manual on how to fix missing/corrupted D3D files
-    MessageBox MB_ICONQUESTION|MB_YESNO $(VBOX_COMPONENT_D3D_INVALID_MANUAL) /SD IDNO IDYES open_handbook_d3d_invalid    
+    MessageBox MB_ICONQUESTION|MB_YESNO $(VBOX_COMPONENT_D3D_INVALID_MANUAL) /SD IDNO IDYES open_handbook_d3d_invalid
   ${EndIf}
   Goto success
 

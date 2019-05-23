@@ -6,7 +6,7 @@
 ;
 
 ;
-; Copyright (C) 2008-2016 Oracle Corporation
+; Copyright (C) 2008-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as
 ; available from http://www.virtualbox.org. This file is free software;
@@ -23,11 +23,11 @@
 ;   D:\CODING\INNOTEK\VBOX\OUT\OS2.X86\RELEASE\BIN\VIRTUALBOX.EXE
 ;   c0000005
 ;   17d40000
-;   P1=00000008  P2=0000bea4  P3=XXXXXXXX  P4=XXXXXXXX  
+;   P1=00000008  P2=0000bea4  P3=XXXXXXXX  P4=XXXXXXXX
 ;   EAX=00001489  EBX=00000000  ECX=00000000  EDX=00000000
-;   ESI=00000000  EDI=00001489  
-;   DS=be7f  DSACC=00f3  DSLIM=0000003f  
-;   ES=0053  ESACC=f0f3  ESLIM=ffffffff  
+;   ESI=00000000  EDI=00001489
+;   DS=be7f  DSACC=00f3  DSLIM=0000003f
+;   ES=0053  ESACC=f0f3  ESLIM=ffffffff
 ;   FS=150b  FSACC=00f3  FSLIM=00000030
 ;   GS=0000  GSACC=****  GSLIM=********
 ;   CS:EIP=bea7:00000000  CSACC=00f2  CSLIM=00000002

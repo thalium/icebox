@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -171,16 +171,36 @@ static DECLCALLBACK(int) gimDevR3DbgRecvThread(RTTHREAD hThreadSelf, void *pvUse
     return VINF_SUCCESS;
 }
 
+/**
+ * @interface_method_impl{PDMDEVREG,pfnReset}
+ */
+static DECLCALLBACK(void) gimdevR3Reset(PPDMDEVINS pDevIns)
+{
+    NOREF(pDevIns);
+    /* We do not deregister any MMIO2 regions as the regions are expected to be static. */
+}
+
+
+
+/**
+ * @interface_method_impl{PDMDEVREG,pfnRelocate}
+ */
+static DECLCALLBACK(void) gimdevR3Relocate(PPDMDEVINS pDevIns, RTGCINTPTR offDelta)
+{
+    NOREF(pDevIns);
+    NOREF(offDelta);
+}
+
 
 /**
  * @interface_method_impl{PDMDEVREG,pfnConstruct}
  */
 static DECLCALLBACK(int) gimdevR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
+    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     RT_NOREF2(iInstance, pCfg);
     Assert(iInstance == 0);
     PGIMDEV pThis = PDMINS_2_DATA(pDevIns, PGIMDEV);
-    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
 
     /*
      * Initialize relevant state bits.
@@ -378,26 +398,6 @@ static DECLCALLBACK(int) gimdevR3Destruct(PPDMDEVINS pDevIns)
     }
 
     return VINF_SUCCESS;
-}
-
-
-/**
- * @interface_method_impl{PDMDEVREG,pfnRelocate}
- */
-static DECLCALLBACK(void) gimdevR3Relocate(PPDMDEVINS pDevIns, RTGCINTPTR offDelta)
-{
-    NOREF(pDevIns);
-    NOREF(offDelta);
-}
-
-
-/**
- * @interface_method_impl{PDMDEVREG,pfnReset}
- */
-static DECLCALLBACK(void) gimdevR3Reset(PPDMDEVINS pDevIns)
-{
-    NOREF(pDevIns);
-    /* We do not deregister any MMIO2 regions as the regions are expected to be static. */
 }
 
 

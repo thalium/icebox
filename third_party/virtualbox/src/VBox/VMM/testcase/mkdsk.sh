@@ -1,4 +1,8 @@
 #!/bin/sh
+## @file
+# Obsolete?
+#
+
 #
 # Copyright (C) 2006-2017 Oracle Corporation
 #

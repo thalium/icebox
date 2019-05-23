@@ -31,7 +31,7 @@
    {
      text-align: left;
    }
-   .warning 
+   .warning
    {
      padding: 5px;
      border: 1px solid #ff0011;
@@ -40,7 +40,7 @@
    }
    .warning .title { margin: 0px 0px 5px 0px; }
    .warning p { margin: 1px; }
-   .note 
+   .note
    {
      padding: 1px 5px 1px;
      border: 1px solid #84c43b;

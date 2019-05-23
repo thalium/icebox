@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -45,7 +45,7 @@ extern void (*glXGetProcAddress(const GLubyte *procname))( void );
 
 #endif
 
-#undef GL_EXT_FUNCS_GEN 
+#undef GL_EXT_FUNCS_GEN
 #define GL_EXT_FUNCS_GEN \
     /* GL_ARB_shader_objects */ \
     USE_GL_FUNC(WINED3D_PFNGLGETOBJECTPARAMETERIVARBPROC, \
@@ -383,7 +383,7 @@ SHADERDECL(int) ShaderDestroyVertexShader(void *pShaderContext, void *pShaderObj
     SHADER_SET_CURRENT_CONTEXT(pShaderContext);
 
     object->lpVtbl->Release((IWineD3DVertexShader *)object);
-	return VINF_SUCCESS;
+        return VINF_SUCCESS;
 }
 
 SHADERDECL(int) ShaderDestroyPixelShader(void *pShaderContext, void *pShaderObj)
@@ -394,7 +394,7 @@ SHADERDECL(int) ShaderDestroyPixelShader(void *pShaderContext, void *pShaderObj)
     SHADER_SET_CURRENT_CONTEXT(pShaderContext);
 
     object->lpVtbl->Release((IWineD3DPixelShader *)object);
-	return VINF_SUCCESS;
+        return VINF_SUCCESS;
 }
 
 SHADERDECL(int) ShaderSetVertexShader(void *pShaderContext, void *pShaderObj)
@@ -633,7 +633,7 @@ SHADERDECL(int) ShaderSetPositionTransformed(void *pShaderContext, unsigned cxVi
         return VINF_SUCCESS;    /* no changes; nothing to do. */
 
     Log(("ShaderSetPositionTransformed viewport (%d,%d) fPreTransformed=%d\n", cxViewPort, cyViewPort, fPreTransformed));
-    
+
     if (fPreTransformed)
     {   /* In the pre-transformed vertex coordinate case we need to disable all transformations as we're already using screen coordinates. */
         /* Load the identity matrix for the model view */
@@ -672,7 +672,7 @@ SHADERDECL(int) ShaderUpdateState(void *pShaderContext, uint32_t rtHeight)
 
     pThis->rtHeight = rtHeight;
 
-    /* @todo missing state:
+    /** @todo missing state:
      * - fog enable (stateblock->renderState[WINED3DRS_FOGENABLE])
      * - fog mode (stateblock->renderState[WINED3DRS_FOGTABLEMODE])
      * - stateblock->vertexDecl->position_transformed
@@ -748,7 +748,7 @@ SHADERDECL(int) ShaderTransformProjection(unsigned cxViewPort, unsigned cyViewPo
 
     glTranslatef(xoffset, -yoffset, -1.0f);
 
-    if (fPretransformed) 
+    if (fPretransformed)
     {
         /* One world coordinate equals one screen pixel; y-inversion no longer an issue */
         glOrtho(0, cxViewPort, 0, cyViewPort, -1, 1);

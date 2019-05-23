@@ -33,4 +33,3 @@
 %include "VBox/asmdefs.mac"
 %include "VMMSwitcher/AMD64andLegacy.mac"
 
-

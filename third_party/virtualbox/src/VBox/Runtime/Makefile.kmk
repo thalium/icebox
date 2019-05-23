@@ -623,6 +623,7 @@ RuntimeR3_SOURCES       = \
 	common/vfs/vfsmsg.cpp \
 	common/vfs/vfsprogress.cpp \
 	common/vfs/vfsreadahead.cpp \
+	common/vfs/vfsstddir.cpp \
 	common/vfs/vfsstdfile.cpp \
 	common/vfs/vfsstdpipe.cpp \
 	common/zip/tar.cpp \
@@ -791,7 +792,6 @@ RuntimeR3_SOURCES.win = \
 	common/dbg/dbgmoddbghelp.cpp \
 	generic/cdrom-generic.cpp \
 	generic/RTDirExists-generic.cpp \
-	generic/RTDirQueryInfo-generic.cpp \
 	generic/RTDirSetTimes-generic.cpp \
 	generic/RTFileExists-generic.cpp \
 	generic/RTFileSetAllocationSize-generic.cpp \
@@ -815,11 +815,15 @@ RuntimeR3_SOURCES.win = \
 	nt/RTErrConvertFromNtStatus.cpp \
  	nt/RTNtPathExpand8dot3Path.cpp \
  	nt/RTNtPathFindPossible8dot3Name.cpp \
+ 	nt/fileioutils-nt.cpp \
  	r3/generic/RTLocaleQueryLocaleName-r3-generic.cpp \
+	r3/nt/dirrel-r3-nt.cpp \
  	r3/nt/fs-nt.cpp \
  	r3/nt/pathint-nt.cpp \
  	r3/nt/RTFileQueryFsSizes-nt.cpp \
+ 	r3/nt/RTFileSetMode-r3-nt.cpp \
  	r3/nt/RTPathQueryInfo-nt.cpp \
+ 	r3/nt/RTPathSetMode-r3-nt.cpp \
  	r3/nt/RTProcQueryParent-r3-nt.cpp \
 	r3/win/env-win.cpp \
 	r3/win/RTCrStoreCreateSnapshotById-win.cpp \
@@ -834,7 +838,7 @@ RuntimeR3_SOURCES.win = \
 	r3/win/alloc-win.cpp \
 	r3/win/allocex-win.cpp \
 	r3/win/dir-win.cpp \
-	$(if-expr defined(VBOX_WITH_NT_DIRENUM),r3/nt/direnum-r3-nt.cpp,r3/win/direnum-win.cpp) \
+	$(if-expr defined(VBOX_WITH_NT_DIRENUM),r3/nt/direnum-r3-nt.cpp,r3/win/direnum-win.cpp generic/RTDirQueryInfo-generic.cpp) \
 	r3/win/errvars-win.cpp \
 	r3/win/fileio-win.cpp \
 	r3/win/init-win.cpp \
@@ -852,7 +856,6 @@ RuntimeR3_SOURCES.win = \
 	r3/win/semeventmulti-win.cpp \
 	r3/win/semmutex-win.cpp \
 	r3/win/symlink-win.cpp \
-	r3/win/rtFileNativeSetAttributes-win.cpp \
 	r3/win/thread-win.cpp \
 	r3/win/thread2-win.cpp \
 	$(if-expr 1,r3/win/time-win.cpp,r3/nt/time-nt.cpp) \
@@ -896,6 +899,7 @@ RuntimeR3_SOURCES.linux = \
  	r3/generic/RTLocaleQueryNormalizedBaseLocaleName-r3-generic.cpp \
 	r3/generic/RTLocaleQueryUserCountryCode-r3-generic.cpp \
  	r3/generic/RTTimeZoneGetCurrent-generic.cpp \
+	r3/generic/dirrel-r3-generic.cpp \
 	r3/posix/allocex-r3-posix.cpp \
 	r3/linux/RTThreadGetNativeState-linux.cpp \
 	r3/linux/krnlmod-linux.cpp \
@@ -1008,6 +1012,7 @@ RuntimeR3_SOURCES.os2   = \
  	r3/generic/RTLocaleQueryNormalizedBaseLocaleName-r3-generic.cpp \
 	r3/generic/RTLocaleQueryUserCountryCode-r3-generic.cpp \
  	r3/generic/RTTimeZoneGetCurrent-generic.cpp \
+	r3/generic/dirrel-r3-generic.cpp \
 	r3/os2/filelock-os2.cpp \
 	r3/os2/mp-os2.cpp \
 	r3/os2/pipe-os2.cpp \
@@ -1091,6 +1096,7 @@ RuntimeR3_SOURCES.darwin = \
  	r3/generic/RTLocaleQueryNormalizedBaseLocaleName-r3-generic.cpp \
 	r3/generic/RTLocaleQueryUserCountryCode-r3-generic.cpp \
  	r3/generic/RTTimeZoneGetCurrent-generic.cpp \
+	r3/generic/dirrel-r3-generic.cpp \
 	r3/posix/RTFileQueryFsSizes-posix.cpp \
 	r3/posix/RTHandleGetStandard-posix.cpp \
 	r3/posix/RTMemProtect-posix.cpp \
@@ -1165,6 +1171,7 @@ RuntimeR3_SOURCES.freebsd = \
  	r3/generic/RTLocaleQueryNormalizedBaseLocaleName-r3-generic.cpp \
 	r3/generic/RTLocaleQueryUserCountryCode-r3-generic.cpp \
  	r3/generic/RTTimeZoneGetCurrent-generic.cpp \
+	r3/generic/dirrel-r3-generic.cpp \
 	r3/posix/RTFileQueryFsSizes-posix.cpp \
 	r3/posix/RTHandleGetStandard-posix.cpp \
 	r3/posix/RTMemProtect-posix.cpp \
@@ -1238,7 +1245,9 @@ RuntimeR3_SOURCES.netbsd = \
  	r3/generic/RTLocaleQueryNormalizedBaseLocaleName-r3-generic.cpp \
 	r3/generic/RTLocaleQueryUserCountryCode-r3-generic.cpp \
  	r3/generic/RTTimeZoneGetCurrent-generic.cpp \
+	r3/generic/dirrel-r3-generic.cpp \
 	r3/posix/RTFileQueryFsSizes-posix.cpp \
+	r3/posix/RTFileSetAllocationSize-posix.cpp \
 	r3/posix/RTHandleGetStandard-posix.cpp \
 	r3/posix/RTMemProtect-posix.cpp \
 	r3/posix/RTPathUserHome-posix.cpp \
@@ -1304,6 +1313,7 @@ RuntimeR3_SOURCES.solaris = \
  	r3/generic/RTLocaleQueryNormalizedBaseLocaleName-r3-generic.cpp \
 	r3/generic/RTLocaleQueryUserCountryCode-r3-generic.cpp \
  	r3/generic/RTTimeZoneGetCurrent-generic.cpp \
+	r3/generic/dirrel-r3-generic.cpp \
 	r3/posix/RTFileQueryFsSizes-posix.cpp \
 	r3/posix/RTFileSetAllocationSize-posix.cpp \
 	r3/posix/RTHandleGetStandard-posix.cpp \
@@ -1395,6 +1405,7 @@ RuntimeR3_SOURCES.haiku = \
  	r3/generic/RTLocaleQueryNormalizedBaseLocaleName-r3-generic.cpp \
 	r3/generic/RTLocaleQueryUserCountryCode-r3-generic.cpp \
  	r3/generic/RTTimeZoneGetCurrent-generic.cpp \
+	r3/generic/dirrel-r3-generic.cpp \
 	r3/posix/RTFileQueryFsSizes-posix.cpp \
 	r3/posix/RTHandleGetStandard-posix.cpp \
 	r3/posix/RTMemProtect-posix.cpp \
@@ -2110,6 +2121,7 @@ RuntimeR0Drv_SOURCES    = \
 	common/checksum/ipv6.cpp \
 	common/err/RTErrConvertToErrno.cpp \
 	common/err/RTErrConvertFromErrno.cpp \
+	common/err/errinfo.cpp \
 	common/log/log.cpp \
 	common/log/logellipsis.cpp \
 	common/log/logrel.cpp \
@@ -2251,6 +2263,7 @@ RuntimeR0Drv_SOURCES.linux = \
 	r0drv/powernotification-r0drv.c
 
 RuntimeR0Drv_SOURCES.win = \
+	common/asm/ASMCpuIdExSlow.asm \
 	common/ldr/ldr.cpp \
 	common/ldr/ldrEx.cpp \
 	common/ldr/ldrPE.cpp \
@@ -2328,7 +2341,6 @@ RuntimeR0Drv_SOURCES.win = \
 	common/checksum/sha512str.cpp \
 	common/checksum/sha512t224str.cpp \
 	common/checksum/sha512t256str.cpp \
-	common/err/errinfo.cpp \
 	common/err/errinfolog.cpp \
 	common/path/RTPathChangeToUnixSlashes.cpp \
 	common/math/bignum.cpp \
@@ -2551,11 +2563,7 @@ RuntimeR0Drv_SOURCES.freebsd = \
 
 RuntimeR0Drv_SOURCES.netbsd = \
 	common/misc/thread.cpp \
-	common/string/memchr.asm \
-	common/string/memmove.asm \
 	common/string/strpbrk.cpp \
-	common/string/memcmp.asm \
-	common/string/strchr.asm \
 	generic/RTAssertShouldPanic-generic.cpp \
 	generic/RTLogWriteDebugger-generic.cpp \
 	generic/RTTimerCreate-generic.cpp \

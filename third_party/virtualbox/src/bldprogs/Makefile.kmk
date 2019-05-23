@@ -39,6 +39,7 @@ ifndef VBOX_ONLY_BUILD
  	scm.cpp \
  	scmdiff.cpp \
  	scmrw.cpp \
+       scmparser.cpp \
  	scmstream.cpp \
  	scmsubversion.cpp
  ifdef VBOX_PATH_SUBVERSION_INCS

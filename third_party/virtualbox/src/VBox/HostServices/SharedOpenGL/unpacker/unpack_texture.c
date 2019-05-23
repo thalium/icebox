@@ -289,9 +289,13 @@ void crUnpackTexGendv( void )
     GLdouble params[4];
     unsigned int n_param = READ_DATA( 0, int ) - ( sizeof(int) + 8 );
 
-    if ( n_param > sizeof(params) )
-        crError( "crUnpackTexGendv: n_param=%d, expected <= %d\n", n_param,
-                 (unsigned int)sizeof(params) );
+    if (n_param > sizeof(params))
+    {
+        crError("crUnpackTexGendv: n_param=%d, expected <= %d\n", n_param,
+            (unsigned int)sizeof(params));
+        return;
+    }
+
     crMemcpy( params, DATA_POINTER( sizeof( int ) + 8, GLdouble ), n_param );
 
     cr_unpackDispatch.TexGendv( coord, pname, params );

@@ -50,15 +50,15 @@ INSERT INTO TestGroupMembers (idTestGroup, idTestCase, uidAuthor)
             1112223331);
 
 INSERT INTO BuildSources (uidAuthor, sName, sProduct, sBranch, asTypes, asOsArches)
-    VALUES (1112223331, 'st1-src', 'st1', 'trunk', 
-            ARRAY['release', 'strict'], 
+    VALUES (1112223331, 'st1-src', 'st1', 'trunk',
+            ARRAY['release', 'strict'],
             ARRAY['win.x86', 'linux.noarch', 'solaris.amd64', 'os-agnostic.sparc64', 'os-agnostic.noarch']);
 
 INSERT INTO BuildCategories (sProduct, sBranch, sType, asOsArches)
     VALUES ('st1', 'trunk', 'release', ARRAY['os-agnostic.noarch']);
 
 INSERT INTO Builds (uidAuthor, idBuildCategory, iRevision, sVersion, sBinaries)
-    VALUES (1112223331, 
+    VALUES (1112223331,
             (SELECT idBuildCategory FROM BuildCategories WHERE sProduct = 'st1' AND sBranch = 'trunk'),
             1234, '1.0', '');
 
@@ -101,7 +101,7 @@ INSERT INTO TestGroupMembers (idTestGroup, idTestCase, uidAuthor)
 -- The fourth thru eight tests
 
 INSERT INTO TestCases (uidAuthor, sName, fEnabled, cSecTimeout, sBaseCmd, sTestSuiteZips)
-    VALUES (1112223331, 'st1-test4-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test immediate-sub-tests', 
+    VALUES (1112223331, 'st1-test4-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test immediate-sub-tests',
             '@DOWNLOAD_BASE_URL@/VBoxValidationKit.zip');
 INSERT INTO TestCaseArgs (idTestCase, uidAuthor, sArgs)
     VALUES ((SELECT idTestCase  FROM TestCases  WHERE sName = 'st1-test4-neg'), 1112223331, '');
@@ -111,7 +111,7 @@ INSERT INTO TestGroupMembers (idTestGroup, idTestCase, uidAuthor)
             1112223331);
 
 INSERT INTO TestCases (uidAuthor, sName, fEnabled, cSecTimeout, sBaseCmd, sTestSuiteZips)
-    VALUES (1112223331, 'st1-test5-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test total-sub-tests', 
+    VALUES (1112223331, 'st1-test5-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test total-sub-tests',
             '@DOWNLOAD_BASE_URL@/VBoxValidationKit.zip');
 INSERT INTO TestCaseArgs (idTestCase, uidAuthor, sArgs)
     VALUES ((SELECT idTestCase  FROM TestCases  WHERE sName = 'st1-test5-neg'), 1112223331, '');
@@ -121,7 +121,7 @@ INSERT INTO TestGroupMembers (idTestGroup, idTestCase, uidAuthor)
             1112223331);
 
 INSERT INTO TestCases (uidAuthor, sName, fEnabled, cSecTimeout, sBaseCmd, sTestSuiteZips)
-    VALUES (1112223331, 'st1-test6-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test immediate-values', 
+    VALUES (1112223331, 'st1-test6-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test immediate-values',
             '@DOWNLOAD_BASE_URL@/VBoxValidationKit.zip');
 INSERT INTO TestCaseArgs (idTestCase, uidAuthor, sArgs)
     VALUES ((SELECT idTestCase  FROM TestCases  WHERE sName = 'st1-test6-neg'), 1112223331, '');
@@ -131,7 +131,7 @@ INSERT INTO TestGroupMembers (idTestGroup, idTestCase, uidAuthor)
             1112223331);
 
 INSERT INTO TestCases (uidAuthor, sName, fEnabled, cSecTimeout, sBaseCmd, sTestSuiteZips)
-    VALUES (1112223331, 'st1-test7-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test total-values', 
+    VALUES (1112223331, 'st1-test7-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test total-values',
             '@DOWNLOAD_BASE_URL@/VBoxValidationKit.zip');
 INSERT INTO TestCaseArgs (idTestCase, uidAuthor, sArgs)
     VALUES ((SELECT idTestCase  FROM TestCases  WHERE sName = 'st1-test7-neg'), 1112223331, '');
@@ -141,7 +141,7 @@ INSERT INTO TestGroupMembers (idTestGroup, idTestCase, uidAuthor)
             1112223331);
 
 INSERT INTO TestCases (uidAuthor, sName, fEnabled, cSecTimeout, sBaseCmd, sTestSuiteZips)
-    VALUES (1112223331, 'st1-test8-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test immediate-messages', 
+    VALUES (1112223331, 'st1-test8-neg', TRUE, 3600,  'validationkit/tests/selftests/tdSelfTest4.py --test immediate-messages',
             '@DOWNLOAD_BASE_URL@/VBoxValidationKit.zip');
 INSERT INTO TestCaseArgs (idTestCase, uidAuthor, sArgs)
     VALUES ((SELECT idTestCase  FROM TestCases  WHERE sName = 'st1-test8-neg'), 1112223331, '');

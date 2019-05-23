@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1298,6 +1298,9 @@ static void usbMsdSuspendOrPowerOff(PPDMUSBINS pUsbIns)
             pThis->pReq = NULL;
         }
     }
+
+    if (pThis->Lun0.pIMediaEx)
+        pThis->Lun0.pIMediaEx->pfnNotifySuspend(pThis->Lun0.pIMediaEx);
 }
 
 

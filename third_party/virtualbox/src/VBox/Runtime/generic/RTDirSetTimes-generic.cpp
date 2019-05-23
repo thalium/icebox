@@ -45,14 +45,14 @@
 
 
 
-RTR3DECL(int) RTDirSetTimes(PRTDIR pDir, PCRTTIMESPEC pAccessTime, PCRTTIMESPEC pModificationTime,
+RTR3DECL(int) RTDirSetTimes(RTDIR hDir, PCRTTIMESPEC pAccessTime, PCRTTIMESPEC pModificationTime,
                             PCRTTIMESPEC pChangeTime, PCRTTIMESPEC pBirthTime)
 {
     /*
      * Validate and digest input.
      */
-    if (!rtDirValidHandle(pDir))
+    if (!rtDirValidHandle(hDir))
         return VERR_INVALID_PARAMETER;
-    return RTPathSetTimes(pDir->pszPath, pAccessTime, pModificationTime, pChangeTime, pBirthTime);
+    return RTPathSetTimes(hDir->pszPath, pAccessTime, pModificationTime, pChangeTime, pBirthTime);
 }
 

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -443,6 +443,21 @@ static DECLCALLBACK(int) drvscsiGetFeatureFlags(VSCSILUN hVScsiLun, void *pvScsi
     return VINF_SUCCESS;
 }
 
+/**
+ * @interface_method_impl{VSCSILUNIOCALLBACKS,pfnVScsiLunQueryInqStrings}
+ */
+static DECLCALLBACK(int) drvscsiQueryInqStrings(VSCSILUN hVScsiLun, void *pvScsiLunUser, const char **ppszVendorId,
+                                                const char **ppszProductId, const char **ppszProductLevel)
+{
+    RT_NOREF(hVScsiLun);
+    PDRVSCSI pThis = (PDRVSCSI)pvScsiLunUser;
+
+    if (pThis->pDevMediaPort->pfnQueryScsiInqStrings)
+        return pThis->pDevMediaPort->pfnQueryScsiInqStrings(pThis->pDevMediaPort, ppszVendorId,
+                                                            ppszProductId, ppszProductLevel);
+
+    return VERR_NOT_FOUND;
+}
 
 /* -=-=-=-=- IPortEx -=-=-=-=- */
 
@@ -745,6 +760,14 @@ static DECLCALLBACK(int) drvscsiQueryFeatures(PPDMIMEDIAEX pInterface, uint32_t 
 
     *pfFeatures = PDMIMEDIAEX_FEATURE_F_RAWSCSICMD;
     return VINF_SUCCESS;
+}
+
+/** @interface_method_impl{PDMIMEDIAEX,pfnNotifySuspend} */
+static DECLCALLBACK(void) drvscsiNotifySuspend(PPDMIMEDIAEX pInterface)
+{
+    PDRVSCSI pThis = RT_FROM_MEMBER(pInterface, DRVSCSI, IMediaEx);
+
+    pThis->pDrvMediaEx->pfnNotifySuspend(pThis->pDrvMediaEx);
 }
 
 /** @interface_method_impl{PDMIMEDIAEX,pfnIoReqAllocSizeSet} */
@@ -1302,6 +1325,7 @@ static DECLCALLBACK(int) drvscsiConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, ui
 
     /* IMediaEx */
     pThis->IMediaEx.pfnQueryFeatures            = drvscsiQueryFeatures;
+    pThis->IMediaEx.pfnNotifySuspend            = drvscsiNotifySuspend;
     pThis->IMediaEx.pfnIoReqAllocSizeSet        = drvscsiIoReqAllocSizeSet;
     pThis->IMediaEx.pfnIoReqAlloc               = drvscsiIoReqAlloc;
     pThis->IMediaEx.pfnIoReqFree                = drvscsiIoReqFree;
@@ -1415,6 +1439,7 @@ static DECLCALLBACK(int) drvscsiConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, ui
     pThis->VScsiIoCallbacks.pfnVScsiLunReqTransferEnqueue                = drvscsiReqTransferEnqueue;
     pThis->VScsiIoCallbacks.pfnVScsiLunGetFeatureFlags                   = drvscsiGetFeatureFlags;
     pThis->VScsiIoCallbacks.pfnVScsiLunMediumSetLock                     = drvscsiSetLock;
+    pThis->VScsiIoCallbacks.pfnVScsiLunQueryInqStrings                   = drvscsiQueryInqStrings;
 
     rc = VSCSIDeviceCreate(&pThis->hVScsiDevice, drvscsiIoReqVScsiReqCompleted, pThis);
     AssertMsgReturn(RT_SUCCESS(rc), ("Failed to create VSCSI device rc=%Rrc\n", rc), rc);

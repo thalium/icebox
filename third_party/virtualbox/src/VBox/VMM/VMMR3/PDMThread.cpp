@@ -185,7 +185,7 @@ static int pdmR3ThreadInit(PVM pVM, PPPDMTHREAD ppThread, size_t cbStack, RTTHRE
         RTSemEventMultiDestroy(pThread->Internal.s.BlockEvent);
         pThread->Internal.s.BlockEvent = NIL_RTSEMEVENTMULTI;
     }
-    MMHyperFree(pVM, pThread);
+    MMR3HeapFree(pThread);
     *ppThread = NULL;
 
     return rc;

@@ -1,11 +1,10 @@
 /* $Id: VBoxVideoIOCTL.h $ */
-
 /** @file
  * VBox Miniport IOCTL related header
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -65,15 +64,16 @@
 /* ==================== Data structures used by Virtual Box VRPS's ==================== */
 typedef void* HVBOXVIDEOHGSMI;
 
-/* Complete host commands addressed to the display */
-typedef DECLCALLBACK(void) FNVBOXVIDEOHGSMICOMPLETION(HVBOXVIDEOHGSMI hHGSMI, struct VBVAHOSTCMD * pCmd);
+/** Complete host commands addressed to the display */
+typedef DECLCALLBACK(void) FNVBOXVIDEOHGSMICOMPLETION(HVBOXVIDEOHGSMI hHGSMI, struct VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST * pCmd);
 typedef FNVBOXVIDEOHGSMICOMPLETION *PFNVBOXVIDEOHGSMICOMPLETION;
 
-/* request the host commands addressed to the display */
-typedef DECLCALLBACK(int) FNVBOXVIDEOHGSMICOMMANDS(HVBOXVIDEOHGSMI hHGSMI, uint8_t u8Channel, uint32_t iDevice, struct VBVAHOSTCMD ** ppCmd);
+/** request the host commands addressed to the display */
+typedef DECLCALLBACK(int) FNVBOXVIDEOHGSMICOMMANDS(HVBOXVIDEOHGSMI hHGSMI, uint8_t u8Channel, uint32_t iDevice,
+                                                   struct VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST ** ppCmd);
 typedef FNVBOXVIDEOHGSMICOMMANDS *PFNVBOXVIDEOHGSMICOMMANDS;
 
-/* post guest command (offset) to the host */
+/** post guest command (offset) to the host */
 typedef DECLCALLBACK(void) FNVBOXVIDEOHGSMIPOSTCOMMAND(HVBOXVIDEOHGSMI hHGSMI, HGSMIOFFSET offCmd);
 typedef FNVBOXVIDEOHGSMIPOSTCOMMAND *PFNVBOXVIDEOHGSMIPOSTCOMMAND;
 
@@ -105,7 +105,7 @@ typedef struct _HGSMIQUERYCPORTPROCS
     VBOXVIDEOPORTPROCS VideoPortProcs;
 } HGSMIQUERYCPORTPROCS;
 
-/* Data returned by IOCTL_VIDEO_HGSMI_QUERY_CALLBACKS. */
+/** Data returned by IOCTL_VIDEO_HGSMI_QUERY_CALLBACKS. */
 typedef struct _HGSMIQUERYCALLBACKS
 {
     HVBOXVIDEOHGSMI hContext;
@@ -155,4 +155,4 @@ typedef struct _VHWAQUERYINFO
 
 #define VBOXVIDEO_REGISTRY_FLAGS_DISABLE_BITMAP_CACHE 0x00000001
 
-#endif /*VBOXVIDEOIOCTL_H*/
+#endif /* !VBOXVIDEOIOCTL_H */

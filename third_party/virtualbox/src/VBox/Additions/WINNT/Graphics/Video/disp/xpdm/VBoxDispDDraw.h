@@ -1,11 +1,10 @@
 /* $Id: VBoxDispDDraw.h $ */
-
 /** @file
  * VBox XPDM Display driver, direct draw callbacks
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -42,4 +41,4 @@ DWORD APIENTRY VBoxDispDDSetOverlayPosition(PDD_SETOVERLAYPOSITIONDATA lpSetOver
 DWORD APIENTRY VBoxDispDDUpdateOverlay(PDD_UPDATEOVERLAYDATA lpUpdateOverlay);
 #endif
 
-#endif /*VBOXDISPDDRAW_H*/
+#endif /*!VBOXDISPDDRAW_H*/

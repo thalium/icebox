@@ -1,11 +1,10 @@
 /* $Id: VBoxDispKmt.h $ */
-
 /** @file
  * VBoxVideo Display D3D User mode dll
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -21,7 +20,7 @@
 
 #include <D3dkmthk.h>
 
-#include <../../../common/wddm/VBoxMPIf.h>
+#include "../../../common/wddm/VBoxMPIf.h"
 
 /* win8 release preview-specific stuff */
 typedef struct _D3DKMT_ADAPTERINFO

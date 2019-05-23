@@ -116,5 +116,3 @@ BS3_PROC_END_CMN   Bs3SelFlatCodeToProtFar16
 ;
 BS3_CMN_FAR_STUB   Bs3SelFlatCodeToProtFar16, 4
 
-
-

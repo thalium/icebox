@@ -360,29 +360,12 @@ if   defined(VBOX_WITH_TESTCASES) \
  && !defined(VBOX_ONLY_DOCS) \
  && !defined(VBOX_ONLY_VALIDATIONKIT) \
  && !defined(VBOX_WITHOUT_LINUX_TEST_BUILDS) \
+ && "$(KBUILD_TARGET)" == "linux" \
  && "$(KBUILD_HOST_ARCH)" == "$(KBUILD_TARGET_ARCH)"
 
- KBUILD_VERBOSE ?=
-
-##
-# Using the extra expansion to replace $(ver) before eval, thus everything
-# else needs escaped dollars.
- define def_vboxadd_mod_test
-  TESTING      += $$(PATH_TARGET)/tst$(module)_mod.run
-  OTHERS       += $$(PATH_TARGET)/tst$(module)_mod.run
-  OTHERS_CLEAN += $$(PATH_TARGET)/tst$(module)_mod.run
-  $$$$(PATH_TARGET)/tst$(module)_mod.run: $$$$($(module)-mod_2_STAGE_TARGETS)
-	$(QUIET)$$(call MSG_L1,Doing a test build of the $(module) kernel module)
-	$(QUIET)$$(RM) -f -- "$@"
-	$(QUIET)$$(RM) -Rf -- "$$(PATH_TARGET)/tst$(module)_mod"
-	$(QUIET)$$(MKDIR) -p -- "$$(PATH_TARGET)/tst$(module)_mod"
-	$(QUIET)$$(CP) -R -- "$$(PATH_STAGE_BIN)/additions/src/$(module)/" "$$(PATH_TARGET)/tst$(module)_mod/"
-	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C $$(PATH_TARGET)/tst$(module)_mod clean
-	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C $$(PATH_TARGET)/tst$(module)_mod
-	$(QUIET)$$(RM) -Rf -- $$(PATH_TARGET)/tst$(module)_mod
-	$(QUIET)$$(APPEND) -t "$$@" "done"
- endef
- $(foreach module, vboxguest vboxsf vboxvideo, $(eval $(def_vboxadd_mod_test)))
+ ifneq ($(KERN_DIR),)
+  $(foreach module, vboxguest-src vboxsf-src vboxvideo-src, $(eval $(VBOX_LINUX_GENERATE_KMOD_TEST)))
+ endif
 
 endif
 

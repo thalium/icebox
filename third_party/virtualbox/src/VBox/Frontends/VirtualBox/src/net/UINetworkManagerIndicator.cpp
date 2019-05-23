@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -51,16 +51,16 @@ void UINetworkManagerIndicator::sltAddNetworkManagerIndicatorDescription(UINetwo
     m_data.append(UINetworkRequestData(pNetworkRequest->description(), 0, 0));
 
     /* Prepare network-request listeners: */
-    connect(pNetworkRequest, SIGNAL(sigStarted(const QUuid &)),
-            this, SLOT(sltSetProgressToStarted(const QUuid &)));
-    connect(pNetworkRequest, SIGNAL(sigCanceled(const QUuid &)),
-            this, SLOT(sltSetProgressToCanceled(const QUuid &)));
-    connect(pNetworkRequest, SIGNAL(sigFinished(const QUuid &)),
-            this, SLOT(sltSetProgressToFinished(const QUuid &)));
-    connect(pNetworkRequest, SIGNAL(sigFailed(const QUuid &, const QString &)),
-            this, SLOT(sltSetProgressToFailed(const QUuid &, const QString &)));
-    connect(pNetworkRequest, SIGNAL(sigProgress(const QUuid &, qint64, qint64)),
-            this, SLOT(sltSetProgress(const QUuid &, qint64, qint64)));
+    connect(pNetworkRequest, static_cast<void(UINetworkRequest::*)(const QUuid&)>(&UINetworkRequest::sigStarted),
+            this, &UINetworkManagerIndicator::sltSetProgressToStarted);
+    connect(pNetworkRequest, &UINetworkRequest::sigCanceled,
+            this, &UINetworkManagerIndicator::sltSetProgressToCanceled);
+    connect(pNetworkRequest, static_cast<void(UINetworkRequest::*)(const QUuid&)>(&UINetworkRequest::sigFinished),
+            this, &UINetworkManagerIndicator::sltSetProgressToFinished);
+    connect(pNetworkRequest, static_cast<void(UINetworkRequest::*)(const QUuid&, const QString &)>(&UINetworkRequest::sigFailed),
+            this, &UINetworkManagerIndicator::sltSetProgressToFailed);
+    connect(pNetworkRequest, static_cast<void(UINetworkRequest::*)(const QUuid&, qint64, qint64)>(&UINetworkRequest::sigProgress),
+            this, &UINetworkManagerIndicator::sltSetProgress);
 
     /* Update appearance: */
     recalculateIndicatorState();

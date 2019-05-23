@@ -1,9 +1,10 @@
 # $Id: VBoxIso9660.inf $
 ## @file
 # VBox ISO9660 FS driver
+#
 
 #
-# Copyright (C) 2010-2016 Oracle Corporation
+# Copyright (C) 2010-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -83,4 +84,3 @@
 
   MSFT:*_*_*_CC_FLAGS = -DFSTYPE=iso9660
 
-  

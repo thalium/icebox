@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -245,7 +245,7 @@ public:
     void cannotMoveMediumStorage(const CMedium &comMedium, const QString &strLocationOld, const QString &strLocationNew, QWidget *pParent = 0) const;
     void cannotMoveMediumStorage(const CProgress &comProgress, const QString &strLocationOld, const QString &strLocationNew, QWidget *pParent = 0) const;
     void cannotChangeMediumDescription(const CMedium &comMedium, const QString &strLocation, QWidget *pParent = 0) const;
-    bool confirmMediumRelease(const UIMedium &medium, QWidget *pParent = 0) const;
+    bool confirmMediumRelease(const UIMedium &medium, bool fInduced, QWidget *pParent = 0) const;
     bool confirmMediumRemoval(const UIMedium &medium, QWidget *pParent = 0) const;
     int confirmDeleteHardDiskStorage(const QString &strLocation, QWidget *pParent = 0) const;
     void cannotDeleteHardDiskStorage(const CMedium &medium, const QString &strLocation, QWidget *pParent = 0) const;
@@ -282,6 +282,9 @@ public:
     void cannotCreateHardDiskStorage(const CVirtualBox &vbox, const QString &strLocation,QWidget *pParent = 0) const;
     void cannotCreateHardDiskStorage(const CMedium &medium, const QString &strLocation, QWidget *pParent = 0) const;
     void cannotCreateHardDiskStorage(const CProgress &progress, const QString &strLocation, QWidget *pParent = 0) const;
+    void cannotCreateMediumStorage(const CVirtualBox &comVBox, const QString &strLocation, QWidget *pParent = 0) const;
+    void cannotCreateMediumStorage(const CMedium &comMedium, const QString &strLocation, QWidget *pParent = 0) const;
+    void cannotCreateMediumStorage(const CProgress &comProgress, const QString &strLocation, QWidget *pParent = 0) const;
     void cannotRemoveMachineFolder(const QString &strFolderName, QWidget *pParent = 0) const;
     void cannotRewriteMachineFolder(const QString &strFolderName, QWidget *pParent = 0) const;
     void cannotCreateMachineFolder(const QString &strFolderName, QWidget *pParent = 0) const;

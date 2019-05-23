@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -44,7 +44,9 @@
         } \
     } while (0)
 
-#define VGA_SAVEDSTATE_VERSION              17
+#define VGA_SAVEDSTATE_VERSION              19
+#define VGA_SAVEDSTATE_VERSION_VMSVGA_TEX_STAGES 19
+#define VGA_SAVEDSTATE_VERSION_VMSVGA_GMR_COUNT  18
 #define VGA_SAVEDSTATE_VERSION_VMSVGA_VGA_FB_FIX 17
 #define VGA_SAVEDSTATE_VERSION_MARKERS      16
 #define VGA_SAVEDSTATE_VERSION_MODE_HINTS   15

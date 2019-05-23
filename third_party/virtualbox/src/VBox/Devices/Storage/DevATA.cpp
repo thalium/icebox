@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -137,6 +137,7 @@
 /** @} */
 
 /** @} */
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -341,9 +342,9 @@ typedef struct ATADevState
     PDMIMOUNTNOTIFY                     IMountNotify;
     /** The LUN #. */
     RTUINT                              iLUN;
-#if HC_ARCH_BITS == 64
+
     RTUINT                              Alignment2; /**< Align pDevInsR3 correctly. */
-#endif
+
     /** Pointer to device instance. */
     PPDMDEVINSR3                        pDevInsR3;
     /** Pointer to controller instance. */
@@ -2486,7 +2487,7 @@ static bool atapiR3ReadTrackInformationSS(ATADevState *s)
                                                             &cBlocks, &cbBlock, &enmDataForm);
             }
             else
-                rc = VERR_NOT_FOUND; /** @todo: Return lead-in information. */
+                rc = VERR_NOT_FOUND; /** @todo Return lead-in information. */
             break;
         }
         case 0x02:

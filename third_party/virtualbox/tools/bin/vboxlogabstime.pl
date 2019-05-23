@@ -1,4 +1,21 @@
 #!/usr/bin/perl
+# $Id: vboxlogabstime.pl $
+## @file
+# ???
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
 use strict;
 use warnings;
 use Time::Local;
@@ -10,7 +27,7 @@ open(LOG, $ARGV[0]) or die "Unable to open $ARGV[0] ($!)\n";
 my $line = 0;
 my ($dummy, $start);
 my $continuation = 0;
-while (<LOG>) 
+while (<LOG>)
 {
   chomp;
   $line++;
@@ -40,7 +57,7 @@ my $firstrel;
 # about the time difference between the start of the process and the start of
 # logging as documented by the timestamp. Usually a couple milliseconds.
 if ($continuation) { $firstrel = 0; }
-while (<LOG>) 
+while (<LOG>)
 {
   my ($time,$msg) = split('(?<=\s)(.*)');
   my ($h,$m,$s,$ms) = split(':|\.', $time);

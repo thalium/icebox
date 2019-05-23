@@ -374,9 +374,9 @@ packspu_VBoxCreateContext( GLint con, const char *dpyName, GLint visual, GLint s
          * some sort of #define'd constants somewhere so the client and the
          * server could be aware of how each other were numbering things in
          * cases like file networking where they actually
-         * care. 
+         * care.
          *
-         *  -Humper 
+         *  -Humper
          *
          */
         serverCtx = 5000;

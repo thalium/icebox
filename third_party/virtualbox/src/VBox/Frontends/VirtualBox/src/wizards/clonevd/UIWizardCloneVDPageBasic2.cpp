@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -40,12 +40,12 @@ UIWizardCloneVDPage2::UIWizardCloneVDPage2()
 {
 }
 
-void UIWizardCloneVDPage2::addFormatButton(QWidget *pParent, QVBoxLayout *pFormatLayout, CMediumFormat medFormat, bool fPreferred /* = false */)
+void UIWizardCloneVDPage2::addFormatButton(QWidget *pParent, QVBoxLayout *pFormatLayout, KDeviceType enmDeviceType, CMediumFormat comMediumFormat, bool fPreferred /* = false */)
 {
     /* Check that medium format supports creation: */
     ULONG uFormatCapabilities = 0;
     QVector<KMediumFormatCapabilities> capabilities;
-    capabilities = medFormat.GetCapabilities();
+    capabilities = comMediumFormat.GetCapabilities();
     for (int i = 0; i < capabilities.size(); i++)
         uFormatCapabilities |= capabilities[i];
 
@@ -53,11 +53,11 @@ void UIWizardCloneVDPage2::addFormatButton(QWidget *pParent, QVBoxLayout *pForma
           uFormatCapabilities & KMediumFormatCapabilities_CreateDynamic))
         return;
 
-    /* Check that medium format supports creation of virtual hard-disks: */
+    /* Check that medium format supports creation of virtual disk images: */
     QVector<QString> fileExtensions;
     QVector<KDeviceType> deviceTypes;
-    medFormat.DescribeFileExtensions(fileExtensions, deviceTypes);
-    if (!deviceTypes.contains(KDeviceType_HardDisk))
+    comMediumFormat.DescribeFileExtensions(fileExtensions, deviceTypes);
+    if (!deviceTypes.contains(enmDeviceType))
         return;
 
     /* Create/add corresponding radio-button: */
@@ -72,8 +72,8 @@ void UIWizardCloneVDPage2::addFormatButton(QWidget *pParent, QVBoxLayout *pForma
             pFormatButton->setFont(font);
         }
         pFormatLayout->addWidget(pFormatButton);
-        m_formats << medFormat;
-        m_formatNames << medFormat.GetName();
+        m_formats << comMediumFormat;
+        m_formatNames << comMediumFormat.GetName();
         m_pFormatButtonGroup->addButton(pFormatButton, m_formatNames.size() - 1);
     }
 }
@@ -83,9 +83,9 @@ CMediumFormat UIWizardCloneVDPage2::mediumFormat() const
     return m_pFormatButtonGroup->checkedButton() ? m_formats[m_pFormatButtonGroup->checkedId()] : CMediumFormat();
 }
 
-void UIWizardCloneVDPage2::setMediumFormat(const CMediumFormat &mediumFormat)
+void UIWizardCloneVDPage2::setMediumFormat(const CMediumFormat &comMediumFormat)
 {
-    int iPosition = m_formats.indexOf(mediumFormat);
+    int iPosition = m_formats.indexOf(comMediumFormat);
     if (iPosition >= 0)
     {
         m_pFormatButtonGroup->button(iPosition)->click();
@@ -93,7 +93,7 @@ void UIWizardCloneVDPage2::setMediumFormat(const CMediumFormat &mediumFormat)
     }
 }
 
-UIWizardCloneVDPageBasic2::UIWizardCloneVDPageBasic2()
+UIWizardCloneVDPageBasic2::UIWizardCloneVDPageBasic2(KDeviceType enmDeviceType)
 {
     /* Create widgets: */
     QVBoxLayout *pMainLayout = new QVBoxLayout(this);
@@ -106,7 +106,7 @@ UIWizardCloneVDPageBasic2::UIWizardCloneVDPageBasic2()
                 /* Enumerate medium formats in special order: */
                 CSystemProperties properties = vboxGlobal().virtualBox().GetSystemProperties();
                 const QVector<CMediumFormat> &formats = properties.GetMediumFormats();
-                QMap<QString, CMediumFormat> vdi, preferred;
+                QMap<QString, CMediumFormat> vdi, preferred, others;
                 foreach (const CMediumFormat &format, formats)
                 {
                     /* VDI goes first: */
@@ -118,14 +118,20 @@ UIWizardCloneVDPageBasic2::UIWizardCloneVDPageBasic2()
                         /* Then preferred: */
                         if (capabilities.contains(KMediumFormatCapabilities_Preferred))
                             preferred[format.GetId()] = format;
+                        /* Then others: */
+                        else
+                            others[format.GetId()] = format;
                     }
                 }
 
                 /* Create buttons for VDI and preferred: */
                 foreach (const QString &strId, vdi.keys())
-                    addFormatButton(this, pFormatLayout, vdi.value(strId));
+                    addFormatButton(this, pFormatLayout, enmDeviceType, vdi.value(strId));
                 foreach (const QString &strId, preferred.keys())
-                    addFormatButton(this, pFormatLayout, preferred.value(strId));
+                    addFormatButton(this, pFormatLayout, enmDeviceType, preferred.value(strId));
+                if (enmDeviceType == KDeviceType_DVD || enmDeviceType == KDeviceType_Floppy)
+                    foreach (const QString &strId, others.keys())
+                        addFormatButton(this, pFormatLayout, enmDeviceType, others.value(strId));
 
                 if (!m_pFormatButtonGroup->buttons().isEmpty())
                 {
@@ -151,11 +157,11 @@ UIWizardCloneVDPageBasic2::UIWizardCloneVDPageBasic2()
 void UIWizardCloneVDPageBasic2::retranslateUi()
 {
     /* Translate page: */
-    setTitle(UIWizardCloneVD::tr("Hard disk file type"));
+    setTitle(UIWizardCloneVD::tr("Disk image file type"));
 
     /* Translate widgets: */
     m_pLabel->setText(UIWizardCloneVD::tr("Please choose the type of file that you would like to use "
-                                          "for the new virtual hard disk. If you do not need to use it "
+                                          "for the new virtual disk image. If you do not need to use it "
                                           "with other virtualization software you can leave this setting unchanged."));
     QList<QAbstractButton*> buttons = m_pFormatButtonGroup->buttons();
     for (int i = 0; i < buttons.size(); ++i)

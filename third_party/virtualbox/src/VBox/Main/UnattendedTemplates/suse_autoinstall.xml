@@ -22,7 +22,7 @@
       <!-- 'smpppd' is required on openSUSE 11.4 -->
       <package>smpppd</package>
     </packages>
-    
+
     <patterns config:type="list">
       <pattern>apparmor</pattern>
       <pattern>apparmor_opt</pattern>

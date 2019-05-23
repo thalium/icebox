@@ -743,15 +743,15 @@ int main(int argc, char **argv)
     if (RT_FAILURE(vrc))
         return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to create logging file name, rc=%Rrc", vrc);
 
-    char szError[RTPATH_MAX + 128];
+    RTERRINFOSTATIC ErrInfo;
     vrc = com::VBoxLogRelCreate("XPCOM Server", szLogFile,
                                 RTLOGFLAGS_PREFIX_THREAD | RTLOGFLAGS_PREFIX_TIME_PROG,
                                 VBOXSVC_LOG_DEFAULT, "VBOXSVC_RELEASE_LOG",
                                 RTLOGDEST_FILE, UINT32_MAX /* cMaxEntriesPerGroup */,
                                 cHistory, uHistoryFileTime, uHistoryFileSize,
-                                szError, sizeof(szError));
+                                RTErrInfoInitStatic(&ErrInfo));
     if (RT_FAILURE(vrc))
-        return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", szError, vrc);
+        return RTMsgErrorExit(RTEXITCODE_FAILURE, "failed to open release log (%s, %Rrc)", ErrInfo.Core.pszMsg, vrc);
 
     /* Set up a build identifier so that it can be seen from core dumps what
      * exact build was used to produce the core. Same as in Console::i_powerUpThread(). */

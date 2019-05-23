@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -138,7 +138,7 @@ static void crStateFakeDecRefCountCB(unsigned long key, void *data1, void *data2
     (void) key; (void)ctx;
 
     pRealShader = crStateGetShaderObj(pShader->id);
-    
+
     if (pRealShader)
     {
         crStateShaderDecRefCount(pRealShader);
@@ -187,7 +187,7 @@ DECLEXPORT(void) STATE_APIENTRY crStateGLSLDestroy(CRContext *ctx)
 {
     CRContext *g = GetCurrentContext();
 
-    /*@todo: hack to allow crStateFreeGLSLProgram to work correctly, 
+    /** @todo hack to allow crStateFreeGLSLProgram to work correctly,
       as the current context isn't the one being destroyed*/
 #ifdef CHROMIUM_THREADSAFE
     CRASSERT(g != ctx);
@@ -670,7 +670,7 @@ DECLEXPORT(void) STATE_APIENTRY crStateBindAttribLocation(GLuint program, GLuint
     }
     pAttribs[pProgram->currentState.cAttribs].index = index;
     pAttribs[pProgram->currentState.cAttribs].name = crStrdup(name);
-    
+
     pProgram->currentState.cAttribs++;
     if (pProgram->currentState.pAttribs) crFree(pProgram->currentState.pAttribs);
     pProgram->currentState.pAttribs = pAttribs;
@@ -826,10 +826,10 @@ DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramAttribsCached(GLuint progra
 #endif
 }
 
-/*@todo: one of those functions should ignore uniforms starting with "gl"*/
+/** @todo one of those functions should ignore uniforms starting with "gl"*/
 
 #ifdef IN_GUEST
-DECLEXPORT(void) STATE_APIENTRY 
+DECLEXPORT(void) STATE_APIENTRY
 crStateGLSLProgramCacheUniforms(GLuint program, GLsizei cbData, GLvoid *pData)
 {
     CRGLSLProgram *pProgram = crStateGetProgramObj(program);
@@ -980,7 +980,7 @@ crStateGLSLProgramCacheAttribs(GLuint program, GLsizei cbData, GLvoid *pData)
     CRASSERT(cbRead==cbData);
 }
 #else /* IN_GUEST */
-static GLboolean crStateGLSLProgramCacheOneUniform(GLuint location, GLsizei cbName, GLchar *pName, 
+static GLboolean crStateGLSLProgramCacheOneUniform(GLuint location, GLsizei cbName, GLchar *pName,
                                                    char **pCurrent, GLsizei *pcbWritten, GLsizei maxcbData)
 {
     *pcbWritten += sizeof(GLint)+sizeof(GLsizei)+cbName;
@@ -1003,7 +1003,7 @@ static GLboolean crStateGLSLProgramCacheOneUniform(GLuint location, GLsizei cbNa
     return GL_TRUE;
 }
 
-DECLEXPORT(void) STATE_APIENTRY 
+DECLEXPORT(void) STATE_APIENTRY
 crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData)
 {
     CRGLSLProgram *pProgram = crStateGetProgramObj(program);
@@ -1020,7 +1020,7 @@ crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbDa
     /*
      * OpenGL spec says about GL_ACTIVE_UNIFORM_MAX_LENGTH:
      * "If no active uniform variable exist, 0 is returned."
-     */ 
+     */
     diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformLen);
     if (maxUniformLen > 0)
         diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORMS, &activeUniforms);
@@ -1076,7 +1076,7 @@ crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbDa
                 /*For array uniforms it's valid to query location of 1st element as both uniform and uniform[0].
                  *The name returned by glGetActiveUniform is driver dependent,
                  *atleast it's with [0] on win/ati and without [0] on linux/nvidia.
-                 */                
+                 */
                 if (!pIndexStr)
                 {
                     pIndexStr = name+cbName;
@@ -1363,7 +1363,7 @@ static void crStateAttachShaderCB(unsigned long key, void *data1, void *data2)
     CRGLSLShader *pShader = (CRGLSLShader*) data1;
     CRGLSLProgram *pProgram = (CRGLSLProgram *) data2;
     (void) key;
-    
+
     if (pShader->source)
     {
         diff_api.ShaderSource(pShader->hwid, 1, (const char**)&pShader->source, NULL);
@@ -1379,7 +1379,7 @@ static void crStateDetachShaderCB(unsigned long key, void *data1, void *data2)
     CRGLSLShader *pShader = (CRGLSLShader*) data1;
     CRGLSLProgram *pProgram = (CRGLSLProgram *) data2;
     (void) key;
-    
+
     diff_api.DetachShader(pProgram->hwid, pShader->hwid);
 }
 

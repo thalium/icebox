@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -22,9 +22,7 @@
  *
  * You may elect to license modified versions of this file under the
  * terms and conditions of either the GPL or the CDDL or both.
- */
-
-/*-
+ * ---------------------------------------------------------------------------
  * This code is based on:
  *
  * Copyright (c) 2006 Christoph Pfisterer
@@ -144,7 +142,7 @@ VOID fsw_efi_strcpy(CHAR16 *Dest, struct fsw_string *src)
         CopyMem(Dest, src->data, src->size);
         Dest[src->len] = 0;
     } else {
-        // TODO: coerce, recurse
+        /// @todo coerce, recurse
         Dest[0] = 0;
     }
 }

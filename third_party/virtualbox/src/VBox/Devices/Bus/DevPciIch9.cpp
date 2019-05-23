@@ -110,6 +110,7 @@ DECLINLINE(void) ich9pciPhysToPciAddr(PDEVPCIROOT pPciRoot, RTGCPHYS GCPhysAddr,
     pPciAddr->iBus          = (GCPhysAddr >> 20) & ((1<<6)       - 1);
     pPciAddr->iDeviceFunc   = (GCPhysAddr >> 12) & ((1<<(5+3))   - 1); // 5 bits - device, 3 bits - function
     pPciAddr->iRegister     = (GCPhysAddr >>  0) & ((1<<(6+4+2)) - 1); // 6 bits - register, 4 bits - extended register, 2 bits -Byte Enable
+    RT_UNTRUSTED_VALIDATED_FENCE(); /* paranoia */
 }
 
 DECLINLINE(void) ich9pciStateToPciAddr(PDEVPCIROOT pPciRoot, RTGCPHYS addr, PciAddress* pPciAddr)
@@ -117,6 +118,7 @@ DECLINLINE(void) ich9pciStateToPciAddr(PDEVPCIROOT pPciRoot, RTGCPHYS addr, PciA
     pPciAddr->iBus         = (pPciRoot->uConfigReg >> 16) & 0xff;
     pPciAddr->iDeviceFunc  = (pPciRoot->uConfigReg >> 8) & 0xff;
     pPciAddr->iRegister    = (pPciRoot->uConfigReg & 0xfc) | (addr & 3);
+    RT_UNTRUSTED_VALIDATED_FENCE(); /* paranoia */
 }
 
 PDMBOTHCBDECL(void) ich9pciSetIrq(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev, int iIrq, int iLevel, uint32_t uTagSrc)
@@ -151,7 +153,16 @@ PDMBOTHCBDECL(void) ich9pcibridgeSetIrq(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev, 
     } while (pBus->iBus != 0);
 
     AssertMsgReturnVoid(pBus->iBus == 0, ("This is not the host pci bus iBus=%d\n", pBus->iBus));
-    ich9pciSetIrqInternal(DEVPCIBUS_2_DEVPCIROOT(pBus), uDevFnBridge, pPciDev, iIrqPinBridge, iLevel, uTagSrc);
+
+    /*
+     * For MSI/MSI-X enabled devices the iIrq doesn't denote the pin but rather a vector which is completely
+     * orthogonal to the pin based approach. The vector is not subject to the pin based routing with PCI bridges.
+     */
+    int iIrqPinVector = iIrqPinBridge;
+    if (   MsiIsEnabled(pPciDev)
+        || MsixIsEnabled(pPciDev))
+        iIrqPinVector = iIrq;
+    ich9pciSetIrqInternal(DEVPCIBUS_2_DEVPCIROOT(pBus), uDevFnBridge, pPciDev, iIrqPinVector, iLevel, uTagSrc);
 }
 
 
@@ -678,7 +689,7 @@ PDMBOTHCBDECL(int) ich9pciMcfgMMIOWrite(PPDMDEVINS pDevIns, void *pvUser, RTGCPH
  * @param   cb          Number of bytes read.
  * @remarks Caller enters the device critical section.
  */
-PDMBOTHCBDECL(int) ich9pciMcfgMMIORead (PPDMDEVINS pDevIns, void *pvUser, RTGCPHYS GCPhysAddr, void *pv, unsigned cb)
+PDMBOTHCBDECL(int) ich9pciMcfgMMIORead(PPDMDEVINS pDevIns, void *pvUser, RTGCPHYS GCPhysAddr, void *pv, unsigned cb)
 {
     PDEVPCIROOT pPciRoot = PDMINS_2_DATA(pDevIns, PDEVPCIROOT);
     uint32_t    rv;
@@ -780,11 +791,11 @@ static DECLCALLBACK(int) ich9pciRegisterMsi(PPDMDEVINS pDevIns, PPDMPCIDEV pPciD
     NOREF(pDevIns);
     int rc;
 
-    rc = MsiInit(pPciDev, pMsiReg);
+    rc = MsiR3Init(pPciDev, pMsiReg);
     if (RT_FAILURE(rc))
         return rc;
 
-    rc = MsixInit(pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pPciHlp), pPciDev, pMsiReg);
+    rc = MsixR3Init(pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pPciHlp), pPciDev, pMsiReg);
     if (RT_FAILURE(rc))
         return rc;
 
@@ -2502,14 +2513,14 @@ DECLCALLBACK(void) devpciR3CommonDefaultConfigWrite(PPDMDEVINS pDevIns, PPDMPCID
          */
         if (   pciDevIsMsiCapable(pPciDev)
             && uAddress - (uint32_t)pPciDev->Int.s.u8MsiCapOffset < (uint32_t)pPciDev->Int.s.u8MsiCapSize)
-            MsiPciConfigWrite(pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pDevIns),
-                              pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pPciHlp),
-                              pPciDev, uAddress, u32Value, cb);
+            MsiR3PciConfigWrite(pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pDevIns),
+                                pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pPciHlp),
+                                pPciDev, uAddress, u32Value, cb);
         else if (   pciDevIsMsixCapable(pPciDev)
                  && uAddress - (uint32_t)pPciDev->Int.s.u8MsixCapOffset < (uint32_t)pPciDev->Int.s.u8MsixCapSize)
-            MsixPciConfigWrite(pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pDevIns),
-                               pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pPciHlp),
-                               pPciDev, uAddress, u32Value, cb);
+            MsixR3PciConfigWrite(pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pDevIns),
+                                 pPciDev->Int.s.CTX_SUFF(pBus)->CTX_SUFF(pPciHlp),
+                                 pPciDev, uAddress, u32Value, cb);
         else
         {
             /*

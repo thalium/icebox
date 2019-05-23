@@ -30,6 +30,7 @@
 #include <iprt/types.h>
 #include <iprt/err.h>
 #include <iprt/assert.h>
+#include <iprt/vfs.h>
 #include "internal/magics.h"
 
 RT_C_DECLS_BEGIN
@@ -54,15 +55,11 @@ typedef RTDVMVOLUMEFMT                *PRTDVMVOLUMEFMT;
 typedef struct RTDVMDISK
 {
     /** Size of the disk in bytes. */
-    uint64_t       cbDisk;
+    uint64_t        cbDisk;
     /** Sector size. */
-    uint64_t       cbSector;
-    /** Read callback */
-    PFNDVMREAD     pfnRead;
-    /** Write callback. */
-    PFNDVMWRITE    pfnWrite;
-    /** Opaque user data. */
-    void          *pvUser;
+    uint64_t        cbSector;
+    /** The VFS file handle if backed by such. */
+    RTVFSFILE       hVfsFile;
 } RTDVMDISK;
 /** Pointer to a disk descriptor. */
 typedef RTDVMDISK *PRTDVMDISK;
@@ -83,7 +80,9 @@ typedef const RTDVMDISK *PCRTDVMDISK;
 typedef struct RTDVMFMTOPS
 {
     /** Name of the format. */
-    const char *pcszFmt;
+    const char         *pszFmt;
+    /** The format type.   */
+    RTDVMFORMATTYPE     enmFormat;
 
     /**
      * Probes the given disk for known structures.
@@ -293,7 +292,7 @@ DECLINLINE(int) rtDvmDiskRead(PCRTDVMDISK pDisk, uint64_t off, void *pvBuf, size
     AssertReturn(cbRead > 0, VERR_INVALID_PARAMETER);
     AssertReturn(off + cbRead <= pDisk->cbDisk, VERR_INVALID_PARAMETER);
 
-    return pDisk->pfnRead(pDisk->pvUser, off, pvBuf, cbRead);
+    return RTVfsFileReadAt(pDisk->hVfsFile, off, pvBuf, cbRead, NULL /*pcbRead*/);
 }
 
 /**
@@ -312,7 +311,7 @@ DECLINLINE(int) rtDvmDiskWrite(PCRTDVMDISK pDisk, uint64_t off, const void *pvBu
     AssertReturn(cbWrite > 0, VERR_INVALID_PARAMETER);
     AssertReturn(off + cbWrite <= pDisk->cbDisk, VERR_INVALID_PARAMETER);
 
-    return pDisk->pfnWrite(pDisk->pvUser, off, pvBuf, cbWrite);
+    return RTVfsFileWriteAt(pDisk->hVfsFile, off, pvBuf, cbWrite, NULL /*pcbWritten*/);
 }
 
 RT_C_DECLS_END

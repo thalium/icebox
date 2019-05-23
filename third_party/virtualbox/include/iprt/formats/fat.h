@@ -315,7 +315,7 @@ AssertCompileSize(FATBPB331FLAT, 0x19);
 /** Pointer to a flattened DOS 3.31 BPB. */
 typedef FATBPB331FLAT *PFATBPB331FLAT;
 /** Pointer to a const flattened DOS 3.31 BPB. */
-typedef FATBPB331FLAT *PFATBPB331FLAT;
+typedef FATBPB331FLAT const *PCFATBPB331FLAT;
 
 
 /**

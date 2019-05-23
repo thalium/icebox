@@ -1,5 +1,4 @@
 /* $Id: dlm_lists.c $ */
-
 /** @file
  * Implementation of all the Display Lists related routines:
  *
@@ -10,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2015-2016 Oracle Corporation
+ * Copyright (C) 2015-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -234,7 +233,7 @@ void DLM_APIENTRY crDLMEndList(SPUDispatchTable *dispatchTable)
         }
         else
             crDebug("DLM: glEndList() is assuming glNewList() was issued previously.");
-    } 
+    }
     else
         crDebug("DLM: EndList called with no current state.");
 }
@@ -396,7 +395,7 @@ void DLM_APIENTRY crDLMListBase(GLuint base, SPUDispatchTable *dispatchTable)
         pListState->listBase = base;
 
         /* Only add to cache if we are currently recording a list. */
-        /* TODO: Do we really need to chache it? */
+        /** @todo Do we really need to chache it? */
         if (pListState->currentListInfo)
             crDLMCompileListBase(base);
 

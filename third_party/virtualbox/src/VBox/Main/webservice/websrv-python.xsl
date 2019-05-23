@@ -363,7 +363,7 @@ class <xsl:value-of select="$ifname"/>:
   <xsl:param name="type" />
   <xsl:param name="safearray" />
   <xsl:param name="arg" />
-  
+
    <xsl:choose>
      <xsl:when test="$type='octet' and $safearray">
         <xsl:value-of select="concat('self.mgr.encodebase64(',$arg,')')" />

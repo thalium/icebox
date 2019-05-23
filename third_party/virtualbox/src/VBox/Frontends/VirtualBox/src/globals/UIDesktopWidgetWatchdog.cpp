@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2015-2016 Oracle Corporation
+ * Copyright (C) 2015-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -353,6 +353,23 @@ bool UIDesktopWidgetWatchdog::isFakeScreenDetected() const
            || (qApp->screens().size() == 1 && qApp->screens().first()->name() == ":0.0");
 }
 #endif /* VBOX_WS_X11 */
+
+double UIDesktopWidgetWatchdog::devicePixelRatio(int iHostScreenIndex)
+{
+    /* First, we should check whether the screen is valid: */
+    QScreen *pScreen = iHostScreenIndex == -1
+                     ? QGuiApplication::primaryScreen()
+                     : QGuiApplication::screens().value(iHostScreenIndex);
+    AssertPtrReturn(pScreen, 1.0);
+    /* Then acquire device-pixel-ratio: */
+    return pScreen->devicePixelRatio();
+}
+
+double UIDesktopWidgetWatchdog::devicePixelRatio(QWidget *pWidget)
+{
+    /* Redirect call to wrapper above: */
+    return devicePixelRatio(screenNumber(pWidget));
+}
 
 void UIDesktopWidgetWatchdog::sltHostScreenAdded(QScreen *pHostScreen)
 {

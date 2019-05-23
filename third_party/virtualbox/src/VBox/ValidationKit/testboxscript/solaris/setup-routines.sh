@@ -122,7 +122,7 @@ os_load_config() {
         XMLARGS=`"${MY_SVCCFG}" "export" "${MY_SVC_FMRI}" \
                  | ${MY_TR} '\n' ' ' \
                 `;
-        case "${XMLARGS}" in 
+        case "${XMLARGS}" in
             *exec_method*)
                 XMLARGS=`echo "${XMLARGS} " \
                          | ${MY_SED} \

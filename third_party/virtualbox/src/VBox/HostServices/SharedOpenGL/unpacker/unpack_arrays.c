@@ -224,25 +224,65 @@ void crUnpackExtendLockArraysEXT(void)
     int i, index, offset;
     unsigned char *data;
     
-    offset = 2*sizeof(int)+12;
+    if (first < 0 || count <= 0 || first >= INT32_MAX - count)
+    {
+        crError("crUnpackExtendLockArraysEXT: first(%i) count(%i), parameters out of range", first, count);
+        return;
+    }
+
+    if (numenabled <= 0 || numenabled >= CRSTATECLIENT_MAX_VERTEXARRAYS)
+    {
+        crError("crUnpackExtendLockArraysEXT: numenabled(%i), parameter out of range", numenabled);
+        return;
+    }
+
+    offset = 2 * sizeof(int) + 12;
 
     /*crDebug("crUnpackExtendLockArraysEXT(%i, %i) ne=%i", first, count, numenabled);*/
 
-    for (i=0; i<numenabled; ++i)
+    for (i = 0; i < numenabled; ++i)
     {
         index = READ_DATA(offset, int);
         offset += sizeof(int);
+
         cp = crStateGetClientPointerByIndex(index, &c->array);
+
         CRASSERT(cp && cp->enabled && (!cp->buffer || !cp->buffer->id));
-        data = crAlloc((first+count)*cp->bytesPerIndex);
-        crMemcpy(data+first*cp->bytesPerIndex, DATA_POINTER(offset, GLvoid), count*cp->bytesPerIndex);
-        offset += count*cp->bytesPerIndex;
-        /*crDebug("crUnpackExtendLockArraysEXT: old cp(%i): en/l=%i(%i) p=%p size=%i type=0x%x n=%i str=%i pp=%p pstr=%i",
-                index, cp->enabled, cp->locked, cp->p, cp->size, cp->type, cp->normalized, cp->stride, cp->prevPtr, cp->prevStride);*/
-        crUnpackSetClientPointerByIndex(index, cp->size, cp->type, cp->normalized, 0, data, c);
-        /*crDebug("crUnpackExtendLockArraysEXT: new cp(%i): en/l=%i(%i) p=%p size=%i type=0x%x n=%i str=%i pp=%p pstr=%i",
-                index, cp->enabled, cp->locked, cp->p, cp->size, cp->type, cp->normalized, cp->stride, cp->prevPtr, cp->prevStride);*/
+
+        if (cp && cp->bytesPerIndex > 0)
+        {
+            if (first + count >= INT32_MAX / cp->bytesPerIndex)
+            {
+                crError("crUnpackExtendLockArraysEXT: first(%i) count(%i) bpi(%i), parameters out of range", first, count, cp->bytesPerIndex);
+                return;
+            }
+
+            data = crAlloc((first + count) * cp->bytesPerIndex);
+
+            if (data)
+            {
+                crMemcpy(data + first * cp->bytesPerIndex, DATA_POINTER(offset, GLvoid), count * cp->bytesPerIndex);
+                /*crDebug("crUnpackExtendLockArraysEXT: old cp(%i): en/l=%i(%i) p=%p size=%i type=0x%x n=%i str=%i pp=%p pstr=%i",
+                        index, cp->enabled, cp->locked, cp->p, cp->size, cp->type, cp->normalized, cp->stride, cp->prevPtr, cp->prevStride);*/
+                crUnpackSetClientPointerByIndex(index, cp->size, cp->type, cp->normalized, 0, data, c);
+                /*crDebug("crUnpackExtendLockArraysEXT: new cp(%i): en/l=%i(%i) p=%p size=%i type=0x%x n=%i str=%i pp=%p pstr=%i",
+                        index, cp->enabled, cp->locked, cp->p, cp->size, cp->type, cp->normalized, cp->stride, cp->prevPtr, cp->prevStride);*/
+            }
+            else
+            {
+                crError("crUnpackExtendLockArraysEXT: crAlloc failed");
+                return;
+            }
+        }
+        else
+        {
+            crError("crUnpackExtendLockArraysEXT: wrong CRClientState %i", index);
+            return;
+        }
+
+        offset += count * cp->bytesPerIndex;
     }
+
     cr_unpackDispatch.LockArraysEXT(first, count);
 }
 

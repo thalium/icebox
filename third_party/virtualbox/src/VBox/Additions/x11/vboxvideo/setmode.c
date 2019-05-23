@@ -6,9 +6,7 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * This code is based on:
- *
- * X11 VESA driver
+ * This file is based on X11 VESA driver (hardly any traces left here):
  *
  * Copyright (c) 2000 by Conectiva S.A. (http://www.conectiva.com)
  *

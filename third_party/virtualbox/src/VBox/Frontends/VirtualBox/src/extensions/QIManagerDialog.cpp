@@ -60,6 +60,7 @@ void QIManagerDialogFactory::cleanup(QIManagerDialog *&pDialog)
 
 QIManagerDialog::QIManagerDialog(QWidget *pCenterWidget)
     : pCenterWidget(pCenterWidget)
+    , m_fCloseEmitted(false)
     , m_pWidget(0)
     , m_pWidgetMenu(0)
 #ifdef VBOX_WS_MAC
@@ -120,8 +121,11 @@ void QIManagerDialog::prepareCentralWidget()
         AssertPtrReturnVoid(centralWidget()->layout());
         {
             /* Configure layout: */
-            centralWidget()->layout()->setContentsMargins(5, 5, 5, 5);
-            centralWidget()->layout()->setSpacing(10);
+            const int iL = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) / 2;
+            const int iT = qApp->style()->pixelMetric(QStyle::PM_LayoutTopMargin) / 2;
+            const int iR = qApp->style()->pixelMetric(QStyle::PM_LayoutRightMargin) / 2;
+            const int iB = qApp->style()->pixelMetric(QStyle::PM_LayoutBottomMargin) / 2;
+            centralWidget()->layout()->setContentsMargins(iL, iT, iR, iB);
 
             /* Configure central-widget: */
             configureCentralWidget();
@@ -211,7 +215,11 @@ void QIManagerDialog::closeEvent(QCloseEvent *pEvent)
 {
     /* Ignore the event itself: */
     pEvent->ignore();
-    /* But tell the listener to close us: */
-    emit sigClose();
+    /* But tell the listener to close us (once): */
+    if (!m_fCloseEmitted)
+    {
+        m_fCloseEmitted = true;
+        emit sigClose();
+    }
 }
 

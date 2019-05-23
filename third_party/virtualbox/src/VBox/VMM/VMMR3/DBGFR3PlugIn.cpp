@@ -470,15 +470,15 @@ VMMR3DECL(void) DBGFR3PlugInLoadAll(PUVM pUVM)
     AssertRCReturnVoid(rc);
     strcat(szPath, pszSuff);
 
-    PRTDIR pDir;
-    rc = RTDirOpenFiltered(&pDir, szPath, RTDIRFILTER_WINNT, 0);
+    RTDIR hDir;
+    rc = RTDirOpenFiltered(&hDir, szPath, RTDIRFILTER_WINNT, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         /*
          * Now read it and try load each of the plug-in modules.
          */
         RTDIRENTRY DirEntry;
-        while (RT_SUCCESS(RTDirRead(pDir, &DirEntry, NULL)))
+        while (RT_SUCCESS(RTDirRead(hDir, &DirEntry, NULL)))
         {
             szPath[offDir] = '\0';
             rc = RTPathAppend(szPath, sizeof(szPath), DirEntry.szName);
@@ -495,7 +495,7 @@ VMMR3DECL(void) DBGFR3PlugInLoadAll(PUVM pUVM)
             }
         }
 
-        RTDirClose(pDir);
+        RTDirClose(hDir);
     }
 }
 

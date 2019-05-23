@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -18,9 +18,6 @@
 #ifdef VBOX_WITH_PRECOMPILED_HEADERS
 # include <precomp.h>
 #else  /* !VBOX_WITH_PRECOMPILED_HEADERS */
-
-/* Qt includes: */
-# include <QVariant>
 
 /* GUI includes: */
 # include "UIWizardCloneVD.h"
@@ -38,9 +35,10 @@
 #endif /* !VBOX_WITH_PRECOMPILED_HEADERS */
 
 
-UIWizardCloneVD::UIWizardCloneVD(QWidget *pParent, const CMedium &sourceVirtualDisk)
+UIWizardCloneVD::UIWizardCloneVD(QWidget *pParent, const CMedium &comSourceVirtualDisk)
     : UIWizard(pParent, WizardType_CloneVD)
-    , m_sourceVirtualDisk(sourceVirtualDisk)
+    , m_comSourceVirtualDisk(comSourceVirtualDisk)
+    , m_enmSourceVirtualDiskDeviceType(m_comSourceVirtualDisk.GetDeviceType())
 {
 #ifndef VBOX_WS_MAC
     /* Assign watermark: */
@@ -54,28 +52,28 @@ UIWizardCloneVD::UIWizardCloneVD(QWidget *pParent, const CMedium &sourceVirtualD
 bool UIWizardCloneVD::copyVirtualDisk()
 {
     /* Gather attributes: */
-    CMedium sourceVirtualDisk = field("sourceVirtualDisk").value<CMedium>();
-    CMediumFormat mediumFormat = field("mediumFormat").value<CMediumFormat>();
-    qulonglong uVariant = field("mediumVariant").toULongLong();
-    QString strMediumPath = field("mediumPath").toString();
-    qulonglong uSize = field("mediumSize").toULongLong();
+    CMedium comSourceVirtualDisk = field("sourceVirtualDisk").value<CMedium>();
+    const CMediumFormat comMediumFormat = field("mediumFormat").value<CMediumFormat>();
+    const qulonglong uVariant = field("mediumVariant").toULongLong();
+    const QString strMediumPath = field("mediumPath").toString();
+    const qulonglong uSize = field("mediumSize").toULongLong();
     /* Check attributes: */
     AssertReturn(!strMediumPath.isNull(), false);
     AssertReturn(uSize > 0, false);
 
     /* Get VBox object: */
-    CVirtualBox vbox = vboxGlobal().virtualBox();
+    CVirtualBox comVBox = vboxGlobal().virtualBox();
 
-    /* Create new virtual hard-disk: */
-    CMedium virtualDisk = vbox.CreateMedium(mediumFormat.GetName(), strMediumPath, KAccessMode_ReadWrite, KDeviceType_HardDisk);
-    if (!vbox.isOk())
+    /* Create new virtual disk image: */
+    CMedium comVirtualDisk = comVBox.CreateMedium(comMediumFormat.GetName(), strMediumPath, KAccessMode_ReadWrite, m_enmSourceVirtualDiskDeviceType);
+    if (!comVBox.isOk())
     {
-        msgCenter().cannotCreateHardDiskStorage(vbox, strMediumPath, this);
+        msgCenter().cannotCreateMediumStorage(comVBox, strMediumPath, this);
         return false;
     }
 
     /* Compose medium-variant: */
-    QVector<KMediumVariant> variants(sizeof(qulonglong)*8);
+    QVector<KMediumVariant> variants(sizeof(qulonglong) * 8);
     for (int i = 0; i < variants.size(); ++i)
     {
         qulonglong temp = uVariant;
@@ -83,29 +81,29 @@ bool UIWizardCloneVD::copyVirtualDisk()
         variants[i] = (KMediumVariant)temp;
     }
 
-    /* Copy existing virtual-disk to the new virtual-disk: */
-    CProgress progress = sourceVirtualDisk.CloneTo(virtualDisk, variants, CMedium());
-    if (!sourceVirtualDisk.isOk())
+    /* Copy source image to new one: */
+    CProgress comProgress = comSourceVirtualDisk.CloneTo(comVirtualDisk, variants, CMedium());
+    if (!comSourceVirtualDisk.isOk())
     {
-        msgCenter().cannotCreateHardDiskStorage(sourceVirtualDisk, strMediumPath, this);
+        msgCenter().cannotCreateMediumStorage(comSourceVirtualDisk, strMediumPath, this);
         return false;
     }
 
     /* Show creation progress: */
-    msgCenter().showModalProgressDialog(progress, windowTitle(), ":/progress_media_create_90px.png", this);
-    if (progress.GetCanceled())
+    msgCenter().showModalProgressDialog(comProgress, windowTitle(), ":/progress_media_create_90px.png", this);
+    if (comProgress.GetCanceled())
         return false;
-    if (!progress.isOk() || progress.GetResultCode() != 0)
+    if (!comProgress.isOk() || comProgress.GetResultCode() != 0)
     {
-        msgCenter().cannotCreateHardDiskStorage(progress, strMediumPath, this);
+        msgCenter().cannotCreateMediumStorage(comProgress, strMediumPath, this);
         return false;
     }
 
-    /* Remember created virtual-disk: */
-    m_virtualDisk = virtualDisk;
+    /* Save created image as target one: */
+    m_comTargetVirtualDisk = comVirtualDisk;
 
-    /* Just close the created medium, it is not necessary yet: */
-    m_virtualDisk.Close();
+    /* Just close the created image, it is not required anymore: */
+    m_comTargetVirtualDisk.Close();
 
     return true;
 }
@@ -116,7 +114,7 @@ void UIWizardCloneVD::retranslateUi()
     UIWizard::retranslateUi();
 
     /* Translate wizard: */
-    setWindowTitle(tr("Copy Virtual Hard Disk"));
+    setWindowTitle(tr("Copy Virtual Disk Image"));
     setButtonText(QWizard::FinishButton, tr("Copy"));
 }
 
@@ -127,15 +125,17 @@ void UIWizardCloneVD::prepare()
     {
         case WizardMode_Basic:
         {
-            setPage(Page1, new UIWizardCloneVDPageBasic1(m_sourceVirtualDisk));
-            setPage(Page2, new UIWizardCloneVDPageBasic2);
-            setPage(Page3, new UIWizardCloneVDPageBasic3);
+            setPage(Page1, new UIWizardCloneVDPageBasic1(m_comSourceVirtualDisk,
+                                                         m_enmSourceVirtualDiskDeviceType));
+            setPage(Page2, new UIWizardCloneVDPageBasic2(m_enmSourceVirtualDiskDeviceType));
+            setPage(Page3, new UIWizardCloneVDPageBasic3(m_enmSourceVirtualDiskDeviceType));
             setPage(Page4, new UIWizardCloneVDPageBasic4);
             break;
         }
         case WizardMode_Expert:
         {
-            setPage(PageExpert, new UIWizardCloneVDPageExpert(m_sourceVirtualDisk));
+            setPage(PageExpert, new UIWizardCloneVDPageExpert(m_comSourceVirtualDisk,
+                                                              m_enmSourceVirtualDiskDeviceType));
             break;
         }
         default:

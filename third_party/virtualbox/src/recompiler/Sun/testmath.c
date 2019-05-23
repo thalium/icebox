@@ -3,6 +3,18 @@
  * Testcase for the no-crt math stuff.
  */
 
+/*
+ * Copyright (C) 2006-2017 Oracle Corporation
+ *
+ * This file is part of VirtualBox Open Source Edition (OSE), as
+ * available from http://www.virtualbox.org. This file is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GPL) as published by the Free Software
+ * Foundation, in version 2 as it comes in the "COPYING" file of the
+ * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ */
+
 
 /*********************************************************************************************************************************
 *   Header Files                                                                                                                 *
@@ -387,8 +399,8 @@ typedef union {
 /* the following deal with x86 long double-precision numbers */
 #define MAXEXPD 0x7fff
 #define EXPBIAS 16383
-#define EXPD(fp)	(fp.l.upper & 0x7fff)
-#define SIGND(fp)	((fp.l.upper) & 0x8000)
+#define EXPD(fp)        (fp.l.upper & 0x7fff)
+#define SIGND(fp)       ((fp.l.upper) & 0x8000)
 #define MANTD(fp)       (fp.l.lower)
 #define BIASEXPONENT(fp) fp.l.upper = (fp.l.upper & ~(0x7fff)) | EXPBIAS
 
@@ -448,7 +460,7 @@ static void helper_fyl2x(void)
 
     fptemp = ST0;
     if (fptemp>0.0){
-        fptemp = log(fptemp)/log(2.0);	 /* log2(ST) */
+        fptemp = log(fptemp)/log(2.0);   /* log2(ST) */
         ST1 *= fptemp;
         fpop();
     } else {
@@ -515,7 +527,7 @@ static void helper_fprem1(void)
         ST0 = fpsrcop - fptemp*dblq;
         q = (int)dblq; /* cutting off top bits is assumed here */
         env->fpus &= (~0x4700); /* (C3,C2,C1,C0) <-- 0000 */
-				/* (C0,C1,C3) <-- (q2,q1,q0) */
+                                /* (C0,C1,C3) <-- (q2,q1,q0) */
         env->fpus |= (q&0x4) << 6; /* (C0) <-- q2 */
         env->fpus |= (q&0x2) << 8; /* (C1) <-- q1 */
         env->fpus |= (q&0x1) << 14; /* (C3) <-- q0 */
@@ -562,7 +574,7 @@ LogFlow(("helper_fprem: -> ST0=%.*Rhxs fpus=%#x c\n", sizeof(ST0), &ST0, env->fp
         ST0 = fpsrcop - fptemp*dblq;
         q = (int)dblq; /* cutting off top bits is assumed here */
         env->fpus &= (~0x4700); /* (C3,C2,C1,C0) <-- 0000 */
-				/* (C0,C1,C3) <-- (q2,q1,q0) */
+                                /* (C0,C1,C3) <-- (q2,q1,q0) */
         env->fpus |= (q&0x4) << 6; /* (C0) <-- q2 */
         env->fpus |= (q&0x2) << 8; /* (C1) <-- q1 */
         env->fpus |= (q&0x1) << 14; /* (C3) <-- q0 */

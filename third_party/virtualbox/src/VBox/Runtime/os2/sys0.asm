@@ -53,4 +53,3 @@ BEGINBSS
 global __bss_start
 __bss_start:
 
-

@@ -26,12 +26,12 @@
 /* Forward declarations: */
 class QAbstractButton;
 class QLabel;
+class QProgressBar;
 class QTabWidget;
 class QTreeWidgetItem;
 class QIDialogButtonBox;
 class QILabel;
 class QITreeWidget;
-class UIEnumerationProgressBar;
 class UIMedium;
 class UIMediumDetailsWidget;
 class UIMediumItem;
@@ -51,13 +51,46 @@ public:
 };
 
 
+/** Medium manager progress-bar.
+  * Reflects medium-enumeration progress, stays hidden otherwise. */
+class UIEnumerationProgressBar : public QWidget
+{
+    Q_OBJECT;
+
+public:
+
+    /** Constructor on the basis of passed @a pParent. */
+    UIEnumerationProgressBar(QWidget *pParent = 0);
+
+    /** Defines progress-bar label-text. */
+    void setText(const QString &strText);
+
+    /** Returns progress-bar current-value. */
+    int value() const;
+    /** Defines progress-bar current-value. */
+    void setValue(int iValue);
+    /** Defines progress-bar maximum-value. */
+    void setMaximum(int iValue);
+
+private:
+
+    /** Prepares progress-bar content. */
+    void prepare();
+
+    /** Progress-bar label. */
+    QLabel       *m_pLabel;
+    /** Progress-bar itself. */
+    QProgressBar *m_pProgressBar;
+};
+
+
 /** QWidget extension providing GUI with the pane to control media related functionality. */
 class UIMediumManagerWidget : public QIWithRetranslateUI<QWidget>
 {
     Q_OBJECT;
 
     /** Item action types. */
-    enum Action { Action_Add, Action_Edit, Action_Copy, Action_Modify, Action_Remove, Action_Release };
+    enum Action { Action_Add, Action_Edit, Action_Copy, Action_Remove, Action_Release };
 
 signals:
 
@@ -80,6 +113,9 @@ public:
     /** Returns the toolbar. */
     UIToolBar *toolbar() const { return m_pToolBar; }
 #endif
+
+    /** Defines @a pProgressBar reference. */
+    void setProgressBar(UIEnumerationProgressBar *pProgressBar);
 
 protected:
 
@@ -126,6 +162,8 @@ private slots:
       * @{ */
         /** Handles command to copy medium. */
         void sltCopyMedium();
+        /** Handles command to move medium. */
+        void sltMoveMedium();
         /** Handles command to remove medium. */
         void sltRemoveMedium();
         /** Handles command to release medium. */
@@ -180,8 +218,6 @@ private:
         void prepareTreeWidget(UIMediumType type, int iColumns);
         /** Prepares details-widget. */
         void prepareDetailsWidget();
-//        /** Prepares progress-bar. */
-//        void prepareProgressBar();
         /** Load settings: */
         void loadSettings();
 
@@ -309,6 +345,8 @@ private:
         QMenu     *m_pMenu;
         /** Holds the Copy action instance. */
         QAction   *m_pActionCopy;
+        /** Holds the Move action instance. */
+        QAction   *m_pActionMove;
         /** Holds the Remove action instance. */
         QAction   *m_pActionRemove;
         /** Holds the Release action instance. */
@@ -321,7 +359,7 @@ private:
 
     /** @name Progress-bar variables.
       * @{ */
-        /** Holds the progress-bar widget instance. */
+        /** Holds the progress-bar widget reference. */
         UIEnumerationProgressBar *m_pProgressBar;
     /** @} */
 };
@@ -386,6 +424,12 @@ private:
       * @{ */
         /** Returns the widget. */
         virtual UIMediumManagerWidget *widget() /* override */;
+    /** @} */
+
+    /** @name Progress-bar variables.
+      * @{ */
+        /** Holds the progress-bar widget instance. */
+        UIEnumerationProgressBar *m_pProgressBar;
     /** @} */
 
     /** Allow factory access to private/protected members: */

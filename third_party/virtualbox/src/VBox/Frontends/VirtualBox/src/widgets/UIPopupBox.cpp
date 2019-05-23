@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -49,7 +49,6 @@ UIPopupBox::UIPopupBox(QWidget *pParent)
 {
     /* Setup main-layout: */
     QVBoxLayout *pMainLayout = new QVBoxLayout(this);
-    pMainLayout->setContentsMargins(10, 5, 5, 5);
     /* Setup title-layout: */
     QHBoxLayout *pTitleLayout = new QHBoxLayout;
     pTitleLayout->addWidget(m_pTitleIcon);

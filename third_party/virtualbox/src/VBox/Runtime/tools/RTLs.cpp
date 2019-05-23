@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include <iprt/vfs.h>
 
 #include <iprt/buildconfig.h>
@@ -43,9 +43,9 @@
 #include <iprt/string.h>
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /**
  * Display entry.
  */
@@ -55,6 +55,10 @@ typedef struct RTCMDLSENTRY
     RTFSOBJINFO Info;
     /** Symbolic link target (allocated after the name). */
     const char *pszTarget;
+    /** Owner if applicable(allocated after the name). */
+    const char *pszOwner;
+    /** Group if applicable (allocated after the name). */
+    const char *pszGroup;
     /** The length of szName. */
     size_t      cchName;
     /** The entry name. */
@@ -528,9 +532,42 @@ static void rtCmdLsSortCollections(PRTCMDLSOPTS pOpts)
  */
 static const char *rtCmdLsFormatSizeHumanReadable(PRTCMDLSOPTS pOpts, uint64_t cb, char *pszDst, size_t cbDst)
 {
-    /** @todo human readable size formatting (IPRT?). */
-    RT_NOREF(pOpts);
-    RTStrFormatU64(pszDst, cbDst, cb, 10, 0, 0, 0);
+    if (pOpts->fHumanReadableSizes)
+    {
+        static const struct
+        {
+            const char *pszSuffix;
+            uint64_t    cbFactor;
+            uint64_t    cbMin;
+        } s_aUnits[] =
+        {
+            {  "E", _1E, _1E + _1E/2 },
+            {  "P", _1P, _1P + _1P/2 },
+            {  "T", _1T, _1T + _1T/2 },
+            {  "G", _1G, _1G + _1G/2 },
+            {  "M", _1M, _1M + _1M/2 },
+            {  "k", _1K, _1K + _1K/2 },
+
+            {  "E", UINT64_C(1000000000000000000), UINT64_C(1010000000000000000),  },
+            {  "P", UINT64_C(1000000000000000),    UINT64_C(1010000000000000),     },
+            {  "T", UINT64_C(1000000000000),       UINT64_C(1010000000000),        },
+            {  "G", UINT64_C(1000000000),          UINT64_C(1010000000),           },
+            {  "M", UINT64_C(1000000),             UINT64_C(1010000),              },
+            {  "K", UINT64_C(1000),                UINT64_C(1010),                 },
+        };
+        unsigned const iEnd = !pOpts->fSiUnits ? 6 : 12;
+        for (unsigned i = !pOpts->fSiUnits ? 0 : 6; i < iEnd; i++)
+            if (cb >= s_aUnits[i].cbMin)
+            {
+                RTStrFormatU64(pszDst, cbDst, cb / s_aUnits[i].cbFactor, 10, 0, 0, 0);
+                RTStrCat(pszDst, cbDst, s_aUnits[i].pszSuffix);
+                return pszDst;
+            }
+    }
+    else if (pOpts->cbBlock)
+        RTStrFormatU64(pszDst, cbDst, (cb + pOpts->cbBlock - 1) / pOpts->cbBlock, 10, 0, 0, 0);
+    else
+        RTStrFormatU64(pszDst, cbDst, cb, 10, 0, 0, 0);
     return pszDst;
 }
 
@@ -615,14 +652,19 @@ DECLINLINE(size_t) rtCmdLsDecimalFormatLengthU32(uint32_t uValue)
  * @returns pszDst
  * @param   pOpts           The options and state.
  * @param   gid             The GID to format.
+ * @param   pszOwner        The owner returned by the FS.
  * @param   pszDst          The output buffer.
  * @param   cbDst           The output buffer size.
  */
-static const char *rtCmdLsDecimalFormatGroup(PRTCMDLSOPTS pOpts, RTGID gid, char *pszDst, size_t cbDst)
+static const char *rtCmdLsDecimalFormatGroup(PRTCMDLSOPTS pOpts, RTGID gid, const char *pszGroup, char *pszDst, size_t cbDst)
 {
     if (!pOpts->fNumericalIds)
     {
-        /** @todo resolve GIDs to names. */
+        if (pszGroup)
+        {
+            RTStrCopy(pszDst, cbDst, pszGroup);
+            return pszDst;
+        }
         if (gid == NIL_RTGID)
             return "<Nil>";
     }
@@ -637,14 +679,19 @@ static const char *rtCmdLsDecimalFormatGroup(PRTCMDLSOPTS pOpts, RTGID gid, char
  * @returns pszDst
  * @param   pOpts           The options and state.
  * @param   uid             The UID to format.
+ * @param   pszOwner        The owner returned by the FS.
  * @param   pszDst          The output buffer.
  * @param   cbDst           The output buffer size.
  */
-static const char *rtCmdLsDecimalFormatOwner(PRTCMDLSOPTS pOpts, RTUID uid, char *pszDst, size_t cbDst)
+static const char *rtCmdLsDecimalFormatOwner(PRTCMDLSOPTS pOpts, RTUID uid, const char *pszOwner, char *pszDst, size_t cbDst)
 {
     if (!pOpts->fNumericalIds)
     {
-        /** @todo resolve UIDs to names. */
+        if (pszOwner)
+        {
+            RTStrCopy(pszDst, cbDst, pszOwner);
+            return pszDst;
+        }
         if (uid == NIL_RTUID)
             return "<Nil>";
     }
@@ -726,7 +773,7 @@ static RTEXITCODE rtCmdLsDisplayCollectionInLongFormat(PRTCMDLSOPTS pOpts, PRTCM
 
         if (pOpts->fShowOwner)
         {
-            rtCmdLsDecimalFormatOwner(pOpts, pEntry->Info.Attr.u.Unix.uid, pszTmp, cbTmp);
+            rtCmdLsDecimalFormatOwner(pOpts, pEntry->Info.Attr.u.Unix.uid, pEntry->pszOwner, pszTmp, cbTmp);
             cchTmp = strlen(pszTmp);
             if (cchTmp > cchUidCol)
                 cchUidCol = cchTmp;
@@ -734,7 +781,7 @@ static RTEXITCODE rtCmdLsDisplayCollectionInLongFormat(PRTCMDLSOPTS pOpts, PRTCM
 
         if (pOpts->fShowGroup)
         {
-            rtCmdLsDecimalFormatGroup(pOpts, pEntry->Info.Attr.u.Unix.gid, pszTmp, cbTmp);
+            rtCmdLsDecimalFormatGroup(pOpts, pEntry->Info.Attr.u.Unix.gid, pEntry->pszGroup, pszTmp, cbTmp);
             cchTmp = strlen(pszTmp);
             if (cchTmp > cchGidCol)
                 cchGidCol = cchTmp;
@@ -819,9 +866,11 @@ static RTEXITCODE rtCmdLsDisplayCollectionInLongFormat(PRTCMDLSOPTS pOpts, PRTCM
         }
         RTPrintf(" %*u", cchLinkCol, pEntry->Info.Attr.u.Unix.cHardlinks);
         if (cchUidCol)
-            RTPrintf(" %*s", cchUidCol, rtCmdLsDecimalFormatOwner(pOpts, pEntry->Info.Attr.u.Unix.uid, pszTmp, cbTmp));
+            RTPrintf(" %*s", cchUidCol,
+                     rtCmdLsDecimalFormatOwner(pOpts, pEntry->Info.Attr.u.Unix.uid, pEntry->pszOwner, pszTmp, cbTmp));
         if (cchGidCol)
-            RTPrintf(" %*s", cchGidCol, rtCmdLsDecimalFormatGroup(pOpts, pEntry->Info.Attr.u.Unix.gid, pszTmp, cbTmp));
+            RTPrintf(" %*s", cchGidCol,
+                     rtCmdLsDecimalFormatGroup(pOpts, pEntry->Info.Attr.u.Unix.gid, pEntry->pszGroup, pszTmp, cbTmp));
         RTPrintf(" %*s", cchSizeCol, rtCmdLsFormatSize(pOpts, pEntry->Info.cbObject, pszTmp, cbTmp));
 
         PCRTTIMESPEC pTime = (PCRTTIMESPEC)((uintptr_t)pEntry + offTime);
@@ -1029,9 +1078,15 @@ static PRTCMDLSCOLLECTION rtCmdLsNewCollection(PRTCMDLSOPTS pOpts, const char *p
  * @param   pCollection         The collection.
  * @param   pszEntry            The entry name.
  * @param   pInfo               The entry info.
+ * @param   pszOwner            The owner name if available, otherwise NULL.
+ * @param   pszGroup            The group anme if available, otherwise NULL.
+ * @param   pszTarget           The symbolic link target if applicable and
+ *                              available, otherwise NULL.
  */
-static RTEXITCODE rtCmdLsAddOne(PRTCMDLSCOLLECTION pCollection, const char *pszEntry, PRTFSOBJINFO pInfo)
+static RTEXITCODE rtCmdLsAddOne(PRTCMDLSCOLLECTION pCollection, const char *pszEntry, PRTFSOBJINFO pInfo,
+                                const char *pszOwner, const char *pszGroup, const char *pszTarget)
 {
+
     /* Make sure there is space in the collection for the new entry. */
     if (pCollection->cEntries >= pCollection->cEntriesAllocated)
     {
@@ -1045,14 +1100,39 @@ static RTEXITCODE rtCmdLsAddOne(PRTCMDLSCOLLECTION pCollection, const char *pszE
 
     /* Create and insert a new entry. */
     size_t const cchEntry = strlen(pszEntry);
-    PRTCMDLSENTRY pEntry = (PRTCMDLSENTRY)RTMemAlloc(RT_OFFSETOF(RTCMDLSENTRY, szName[cchEntry + 1]));
+    size_t const cbOwner  = pszOwner  ? strlen(pszOwner)  + 1 : 0;
+    size_t const cbGroup  = pszGroup  ? strlen(pszGroup)  + 1 : 0;
+    size_t const cbTarget = pszTarget ? strlen(pszTarget) + 1 : 0;
+    size_t const cbEntry  = RT_OFFSETOF(RTCMDLSENTRY, szName[cchEntry + 1 + cbOwner + cbGroup + cbTarget]);
+    PRTCMDLSENTRY pEntry = (PRTCMDLSENTRY)RTMemAlloc(cbEntry);
     if (pEntry)
     {
         pEntry->Info      = *pInfo;
         pEntry->pszTarget = NULL; /** @todo symbolic links. */
+        pEntry->pszOwner  = NULL;
+        pEntry->pszGroup  = NULL;
         pEntry->cchName   = cchEntry;
         memcpy(pEntry->szName, pszEntry, cchEntry);
         pEntry->szName[cchEntry] = '\0';
+
+        char *psz = &pEntry->szName[cchEntry + 1];
+        if (pszTarget)
+        {
+            pEntry->pszTarget = psz;
+            memcpy(psz, pszTarget, cbTarget);
+            psz += cbTarget;
+        }
+        if (pszOwner)
+        {
+            pEntry->pszOwner = psz;
+            memcpy(psz, pszOwner, cbOwner);
+            psz += cbOwner;
+        }
+        if (pszGroup)
+        {
+            pEntry->pszGroup = psz;
+            memcpy(psz, pszGroup, cbGroup);
+        }
 
         pCollection->papEntries[pCollection->cEntries++] = pEntry;
         pCollection->cbTotalAllocated += pEntry->Info.cbAllocated;
@@ -1152,7 +1232,27 @@ static RTEXITCODE rtCmdLsProcessDirectory(PRTCMDLSOPTS pOpts, RTVFSDIR hVfsDir, 
          */
         if (rtCmdLsIsFilteredOut(pOpts, pDirEntry->szName, &pDirEntry->Info))
             continue;
-        RTEXITCODE rcExit2 = rtCmdLsAddOne(pCollection, pDirEntry->szName, &pDirEntry->Info);
+
+
+        const char *pszOwner = NULL;
+        RTFSOBJINFO OwnerInfo;
+        if (pDirEntry->Info.Attr.u.Unix.uid != NIL_RTUID && pOpts->fShowOwner)
+        {
+            rc = RTVfsDirQueryPathInfo(hVfsDir, pDirEntry->szName, &OwnerInfo, RTFSOBJATTRADD_UNIX_OWNER, RTPATH_F_ON_LINK);
+            if (RT_SUCCESS(rc) && OwnerInfo.Attr.u.UnixOwner.szName[0])
+                pszOwner = &OwnerInfo.Attr.u.UnixOwner.szName[0];
+        }
+
+        const char *pszGroup = NULL;
+        RTFSOBJINFO GroupInfo;
+        if (pDirEntry->Info.Attr.u.Unix.gid != NIL_RTGID && pOpts->fShowGroup)
+        {
+            rc = RTVfsDirQueryPathInfo(hVfsDir, pDirEntry->szName, &GroupInfo, RTFSOBJATTRADD_UNIX_GROUP, RTPATH_F_ON_LINK);
+            if (RT_SUCCESS(rc) && GroupInfo.Attr.u.UnixGroup.szName[0])
+                pszGroup = &GroupInfo.Attr.u.UnixGroup.szName[0];
+        }
+
+        RTEXITCODE rcExit2 = rtCmdLsAddOne(pCollection, pDirEntry->szName, &pDirEntry->Info, pszOwner, pszGroup, NULL);
         if (rcExit2 != RTEXITCODE_SUCCESS)
             rcExit = rcExit2;
     }
@@ -1249,7 +1349,27 @@ static RTEXITCODE rtCmdLsProcessArgument(PRTCMDLSOPTS pOpts, const char *pszArg)
     {
         if (   pOpts->cCollections > 0
             || rtCmdLsNewCollection(pOpts, "") != NULL)
-            return rtCmdLsAddOne(pOpts->papCollections[0], pszArg, &Info);
+        {
+            const char *pszOwner = NULL;
+            RTFSOBJINFO OwnerInfo;
+            if (Info.Attr.u.Unix.uid != NIL_RTUID && pOpts->fShowOwner)
+            {
+                rc = RTVfsChainQueryInfo(pszArg, &OwnerInfo, RTFSOBJATTRADD_UNIX_OWNER, fPath, NULL, NULL);
+                if (RT_SUCCESS(rc) && OwnerInfo.Attr.u.UnixOwner.szName[0])
+                    pszOwner = &OwnerInfo.Attr.u.UnixOwner.szName[0];
+            }
+
+            const char *pszGroup = NULL;
+            RTFSOBJINFO GroupInfo;
+            if (Info.Attr.u.Unix.gid != NIL_RTGID && pOpts->fShowGroup)
+            {
+                rc = RTVfsChainQueryInfo(pszArg, &GroupInfo, RTFSOBJATTRADD_UNIX_GROUP, fPath, NULL, NULL);
+                if (RT_SUCCESS(rc) && GroupInfo.Attr.u.UnixGroup.szName[0])
+                    pszGroup = &GroupInfo.Attr.u.UnixGroup.szName[0];
+            }
+
+            return rtCmdLsAddOne(pOpts->papCollections[0], pszArg, &Info, pszOwner, pszGroup, NULL);
+        }
         return RTEXITCODE_FAILURE;
     }
 

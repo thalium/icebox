@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2012 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -132,6 +132,20 @@
  *   <li> Comments on \#else indicates what begins while the comment on a
  *        \#endif indicates what ended.  Only add these when there are more than
  *        a few lines (6-10) of \#ifdef'ed code, otherwise they're just clutter.
+ *
+ *   <li> \#ifdefs around a single function shall be tight, i.e. no empty
+ *        lines between it and the function documentation and body.
+ *
+ *   <li> \#ifdefs around more than one function shall be relaxed, i.e. leave at
+ *        least one line before the first function's documentation comment and
+ *        one line after the end of the last function.
+ *
+ *   <li> No 'else' after if block ending with 'return', 'break', or 'continue'.
+ *
+ *   <li> The term 'last' is inclusive, whereas the term 'end' is exclusive.
+ *
+ *   <li> Go through all of this: https://www.slideshare.net/olvemaudal/deep-c/
+ *
  * </ul>
  *
  * (1) It is common practice on Unix to have a single symbol namespace for an
@@ -324,11 +338,12 @@
  *
  * </ul>
  *
+ *
  * @subsection sec_vbox_guideline_compulsory_doxygen    Doxygen Comments
  *
  * As mentioned above, we shall use doxygen/javadoc style commenting of public
- * functions, typedefs, classes and such.  It is preferred to use this style in
- * as many places as possible.
+ * functions, typedefs, classes and such.  It is mandatory to use this style
+ * everywhere!
  *
  * A couple of hints on how to best write doxygen comments:
  *
@@ -358,6 +373,94 @@
  *
  * See https://www.stack.nl/~dimitri/doxygen/manual/index.html for the official
  * doxygen documention.
+ *
+ *
+ *
+ * @subsection sec_vbox_guideline_compulsory_guest  Handling of guest input
+ *
+ * First, guest input should ALWAYS be consider to be TOXIC and constructed with
+ * MALICIOUS intent!  Max paranoia level!
+ *
+ * Second, when getting inputs from memory shared with the guest, be EXTREMELY
+ * careful to not re-read input from shared memory after validating it, because
+ * that will create TOCTOU problems. So, after reading input from shared memory
+ * always use the RT_UNTRUSTED_NONVOLATILE_COPY_FENCE() macor.  For more details
+ * on TOCTOU: https://en.wikipedia.org/wiki/Time_of_check_to_time_of_use
+ *
+ * Thirdly, considering the recent speculation side channel issues, spectre v1
+ * in particular, we would like to be ready for future screwups.   This means
+ * having input validation in a separate block of code that ends with one (or
+ * more) RT_UNTRUSTED_VALIDATED_FENCE().
+ *
+ * So the rules:
+ *
+ * <ul>
+ *
+ *   <li> Mark all pointers to shared memory with RT_UNTRUSTED_VOLATILE_GUEST.
+ *
+ *   <li> Copy volatile data into local variables or heap before validating
+ *        them (see RT_COPY_VOLATILE() and RT_BCOPY_VOLATILE().
+ *
+ *   <li> Place RT_UNTRUSTED_NONVOLATILE_COPY_FENCE() after a block copying
+ *        volatile data.
+ *
+ *   <li> Always validate untrusted inputs in a block ending with a
+ *        RT_UNTRUSTED_VALIDATED_FENCE().
+ *
+ *   <li> Use the ASSERT_GUEST_XXXX macros from VBox/AssertGuest.h to validate
+ *        guest input.  (Do NOT use iprt/assert.h macros.)
+ *
+ *   <li> Validation of an input B may require using another input A to look up
+ *        some data, in which case its necessary to insert an
+ *        RT_UNTRUSTED_VALIDATED_FENCE() after validating A and before A is used
+ *        for the lookup.
+ *
+ *        For example A is a view identifier, idView, and B is an offset into
+ *        the view's framebuffer area, offView.  To validate offView (B) it is
+ *        necessary to get the size of the views framebuffer region:
+ *        @code
+ *              uint32_t const idView  = pReq->idView;   // A
+ *              uint32_t const offView = pReq->offView;  // B
+ *              RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
+ *
+ *              ASSERT_GUEST_RETURN(idView < pThis->cView,
+ *                                  VERR_INVALID_PARAMETER);
+ *              RT_UNTRUSTED_VALIDATED_FENCE();
+ *              const MYVIEW *pView = &pThis->aViews[idView];
+ *              ASSERT_GUEST_RETURN(offView < pView->cbFramebufferArea,
+ *                                  VERR_OUT_OF_RANGE);
+ *              RT_UNTRUSTED_VALIDATED_FENCE();
+ *        @endcode
+ *
+ *   <li> Take care to make sure input check are not subject to integer overflow problems.
+ *
+ *        For instance when validating an area, you must not just add cbDst + offDst
+ *        and check against pThis->offEnd or something like that.  Rather do:
+ *        @code
+ *              uint32_t const offDst = pReq->offDst;
+ *              uint32_t const cbDst  = pReq->cbDst;
+ *              RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
+ *
+ *              ASSERT_GUEST_RETURN(   cbDst  <= pThis->cbSrc
+ *                                  && offDst < pThis->cbSrc - cbDst,
+ *                                  VERR_OUT_OF_RANGE);
+ *              RT_UNTRUSTED_VALIDATED_FENCE();
+ *        @endcode
+ *
+ *   <li> Input validation does not only apply to shared data cases, but also to
+ *        I/O port and MMIO handlers.
+ *
+ *   <li> Ditto for kernel drivers working with usermode inputs.
+ *
+ * </ul>
+ *
+ *
+ * Problem patterns:
+ *   - https://en.wikipedia.org/wiki/Time_of_check_to_time_of_use
+ *   - https://googleprojectzero.blogspot.de/2018/01/reading-privileged-memory-with-side.html
+ *     (Variant 1 only).
+ *   - https://en.wikipedia.org/wiki/Integer_overflow
+ *
  *
  *
  * @section sec_vbox_guideline_optional         Optional
@@ -522,7 +625,7 @@
  *                  pvBar = RTMemAlloc(sizeof(*pvBar));
  *                  if (!pvBar)
  *                     rc = VERR_NO_MEMORY;
- *              }   
+ *              }
  *              if (RT_SUCCESS(rc))
  *              {
  *                  buzz = foo;

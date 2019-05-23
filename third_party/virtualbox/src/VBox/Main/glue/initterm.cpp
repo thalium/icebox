@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -257,7 +257,7 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
         SetLastError(ERROR_SUCCESS);
         HANDLE hLeakIt = CreateMutexW(NULL/*pSecAttr*/, FALSE, L"Global\\VirtualBoxComLazyRegistrationMutant");
         DWORD  dwErr   = GetLastError();
-        AssertMsg(dwErr == ERROR_SUCCESS || dwErr == ERROR_ALREADY_EXISTS, ("%u\n", dwErr));
+        AssertMsg(dwErr == ERROR_SUCCESS || dwErr == ERROR_ALREADY_EXISTS || dwErr == ERROR_ACCESS_DENIED, ("%u\n", dwErr));
         if (dwErr == ERROR_SUCCESS)
         {
             char szPath[RTPATH_MAX];
@@ -289,8 +289,8 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
                     /* Just keep it loaded. */
                 }
             }
+            Assert(hLeakIt != NULL); NOREF(hLeakIt);
         }
-        Assert(hLeakIt != NULL); NOREF(hLeakIt);
     }
 # endif
 
@@ -388,17 +388,17 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
     AssertRCReturn(vrc, NS_ERROR_FAILURE);
     vrc = RTStrCopy(szXptiDat, sizeof(szXptiDat), szCompReg);
     AssertRCReturn(vrc, NS_ERROR_FAILURE);
-#ifdef VBOX_IN_32_ON_64_MAIN_API
+# ifdef VBOX_IN_32_ON_64_MAIN_API
     vrc = RTPathAppend(szCompReg, sizeof(szCompReg), "compreg-x86.dat");
     AssertRCReturn(vrc, NS_ERROR_FAILURE);
     vrc = RTPathAppend(szXptiDat, sizeof(szXptiDat), "xpti-x86.dat");
     AssertRCReturn(vrc, NS_ERROR_FAILURE);
-#else
+# else
     vrc = RTPathAppend(szCompReg, sizeof(szCompReg), "compreg.dat");
     AssertRCReturn(vrc, NS_ERROR_FAILURE);
     vrc = RTPathAppend(szXptiDat, sizeof(szXptiDat), "xpti.dat");
     AssertRCReturn(vrc, NS_ERROR_FAILURE);
-#endif
+# endif
 
     LogFlowFunc(("component registry  : \"%s\"\n", szCompReg));
     LogFlowFunc(("XPTI data file      : \"%s\"\n", szXptiDat));
@@ -437,9 +437,9 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
         }
         else if (i == 2)
         {
-#ifdef VBOX_WITH_HARDENING
+# ifdef VBOX_WITH_HARDENING
             continue;
-#else /* !VBOX_WITH_HARDENING */
+# else /* !VBOX_WITH_HARDENING */
             /* Use parent of RTPathAppPrivateArch() if ends with "testcase" */
             vrc = RTPathAppPrivateArch(szAppHomeDir, sizeof(szAppHomeDir));
             AssertRC(vrc);
@@ -449,7 +449,7 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
             if (!filename || strcmp(filename, "testcase"))
                 continue;
             RTPathStripFilename(szAppHomeDir);
-#endif /* !VBOX_WITH_HARDENING */
+# endif /* !VBOX_WITH_HARDENING */
         }
         else
         {

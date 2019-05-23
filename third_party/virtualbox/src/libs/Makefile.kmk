@@ -46,8 +46,8 @@ if  defined(VBOX_WITH_LIBCURL) \
  && !defined(VBOX_ONLY_EXTPACKS_USE_IMPLIBS) \
  && !defined(VBOX_ONLY_SDK) \
  && !defined(VBOX_ONLY_VALIDATIONKIT) \
- && "$(SDK_VBOX_LIBCURL_INCS)" == "$(PATH_ROOT)/src/libs/curl-7.50.3/include"
- include $(PATH_SUB_CURRENT)/curl-7.50.3/Makefile.kmk
+ && "$(SDK_VBOX_LIBCURL_INCS)" == "$(PATH_ROOT)/src/libs/curl-7.57.0/include"
+ include $(PATH_SUB_CURRENT)/curl-7.57.0/Makefile.kmk
 endif
 
 # The kStuff lib used by IPRT and the debugger.
@@ -59,7 +59,7 @@ endif
 if  !defined(VBOX_ONLY_SDK) \
  && (   "$(SDK_VBOX_OPENSSL_INCS)" == "$(SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS)" \
      || defined(VBOX_WITH_EXTPACK_PUEL_BUILD))
- include $(PATH_SUB_CURRENT)/openssl-1.1.0f/Makefile.kmk
+ include $(PATH_SUB_CURRENT)/openssl-1.1.0h/Makefile.kmk
 endif
 
 # libjpeg for VRDP video redirection and ExtPack's DrvHostWebcam

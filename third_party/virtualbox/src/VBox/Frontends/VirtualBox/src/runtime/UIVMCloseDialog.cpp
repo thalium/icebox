@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -29,6 +29,7 @@
 # include <QPushButton>
 
 /* GUI includes: */
+# include "UIIconPool.h"
 # include "UIVMCloseDialog.h"
 # include "UIExtraDataManager.h"
 # include "UIMessageCenter.h"
@@ -172,9 +173,24 @@ void UIVMCloseDialog::prepare()
     /* Prepare 'main' layout: */
     QVBoxLayout *pMainLayout = new QVBoxLayout(this);
     {
+        /* Configure layout: */
+#ifdef VBOX_WS_MAC
+        pMainLayout->setContentsMargins(40, 20, 40, 20);
+        pMainLayout->setSpacing(15);
+#else
+        pMainLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) * 2);
+#endif
+
         /* Prepare 'top' layout: */
         QHBoxLayout *pTopLayout = new QHBoxLayout;
         {
+            /* Configure layout: */
+#ifdef VBOX_WS_MAC
+            pTopLayout->setSpacing(20);
+#else
+            pTopLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) * 2);
+#endif
+
             /* Prepare 'top-left' layout: */
             QVBoxLayout *pTopLeftLayout = new QVBoxLayout;
             {
@@ -183,28 +199,46 @@ void UIVMCloseDialog::prepare()
                 {
                     /* Configure icon: */
                     m_pIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-                    m_pIcon->setPixmap(QPixmap(":/os_unknown.png"));
+                    const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_LargeIconSize);
+                    const QIcon icon = UIIconPool::iconSet(":/os_unknown.png");
+                    m_pIcon->setPixmap(icon.pixmap(iIconMetric, iIconMetric));
                 }
-                /* Configure layout: */
-                pTopLeftLayout->setSpacing(0);
-                pTopLeftLayout->setContentsMargins(0, 0, 0, 0);
+
+                /* Add into layout: */
                 pTopLeftLayout->addWidget(m_pIcon);
                 pTopLeftLayout->addStretch();
             }
             /* Prepare 'top-right' layout: */
             QVBoxLayout *pTopRightLayout = new QVBoxLayout;
             {
+                /* Configure layout: */
+#ifdef VBOX_WS_MAC
+                pTopRightLayout->setSpacing(10);
+#else
+                pTopRightLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing));
+#endif
+
                 /* Prepare 'text' label: */
                 m_pLabel = new QLabel(this);
                 /* Prepare 'choice' layout: */
                 QGridLayout *pChoiceLayout = new QGridLayout;
                 {
+                    /* Configure layout: */
+#ifdef VBOX_WS_MAC
+                    pChoiceLayout->setSpacing(10);
+#else
+                    pChoiceLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing));
+#endif
+
+                    /* Prepare icon metric: */
+                    const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize);
                     /* Prepare 'detach' icon: */
                     m_pDetachIcon = new QLabel(this);
                     {
                         /* Configure icon: */
                         m_pDetachIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-                        m_pDetachIcon->setPixmap(QPixmap(":/vm_create_shortcut_16px.png"));
+                        const QIcon icon = UIIconPool::iconSet(":/vm_create_shortcut_16px.png");
+                        m_pDetachIcon->setPixmap(icon.pixmap(iIconMetric, iIconMetric));
                     }
                     /* Prepare 'detach' radio-button: */
                     m_pDetachRadio = new QRadioButton(this);
@@ -218,7 +252,8 @@ void UIVMCloseDialog::prepare()
                     {
                         /* Configure icon: */
                         m_pSaveIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-                        m_pSaveIcon->setPixmap(QPixmap(":/vm_save_state_16px.png"));
+                        const QIcon icon = UIIconPool::iconSet(":/vm_save_state_16px.png");
+                        m_pSaveIcon->setPixmap(icon.pixmap(iIconMetric, iIconMetric));
                     }
                     /* Prepare 'save' radio-button: */
                     m_pSaveRadio = new QRadioButton(this);
@@ -232,7 +267,8 @@ void UIVMCloseDialog::prepare()
                     {
                         /* Configure icon: */
                         m_pShutdownIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-                        m_pShutdownIcon->setPixmap(QPixmap(":/vm_shutdown_16px.png"));
+                        const QIcon icon = UIIconPool::iconSet(":/vm_shutdown_16px.png");
+                        m_pShutdownIcon->setPixmap(icon.pixmap(iIconMetric, iIconMetric));
                     }
                     /* Prepare 'shutdown' radio-button: */
                     m_pShutdownRadio = new QRadioButton(this);
@@ -246,7 +282,8 @@ void UIVMCloseDialog::prepare()
                     {
                         /* Configure icon: */
                         m_pPowerOffIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-                        m_pPowerOffIcon->setPixmap(QPixmap(":/vm_poweroff_16px.png"));
+                        const QIcon icon = UIIconPool::iconSet(":/vm_poweroff_16px.png");
+                        m_pPowerOffIcon->setPixmap(icon.pixmap(iIconMetric, iIconMetric));
                     }
                     /* Prepare 'shutdown' radio-button: */
                     m_pPowerOffRadio = new QRadioButton(this);
@@ -257,13 +294,8 @@ void UIVMCloseDialog::prepare()
                     }
                     /* Prepare 'discard' check-box: */
                     m_pDiscardCheckBox = new QCheckBox(this);
-                    /* Configure layout: */
-#ifdef VBOX_WS_MAC
-                    pChoiceLayout->setSpacing(15);
-#else /* VBOX_WS_MAC */
-                    pChoiceLayout->setSpacing(6);
-#endif /* !VBOX_WS_MAC */
-                    pChoiceLayout->setContentsMargins(0, 0, 0, 0);
+
+                    /* Add into layout: */
                     pChoiceLayout->addWidget(m_pDetachIcon, 0, 0);
                     pChoiceLayout->addWidget(m_pDetachRadio, 0, 1);
                     pChoiceLayout->addWidget(m_pSaveIcon, 1, 0);
@@ -274,22 +306,17 @@ void UIVMCloseDialog::prepare()
                     pChoiceLayout->addWidget(m_pPowerOffRadio, 3, 1);
                     pChoiceLayout->addWidget(m_pDiscardCheckBox, 4, 1);
                 }
-                /* Configure layout: */
-#ifdef VBOX_WS_MAC
-                pTopRightLayout->setSpacing(15);
-#else /* VBOX_WS_MAC */
-                pTopRightLayout->setSpacing(6);
-#endif /* !VBOX_WS_MAC */
-                pTopRightLayout->setContentsMargins(0, 0, 0, 0);
+
+                /* Add into layout: */
                 pTopRightLayout->addWidget(m_pLabel);
                 pTopRightLayout->addItem(pChoiceLayout);
             }
-            /* Configure layout: */
-            pTopLayout->setSpacing(20);
-            pTopLayout->setContentsMargins(0, 0, 0, 0);
+
+            /* Add into layout: */
             pTopLayout->addItem(pTopLeftLayout);
             pTopLayout->addItem(pTopRightLayout);
         }
+
         /* Prepare button-box: */
         QIDialogButtonBox *pButtonBox = new QIDialogButtonBox(this);
         {
@@ -299,11 +326,8 @@ void UIVMCloseDialog::prepare()
             connect(pButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
             connect(pButtonBox, SIGNAL(helpRequested()), &msgCenter(), SLOT(sltShowHelpHelpDialog()));
         }
-        /* Configure layout: */
-        pMainLayout->setSpacing(20);
-#ifdef VBOX_WS_MAC
-        pMainLayout->setContentsMargins(40, 20, 40, 20);
-#endif /* VBOX_WS_MAC */
+
+        /* Add into layout: */
         pMainLayout->addItem(pTopLayout);
         pMainLayout->addWidget(pButtonBox);
     }

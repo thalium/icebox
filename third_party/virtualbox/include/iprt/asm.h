@@ -1509,8 +1509,12 @@ DECLINLINE(void) ASMSerializeInstructionRdTscp(void)
  */
 #if (defined(RT_ARCH_X86) && ARCH_BITS == 16) || defined(IN_GUEST)
 # define ASMSerializeInstruction() ASMSerializeInstructionIRet()
-#else
+#elif defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64)
 # define ASMSerializeInstruction() ASMSerializeInstructionCpuId()
+#elif defined(RT_ARCH_SPARC64)
+RTDECL(void) ASMSerializeInstruction(void);
+#else
+# error "Port me"
 #endif
 
 
@@ -1519,8 +1523,20 @@ DECLINLINE(void) ASMSerializeInstructionRdTscp(void)
  */
 DECLINLINE(void) ASMMemoryFence(void)
 {
-    /** @todo use mfence? check if all cpus we care for support it. */
-#if ARCH_BITS == 16
+#if defined(RT_ARCH_AMD64) || (defined(RT_ARCH_X86) && !defined(RT_WITH_OLD_CPU_SUPPORT))
+# if RT_INLINE_ASM_GNU_STYLE
+    __asm__ __volatile__ (".byte 0x0f,0xae,0xf0\n\t");
+# elif RT_INLINE_ASM_USES_INTRIN
+    _mm_mfence();
+# else
+    __asm
+    {
+        _emit   0x0f
+        _emit   0xae
+        _emit   0xf0
+    }
+# endif
+#elif ARCH_BITS == 16
     uint16_t volatile u16;
     ASMAtomicXchgU16(&u16, 0);
 #else
@@ -1535,8 +1551,22 @@ DECLINLINE(void) ASMMemoryFence(void)
  */
 DECLINLINE(void) ASMWriteFence(void)
 {
-    /** @todo use sfence? check if all cpus we care for support it. */
+#if defined(RT_ARCH_AMD64) || (defined(RT_ARCH_X86) && !defined(RT_WITH_OLD_CPU_SUPPORT))
+# if RT_INLINE_ASM_GNU_STYLE
+    __asm__ __volatile__ (".byte 0x0f,0xae,0xf8\n\t");
+# elif RT_INLINE_ASM_USES_INTRIN
+    _mm_sfence();
+# else
+    __asm
+    {
+        _emit   0x0f
+        _emit   0xae
+        _emit   0xf8
+    }
+# endif
+#else
     ASMMemoryFence();
+#endif
 }
 
 
@@ -1545,8 +1575,22 @@ DECLINLINE(void) ASMWriteFence(void)
  */
 DECLINLINE(void) ASMReadFence(void)
 {
-    /** @todo use lfence? check if all cpus we care for support it. */
+#if defined(RT_ARCH_AMD64) || (defined(RT_ARCH_X86) && !defined(RT_WITH_OLD_CPU_SUPPORT))
+# if RT_INLINE_ASM_GNU_STYLE
+    __asm__ __volatile__ (".byte 0x0f,0xae,0xe8\n\t");
+# elif RT_INLINE_ASM_USES_INTRIN
+    _mm_lfence();
+# else
+    __asm
+    {
+        _emit   0x0f
+        _emit   0xae
+        _emit   0xe8
+    }
+# endif
+#else
     ASMMemoryFence();
+#endif
 }
 
 
@@ -3897,7 +3941,9 @@ DECLINLINE(void) ASMMemFill32(volatile void RT_FAR *pv, size_t cb, uint32_t u32)
  *
  * @todo Fix name, it is a predicate function but it's not returning boolean!
  */
-#if !defined(RDESKTOP) && (!defined(RT_OS_LINUX) || !defined(__KERNEL__))
+#if    !defined(RDESKTOP) && (!defined(RT_OS_LINUX) || !defined(__KERNEL__)) \
+    && !defined(RT_ARCH_SPARC64) \
+    && !defined(RT_ARCH_SPARC)
 DECLASM(void RT_FAR *) ASMMemFirstNonZero(void const RT_FAR *pv, size_t cb);
 #else
 DECLINLINE(void RT_FAR *) ASMMemFirstNonZero(void const RT_FAR *pv, size_t cb)
@@ -4004,7 +4050,9 @@ DECLINLINE(bool) ASMMemIsZeroPage(void const RT_FAR *pvPage)
  * @remarks No alignment requirements.
  */
 #if    (!defined(RT_OS_LINUX) || !defined(__KERNEL__)) \
-    && (!defined(RT_OS_FREEBSD) || !defined(_KERNEL))
+    && (!defined(RT_OS_FREEBSD) || !defined(_KERNEL)) \
+    && !defined(RT_ARCH_SPARC64) \
+    && !defined(RT_ARCH_SPARC)
 DECLASM(void *) ASMMemFirstMismatchingU8(void const RT_FAR *pv, size_t cb, uint8_t u8);
 #else
 DECLINLINE(void *) ASMMemFirstMismatchingU8(void const RT_FAR *pv, size_t cb, uint8_t u8)

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1219,7 +1219,7 @@ void UIMessageCenter::cannotChangeMediumDescription(const CMedium &comMedium, co
           UIErrorString::formatErrorInfo(comMedium));
 }
 
-bool UIMessageCenter::confirmMediumRelease(const UIMedium &medium, QWidget *pParent /* = 0*/) const
+bool UIMessageCenter::confirmMediumRelease(const UIMedium &medium, bool fInduced, QWidget *pParent /* = 0 */) const
 {
     /* Prepare the usage: */
     QStringList usage;
@@ -1232,12 +1232,21 @@ bool UIMessageCenter::confirmMediumRelease(const UIMedium &medium, QWidget *pPar
         usage << machine.GetName();
     }
     /* Show the question: */
-    return questionBinary(pParent, MessageType_Question,
-                          tr("<p>Are you sure you want to release the disk image file <nobr><b>%1</b></nobr>?</p>"
-                             "<p>This will detach it from the following virtual machine(s): <b>%2</b>.</p>")
-                             .arg(medium.location(), usage.join(", ")),
-                          0 /* auto-confirm id */,
-                          tr("Release", "detach medium"));
+    return !fInduced
+           ? questionBinary(pParent, MessageType_Question,
+                            tr("<p>Are you sure you want to release the disk image file <nobr><b>%1</b></nobr>?</p>"
+                               "<p>This will detach it from the following virtual machine(s): <b>%2</b>.</p>")
+                               .arg(medium.location(), usage.join(", ")),
+                            0 /* auto-confirm id */,
+                            tr("Release", "detach medium"))
+           : questionBinary(pParent, MessageType_Question,
+                            tr("<p>The changes you requested require this disk to "
+                               "be released from the machines it is attached to.</p>"
+                               "<p>Are you sure you want to release the disk image file <nobr><b>%1</b></nobr>?</p>"
+                               "<p>This will detach it from the following virtual machine(s): <b>%2</b>.</p>")
+                               .arg(medium.location(), usage.join(", ")),
+                            0 /* auto-confirm id */,
+                            tr("Release", "detach medium"));
 }
 
 bool UIMessageCenter::confirmMediumRemoval(const UIMedium &medium, QWidget *pParent /* = 0*/) const
@@ -1624,6 +1633,30 @@ void UIMessageCenter::cannotCreateHardDiskStorage(const CProgress &progress, con
           tr("Failed to create the hard disk storage <nobr><b>%1</b>.</nobr>")
              .arg(strLocation),
           UIErrorString::formatErrorInfo(progress));
+}
+
+void UIMessageCenter::cannotCreateMediumStorage(const CVirtualBox &comVBox, const QString &strLocation, QWidget *pParent /* = 0 */) const
+{
+    error(pParent, MessageType_Error,
+          tr("Failed to create the virtual disk image storage <nobr><b>%1</b>.</nobr>")
+             .arg(strLocation),
+          UIErrorString::formatErrorInfo(comVBox));
+}
+
+void UIMessageCenter::cannotCreateMediumStorage(const CMedium &comMedium, const QString &strLocation, QWidget *pParent /* = 0 */) const
+{
+    error(pParent, MessageType_Error,
+          tr("Failed to create the virtual disk image storage <nobr><b>%1</b>.</nobr>")
+             .arg(strLocation),
+          UIErrorString::formatErrorInfo(comMedium));
+}
+
+void UIMessageCenter::cannotCreateMediumStorage(const CProgress &comProgress, const QString &strLocation, QWidget *pParent /* = 0 */) const
+{
+    error(pParent, MessageType_Error,
+          tr("Failed to create the virtual disk image storage <nobr><b>%1</b>.</nobr>")
+             .arg(strLocation),
+          UIErrorString::formatErrorInfo(comProgress));
 }
 
 void UIMessageCenter::cannotRemoveMachineFolder(const QString &strFolderName, QWidget *pParent /* = 0*/) const

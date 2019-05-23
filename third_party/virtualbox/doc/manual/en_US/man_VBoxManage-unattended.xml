@@ -12,11 +12,11 @@
     VirtualBox OSE distribution. VirtualBox OSE is distributed in the
     hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  -->
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <refentry id="vboxmanage-unattended" lang="en">
 
   <refentryinfo>
-    <pubdate>$Date: 2017-08-02 18:09:49 +0200 (Wed, 02 Aug 2017) $</pubdate>
+    <pubdate>$Date: 2017-11-09 19:13:13 +0100 (Thu, 09 Nov 2017) $</pubdate>
     <title>VBoxManage unattended</title>
   </refentryinfo>
 

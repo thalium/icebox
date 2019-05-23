@@ -13,10 +13,10 @@
     hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 -->
 
-<?include Properties.wxi ?>
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <?include Properties.wxi ?>
 
     <Module Id="msm_VBoxPython"
             Language="!(loc.LANG)"
@@ -33,6 +33,7 @@
                  Platform="$(var.Property_Platform)"
                  SummaryCodepage="1252"/>
 
+        <?include CommonProperties.wxi ?>
         <?include PublicProperties.wxi ?>
 
         <!-- Here comes the file/directory list -->
