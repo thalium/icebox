@@ -9,23 +9,29 @@
 void display_thread(const core::Core& core, const thread_t& thread)
 {
     const auto thread_id = core.os->thread_id({}, thread);
+    const auto thread_pc = core.os->thread_pc({}, thread);
 
-    LOG(INFO, "thread: {:#x} id:{}",
+    LOG(INFO, "thread: {:#x} id:{} PC:{:#x}",
         thread.id,
-        (thread_id <= 4194304) ? std::to_string(thread_id) : "no");
+        (thread_id <= 4194304) ? std::to_string(thread_id) : "no",
+        (thread_pc) ? *thread_pc : -1ll);
 }
 
 void display_proc(const core::Core& core, const proc_t& proc)
 {
     const auto proc_pid  = core.os->proc_id(proc);
     const auto proc_name = core.os->proc_name(proc);
+    opt<uint64_t> leader_thread_pc;
 
     std::string threads;
     int threads_count = -1;
     core.os->thread_list(proc, [&](thread_t thread)
     {
         if(threads_count++ < 0)
+        {
+            leader_thread_pc = core.os->thread_pc({}, thread);
             return WALK_NEXT;
+        }
 
         if(threads_count > 1)
             threads.append(", ");
@@ -34,10 +40,11 @@ void display_proc(const core::Core& core, const proc_t& proc)
         return WALK_NEXT;
     });
 
-    LOG(INFO, "process: {:#x} pid:{} '{}' {}",
+    LOG(INFO, "process: {:#x} pid:{} '{}' PC:{:#x} {}",
         proc.id,
         (proc_pid <= 4194304) ? std::to_string(proc_pid) : "no",
         (proc_name) ? *proc_name : "<noname>",
+        (leader_thread_pc) ? *leader_thread_pc : -1ll,
         (threads_count > 0) ? "+" + std::to_string(threads_count) + " threads (" + threads + ")" : "");
 }
 
