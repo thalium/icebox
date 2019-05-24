@@ -13,28 +13,41 @@
 
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace
 {
-    struct return_ctx_t
+    struct realloc_t
+    {
+        thread_t  thread;
+        nt::PVOID HeapHandle;
+    };
+
+    static inline bool operator==(const realloc_t& a, const realloc_t& b)
+    {
+        return a.thread.id == b.thread.id
+               && a.HeapHandle == b.HeapHandle;
+    }
+
+    struct return_t
     {
         thread_t thread;
         uint64_t rsp;
     };
 
-    static inline bool operator==(const return_ctx_t& a, const return_ctx_t& b)
+    static inline bool operator==(const return_t& a, const return_t& b)
     {
         return a.thread.id == b.thread.id
                && a.rsp == b.rsp;
     }
 
-    struct heap_ctx_t
+    struct heap_t
     {
         nt::PVOID HeapHandle;
         nt::PVOID BaseAddress;
     };
 
-    static inline bool operator==(const heap_ctx_t& a, const heap_ctx_t& b)
+    static inline bool operator==(const heap_t& a, const heap_t& b)
     {
         return a.HeapHandle == b.HeapHandle
                && a.BaseAddress == b.BaseAddress;
@@ -54,9 +67,20 @@ namespace
 namespace std
 {
     template <>
-    struct hash<return_ctx_t>
+    struct hash<realloc_t>
     {
-        size_t operator()(const return_ctx_t& arg) const
+        size_t operator()(const realloc_t& arg) const
+        {
+            size_t seed = 0;
+            hash_combine(seed, arg.thread.id, arg.HeapHandle);
+            return seed;
+        }
+    };
+
+    template <>
+    struct hash<return_t>
+    {
+        size_t operator()(const return_t& arg) const
         {
             size_t seed = 0;
             hash_combine(seed, arg.thread.id, arg.rsp);
@@ -65,9 +89,9 @@ namespace std
     };
 
     template <>
-    struct hash<heap_ctx_t>
+    struct hash<heap_t>
     {
-        size_t operator()(const heap_ctx_t& arg) const
+        size_t operator()(const heap_t& arg) const
         {
             size_t seed = 0;
             hash_combine(seed, arg.HeapHandle, arg.BaseAddress);
@@ -78,13 +102,14 @@ namespace std
 
 namespace
 {
-    using ReturnCtx = std::unordered_map<return_ctx_t, core::Breakpoint>;
-    using HeapCtx   = std::unordered_map<heap_ctx_t, nt::SIZE_T>;
+    using Reallocs  = std::unordered_set<realloc_t>;
+    using Returns   = std::unordered_map<return_t, core::Breakpoint>;
+    using Heaps     = std::unordered_set<heap_t>;
     using Data      = plugins::FdpSan::Data;
     using Callstack = std::shared_ptr<callstack::ICallstack>;
 
-    constexpr size_t ptr_prolog = 0x10;
-    constexpr size_t ptr_epilog = 0x10;
+    constexpr size_t ptr_prolog = 0x20;
+    constexpr size_t ptr_epilog = 0x20;
 }
 
 struct plugins::FdpSan::Data
@@ -95,8 +120,9 @@ struct plugins::FdpSan::Data
     sym::Symbols&  symbols_;
     nt::heaps      heap_tracer_;
     Callstack      callstack_;
-    ReturnCtx      returns_;
-    HeapCtx        heap_;
+    Reallocs       reallocs_;
+    Returns        returns_;
+    Heaps          heaps_;
     proc_t         target_;
     reader::Reader reader_;
     size_t         ptr_size_;
@@ -129,23 +155,32 @@ namespace
         {
             Data&    d;
             thread_t thread;
-        } p = {d, *thread};
+            T        operand;
+        } p = {d, *thread, operand};
 
         const auto bp = d.core_.state.set_breakpoint(name, *return_addr, *thread, [=]
         {
             const auto rsp = p.d.core_.regs.read(FDP_RSP_REGISTER) - p.d.ptr_size_;
-            auto it        = p.d.returns_.find(return_ctx_t{p.thread, rsp});
+            auto it        = p.d.returns_.find(return_t{p.thread, rsp});
             if(it == p.d.returns_.end())
                 return;
 
-            operand(p.d);
+            p.operand(p.d);
             p.d.returns_.erase(it);
         });
-        d.returns_.emplace(return_ctx_t{*thread, rsp}, bp);
+        d.returns_.emplace(return_t{*thread, rsp}, bp);
     }
 
     static void on_RtlpAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
+        const auto thread = d.core_.os->thread_current();
+        if(!thread)
+            return;
+
+        const auto it = d.reallocs_.find(realloc_t{*thread, HeapHandle});
+        if(it != d.reallocs_.end())
+            return;
+
         const auto ok = d.core_.os->write_arg(1, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
@@ -161,24 +196,24 @@ namespace
             if(!ok)
                 return;
 
-            d.heap_.emplace(heap_ctx_t{HeapHandle, new_ptr}, Size);
+            d.heaps_.emplace(heap_t{HeapHandle, new_ptr});
         });
     }
 
     static void on_RtlFreeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
-        const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
-        if(it == d.heap_.end())
+        const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
+        if(it == d.heaps_.end())
             return;
 
         d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
-        d.heap_.erase(it);
+        d.heaps_.erase(it);
     }
 
     static void on_RtlSizeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
-        const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
-        if(it == d.heap_.end())
+        const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
+        if(it == d.heaps_.end())
             return;
 
         const auto ok = d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
@@ -197,50 +232,75 @@ namespace
 
     static void on_RtlGetUserInfoHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
-        if(true)
-            return;
-        const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
-        if(it == d.heap_.end())
-            return;
-
-        if(false)
-            d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
-    }
-
-    static void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
-    {
-        const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
-        if(it == d.heap_.end())
+        const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
+        if(it == d.heaps_.end())
             return;
 
         d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
     }
 
-    static void on_RtlpReAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::ULONG Size)
+    static void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
-        const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
-        if(it != d.heap_.end())
+        const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
+        if(it == d.heaps_.end())
+            return;
+
+        d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
+    }
+
+    static void realloc_unknown_pointer(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID /*BaseAddress*/, nt::ULONG /*Size*/)
+    {
+        const auto thread = d.core_.os->thread_current();
+        if(!thread)
+            return;
+
+        // disable alloc hooks during this call
+        d.reallocs_.insert(realloc_t{*thread, HeapHandle});
+        break_on_return(d, "return RtlpReAllocateHeapInternal unknown", [=](Data& d)
         {
-            const auto ok = d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
-            if(!ok)
-                return;
+            d.reallocs_.erase(realloc_t{*thread, HeapHandle});
+        });
+    }
 
-            d.heap_.erase(it);
-        }
+    static void on_RtlpReAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
+    {
+        if(!BaseAddress)
+            return;
 
-        const auto ok = d.core_.os->write_arg(3, {ptr_prolog + Size + ptr_epilog});
+        const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
+        if(it == d.heaps_.end())
+            return realloc_unknown_pointer(d, HeapHandle, Flags, BaseAddress, Size);
+
+        const auto thread = d.core_.os->thread_current();
+        if(!thread)
+            return;
+
+        // tweak back pointer
+        auto ok = d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
         if(!ok)
             return;
 
-        break_on_return(d, "return RtlpReAllocateHeapInternal", [=](Data& d)
+        // tweak size up
+        ok = d.core_.os->write_arg(3, {ptr_prolog + Size + ptr_epilog});
+        if(!ok)
+            return;
+
+        // disable alloc hooks during this call
+        d.reallocs_.insert(realloc_t{*thread, HeapHandle});
+
+        // remove pointer from heap because it can be freed with original value
+        d.heaps_.erase(it);
+        break_on_return(d, "return RtlpReAllocateHeapInternal known", [=](Data& d)
         {
+            d.reallocs_.erase(realloc_t{*thread, HeapHandle});
             const auto ptr = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!ptr)
                 return;
 
-            const auto new_ptr = ptr_prolog + ptr;
+            // store new pointer which always have prolog
+            const auto new_ptr = ptr + ptr_prolog;
+            d.heaps_.emplace(heap_t{HeapHandle, new_ptr});
             d.core_.regs.write(FDP_RAX_REGISTER, new_ptr);
-            d.heap_.emplace(heap_ctx_t{HeapHandle, new_ptr}, Size);
         });
     }
 
