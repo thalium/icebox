@@ -157,8 +157,9 @@ target_link_libraries(icebox_cmd PRIVATE icebox)
 
 # samples/vm_resume
 foreach(sample IN ITEMS
-    vm_resume
+    heapsan
     nt_writefile
+    vm_resume
 )
     add_target(${sample} samples "${root_dir}/src/icebox/samples/${sample}" OPTIONS executable fmt tidy)
     set_target_output_directory(${sample} "")
