@@ -170,7 +170,7 @@ namespace
         // check breakpoints
         {
             const auto ptr = syms.symbol("nt", "SwapContext");
-            const auto bp  = core.state.set_breakpoint(*ptr, [&]
+            const auto bp  = core.state.set_breakpoint("SwapContext", *ptr, [&]
             {
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
                 if(!rip)
@@ -201,7 +201,7 @@ namespace
             const auto func_addr = syms.symbol(pdb_name, func_name);
             LOG(INFO, "{} = {:#x}", func_name, func_addr ? *func_addr : 0);
 
-            const auto bp = core.state.set_breakpoint(*func_addr, *target, [&]
+            const auto bp = core.state.set_breakpoint(func_name, *func_addr, *target, [&]
             {
                 int k = 0;
                 callstack->get_callstack(*target, [&](callstack::callstep_t callstep)

@@ -474,10 +474,10 @@ uint64_t OsNt::proc_id(proc_t proc)
 namespace
 {
     template <typename T, typename U, typename V>
-    static opt<bpid_t> listen_to(OsNt& os, bpid_t bpid, T addr, const U& on_value, V callback)
+    static opt<bpid_t> listen_to(OsNt& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
     {
         const auto osptr = &os;
-        const auto bp    = os.core_.state.set_breakpoint(addr, [=]
+        const auto bp    = os.core_.state.set_breakpoint(name, addr, [=]
         {
             callback(*osptr, bpid, on_value);
         });
@@ -489,9 +489,9 @@ namespace
     }
 
     template <typename T>
-    static opt<bpid_t> register_listener(OsNt& os, uint64_t addr, const T& on_value, void (*callback)(OsNt&, bpid_t, const T&))
+    static opt<bpid_t> register_listener(OsNt& os, std::string_view name, uint64_t addr, const T& on_value, void (*callback)(OsNt&, bpid_t, const T&))
     {
-        return listen_to(os, ++os.last_bpid_, addr, on_value, callback);
+        return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
     }
 
     static void on_PspInsertThread(OsNt& os, bpid_t, const OsNt::on_proc_event_fn& on_proc)
@@ -531,22 +531,22 @@ namespace
 
 opt<bpid_t> OsNt::listen_proc_create(const on_proc_event_fn& on_create)
 {
-    return register_listener(*this, symbols_[PspInsertThread], on_create, &on_PspInsertThread);
+    return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
 opt<bpid_t> OsNt::listen_proc_delete(const on_proc_event_fn& on_delete)
 {
-    return register_listener(*this, symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
+    return register_listener(*this, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
 }
 
 opt<bpid_t> OsNt::listen_thread_create(const on_thread_event_fn& on_create)
 {
-    return register_listener(*this, symbols_[PspInsertThread], on_create, &on_PspInsertThread);
+    return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
 opt<bpid_t> OsNt::listen_thread_delete(const on_thread_event_fn& on_delete)
 {
-    return register_listener(*this, symbols_[PspExitThread], on_delete, &on_PspExitThread);
+    return register_listener(*this, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
 }
 
 namespace
@@ -705,7 +705,7 @@ namespace
         if(!ctx.entry)
             return;
 
-        if(!listen_to(os, bpid, *ctx.entry, on_mod, &on_LdrpInsertDataTableEntry))
+        if(!listen_to(os, bpid, name, *ctx.entry, on_mod, &on_LdrpInsertDataTableEntry))
             return;
 
         ctx.done = true;
@@ -716,7 +716,7 @@ opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
     const auto ctx  = std::make_shared<KernelModCreateCtx>();
-    auto ok         = listen_to(*this, bpid, symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
+    auto ok         = listen_to(*this, bpid, "PsCallImageNotifyRoutines", symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
     {
         on_PsCallImageNotifyRoutines(os, *ctx, bpid, on_mod);
     });
@@ -725,7 +725,7 @@ opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
 
     const auto ctx32 = std::make_shared<KernelModCreateCtx>();
     ctx32->is_32bit  = true;
-    ok               = listen_to(*this, bpid, symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
+    ok               = listen_to(*this, bpid, "PsCallImageNotifyRoutines", symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
     {
         on_PsCallImageNotifyRoutines(os, *ctx32, bpid, on_mod);
     });
@@ -738,7 +738,7 @@ opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
 opt<bpid_t> OsNt::listen_drv_create(const on_drv_event_fn& on_drv)
 {
     const auto bpid = ++last_bpid_;
-    const auto ok   = listen_to(*this, bpid, symbols_[MiProcessLoaderEntry], on_drv, [](OsNt& os, bpid_t /*bpid*/, const auto& on_drv)
+    const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_drv, [](OsNt& os, bpid_t /*bpid*/, const auto& on_drv)
     {
         const auto drv_addr   = os.core_.regs.read(FDP_RCX_REGISTER);
         const auto drv_loaded = os.core_.regs.read(FDP_RDX_REGISTER);
@@ -1017,16 +1017,16 @@ namespace
 {
     static void proc_join_kernel(OsNt& os, proc_t proc)
     {
-        os.core_.state.run_to(proc);
+        os.core_.state.run_to("proc_join_kernel", proc);
     }
 
     static void proc_join_user(OsNt& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : os.core_.regs.read(MSR_LSTAR);
-        os.core_.state.run_to(proc, where);
+        os.core_.state.run_to("KiKernelSysretExit", proc, where);
         const auto rip = os.core_.regs.read(FDP_RCX_REGISTER);
-        os.core_.state.run_to(proc, rip);
+        os.core_.state.run_to("return KiKernelSysretExit", proc, rip);
     }
 
     static bool is_user_mode(uint64_t cs)

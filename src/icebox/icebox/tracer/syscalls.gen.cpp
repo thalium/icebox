@@ -451,7 +451,7 @@ namespace
         if(!addr)
             return FAIL(ext::nullopt, "unable to find symbole {}!{}", d.module, name);
 
-        const auto bp = d.core.state.set_breakpoint(*addr, proc, on_call);
+        const auto bp = d.core.state.set_breakpoint(name, *addr, proc, on_call);
         if(!bp)
             return FAIL(ext::nullopt, "unable to set breakpoint");
 

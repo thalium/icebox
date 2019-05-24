@@ -117,7 +117,7 @@ plugins::FdpSan::~FdpSan() = default;
 namespace
 {
     template <typename T>
-    static void break_on_return(Data& d, T operand)
+    static void break_on_return(Data& d, std::string_view name, T operand)
     {
         const auto thread      = d.core_.os->thread_current();
         const auto rsp         = d.core_.regs.read(FDP_RSP_REGISTER);
@@ -131,7 +131,7 @@ namespace
             thread_t thread;
         } p = {d, *thread};
 
-        const auto bp = d.core_.state.set_breakpoint(*return_addr, *thread, [=]
+        const auto bp = d.core_.state.set_breakpoint(name, *return_addr, *thread, [=]
         {
             const auto rsp = p.d.core_.regs.read(FDP_RSP_REGISTER) - p.d.ptr_size_;
             auto it        = p.d.returns_.find(return_ctx_t{p.thread, rsp});
@@ -150,7 +150,7 @@ namespace
         if(!ok)
             return;
 
-        break_on_return(d, [=](Data& d)
+        break_on_return(d, "return RtlpAllocateHeapInternal", [=](Data& d)
         {
             const auto ptr = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!ptr)
@@ -185,7 +185,7 @@ namespace
         if(!ok)
             return;
 
-        break_on_return(d, [=](Data& d)
+        break_on_return(d, "return RtlSizeHeap", [=](Data& d)
         {
             const auto size = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!size)
@@ -232,7 +232,7 @@ namespace
         if(!ok)
             return;
 
-        break_on_return(d, [=](Data& d)
+        break_on_return(d, "return RtlpReAllocateHeapInternal", [=](Data& d)
         {
             const auto ptr = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!ptr)

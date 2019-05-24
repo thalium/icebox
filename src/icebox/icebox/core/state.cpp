@@ -45,8 +45,9 @@ namespace
 
     struct BreakpointObserver
     {
-        BreakpointObserver(core::Task task, phy_t phy, opt<proc_t> proc, opt<thread_t> thread)
+        BreakpointObserver(core::Task task, std::string_view name, phy_t phy, opt<proc_t> proc, opt<thread_t> thread)
             : task(std::move(task))
+            , name(name)
             , phy(phy)
             , proc(std::move(proc))
             , thread(std::move(thread))
@@ -55,6 +56,7 @@ namespace
         }
 
         core::Task    task;
+        std::string   name;
         phy_t         phy;
         opt<proc_t>   proc;
         opt<thread_t> thread;
@@ -348,9 +350,9 @@ namespace
         return bpid;
     }
 
-    static core::Breakpoint set_breakpoint(StateData& d, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
+    static core::Breakpoint set_breakpoint(StateData& d, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
     {
-        const auto bp = std::make_shared<BreakpointObserver>(task, phy, proc, thread);
+        const auto bp = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
         d.observers.emplace(phy, bp);
         const auto bpid = try_add_breakpoint(d, phy, *bp);
 
@@ -372,45 +374,45 @@ namespace
         return d.core.os->proc_resolve(*current, ptr);
     }
 
-    static core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
+    static core::Breakpoint set_breakpoint(StateData& d, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
     {
         const auto target = proc ? d.core.os->proc_select(*proc, ptr) : ext::nullopt;
         const auto phy    = to_phy(d, ptr, target);
         if(!phy)
             return nullptr;
 
-        return set_breakpoint(d, *phy, target, thread, task);
+        return set_breakpoint(d, name, *phy, target, thread, task);
     }
 }
 
-core::Breakpoint core::State::set_breakpoint(uint64_t ptr, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(std::string_view name, uint64_t ptr, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, ptr, {}, {}, task);
+    return ::set_breakpoint(*d_, name, ptr, {}, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(std::string_view name, uint64_t ptr, proc_t proc, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, ptr, proc, {}, task);
+    return ::set_breakpoint(*d_, name, ptr, proc, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(uint64_t ptr, thread_t thread, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(std::string_view name, uint64_t ptr, thread_t thread, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, ptr, {}, thread, task);
+    return ::set_breakpoint(*d_, name, ptr, {}, thread, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(phy_t phy, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(std::string_view name, phy_t phy, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, phy, {}, {}, task);
+    return ::set_breakpoint(*d_, name, phy, {}, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(phy_t phy, proc_t proc, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(std::string_view name, phy_t phy, proc_t proc, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, phy, proc, {}, task);
+    return ::set_breakpoint(*d_, name, phy, proc, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(phy_t phy, thread_t thread, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(std::string_view name, phy_t phy, thread_t thread, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, phy, {}, thread, task);
+    return ::set_breakpoint(*d_, name, phy, {}, thread, task);
 }
 
 namespace
@@ -431,7 +433,7 @@ namespace
     }
 }
 
-void core::State::run_to(proc_t proc)
+void core::State::run_to(std::string_view /*name*/, proc_t proc)
 {
     auto d          = *d_;
     const auto bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
@@ -445,20 +447,20 @@ void core::State::run_to(proc_t proc)
     fdp::unset_breakpoint(d.shm, bpid);
 }
 
-void core::State::run_to(proc_t proc, uint64_t ptr)
+void core::State::run_to(std::string_view name, proc_t proc, uint64_t ptr)
 {
     auto& d       = *d_;
-    const auto bp = ::set_breakpoint(d, ptr, proc, {}, {});
+    const auto bp = ::set_breakpoint(d, name, ptr, proc, {}, {});
     run_until(d, [&]
     {
         return d.breakstate.rip == ptr;
     });
 }
 
-void core::State::run_to(dtb_t dtb, uint64_t ptr)
+void core::State::run_to(std::string_view name, dtb_t dtb, uint64_t ptr)
 {
     auto& d       = *d_;
-    const auto bp = ::set_breakpoint(d, ptr, {}, {}, {});
+    const auto bp = ::set_breakpoint(d, name, ptr, {}, {}, {});
     run_until(d, [&]
     {
         return d.breakstate.dtb == dtb && d.breakstate.rip == ptr;
