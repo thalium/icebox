@@ -3,13 +3,12 @@
 #define PRIVATE_CORE__
 #define FDP_MODULE "state"
 #include "core.hpp"
+#include "fdp.hpp"
 #include "log.hpp"
 #include "os.hpp"
 #include "private.hpp"
 #include "reader.hpp"
 #include "utils/utils.hpp"
-
-#include <FDP.h>
 
 #include <map>
 #include <thread>
@@ -78,13 +77,13 @@ namespace
 
 struct core::State::Data
 {
-    Data(FDP_SHM& shm, Core& core)
+    Data(fdp::shm& shm, Core& core)
         : shm(shm)
         , core(core)
     {
     }
 
-    FDP_SHM&   shm;
+    fdp::shm&  shm;
     Core&      core;
     Breakers   targets;
     Observers  observers;
@@ -96,7 +95,7 @@ using StateData = core::State::Data;
 core::State::State()  = default;
 core::State::~State() = default;
 
-void core::setup(State& state, FDP_SHM& shm, Core& core)
+void core::setup(State& state, fdp::shm& shm, Core& core)
 {
     state.d_ = std::make_unique<core::State::Data>(shm, core);
 }
@@ -105,6 +104,9 @@ namespace
 {
     static bool update_break_state(StateData& d)
     {
+        if(!d.core.os)
+            return true;
+
         memset(&d.breakstate, 0, sizeof d.breakstate);
         const auto thread = d.core.os->thread_current();
         if(!thread)
@@ -131,15 +133,14 @@ namespace
 
     static bool try_pause(StateData& d)
     {
-        FDP_State state = FDP_STATE_NULL;
-        const auto ok   = FDP_GetState(&d.shm, &state);
-        if(!ok)
+        const auto state = fdp::state(d.shm);
+        if(!state)
             return false;
 
-        if(state & FDP_STATE_PAUSED)
+        if(*state & FDP_STATE_PAUSED)
             return true;
 
-        FDP_Pause(&d.shm);
+        const auto ok = fdp::pause(d.shm);
         if(!ok)
             return FAIL(false, "unable to pause");
 
@@ -149,24 +150,23 @@ namespace
 
     static bool try_single_step(StateData& d)
     {
-        return FDP_SingleStep(&d.shm, 0);
+        return fdp::step_once(d.shm);
     }
 
     static bool try_resume(StateData& d)
     {
-        FDP_State state = FDP_STATE_NULL;
-        const auto ok   = FDP_GetState(&d.shm, &state);
-        if(!ok)
+        const auto state = fdp::state(d.shm);
+        if(!state)
             return false;
 
-        if(!(state & FDP_STATE_PAUSED))
+        if(!(*state & FDP_STATE_PAUSED))
             return true;
 
-        if(state & (FDP_STATE_BREAKPOINT_HIT | FDP_STATE_HARD_BREAKPOINT_HIT))
+        if(*state & (FDP_STATE_BREAKPOINT_HIT | FDP_STATE_HARD_BREAKPOINT_HIT))
             if(!try_single_step(d))
                 return false;
 
-        const auto resumed = FDP_Resume(&d.shm);
+        const auto resumed = fdp::resume(d.shm);
         if(!resumed)
             return FAIL(false, "unable to resume");
 
@@ -232,7 +232,7 @@ struct core::BreakpointPrivate
         if(!unique_observer)
             return;
 
-        const auto ok = FDP_UnsetBreakpoint(&data_.shm, observer_->bpid);
+        const auto ok = fdp::unset_breakpoint(data_.shm, observer_->bpid);
         if(!ok)
             LOG(ERROR, "unable to remove breakpoint {}", observer_->bpid);
 
@@ -247,12 +247,11 @@ namespace
 {
     static void check_breakpoints(StateData& d)
     {
-        FDP_State state      = FDP_STATE_NULL;
-        const auto has_state = FDP_GetState(&d.shm, &state);
-        if(!has_state)
+        const auto state = fdp::state(d.shm);
+        if(!state)
             return;
 
-        if(!(state & FDP_STATE_BREAKPOINT_HIT))
+        if(!(*state & FDP_STATE_BREAKPOINT_HIT))
             return;
 
         std::vector<Observer> observers;
@@ -285,7 +284,7 @@ namespace
         while(true)
         {
             std::this_thread::yield();
-            auto ok = FDP_GetStateChanged(&d.shm);
+            const auto ok = fdp::state_changed(d.shm);
             if(!ok)
                 continue;
 
@@ -332,7 +331,7 @@ namespace
                 return it->second.id;
 
             // filtering rules are too restrictive, remove old breakpoint & add an unfiltered breakpoint
-            const auto ok = FDP_UnsetBreakpoint(&d.shm, it->second.id);
+            const auto ok = fdp::unset_breakpoint(d.shm, it->second.id);
             targets.erase(it);
             if(!ok)
                 return -1;
@@ -341,7 +340,7 @@ namespace
             dtb = {};
         }
 
-        const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb ? dtb->val : FDP_NO_CR3);
+        const auto bpid = fdp::set_breakpoint(d.shm, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb ? dtb->val : 0);
         if(bpid < 0)
             return -1;
 
@@ -435,7 +434,7 @@ namespace
 void core::State::run_to(proc_t proc)
 {
     auto d          = *d_;
-    const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, FDP_NO_CR3);
+    const auto bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
     if(bpid < 0)
         return;
 
@@ -443,7 +442,7 @@ void core::State::run_to(proc_t proc)
     {
         return d.breakstate.proc == proc;
     });
-    FDP_UnsetBreakpoint(&d.shm, bpid);
+    fdp::unset_breakpoint(d.shm, bpid);
 }
 
 void core::State::run_to(proc_t proc, uint64_t ptr)

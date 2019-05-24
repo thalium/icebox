@@ -4,17 +4,16 @@
 #define FDP_MODULE "mem"
 #include "core.hpp"
 #include "endian.hpp"
+#include "fdp.hpp"
 #include "log.hpp"
 #include "mmu.hpp"
 #include "os.hpp"
 #include "private.hpp"
 #include "utils/utils.hpp"
 
-#include <FDP.h>
-
 struct core::Memory::Data
 {
-    Data(FDP_SHM& shm, Core& core)
+    Data(fdp::shm& shm, Core& core)
         : shm(shm)
         , core(core)
         , depth(0)
@@ -22,9 +21,9 @@ struct core::Memory::Data
     }
 
     // members
-    FDP_SHM& shm;
-    Core&    core;
-    int      depth;
+    fdp::shm& shm;
+    Core&     core;
+    int       depth;
 };
 
 using MemData = core::Memory::Data;
@@ -32,7 +31,7 @@ using MemData = core::Memory::Data;
 core::Memory::Memory()  = default;
 core::Memory::~Memory() = default;
 
-void core::setup(Memory& mem, FDP_SHM& shm, Core& core)
+void core::setup(Memory& mem, fdp::shm& shm, Core& core)
 {
     mem.d_ = std::make_unique<core::Memory::Data>(shm, core);
 }
@@ -50,7 +49,7 @@ namespace
         const auto pml4e_base = dtb.val & (mask(40) << 12);
         const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
         entry_t pml4e         = {0};
-        auto ok               = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
+        auto ok               = fdp::read_physical(m.shm, &pml4e, sizeof pml4e, phy_t{pml4e_ptr});
         if(!ok)
             return {};
 
@@ -59,7 +58,7 @@ namespace
 
         const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
         entry_t pdpe        = {0};
-        ok                  = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pdpe), sizeof pdpe, pdpe_ptr);
+        ok                  = fdp::read_physical(m.shm, &pdpe, sizeof pdpe, phy_t{pdpe_ptr});
         if(!ok)
             return {};
 
@@ -76,7 +75,7 @@ namespace
 
         const auto pde_ptr = pdpe.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pd * 8;
         entry_t pde        = {0};
-        ok                 = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pde), sizeof pde, pde_ptr);
+        ok                 = fdp::read_physical(m.shm, &pde, sizeof pde, phy_t{pde_ptr});
         if(!ok)
             return {};
 
@@ -93,7 +92,7 @@ namespace
 
         const auto pte_ptr = pde.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pt * 8;
         entry_t pte        = {0};
-        ok                 = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pte), sizeof pte, pte_ptr);
+        ok                 = fdp::read_physical(m.shm, &pte, sizeof pte, phy_t{pte_ptr});
         if(!ok)
             return {};
 
@@ -108,12 +107,8 @@ namespace
     {
         const auto backup = d.core.regs.read(FDP_CR3_REGISTER);
         d.core.regs.write(FDP_CR3_REGISTER, dtb.val);
-        phy_t phy;
-        const auto ok = FDP_VirtualToPhysical(&d.shm, 0, ptr, &phy.val);
+        const auto phy = fdp::virtual_to_physical(d.shm, ptr);
         d.core.regs.write(FDP_CR3_REGISTER, backup);
-        if(!ok)
-            return {};
-
         return phy;
     }
 
@@ -121,7 +116,7 @@ namespace
     {
         const auto rip      = d.core.regs.read(FDP_RIP_REGISTER);
         const auto code     = user_mode ? 1 << 2 : 0;
-        const auto injected = FDP_InjectInterrupt(&d.shm, 0, PAGE_FAULT, code, src);
+        const auto injected = fdp::inject_interrupt(d.shm, PAGE_FAULT, code, src);
         if(!injected)
             return FAIL(false, "unable to inject page fault");
 
@@ -186,7 +181,7 @@ namespace
 
     static bool read_virtual(MemData& d, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
     {
-        const auto full = FDP_ReadVirtualMemory(&d.shm, 0, dst, size, src);
+        const auto full = fdp::read_virtual(d.shm, dst, size, src);
         if(full)
             return true;
 
@@ -199,7 +194,7 @@ namespace
             if(!ok)
                 return false;
 
-            return FDP_ReadVirtualMemory(&d.shm, 0, pgdst, pgsize, pgsrc);
+            return fdp::read_virtual(d.shm, pgdst, pgsize, pgsrc);
         });
     }
 
@@ -207,7 +202,7 @@ namespace
     {
         return read_pages("physical", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
-            return FDP_ReadPhysicalMemory(&d.shm, pgdst, pgsize, pgsrc);
+            return fdp::read_physical(d.shm, pgdst, pgsize, phy_t{pgsrc});
         });
     }
 }

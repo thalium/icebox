@@ -6,7 +6,7 @@
 
 #include "types.hpp"
 
-typedef struct FDP_SHM_ FDP_SHM;
+namespace fdp { struct shm; }
 namespace core { struct Registers; }
 namespace core { struct Memory; }
 namespace core { struct State; }
@@ -14,7 +14,7 @@ namespace core { struct Core; }
 
 namespace core
 {
-    void    setup   (Registers& regs, FDP_SHM& shm);
-    void    setup   (Memory& mem, FDP_SHM& shm, Core& core);
-    void    setup   (State& mem, FDP_SHM& shm, Core& core);
+    void    setup   (Registers& regs, fdp::shm& shm);
+    void    setup   (Memory& mem, fdp::shm& shm, Core& core);
+    void    setup   (State& mem, fdp::shm& shm, Core& core);
 } // namespace core
