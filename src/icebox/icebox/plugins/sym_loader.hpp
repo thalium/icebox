@@ -14,12 +14,13 @@ namespace sym
 
     struct Loader
     {
-        Loader(core::Core& core, proc_t proc);
-         Loader(core::Core& core, proc_t proc, predicate_fn predicate);
+         Loader(core::Core& core, proc_t proc);
         ~Loader();
 
-        bool            load    (mod_t mod);
-        sym::Symbols&   symbols ();
+        void            mod_listen  ();
+        void            mod_listen  (predicate_fn predicate);
+        bool            load        (mod_t mod);
+        sym::Symbols&   symbols     ();
 
         struct Data;
         std::unique_ptr<Data> d_;

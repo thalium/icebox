@@ -37,11 +37,6 @@ namespace
         return *filename;
     }
 
-    static bool is_ntdll(mod_t /*mod*/, const std::string& name)
-    {
-        return path::filename(name) == "ntdll.dll";
-    }
-
     static int listen_writefile(core::Core& core, std::string_view target)
     {
         LOG(INFO, "waiting for {}...", target);
@@ -50,15 +45,17 @@ namespace
             return FAIL(-1, "unable to wait for {}", target);
 
         LOG(INFO, "process {} active", target);
-        auto loader      = std::make_unique<sym::Loader>(core, *proc, &is_ntdll);
         const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 
+        auto loader = sym::Loader{core, *proc};
+        loader.load(*ntdll);
         LOG(INFO, "ntdll module loaded");
+
         int idx           = -1;
         auto objects      = nt::ObjectNt{core, *proc};
-        auto tracer       = nt::syscalls{core, loader->symbols(), "ntdll"};
+        auto tracer       = nt::syscalls{core, loader.symbols(), "ntdll"};
         auto buffer       = std::vector<uint8_t>{};
         const auto reader = reader::make(core, *proc);
         const auto bp     = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,

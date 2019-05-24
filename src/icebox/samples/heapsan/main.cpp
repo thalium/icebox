@@ -20,7 +20,7 @@ namespace
             return FAIL(-1, "unable to load ntdll.dll");
 
         LOG(INFO, "ntdll module loaded");
-        auto loader   = sym::Loader{core, *proc, [](mod_t, const std::string&) { return false; }};
+        auto loader   = sym::Loader{core, *proc};
         const auto ok = loader.load(*ntdll);
         if(!ok)
             return FAIL(-1, "unable to load ntdll.dll symbols");

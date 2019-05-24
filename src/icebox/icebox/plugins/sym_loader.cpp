@@ -12,15 +12,14 @@
 
 struct sym::Loader::Data
 {
-    Data(core::Core& core, proc_t proc, sym::predicate_fn predicate);
+    Data(core::Core& core, proc_t proc);
 
     core::Core&          core;
     sym::Symbols         symbols;
     proc_t               proc;
-    sym::predicate_fn    predicate;
     std::vector<uint8_t> buffer;
     reader::Reader       reader;
-    opt<size_t>          bp_id;
+    opt<size_t>          mod_listen;
 };
 
 namespace
@@ -55,7 +54,7 @@ namespace
         return inserted;
     }
 
-    static bool load_module(Data& d, mod_t mod, sym::predicate_fn predicate)
+    static bool load_module(Data& d, mod_t mod, const sym::predicate_fn& predicate)
     {
         const auto name = d.core.os->mod_name(d.proc, mod);
         if(!name)
@@ -72,42 +71,45 @@ namespace
     }
 }
 
-Data::Data(core::Core& core, proc_t proc, sym::predicate_fn predicate)
+Data::Data(core::Core& core, proc_t proc)
     : core(core)
     , proc(proc)
-    , predicate(std::move(predicate))
     , reader(reader::make(core, proc))
 {
 }
 
-sym::Loader::Loader(core::Core& core, proc_t proc, sym::predicate_fn predicate)
-    : d_(std::make_unique<Data>(core, proc, predicate))
+sym::Loader::Loader(core::Core& core, proc_t proc)
+    : d_(std::make_unique<Data>(core, proc))
+{
+}
+
+void sym::Loader::mod_listen(sym::predicate_fn predicate)
 {
     auto& d = *d_;
     d.core.os->mod_list(d.proc, [&](mod_t mod)
     {
-        load_module(d, mod, d.predicate);
+        load_module(d, mod, predicate);
         return WALK_NEXT;
     });
-    d.bp_id = d.core.os->listen_mod_create([=](proc_t mod_proc, mod_t mod)
+    d.mod_listen = d.core.os->listen_mod_create([=](proc_t mod_proc, mod_t mod)
     {
         if(d_->proc.id != mod_proc.id)
             return;
 
-        load_module(*d_, mod, d_->predicate);
+        load_module(*d_, mod, predicate);
     });
 }
 
-sym::Loader::Loader(core::Core& core, proc_t proc)
-    : Loader(core, proc, [=](mod_t, const std::string&) { return true; })
+void sym::Loader::mod_listen()
 {
+    mod_listen([](mod_t, const std::string&) { return true; });
 }
 
 sym::Loader::~Loader()
 {
     auto& d = *d_;
-    if(d.bp_id)
-        d.core.os->unlisten(*d.bp_id);
+    if(d.mod_listen)
+        d.core.os->unlisten(*d.mod_listen);
 }
 
 bool sym::Loader::load(mod_t mod)
