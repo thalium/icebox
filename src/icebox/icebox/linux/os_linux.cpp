@@ -12,6 +12,7 @@
 #include "sym.hpp"
 
 #include <array>
+#include <regex>
 #include <sstream>
 
 #ifdef _MSC_VER
@@ -21,6 +22,90 @@
 #    define search                  std::experimental::search
 #    define boyer_moore_searcher    std::experimental::make_boyer_moore_searcher
 #endif
+
+namespace
+{
+    class version
+    {
+        std::vector<int> nums;
+
+      public:
+        version(const std::string&);
+        std::string get();
+
+        bool operator==(const version&);
+        bool operator<(const version&);
+
+        bool operator<=(const version&);
+        bool operator>(const version&);
+        bool operator>=(const version&);
+        bool operator!=(const version&);
+    };
+
+    version::version(const std::string& vers)
+    {
+        nums.clear();
+        size_t start = 0, end;
+        while((end = vers.find('.', start)) != std::string::npos)
+        {
+            nums.push_back(std::stoi(vers.substr(start, end - start)));
+            start = end + 1;
+        }
+        nums.push_back(std::stoi(vers.substr(start)));
+
+        if(nums.empty())
+            throw std::invalid_argument("empty version string");
+    }
+
+    std::string version::get()
+    {
+        std::string str;
+        for(const int& num : nums)
+            str.append(std::to_string(num)).push_back('.');
+
+        str.pop_back();
+        return str;
+    }
+
+    bool version::operator==(const version& other)
+    {
+        return nums == other.nums;
+    }
+
+    bool version::operator<(const version& other)
+    {
+        if(*this == other)
+            return false;
+
+        for(int i = 0; i < std::min(nums.size(), other.nums.size()); i++)
+        {
+            if(nums[i] == other.nums[i])
+                continue;
+            return nums[i] < other.nums[i];
+        }
+        return nums.size() < other.nums.size();
+    }
+
+    bool version::operator>(const version& other)
+    {
+        return !(*this < other);
+    }
+
+    bool version::operator>=(const version& other)
+    {
+        return (*this > other) | (*this == other);
+    }
+
+    bool version::operator<=(const version& other)
+    {
+        return (*this < other) | (*this == other);
+    }
+
+    bool version::operator!=(const version& other)
+    {
+        return !(*this == other);
+    }
+}
 
 namespace
 {
@@ -40,6 +125,7 @@ namespace
         TASKSTRUCT_MM,
         TASKSTRUCT_ACTIVEMM,
         MMSTRUCT_PGD,
+        TASKSTRUCT_STACK,
         OFFSET_COUNT,
     };
 
@@ -54,14 +140,15 @@ namespace
     // clang-format off
     const LinuxOffset g_offsets[] =
     {
-            {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"},
-            {cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"},
-            {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"kernel_struct",	"task_struct",		"group_leader"},
-			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"kernel_struct",	"task_struct",		"thread_group"},
-            {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"kernel_struct",	"task_struct",		"tasks"},
-            {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"},
-            {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"kernel_struct",	"task_struct",		"active_mm"},
-            {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"},
+            {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"			},
+            {cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"			},
+            {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"kernel_struct",	"task_struct",		"group_leader"	},
+			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"kernel_struct",	"task_struct",		"thread_group"	},
+            {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"kernel_struct",	"task_struct",		"tasks"			},
+            {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"			},
+            {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"kernel_struct",	"task_struct",		"active_mm"		},
+            {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
+			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -70,6 +157,7 @@ namespace
     {
         PER_CPU_START,
         CURRENT_TASK,
+        KASAN_INIT,
         SYMBOL_COUNT,
     };
 
@@ -83,8 +171,9 @@ namespace
     // clang-format off
     const LinuxSymbol g_symbols[] =
     {
-            {cat_e::REQUIRED,	PER_CPU_START,				"kernel_sym",	"__per_cpu_start"},
-			{cat_e::REQUIRED,	CURRENT_TASK,				"kernel_sym",	"current_task"},
+            {cat_e::REQUIRED,	PER_CPU_START,				"kernel_sym",	"__per_cpu_start"	},
+			{cat_e::REQUIRED,	CURRENT_TASK,				"kernel_sym",	"current_task"		},
+			{cat_e::OPTIONAL,	KASAN_INIT,					"kernel_sym",	"kasan_init"		},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -162,6 +251,8 @@ namespace
         LinuxSymbols   symbols_;
         uint64_t per_cpu = 0;
         uint64_t kpgd    = 0;
+        version kversion = "0";
+        uint64_t pt_regs_size;
     };
 }
 
@@ -358,8 +449,6 @@ namespace
                 fail |= off.e_cat == cat_e::REQUIRED;
                 if(off.e_cat == cat_e::REQUIRED)
                     LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
-                else
-                    LOG(WARNING, "unable to read optional {}!{}.{} member offset", off.module, off.struc, off.member);
                 continue;
             }
             offsets[i] = *offset;
@@ -381,8 +470,6 @@ namespace
                 fail |= sym.e_cat == cat_e::REQUIRED;
                 if(sym.e_cat == cat_e::REQUIRED)
                     LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
-                else
-                    LOG(WARNING, "unable to read optional {}!{} symbol offset", sym.module, sym.name);
                 continue;
             }
             symbols[i] = *addr;
@@ -403,6 +490,8 @@ bool OsLinux::setup()
         return (!!reader.read(per_cpu));
     });
 
+    std::regex pattern("^Linux version ((\?:\\.\?\\d+)+)");
+    std::smatch match;
     bool firstattempt = true;
     ok                = find_linux_banner(*this, [&](uint64_t candidate)
     {
@@ -427,7 +516,16 @@ bool OsLinux::setup()
         if(!check_setup(*this))
             return WALK_NEXT;
 
-        LOG(INFO, "kernel loaded with kaslr {:#x}", *kaslr);
+        if(!std::regex_search(*linux_banner, match, pattern))
+            return FAIL(WALK_NEXT, "unable to parse kernel version in this linux banner");
+        kversion = match[1].str();
+
+        const auto opt_pt_regs_size = syms_.struc_size("kernel_struct", "pt_regs");
+        if(!opt_pt_regs_size)
+            return FAIL(WALK_NEXT, "unable to read the size of pt_regs structure");
+        pt_regs_size = *opt_pt_regs_size;
+
+        LOG(INFO, "kernel {} loaded with kaslr {:#x}", kversion.get(), *kaslr);
         return WALK_STOP;
     });
 
@@ -614,9 +712,46 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
     return proc_t{*proc_id, dtb_t{*pgd}};
 }
 
-opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t /*thread*/)
+opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
 {
-    return {};
+    /*
+		Offsets of this method are reliable only for an intel x86_64 CPU
+		and a stable version of kernel (e.g it will not work properly with a kernel v4.0-rc3, 3.15-rc5, ...)
+	*/
+
+    const auto current = thread_current();
+    if(!current)
+        return {};
+
+    if(thread.id == (*current).id)
+        return core_.regs.read(FDP_RIP_REGISTER);
+
+    const auto stack_ptr = reader_.read(thread.id + offsets_[TASKSTRUCT_STACK]);
+    if(!stack_ptr)
+        return FAIL(ext::nullopt, "unable to read task_struct->stack of {:#x} thread", thread.id);
+
+    uint8_t THREAD_SIZE_ORDER;
+    if(kversion < version("3.15"))
+        THREAD_SIZE_ORDER = 1;
+    else if(kversion < version("4"))
+        THREAD_SIZE_ORDER = 2;
+    else
+    {
+        const uint8_t KASAN_STACK_ORDER = (symbols_[KASAN_INIT] != 0);
+        THREAD_SIZE_ORDER               = 2 + KASAN_STACK_ORDER;
+    }
+    const uint64_t THREAD_SIZE = PAGE_SIZE << THREAD_SIZE_ORDER;
+
+    uint8_t TOP_OF_KERNEL_STACK_PADDING;
+    if(kversion < version("4"))
+        TOP_OF_KERNEL_STACK_PADDING = 8;
+    else
+        TOP_OF_KERNEL_STACK_PADDING = 0;
+
+    const auto start_stack = *stack_ptr + THREAD_SIZE - TOP_OF_KERNEL_STACK_PADDING;
+    const auto pt_regs_ptr = start_stack - pt_regs_size;
+
+    return reader_.read(pt_regs_ptr - 8);
 }
 
 uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, remove proc ?
