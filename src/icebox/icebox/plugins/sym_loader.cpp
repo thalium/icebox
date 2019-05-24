@@ -55,18 +55,20 @@ namespace
         return inserted;
     }
 
-    static void load_module(Data& d, mod_t mod)
+    static bool load_module(Data& d, mod_t mod, sym::predicate_fn predicate)
     {
         const auto name = d.core.os->mod_name(d.proc, mod);
         if(!name)
-            return;
+            return false;
 
-        if(!d.predicate(mod, *name))
-            return;
+        if(!predicate(mod, *name))
+            return false;
 
         const auto loaded = load_module_named(d, mod, *name);
         if(!loaded)
-            LOG(ERROR, "unable to load symbols from {}", *name);
+            return FAIL(false, "unable to load symbols from {}", *name);
+
+        return true;
     }
 }
 
@@ -84,7 +86,7 @@ sym::Loader::Loader(core::Core& core, proc_t proc, sym::predicate_fn predicate)
     auto& d = *d_;
     d.core.os->mod_list(d.proc, [&](mod_t mod)
     {
-        load_module(d, mod);
+        load_module(d, mod, d.predicate);
         return WALK_NEXT;
     });
     d.bp_id = d.core.os->listen_mod_create([=](proc_t mod_proc, mod_t mod)
@@ -92,7 +94,7 @@ sym::Loader::Loader(core::Core& core, proc_t proc, sym::predicate_fn predicate)
         if(d_->proc.id != mod_proc.id)
             return;
 
-        load_module(*d_, mod);
+        load_module(*d_, mod, d_->predicate);
     });
 }
 
@@ -106,6 +108,11 @@ sym::Loader::~Loader()
     auto& d = *d_;
     if(d.bp_id)
         d.core.os->unlisten(*d.bp_id);
+}
+
+bool sym::Loader::load(mod_t mod)
+{
+    return load_module(*d_, mod, [](mod_t, const std::string&) { return true; });
 }
 
 sym::Symbols& sym::Loader::symbols()

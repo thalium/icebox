@@ -18,7 +18,8 @@ namespace sym
          Loader(core::Core& core, proc_t proc, predicate_fn predicate);
         ~Loader();
 
-        sym::Symbols& symbols();
+        bool            load    (mod_t mod);
+        sym::Symbols&   symbols ();
 
         struct Data;
         std::unique_ptr<Data> d_;
