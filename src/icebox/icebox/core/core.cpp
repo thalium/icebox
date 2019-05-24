@@ -47,15 +47,11 @@ bool core::Core::setup(std::string_view name)
     if(!ok)
         return FAIL(false, "unable to init shm");
 
+    fdp::reset(*ptr_shm);
+
     core::setup(regs, *ptr_shm);
     core::setup(mem, *ptr_shm, *this);
     core::setup(state, *ptr_shm, *this);
-
-    state.pause();
-    fdp::unset_all_breakpoints(*ptr_shm);
-
-    state.resume();
-    state.pause();
 
     // register os helpers
     for(const auto& h : g_os_modules)

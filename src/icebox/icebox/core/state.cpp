@@ -106,9 +106,6 @@ namespace
 {
     static bool update_break_state(StateData& d)
     {
-        if(!d.core.os)
-            return true;
-
         memset(&d.breakstate, 0, sizeof d.breakstate);
         const auto thread = d.core.os->thread_current();
         if(!thread)

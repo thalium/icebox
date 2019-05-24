@@ -32,11 +32,20 @@ bool fdp::init(shm& shm)
     return FDP_Init(cast(&shm));
 }
 
-void fdp::unset_all_breakpoints(shm& shm)
+void fdp::reset(shm& shm)
 {
-    auto* ptr = cast(&shm);
-    for(int i = 0; i < FDP_MAX_BREAKPOINT; ++i)
-        FDP_UnsetBreakpoint(ptr, i);
+    auto ptr = cast(&shm);
+    FDP_Pause(ptr);
+    for(int bpid = 0; bpid < FDP_MAX_BREAKPOINT; bpid++)
+        FDP_UnsetBreakpoint(ptr, bpid);
+    FDP_WriteRegister(ptr, 0, FDP_DR0_REGISTER, 0);
+    FDP_WriteRegister(ptr, 0, FDP_DR1_REGISTER, 0);
+    FDP_WriteRegister(ptr, 0, FDP_DR2_REGISTER, 0);
+    FDP_WriteRegister(ptr, 0, FDP_DR3_REGISTER, 0);
+    FDP_WriteRegister(ptr, 0, FDP_DR6_REGISTER, 0);
+    FDP_WriteRegister(ptr, 0, FDP_DR7_REGISTER, 0);
+    FDP_Resume(ptr);
+    FDP_Pause(ptr);
 }
 
 opt<FDP_State> fdp::state(shm& shm)
