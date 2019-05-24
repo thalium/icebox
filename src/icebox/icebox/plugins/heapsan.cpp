@@ -1,6 +1,6 @@
-#include "fdp_san.hpp"
+#include "heapsan.hpp"
 
-#define FDP_MODULE "fdp_san"
+#define FDP_MODULE "heapsan"
 #include "log.hpp"
 
 #include "callstack.hpp"
@@ -105,20 +105,20 @@ namespace
     using Reallocs  = std::unordered_set<realloc_t>;
     using Returns   = std::unordered_map<return_t, core::Breakpoint>;
     using Heaps     = std::unordered_set<heap_t>;
-    using Data      = plugins::FdpSan::Data;
+    using Data      = plugins::HeapSan::Data;
     using Callstack = std::shared_ptr<callstack::ICallstack>;
 
     constexpr size_t ptr_prolog = 0x20;
     constexpr size_t ptr_epilog = 0x20;
 }
 
-struct plugins::FdpSan::Data
+struct plugins::HeapSan::Data
 {
     Data(core::Core& core, sym::Symbols& syms, proc_t target);
 
     core::Core&    core_;
     sym::Symbols&  symbols_;
-    nt::heaps      heap_tracer_;
+    nt::heaps      tracer_;
     Callstack      callstack_;
     Reallocs       reallocs_;
     Returns        returns_;
@@ -131,14 +131,14 @@ struct plugins::FdpSan::Data
 Data::Data(core::Core& core, sym::Symbols& syms, proc_t target)
     : core_(core)
     , symbols_(syms)
-    , heap_tracer_(core, syms, "ntdll")
+    , tracer_(core, syms, "ntdll")
     , target_(target)
     , reader_(reader::make(core, target))
     , ptr_size_(core.os->proc_flags(target) & flags_e::FLAGS_32BIT ? 4 : 8)
 {
 }
 
-plugins::FdpSan::~FdpSan() = default;
+plugins::HeapSan::~HeapSan() = default;
 
 namespace
 {
@@ -328,42 +328,42 @@ namespace
     }
 }
 
-plugins::FdpSan::FdpSan(core::Core& core, sym::Symbols& syms, proc_t target)
+plugins::HeapSan::HeapSan(core::Core& core, sym::Symbols& syms, proc_t target)
     : d_(std::make_unique<Data>(core, syms, target))
 {
     auto& d      = *d_;
     d.callstack_ = callstack::make_callstack_nt(d.core_);
-    d.heap_tracer_.register_RtlpAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)
+    d.tracer_.register_RtlpAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         get_callstack(*d_);
         on_RtlpAllocateHeapInternal(*d_, HeapHandle, Size);
         return 0;
     });
-    d.heap_tracer_.register_RtlFreeHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d.tracer_.register_RtlFreeHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
     {
         get_callstack(*d_);
         on_RtlFreeHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d.heap_tracer_.register_RtlSizeHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d.tracer_.register_RtlSizeHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
     {
         get_callstack(*d_);
         on_RtlSizeHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d.heap_tracer_.register_RtlGetUserInfoHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
+    d.tracer_.register_RtlGetUserInfoHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
     {
         get_callstack(*d_);
         on_RtlGetUserInfoHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d.heap_tracer_.register_RtlSetUserValueHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
+    d.tracer_.register_RtlSetUserValueHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
     {
         get_callstack(*d_);
         on_RtlSetUserValueHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d.heap_tracer_.register_RtlpReAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
+    d.tracer_.register_RtlpReAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
     {
         get_callstack(*d_);
         on_RtlpReAllocateHeapInternal(*d_, HeapHandle, Flags, BaseAddress, Size);

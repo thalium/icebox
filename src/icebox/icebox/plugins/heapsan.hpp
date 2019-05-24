@@ -9,10 +9,10 @@ namespace sym { struct Symbols; }
 
 namespace plugins
 {
-    struct FdpSan
+    struct HeapSan
     {
-         FdpSan(core::Core& core, sym::Symbols& syms, proc_t target);
-        ~FdpSan();
+         HeapSan(core::Core& core, sym::Symbols& syms, proc_t target);
+        ~HeapSan();
 
         struct Data;
         std::unique_ptr<Data> d_;

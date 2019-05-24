@@ -1,7 +1,7 @@
-#define FDP_MODULE "heapsan"
+#define FDP_MODULE "main"
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
-#include <icebox/plugins/fdp_san.hpp>
+#include <icebox/plugins/heapsan.hpp>
 #include <icebox/plugins/sym_loader.hpp>
 #include <icebox/waiter.hpp>
 
@@ -26,7 +26,7 @@ namespace
             return FAIL(-1, "unable to load ntdll.dll symbols");
 
         LOG(INFO, "listening events...");
-        const auto fdpsan = plugins::FdpSan{core, loader.symbols(), *proc};
+        const auto fdpsan = plugins::HeapSan{core, loader.symbols(), *proc};
         const auto now    = std::chrono::high_resolution_clock::now();
         const auto end    = now + std::chrono::minutes(5);
         while(std::chrono::high_resolution_clock::now() < end)
