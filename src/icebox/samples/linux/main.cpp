@@ -2,26 +2,52 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/os.hpp>
+#include <icebox/sym.hpp>
 #include <icebox/utils/fnview.hpp>
 
-#include <icebox/linux/map.hpp>
+#include <sstream>
+
+std::string thread_pc(const core::Core& core, const thread_t& thread)
+{
+    const auto pc = core.os->thread_pc({}, thread);
+
+    if(!pc)
+        return "<err>";
+
+    auto syms = core.os->kernel_symbols().find("kernel_sym");
+    opt<sym::ModCursor> cursor;
+    const uint64_t START_KERNEL = 0xffffffff80000000, END_KERNEL = 0xfffffffffff00000;
+
+    if(!syms || *pc < START_KERNEL || *pc >= END_KERNEL || !(cursor = syms->symbol(*pc)))
+    {
+        std::stringstream stream;
+        stream << "0x" << std::setw(16) << std::setfill('0') << std::hex << *pc;
+        return stream.str();
+    }
+
+    std::string internalOffset = "";
+    if(*pc != (*cursor).offset)
+        internalOffset = "+" + std::to_string(*pc - (*cursor).offset);
+
+    return (*cursor).symbol + internalOffset;
+}
 
 void display_thread(const core::Core& core, const thread_t& thread)
 {
     const auto thread_id = core.os->thread_id({}, thread);
-    const auto thread_pc = core.os->thread_pc({}, thread);
 
-    LOG(INFO, "thread: {:#x} id:{} PC:{:#x}",
+    LOG(INFO, "thread : {:#x}  id:{} {} {}",
         thread.id,
-        (thread_id <= 4194304) ? std::to_string(thread_id) : "no",
-        (thread_pc) ? *thread_pc : -1ll);
+        (thread_id <= 4194304) ? std::to_string(thread_id).append(7 - std::to_string(thread_id).length(), ' ') : "no",
+        std::string("").append(20, ' '),
+        thread_pc(core, thread));
 }
 
 void display_proc(const core::Core& core, const proc_t& proc)
 {
-    const auto proc_pid  = core.os->proc_id(proc);
-    const auto proc_name = core.os->proc_name(proc);
-    opt<uint64_t> leader_thread_pc;
+    const auto proc_pid = core.os->proc_id(proc);
+    auto proc_name      = core.os->proc_name(proc);
+    std::string leader_thread_pc;
 
     std::string threads;
     int threads_count = -1;
@@ -29,7 +55,7 @@ void display_proc(const core::Core& core, const proc_t& proc)
     {
         if(threads_count++ < 0)
         {
-            leader_thread_pc = core.os->thread_pc({}, thread);
+            leader_thread_pc = thread_pc(core, thread);
             return WALK_NEXT;
         }
 
@@ -40,11 +66,15 @@ void display_proc(const core::Core& core, const proc_t& proc)
         return WALK_NEXT;
     });
 
-    LOG(INFO, "process: {:#x} pid:{} '{}' PC:{:#x} {}",
+    if(!proc_name)
+        proc_name = "<noname>";
+
+    LOG(INFO, "process: {:#x} pid:{} '{}'{}   {} {}",
         proc.id,
-        (proc_pid <= 4194304) ? std::to_string(proc_pid) : "no",
-        (proc_name) ? *proc_name : "<noname>",
-        (leader_thread_pc) ? *leader_thread_pc : -1ll,
+        (proc_pid <= 4194304) ? std::to_string(proc_pid).append(7 - std::to_string(proc_pid).length(), ' ') : "no     ",
+        (*proc_name),
+        std::string(16 - (*proc_name).length(), ' '),
+        leader_thread_pc,
         (threads_count > 0) ? "+" + std::to_string(threads_count) + " threads (" + threads + ")" : "");
 }
 
@@ -56,6 +86,8 @@ int main(int argc, char** argv)
     if(argc != 2)
         return FAIL(-1, "usage: linux <name>");
 
+    system("pause");
+
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on {}", name.data());
 
@@ -64,6 +96,8 @@ int main(int argc, char** argv)
     core.state.resume();
     if(!ok)
         return FAIL(-1, "unable to start core at {}", name.data());
+
+    system("pause");
 
     // get list of processes
     core.state.pause();
