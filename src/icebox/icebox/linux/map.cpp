@@ -139,19 +139,31 @@ opt<size_t> sym::Map::struc_size(const std::string& /*struc*/)
 
 opt<sym::ModCursor> sym::Map::symbol(uint64_t addr)
 {
-    opt<sym::ModCursor> cursor = {};
+    sym::ModCursor cursor;
+    bool find = false;
 
     sym_list([&](std::string name, uint64_t offset)
     {
-        if(offset == addr)
+        if(offset > addr)
         {
-            cursor         = sym::ModCursor();
-            cursor->symbol = name;
-            cursor->offset = offset;
+            find = true;
             return WALK_STOP;
         }
+
+        cursor.symbol = name;
+        cursor.offset = offset;
+
+        if(offset == addr)
+        {
+            find = true;
+            return WALK_STOP;
+        }
+
         return WALK_NEXT;
     });
+
+    if(!find)
+        return {};
 
     return cursor;
 }

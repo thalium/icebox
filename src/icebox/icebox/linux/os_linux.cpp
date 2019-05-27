@@ -329,7 +329,7 @@ namespace
 
         std::vector<char> buffer(PAGE_SIZE + sizeof target);
 
-        uint64_t START_KERNEL = 0xffffffff80000000, END_KERNEL = 0xfffffffffff00000;
+        const uint64_t START_KERNEL = 0xffffffff80000000, END_KERNEL = 0xfffffffffff00000;
         // compability was checked for kernel from 2.6.27 (2008) to 5.1.2 (2019)
 
         uint64_t offset = START_KERNEL;
