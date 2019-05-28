@@ -325,7 +325,8 @@ namespace
             return FAIL(false, "finding linux_banner requires a kernel page directory");
 
         const char target[] = {'L', 'i', 'n', 'u', 'x', ' ', 'v', 'e', 'r', 's', 'i', 'o', 'n'};
-        const auto pattern  = boyer_moore_searcher(std::begin(target), std::end(target));
+        // compability was checked for kernel from 2.6.12 (2005) to 5.1.2 (2019)
+        const auto pattern = boyer_moore_searcher(std::begin(target), std::end(target));
 
         std::vector<char> buffer(PAGE_SIZE + sizeof target);
 
