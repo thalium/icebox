@@ -10,15 +10,21 @@ namespace sym { struct Symbols; }
 
 namespace sym
 {
-    using predicate_fn = std::function<bool(mod_t, const std::string&)>;
+    using mod_predicate_fn = std::function<bool(mod_t, const std::string&)>;
+    using drv_predicate_fn = std::function<bool(driver_t, const std::string&)>;
 
     struct Loader
     {
-         Loader(core::Core& core, proc_t proc);
+        Loader(core::Core& core, proc_t proc);
+
+        // Loader initizialied without proc will load the drivers pdb
+         Loader(core::Core& core);
         ~Loader();
 
         void            mod_listen  ();
-        void            mod_listen  (predicate_fn predicate);
+        void            mod_listen  (mod_predicate_fn predicate);
+        void            drv_listen  ();
+        void            drv_listen  (drv_predicate_fn predicate);
         bool            load        (mod_t mod);
         sym::Symbols&   symbols     ();
 
