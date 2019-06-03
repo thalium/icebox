@@ -195,7 +195,7 @@ add_custom_target(md_doc ALL
         ${PYTHON_EXECUTABLE}
         "${root_dir}/build/yml2md.py"
         -i "${root_dir}/.gitlab-ci.yml"
-        -o "${root_dir}/BUILD.gen.md"
+        -o "${root_dir}/doc/BUILD.gen.md"
     DEPENDS
         "${root_dir}/.gitlab-ci.yml"
     COMMENT "Generating BUILD.gen.md"

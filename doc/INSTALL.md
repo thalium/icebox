@@ -14,15 +14,13 @@ You must also select 'Disable driver signature enforcement' at boot:
 
 You are ready to install IceBox.
 
-In an admin prompt :
-* If you followed the build instructions ([BUILD.gen.md](/BUILD.gen.md))
+  If you followed the build instructions ([BUILD.gen.md](/doc/BUILD.gen.md#job-msvc-1)) go to:
 ```cmd
-cd icebox/third_party/virtualbox/out/win.amd64/release/bin
+icebox/third_party/virtualbox/out/win.amd64/release/bin
 ```
 
-* If not unzip icebox/bin/VBoxBin.7z<br>
+If not unzip the release. Then in an admin prompt:<br>
 ```cmd
-cd icebox/bin/VBoxBin
 install.cmd
 ```
 
@@ -33,15 +31,12 @@ You can now launch VirtualBox.exe !
 Activate Intel VT-x instruction in your BIOS/UEFI Firmeware.
 Deactivate Hyper-V.
 
-Considering that you followed the build instructions ([BUILD.gen.md](/BUILD.gen.md))
+If you followed the build instructions ([BUILD.gen.md](/doc/BUILD.gen.md#job-gcc-1)) go to:
 ```bash
-cd icebox/third_party/virtualbox/out/linux.amd64/release/bin/src
-make
-sudo make install
-cd ..
+icebox/third_party/virtualbox/out/linux.amd64/release/bin/
 ```
 
-Create vboxuser group (where MYUSERNAME is your own username)
+If not unzip the release. Then create vboxuser group (where MYUSERNAME is your own username)
 ```bash
 sudo groupadd vboxusers
 sudo usermod -a -G vboxusers $MYUSERNAME

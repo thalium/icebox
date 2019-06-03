@@ -118,9 +118,9 @@ cd ../../../../..
 mkdir -p out/linux.amd64/release/bin/additions
 touch out/linux.amd64/release/bin/additions/VBoxGuestAdditions.iso
 kmk packing VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
+mkdir linux.amd64.bin
 7za -y e out/linux.amd64/release/bin/*.run -otmp
-7za -y e tmp/VirtualBox.tar.bz2 -otmp
-7za -y e tmp/VirtualBox.tar -olinux.amd64.bin
+tar -xjf tmp/VirtualBox.tar.bz2 -C linux.amd64.bin
 rm -r tmp
 ```
 
