@@ -161,6 +161,7 @@ foreach(sample IN ITEMS
     heapsan
     nt_writefile
     vm_resume
+    wireshark
 )
     add_target(${sample} samples "${root_dir}/src/icebox/samples/${sample}" OPTIONS executable fmt tidy)
     set_target_output_directory(${sample} "")
