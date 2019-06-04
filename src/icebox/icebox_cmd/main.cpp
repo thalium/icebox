@@ -169,7 +169,7 @@ namespace
 
         // check breakpoints
         {
-            const auto ptr = syms.symbol("nt", "SwapContext");
+            const auto ptr = core.os->kernel_symbols().symbol("nt", "SwapContext");
             const auto bp  = core.state.set_breakpoint("SwapContext", *ptr, [&]
             {
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
