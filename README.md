@@ -3,10 +3,14 @@
 Icebox is a Virtual Machine Introspection solution that enable you to stealthily trace and debug any process (kernel or user).
 It's based on project [Winbagility](https://github.com/Winbagility/Winbagility).
 
+
 Files which might be helpful:
 
 * [INSTALL.md](/doc/INSTALL.md): how to install icebox.
 * [BUILD.md](/doc/BUILD.md): how to build icebox.
+
+## Demo
+[![demo](doc/wireshark_icebox.gif)](https://www.youtube.com/watch?v=uJnxF0gptf8)
 
 ## Project Organisation
 * [fdp](/src/FDP): Fast Debugging Protocol sources
