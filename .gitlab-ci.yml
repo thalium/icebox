@@ -160,6 +160,8 @@ virtualbox:msvc:
     - cp %QT_DIR%/qtbase/bin/Qt5Widgets.dll .
     - cp %QT_DIR%/qtbase/bin/Qt5OpenGL.dll .
     - cp %QT_DIR%/qtbase/bin/Qt5PrintSupport.dll .
+    - mkdir platforms
+    - cp -r %QT_DIR%/qtbase/plugins/platforms/*.dll platforms
     - cp %OPENSSL_DIR%/bin/libcrypto-1_1-x64.dll .
     - cp %OPENSSL_DIR%/bin/libssl-1_1-x64.dll .
     - cp %CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl/libcurl.dll .
