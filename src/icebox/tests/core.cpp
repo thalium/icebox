@@ -2,7 +2,10 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/os.hpp>
+#include <icebox/plugins/sym_loader.hpp>
+#include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/utils/fnview.hpp>
+#include <icebox/waiter.hpp>
 
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
@@ -193,4 +196,36 @@ TEST_F(Win10Test, modules)
     const auto mod  = core.os->mod_find(*proc, want);
     EXPECT_TRUE(!!mod);
     EXPECT_EQ(id, mod->id);
+}
+
+TEST_F(Win10Test, unable_to_single_step_query_information_process)
+{
+    const auto target = "ProcessHacker.exe";
+    const auto proc   = waiter::proc_wait(core, target, FLAGS_NONE);
+    EXPECT_TRUE(!!proc);
+
+    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    EXPECT_TRUE(!!ntdll);
+
+    auto loader   = sym::Loader{core, *proc};
+    const auto ok = loader.load(*ntdll);
+    EXPECT_TRUE(ok);
+
+    wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
+    bool found = false;
+    // ZwQueryInformationProcess in 32-bit has code reading itself
+    // we need to ensure we can break this function & resume properly
+    // FDP had a bug where this was not possible
+    tracer.register_ZwQueryInformationProcess(*proc, [&](wow64::HANDLE, wow64::PROCESSINFOCLASS, wow64::PVOID, wow64::ULONG, wow64::PULONG)
+    {
+        found = true;
+    });
+    const auto now = std::chrono::high_resolution_clock::now();
+    const auto end = now + std::chrono::seconds(8);
+    while(!found && std::chrono::high_resolution_clock::now() < end)
+    {
+        core.state.resume();
+        core.state.wait();
+    }
+    EXPECT_TRUE(found);
 }
