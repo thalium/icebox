@@ -132,17 +132,49 @@ namespace
         return true;
     }
 
-    static opt<Dwarf_Die> get_structure(Dwarf& p, const std::string& name, const std::vector<Dwarf_Die>& collection_of_dies)
+    static opt<Dwarf_Die> get_structure(Dwarf& p, const std::string& name, const std::vector<Dwarf_Die>& collection_of_dies, const bool& pass_through_anonymous_struct = false)
     {
         for(const auto structure : collection_of_dies)
         {
-            char* name_ptr = nullptr;
-            auto ok        = dwarf_diename(structure, &name_ptr, &p.err);
+            char* name_ptr        = nullptr;
+            const auto ok_diename = dwarf_diename(structure, &name_ptr, &p.err);
 
-            if(ok == DW_DLV_ERROR)
+            if(ok_diename == DW_DLV_ERROR)
                 LOG(ERROR, "libdwarf error {} when reading name of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
-            if(ok != DW_DLV_OK)
+            if(pass_through_anonymous_struct && ok_diename == DW_DLV_NO_ENTRY) // anonymous structure
+            {
+                Dwarf_Off type_offset = 0;
+                auto ok               = dwarf_dietype_offset(structure, &type_offset, &p.err);
+
+                if(ok == DW_DLV_ERROR)
+                    LOG(ERROR, "libdwarf error {} when reading type offset of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+
+                if(ok != DW_DLV_OK)
+                    continue;
+
+                Dwarf_Die anonymous_struct = nullptr;
+                ok                         = dwarf_offdie_b(p.dbg, type_offset, true, &anonymous_struct, &p.err);
+
+                if(ok == DW_DLV_ERROR)
+                    LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+
+                if(ok != DW_DLV_OK)
+                {
+                    LOG(ERROR, "unable to get DIE at offset {:#x}", type_offset);
+                    continue;
+                }
+
+                std::vector<Dwarf_Die> children;
+                if(!read_children(p, anonymous_struct, children))
+                    continue;
+
+                const auto child = get_structure(p, name, children, true);
+                if(child)
+                    return *child;
+            }
+
+            if(ok_diename != DW_DLV_OK)
                 continue;
 
             const std::string structure_name(name_ptr);
@@ -307,7 +339,7 @@ opt<uint64_t> Dwarf::struc_offset(const std::string& struc, const std::string& m
     if(!read_children(*this, *structure, children))
         return {};
 
-    const auto child = get_structure(*this, member, children);
+    const auto child = get_structure(*this, member, children, true);
     if(!child)
         return {};
 
