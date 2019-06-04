@@ -229,3 +229,59 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     }
     EXPECT_TRUE(found);
 }
+
+TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
+{
+    const auto target = "ProcessHacker.exe";
+    const auto proc   = waiter::proc_wait(core, target, FLAGS_NONE);
+    EXPECT_TRUE(!!proc);
+
+    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    EXPECT_TRUE(!!ntdll);
+
+    auto loader   = sym::Loader{core, *proc};
+    const auto ok = loader.load(*ntdll);
+    EXPECT_TRUE(ok);
+
+    wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
+    bool found_start = false;
+    tracer.register_ZwWaitForSingleObject(*proc, [&](wow64::HANDLE, wow64::BOOLEAN, wow64::PLARGE_INTEGER)
+    {
+        found_start = true;
+    });
+
+    // wait to break on second breakpoint
+    {
+        const auto addr = loader.symbols().symbol("ntdll", "_ZwWaitForSingleObject@12");
+        EXPECT_TRUE(!!addr);
+
+        bool found_offset = false;
+        const auto bp     = core.state.set_breakpoint("_ZwWaitForSingleObject@12+10", *addr + 10, *proc, [&]
+        {
+            found_offset = true;
+        });
+        const auto now    = std::chrono::high_resolution_clock::now();
+        const auto end    = now + std::chrono::seconds(8);
+        while(!(found_start && found_offset) && std::chrono::high_resolution_clock::now() < end)
+        {
+            core.state.resume();
+            core.state.wait();
+        }
+        EXPECT_TRUE(found_start);
+        EXPECT_TRUE(found_offset);
+    }
+
+    // remove breakpoint & wait twice to ensure vm is not frozen
+    for(int i = 0; i < 2; ++i)
+    {
+        found_start    = false;
+        const auto now = std::chrono::high_resolution_clock::now();
+        const auto end = now + std::chrono::seconds(8);
+        while(!found_start && std::chrono::high_resolution_clock::now() < end)
+        {
+            core.state.resume();
+            core.state.wait();
+        }
+        EXPECT_TRUE(found_start);
+    }
+}
