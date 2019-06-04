@@ -200,3 +200,11 @@ add_custom_target(md_doc ALL
         "${root_dir}/.gitlab-ci.yml"
     COMMENT "Generating BUILD.gen.md"
 )
+
+# gtest
+set(gtest_dir "${root_dir}/third_party/googletest-1.8.1/googletest")
+add_target(gtest third_party "${gtest_dir}/src" "${gtest_dir}/include" OPTIONS recursive external)
+target_include_directories(gtest
+    PUBLIC "${gtest_dir}/include"
+    PRIVATE "${gtest_dir}"
+)
