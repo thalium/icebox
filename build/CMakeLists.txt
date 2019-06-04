@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(icebox)
+enable_testing()
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -207,4 +208,11 @@ add_target(gtest third_party "${gtest_dir}/src" "${gtest_dir}/include" OPTIONS r
 target_include_directories(gtest
     PUBLIC "${gtest_dir}/include"
     PRIVATE "${gtest_dir}"
+)
+
+# icebox_tests
+add_target(icebox_tests tests "${root_dir}/src/icebox/tests" OPTIONS fmt tidy test)
+target_link_libraries(icebox_tests PRIVATE
+    gtest
+    icebox
 )
