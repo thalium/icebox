@@ -42,7 +42,7 @@
 # include <string.h>
 #else /* STDC_HEADERS */
 extern void *malloc(), *realloc();
-extern void free(), bcopy(), abort();
+extern void free(), abort();
 extern int strcmp(), strncmp(), memcmp();
 extern void *memcpy(), *memmove(), *memset();
 #endif /* STDC_HEADERS */
@@ -74,12 +74,6 @@ extern int ftruncate();
 #if !HAVE_MEMCMP
 # define memcmp	strncmp
 #endif /* !HAVE_MEMCMP */
-#if !HAVE_MEMCPY
-# define memcpy(d,s,n)	bcopy(s,d,n)
-#endif /* !HAVE_MEMCPY */
-#if !HAVE_MEMMOVE
-# define memmove(d,s,n)	bcopy(s,d,n)
-#endif /* !HAVE_MEMMOVE */
 
 #if !HAVE_MEMSET
 # define memset _elf_memset

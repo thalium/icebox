@@ -98,6 +98,23 @@ target_include_directories(pdbparser PUBLIC
     "${retdec_dir}/include"
 )
 
+# libelf
+set(libelf_dir "${root_dir}/third_party/libelf-0.8.13/lib")
+add_target(libelf third_party/libdwarf "${libelf_dir}" OPTIONS external)
+target_include_directories(libelf PUBLIC
+    "${libelf_dir}"
+)
+
+# libdwarf
+set(libdwarf_dir "${root_dir}/third_party/libdwarf-20190110/libdwarf")
+get_files(libdwarf_files "${libdwarf_dir}")
+filter_out(libdwarf_files "dwarf_test_errmsg_list\.c")
+make_target(libdwarf third_party/libdwarf ${libdwarf_files} OPTIONS external)
+target_link_libraries(libdwarf PRIVATE libelf)
+target_include_directories(libdwarf PUBLIC
+	"${libdwarf_dir}"
+)
+
 # tracer code generator
 set(icebox_dir "${root_dir}/src/icebox/icebox")
 set(tracer_dir "${icebox_dir}/tracer")
