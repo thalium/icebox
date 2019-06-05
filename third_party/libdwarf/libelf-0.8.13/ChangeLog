@@ -1,0 +1,1435 @@
+Sun Nov  1 14:08:47 CET 2009, Michael Riepe <libelf@mr511.de>
+
+	* README:
+	* VERSION:
+		update for 0.8.13 release.
+	* libelf.pc.in:
+		add -I${includedir}.
+	* lib/begin.c:
+	* lib/private.h:
+		move archive related declarations.
+	* lib/elf_repl.h:
+		disable Elf64_Cap for 32-bit build.
+	* lib/getaroff.c:
+		new file.
+	* lib/Makefile.in:
+	* lib/Makefile.w32:
+		add getaroff.c.
+
+Tue Jul  7 19:45:12 CEST 2009, Michael Riepe <libelf@mr511.de>
+
+	* README:
+	* VERSION:
+		update for 0.8.12 release.
+
+	* lib/libelf.h:
+	* lib/x.elfext.c:
+		add new and deprecate old functions.
+ 
+Fri May 22 19:17:14 CEST 2009, Michael Riepe <libelf@mr511.de>
+
+	* README:
+	* VERSION:
+		update for 0.8.11 release.
+
+	* lib/libelf.h:
+		add ELF_F_LAYOUT_OVERLAP flag.
+
+	* lib/rawfile.c:
+		fix re-read zero size bug.
+
+	* lib/update.c:
+		honor ELF_F_LAYOUT_OVERLAP flag.
+
+Fri Sep  7 14:04:20 CEST 2007, Michael Riepe <libelf@mr511.de>
+
+	* acconfig.h:
+		add ENABLE_SANITY_CHECKS.
+
+	* aclocal.m4:
+		fix --enable-gnu-names.
+
+	* configure.in:
+		add --enable-sanity-checks.
+		fix --enable-extended-format.
+
+	* lib/data.c:
+		add _elf_sanity_checks variable.
+
+	* lib/private.h:
+		declare _elf_sanity_checks and constants.
+
+	* lib/strptr.c:
+		enable/disable sanity check.
+
+	* lib/version.c:
+		set _elf_sanity_checks from $LIBELF_SANITY_CHECKS.
+
+Fri Jun 29 23:27:15 CEST 2007, Michael Riepe <libelf@mr511.de>
+
+	* lib/Makefile.in:
+		improved make -jX patch.
+
+Wed Jun 20 08:04:30 CEST 2007, Michael Riepe <libelf@mr511.de>
+
+	* lib/Makefile.in:
+		add "make -jX install" patch by Joel Martin.
+
+Tue Nov 21 21:21:12 CET 2006, Michael Riepe <libelf@mr511.de>
+
+	* lib/Makefile.w32:
+		fix Windows compilation bug.
+
+Thu Sep  7 17:55:42 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* acconfig.h:
+	* aclocal.m4:
+	* configure.in:
+	* lib/config.h.w32:
+	* lib/gelf.h:
+	* lib/private.h:
+	* lib/sys_elf.h.in:
+	* lib/sys_elf.h.w32:
+		port to QNX Neutrino, thanks to darkelf.
+
+Fri Aug 25 14:46:34 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* Makefile.in:
+		add trackinstall target.
+
+Mon Aug 21 20:26:47 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* Makefile.in:
+		drop w32 from DISTSUBDIRS.
+	* lib/Makefile.in:
+		add new files to DISTFILES.
+	* lib/Makefile.w32:
+	* lib/build.bat:
+	* lib/config.h.w32:
+	* lib/libelf.def:
+	* lib/sys_elf.h.w32:
+		adopted from w32 subdirectory.
+
+Fri Aug 18 02:04:58 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* lib/begin.c:
+		let getnum return a size_t.
+	* lib/libelf.h:
+		replace __value because it's a reserved word in VC++ 2005.
+	* lib/nlist.c:
+		don't declare open() on W32.
+	* lib/private.h:
+		use <io.h> on W32.
+	* w32/Makefile.w32:
+		fix W32 DLL build.
+	* w32/build.bat:
+		add more examples for vcvars32.bat location.
+
+Fri Jul 28 00:56:00 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+		check for dsize == -1.
+	* lib/verdef.h:
+	* lib/verneed.h:
+		improve section translators.
+
+Tue Jul 11 18:53:00 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* w32/libelf.def:
+		add missing functions.
+
+Sat Jul  8 00:50:00 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* VERSION:
+		bump up to 0.8.9.
+
+Sat Jul  8 00:17:00 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* lib/32.newehdr.c:
+		make return value compatible with Solaris.
+	* lib/32.newphdr.c:
+		handle 65535+ segments.
+		make return value compatible with Solaris.
+	* lib/cook.c:
+		handle 65535+ segments.
+	* lib/elf_repl.h:
+		add new definitions.
+	* lib/libelf.h:
+		add/rename functions.
+	* lib/newscn.c:
+		fix section creation (was broken in 0.8.7).
+	* lib/private.h:
+		add SHN_XINDEX and PN_XNUM in case they're missing.
+		centrally define LIBELF_SUCCESS and LIBELF_FAILURE.
+	* lib/update.c:
+		handle 65535+ segments.
+		use elf->e_phnum internally.
+	* lib/x.elfext.c:
+		add elf_getphnum().
+		rename elfx_get_shnum() and elfx_get_shstrndx().
+		make return values compatible with Solaris.
+
+Fri Jul  7 19:01:04 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* VERSION:
+		bump up to 0.8.8.
+
+Fri Jul  7 18:27:25 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* lib/Makefile.in:
+		add lib/x.elfext.c.
+	* lib/libelf.h:
+		add functions from lib/x.elfext.c.
+	* lib/newscn.c:
+		simplify _elf_update_shnum().
+
+Tue Apr 25 16:26:39 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* lib/gelf.h:
+	* lib/libelf.h:
+	* lib/nlist.h:
+	* lib/private.h:
+		add workaround for broken compilers.
+
+Mon Apr 24 16:24:32 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* po/de.po:
+		update.
+
+Fri Apr 21 19:17:46 CEST 2006, Michael Riepe <libelf@mr511.de>
+
+	* acconfig.h:
+	* configure.in:
+		add --enable-extended-format.
+	* aclocal.m4:
+		search for msgmerge.
+	* lib/cook.c:
+		change _elf_item buffering.
+		handle extended format (with unusual entsize).
+	* lib/errors.h:
+	 	add ERROR_EHDR_SHENTSIZE and ERROR_EHDR_PHENTSIZE.
+	* po/Makefile.in:
+		use msgmerge instead of tupdate.
+ 
+Thu Oct 20 21:08:02 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* lib/input.c:
+	* lib/update.c:
+		handle partial reads and writes.
+
+Tue Aug 16 01:48:17 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* lib/begin.c:
+		add workaround for archive member misalignment.
+	* VERSION:
+		bump up to 0.8.7
+
+Tue Jul 19 11:56:26 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* README:
+	* w32/build.bat:
+		update.
+	* w32/libelf.def:
+		fix syntax.
+
+Tue Jun 28 00:31:24 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* Makefile.in:
+		remove superfluous slash.
+
+Tue Jun 21 03:58:47 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* lib/Makefile.in:
+		get rid of lib/pic subdir.
+
+Sat May 21 17:39:28 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* (global):
+		remove my e-mail address from all copyright clauses.
+
+Sun May 15 23:08:30 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* configure.in:
+		check if $CC can copile <elf.h>.
+	* lib/private.h:
+		#include <stdint.h> before <sys/types.h> (fixes glibc bug).
+
+Sun May  8 23:40:35 CEST 2005, Michael Riepe <libelf@mr511.de>
+
+	* Makefile.in:
+		add instroot variable.
+		install libelf.pc.
+	* configure.in:
+		create libelf.pc.
+
+Sun Mar 20 15:41:22 CET 2005, Michael Riepe <libelf@mr511.de>
+
+	* (global):
+		change my e-mail address.
+
+Fri Jan 28 23:09:57 CET 2005, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* po/Makefile.in:
+		use modified gmo2msg.
+	* po/gmo2msg.c:
+		make gmo2msg output more portable.
+
+Thu Oct  7 11:37:09 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/cook.c:
+		only use Elf64_Shdr if __LIBELF64 is true.
+
+Fri Sep 17 02:55:47 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/elf_repl.h:
+		add some ABI and architecture definitions.
+	* w32/config.h:
+		manual update.
+
+Sat Jul 10 17:33:15 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* acconfig.h:
+	* aclocal.m4:
+	* lib/errmsg.c:
+		check for dgettext, not for gettext.
+	* configure.in:
+		check for -lintl.
+	* po/Makefile.in:
+		use -lintl when building gmo2msg.
+
+Sun Jul  4 23:57:21 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+		add w32 subdir.
+	* README:
+		update for 0.8.6.
+	* configure.in:
+		create w32/Makefile.
+
+Sat Jul  3 20:42:00 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+	* lib/Makefile.in:
+		give up on <libelf_u.h>.
+	* lib/getarsym.c:
+
+Wed Jun 23 01:07:46 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* config.guess:
+	* config.sub:
+		update from FSF.
+
+Tue May  4 22:02:01 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* config.guess:
+	* config.sub:
+		update from FSF.
+
+Tue Mar 30 15:09:00 CEST 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+	* lib/Makefile.in:
+		use <libelf_u.h> to work around W32 compiler problems.
+
+Mon Feb 16 06:19:11 CET 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+		generate old-format tar file.
+
+Sat Jan 24 03:42:39 CET 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+		replace NULL with 0 -- some compilers don't like (void*).
+	* lib/getarsym.c:
+	* lib/nlist.c:
+		add cast to suppress compiler warning.
+
+Fri Jan 23 05:11:46 CET 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/update.c:
+		#undef max before #define.
+
+Wed Jan 21 18:15:50 CET 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/begin.c:
+		better support for Cygwin .lib archive files.
+
+Mon Jan 19 15:36:21 CET 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/libelf.h:
+	* lib/memset.c:
+		include <stddef.h> unconditionally.
+
+Fri Jan 16 23:13:25 CET 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* aclocal.m4:
+		support Intel C Compiler.
+	* lib/32.newehdr.c:
+	* lib/32.newphdr.c:
+		remove elf->e_free_ehdr and elf->e_free_phdr.
+	* lib/cook.c:
+		always allocate ehdr and phdr.
+	* lib/end.c:
+		always deallocate ehdr and phdr.
+	* lib/private.h:
+		remove elf->e_free_ehdr and elf->e_free_phdr.
+		change valid_type to suppress compiler warning.
+	* lib/update.c:
+		not necessary to update elf->e_ehdr and elf->e_phdr.
+
+Thu Jan 15 22:43:00 CET 2004, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION:
+		bump up to 0.8.6.
+	* configure.in:
+		check for __int64.
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+	* lib/gelf.h:
+	* lib/nlist.h:
+		test _WIN32 macro.
+	* lib/begin.c:
+		add (off_t) cast to suppress compiler warning.
+	* lib/libelf.h:
+	* lib/memset.c:
+		conditionally include <stddef.h> for size_t.
+	* lib/nlist.c:
+		declare open() on W32 systems.
+
+Tue Dec 16 20:02:30 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+		let disttest target make dist again.
+
+Sat Dec 13 16:14:31 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/update.c:
+		call lseek before ftruncate.
+
+Fri Dec  5 16:25:16 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* aclocal.m4:
+		add explanation for --enable-maintainer-mode
+	* lib/Makefile.in:
+	* po/Makefile.in:
+		add instroot make variable
+	* README:
+		add hint how to use it
+
+Thu Nov  6 17:35:00 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+	* lib/Makefile.in:
+	* po/Makefile.in:
+		add check targets
+		add MANIFEST to distribution
+	* aclocal.m4:
+		add mr_PACKAGE macro
+	* configure.in:
+		use mr_PACKAGE macro
+
+Sat Oct 25 15:22:59 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/elf_repl.h:
+		add EM_SPARC64
+
+Thu Oct  9 23:08:56 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/x.movscn.c:
+	* lib/x.remscn.c:
+		verify that file is really an ELF file
+
+Wed Oct  8 17:10:09 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* config.guess:
+	* config.sub:
+		latest versions from FSF
+
+Sat May 24 18:55:14 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* config.guess:
+		latest version from FSF
+	* lib/Makefile.in:
+	* lib/libelf.h:
+	* lib/x.movscn.c:
+	* lib/x.remscn.c:
+		add elfx_movscn() and elfx_remscn()
+	* lib/newscn.c:
+		update e_shnum properly
+	* lib/private.h:
+		declare _elf_update_shnum()
+
+Fri May 23 18:25:48 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* aclocal.m4:
+		provide name suffixes only
+	* lib/Makefile.in:
+		use name suffixes
+
+Fri May 23 01:24:26 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* README:
+		update for 0.8.5
+		add section about LFS
+	* config.guess:
+		latest version from FSF
+	* configure.in:
+	* lib/Makefile.in:
+		use local pic object directory
+	* lib/checksum.c:
+		detect d_buf == NULL
+
+Sun May 18 16:49:10 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION:
+		bump up to 0.8.5
+	* lib/strptr.c:
+		make elf_strptr() work safely with fragmented string tables
+	* lib/errors.h:
+		new error code and message for elf_strptr()
+	* po/de.po:
+	* po/libelf.po:
+		regenerated
+
+Mon May 12 15:29:12 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/update.c:
+		improved fix for elf_update `null buffer' bug
+
+Mon May 12 00:34:44 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* config.guess:
+	* config.sub:
+		latest versions from FSF
+
+Sun May 11 01:44:06 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/verdef.h:
+	* lib/verneed.h:
+		fix elf_update `null buffer' error.
+		Thanks to Bart Trojanowski who reported the bug.
+
+Wed May  7 20:26:17 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in:
+		fix maintainer mode default
+	* lib/verdef.h:
+	* lib/verneed.h:
+		only check d_buf if there is at least one element
+
+Mon Mar 31 17:08:04 CEST 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION:
+		bump up to 0.8.4
+
+Sun Mar 23 16:06:43 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in:
+		fix --enable-compat
+
+Thu Feb 27 14:35:12 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+		add `test-dist' target
+	* lib/errors.h:
+		new error code
+	* po/de.po:
+	* po/libelf.pot:
+		regenerated
+
+Wed Feb 26 17:48:58 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* config.guess:
+	* config.sub:
+		latest versions from FSF
+
+Wed Jan 15 22:50:53 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/begin.c:
+		fix overflow check
+
+Sun Jan 12 04:27:31 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in:
+		prefer int for __libelf_i32_t (if int has 32 bits)
+
+Thu Jan  2 17:40:22 CET 2003, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* README:
+		update for 0.8.3
+	* config.guess:
+	* config.sub:
+		update from ftp.gnu.org
+	* lib/cook.c:
+		require space for one SHDR only
+	* lib/elf_repl.h:
+		fix DT_ENCODING value
+
+Tue Dec 31 16:27:19 CET 2002, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/cook.c:
+		honor ELF extensions for >= 0xff00 sections
+	* lib/elf_repl.h:
+		add definitions from lates ELF spec
+	* lib/errors.h:
+	* po/libelf.pot:
+	* po/de.po:
+		new error message
+	* lib/private.h:
+		define missing pieces
+	* lib/update.c:
+		handle >= 0xff00 sections
+
+Mon Dec 23 00:23:20 CET 2002, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/Makefile.in:
+		fix dependencies.
+	* lib/cook.c:
+		add quirks mode for broken 64-bit architectures.
+	* lib/update.c:
+		do not override sh_entsize unless it's set to 0.
+	* lib/verdef.h:
+	* lib/verneed.h:
+		work around possible SEGV in translation routines.
+
+Sat Dec 14 23:33:10 CET 2002, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* ChangeLog:
+		add missing entries for 0.8.2 release.
+	* VERSION:
+		bump up to 0.8.3.
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+	* lib/verdef.h:
+	* lib/verneed.h:
+		fix ISO C violations (required for MacOS X).
+	* po/gmo2msg.c:
+		create SUSv3 compliant .msg files.
+
+Thu Jun 11 19:00:19 CEST 2002, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* README:
+		update for 0.8.2.
+	* VERSION:
+		bump up to 0.8.2.
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+		fix typos in for loop.
+	* lib/nlist.c:
+		add O_BINARY to file mode
+		(defaults to 0 on systems that lack it).
+
+Tue Dec 25 14:42:51 CET 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION:
+		set version to 0.8.0.
+	* README:
+		update version.
+
+Tue Oct 30 17:05:03 CET 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+		use uid/gid=0 when creating the distribution tar file.
+
+Mon Oct 15 23:47:10 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in:
+		check for <ar.h> and <fcntl.h>.
+		create ./pic when configuring.
+	* lib/Makefile.in:
+		move .o to ../pic/$@, not ../pic.
+	* lib/begin.c:
+		define struct ar_hdr and friends if <ar.h> is missing.
+		use lseek(..., SEEK_END).
+	* lib/input.c:
+		use lseek(..., SEEK_SET).
+	* lib/nlist.c:
+		include <fcntl.h> conditionally.
+		define O_RDONLY if it is missing.
+	* lib/private.h:
+		define SEEK_{SET,CUR,END} if they're missing.
+	* lib/update.c:
+		explicitly pass file descriptor to _elf_output().
+		use lseek(..., SEEK_SET).
+
+Tue Oct  9 22:46:01 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* aclocal.m4:
+		remove superfluous case.
+
+Mon Oct  8 17:56:04 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/opt.delscn.c:
+		handle versioning sections properly.
+
+Mon Oct  8 17:02:43 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+		override encoding when calculating the destination buffer
+		size for translation to a file.
+
+Sun Oct  7 21:31:01 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in:
+		drop OBJS64; always compile 64-bit sources.
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+		add translators for versioning structures.
+	* lib/Makefile.in:
+		drop OBJS64; add versioning support files.
+	* lib/errors.h:
+		add error codes for versioning support.
+	* lib/gelfehdr.c:
+	* lib/gelfphdr.c:
+	* lib/gelfshdr.c:
+	* lib/gelftrans.c:
+	* lib/swap64.c:
+		guard code with `#if __LIBELF64'.
+	* lib/private.h:
+		add translator declarations.
+	* po/de.po:
+	* po/libelf.pot:
+		add error messages for versioning support.
+
+Sun Oct  7 16:54:15 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* acconfig.h:
+	* configure.in:
+		improve auto-configuration.
+	* lib/Makefile.in:
+	* po/Makefile.in
+		let users override distdir.
+	* lib/cook.c:
+		improved bugfix based on new auto-configuration.
+	* lib/getdata.c:
+		prepare src first to prevent SEGV.
+	* lib/private.h:
+	* lib/update.c:
+		cosmetic changes.
+
+Sun Oct  7 05:50:19 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in:
+	* lib/cook.c:
+		fix compilation problem on Linux (SHT_SUNW_ver* undefined).
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+		make translator functions calculate the destination size.
+		add _elf32_xltsize and _elf64_xltsize entry points.
+	* lib/private.h:
+		declare _elf32_xltsize and _elf64_xltsize.
+	* lib/getdata.c:
+	* lib/update.c:
+		use _elf32_xltsize and _elf64_xltsize.
+
+Fri Oct  5 20:35:31 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/elf_repl.h:
+		add DT_VERSYM.
+	* lib/ext_types.h:
+		correct type names.
+	* lib/libelf.h:
+		add ELF_T_VDEF and ELF_T_VNEED.
+	* lib/32.fsize.c:
+		add table entries for versioning structures.
+	* lib/cook.c:
+		replace _elf_scn_types[] with _elf_scn_type().
+	* lib/private.h:
+		likewise; also remove valid_scntype() macro.
+	* lib/update.c:
+		call _elf_scn_type(), but do not set sh_entsize
+		for ELF_T_VDEF / ELF_T_VNEED.
+	* acconfig.h:
+	* lib/sys_elf.h.in:
+		added __LIBELF_SYMBOL_VERSIONS.
+	* configure.in:
+		check for symbol versioning definitions.
+	* lib/Makefile.in:
+		added gelf.h dependency.
+
+Wed Oct  3 22:46:33 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/swap64.c:
+		new file; separate 64-bit functions.
+	* lib/64.xlatetof.c:
+		remove 64-bit conversion functions.
+	* lib/byteswap.h:
+		replace casts to long / unsigned long.
+		add prototypes for 64-bit conversion functions.
+	* configure.in:
+	* lib/Makefile.in:
+		add lib/swap64.c.
+	* lib/ext_types.h:
+		add type definitions for versioning.
+	* lib/elf_repl.h:
+	* lib/gelf.h:
+		cosmetic changes.
+
+Wed Oct  3 00:00:27 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/elf_repl.h:
+		added lots of new definitions.
+	* lib/gelf.h:
+	* lib/libelf.h:
+	* lib/sys_elf.h.in:
+		cosmetic changes.
+
+Fri Sep 28 22:42:36 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+		remove `const' when compiling with -fPIC.
+
+Fri Sep 28 20:14:42 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* README:
+		add pointers to documentation.
+	* lib/64.xlatetof.c:
+		fixed conversion thinko.
+		(Jakub Jelinek <jakub@redhat.com> found this - thanks!)
+	* lib/gelf.h:
+	* lib/32.fsize.c:
+		add gelf_msize.
+	* lib/libelf.h:
+		add comment that elf{32,64}_checksum is missing.
+
+Tue Sep 11 02:43:47 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* README:
+		corrected typo.
+	* lib/cook.c:
+	* lib/private.h:
+	* lib/update.c:
+		replaces _ELFxx_ALIGN_xHDR with _fsize() call.
+
+Sun Sep  2 20:58:09 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+	* configure.in:
+	* lib/Makefile.in:
+	* po/Makefile.in:
+		add maintainer mode.
+
+Sat Sep  1 15:11:42 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/sys_elf.h.in: add more fixes for broken <elf.h> files.
+
+Sat Sep  1 05:01:16 CEST 2001, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* ChangeLog: major update. Yes, I'm back.
+
+	* COPYING.LIB: updated version from FSF.
+
+	* README: updated for 0.7.1.
+
+Thu Apr 20 17:09:41 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/gelftrans.c:
+	* lib/elf_repl.h:
+		add explicit casts to ELF64_R_SYM and ELF64_R_INFO.
+
+Thu Apr 13 20:15:45 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/update.c: better checks for overlapping sections.
+
+	* lib/errors.h:
+	* po/de.po:
+	* po/libelf.pot:
+		new error message.
+
+Thu Apr  6 19:15:46 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/strptr.c: rename `sd' variable.
+
+Fri Mar 31 20:11:14 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in: also pass CPPFLAGS and LDFLAGS to config.status.
+
+Fri Mar 31 20:02:55 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* aclocal.m4: add -DPIC define when building position-independent code.
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c:
+	* lib/errmsg.c:
+		make array members const when PIC is undefined.
+
+Fri Mar 31 14:42:32 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/32.newehdr.c: make _elf_newehdr() function private again.
+
+	* lib/32.newphdr.c: make _elf_newphdr() function private again.
+
+	* lib/strptr.c: add support for 64-bit ELF format.
+
+Wed Mar 29 18:49:43 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/gelfshdr.c: remove ELF class check.
+
+Mon Mar 27 01:24:50 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/gelf.h: #include <libelf.h> when compiling libelf.
+
+Sun Mar 26 15:02:54 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/private.h: #include <gelf.h> header file.
+
+	* lib/gelfehdr.c: move gelf_newehdr() function to lib/32.newehdr.c.
+
+	* lib/gelfphdr.c: move gelf_newphdr() function to lib/32.newphdr.c.
+
+	* lib/32.newehdr.c: add gelf_newehdr() function.
+
+	* lib/32.newphdr.c: add gelf_newphdr() function.
+
+	* lib/gelfshdr.c:
+	* lib/gelftrans.c:
+		remove explicit <gelf.h> include.
+
+Sun Mar 26 06:22:20 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* acconfig.h:
+	* configure.in:
+	* lib/private.h:
+	* lib/sys_elf.h.in:
+		rename NEED_LINK_H to __LIBELF_NEED_LINK_H.
+
+	* lib/32.newehdr.c: make _elf_newehdr() function public.
+
+	* lib/32.newphdr.c: make _elf_newphdr() function public.
+
+	* lib/gelf.h:
+		include <link.h> if needed.
+		choke if 64-bit is not supported.
+		add generic versions of ELF32_* and ELF64_* macros.
+
+	* lib/gelftrans.c:
+		define ELF32_R_* and ELF64_R_* macros (missing on some systems).
+
+Sun Mar 26 05:27:15 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in:
+		add check for existing <gelf.h> header.
+		build new source files when 64-bit is enabled.
+
+	* lib/Makefile.in:
+		add new source files.
+		make install-compat if --enable-compat was given.
+
+	* po/de.po:
+	* po/libelf.pot:
+		new error messages.
+
+Sun Mar 26 05:00:20 CEST 2000, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+	* lib/Makefile.in:
+	* po/Makefile.in:
+		remove Makefile last in `make distclean'.
+
+	* aclocal.m4: explicitly state the default in --enable-* help texts.
+
+	* configure.in:
+		set ALL_LINGUAS automatically.
+		add `--enable-compat' option.
+
+	* lib/private.h: add sd_scn member to struct Scn_Data.
+
+	* lib/cook.c:
+	* lib/end.c:
+	* lib/getdata.c:
+	* lib/newdata.c:
+	* lib/opt.delscn.c:
+	* lib/rawdata.c:
+	* lib/update.c:
+		handle new sd_scn member.
+
+	* lib/gelf.h: new public header file.
+
+	* lib/gelfehdr.c: new file, implements the gelf_getehdr(),
+		gelf_update_ehdr() and gelf_newehdr() functions.
+
+	* lib/gelfphdr.c: new file, implements the gelf_getphdr(),
+		gelf_update_phdr() and gelf_newphdr() functions.
+
+	* lib/gelfshdr.c: new file, implements the gelf_getshdr()
+		and gelf_update_shdr() functions.
+
+	* lib/gelftrans.c: new file, implements the gelf_getsym(),
+		gelf_update_sym(), gelf_getdyn(), gelf_update_dyn(),
+		gelf_getrela(), gelf_update_rela(), gelf_getrel() and
+		gelf_update_rel() functions.
+
+	* lib/begin.c: add gelf_getclass() function.
+
+	* lib/32.fsize.c: add gelf_fsize() function.
+
+	* lib/32.getphdr.c: make _elf_getphdr() function public.
+
+	* lib/64.xlatetof.c:
+		add gelf_xlatetom() and gelf_xlatetof() functions.
+		remove `const' from array members.
+
+	* lib/errors.h: add GElf error messages.
+
+	* po/de.po:
+	* po/libelf.pot:
+		new error message.
+
+Thu Nov  4 21:17:34 CET 1999, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/32.xlatetof.c:
+	* lib/errmsg.c:
+	* po/gmo2msg.c:
+		remove `const' from array members.
+
+Thu Nov  4 20:16:36 CET 1999, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/Makefile.in: add assert.c; remove stamp-h in `make distclean'.
+
+	* lib/assert.c: new file, implements the __elf_assert() function.
+
+	* lib/private.h: use __elf_assert() in elf_assert() macro.
+
+Wed Mar 17 16:21:02 CET 1999, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in: add "de" to ALL_LINGUAS.
+
+	* lib/elf_repl.h: lots of new #defines.
+
+	* lib/hash.c:
+	* lib/libelf.h:
+		elf_hash() takes an `const unsigned char *'.
+
+	* po/gmo2msg.c: copy comments from .gmo file.
+
+Fri Mar  5 16:28:08 CET 1999, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: set version to 0.7.1.
+
+	* po/de.po: new file.
+
+Fri Nov 27 22:24:00 MET 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/memset.c: rename and rewrite.
+	* lib/private.h: rename __memset.
+
+Tue Aug 25 17:17:18 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* aclocal.m4: remove superfluous #include.
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c: fix for picky instances of cpp(1).
+
+Sun Aug 23 18:26:53 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* aclocal.m4:
+	* lib/Makefile.in: add DEPSHLIBS, set to -lc for Linux.
+
+	* README: add DEPSHLIBS description.
+
+Sat Aug 22 15:50:41 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/begin.c: add workaround for broken ar(1) & friends.
+
+	* lib/32.getshdr.c: fix typo.
+
+Thu Aug  6 18:11:52 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/getdata.c: fixed SEGV bug.
+
+	* lib/cook.c:
+	* lib/getdata.c:
+	* lib/newdata.c:
+	* lib/rawdata.c:
+	* lib/private.h: removed sd_scn and (Elf_Data*) casts.
+
+Fri Jun 12 21:24:50 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* lib/*.c: move rcsid[] after <private.h>.
+
+	* lib/32.xlatetof.c:
+	* lib/64.xlatetof.c: replace broken Exn() macro with Cat2().
+
+	* lib/64.xlatetof.c: change `char*' to `unsigned char*'.
+
+	* lib/private.h: add `extern char *realloc();'.
+
+	* aclocal.m4:
+	* configure.in: remove leading spaces in cpp directives.
+
+Sun Jun  7 16:02:31 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* README: update for 0.7.0 release.
+
+Sun Jun  4 15:26:49 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* acconfig.h: add __libelf64* and __libelf_*_t.
+
+	* configure.in: clean up, add checks for 64-bit support.
+
+	* lib/64.xlatetof.c: new file, based on lib/32.xlatetof.c.
+
+	* lib/Makefile.in: add target for 64.xlatetof.o.
+
+	* lib/cook.c: check for 32-bit overflow.
+
+	* lib/elf_repl.h:
+	* lib/ext_types.h: add 64-bit data types.
+
+	* lib/private.h: add 64-bit definitions.
+
+	* lib/sys_elf.h.in: add __LIBELF64* and __libelf_*_t.
+
+	* lib/update.c: add full 64-bit support.
+
+Mon Jun  1 16:29:07 MEST 1998, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.7.0.
+
+	* configure.in:
+		add lib/sys_elf.h to AC_CONFIG_HEADER.
+		new option --disable-elf64.
+
+	* Makefile.in: add target for lib/sys_elf.h.
+
+	* acconfig.h: add __LIBELF_HEADER_ELF_H.
+
+	* lib/Makefile.in: add sys_elf.h(.in).
+
+	* lib/32.fsize.c:
+	* lib/32.getehdr.c:
+	* lib/32.getphdr.c:
+	* lib/32.getshdr.c:
+	* lib/32.newehdr.c:
+	* lib/32.newphdr.c:
+	* lib/cook.c:
+	* lib/getdata.c:
+	* lib/libelf.h:
+	* lib/newscn.c:
+	* lib/nlist.c:
+	* lib/opt.delscn.c:
+	* lib/private.h:
+	* lib/update.c:
+		merged with 64bit code.
+
+	* lib/begin.c:
+	* lib/input.c:
+		bug fixes.
+
+Fri Aug  1 19:33:33 MEST 1997, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.6.5.
+	
+	* lib/libelf.h: add declaration for elf_memory.
+
+	* lib/private.h: add e_memory flag.
+	
+	* lib/begin.c: add elf_memory, change archive freezing logic.
+
+	* lib/end.c: do not free e_data if e_memory is set.
+
+Tue Oct 22 21:31:56 MEST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* (all files): add RCS Id, import to CVS.
+
+	* Makefile.in: pass $(CC) to config.status.
+
+	* README: change for upcoming 0.6.5 release.
+
+	* aclocal.m4 (mr_ENABLE_NLS): add --enable-gnu-names option
+
+	* configure.in: change search order for <elf.h>.
+
+	* lib/begin.c (_elf_arhdr): add check for truncated archive member.
+
+	* lib/cook.c (_elf32_cook): add checks for misaligned tables.
+
+	* lib/errors.h:
+		fix wrong error message (ERROR_WRONLY).
+		add error messages for misaligned tables.
+
+	* lib/private.h: add constants for table alignments.
+
+	* po/Makefile.in: do not run mkinstalldirs directly, use $(SHELL).
+
+	* po/libelf.pot: rebuild.
+
+Tue Jul 30 17:22:41 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.6.4.
+
+	* Makefile.in:
+		add DISTSUBDIRS.
+		add po/Makefile target.
+
+	* po/Makefile.in:
+	* po/gmo2msg.c:
+	* po/libelf.pot:
+	* po/stamp-po:
+		new files.
+
+	* aclocal.m4 (mr_ENABLE_NLS):
+		add MSGFILES.
+		set GMOFILES, MSGFILES and POFILES even if NLS is disabled.
+
+	* configure.in:
+		add ALL_LINGUAS.
+
+	* lib/nlist.c:
+		call elf_errno() to clear pending error.
+
+Tue Jul 28 23:53:44 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.6.3.
+
+	* configure.in: fix creation of sys_elf.h.
+
+	* lib/Makefile.in:
+		move elf_repl.h to PRIVHDRS.
+		do not depend on HDRS and AUXHDRS.
+
+Sat Jul 27 18:27:09 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.6.2.
+
+	* Makefile.in:
+		remove support from SUBDIRS.
+		remove subdirs/Makefile target.
+
+	* acconfig.h:
+		add ENABLE_DEBUG.
+		remove HAVE_NLS.
+
+	* aclocal.m4:
+		add mr_ENABLE_DEBUG.
+
+	* configure.in:
+		use mr_ENABLE_DEBUG.
+
+	* lib/Makefile.in:
+		add LD variable.
+		add elf_repl.h to DISTFILES.
+
+	* lib/libelf.h:
+		add check for __LIBELF_INTERNAL__.
+
+	* lib/private.h:
+		#define __LIBELF_INTERNAL__.
+		use ENABLE_DEBUG.
+
+	* support/elf.h:
+		move to lib/elf_repl.h.
+
+	* support/Makefile.in:
+		remove.
+
+Sat Jul 27 06:25:23 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.6.1.
+
+	* aclocal.m4: add shared library support for sparc-sun-solaris2.
+
+	* lib/libelf.h.in: remove.
+
+	* lib/libelf.h: new file.
+
+	* configure.in:
+		remove broken check for existing installation.
+		remove @install_headers@ and @elf_h@.
+		do not build libelf.h from libelf.h.in.
+		create lib/sys_elf.h.
+
+	* lib/Makefile.in:
+		remove libelf.h and $(AUXHDRS) targets.
+		remove libelf.h.in from DISTFILES.
+		add libelf.h to DISTFILES.
+		add dummy_shlib target for broken make.
+
+Sat Jul 27 01:01:45 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.6.0.
+
+	* lib: new directory.
+
+	* config.sub:
+	* config.guess:
+		new files.
+
+	* shared:
+	* shared/Makefile.in:
+		remove.
+
+	* aclocal.m4:
+	* configure.in:
+		add shared library check.
+
+	* Makefile.in:
+	* lib/Makefile.in:
+		change for new directory structure.
+		integrate shared library support.
+
+	* Makefile.in:
+		remove libelf.lsm from DISTFILES.
+
+	* libelf.lsm: remove.
+
+Thu Jul 25 19:35:05 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.5.9.
+
+	* aclocal.m4: rewrite NLS check.
+
+Tue Jul 23 18:59:05 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in: add install-compat and uninstall-compat targets.
+
+	* configure.in:
+	* aclocal.m4:
+		fix check for NLS support.
+
+	* acconfig.h: add HAVE_CATGETS and HAVE_GETTEXT.
+
+	* errmsg.c (elf_errmsg): use HAVE_GETTEXT.
+
+Sun Jul 21 22:52:02 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.5.8.
+
+	* private.h:
+	* 32.getshdr.c:
+	* cook.c:
+	* end.c:
+	* newscn.c:
+	* opt.delscn.c:
+	* update.c:
+		change allocation of section headers.
+
+	* errors.h: fix speeling error.
+
+Sat Jul 13 22:51:16 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.5.7.
+
+	* private.h: add e_dsize member to struct Elf.
+
+	* begin.c (elf_begin): set e_dsize.
+
+	* update.c (_elf32_update_pointers):
+		never let e_data become shorter than e_dsize bytes.
+		use correct base pointer.
+
+Sat Jun 15 16:28:50 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* 32.xlatetof.c: change `char' to `unsigned char'.
+
+Tue May 28 19:00:30 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* Makefile.in:
+		HP-UX make wants non-empty target, change it.
+		add targets for TAGS and libelf.po.
+
+	* errors.h: mark strings for GNU gettext.
+
+	* mkmsgs: recognize new errors.h format.
+
+	* errmsg.c (elf_errmsg): add gettext support.
+
+Mon May 27 20:30:30 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* VERSION: change version to 0.5.6.
+
+	* aclocal.m4:
+	* configure.in: use new AC_CACHE_CHECK macro.
+
+	* Makefile.in:
+	* shared/Makefile.in: use @...dir@.
+
+	* Makefile.in: pass $(SRCS) and $(OBJS) to shared/Makefile.
+
+Sat May 25 01:00:15 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* update.c (elf_update): assert e_data is malloc'ed.
+
+	* begin.c (elf_begin): mmap e_data if possible.
+
+	* end.c (elf_end): munmap e_data if necessary.
+
+	* input.c (_elf_mmap): new function.
+
+	* private.h: add _elf_mmap and e_unmap_data.
+
+	* errmsg.c: make pointer array constant.
+
+Thu May 23 19:24:47 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* update.c (elf_update): mmap(MAP_SHARED) wants non-empty file.
+
+Tue May 21 15:33:07 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* begin.c (elf_begin): re-read memory image of archive members.
+
+	* cook.c (_elf32_item):
+	* getdata.c (_elf32_cook_scn): always use memory image.
+
+	* update.c (_elf_update): use mmap if possible.
+
+	* configure.in: check for mmap.
+
+Mon May 20 18:15:54 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* nlist.c (_elf_nlist): fix broken st_name range check.
+
+	* update.c (_elf32_write): check status of elf_getdata.
+
+	* cook.c (_elf32_item):
+	* getdata.c (_elf32_cook_scn):
+		use memory image when file is not an archive member.
+
+	* rawdata.c (elf_rawdata): copy raw image rather than referencing it.
+
+Wed May 15 20:04:39 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* rawdata.c (elf_rawdata): use raw image if it is present.
+
+	* cntl.c (elf_cntl): fix archive handling, ignore ELF_C_FDREAD for non-ELF files.
+
+Fri May 10 17:16:44 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* begin.c (_elf_arhdr): fix handling of long archive member names.
+
+	* configure.in: move version information to external file.
+
+	* Makefile.in: add VERSION to DISTFILES.
+
+	* VERSION: new file.
+
+Sat May  4 20:56:43 MET DST 1996, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in: change version to 0.5.5.
+
+	* Makefile.in: add libelf.lsm and ChangeLog to DISTFILES.
+
+	* rawdata.c: reorder cases to avoid unnecessary malloc/free.
+
+	* all files: update copyright phrase.
+
+	* ChangeLog:
+	* libelf.lsm: new files.
+
+Sun Oct 29 19:34:00 MET 1995, Michael Riepe <michael@stud.uni-hannover.de>
+
+	* configure.in: change version to 0.5.3.
+
+	* Makefile.in:
+	* shared/Makefile.in: add opt.delscn.c.
+
+	* libelf.h.in: add declaration for elf_delscn.
+
+	* opt.delscn.c: new file.
+

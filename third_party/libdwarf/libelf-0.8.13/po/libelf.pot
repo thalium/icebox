@@ -1,0 +1,321 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-05-23 10:18+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../lib/errors.h:25
+msgid "no error"
+msgstr ""
+
+#: ../lib/errors.h:26
+msgid "unknown error"
+msgstr ""
+
+#: ../lib/errors.h:27
+msgid "Internal error: unknown reason"
+msgstr ""
+
+#: ../lib/errors.h:28
+msgid "Internal error: not implemented"
+msgstr ""
+
+#: ../lib/errors.h:29
+msgid "Request error: cntl(ELF_C_FDREAD) on write-only file"
+msgstr ""
+
+#: ../lib/errors.h:30
+msgid "Request error: invalid ELF_C_* argument"
+msgstr ""
+
+#: ../lib/errors.h:31
+msgid "Request error: file descriptor disabled"
+msgstr ""
+
+#: ../lib/errors.h:32
+msgid "Request error: not an archive"
+msgstr ""
+
+#: ../lib/errors.h:33
+msgid "Request error: offset out of range"
+msgstr ""
+
+#: ../lib/errors.h:34
+msgid "Request error: unknown ELF version"
+msgstr ""
+
+#: ../lib/errors.h:35
+msgid "Request error: ELF_C_* argument does not match"
+msgstr ""
+
+#: ../lib/errors.h:36
+msgid "Request error: archive member begin() for writing"
+msgstr ""
+
+#: ../lib/errors.h:37
+msgid "Request error: archive/member file descriptor mismatch"
+msgstr ""
+
+#: ../lib/errors.h:38
+msgid "Request error: not an ELF file"
+msgstr ""
+
+#: ../lib/errors.h:39
+msgid "Request error: class file/memory mismatch"
+msgstr ""
+
+#: ../lib/errors.h:40
+msgid "Request error: invalid ELF_T_* argument"
+msgstr ""
+
+#: ../lib/errors.h:41
+msgid "Request error: unknown data encoding"
+msgstr ""
+
+#: ../lib/errors.h:42
+msgid "Request error: destination buffer too small"
+msgstr ""
+
+#: ../lib/errors.h:43
+msgid "Request error: d_buf is NULL"
+msgstr ""
+
+#: ../lib/errors.h:44
+msgid "Request error: unknown ELF class"
+msgstr ""
+
+#: ../lib/errors.h:45
+msgid "Request error: section does not belong to file"
+msgstr ""
+
+#: ../lib/errors.h:46
+msgid "Request error: no section at index"
+msgstr ""
+
+#: ../lib/errors.h:47
+msgid "Request error: can't manipulate null section"
+msgstr ""
+
+#: ../lib/errors.h:48
+msgid "Request error: data does not belong to section"
+msgstr ""
+
+#: ../lib/errors.h:49
+msgid "Request error: no string table"
+msgstr ""
+
+#: ../lib/errors.h:50
+msgid "Request error: string table offset out of range"
+msgstr ""
+
+#: ../lib/errors.h:51
+msgid "Request error: update(ELF_C_WRITE) on read-only file"
+msgstr ""
+
+#: ../lib/errors.h:52
+msgid "I/O error: seek"
+msgstr ""
+
+#: ../lib/errors.h:53
+msgid "I/O error: file too big for memory"
+msgstr ""
+
+#: ../lib/errors.h:54
+msgid "I/O error: raw read"
+msgstr ""
+
+#: ../lib/errors.h:55
+msgid "I/O error: get file size"
+msgstr ""
+
+#: ../lib/errors.h:56
+msgid "I/O error: output write"
+msgstr ""
+
+#: ../lib/errors.h:57
+msgid "I/O error: can't truncate output file"
+msgstr ""
+
+#: ../lib/errors.h:58
+msgid "Sequence error: must set ELF version first"
+msgstr ""
+
+#: ../lib/errors.h:59
+msgid "Sequence error: must create ELF header first"
+msgstr ""
+
+#: ../lib/errors.h:60
+msgid "Format error: reference outside file"
+msgstr ""
+
+#: ../lib/errors.h:61
+msgid "Format error: archive header truncated"
+msgstr ""
+
+#: ../lib/errors.h:62
+msgid "Format error: archive fmag"
+msgstr ""
+
+#: ../lib/errors.h:63
+msgid "Format error: archive header"
+msgstr ""
+
+#: ../lib/errors.h:64
+msgid "Format error: archive member truncated"
+msgstr ""
+
+#: ../lib/errors.h:65
+msgid "Format error: archive symbol table size"
+msgstr ""
+
+#: ../lib/errors.h:66
+msgid "Format error: archive string table"
+msgstr ""
+
+#: ../lib/errors.h:67
+msgid "Format error: archive special name unknown"
+msgstr ""
+
+#: ../lib/errors.h:68
+msgid "Format error: ELF header truncated"
+msgstr ""
+
+#: ../lib/errors.h:69
+msgid "Format error: program header table truncated"
+msgstr ""
+
+#: ../lib/errors.h:70
+msgid "Format error: section header table truncated"
+msgstr ""
+
+#: ../lib/errors.h:71
+msgid "Format error: data region truncated"
+msgstr ""
+
+#: ../lib/errors.h:72
+msgid "Format error: program header table alignment"
+msgstr ""
+
+#: ../lib/errors.h:73
+msgid "Format error: section header table alignment"
+msgstr ""
+
+#: ../lib/errors.h:74
+msgid "Format error: bad parameter in Verdef record"
+msgstr ""
+
+#: ../lib/errors.h:75
+msgid "Format error: unknown Verdef version"
+msgstr ""
+
+#: ../lib/errors.h:76
+msgid "Format error: bad parameter in Verneed record"
+msgstr ""
+
+#: ../lib/errors.h:77
+msgid "Format error: unknown Verneed version"
+msgstr ""
+
+#: ../lib/errors.h:78
+msgid "Format error: bad e_shnum value"
+msgstr ""
+
+#: ../lib/errors.h:79
+msgid "Format error: bad e_shentsize value"
+msgstr ""
+
+#: ../lib/errors.h:80
+msgid "Format error: bad e_phentsize value"
+msgstr ""
+
+#: ../lib/errors.h:81
+msgid "Format error: unterminated string in string table"
+msgstr ""
+
+#: ../lib/errors.h:82
+msgid "Layout error: section size too small for data"
+msgstr ""
+
+#: ../lib/errors.h:83
+msgid "Layout error: overlapping sections"
+msgstr ""
+
+#: ../lib/errors.h:84
+msgid "Memory error: elf descriptor"
+msgstr ""
+
+#: ../lib/errors.h:85
+msgid "Memory error: archive symbol table"
+msgstr ""
+
+#: ../lib/errors.h:86
+msgid "Memory error: archive member header"
+msgstr ""
+
+#: ../lib/errors.h:87
+msgid "Memory error: ELF header"
+msgstr ""
+
+#: ../lib/errors.h:88
+msgid "Memory error: program header table"
+msgstr ""
+
+#: ../lib/errors.h:89
+msgid "Memory error: section header table"
+msgstr ""
+
+#: ../lib/errors.h:90
+msgid "Memory error: section descriptor"
+msgstr ""
+
+#: ../lib/errors.h:91
+msgid "Memory error: section data"
+msgstr ""
+
+#: ../lib/errors.h:92
+msgid "Memory error: output file space"
+msgstr ""
+
+#: ../lib/errors.h:93
+msgid "Memory error: temporary buffer"
+msgstr ""
+
+#: ../lib/errors.h:94
+msgid "GElf error: value out of range"
+msgstr ""
+
+#: ../lib/errors.h:95
+msgid "GElf error: index out of range"
+msgstr ""
+
+#: ../lib/errors.h:96
+msgid "GElf error: type mismatch"
+msgstr ""
+
+#: ../lib/errors.h:97
+msgid "GElf error: not enough memory for GElf_Sym"
+msgstr ""
+
+#: ../lib/errors.h:98
+msgid "GElf error: not enough memory for GElf_Dyn"
+msgstr ""
+
+#: ../lib/errors.h:99
+msgid "GElf error: not enough memory for GElf_Rela"
+msgstr ""
+
+#: ../lib/errors.h:100
+msgid "GElf error: not enough memory for GElf_Rel"
+msgstr ""
