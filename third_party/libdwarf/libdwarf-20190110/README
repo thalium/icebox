@@ -1,0 +1,269 @@
+As of September 29, 2018 you will find difficulties
+on FreeBSD 11.2 running make, as default make is not
+gnu-make compatible. The 2018 configure change
+to fully use autoconf/automake requires GNU make
+to build executables.
+
+As of 23 August 2018 cmake again works.
+Files had been deleted, added, and renamed so
+adjustments have now been made.
+
+========== ACLOCAL MISSING BUILD PROBLEM
+
+If you encounter a configure or build problem
+"WARNING: 'aclocal-1.15' is missing on your system."
+  The problem is because the git repository does not
+  maintain file timestamps so configure or make fails.
+  Nor does "cp -r" (missing the p option) maintain
+  the file timestamps of the files.
+
+  From the top-level source do
+    sh scripts/FIX-CONFIGURE-TIMES
+  to fix the important timestamps.
+  The command is safe to run at any time.
+  The command checks that it is being run
+  from an appropriate libdwarf top-level
+  directory before doing anything.
+
+========= End of aclocal issue...
+========== CONFUSING BUILD PROBLEM
+If you do a full or partial in-source-tree build
+(see below) and then attempt an out-of-source-tree
+build you will get very confusing messages
+about build problems.
+
+Just ensure that the source tree is 'clean'
+(as by 'make distclean' or other means)
+before you attempt an out-of-source-tree build
+(see below for details).
+
+========= End of confusing build problem
+
+========= gcc under MinGW on windows
+Under MinGW the gcc CFLAGS 
+ -DHAVE_WINDOWS_H -DHAVE_NONSTANDARD_PRINTF_64_FORMAT -fno-dwarf2-cfi-asm
+seem to be essential.
+=========
+
+Standard builds are done by configure/make as described below.
+Cross-Compiles are described below, see CROSS COMPILES.
+
+BUILDING IN SOURCE TREE
+To just build libdwarf and dwarfdump if the source tree is
+in /a/b/dwarf-20180809 one might do:
+    cd /a/b/dwarf-20180809
+    ./configure
+    make
+
+LIBRARY AND HEADER REQUIREMENTS
+libelf and zlib and elf.h have to be installed
+to build libdwarf and dwarfdump.  For example,
+in Ubuntu 16.04 and 18.04, install using:
+    sudo apt-get install zlib1g zlib1g-dev libelf1 libelf-dev
+
+zlib is available in source from
+    http://zlib.net
+
+libelf is available in source from
+    http://www.mr511.de/software/
+and
+    https://github.com/vtorri/libelf
+
+BUILDING OUT OF SOURCE TREE
+Or one could  create a new directory, for example,
+    mkdir /var/tmp/dwarfex
+    cd /var/tmp/dwarfex
+    /a/b/dwarf-20180809/configure (other options as required)
+    make
+In this case the source directory is not written-to and all
+objects and files created are under /var/tmp/dwarfex
+
+NOTE: When building out of source tree the source tree must
+be cleaned of any files created by a build in the source tree
+(just in case you tried that) before doing the out-of-source
+build.
+
+BUILDING ALL THE TOOLS
+To build all the tools (including dwarfgen and dwarfexample)
+use  a different configure command:
+    ./configure --enable-dwarfgen --enable-dwarfexample make
+
+To see all the available options to configure do
+   ./configure --help
+
+By default configure compiles and uses libdwarf.a.
+
+With
+    ./configure --enable-shared
+both libdwarf.a and libdwarf.so are built. The runtimes built
+will reference libdwarf.so.
+
+With
+    ./configure --enable-shared --disable-nonshared
+libdwarf.so is built and used; libdwarf.a is not built.
+
+THE USUAL ENVIRONMENT VARIABLES
+The following default to sensible values
+you may set environment variables as usual
+with GNU configure.
+CPPFLAGS
+CFLAGS
+LDFLAGS
+
+The following environment variables (if set) override
+values used in building helper executables (at build time)
+that are run at build time to build C source
+to be compiled into libdwarf and dwarfdump.
+It's not likely you will have any need to
+set your own values for these.
+These helper executables are ignored
+by 'make install'.
+
+CFLAGS_FOR_BUILD
+CPPFLAGS_FOR_BUILD
+LDFLAGS_FOR_BUILD
+
+Normally the simple defaults for these will work
+and will suffice.
+
+Having separate variables for the build-time
+is necessary to support cross-building. For example
+if compiling on x86_64 and building libdwarf for Arm7.
+
+
+DEBUGGING MAKE
+
+To see what compile/link commands are actually
+being used by the generated Makefiles try V=1, as in
+    make V=1
+
+
+INSTALL AND UNINSTALL
+
+The default install is to /usr/local
+
+To change the install location use --prefix.
+For example:
+    mkdir /tmp/testinst
+    configure --prefix=/tmp/testinst
+
+So 'make install' (sudo make install) installs into
+/usr/local/bin, /usr/local/lib, /usr/local/include, and
+/usr/local/share/libdwarf.
+
+Doing 'make uninstall' (sudo make uninstall) deletes
+what 'make install' added but does not delete the
+/usr/local/share/libdwarf directory that the 'make install'
+created.
+
+CHECKING FOR MEMORY CORRUPTION
+
+Recent gcc has some checks that can be done at runtime.
+  -fsanitize=address
+  -fsanitize=leak
+  -fsanitize=undefined
+which are turned on here by '<path>/configure --enable-sanitize'.
+
+The --enable-sanitize option unlikely to work when
+cross-compiling.
+
+CROSS-COMPILES
+
+For those wishing to build libdwarf (and possibly dwarfdump)
+for a different host machine than the build machine
+it is now possible to do that.
+
+It has been tested with host and target set to an ARM with
+build on X86_64.  See
+  https://gcc.gnu.org/onlinedocs/gccint/Configure-Terms.html
+for standard GNU usage of build, host, and target.  See also:
+https://www.gnu.org/software/autoconf/manual/autoconf.html#Specifying-Target-Triplets
+
+The autoconf documentation strongly suggests adding --build
+to the configure commands and in the example below adding
+--build=i686-pc-linux-gnu is known to work on the test machine.
+
+The following is an example. Currently configure figures out
+the build environment for itself so we don't use --build here.
+
+On build machine:
+sudo apt-get install gcc-arm-linux-gnueabihf
+#  Install libelf and zlib (libz) into
+#  the gcc cross-build tree too.
+#  I cheated: copied from arm machine into
+#  gcc-arm-linux-gnueabihf.
+
+mkdir emptycross
+cd emptycross
+git clone git://git.code.sf.net/p/libdwarf/code
+cd code
+./configure --host=arm-linux-gnueabihf
+make
+# done
+
+Doing a build on Ubuntu 18.04 (X86_64 environment)
+of a 32-bit libdwarf/dwarfdump requires some care.
+
+Doing
+  sudo apt install gcc-6-multilib
+helps.
+
+It is a requirement that the build and host machines match
+with respect to the existence of system headers
+and of libraries.
+It seems necessary, in /usr/lib/i386-linux-gnu/ , to 
+    sudo cp libelf.so.1 libelf.so
+so the linker can find 32-bit libelf.
+
+In addition, one must build zlib for the host
+(if you have zlib in the build environment)
+(see above for the zlib source link)
+with
+CFLAGS=-m32 ./configure
+make
+sudo cp libz.a /usr/lib/i386-linux-gnu/
+sudo cp libz.so /usr/lib/i386-linux-gnu/
+
+#building libdwarf/dwarfdump in the source for no good reason:
+./configure  --host=i386-linux-gnu \
+ --build=x86_64-pc-linux-gnu \
+ CFLAGS_FOR_BUILD="-O2 -m64" \
+ CFLAGS="-O2 -m32" 
+
+------------------ notes on updating ------
+
+To update configure after hand updating a Makefile.am or
+the configure.ac do the following command at the top level
+(where this file is):
+    autoreconf -vif
+You will need the autotools installed including autoconf,
+automake, and libtool to run autoreconf.
+
+If, for some reason, you wish to run the small
+basic checks of individual source files, first
+do
+    ./configure
+    make
+Then
+    make check
+will run the special test scripts: dwarfdump/runtests.sh
+libdwarf/runtests.sh (each must be run in its directory,
+neither requires any arguments, just run each).
+As of this writing this must be done (as shown)
+in the source directory, it does not currently
+work if running the configure in a build directory.
+
+To create a release file do:
+    ./configure --enable-dwarfexample --enable-dwarfgen
+    make
+    make dist
+will generate a libdwarf-yyyymmdd.tar.gz file with the files
+needed in a release
+    scripts/CPTARTOWEBDIR is an example of generating
+fingerprints for the release file and copying the file.
+
+See the configure.ac for the version used.
+For example: 'm4_define([v_date], [20180730])])'
+
+
+David Anderson.  Updated August 2, 2018

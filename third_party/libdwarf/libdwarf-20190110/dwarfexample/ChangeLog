@@ -1,0 +1,13 @@
+2019-01-09 David Anderson
+    * simplereader.c: Added comments about the dwarf_init()
+      case and dSYM objects.
+2019-01-03 David Anderson
+    * simplereader.c: Now uses dwarf_init_path()
+      to initialize libdwarf instead of dwarf_init()
+      or dwarf_init_b().
+      Thus ensuring we test dwarf_init_path() in
+      regression tests on elf, mach-o and pe
+      object files.
+2019-01-02 David Anderson
+    * Makefile.am: Added ChangeLog2018 to files.
+    * ChangeLog: renamed ChangeLog2018

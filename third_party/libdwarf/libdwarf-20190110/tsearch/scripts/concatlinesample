@@ -1,0 +1,34 @@
+=== -s -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.00elapsed 0%CPU (0avgtext+0avgdata 856maxresident)k
+0inputs+0outputs (0major+292minor)pagefaults 0swaps
+=== -ta -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.00elapsed ?%CPU (0avgtext+0avgdata 760maxresident)k
+0inputs+0outputs (0major+244minor)pagefaults 0swaps
+=== -tf -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.00elapsed ?%CPU (0avgtext+0avgdata 760maxresident)k
+0inputs+0outputs (0major+244minor)pagefaults 0swaps
+=== -tv -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.00elapsed ?%CPU (0avgtext+0avgdata 760maxresident)k
+0inputs+0outputs (0major+245minor)pagefaults 0swaps
+=== -y -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.00elapsed ?%CPU (0avgtext+0avgdata 752maxresident)k
+0inputs+0outputs (0major+242minor)pagefaults 0swaps
+=== -w -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.00elapsed ?%CPU (0avgtext+0avgdata 756maxresident)k
+0inputs+0outputs (0major+243minor)pagefaults 0swaps
+=== -N -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.01elapsed 44%CPU (0avgtext+0avgdata 936maxresident)k
+0inputs+0outputs (0major+288minor)pagefaults 0swaps
+=== -b -v -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.01elapsed 47%CPU (0avgtext+0avgdata 1380maxresident)k
+0inputs+0outputs (0major+467minor)pagefaults 0swaps
+=== -c -v -v dwgenb/dwarfgen 
+Command exited with non-zero status 1
+0.01user 0.00system 0:00.03elapsed 62%CPU (0avgtext+0avgdata 1208maxresident)k
+0inputs+0outputs (0major+355minor)pagefaults 0swaps
+=== -f -v -v dwgenb/dwarfgen 
+0.00user 0.00system 0:00.00elapsed ?%CPU (0avgtext+0avgdata 792maxresident)k
+0inputs+0outputs (0major+252minor)pagefaults 0swaps
+=== -F -v -v dwgenb/dwarfgen 
+1.13user 0.00system 0:01.20elapsed 94%CPU (0avgtext+0avgdata 2172maxresident)k
+0inputs+0outputs (0major+606minor)pagefaults 0swaps

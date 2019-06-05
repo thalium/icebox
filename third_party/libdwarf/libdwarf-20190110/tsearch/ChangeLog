@@ -1,0 +1,3 @@
+2019-01-02  David Anderson
+     * ChangeLog: Renamed ChangeLog2018
+     * Makefile.am: Now with ChangeLog2018 in dist files list.

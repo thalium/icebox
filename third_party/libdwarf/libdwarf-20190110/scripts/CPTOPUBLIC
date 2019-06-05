@@ -1,0 +1,79 @@
+ #!/bin/sh
+# CPTOPUBLIC [uv] [nouv]
+# This is used in (copied into) each script to adjust
+# our location to the code directory above dwarfdump, libdwarf, etc.
+# This is the original copy (not used directly).
+l=`pwd`
+echo $l
+lb=`basename $l`
+ld=`dirname $l`
+#echo " lb: $lb"
+#echo " ld: $ld"
+cdtarg=.
+sloc=$l/scripts
+if [ x$lb = "xscripts" ]
+then
+  #echo "ld: $ld"
+  ldb=`basename $ld`
+  #echo "ldb: $ldb"
+  if [ x$ldb = "xcode" ]
+  then
+     cdtarg=..
+     sloc=$l
+  else
+     echo "Run from */code, not $l , giving up."
+     exit 1
+  fi
+  cd $cdtarg
+  if [ $? -ne 0 ]
+  then
+     echo "cd $cdtarg failed, giving up."
+     exit 1
+  fi
+else
+  if [ x$lb = "xcode" ]
+  then
+    cdtarg="."
+  else
+    echo "Run from */code, not $l , giving up."
+    exit 1
+  fi
+  # No need to cd.
+fi
+l=`pwd`
+#echo "Now at $l"
+#echo "sloc $sloc"
+
+
+usemsg()
+{
+  echo "CPTOPUBLIC [uv] [nouv]"
+  echo "where uv means update version strings "
+  echo "where nouv means do not update version strings "
+  echo "One of uv or nouv is required..."
+}
+
+if [ $# -ne 1 ]
+then
+  usemsg
+  exit 1
+fi
+uver="n"
+case $1 in 
+  uv) uver="y" ;;
+  nouv) uver="n" ;;
+  *) usemsg  ; exit 1 ;;
+esac
+
+s=/home/davea/dwarf/code
+cd $s
+pwd
+t=/var/tmp/dwarf
+echo target is $t
+if [ $uver = "y" ]
+then
+  sh $sloc/UPDATEDWARFDUMPVERSION.sh
+fi
+rm -rf $t
+mkdir $t
+cp -rp * $t

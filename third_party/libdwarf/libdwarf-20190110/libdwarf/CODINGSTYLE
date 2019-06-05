@@ -1,0 +1,71 @@
+This document is a brief description of the main
+coding style conventions in libdwarf.   Many of them
+will be obvious from the code, but over time some
+accidental diffences crept in.
+
+Code should be indented in multiples of 4 spaces, and
+tabs should not be used to indent the source code.
+Use the dicheck program to check indenting.
+
+dwarf.h and libdwarf.h must have all arguments commented
+out as these are public headers.  Because a  prototype like
+int dwarf_example_prototype(Dwarf_Debug foo);
+would be made unusable by  a legitimate
+preprocessor definition
+such as  #define foo +
+
+The struct naming convention is 'struct  Camel_Caps_s' for the
+struct and   'Camel_Caps' for any typedef for the struct.
+Admittedly having both camel caps
+and an underbar is an unusual convention, but it is
+the way the coding was begun in the early 1990's and
+we should remain consistent now.
+
+All user-referenceable data and functions 
+and user_visible types should begin with DW_ or
+dwarf_.  Non-static libdwarf global data and functions
+should begin with _dwarf (a somewhat questionable
+approach, but workable).
+
+Function names should be all lower case with underbars
+for readability.
+
+There should never be static data in any function.
+Nor should there ever be static data outside of libdwarf
+functions.  libdwarf can be called from multiple threads
+(but only from one thread per Dwarf_Debug) and multiple
+Dwarf_Debug objects can be open at one time.
+Instead place such data per-dbg into the Dwarf_Debug structure
+in dwarf_opaque.h. Similarly for the producer code.
+
+Function-local variables should be lower-case with
+underbars for readability.   It's ok for a small loop
+with counters to use single letter names like i or k or m.
+
+structure members should have a struct-specific
+2-character prefix to the name (followed by
+an underbar). That makes it much
+easier to grep for uses of members.
+
+Try to keep lines under 80 characters in length.
+
+Ensure every if() has {} to enclose the actions.
+
+There is a slight preference for if<single space>(
+over  if(. Similarly with for (, while (, and switch (.
+Not obsessing about these space-issues...
+
+Use libdwarf.h types for all the data objects you define,
+though sometimes an 'unsigned' or 'int' or 'size_t' is
+ok in restricted circumstances.  Dwarf_Unsigned Dwarf_Signed
+are the preferred integer types for general use.
+
+No .c file should ever have an 'extern *' to access some external.
+Instead, such external references should be defined in a header file
+and every .c with a reference to the external should #include
+the relevant header.  Being obsessive about this ensures that when
+the definition changes it will match the function declaration.
+There are a couple violations of this as of 2012, and those
+should be fixed!
+
+------------

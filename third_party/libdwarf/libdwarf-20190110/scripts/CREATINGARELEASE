@@ -1,0 +1,105 @@
+
+This is an checklist of the steps in creating a new release.
+In hopes this will prevent omissions.
+
+DavidA. 30 November 2012
+
+Source here means libdwarf/dwarfdump/dwarfgen source (in Git).
+Tests  here means the regression tests (in another Git repository).
+
+In the Source:
+
+Update the source and build with your changes.
+Update the appropriate ChangeLog file so every 
+file in Git which changes (except ChangeLog and NEWS)
+are in ChangeLog.
+      (at year end, move ChangeLog to ChangeLogyyyy
+       where yyyy is the year ending and create a new
+       empty ChangeLog)
+
+Use dicheck (also in sourceforge) to verify indentation of
+all .h .cc and .c files is consistent.
+
+Ensure all interfaces in libdwarf that are call able by users
+are in libdwarf.h and are documented in libdwarf2.1.mm or
+libdwarf2p.1.mm and that any changes in the .mm also
+mean you inserted a version and date change 
+in the date lines near the front of that .mm.
+Then regenerate the pdf if any changes.
+
+Run any small preliminary tests that seem applicable.
+
+In the Tests:
+
+Create any new tests that seem applicable. 
+Add the appropriate lines to DWARFTEST.sh which
+actually does the test running.
+
+RUNALL.sh 
+  Runs one test of the new dwarfdump/libdwarf executable
+  against the previously saved dwarfdump/libdwarf executable.
+
+The notion of keeping baseline test output and simply
+comparing output of a previous release vs the new 
+candidate release would involve saving some really large files.
+So the present test suite instead runs each test with
+two dwarfdump* versions and compares the output.
+
+To run all the tests, most of which
+compare the (committed in tests) dwarfdump
+against your new source: 
+   sh PICKUPBIN   # This picks up latest source and compiles
+                  # (for some files multiple times)
+                  # It is essential before each test run.
+   sh RUNALL.sh   # This runs the tests 3 times with different
+                  # dwarfdump[2] and different comparisons
+
+To check for failure:
+    grep FAIL  ALL*
+    If there are any FAILS decide if they are real failures
+    (in which case fix the Source and retest) or are in fact
+    the output change that is expected given the Source changes.
+
+In case all tests pass:
+    cp dwarfdump dwarfdump.O
+    commit the updated .O executables as the new baseline good
+    dwarfdump for the next test run.
+
+In the Source:
+    sh UPDATEDWARFDUMPVERSION.sh #updates the version string
+    a libdwarf header file (libdwarf/dwarf_version.h).
+
+    Update dwarfdump[2]/ChangeLog files to reflect the new version.
+    commit the new version string. If this has been done recently
+    enough that users won't see the current version string 
+    it need not be done at this time.
+
+    The release version is in configure.ac. 
+    Currently 20181024
+
+    git push origin master  # Push to sourceforge.
+    # We use 20181024 as an example below, use the current date.
+
+    mkdir /tmp/bld
+    cd /tmp/bld
+    <sourcelocation>/configure
+    make dist
+
+    md5sum libdwarf-20181024.tar.gz
+    sha512sum libdwarf-20181024.tar.gz | fold -w 32
+             # To get unforgeable checksums for the tar.gz file
+             # md5sum is weak, but the pair should be
+             # a strong confirmation.
+             # The fold(1) is just to make the web
+             # release page easier to work with.
+
+    git tag -a 20181024  -m 'Release 20181024'
+    git push origin 20181024   # push the tag
+
+In the Tests:
+    git push origin master
+    git tag -a 20181024  -m 'Release 20181024'
+    git push origin 20181024   # push the tag
+
+Update web pages so that the new release is visible to users
+and copy the tar.gz to the appropriate web site.

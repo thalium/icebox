@@ -1,0 +1,13 @@
+2014-12-09:  David Anderson
+     * dwarf_tsearchhash.c(tsearch_inner): Add check for NULL
+       so we do not just coredump if out of memory.
+     * dwarf_tsearchred.c(tsearch_inner): Add check for NULL
+       so we do not just coredump if out of memory.
+2014-09-10:  David Anderson
+     * dwarf_tsearchhash.c(calculate_allowed_fill): Moved a declaration
+       to avoid using C99 feature.
+2014-08-04:  David Anderson
+     * dwarf_tsearchhash.c: Changed to avoid compiler warnings
+       about const casts whereever possible.
+2014-01-29:  David Anderson
+     * All files: All added. Trailing whitespace removed.

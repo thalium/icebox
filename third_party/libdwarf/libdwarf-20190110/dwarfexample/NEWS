@@ -1,0 +1,10 @@
+September 05, 2016
+  simplereader.c: Added the --dumpallnames option so one can
+  get all the strings from debug_info,_types into a file.
+  A simple way to enable further examination of the strings.
+July 21, 2009 
+  Roni Simonian noticed a call to  print_die_data(dbg,cur_die,in_level);
+  was missing so not all DIEs would print.  Good Catch!
+July 8, 2009 
+  Created a sample libdwarf consumer. Using BSD license so
+  anyone can use it.  And a trivial Makefile.

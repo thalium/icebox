@@ -1,0 +1,195 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define if building universal (internal helper macro) */
+#undef AC_APPLE_UNIVERSAL_BUILD
+
+/* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
+   systems. This function is required for `alloca.c' support on those systems.
+   */
+#undef CRAY_STACKSEG_END
+
+/* Define to 1 if using `alloca.c'. */
+#undef C_ALLOCA
+
+/* Define to 1 if you have `alloca', as a function or macro. */
+#undef HAVE_ALLOCA
+
+/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
+   */
+#undef HAVE_ALLOCA_H
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Set to 1 if the elf64_getehdr function is in libelf. */
+#undef HAVE_ELF64_GETEHDR
+
+/* Set to 1 if the elf64_getshdr function is in libelf. */
+#undef HAVE_ELF64_GETSHDR
+
+/* Set to 1 if Elf64_Rela defined in elf.h. */
+#undef HAVE_ELF64_RELA
+
+/* Set to 1 if Elf64_Rel structure as r_info field. */
+#undef HAVE_ELF64_R_INFO
+
+/* Set to 1 if Elf64_Sym defined in elf.h. */
+#undef HAVE_ELF64_SYM
+
+/* Define to 1 if you have the <elfaccess.h> header file. */
+#undef HAVE_ELFACCESS_H
+
+/* Define to 1 if you have the <elf.h> header file. */
+#undef HAVE_ELF_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <libelf.h> header file. */
+#undef HAVE_LIBELF_H
+
+/* Define to 1 if you have the <libelf/libelf.h> header file. */
+#undef HAVE_LIBELF_LIBELF_H
+
+/* Define to 1 if you have the <malloc.h> header file. */
+#undef HAVE_MALLOC_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define 1 if need nonstandard printf format for 64bit */
+#undef HAVE_NONSTANDARD_PRINTF_64_FORMAT
+
+/* Set to 1 if old frame columns are enabled. */
+#undef HAVE_OLD_FRAME_CFA_COL
+
+/* Set to 1 if regex is usable. */
+#undef HAVE_REGEX
+
+/* Define to 1 if you have the <regex.h> header file. */
+#undef HAVE_REGEX_H
+
+/* Define to 1 if you have the <sgidefs.h> header file. */
+#undef HAVE_SGIDEFS_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/elf_386.h> header file. */
+#undef HAVE_SYS_ELF_386_H
+
+/* Define to 1 if you have the <sys/elf_amd64.h> header file. */
+#undef HAVE_SYS_ELF_AMD64_H
+
+/* Define to 1 if you have the <sys/elf_SPARC.h> header file. */
+#undef HAVE_SYS_ELF_SPARC_H
+
+/* Define to 1 if you have the <sys/ia64/elf.h> header file. */
+#undef HAVE_SYS_IA64_ELF_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Set to 1 if __attribute__ ((unused)) is available. */
+#undef HAVE_UNUSED_ATTRIBUTE
+
+/* Define to 1 if you have the <windows.h> header file. */
+#undef HAVE_WINDOWS_H
+
+/* Define 1 if want to allow Windows full path detection */
+#undef HAVE_WINDOWS_PATH
+
+/* Set to 1 if zlib decompression is available. */
+#undef HAVE_ZLIB
+
+/* Define to 1 if you have the <zlib.h> header file. */
+#undef HAVE_ZLIB_H
+
+/* Set to 1 if the OS defines __uint32_t. */
+#undef HAVE___UINT32_T
+
+/* Set to 1 if sgidefs.h defines __uint32_t. */
+#undef HAVE___UINT32_T_IN_SGIDEFS_H
+
+/* Set to 1 if sys/types.h defines __uint32_t. */
+#undef HAVE___UINT32_T_IN_SYS_TYPES_H
+
+/* Set to 1 if the OS defines __uint64_t. */
+#undef HAVE___UINT64_T
+
+/* Set to 1 if sgidefs.h defines __uint64_t. */
+#undef HAVE___UINT64_T_IN_SGIDEFS_H
+
+/* Set to 1 if sys/types.h defines __uint64_t. */
+#undef HAVE___UINT64_T_IN_SYS_TYPES_H
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#undef LT_OBJDIR
+
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+#undef NO_MINUS_C_MINUS_O
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* If using the C implementation of alloca, define if you know the
+   direction of stack growth for your system; otherwise it will be
+   automatically deduced at runtime.
+	STACK_DIRECTION > 0 => grows toward higher addresses
+	STACK_DIRECTION < 0 => grows toward lower addresses
+	STACK_DIRECTION = 0 => direction of growth unknown */
+#undef STACK_DIRECTION
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Version number of package */
+#undef VERSION
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t

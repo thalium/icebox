@@ -1,0 +1,27 @@
+2018-09-11  David Anderson & Carlos Alberto Enciso
+     * dwarf_tsearchhash.c: Remove trailing blank.
+       Now matches version in libdwarf.
+     * dwarf_tsearchbal.c: Change int to size_t where applicable.
+       Fix too-long lines in a couple places
+2018-07-20  David Anderson
+     * dwarf_tsearchhash.c: Added UNUSEDARG
+       where appropriate.
+2018-07-16  David Anderson
+     * dwarf_tsearch.h: Corrected obsolete web references.
+       Refined HAVE_STDAFX_H ifdef.
+       Realigned text formatting for a better presentation.
+     * config.h: Undef HAVE_STDAFX_H. This is hand coded,
+       not generated. Never changes.
+2018-07-10  David Anderson
+     * dwarf_tsearchbal.c,dwarf_tsearchbin.c,dwarf_tsearchepp.c,
+       dwarf_tsearchhash.c,dwarf_tsearchred.c: Removed dependency 
+       on dwarf_incl.h. All we need is appropriate definition
+       of UNUSEDARG macro.
+     * ESSAY.txt: Fixed a typo and made line lengths more even.
+2018-07-14  David Anderson
+     * config.h: Removed leading blank line.
+     * dwarf_tsearch.h: Removed three trailing blank lines.
+2018-07-13  David Anderson
+     * dwarf_tsearchbal.c,dwarf_tsearch.c, dwarf_tsearchhash.c,
+       dwarf_tsearchbin.c,dwarf_tsearchepp.c,dwarf_tsearchred.c:
+       Removed 3 trailing blank lines from each.

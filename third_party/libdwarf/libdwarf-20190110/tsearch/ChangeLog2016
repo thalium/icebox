@@ -1,0 +1,30 @@
+2016-02-17  David Anderson
+     * tsearch/config.h: Add some things convenient for testing.
+     * tsearch/dwarf_tsearch.c: Convenient for some testing.
+     * dwarf_tsearch.h: Modifications aid in testing tsearch.
+2016-02-07  David Anderson
+     * RUNTEST: the script had a couple of problems (typos). Fixed.
+       Added comments about running the tests.
+     * dwarf_tsearch.h: Provide a default DW_TSHASHTYPE
+       for tsearchhash and use DW_TSHASHTYPE.
+     * dwarf_tsearchbal.c,dwarf_tsearchbin.c,dwarf_tsearchepp.c,
+       dwarf_tsearchred.c: Use DW_TSHASHTYPE.
+     * dwarf_tsearchhash.c: use DW_TSHASHTYPE, add UNUSEDARG use.
+       Now the primes list starts at 79, not 5 (the low numbers
+       were really only for basic testing). Add UNUSEDARG
+       though it is defined as empty here (it is for gcc
+       to suppress some warnings).
+     * tsearch_tester.c: Use DW_TSHASHTYPE.  Changed one
+       error message to help match with input test files.
+2016-02-07  David Anderson
+     * All .h, .c: Changed the return type of the hashfunc
+       to be DW_TSHASHTYPE so it can easily be overridden.
+       Unsigned long did not work well on a P64, IL32
+       environment. Now it is easy to use -D to
+       for folks in such an environment.
+2016-01-20  David Anderson
+     * dwarf_tsearchbal.c: Deleted the unused little function rotatex().
+2016-01-14  David Anderson
+     * dwarf_tsearchtester.c: Fixed compilation warnings (some of them).
+     * dwarf_tsearchbal.c: Added a comment.
+

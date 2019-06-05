@@ -1,0 +1,155 @@
+#!/bin/sh
+echo "Largely out of date, fix before running"
+exit 1; #modify this before running.
+cat > tarlist.tmp <<EOF
+libdwarf2002April28.tar.gz 
+libdwarf2002Oct23.tar.gz
+libdwarf2002Nov22.tar.gz
+libdwarf2003Apr06.tar.gz
+libdwarf20031002.tar.gz
+libdwarf20031006.tar.gz
+libdwarf20031230.tar.gz
+libdwarf20040102.tar.gz
+libdwarf20040203.tar.gz
+libdwarf20040315.tar.gz
+libdwarf20040507.tar.gz
+libdwarf20041011.tar.gz
+libdwarf20041026.tar.gz
+libdwarf20041027.tar.gz
+libdwarf-20041122.tar.gz
+libdwarf-20050216.tar.gz
+libdwarf-20050318.tar.gz
+libdwarf-20050503.tar.gz
+libdwarf-20050714.tar.gz
+libdwarf-20050722.tar.gz
+libdwarf-20050801.tar.gz
+libdwarf-20051003.tar.gz
+libdwarf-20051024.tar.gz
+libdwarf-20051108.tar.gz
+libdwarf-20051201.tar.gz
+libdwarf-20060224.tar.gz
+libdwarf-20060308.tar.gz
+libdwarf-20060317.tar.gz
+libdwarf-20060323.tar.gz
+libdwarf-20060327.tar.gz
+libdwarf-20060418.tar.gz
+libdwarf-20060419.tar.gz
+libdwarf-20060421.tar.gz
+libdwarf-20060428.tar.gz
+libdwarf-20060612.tar.gz
+libdwarf-20060614.tar.gz
+libdwarf-20060925.tar.gz
+libdwarf-20061108.tar.gz
+libdwarf-20061206.tar.gz
+EOF
+#cat > tarlist.tmp <<EOF
+#libdwarf2002April28.tar.gz 
+#libdwarf2002Oct23.tar.gz
+#libdwarf-20061206.tar.gz
+#EOF
+
+rm -rf $dm
+b=/home/davea/sgiweb3/pagedata
+dw=/home/davea/dwarf
+dwrepo=$dw/dwarf-repository
+dwwork=$dw/dwarf-working
+rm -rf $dwwork
+rm -rf $dwrepo
+mkdir $dwwork
+first=y
+checkout(){
+	  s=`pwd`
+	  cd $dwwork
+	  echo checkout
+	  svn checkout file://$dwrepo/trunk $dwwork/trunk
+	  cd $s
+}
+update(){
+	  s=`pwd`
+	  cd $dwwork/trunk
+	  svn update 
+	  cd $s
+}
+modify(){
+	  origsrcname=$1
+	  src=$dw/dwarf
+	  msg=$2
+	  s=`pwd`
+	  cd $dwwork/trunk
+	  svn update
+	  cp -r $src/dwarfdump/* dwarfdump
+	  cp -r $src/libdwarf/* libdwarf
+          find . -type f -exec chmod +w {} \;
+	  l=`find . -type f  -print | grep -v '\.svn'`
+	  for i in $l 
+          do
+		echo "svn add $i"
+		svn add $i 
+	  done
+	  svn commit  -m $msg
+	  cd $s
+}
+while read linein
+do
+	echo $linein
+	rm -rf dwarf
+	y=`echo $linein | awk -F . '{ print $1; }' `
+	echo $y
+	tar xzf $b/$linein
+	# Only newer ones actually have a - in the name.
+	t=`echo $y | awk -F - '{ print $2; }' `
+	to=`echo $y | cut -c 9-  `
+        echo 'local variable to = ' $to
+        f=dwarf
+	if [ -d $f  ]
+        then
+	   echo found $f
+        else
+	   f=$y
+           if [ -d $f ]
+           then
+		echo found $f
+           else
+	     f="dwarf-$t"
+	     echo try $t  $f
+	     if [ -d $f ]
+             then
+		echo found $f
+             else
+		f=dwarf$to
+		echo try $y  $f
+                if [ -d $f ]
+                then
+	          echo found $f
+                else
+	          echo "cannot find dwarf expansion"
+                 continue
+                fi
+             fi
+           fi
+        fi
+        echo $f
+	ls $f
+	if [ $f != "dwarf" ]
+        then
+	    echo "switch name from $f to dwarf"
+	    mv $f dwarf
+        fi
+	if [ $first = "y" ]
+        then
+	  svnadmin create  $dwrepo
+          svn import dwarf file://$dwrepo/trunk -m "$y"
+          first="n"
+	  checkout
+	  cd $dw
+        else
+          echo existing repository update `pwd`
+	  update
+	  modify $f $y
+          echo existing repository checkout done `pwd`
+        fi
+	echo rm -rf dwarf $y
+	rm -rf dwarf
+	rm -rf $y
+done <tarlist.tmp
+

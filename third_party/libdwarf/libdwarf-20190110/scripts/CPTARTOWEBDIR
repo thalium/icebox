@@ -1,0 +1,40 @@
+#!/bin/sh
+# Pass in the name of the new release
+# with any appropriate path designation
+# name should be <path>/*libdwarf-*.tar.gz
+
+if [ $# -ne 1 ]:
+then
+  echo Requires path to a tar.gz file
+  exit 1
+fi
+full=$1
+b=`basename $full`
+t=/home/davea/web4/gweb/pagedata
+if [ -f "$t/$b" ]
+then
+  echo "file already present, running cmp."
+  cmp "$full"  "$t/$b" >/dev/null
+  if [ $? -ne 0 ]
+  then
+    echo "Not the same file content. Fix this!"
+    exit 1
+  else
+    echo "Content already there. Ok."
+  fi
+else
+  echo "Copied $full  to $t/$b"
+  cp "$full"  "$t/$b"
+fi
+set -x
+ls -l "$t/$b"
+md5sum "$t/$b"
+echo " "
+sha512sum "$t/$b" | fold -w 32
+exit 0
+
+
+
+
+
+

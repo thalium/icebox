@@ -1,0 +1,213 @@
+#!/bin/sh
+#
+#newpref sets directory name with date, more
+#like normal linux packages.
+echo This is largely obsolete.
+exit 1
+
+if [ $# != 1 ]
+then
+	echo  Usage: BLDTESTDIR yyyymmdd
+	echo  Example: BLDTESTDIR 20100501
+	exit 1
+fi
+dat=$1
+tmpdir=/var/tmp
+cd dwarftest
+basenewpref=dwarftest-${dat}
+newpref=$tmpdir/dwarftest-${dat}
+newf=dwarftest-${dat}.tar
+echo ============  $newpref  $newf ==========
+echo First create /var/tmp/$newpref with the latest source.
+rm -rf $newpref
+mkdir $newpref
+for i in zero/Makefile \
+allen1/README \
+allen1/todd-allen-gcc-4.4.4-bin.exe \
+zero/TEST \
+zero/zero.cc \
+sandnes2/cu_dir_added_to_complete_path.c \
+sandnes2/README \
+sandnes2/RUNTEST.sh \
+sandnes2/cu_dir_added_to_complete_path.elf \
+dwarf4/dd2g4.5dwarf-4 \
+dwarf4/ddg4.5dwarf-4 \
+dwarf4/README \
+moshe/a.out.t   \
+moshe/hello   \
+moshe/hello.c   \
+moshe/README  \
+moshe/t.c \
+lloyd/arange.elf \
+lloyd/README \
+cell/c_malloc.o \
+cell/README \
+test-eh/Makefile \
+test-eh/eh-frame.cc \
+test-eh/test-eh.386 \
+test-eh/test-eh.c \
+test-eh/eh-frame.386 \
+CLEANUP \
+ChangeLog2010 \
+ChangeLog2009 \
+test-alex2/test.c \
+test-alex2/README \
+test-alex2/RUNTEST \
+test-alex2/bugemail \
+test-alex2/orig.a.out \
+sun/sunelf1 \
+sun/sparc1-a.out \
+linkonce/linkonce.txt \
+linkonce/test.cpp \
+linkonce/comdattest.o \
+libdwarf.a \
+louzon/README \
+louzon/ppcobj.o \
+cristi3/foo.cpp \
+cristi3/cristibadobj \
+cristi3/README \
+arm/README \
+arm/armcc-test-dwarf3 \
+arm/armcc-test-dwarf2 \
+ia64/hxdump.c \
+ia64/mytry.ia64 \
+ia64/mytry.cpp \
+ia64/README \
+ia64/hxdump.ia64 \
+PICKUPBIN \
+test_harmless \
+findcu/cutest.c \
+findcu/README \
+findcu/cutestobj.save \
+findcu/RUNTEST \
+TEST \
+macinfo/test.c \
+macinfo/a.out3.4 \
+macinfo/a.out4.3 \
+macinfo/README \
+RUNALL.sh \
+testcase/testcase.c \
+testcase/Makefile \
+testcase/README \
+testcase/testcase \
+testcase/BLD \
+testcase/verify \
+dwarfextract/test2.c \
+dwarfextract/Makefile \
+dwarfextract/test1.base \
+dwarfextract/test1.c \
+dwarfextract/runtests.sh \
+dwarfextract/test1.h \
+dwarfextract/dwarfextract.c \
+val_expr/libpthread-2.5.so \
+ChangeLog \
+frame1/frame1.orig \
+frame1/frame1.c \
+frame1/README \
+frame1/frame1.exe.save \
+frame1/frame1.base \
+frame1/runtest.sh \
+cristi2/libpthread-2.4.so \
+cristi2/README \
+cristi2/libc-2.5.so \
+x86/README \
+x86/dwarfdumpv4.3 \
+kartashev2/Makefile \
+kartashev2/bar.cc \
+kartashev2/foo.cc \
+kartashev2/combined.o \
+test_harmless.c \
+libdwoldframecol.a \
+atefail/README \
+atefail/ig_server \
+modula2/README \
+modula2/write-fixed \
+shihhuangti/t1.o \
+shihhuangti/tcombined.o \
+shihhuangti/README.txt \
+shihhuangti/t2.o \
+dwarfdump.conferr1 \
+DWARFTEST.sh \
+moore/README \
+moore/simplec.o \
+moore/RUNTEST.sh \
+moore/simplec.c \
+moore/djpeg.v850 \
+README.txt \
+ppc2/README \
+ppc2/powerpc-750-linux-gnu-hello-static.txt \
+ppc2/powerpc-750-linux-gnu-hello-static \
+sparc/README \
+sparc/tcombined.o \
+sandnes/Test1.elf \
+sandnes/README \
+wynn/unoptimised.axf \
+wynn/README.txt \
+COPYING \
+SINGLE \
+mutatee/test1.mutatee_gcc.exe \
+mucci/main.gcc \
+mucci/a.out.mucci \
+mucci/main.o \
+mucci/README \
+mucci/main.c \
+mucci/main.pathcc \
+mucci/stream.o \
+mucci/main.o.pathcc \
+mucci/main.o.gcc \
+test_dwarfnames.c \
+legendre/frame_test.c \
+legendre/libmpich.so.1.0 \
+legendre/README \
+legendre/RUNTEST.sh \
+ref_addr/README \
+ref_addr/ELF3.elf \
+test-array/Makefile \
+test-array/array.c \
+test-array/test-array \
+BLD \
+irix64/libc.so \
+test-alex1/test.c \
+test-alex1/bug \
+test-alex1/RUNTEST \
+test-alex1/bugemail \
+test-alex1/BLD \
+test-alex1/RUNIT \
+test-alex1/orig.a.out \
+BLDTAR \
+kartashev/README \
+kartashev/combined.o \
+irixn32/dwarfdump \
+irixn32/libc.so \
+RUN \
+verifyall.cc \
+dwarfdump.O \
+dwarfdump.conf \
+ia32/libc.so.6 \
+ia32/preloadable_libintl.so \
+ia32/mytry.ia32 \
+ia32/libpfm.so.3 \
+ia32/libpt_linux_x86_r.so.1 \
+enciso2/README \
+enciso2/test_templates.cpp \
+enciso2/template.elf \
+enciso2/test_templates.o 
+do
+   d=`dirname $i`
+   if  ! [ -d $newpref/$d ] 
+   then
+       mkdir $newpref/$d
+   fi
+   cp -p $i $newpref/$i
+done
+
+cd $tmpdir
+# Alter date below before using.e
+rm -f ${newf} ${newf}.gz
+tar cf /var/tmp/$newf $basenewpref
+gzip ${newf}
+hm=/home/davea/sgiweb3/pagedata
+cp  ${newf}.gz $hm
+ls -l $tmpdir/${newf}.gz
+ls -l $hm/${newf}.gz
+exit 0

@@ -1,0 +1,178 @@
+David Anderson.  
+January 2014.
+
+In 2013 I realized I could simplify some code in libdwarf
+(another project) by removing some complicated and messy
+special memory allocation code.  Substituting by use of
+malloc/free and a table of used values.  The used-values needed
+to a preserve a special feature of the original allocations
+related to a special handle: any allocations would be freed
+by closing the special handle.
+
+So I decided to implement various searches (mostly tree
+searches) using the tsearch interface definitions.
+I wrote these using a dwarf_ prefix to distinguish
+these from any libc implementation and to make the
+source fit in easily with libdwarf conventions.
+
+I added a tsearch() implementation using hashing too.
+The GNU-only hsearch() function  does not let the hash grow
+(the tsearch() hash here grows automatically as needed)
+and has no hdelete() or hwalk() capability, so hsearch() and
+friends did not seem like a good interface set even though
+the GNU-designed hsearch_r() interface set is nicely designed.
+
+The attached C code is a small set of implementations of
+C search code.  Based on algorithms in Knuth Volume 3
+(2nd Ed) and Sedgewick 4th Edition.
+
+All the code here is implemented by me. I have never read the
+source to any other implementations of the tsearch algorighms
+or interfaces so this is a clean-room implementation.
+
+The hash version weakens the correspondence to tree based
+tsearch because, well, it's not a tree.  So twalk() behaves
+differently than a tree-based version and an initialization.
+
+Non-GNU libc usually has no tdestroy().   The set of functions
+here provides a tdestroy() for all the tree/hash function
+sets here.
+
+
+==================
+WHY TSEARCH?
+
+The interfaces are of a well-known design.  While
+the interfaces are based on an obsolete style of writing
+interfaces, they are a known set.  So the routines provided
+here are a direct substitution.
+
+The tdestroy() function is available in GNU libc, but is
+not part of the standard tsearch() set, nor is tdestroy()
+defined in the Single Unix Specification.
+
+The hash version of tdelete() cannot always return a non-null
+value even if there are records left.  Not being a tree at
+all, it would cost runtime to provide a non-null return in
+some cases even when there are records left from tdelete().
+The return value from tdelete() is problematic in all versions,
+since it purports to return the parent of the deleted node,
+but what if the deleted node was the root?
+
+==================
+LICENSING:
+
+I wanted this to be usable in any context, hence the use of
+the BSD open-source license.
+
+==================
+INTERFACE ODDITIES:
+
+It's not really easy to understand whether any given
+call is returning
+	success, action succeeded
+        tsearch success - added record
+        tsearch success - record already in tree
+        fail due to internal error or improper argument.
+        requested action impossible 
+            (tfind() fails to find a record, or tdelete() fails
+            to find the record to delete)
+
+
+Speaking of C here, so, there is no try/catch available.
+
+It might have been nice if twalk() let the user-provided
+action code indicate to twalk() that the user wanted it to stop
+walking the tree.
+
+I won't be changing the interface though.
+I am staying with the standard interfaces.
+
+==================
+DOCUMENTATION ODDITIES:
+
+The GNU/Linux man pages on tsearch() and friends are nearly
+useless as you won't understand how to use the functions from
+reading that man page.
+
+The prototype for tfind() in the man page is slightly wrong
+while the headers in <search.h> are correct.
+
+==================
+IMPLEMENTATION ODDITIES:
+
+The code uses names like dwarf_tsearch() instead of just
+tsearch() so one can have both this tsearch() and GNU or
+a standard tsearch code available simultaneously with no
+interference at runtime.   The code here operates like GNU or
+UNIX tsearch() but is internally incompatible.  We'll usually
+refer to tsearch() not dwarf_tsearch() (etc) but we mean either
+and both unless otherwise specified here.
+
+The use of tsearch() and friends is a little tricky.
+That is just the way it is.  The best reference is the code
+in tsearch_tester.c.
+
+See the trivial set of #defines in tsearch_tester.c that
+result in a standard-based naming of the functions.
+
+The return value from tdelete() is particularly problematic
+because it purports to return a pointer to another record
+than the one deleted, yet no such record necessarily exists.
+And in the case of
+
+The hash version requires use of the new function
+dwarf_initialize_search_hash() to provide a hashing
+function. And the hash version does not set the root pointer
+to NULL on tdelete() of the last record, since that would
+result in losing the hashing function pointer.  Use tdestroy()
+to free up any remaining space.
+
+dwarf_tdump() is an invention and unique to this code.  It is
+for debugging. It prints a representation of the data in the
+tree or hash to stdout.
+
+The #include .h file set used here makes it much easier
+for me to move these files to another project as necessary.
+You will probably want to revise the #include set a little.
+
+
+==================
+OTHER DIRECTORIES:
+
+testdata contains a set of sample allocations, where
+lines starting with 'a' mean add and 'd' means delete.
+These are used for testing the library code.
+
+scripts contains some python scripts for converting
+results produced by printf added to libdwarf alloca()
+code.  These were used massage the print output
+from running dwarfdump on real object files
+into the testcase/* format.
+It is unlikely you will find them much use
+except as starting points.
+
+
+==================
+REFERENCES:
+
+Donald E Knuth, The Art of Computer Programming Volume 3, Second Edition.
+(Quite difficult to interpret some parts of Knuth's
+algorithms, but then I always found Knuth hard to 
+understand. Still, Knuth is the essential source for
+algorithms.)
+
+The Open Group, The Single UNIX Specification, Version 3(2001).
+The Single Unix Specification (or whatever it is called now)
+is a reference source everyone should have.
+
+Robert Sedgewick and Kevin Wayne, Algorithms (4th Ed).
+This is the crucial reference on red-black trees.
+There is a crucial fix in the errata of the 3rd printing.
+In addition, in dwarf_tsearchred.c in two places I had to fix things,
+look for 'Mistake' in the source.
+
+
+http://www.prevanders.net/tsearch.html
+
+

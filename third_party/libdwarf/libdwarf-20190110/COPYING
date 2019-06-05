@@ -1,0 +1,19 @@
+                       COPYING
+                    June 23 2018
+
+The source code in the libdwarf directory is LGPL version 2.1.
+See libdwarf/LIBDWARFCOPYRIGHT libdwarf/LGPL.txt
+
+The source code in the dwarfdump directory is generally GPL
+version 2. See dwarfdump/COPYING dwarfdump/DWARFDUMPCOPYRIGHT 
+dwarfdump/GPL.txt a
+
+The source code in the dwarfgen directory has
+the BSD3 copyright.  See dwarfgen/COPYING
+
+The source code in the dwarfexample has the
+BSD3 copyright. 
+
+The source code in the tsearch directory has the
+BSD3 copyright. 
+

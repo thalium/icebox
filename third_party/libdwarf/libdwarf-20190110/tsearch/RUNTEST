@@ -1,0 +1,119 @@
+
+
+# test2 is supposed to fail, do not expect success.
+#  With -byvalue it gets one error, without -byvalue it gets two.
+
+# test17 is also supposed to fail, it adds 8 twice.
+myexit=0
+
+#The following line assumes the test cases have been
+#placed in a directory named 'testcases' and
+#that the .gz versions expanded.
+#The tsearch test data is in the 
+#libdwarf regression tests (available from sourceforge)
+#in the directory
+#     tsearchtests
+# It's best to copy the tests from regressiontests
+# into 'testcases'
+# Not change what b refers to.
+# gunzip the .gz files in testcases, not in regressiontets
+# DO NOT expect testpass to match testpass.base
+# as there are pointers being printed. 
+# fldiff (or other graphical diff)  on them will show the patterns match.
+b=testcases
+
+#These test expecting failure.
+echo >testfail
+for opts in "" -byvalue
+do
+  for test in $b/test2 $b/test17
+  do
+    for app  in  ./binarysearch ./eppingerdel ./balancedsearch ./redblack ./gnusearch ./hashsearch
+    do
+      name=`basename $app`
+      echo '====' $name $opts $test  '====' >>testfail
+      $app $opts $test >>testfail
+    done
+  done
+done
+
+
+diff  $b/testfail.base testfail
+if [  $? -ne 0 ]
+then
+   echo FAIL because testfail got unexpected output.
+   myexit=1
+fi
+
+echo >testpass
+for opts in "" -byvalue
+do
+  for app  in  ./binarysearch ./eppingerdel ./balancedsearch ./redblack ./gnusearch ./hashsearch
+  do
+    name=`basename $app`
+    echo '====' $name $opts '====' >>testpass 
+    $app $opts >>testpass
+  done
+done
+
+for opts in "" -byvalue
+do
+  for test in $b/action-F-dwgenb-dwarfgen.log $b/action-f-v-v-irix64-libc.so.log \
+  $b/action-i-dwarf4-dd2g4.5dwarf-4.log  \
+  $b/action-l-irix64-libc.so.log \
+  $b/test10 \
+  $b/test11 \
+  $b/test11b \
+  $b/test11c \
+  $b/test18 \
+  $b/test32 \
+  $b/test547 \
+  $b/test6 \
+  $b/test64 \
+  $b/test8 \
+  $b/test9
+  do
+    for app  in  ./binarysearch ./eppingerdel ./balancedsearch ./redblack ./gnusearch ./hashsearch
+    do
+      name=`basename $app`
+      echo '====' $name $opts $test  '====' >>testpass 
+      $app $opts $test >>testpass
+    done
+  done
+done
+
+diff  $b/testpass.base testpass
+if [ $? -ne 0 ]
+then
+   echo FAIL because testpass got unexpected output.
+   echo "No surprise, there are pointers being printed"
+   echo "try fldiff $b/testpass.base testpass"
+   myexit=1
+fi
+lcb=`wc -l < $b/testpass.base`
+lcn=`wc -l < testpass`
+echo
+if [ $lcb -eq $lcn ]
+then
+    echo "Line counts match:  $b/testpass.base testpass"
+else
+    echo "Line counts NO NOT match:  $b/testpass.base testpass"
+fi
+
+
+grep error testpass >testpasserrs
+grep FAIL  testpass >>testpasserrs
+ct=`wc -l <testpasserrs`
+if [ $ct -ne 0 ]
+then
+    echo FAIL due to error and FAIL lines in testpass
+    myexit=1
+fi
+if [ $myexit -ne 0 ]
+then
+   echo FAIL the search tests.
+   exit 1
+fi
+exit 0
+
+

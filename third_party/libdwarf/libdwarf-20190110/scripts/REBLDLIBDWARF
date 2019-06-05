@@ -1,0 +1,73 @@
+#!/bin/sh
+# Assume configure done recently.
+
+l=`pwd`
+echo $l
+lb=`basename $l`
+ld=`dirname $l`
+#echo " lb: $lb"
+#echo " ld: $ld"
+cdtarg=.
+sloc=$l/scripts
+if [ x$lb = "xscripts" ]
+then
+  #echo "ld: $ld"
+  ldb=`basename $ld`
+  #echo "ldb: $ldb"
+  if [ x$ldb = "xcode" ]
+  then
+     cdtarg=..
+     sloc=$l
+  else
+     echo "Run from */code, not $l , giving up."
+     exit 1
+  fi
+  cd $cdtarg
+  if [ $? -ne 0 ]
+  then
+     echo "cd $cdtarg failed, giving up."
+     exit 1
+  fi
+else
+  if [ x$lb = "xcode" ]
+  then
+    cdtarg="."
+  else
+    echo "Run from */code, not $l , giving up."
+    exit 1
+  fi
+  # No need to cd.
+fi
+l=`pwd`
+#echo "Now at $l"
+#echo "sloc $sloc"
+
+
+cd $sloc/libdwarf 
+if [ $? != 0 ]
+then
+	echo build failed
+	exit
+fi
+make
+if [ $? != 0 ]
+then
+	echo build failed
+	exit
+fi
+cd ..
+cd $sloc/dwarfdump
+if [ $? != 0 ]
+then
+	echo build failed
+	exit
+fi
+# rm in case we changed libdwarf.
+rm dwarfdump
+make
+if [ $? != 0 ]
+then
+	echo build failed
+	exit
+fi
+cd ..

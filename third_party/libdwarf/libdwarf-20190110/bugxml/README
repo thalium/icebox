@@ -1,0 +1,18 @@
+
+The files here are for maintaining a list of bugs
+fixed so html and xml can be posted to prevanders.net
+and CVE (see cert.org) issues can reference a public
+database.
+
+This is intended mainly for bugs  that can result in
+application crashes as such can represent a vulnerability
+that can be exploited.
+Bugs that result simply in errors in output (but no crash)
+will typically not be mentioned.
+
+Bugs in dwarfdump are not vulnerabilities in the same way
+and at present these do not get CVE identifiers.
+
+David Anderson
+Created: 2016-05-03.
+Updated: 2017-07-06.

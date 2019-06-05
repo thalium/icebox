@@ -1,0 +1,367 @@
+Latest update: 30 March 2018
+Adapted from the Cairo coding style document
+
+Libdwarf/dwarfdump  coding style.
+
+This document is intended to be a short description of the
+preferred coding style for the cairo source code. Good style
+requires good taste, which means this can't all be reduced
+to automated rules, and there are exceptions.
+
+We want the code to be easy to understand and maintain, and
+consistent style plays an important part in that, even if
+some of the specific details seem trivial. If nothing else,
+this document gives a place to put consistent answers for
+issues that would otherwise be arbitrary.
+
+Most of the guidelines here are demonstrated by examples,
+(which means this document is quicker to read than it might
+appear given its length). Most of the examples are positive
+examples that you should imitate. The few negative examples
+are clearly marked with a comment of /* Yuck! */. Please
+don't submit code for libdwarf that looks like any of these.
+
+Indentation
+-----------
+Each new level is indented 4 more spaces than the previous level:
+
+    if (condition) {
+        do_something();
+    }
+Done solely with space characters.  The simple project on
+sourceforge.net, dicheck-da, detects all instances of tabs,
+improper indentation and line-ending whitespace.
+
+Tab characters
+--------------
+The tab character must never appear.
+
+Braces
+------
+Most of the code in cairo uses bracing in the style of K&R:
+
+    if (condition) {
+        do_this();
+        do_that();
+    } else {
+        do_the_other();
+    }
+
+and that is the preferred style.
+
+Even if all of the substatements of an if statement are single
+statements, the optional braces must always appear.
+
+    if (condition) {
+        do_this();
+    } else {
+        do_that();
+    }
+
+Never
+    if (condition)      /* Yuck */
+        do_this();      /* Yuck */
+    else                /* Yuck */
+        do_the_other(); /* Yuck */
+
+Note that this last example also shows a situation in which the
+opening brace can be on its own line, though usually it looks
+like this example. The following can be difficult to read.
+
+	if (condition &&
+	    other_condition &&
+	    yet_another) { /* But we usually do put the brace here */	
+	    do_something();
+	}
+
+
+
+Whitespace
+----------
+Separate logically distinct chunks with a single newline. This
+obviously applies between functions, but also applies within
+a function or block and can even be used to good effect
+within a structure definition. But don't get carried away
+with blank lines:
+
+struct _Dwarf_Data_s {
+    struct Something_s  op;
+    double tolerance;
+    Dwarf_Unsigned line_width;
+    Dwarf_Unsigned line_height;
+    Dwarf_Unsigned line_thickness;
+    
+    /*  Notice the _s on struct declarations
+        And notice indent of this comment
+        and the blank line above this comment to
+        make it clear the comment applies to fill_rule. */
+    struct Reg_Struct_s  fill_rule;
+    Dwarf_Signed distance_from_end;
+    ...
+};
+
+
+Never use a space before a function-call left parenthesis
+or a macro-call left parenthesis. 
+
+Don't eliminate newlines just because things would still fit
+on one line. This breaks the expected visual structure of
+the code making it much harder to read and understand:
+
+    ();	/* Yuck! */
+
+Eliminate trailing whitespace on any line. Also, avoid putting
+initial or final blank lines into any file, and never use
+multiple blank lines instead of a single blank line.
+
+Use dicheck (see above) to find trailing whitespace
+and indentation inconsistencies.
+
+You might find the git-stripspace utility helpful which
+acts as a filter to remove trailing whitespace as well as
+initial, final, and duplicate blank lines.
+
+As a special case of the bracing and whitespace guidelines,
+function definitions  in libdwarf should always take the following form:
+
+    int
+    my_function (Dwarf_Debug dbg, Dwarf_Unsigned second_arg,
+        Dwarf_Unsigned* ret_value;
+        Dwarf_Error *error)
+    {
+        do_my_things();
+        /*  The meaning of life */
+        *ret_value = 42;
+        return DW_DLV_OK;
+    }
+
+And in dwarfdump, etc, the code tends to follow this form
+too (but far from always).
+
+
+Function prototypes inside libdwarf headers 
+(as opposed to .c files)
+usually have the return type
+(and associated specifiers and qualifiers) the same
+line as the function name. If the line gets long
+addtional lines are appropriate.
+
+Function prototypes inside libdwarf.h always comment
+out argument names (but not types) to preserve the caller's
+macro namespace.  Because it is a public header, unlike
+all the other headers in libdwarf/dwarfdump/simpleexample.
+
+In .c files the function name starts a line as shown above.
+
+Notice, above, how a too-long argument line gets folded
+with standard indentation(4).
+
+Break up long lines (> ~72 characters) and use whitespace to
+align things nicely. For example the arguments in a long list
+to a function call should all (but the first) be aligned with
+each other:
+
+    align_function_arguments (argument_the_first,
+        argument_the_second,
+        argument_the_third);
+
+And as a special rule, in a function prototype, (as well as
+in the definition), whitespace should be inserted between
+the parameter types and names so that the names are aligned:
+
+    void
+    align_parameter_names_in_prototypes (const char *char_star_arg,
+        int	 int_arg,
+        double	*double_star_arg,
+        double	 double_arg);
+
+Parameters with a * prefix are aligned one character
+to the left so that the actual names are aligned.
+
+Struct Format and Content
+-------------------------
+
+Usually, avoid adding a comment alongside declarations
+unless it is a very short comment.  The following example
+uses meaningless x y z field names (sorry), but but does
+show a short prefix related to the struct name.  Generally
+struct members should have a prefix common to that struct and
+hopefully distinct from other struct declarations.  This short
+prefix makes it much easier to find all uses of a particular
+field in the code (with grep).
+
+    struct Dwarf_Nothing_Special_s {
+        int ns_x; /* usually avoid comment here this is Yuck!
+            and this is even worse as continuation.  Yuck! */
+
+        /*  Comment here about y with blank line above
+            and belows to make it clear which line 
+            referred to. */  
+        unsigned ns_y;
+
+        unsigned ns_z; 
+    };
+
+
+Managing nested blocks
+----------------------
+Long blocks that are deeply nested make the code very hard
+to read. Fortunately such blocks often indicate logically
+distinct chunks of functionality that are begging to be split
+into their own functions. Please listen to the blocks when
+they beg.  You will notice many exceptions to this in the
+code, unfortunately.
+
+In other cases, gratuitous nesting comes about because the
+primary functionality gets buried in a nested block rather
+than living at the primary level where it belongs. Consider
+the following:
+
+    foo = malloc (sizeof (foo_t));
+    if (foo) { /* Yuck! The error return becomes
+               hard to see.  */
+        ...  
+        /* lots of code to initialize foo */
+        ...
+        return DW_DLV_OK;
+    }
+    _dwarf_error(dbg,error,DW_DLE_MALLOC_RETURNS_NULL);
+    return DW_DLV_ERROR;
+
+This kind of gratuitous nesting can be avoided by following
+a pattern of handling exceptional cases early and returning:
+
+    foo = malloc (sizeof (foo_t));
+    /*  A test foo == NULL is fine but the following
+        is better as there is  no danger of 
+        turning == into = by accident. */
+    if (!foo) {
+        _dwarf_error(dbg,error,DW_DLE_MALLOC_RETURNS_NULL);
+        return DW_DLV_ERROR;
+    }
+    ...
+    lots of code to initialize foo */
+	
+    return DW_DLV_OK;
+
+
+The return statement is often the best thing to use in a
+pattern like this. If it's not available due to additional
+nesting above which require some cleanup after the current
+block, then consider splitting the current block into a new
+function before using goto.
+
+Test or Loop with Side Effect
+-----------------------------
+
+Never do:
+    if ((foo = malloc (sizeof (foo_t)))) {
+or
+    if (foo = malloc (sizeof (foo_t))) {
+
+as the reader has to think carefully about it, 
+whereas
+    foo = malloc (sizeof (foo_t));
+    if (foo) {
+is more transparent (in some sense) and 
+makes it easier to stop( in debugger) or
+add a printf in case this is a point where
+things might be going wrong somehow.
+
+Also see "Managing nested blocks" just above.
+
+
+Macro Tests Commented
+---------------------
+
+#ifdef SOME_MACRO
+#else /* !SOME_MACRO */ 
+#endif /* !SOME_MACRO */
+
+#ifdef OTHER_MACRO
+#endif /* OTHER_MACRO */
+
+The comments add clarity when one is not familiar with code in
+the area but are not required if the #else #endif are within a
+couple lines of the #if(def).  In a spot with nested #if(def)
+the comments become necessary to avoid confusing the reader.
+There is nothing wrong with adding them everywhere.
+
+Lookup Tables
+-----------------
+
+Any situation requiring a lookup table should use one
+or the other tsearch functions. The practical ones are
+dwarf_tsearchhash.c and dwarf_tsearchbal.c.  dwarfdump and
+libdwarf each use one of them and only one of them.  See the
+tsearch directory to see the full set available.
+
+These use the traditional UNIX tsearch arguments and return
+values even though those are not good designs by current
+standards. Expanded to have destroy() functions whose prototype
+was copied from GNU man pages.
+
+GNU libc has much nicer (in the sense of much nicer interface
+designs)  non-standard tsearch functions, but we've ignored
+those to keep to the official Single Unix Specification
+standard interfaces.
+
+Libdwarf Namespace
+-----------------
+
+In libdwarf we are careful to name things visible to callers
+(and in libdwarf.h) starting with with dwarf (for public stuff)
+or _dwarf (for functions in the library not intended for
+public use.  Structs begin with Dwarf.  Macros begin with DW
+(dwarf.h is full of those!).
+
+
+
+Memory allocation
+-----------------
+
+In general, be wary of performing any arithmetic operations
+in an argument to malloc.  You should explicitly check for
+integer overflow yourself in any more complex situations.
+
+In libdwarf most allocations use _dwarf_alloc() instead of
+malloc.  And the tables of valid types (which are predefined
+in libdwarf) allow for constructor/destructor functions.
+The _dwarf_alloc() code keeps a record of what is allocated
+so a careless user can simply call dwarf_finish() at the end
+and all the allocated data will be freed that was not already
+freed via  user calls to dwarf_dealloc().
+
+Checking For Overflow
+---------------------
+
+Libdwarf and dwarfdump are often dealing with offsets and
+indexes read from disk object files and all such should be
+checked before use.  That approach means that dwarfdump (and
+libdwarf callers in general) need not check the things that
+libdwarf has returned (at least those libdwarf could check).
+
+When it is possible that  X +Y might overflow make every effort
+to check X an Y independently before attempting an addition.
+If you are confident X and Y are sensible (given available data
+like section sizes) you can add them and then determine if
+the sum (say an offset) is still within the relevant section
+or data-item usable range.
+
+There are many libdwarf-internal functions to read data from
+an object, and all of them require an end-pointer argument
+so the code can easly check for corrupt object-file or DWARF
+values without duplicating the error-code-setting.
+
+Dwarfdump Flags Data
+---------------------
+
+Dwarfdump has a large number of options and nearly all  the
+option  values are recorded as fields in a single global
+structure  glflags (see dwarfdump.c).  Option data not in that
+structure should be moved into it, in general. This makes
+it much simpler to find instances using flags and to know,
+reading dwarfdump source, when flags are being referred to..
+
+The text in this document (not the examples!)  was formatted
+with the vi command "!}fmt -64"...without the quotes.

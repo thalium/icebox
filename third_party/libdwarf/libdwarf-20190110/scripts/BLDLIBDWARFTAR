@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+#newpref sets directory name with date, more
+#like normal linux packages.
+l=`pwd`
+echo $l
+lb=`basename $l`
+ld=`dirname $l`
+#echo " lb: $lb"
+#echo " ld: $ld"
+cdtarg=.
+sloc=$l/scripts
+if [ x$lb = "xscripts" ]
+then
+  #echo "ld: $ld"
+  ldb=`basename $ld`
+  #echo "ldb: $ldb"
+  if [ x$ldb = "xcode" ]
+  then
+     cdtarg=..
+     sloc=$l
+  else
+     echo "Run from */code, not $l , giving up."
+     exit 1
+  fi
+  cd $cdtarg
+  if [ $? -ne 0 ]
+  then
+     echo "cd $cdtarg failed, giving up."
+     exit 1
+  fi
+else
+  if [ x$lb = "xcode" ]
+  then
+    cdtarg="."
+  else
+    echo "Run from */code, not $l , giving up."
+    exit 1
+  fi
+  # No need to cd.
+fi
+l=`pwd`
+#echo "Now at $l"
+#echo "sloc $sloc"
+
+
+if [ $# != 1 ]
+then
+	echo  Usage: BLDLIBDWARFTAR yyyymmdd
+	echo  Example: BLDLIBDWARFTAR 20040108
+	exit 1
+fi
+echo "This does not do UPDATEDWARFDUMPVERSION.sh"
+echo "Make sure there are no unwanted files"
+echo "in the code directories as all the files get"
+echo "copied to the release tar file."
+dat=$1
+
+tmpf=dwarf
+tmpdir=/var/tmp
+# cptopublic knows /var/tmp/dwarf is the target
+sh $sloc/CPTOPUBLIC nouv 
+newpref=dwarf-${dat}
+newf=libdwarf-${dat}.tar
+echo src is $tmpdir/$tmpf tmp is $newpref target is $newf
+echo ============  $newpref  $newf ==========
+
+echo First create $tmpdir/$newpref with the latest source.
+cd $tmpdir
+if [ ! -d $tmpf ]
+then
+	echo No $tmpdir/dwarf present!  Do nothing.
+	exit 0
+fi
+rm -rf $newpref
+
+cp -rp $tmpf $newpref
+# Alter date below before using.e
+rm -f ${newf} ${newf}.gz
+tar cf /var/tmp/$newf $newpref
+gzip ${newf}
+hm=/home/davea/web4/gweb/pagedata
+cp  ${newf}.gz $hm
+ls -l $tmpdir/${newf}.gz
+ls -l $hm/${newf}.gz
+exit 0
