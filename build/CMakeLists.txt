@@ -115,6 +115,13 @@ target_include_directories(libdwarf PUBLIC
 	"${libdwarf_dir}"
 )
 
+# mbedtls
+set(mbedtls_dir "${root_dir}/third_party/mbedtls-2.16.1")
+add_target(mbedtls third_party "${mbedtls_dir}/library" OPTIONS external)
+target_include_directories(mbedtls PUBLIC
+    "${mbedtls_dir}/include"
+)
+
 # tracer code generator
 set(icebox_dir "${root_dir}/src/icebox/icebox")
 set(tracer_dir "${icebox_dir}/tracer")
@@ -157,6 +164,7 @@ target_link_libraries(icebox
     loguru
     pdbparser
     libdwarf
+    mbedtls
   PUBLIC
     fdp_static
     fmtlib
