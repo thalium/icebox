@@ -64,7 +64,7 @@ namespace
         };
     } NET_BUFFER_LIST, *PNET_BUFFER_LIST;
 
-    static std::vector<uint8_t> readNetBufferList(core::Core& core, uint64_t netBuffListAddress)
+    static std::vector<uint8_t> read_NetBufferList(core::Core& core, uint64_t netBuffListAddress)
     {
         std::vector<uint8_t> invalid;
 
@@ -197,60 +197,54 @@ namespace
 
     struct Private
     {
-        core::Core&                      core_;
-        pcap::Packet*                    packet_;
+        core::Core&                      core;
+        pcap::Packet                     packet;
         int                              id;
+        pcap::FileWriterNG*              pcap;
         std::map<int, core::Breakpoint>& bps;
     };
 
     using CallStack = std::shared_ptr<callstack::ICallstack>;
 
-    static void get_user_callstack32(const Private& p, proc_t proc, CallStack callstack)
+    static std::string get_callstep_name(sym::Symbols& syms, uint64_t addr)
+    {
+        const auto cur = syms.find(addr);
+        std::string comment;
+        if(!cur)
+            comment = std::to_string(addr);
+        else
+            comment = sym::to_string(*cur).data();
+
+        comment += "\n";
+        return comment;
+    }
+
+    static void get_user_callstack32(core::Core& core, pcap::Packet& packet, proc_t proc, CallStack callstack)
     {
         sym::Symbols symbols;
-        load_proc_symbols(p.core_, proc, symbols, FLAGS_32BIT);
+        load_proc_symbols(core, proc, symbols, FLAGS_32BIT);
 
-        const auto ctx = get_saved_wow64_ctx(p.core_, proc);
+        const auto ctx = get_saved_wow64_ctx(core, proc);
         if(!ctx)
             return;
 
-        auto comment = p.packet_->getComment();
         callstack->get_callstack_from_context(proc, *ctx, FLAGS_32BIT, [&](callstack::callstep_t step)
         {
-            // LOG(INFO, "{:#x}", step.addr);
-            const auto cur = symbols.find(step.addr);
-            if(!cur)
-                comment += std::to_string(step.addr);
-            else
-                comment += sym::to_string(*cur).data();
-
-            comment += "\n";
+            packet.meta.comment += get_callstep_name(symbols, step.addr);
             return WALK_NEXT;
         });
-
-        p.packet_->setComment(comment);
     }
 
-    static void get_user_callstack64(const Private& p, proc_t proc, CallStack callstack)
+    static void get_user_callstack64(core::Core& core, pcap::Packet& packet, proc_t proc, CallStack callstack)
     {
         sym::Symbols symbols;
-        load_proc_symbols(p.core_, proc, symbols, FLAGS_NONE);
+        load_proc_symbols(core, proc, symbols, FLAGS_NONE);
 
-        auto comment = p.packet_->getComment();
         callstack->get_callstack(proc, [&](callstack::callstep_t step)
         {
-            // LOG(INFO, "{:#x}", step.addr);
-            const auto cur = symbols.find(step.addr);
-            if(!cur)
-                comment += std::to_string(step.addr);
-            else
-                comment += sym::to_string(*cur).data();
-
-            comment += "\n";
+            packet.meta.comment += get_callstep_name(symbols, step.addr);
             return WALK_NEXT;
         });
-
-        p.packet_->setComment(comment);
     }
 
     static int capture(core::Core& core, std::string capture_path)
@@ -280,31 +274,20 @@ namespace
             const auto curProc        = core.os->proc_current();
             const auto procName       = core.os->proc_name(*curProc);
 
-            const auto data = readNetBufferList(core, (*netBufferLists).val);
+            pcap::Packet packet;
+            packet.data = read_NetBufferList(core, (*netBufferLists).val);
 
-            std::string comment(*procName);
-            comment += "(" + std::to_string(core.os->proc_id(*curProc));
-            comment += ")\n";
-            const auto packet = new pcap::Packet(data);
-            if(!packet)
-                return -1;
-            pcap.addPacket(packet);
+            packet.meta.comment = *procName + "(" + std::to_string(core.os->proc_id(*curProc)) + ")\n";
 
-            auto time = std::chrono::high_resolution_clock::now();
-            packet->setTime(std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch()).count() / 1000);
+            const auto now        = std::chrono::high_resolution_clock::now();
+            packet.meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
 
-            // LOG(INFO, " => {} bytes SENT", data.size());
+            auto continue_to_userland = false;
             kernel_callstack->get_callstack(*curProc, [&](callstack::callstep_t callstep)
             {
                 if(core.os->is_kernel_address(callstep.addr))
                 {
-                    const auto cursor = kernel_sym.symbols().find(callstep.addr);
-                    if(!cursor)
-                        comment += std::to_string(callstep.addr);
-                    else
-                        comment += sym::to_string(*cursor).data();
-
-                    comment += "\n";
+                    packet.meta.comment += get_callstep_name(kernel_sym.symbols(), callstep.addr);
                     return WALK_NEXT;
                 }
 
@@ -317,26 +300,33 @@ namespace
                 if(!thread)
                     return WALK_STOP;
 
-                Private p       = {core, packet, bp_id, user_bps};
-                const auto bp   = core.state.set_breakpoint("NdisSendNetBufferLists user return", callstep.addr, *thread, [=]
+                continue_to_userland = true;
+                Private p            = {core, packet, bp_id, &pcap, user_bps};
+                const auto bp        = core.state.set_breakpoint("NdisSendNetBufferLists user return", callstep.addr, *thread, [=]
                 {
+                    auto packet = p.packet;
                     if(is_wow64cpu)
-                        get_user_callstack32(p, *proc, user_callstack);
+                        get_user_callstack32(p.core, packet, *proc, user_callstack);
                     else
-                        get_user_callstack64(p, *proc, user_callstack);
+                        get_user_callstack64(p.core, packet, *proc, user_callstack);
 
-                    LOG(INFO, "Callstack: {}", packet->getComment());
+                    LOG(INFO, "Callstack: {}", packet.meta.comment);
+                    p.pcap->add_packet(packet);
                     p.bps.erase(p.id);
                     return 0;
                 });
-                user_bps[bp_id] = bp;
+                user_bps[bp_id]      = bp;
                 bp_id++;
 
                 return WALK_STOP;
             });
 
-            packet->setComment(comment);
-            LOG(INFO, "Callstack: {}", comment);
+            if(!continue_to_userland)
+            {
+                pcap.add_packet(packet);
+                LOG(INFO, "Callstack: {}", packet.meta.comment);
+            }
+
             return 0;
         });
 
@@ -349,14 +339,11 @@ namespace
         {
             const auto netBufferLists = core.os->read_arg(1);
 
-            const auto data      = readNetBufferList(core, (*netBufferLists).val);
-            pcap::Packet* packet = new pcap::Packet(data);
-            if(!packet)
-                return -1;
-            auto time = std::chrono::high_resolution_clock::now();
-            packet->setTime(std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch()).count() / 1000);
-            pcap.addPacket(packet);
-            // LOG(INFO, " <= {} bytes RECEIVED", data.size());
+            pcap::Packet packet;
+            packet.data           = read_NetBufferList(core, (*netBufferLists).val);
+            auto now              = std::chrono::high_resolution_clock::now();
+            packet.meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
+            pcap.add_packet(packet);
             return 0;
         });
 
@@ -386,14 +373,11 @@ int main(int argc, char** argv)
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-    {
         return FAIL(-1, "unable to start core at {}", name.data());
-    }
 
     capture(core, capture_path);
-    //
+
     // resume VM
-    //
     core.state.pause();
     core.state.resume();
     return 0;
