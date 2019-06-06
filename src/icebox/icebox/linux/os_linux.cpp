@@ -333,16 +333,19 @@ namespace
         const uint64_t START_KERNEL = 0xffffffff80000000, END_KERNEL = 0xfffffffffff00000;
         // compability was checked for kernel from 2.6.27 (2008) to 5.1.2 (2019)
 
+        const auto buffer_begin    = &buffer[0];
+        const auto buffer_afterend = buffer.data() + buffer.size();
+
         uint64_t offset = START_KERNEL;
         while(offset <= END_KERNEL)
         {
             if(p.reader_.read(&buffer[sizeof target], offset, PAGE_SIZE))
             {
-                const auto match = search(&buffer[0], &buffer[buffer.size() - 1], pattern);
-                if(match != &buffer[buffer.size() - 1])
-                    if(on_candidate((offset + (match - &buffer[0])) - sizeof target) == WALK_STOP)
+                const auto match = search(buffer_begin, buffer_afterend, pattern);
+                if(match != buffer_afterend)
+                    if(on_candidate((offset + (match - buffer_begin)) - sizeof target) == WALK_STOP)
                         return true;
-                std::memcpy(&buffer[0], &buffer[buffer.size() - sizeof target], sizeof target);
+                std::memcpy(buffer_begin, &buffer[buffer.size() - sizeof target], sizeof target);
             }
             else
                 buffer[sizeof target - 1] = 0;
