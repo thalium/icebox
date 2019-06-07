@@ -454,12 +454,17 @@ void core::State::run_to_proc(std::string_view name, proc_t proc, uint64_t ptr)
     });
 }
 
-void core::State::run_to_current(std::string_view name, dtb_t dtb, uint64_t ptr)
+void core::State::run_to_current(std::string_view name)
 {
-    auto& d       = *d_;
-    const auto bp = ::set_breakpoint(d, name, ptr, {}, {}, {});
+    auto& d           = *d_;
+    const auto thread = d.core.os->thread_current();
+    const auto rsp    = d.core.regs.read(FDP_RSP_REGISTER);
+    const auto rip    = d.core.regs.read(FDP_RIP_REGISTER);
+    const auto bp     = ::set_breakpoint(d, name, rip, {}, *thread, {});
     run_until(d, [&]
     {
-        return d.breakstate.dtb == dtb && d.breakstate.rip == ptr;
+        const auto got_rsp = d.core.regs.read(FDP_RSP_REGISTER);
+        return d.breakstate.rip == rip
+               && got_rsp == rsp;
     });
 }

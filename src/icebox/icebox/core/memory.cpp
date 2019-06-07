@@ -112,15 +112,14 @@ namespace
         return phy;
     }
 
-    static bool inject_page_fault(MemData& d, dtb_t dtb, uint64_t src, bool user_mode)
+    static bool inject_page_fault(MemData& d, dtb_t /*dtb*/, uint64_t src, bool user_mode)
     {
-        const auto rip      = d.core.regs.read(FDP_RIP_REGISTER);
         const auto code     = user_mode ? 1 << 2 : 0;
         const auto injected = fdp::inject_interrupt(d.shm, PAGE_FAULT, code, src);
         if(!injected)
             return FAIL(false, "unable to inject page fault");
 
-        d.core.state.run_to_current("inject_pf", dtb, rip);
+        d.core.state.run_to_current("inject_pf");
         return true;
     }
 
