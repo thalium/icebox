@@ -3,6 +3,7 @@
 #include <icebox/log.hpp>
 #include <icebox/os.hpp>
 #include <icebox/plugins/sym_loader.hpp>
+#include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/utils/fnview.hpp>
 #include <icebox/waiter.hpp>
@@ -216,8 +217,7 @@ namespace
 
 TEST_F(Win10Test, unable_to_single_step_query_information_process)
 {
-    const auto target = "ProcessHacker.exe";
-    const auto proc   = waiter::proc_wait(core, target, FLAGS_NONE);
+    const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
@@ -241,8 +241,7 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
 
 TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 {
-    const auto target = "ProcessHacker.exe";
-    const auto proc   = waiter::proc_wait(core, target, FLAGS_NONE);
+    const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
@@ -288,4 +287,36 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 
     // ensure vm is not frozen
     run_until(core, [&] { return func_start > 4; });
+}
+
+TEST_F(Win10Test, memory)
+{
+    const auto proc = core.os->proc_find("explorer.exe", flags_e::FLAGS_NONE);
+    EXPECT_TRUE(!!proc);
+    LOG(INFO, "explorer dtb: {:#x}", proc->dtb.val);
+
+    core.os->proc_join(*proc, os::JOIN_USER_MODE);
+
+    auto from_reader  = std::vector<uint8_t>{};
+    auto from_virtual = std::vector<uint8_t>{};
+    const auto reader = reader::make(core, *proc);
+    core.os->mod_list(*proc, [&](mod_t mod)
+    {
+        const auto span = core.os->mod_span(*proc, mod);
+        EXPECT_TRUE(!!span);
+
+        from_reader.resize(span->size);
+        auto ok = reader.read(&from_reader[0], span->addr, span->size);
+        EXPECT_TRUE(ok);
+
+        from_virtual.resize(span->size);
+        ok = core.mem.read_virtual(&from_virtual[0], proc->dtb, span->addr, span->size);
+        EXPECT_TRUE(ok);
+
+        EXPECT_EQ(0, memcmp(&from_reader[0], &from_virtual[0], span->size));
+
+        const auto phy = core.mem.virtual_to_physical(span->addr, proc->dtb);
+        EXPECT_TRUE(!!phy);
+        return WALK_NEXT;
+    });
 }
