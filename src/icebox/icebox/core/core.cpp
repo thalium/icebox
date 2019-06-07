@@ -7,6 +7,14 @@
 #include "os.hpp"
 #include "private.hpp"
 
+#include <chrono>
+#include <thread>
+
+namespace
+{
+    using Data = core::Core::Data;
+}
+
 struct core::Core::Data
 {
     Data(std::string_view name)
@@ -31,43 +39,63 @@ namespace
     } g_os_modules[] =
     {
             {&os::make_nt, "windows_nt"},
-            {&os::make_linux, "linux_nt"},
+            // {&os::make_linux, "linux_nt"},
     };
+
+    static auto setup(core::Core& core, Data& d, std::string_view name)
+    {
+        auto ptr_shm = fdp::open(name.data());
+        if(!ptr_shm)
+            return FAIL(false, "unable to open shm");
+
+        d.shm_  = ptr_shm;
+        auto ok = fdp::init(*ptr_shm);
+        if(!ok)
+            return FAIL(false, "unable to init shm");
+
+        fdp::reset(*ptr_shm);
+
+        core::setup(core.regs, *ptr_shm);
+        core::setup(core.mem, *ptr_shm, core);
+        core::setup(core.state, *ptr_shm, core);
+
+        // register os helpers
+        for(const auto& h : g_os_modules)
+        {
+            core.os = h.make(core);
+            if(!core.os)
+                continue;
+
+            ok = core.os->setup();
+            if(ok)
+                break;
+
+            core.os.reset();
+        }
+        if(core.os)
+            return true;
+
+        core.state.resume();
+        return false;
+    }
 }
 
 bool core::Core::setup(std::string_view name)
 {
-    d_           = std::make_unique<core::Core::Data>(name);
-    auto ptr_shm = fdp::open(name.data());
-    if(!ptr_shm)
-        return FAIL(false, "unable to open shm");
+    d_ = std::make_unique<core::Core::Data>(name);
 
-    d_->shm_ = ptr_shm;
-    auto ok  = fdp::init(*ptr_shm);
-    if(!ok)
-        return FAIL(false, "unable to init shm");
-
-    fdp::reset(*ptr_shm);
-
-    core::setup(regs, *ptr_shm);
-    core::setup(mem, *ptr_shm, *this);
-    core::setup(state, *ptr_shm, *this);
-
-    // register os helpers
-    for(const auto& h : g_os_modules)
+    // try to connect multiple times
+    const auto now = std::chrono::high_resolution_clock::now();
+    const auto end = now + std::chrono::seconds(2);
+    int n_ms       = 10;
+    while(std::chrono::high_resolution_clock::now() < end)
     {
-        os = h.make(*this);
-        if(!os)
-            continue;
+        if(::setup(*this, *d_, name))
+            return true;
 
-        ok = os->setup();
-        if(ok)
-            break;
-
-        os.reset();
+        std::this_thread::sleep_for(std::chrono::milliseconds(n_ms));
+        n_ms = std::min(n_ms * 2, 400);
     }
-    if(!os)
-        return false;
 
-    return true;
+    return false;
 }

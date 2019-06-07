@@ -36,16 +36,16 @@ void fdp::reset(shm& shm)
 {
     auto ptr = cast(&shm);
     FDP_Pause(ptr);
+
     for(int bpid = 0; bpid < FDP_MAX_BREAKPOINT; bpid++)
         FDP_UnsetBreakpoint(ptr, bpid);
+
     FDP_WriteRegister(ptr, 0, FDP_DR0_REGISTER, 0);
     FDP_WriteRegister(ptr, 0, FDP_DR1_REGISTER, 0);
     FDP_WriteRegister(ptr, 0, FDP_DR2_REGISTER, 0);
     FDP_WriteRegister(ptr, 0, FDP_DR3_REGISTER, 0);
     FDP_WriteRegister(ptr, 0, FDP_DR6_REGISTER, 0);
     FDP_WriteRegister(ptr, 0, FDP_DR7_REGISTER, 0);
-    FDP_Resume(ptr);
-    FDP_Pause(ptr);
 }
 
 opt<FDP_State> fdp::state(shm& shm)
