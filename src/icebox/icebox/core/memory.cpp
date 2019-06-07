@@ -103,15 +103,6 @@ namespace
         return phy_t{phy};
     }
 
-    static opt<phy_t> fast_virtual_to_physical(MemData& d, uint64_t ptr, dtb_t dtb)
-    {
-        const auto backup = d.core.regs.read(FDP_CR3_REGISTER);
-        d.core.regs.write(FDP_CR3_REGISTER, dtb.val);
-        const auto phy = fdp::virtual_to_physical(d.shm, ptr);
-        d.core.regs.write(FDP_CR3_REGISTER, backup);
-        return phy;
-    }
-
     static bool inject_page_fault(MemData& d, dtb_t /*dtb*/, uint64_t src, bool user_mode)
     {
         const auto code     = user_mode ? 1 << 2 : 0;
@@ -125,7 +116,7 @@ namespace
 
     static opt<phy_t> try_virtual_to_physical(MemData& d, uint64_t ptr, dtb_t dtb)
     {
-        const auto ret = fast_virtual_to_physical(d, ptr, dtb);
+        const auto ret = fdp::virtual_to_physical(d.shm, dtb, ptr);
         if(ret && ret->val)
             return ret;
 
@@ -180,7 +171,7 @@ namespace
 
     static bool read_virtual(MemData& d, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
     {
-        const auto full = fdp::read_virtual(d.shm, dst, size, src);
+        const auto full = fdp::read_virtual(d.shm, dst, size, dtb, src);
         if(full)
             return true;
 
@@ -189,7 +180,7 @@ namespace
 
         return read_pages("virtual", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
-            auto ok = fdp::read_virtual(d.shm, pgdst, pgsize, pgsrc);
+            auto ok = fdp::read_virtual(d.shm, pgdst, pgsize, dtb, pgsrc);
             if(ok)
                 return true;
 
@@ -197,7 +188,7 @@ namespace
             if(!ok)
                 return false;
 
-            return fdp::read_virtual(d.shm, pgdst, pgsize, pgsrc);
+            return fdp::read_virtual(d.shm, pgdst, pgsize, dtb, pgsrc);
         });
     }
 
@@ -220,13 +211,9 @@ bool core::Memory::read_virtual(void* vdst, uint64_t src, size_t size)
 
 bool core::Memory::read_virtual(void* vdst, dtb_t dtb, uint64_t src, size_t size)
 {
-    const auto dst    = reinterpret_cast<uint8_t*>(vdst);
-    const auto usize  = static_cast<uint32_t>(size);
-    const auto backup = d_->core.regs.read(FDP_CR3_REGISTER);
-    d_->core.regs.write(FDP_CR3_REGISTER, dtb.val);
-    const auto ok = ::read_virtual(*d_, dst, dtb, src, usize);
-    d_->core.regs.write(FDP_CR3_REGISTER, backup);
-    return ok;
+    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
+    const auto usize = static_cast<uint32_t>(size);
+    return ::read_virtual(*d_, dst, dtb, src, usize);
 }
 
 bool core::Memory::read_physical(void* vdst, uint64_t src, size_t size)

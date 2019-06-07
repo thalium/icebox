@@ -95,17 +95,39 @@ bool fdp::read_physical(shm& shm, void* vdst, size_t size, phy_t phy)
     return FDP_ReadPhysicalMemory(cast(&shm), dst, usize, phy.val);
 }
 
-bool fdp::read_virtual(shm& shm, void* vdst, size_t size, uint64_t ptr)
+namespace
+{
+    template <typename T>
+    static auto switch_dtb(fdp::shm& shm, dtb_t dtb, T operand)
+    {
+        const auto backup      = fdp::read_register(shm, FDP_CR3_REGISTER);
+        const auto need_switch = backup && *backup != dtb.val;
+        if(need_switch)
+            fdp::write_register(shm, FDP_CR3_REGISTER, dtb.val);
+        const auto ret = operand();
+        if(need_switch)
+            fdp::write_register(shm, FDP_CR3_REGISTER, *backup);
+        return ret;
+    }
+}
+
+bool fdp::read_virtual(shm& shm, void* vdst, size_t size, dtb_t dtb, uint64_t ptr)
 {
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    return FDP_ReadVirtualMemory(cast(&shm), 0, dst, usize, ptr);
+    return switch_dtb(shm, dtb, [&]
+    {
+        return FDP_ReadVirtualMemory(cast(&shm), 0, dst, usize, ptr);
+    });
 }
 
-opt<phy_t> fdp::virtual_to_physical(shm& shm, uint64_t ptr)
+opt<phy_t> fdp::virtual_to_physical(shm& shm, dtb_t dtb, uint64_t ptr)
 {
     uint64_t phy  = 0;
-    const auto ok = FDP_VirtualToPhysical(cast(&shm), 0, ptr, &phy);
+    const auto ok = switch_dtb(shm, dtb, [&]
+    {
+        return FDP_VirtualToPhysical(cast(&shm), 0, ptr, &phy);
+    });
     if(!ok)
         return {};
 
