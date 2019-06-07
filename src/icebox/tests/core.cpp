@@ -252,33 +252,40 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     const auto ok = loader.load(*ntdll);
     EXPECT_TRUE(ok);
 
+    // break on a single function once
     wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
-    bool found_start = false;
+    int func_start = 0;
     tracer.register_ZwWaitForSingleObject(*proc, [&](wow64::HANDLE, wow64::BOOLEAN, wow64::PLARGE_INTEGER)
     {
-        found_start = true;
+        ++func_start;
+    });
+    run_until(core, [&] { return func_start > 0; });
+
+    // set a breakpoint on next instruction
+    core.state.single_step();
+    const auto addr_a = core.regs.read(FDP_RIP_REGISTER);
+    int func_a        = 0;
+    auto bp_a         = core.state.set_breakpoint("ZwWaitForSingleObject + $1", addr_a, *proc, [&]
+    {
+        func_a++;
     });
 
-    // wait to break on second breakpoint
-    const auto addr = loader.symbols().symbol("ntdll", "_ZwWaitForSingleObject@12");
-    EXPECT_TRUE(!!addr);
-
+    // set a breakpoint on next instruction again
+    // we are sure the previous bp share a physical page with at least one bp
+    core.state.single_step();
+    const auto addr_b = core.regs.read(FDP_RIP_REGISTER);
+    int func_b        = 0;
+    const auto bp_b   = core.state.set_breakpoint("ZwWaitForSingleObject + $2", addr_b, *proc, [&]
     {
-        bool found_offset = false;
-        const auto bp     = core.state.set_breakpoint("_ZwWaitForSingleObject@12+10", *addr + 10, *proc, [&]
-        {
-            found_offset = true;
-        });
-        run_until(core, [&]
-        {
-            return found_start && found_offset;
-        });
-    }
+        func_b++;
+    });
 
-    // remove breakpoint & wait twice to ensure vm is not frozen
-    for(int i = 0; i < 2; ++i)
-    {
-        found_start = false;
-        run_until(core, [&] { return found_start; });
-    }
+    // wait to break on third breakpoint
+    run_until(core, [&] { return func_b > 0; });
+
+    // remove mid breakpoint
+    bp_a.reset();
+
+    // ensure vm is not frozen
+    run_until(core, [&] { return func_start > 4; });
 }
