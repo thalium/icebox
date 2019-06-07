@@ -120,7 +120,7 @@ namespace
         if(!injected)
             return FAIL(false, "unable to inject page fault");
 
-        d.core.state.run_to("inject_pf", dtb, rip);
+        d.core.state.run_to_current("inject_pf", dtb, rip);
         return true;
     }
 

@@ -1017,16 +1017,16 @@ namespace
 {
     static void proc_join_kernel(OsNt& os, proc_t proc)
     {
-        os.core_.state.run_to("proc_join_kernel", proc);
+        os.core_.state.run_to_proc("proc_join_kernel", proc);
     }
 
     static void proc_join_user(OsNt& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : os.core_.regs.read(MSR_LSTAR);
-        os.core_.state.run_to("KiKernelSysretExit", proc, where);
+        os.core_.state.run_to_proc("KiKernelSysretExit", proc, where);
         const auto rip = os.core_.regs.read(FDP_RCX_REGISTER);
-        os.core_.state.run_to("return KiKernelSysretExit", proc, rip);
+        os.core_.state.run_to_proc("return KiKernelSysretExit", proc, rip);
     }
 
     static bool is_user_mode(uint64_t cs)

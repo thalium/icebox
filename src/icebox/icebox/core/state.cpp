@@ -430,7 +430,7 @@ namespace
     }
 }
 
-void core::State::run_to(std::string_view /*name*/, proc_t proc)
+void core::State::run_to_proc(std::string_view /*name*/, proc_t proc)
 {
     auto d          = *d_;
     const auto bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
@@ -444,7 +444,7 @@ void core::State::run_to(std::string_view /*name*/, proc_t proc)
     fdp::unset_breakpoint(d.shm, bpid);
 }
 
-void core::State::run_to(std::string_view name, proc_t proc, uint64_t ptr)
+void core::State::run_to_proc(std::string_view name, proc_t proc, uint64_t ptr)
 {
     auto& d       = *d_;
     const auto bp = ::set_breakpoint(d, name, ptr, proc, {}, {});
@@ -454,7 +454,7 @@ void core::State::run_to(std::string_view name, proc_t proc, uint64_t ptr)
     });
 }
 
-void core::State::run_to(std::string_view name, dtb_t dtb, uint64_t ptr)
+void core::State::run_to_current(std::string_view name, dtb_t dtb, uint64_t ptr)
 {
     auto& d       = *d_;
     const auto bp = ::set_breakpoint(d, name, ptr, {}, {}, {});
