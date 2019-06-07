@@ -113,12 +113,153 @@ namespace
         return data;
     }
 
+    static bool is_wow64_emulated(core::Core& core, const proc_t proc, const uint64_t addr)
+    {
+        const auto mod = core.os->mod_find(proc, addr);
+        if(!mod)
+            return WALK_NEXT;
+
+        const auto mod_name = core.os->mod_name(proc, *mod);
+        if(!mod_name)
+            return WALK_NEXT;
+
+        const auto filename = path::filename(*mod_name);
+        return filename == "wow64cpu.dll";
+    }
+
+    static opt<callstack::context_t> get_saved_wow64_ctx(core::Core& core, proc_t proc)
+    {
+        const auto reader = reader::make(core, proc);
+
+        const auto cs            = core.regs.read(FDP_CS_REGISTER);
+        const auto is_kernel_ctx = cs && 0x0F == 0x00;
+        const auto teb           = core.regs.read(is_kernel_ctx ? MSR_KERNEL_GS_BASE : MSR_GS_BASE);
+
+        const auto TlsSlot       = teb + 0x1488; // FIXME: _TEB.TlsSlots + 8
+        const auto WOW64_CONTEXT = reader.read(TlsSlot);
+        if(!WOW64_CONTEXT)
+            return {};
+        LOG(INFO, "TEB is: {:#x}, r12 is: {:#x}, r13 is: {:#x}", teb, TlsSlot, *WOW64_CONTEXT);
+
+        const auto ebp = reader.le32(*WOW64_CONTEXT + 0x80 + 0x38); // FIXME: WOW64_CONTEXT.ebp from windows headers
+        if(!ebp)
+            return {};
+
+        const auto eip = reader.le32(*WOW64_CONTEXT + 0x80 + 0x3c); // FIXME: WOW64_CONTEXT.eip from windows headers
+        if(!eip)
+            return {};
+
+        const auto esp = reader.le32(*WOW64_CONTEXT + 0x80 + 0x48); // FIXME: WOW64_CONTEXT.esp from windows headers
+        if(!esp)
+            return {};
+
+        const auto zero64 = 0x0000000000000000;
+        const auto ip     = zero64 | *eip;
+        const auto sp     = zero64 | *esp;
+        const auto bp     = zero64 | *ebp;
+        return callstack::context_t{ip, sp, bp, 0};
+    }
+
+    static void load_proc_symbols(core::Core& core, proc_t proc, sym::Symbols& symbols, flags_e flag)
+    {
+        const auto reader = reader::make(core, proc);
+        core.os->mod_list(proc, [&](mod_t mod)
+        {
+            if(flag && mod.flags != flag)
+                return WALK_NEXT;
+
+            const auto name = core.os->mod_name(proc, mod);
+            if(!name)
+                return WALK_NEXT;
+
+            const auto span = core.os->mod_span(proc, mod);
+            if(!span)
+                return WALK_NEXT;
+
+            const auto debug = pe::find_debug_codeview(reader, *span);
+            if(!debug)
+                return WALK_NEXT;
+
+            std::vector<uint8_t> buffer;
+            buffer.resize(debug->size);
+            auto ok = reader.read(&buffer[0], debug->addr, debug->size);
+            if(!ok)
+                return WALK_NEXT;
+
+            const auto filename = path::filename(*name).replace_extension("").generic_string();
+            const auto inserted = symbols.insert(filename.data(), *span, &buffer[0], buffer.size());
+            if(!inserted)
+                return WALK_NEXT;
+
+            return WALK_NEXT;
+        });
+    }
+
+    struct Private
+    {
+        core::Core&                      core_;
+        pcap::Packet*                    packet_;
+        int                              id;
+        std::map<int, core::Breakpoint>& bps;
+    };
+
+    using CallStack = std::shared_ptr<callstack::ICallstack>;
+
+    static void get_user_callstack32(const Private& p, proc_t proc, CallStack callstack)
+    {
+        sym::Symbols symbols;
+        load_proc_symbols(p.core_, proc, symbols, FLAGS_32BIT);
+
+        const auto ctx = get_saved_wow64_ctx(p.core_, proc);
+        if(!ctx)
+            return;
+
+        auto comment = p.packet_->getComment();
+        callstack->get_callstack_from_context(proc, *ctx, FLAGS_32BIT, [&](callstack::callstep_t step)
+        {
+            // LOG(INFO, "{:#x}", step.addr);
+            const auto cur = symbols.find(step.addr);
+            if(!cur)
+                comment += std::to_string(step.addr);
+            else
+                comment += sym::to_string(*cur).data();
+
+            comment += "\n";
+            return WALK_NEXT;
+        });
+
+        p.packet_->setComment(comment);
+    }
+
+    static void get_user_callstack64(const Private& p, proc_t proc, CallStack callstack)
+    {
+        sym::Symbols symbols;
+        load_proc_symbols(p.core_, proc, symbols, FLAGS_NONE);
+
+        auto comment = p.packet_->getComment();
+        callstack->get_callstack(proc, [&](callstack::callstep_t step)
+        {
+            // LOG(INFO, "{:#x}", step.addr);
+            const auto cur = symbols.find(step.addr);
+            if(!cur)
+                comment += std::to_string(step.addr);
+            else
+                comment += sym::to_string(*cur).data();
+
+            comment += "\n";
+            return WALK_NEXT;
+        });
+
+        p.packet_->setComment(comment);
+    }
+
     static int capture(core::Core& core, std::string capture_path)
     {
-        std::map<uint64_t, core::Breakpoint> user_bps;
-        pcap::FileWriterNG                   pcap;
+        std::map<int, core::Breakpoint> user_bps;
+        pcap::FileWriterNG              pcap;
         sym::Loader kernel_sym(core);
-        uint64_t bp_id = 0;
+        kernel_sym.drv_listen();
+        int bp_id = 0;
 
         const auto kernel_callstack = callstack::make_callstack_nt(core);
         if(!kernel_callstack)
@@ -127,9 +268,8 @@ namespace
         const auto user_callstack = callstack::make_callstack_nt(core);
         if(!user_callstack)
             return -1;
-        //
+
         // ndis!NdisSendNetBufferLists
-        //
         const auto ndisCallSendHandler = kernel_sym.symbols().symbol("ndis", "NdisSendNetBufferLists");
         if(!ndisCallSendHandler)
             return FAIL(-1, "unable to set a BP on ndis!NdisSendNetBufferLists");
@@ -153,77 +293,54 @@ namespace
             auto time = std::chrono::high_resolution_clock::now();
             packet->setTime(std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch()).count() / 1000);
 
-            LOG(INFO, " => {} bytes SENT", data.size());
-            bool bAddComment = false;
+            // LOG(INFO, " => {} bytes SENT", data.size());
             kernel_callstack->get_callstack(*curProc, [&](callstack::callstep_t callstep)
             {
-                if(!core.os->is_kernel_address(callstep.addr))
+                if(core.os->is_kernel_address(callstep.addr))
                 {
-                    bAddComment = true;
-                    //
-                    // let's capture the user-callstack
-                    //
-                    struct Private
-                    {
-                        core::Core&                           core_;
-                        pcap::Packet*                         packet_;
-                        uint64_t                              id;
-                        std::map<uint64_t, core::Breakpoint>& bps;
-                    } p{core, packet, bp_id, user_bps};
+                    const auto cursor = kernel_sym.symbols().find(callstep.addr);
+                    if(!cursor)
+                        comment += std::to_string(callstep.addr);
+                    else
+                        comment += sym::to_string(*cursor).data();
 
-                    const auto bp   = core.state.set_breakpoint("NdisSendNetBufferLists user return", callstep.addr, [=]
-                    {
-                        auto comment = packet->getComment();
-                        p.bps.erase(p.id);
-                        const auto proc = p.core_.os->proc_current();
-                        // sym::Loader user_sym(p.core_, *proc);
-                        user_callstack->get_callstack(*proc, [&](callstack::callstep_t step)
-                        {
-                            LOG(INFO, "{:#x}", step.addr);
-                            /*
-                            const auto cursor = user_sym.symbols().find(step.addr);
-                            if(!cursor)
-                            {
-                                LOG(INFO, "{:#x}", step.addr);
-                                comment += std::to_string(step.addr);
-                            }
-                            else
-                            {
-                                LOG(INFO, "{}", sym::to_string(*cursor).data());
-                                comment += sym::to_string(*cursor).data();
-                                comment += "\n";
-                            }
-                            */
-                            return WALK_NEXT;
-                        });
-                        packet->setComment(comment);
-                        return 0;
-                    });
-                    user_bps[bp_id] = bp;
-                    bp_id++;
-                    return WALK_STOP;
-                }
-                const auto cursor = kernel_sym.symbols().find(callstep.addr);
-                if(!cursor)
-                {
-                    LOG(INFO, "{:#x}", callstep.addr);
-                    comment += std::to_string(callstep.addr);
-                }
-                else
-                {
-                    comment += sym::to_string(*cursor).data();
                     comment += "\n";
-                    LOG(INFO, "{}", sym::to_string(*cursor).data());
+                    return WALK_NEXT;
                 }
-                return WALK_NEXT;
+
+                const auto proc = core.os->proc_current();
+                if(!proc)
+                    return WALK_STOP;
+
+                const auto is_wow64cpu = is_wow64_emulated(core, *proc, callstep.addr);
+                const auto thread      = core.os->thread_current();
+                if(!thread)
+                    return WALK_STOP;
+
+                Private p       = {core, packet, bp_id, user_bps};
+                const auto bp   = core.state.set_breakpoint("NdisSendNetBufferLists user return", callstep.addr, *thread, [=]
+                {
+                    if(is_wow64cpu)
+                        get_user_callstack32(p, *proc, user_callstack);
+                    else
+                        get_user_callstack64(p, *proc, user_callstack);
+
+                    LOG(INFO, "Callstack: {}", packet->getComment());
+                    p.bps.erase(p.id);
+                    return 0;
+                });
+                user_bps[bp_id] = bp;
+                bp_id++;
+
+                return WALK_STOP;
             });
-            if(bAddComment)
-                packet->setComment(comment);
+
+            packet->setComment(comment);
+            LOG(INFO, "Callstack: {}", comment);
             return 0;
         });
-        //
+
         // ndis!NdisReturnNetBufferLists
-        //
         const auto NdisReturnNetBufferLists = kernel_sym.symbols().symbol("ndis", "NdisMIndicateReceiveNetBufferLists");
         if(!NdisReturnNetBufferLists)
             return FAIL(-1, "unable to et a BP on ndis!NdisMIndicateReceiveNetBufferLists");
@@ -239,11 +356,13 @@ namespace
             auto time = std::chrono::high_resolution_clock::now();
             packet->setTime(std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch()).count() / 1000);
             pcap.addPacket(packet);
-            LOG(INFO, " <= {} bytes RECEIVED", data.size());
+            // LOG(INFO, " <= {} bytes RECEIVED", data.size());
             return 0;
         });
 
-        while(true)
+        const auto now = std::chrono::high_resolution_clock::now();
+        const auto end = now + std::chrono::minutes(3);
+        while(std::chrono::high_resolution_clock::now() < end)
         {
             core.state.resume();
             core.state.wait();
