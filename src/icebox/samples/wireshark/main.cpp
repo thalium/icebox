@@ -3,6 +3,7 @@
 #include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
+#include <icebox/nt/nt_types.hpp>
 #include <icebox/os.hpp>
 #include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
@@ -135,21 +136,29 @@ namespace
         const auto is_kernel_ctx = cs && 0x0F == 0x00;
         const auto teb           = core.regs.read(is_kernel_ctx ? MSR_KERNEL_GS_BASE : MSR_GS_BASE);
 
-        const auto TlsSlot       = teb + 0x1488; // FIXME: _TEB.TlsSlots + 8
+        auto& ksyms             = core.os->kernel_symbols();
+        const auto TEB_TlsSlots = ksyms.struc_offset("nt", "_TEB", "TlsSlots");
+        if(!TEB_TlsSlots)
+            return {};
+
+        const auto TlsSlot       = teb + *TEB_TlsSlots + 8 + 4; // FIXME: why +4 on 10240 ?
         const auto WOW64_CONTEXT = reader.read(TlsSlot);
         if(!WOW64_CONTEXT)
             return {};
         LOG(INFO, "TEB is: {:#x}, r12 is: {:#x}, r13 is: {:#x}", teb, TlsSlot, *WOW64_CONTEXT);
 
-        const auto ebp = reader.le32(*WOW64_CONTEXT + 0x80 + 0x38); // FIXME: WOW64_CONTEXT.ebp from windows headers
+        const auto off_ebp = offsetof(nt_types::_WOW64_CONTEXT, Ebp);
+        const auto ebp     = reader.le32(*WOW64_CONTEXT + off_ebp);
         if(!ebp)
             return {};
 
-        const auto eip = reader.le32(*WOW64_CONTEXT + 0x80 + 0x3c); // FIXME: WOW64_CONTEXT.eip from windows headers
+        const auto off_eip = offsetof(nt_types::_WOW64_CONTEXT, Eip);
+        const auto eip     = reader.le32(*WOW64_CONTEXT + off_eip);
         if(!eip)
             return {};
 
-        const auto esp = reader.le32(*WOW64_CONTEXT + 0x80 + 0x48); // FIXME: WOW64_CONTEXT.esp from windows headers
+        const auto off_esp = offsetof(nt_types::_WOW64_CONTEXT, Esp);
+        const auto esp     = reader.le32(*WOW64_CONTEXT + off_esp);
         if(!esp)
             return {};
 
