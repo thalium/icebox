@@ -141,23 +141,24 @@ namespace
         if(!TEB_TlsSlots)
             return {};
 
-        const auto TlsSlot       = teb + *TEB_TlsSlots + 8 + 4; // FIXME: why +4 on 10240 ?
+        const auto TlsSlot       = teb + *TEB_TlsSlots + 8;
         const auto WOW64_CONTEXT = reader.read(TlsSlot);
         if(!WOW64_CONTEXT)
             return {};
         LOG(INFO, "TEB is: {:#x}, r12 is: {:#x}, r13 is: {:#x}", teb, TlsSlot, *WOW64_CONTEXT);
 
-        const auto off_ebp = offsetof(nt_types::_WOW64_CONTEXT, Ebp);
+        auto offset        = 4; // FIXME: why 4 on 10240 ?
+        const auto off_ebp = offsetof(nt_types::_WOW64_CONTEXT, Ebp) + offset;
         const auto ebp     = reader.le32(*WOW64_CONTEXT + off_ebp);
         if(!ebp)
             return {};
 
-        const auto off_eip = offsetof(nt_types::_WOW64_CONTEXT, Eip);
+        const auto off_eip = offsetof(nt_types::_WOW64_CONTEXT, Eip) + offset;
         const auto eip     = reader.le32(*WOW64_CONTEXT + off_eip);
         if(!eip)
             return {};
 
-        const auto off_esp = offsetof(nt_types::_WOW64_CONTEXT, Esp);
+        const auto off_esp = offsetof(nt_types::_WOW64_CONTEXT, Esp) + offset;
         const auto esp     = reader.le32(*WOW64_CONTEXT + off_esp);
         if(!esp)
             return {};
