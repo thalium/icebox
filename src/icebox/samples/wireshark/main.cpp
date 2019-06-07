@@ -1,5 +1,6 @@
 #define FDP_MODULE "wireshark"
 #include "pcap.hpp"
+
 #include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
@@ -10,6 +11,7 @@
 #include <icebox/utils/fnview.hpp>
 #include <icebox/utils/path.hpp>
 #include <icebox/utils/pe.hpp>
+
 #include <map>
 #include <thread>
 
@@ -22,8 +24,8 @@ namespace
         uint16_t Size;
         uint16_t MdlFlags;
         void*    Process;
-        void* MappedSystemVa; /* see creators for field size annotations. */
-        void* StartVa;        /* see creators for validity; could be address 0.  */
+        void*    MappedSystemVa; // see creators for field size annotations.
+        void*    StartVa;        // see creators for validity; could be address 0.
         uint32_t ByteCount;
         uint32_t ByteOffset;
     };
@@ -66,21 +68,18 @@ namespace
         std::vector<uint8_t> invalid;
 
         const auto reader = reader::make(core);
-        NET_BUFFER_LIST netBufferList;
-        NET_BUFFER      netBuffer;
-        MDL             mdl;
-        auto netBufferListsAddr = netBuffListAddress;
+        NET_BUFFER_LIST      netBufferList;
+        NET_BUFFER           netBuffer;
+        MDL                  mdl;
         std::vector<uint8_t> data;
 
-        while(netBufferListsAddr)
+        for(uint64_t addr = netBuffListAddress; addr != 0; addr = reinterpret_cast<uint64_t>(netBufferList.Next))
         {
-            auto ok = reader.read(&netBufferList, netBufferListsAddr, sizeof(netBufferList));
+            auto ok = reader.read(&netBufferList, addr, sizeof netBufferList);
             if(!ok)
                 return invalid;
 
-            netBufferListsAddr = (uint64_t) netBufferList.Next;
-
-            ok = reader.read(&netBuffer, (uint64_t) netBufferList.FirstNetBuffer, sizeof(netBuffer));
+            ok = reader.read(&netBuffer, (uint64_t) netBufferList.FirstNetBuffer, sizeof netBuffer);
             if(!ok)
                 return invalid;
 
@@ -93,7 +92,7 @@ namespace
             data.resize(data.size() + dataSize);
             do
             {
-                ok = reader.read(&mdl, mdlAddress, sizeof(mdl));
+                ok = reader.read(&mdl, mdlAddress, sizeof mdl);
                 if(!ok)
                     return invalid;
                 size = std::min(mdl.ByteCount - mdlOffset, dataSize);
@@ -143,27 +142,17 @@ namespace
             return {};
         LOG(INFO, "TEB is: {:#x}, r12 is: {:#x}, r13 is: {:#x}", teb, TlsSlot, *WOW64_CONTEXT);
 
-        auto offset        = 4; // FIXME: why 4 on 10240 ?
-        const auto off_ebp = offsetof(nt_types::_WOW64_CONTEXT, Ebp) + offset;
-        const auto ebp     = reader.le32(*WOW64_CONTEXT + off_ebp);
-        if(!ebp)
+        auto offset = 4; // FIXME: why 4 on 10240 ?
+        nt_types::_WOW64_CONTEXT wow64ctx;
+        const auto ok = reader.read(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
+        if(!ok)
             return {};
 
-        const auto off_eip = offsetof(nt_types::_WOW64_CONTEXT, Eip) + offset;
-        const auto eip     = reader.le32(*WOW64_CONTEXT + off_eip);
-        if(!eip)
-            return {};
+        const auto ebp = static_cast<uint64_t>(wow64ctx.Ebp);
+        const auto eip = static_cast<uint64_t>(wow64ctx.Eip);
+        const auto esp = static_cast<uint64_t>(wow64ctx.Esp);
 
-        const auto off_esp = offsetof(nt_types::_WOW64_CONTEXT, Esp) + offset;
-        const auto esp     = reader.le32(*WOW64_CONTEXT + off_esp);
-        if(!esp)
-            return {};
-
-        const auto zero64 = 0x0000000000000000;
-        const auto ip     = zero64 | *eip;
-        const auto sp     = zero64 | *esp;
-        const auto bp     = zero64 | *ebp;
-        return callstack::context_t{ip, sp, bp, 0};
+        return callstack::context_t{eip, esp, ebp, 0};
     }
 
     static void load_proc_symbols(core::Core& core, proc_t proc, sym::Symbols& symbols, flags_e flag)
@@ -201,13 +190,15 @@ namespace
         });
     }
 
+    using Breakpoints = std::map<int, core::Breakpoint>;
+
     struct Private
     {
-        core::Core&                      core;
-        pcap::Packet                     packet;
-        int                              id;
-        pcap::FileWriterNG*              pcap;
-        std::map<int, core::Breakpoint>& bps;
+        core::Core&         core;
+        pcap::Packet        packet;
+        int                 id;
+        pcap::FileWriterNG* pcap;
+        Breakpoints&        bps;
     };
 
     using CallStack = std::shared_ptr<callstack::ICallstack>;
@@ -255,8 +246,8 @@ namespace
 
     static int capture(core::Core& core, const std::string& capture_path)
     {
-        std::map<int, core::Breakpoint> user_bps;
-        pcap::FileWriterNG              pcap;
+        Breakpoints        user_bps;
+        pcap::FileWriterNG pcap;
         sym::Loader kernel_sym(core);
         kernel_sym.drv_listen();
         int bp_id = 0;
@@ -270,11 +261,11 @@ namespace
             return -1;
 
         // ndis!NdisSendNetBufferLists
-        const auto ndisCallSendHandler = kernel_sym.symbols().symbol("ndis", "NdisSendNetBufferLists");
-        if(!ndisCallSendHandler)
+        const auto NdisSendNetBufferLists = kernel_sym.symbols().symbol("ndis", "NdisSendNetBufferLists");
+        if(!NdisSendNetBufferLists)
             return FAIL(-1, "unable to set a BP on ndis!NdisSendNetBufferLists");
 
-        const auto bp_send = core.state.set_breakpoint("NdisSendNetBufferLists", *ndisCallSendHandler, [&]
+        const auto bp_send = core.state.set_breakpoint("NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
         {
             const auto netBufferLists = core.os->read_arg(1);
             const auto curProc        = core.os->proc_current();
@@ -381,10 +372,8 @@ int main(int argc, char** argv)
     if(!ok)
         return FAIL(-1, "unable to start core at {}", name.data());
 
-    capture(core, capture_path);
-
-    // resume VM
     core.state.pause();
+    const auto ret = capture(core, capture_path);
     core.state.resume();
-    return 0;
+    return ret;
 }

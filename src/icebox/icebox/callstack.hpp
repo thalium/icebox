@@ -26,7 +26,7 @@ namespace callstack
         virtual ~ICallstack() = default;
 
         virtual bool    get_callstack               (proc_t proc, on_callstep_fn on_callstep) = 0;
-        virtual bool    get_callstack_from_context  (proc_t proc, const callstack::context_t& first, flags_e flag, on_callstep_fn on_callstep) = 0;
+        virtual bool    get_callstack_from_context  (proc_t proc, const context_t& first, flags_e flag, on_callstep_fn on_callstep) = 0;
     };
 
     std::shared_ptr<ICallstack> make_callstack_nt(core::Core& core);

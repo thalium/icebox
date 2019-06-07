@@ -9,7 +9,7 @@ namespace pcap
 {
     struct packet_metadata_t
     {
-        uint32_t    ifId;
+        uint32_t    if_id;
         uint64_t    timestamp;
         uint32_t    sec;
         uint32_t    usec;

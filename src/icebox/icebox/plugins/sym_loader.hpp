@@ -17,7 +17,7 @@ namespace sym
     {
         Loader(core::Core& core, proc_t proc);
 
-        // Loader initizialied without proc will load the drivers pdb
+        // Loader without proc will load the drivers pdb
          Loader(core::Core& core);
         ~Loader();
 

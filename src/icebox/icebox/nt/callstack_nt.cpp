@@ -14,6 +14,7 @@
 
 #include <array>
 #include <map>
+#include <tuple>
 
 namespace std
 {
@@ -196,8 +197,8 @@ namespace
         return {};
     }
 
-    template <typename T1, typename T2>
-    static opt<T1> find_prev(const uint64_t addr, const T2& mods)
+    template <typename T>
+    static opt<T> find_prev(const uint64_t addr, const std::map<uint64_t, T>& mods)
     {
         if(mods.empty())
             return {};
@@ -232,7 +233,7 @@ namespace
 opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
 {
     auto& modules = get_modules(all_modules_, proc);
-    auto mod      = find_prev<mod_t, Modules>(addr, modules);
+    auto mod      = find_prev(addr, modules);
     if(mod)
     {
         const auto span = core_.os->mod_span(proc, *mod);
@@ -251,7 +252,7 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
 
 opt<driver_t> CallstackNt::find_drv(uint64_t addr)
 {
-    auto drv = find_prev<driver_t, Drivers>(addr, all_drivers_);
+    auto drv = find_prev(addr, all_drivers_);
     if(drv)
     {
         const auto span = core_.os->driver_span(*drv);
@@ -404,8 +405,36 @@ namespace
     {
         if(c.core_.os->is_kernel_address(ctxt.ip))
             return get_kernel_stack(c);
-        else
-            return get_user_stack(c, proc, is_32bits);
+
+        return get_user_stack(c, proc, is_32bits);
+    }
+
+    static opt<std::tuple<std::string, span_t>> get_name_span(CallstackNt& c, proc_t proc, const callstack::context_t& ctx)
+    {
+        if(c.core_.os->is_kernel_address(ctx.ip))
+        {
+            const auto drv = c.find_drv(ctx.ip);
+            if(!drv)
+                return {};
+
+            auto name = c.core_.os->driver_name(*drv);
+            auto span = c.core_.os->driver_span(*drv);
+            if(!name || !span)
+                return {};
+
+            return std::make_tuple(*name, *span);
+        }
+
+        const auto mod = c.find_mod(proc, ctx.ip);
+        if(!mod)
+            return {};
+
+        auto name = c.core_.os->mod_name(proc, *mod);
+        auto span = c.core_.os->mod_span(proc, *mod);
+        if(!name || !span)
+            return {};
+
+        return std::make_tuple(*name, *span);
     }
 
     static bool get_callstack64(CallstackNt& c, proc_t proc, const callstack::context_t& first, const callstack::on_callstep_fn& on_callstep)
@@ -421,37 +450,22 @@ namespace
         auto ctx = first;
         for(size_t i = 0; i < max_cs_depth; ++i)
         {
-            opt<std::string> name;
-            opt<span_t> span = {};
             // Get module from address
-            if(c.core_.os->is_kernel_address(ctx.ip))
-            {
-                const auto drv = c.find_drv(ctx.ip);
-                if(!drv)
-                    return false;
+            const auto tuple = get_name_span(c, proc, ctx);
+            if(!tuple)
+                return false;
 
-                name = c.core_.os->driver_name(*drv);
-                span = c.core_.os->driver_span(*drv);
-            }
-            else
-            {
-                const auto mod = c.find_mod(proc, ctx.ip);
-                if(!mod)
-                    return false;
-
-                name = c.core_.os->mod_name(proc, *mod);
-                span = c.core_.os->mod_span(proc, *mod);
-            }
+            auto [name, span] = *tuple;
             // Get function table of the module
-            const auto function_table = c.get_mod_functiontable(proc, *name, *span);
+            const auto function_table = c.get_mod_functiontable(proc, name, span);
             if(!function_table)
             {
                 if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
                     return true;
 
-                return FAIL(false, "unable to get function table of {}", name->c_str());
+                return false;
             }
-            const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span->addr);
+            const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span.addr);
             const auto function_entry = c.lookup_function_entry(off_in_mod, function_table->function_entries);
             if(!function_entry)
                 return FAIL(false, "No matching function entry");
@@ -500,7 +514,6 @@ namespace
 
     static bool get_callstack32(CallstackNt& c, proc_t proc, const callstack::context_t& first, const callstack::on_callstep_fn& on_callstep)
     {
-        LOG(INFO, "callstack 32:");
         std::vector<uint8_t> buffer;
         constexpr auto reg_size = 4;
         const auto max_cs_depth = size_t(150);
