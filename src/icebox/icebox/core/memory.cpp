@@ -189,7 +189,11 @@ namespace
 
         return read_pages("virtual", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
-            const auto ok = inject_page_fault(d, dtb, pgsrc, true);
+            auto ok = fdp::read_virtual(d.shm, pgdst, pgsize, pgsrc);
+            if(ok)
+                return true;
+
+            ok = inject_page_fault(d, dtb, pgsrc, true);
             if(!ok)
                 return false;
 
