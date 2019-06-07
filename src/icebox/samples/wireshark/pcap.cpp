@@ -1,6 +1,6 @@
 #include "pcap.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 
 namespace
@@ -65,9 +65,9 @@ void pcap::FileWriterNG::add_packet(const pcap::Packet& p)
     d->packets.emplace_back(p);
 }
 
-bool pcap::FileWriterNG::write(const char* filepath)
+bool pcap::FileWriterNG::write(const std::string& filepath)
 {
-    auto file = fopen(filepath, "wb");
+    auto file = fopen(filepath.data(), "wb");
     if(file == nullptr)
         return false;
 

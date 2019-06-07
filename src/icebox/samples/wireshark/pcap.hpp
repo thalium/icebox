@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -27,7 +28,7 @@ namespace pcap
         ~FileWriterNG();
 
         void    add_packet  (const pcap::Packet& p);
-        bool    write       (const char* filepath);
+        bool    write       (const std::string& filepath);
 
         struct Data;
         std::unique_ptr<Data> d;

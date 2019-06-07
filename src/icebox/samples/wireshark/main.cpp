@@ -16,39 +16,35 @@
 namespace
 {
 
-    typedef struct _MDL
+    struct MDL
     {
-        struct _MDL* Next;
-        uint16_t     Size;
-        uint16_t     MdlFlags;
-        void*        Process;
+        MDL*     Next;
+        uint16_t Size;
+        uint16_t MdlFlags;
+        void*    Process;
         void* MappedSystemVa; /* see creators for field size annotations. */
         void* StartVa;        /* see creators for validity; could be address 0.  */
         uint32_t ByteCount;
         uint32_t ByteOffset;
-    } MDL, *PMDL;
+    };
 
-    typedef struct _NET_BUFFER* PNET_BUFFER;
-
-    typedef struct _NET_BUFFER
+    struct NET_BUFFER
     {
-        PNET_BUFFER Next;
-        PMDL        CurrentMdl;
+        NET_BUFFER* Next;
+        MDL*        CurrentMdl;
         uint32_t    CurrentMdlOffset;
         uint32_t    reserved;
         uint32_t    stDataLength;
-        PMDL        MdlChain;
+        MDL*        MdlChain;
         uint32_t    DataOffset;
-    } NET_BUFFER, *PNET_BUFFER;
+    };
 
-    typedef struct _NET_BUFFER_LIST* PNET_BUFFER_LIST;
-
-    typedef struct _NET_BUFFER_LIST
+    struct NET_BUFFER_LIST
     {
-        PNET_BUFFER_LIST Next;           // Next NetBufferList in the chain
-        PNET_BUFFER      FirstNetBuffer; // First NetBuffer on this NetBufferList
+        NET_BUFFER_LIST* Next;           // Next NetBufferList in the chain
+        NET_BUFFER*      FirstNetBuffer; // First NetBuffer on this NetBufferList
         void*            Context;
-        PNET_BUFFER_LIST ParentNetBufferList;
+        NET_BUFFER_LIST* ParentNetBufferList;
         void*            NdisPoolHandle;
         void*            NdisReserved[2];
         void*            ProtocolReserved[4];
@@ -63,7 +59,7 @@ namespace
             uint32_t Status;
             uint32_t NdisReserved2;
         };
-    } NET_BUFFER_LIST, *PNET_BUFFER_LIST;
+    };
 
     static std::vector<uint8_t> read_NetBufferList(core::Core& core, uint64_t netBuffListAddress)
     {
@@ -229,7 +225,7 @@ namespace
         return comment;
     }
 
-    static void get_user_callstack32(core::Core& core, pcap::Packet& packet, proc_t proc, CallStack callstack)
+    static void get_user_callstack32(core::Core& core, pcap::Packet& packet, proc_t proc, const CallStack& callstack)
     {
         sym::Symbols symbols;
         load_proc_symbols(core, proc, symbols, FLAGS_32BIT);
@@ -245,7 +241,7 @@ namespace
         });
     }
 
-    static void get_user_callstack64(core::Core& core, pcap::Packet& packet, proc_t proc, CallStack callstack)
+    static void get_user_callstack64(core::Core& core, pcap::Packet& packet, proc_t proc, const CallStack& callstack)
     {
         sym::Symbols symbols;
         load_proc_symbols(core, proc, symbols, FLAGS_NONE);
@@ -257,7 +253,7 @@ namespace
         });
     }
 
-    static int capture(core::Core& core, std::string capture_path)
+    static int capture(core::Core& core, const std::string& capture_path)
     {
         std::map<int, core::Breakpoint> user_bps;
         pcap::FileWriterNG              pcap;

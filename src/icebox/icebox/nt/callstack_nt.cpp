@@ -422,7 +422,7 @@ namespace
         for(size_t i = 0; i < max_cs_depth; ++i)
         {
             opt<std::string> name;
-            opt<span_t>      span;
+            opt<span_t> span = {};
             // Get module from address
             if(c.core_.os->is_kernel_address(ctx.ip))
             {
