@@ -7,7 +7,8 @@ sudo apt install            \
             python3         \
             gcc-8           \
             g++-8           \
-            clang-format
+            clang-format    \
+            ninja-build
 ```
 
 *Note: the use of the command **update-alternatives** might be useful to set python3, gcc-8 and g++-8 as default*
