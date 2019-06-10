@@ -50,3 +50,11 @@ heapsan breaks ntdll memory allocations from a process and add padding before & 
 cd icebox/bin/$ARCH/
 ./heapsan <vm_name> <process_name>
 ```
+
+<u>**wireshark:**</u><br>
+wireshark breaks when ndis driver reads or sends network packets and creates a wireshark trace (.pcapng). Each packet sent is associated to a callstack from kernel land to userland if necessary.
+
+```
+cd icebox/bin/$ARCH/
+./wireshark <name> <path_to_capture_file>
+```

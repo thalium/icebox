@@ -368,7 +368,7 @@ int main(int argc, char** argv)
 {
     logg::init(argc, argv);
     if(argc != 3)
-        return FAIL(-1, "usage: wireshark <name> <cpature file path>");
+        return FAIL(-1, "usage: wireshark <name> <path_to_capture_file>");
 
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on: {}", name.data());
