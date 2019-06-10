@@ -47,74 +47,116 @@ namespace
         uint16_t code;
         uint16_t length;
     };
+
+    struct Packet
+    {
+        pcap::metadata_t     meta;
+        std::vector<uint8_t> data;
+    };
 }
 
-struct pcap::FileWriterNG::Data
+struct pcap::Writer::Data
 {
-    std::vector<pcap::Packet> packets;
+    std::vector<Packet> packets;
 };
 
-pcap::FileWriterNG::FileWriterNG()
+pcap::Writer::Writer()
     : d(std::make_unique<Data>())
 {
 }
 
-pcap::FileWriterNG::~FileWriterNG() = default;
+pcap::Writer::~Writer() = default;
 
-void pcap::FileWriterNG::add_packet(const pcap::Packet& p)
+void pcap::Writer::add_packet(const metadata_t& m, const void* data, size_t size)
 {
+    Packet p;
+    p.meta = m;
+    p.data.resize(size);
+    memcpy(&p.data[0], data, p.data.size());
     d->packets.emplace_back(p);
 }
 
-bool pcap::FileWriterNG::write(const std::string& filepath)
+namespace
 {
-    auto file = fopen(filepath.data(), "wb");
-    if(file == nullptr)
-        return false;
+    static bool write_hdr(FILE* file, BlockHeader& hdr)
+    {
+        SHB shb;
+        hdr.type           = typeSHB;
+        hdr.length         = static_cast<uint32_t>(sizeof(BlockHeader) + sizeof(SHB) + sizeof hdr.length);
+        shb.byte_order     = 0x1a2b3c4d;
+        shb.version_major  = 1;
+        shb.version_minor  = 0;
+        shb.section_length = -1;
 
-    // Write the Section Header Block
-    BlockHeader hdr;
-    SHB         shb;
-    hdr.type           = typeSHB;
-    hdr.length         = static_cast<uint32_t>(sizeof(BlockHeader) + sizeof(SHB) + sizeof hdr.length);
-    shb.byte_order     = 0x1a2b3c4d;
-    shb.version_major  = 1;
-    shb.version_minor  = 0;
-    shb.section_length = -1;
+        auto bytes = fwrite(&hdr, 1, sizeof hdr, file);
+        if(bytes != sizeof hdr)
+            return false;
 
-    auto bytes = fwrite(&hdr, 1, sizeof hdr, file);
-    if(bytes != sizeof hdr)
-        return false;
+        bytes = fwrite(&shb, 1, sizeof shb, file);
+        if(bytes != sizeof shb)
+            return false;
 
-    bytes = fwrite(&shb, 1, sizeof shb, file);
-    if(bytes != sizeof shb)
-        return false;
+        bytes = fwrite(&hdr.length, 1, sizeof hdr.length, file);
+        if(bytes != sizeof hdr.length)
+            return false;
 
-    bytes = fwrite(&hdr.length, 1, sizeof hdr.length, file);
-    if(bytes != sizeof hdr.length)
-        return false;
+        return true;
+    }
+    static bool write_idb(FILE* file, BlockHeader& hdr)
+    {
+        IDB idb;
+        hdr.type      = typeIDB;
+        hdr.length    = static_cast<uint32_t>(sizeof(BlockHeader) + sizeof(IDB) + sizeof hdr.length);
+        idb.link_type = 1; // ETHERNET
+        idb.reserved  = 0;
+        idb.snap_len  = 0;
+        auto bytes    = fwrite(&hdr, 1, sizeof hdr, file);
+        if(bytes != sizeof hdr)
+            return false;
 
-    // IDB
-    IDB idb;
-    hdr.type      = typeIDB;
-    hdr.length    = static_cast<uint32_t>(sizeof(BlockHeader) + sizeof(IDB) + sizeof hdr.length);
-    idb.link_type = 1; // ETHERNET
-    idb.reserved  = 0;
-    idb.snap_len  = 0;
-    bytes         = fwrite(&hdr, 1, sizeof hdr, file);
-    if(bytes != sizeof hdr)
-        return false;
+        bytes = fwrite(&idb, 1, sizeof idb, file);
+        if(bytes != sizeof idb)
+            return false;
 
-    bytes = fwrite(&idb, 1, sizeof idb, file);
-    if(bytes != sizeof idb)
-        return false;
+        bytes = fwrite(&hdr.length, 1, sizeof hdr.length, file);
+        if(bytes != sizeof hdr.length)
+            return false;
 
-    bytes = fwrite(&hdr.length, 1, sizeof hdr.length, file);
-    if(bytes != sizeof hdr.length)
-        return false;
+        return true;
+    }
+    static bool write_comment(FILE* file, Packet& p, uint32_t padding)
+    {
+        Option option;
+        uint32_t paddingBuf = 0;
 
-    // Write an Enhanced Packet Block for each packet
-    for(auto& p : d->packets)
+        option.code   = 1; // comment
+        option.length = (uint16_t) p.meta.comment.size();
+
+        auto bytes = fwrite(&option, 1, sizeof option, file);
+        if(bytes != sizeof option)
+            return false;
+
+        bytes = fwrite(p.meta.comment.data(), 1, option.length, file);
+        if(bytes != option.length)
+            return false;
+
+        if(option.length % 4)
+        {
+            padding = 4 - (option.length % 4);
+            bytes   = fwrite(&paddingBuf, 1, padding, file);
+            if(bytes != padding)
+                return false;
+        }
+        option.code   = 0;
+        option.length = 0;
+
+        bytes = fwrite(&option, 1, sizeof option, file);
+        if(bytes != sizeof option)
+            return false;
+
+        return true;
+    }
+    static bool write_packet(FILE* file, Packet& p, BlockHeader& hdr)
     {
         auto size             = p.data.size();
         uint32_t optionLength = 0;
@@ -131,7 +173,7 @@ bool pcap::FileWriterNG::write(const std::string& filepath)
             return false;
 
         hdr.length = static_cast<uint32_t>(sizeof(BlockHeader) + sizeof(EPB) + sizeof hdr.length + size + padding + optionLength);
-        bytes      = fwrite(&hdr, 1, sizeof hdr, file);
+        auto bytes = fwrite(&hdr, 1, sizeof hdr, file);
         if(bytes != sizeof hdr)
             return false;
 
@@ -160,39 +202,49 @@ bool pcap::FileWriterNG::write(const std::string& filepath)
         // write comment option if any
         if(!p.meta.comment.empty())
         {
-            Option option;
-            uint32_t paddingBuf = 0;
-
-            option.code   = 1; // comment
-            option.length = (uint16_t) p.meta.comment.size();
-
-            bytes = fwrite(&option, 1, sizeof option, file);
-            if(bytes != sizeof option)
-                return false;
-
-            bytes = fwrite(p.meta.comment.data(), 1, option.length, file);
-            if(bytes != option.length)
-                return false;
-
-            if(option.length % 4)
-            {
-                padding = 4 - (option.length % 4);
-                bytes   = fwrite(&paddingBuf, 1, padding, file);
-                if(bytes != padding)
-                    return false;
-            }
-            option.code   = 0;
-            option.length = 0;
-
-            bytes = fwrite(&option, 1, sizeof option, file);
-            if(bytes != sizeof option)
+            const auto ok = write_comment(file, p, padding);
+            if(!ok)
                 return false;
         }
 
         bytes = fwrite(&hdr.length, 1, sizeof hdr.length, file);
         if(bytes != sizeof hdr.length)
             return false;
+
+        return true;
     }
-    fclose(file);
-    return true;
+
+    static bool close_and_exit(FILE* file, bool ret)
+    {
+        fclose(file);
+        return ret;
+    }
+}
+
+bool pcap::Writer::write(const std::string& filepath)
+{
+    auto file = fopen(filepath.data(), "wb");
+    if(file == nullptr)
+        return false;
+
+    // Write the Section Header Block
+    BlockHeader hdr;
+    auto ok = write_hdr(file, hdr);
+    if(!ok)
+        return close_and_exit(file, false);
+
+    // IDB
+    ok = write_idb(file, hdr);
+    if(!ok)
+        return close_and_exit(file, false);
+
+    // Write an Enhanced Packet Block for each packet
+    for(auto& p : d->packets)
+    {
+        ok = write_packet(file, p, hdr);
+        if(!ok)
+            return close_and_exit(file, false);
+    }
+
+    return close_and_exit(file, true);
 }

@@ -194,11 +194,12 @@ namespace
 
     struct Private
     {
-        core::Core&         core;
-        pcap::Packet        packet;
-        int                 id;
-        pcap::FileWriterNG* pcap;
-        Breakpoints&        bps;
+        core::Core&      core;
+        pcap::metadata_t meta;
+        int              id;
+        bool             is_wow64cpu;
+        pcap::Writer*    pcap;
+        Breakpoints&     bps;
     };
 
     using CallStack = std::shared_ptr<callstack::ICallstack>;
@@ -216,7 +217,7 @@ namespace
         return comment;
     }
 
-    static void get_user_callstack32(core::Core& core, pcap::Packet& packet, proc_t proc, const CallStack& callstack)
+    static void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc, const CallStack& callstack)
     {
         sym::Symbols symbols;
         load_proc_symbols(core, proc, symbols, FLAGS_32BIT);
@@ -227,27 +228,50 @@ namespace
 
         callstack->get_callstack_from_context(proc, *ctx, FLAGS_32BIT, [&](callstack::callstep_t step)
         {
-            packet.meta.comment += get_callstep_name(symbols, step.addr);
+            meta.comment += get_callstep_name(symbols, step.addr);
             return WALK_NEXT;
         });
     }
 
-    static void get_user_callstack64(core::Core& core, pcap::Packet& packet, proc_t proc, const CallStack& callstack)
+    static void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc, const CallStack& callstack)
     {
         sym::Symbols symbols;
         load_proc_symbols(core, proc, symbols, FLAGS_NONE);
 
         callstack->get_callstack(proc, [&](callstack::callstep_t step)
         {
-            packet.meta.comment += get_callstep_name(symbols, step.addr);
+            meta.comment += get_callstep_name(symbols, step.addr);
             return WALK_NEXT;
         });
     }
 
+    static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data, const CallStack& callstack)
+    {
+        const auto thread = p.core.os->thread_current();
+        if(!thread)
+            return false;
+
+        const auto bp = p.core.state.set_breakpoint("NdisSendNetBufferLists user return", addr, *thread, [=]
+        {
+            auto meta = p.meta;
+            if(p.is_wow64cpu)
+                get_user_callstack32(p.core, meta, proc, callstack);
+            else
+                get_user_callstack64(p.core, meta, proc, callstack);
+
+            LOG(INFO, "Callstack: {}", meta.comment);
+            p.pcap->add_packet(meta, &data[0], data.size());
+            p.bps.erase(p.id);
+            return 0;
+        });
+        p.bps[p.id]   = bp;
+        return true;
+    }
+
     static int capture(core::Core& core, const std::string& capture_path)
     {
-        Breakpoints        user_bps;
-        pcap::FileWriterNG pcap;
+        Breakpoints  user_bps;
+        pcap::Writer pcap;
         sym::Loader kernel_sym(core);
         kernel_sym.drv_listen();
         int bp_id = 0;
@@ -267,62 +291,44 @@ namespace
 
         const auto bp_send = core.state.set_breakpoint("NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
         {
+            const auto proc = core.os->proc_current();
+            if(!proc)
+                return -1;
+
             const auto netBufferLists = core.os->read_arg(1);
-            const auto curProc        = core.os->proc_current();
-            const auto procName       = core.os->proc_name(*curProc);
+            if(!netBufferLists)
+                return -1;
 
-            pcap::Packet packet;
-            packet.data = read_NetBufferList(core, (*netBufferLists).val);
+            const auto data = read_NetBufferList(core, netBufferLists->val);
 
-            packet.meta.comment = *procName + "(" + std::to_string(core.os->proc_id(*curProc)) + ")\n";
+            const auto proc_name = core.os->proc_name(*proc);
+            if(!proc_name)
+                return -1;
 
-            const auto now        = std::chrono::high_resolution_clock::now();
-            packet.meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
+            pcap::metadata_t meta;
+            meta.comment   = *proc_name + "(" + std::to_string(core.os->proc_id(*proc)) + ")\n";
+            const auto now = std::chrono::high_resolution_clock::now();
+            meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
 
             auto continue_to_userland = false;
-            kernel_callstack->get_callstack(*curProc, [&](callstack::callstep_t callstep)
+            kernel_callstack->get_callstack(*proc, [&](callstack::callstep_t callstep)
             {
                 if(core.os->is_kernel_address(callstep.addr))
                 {
-                    packet.meta.comment += get_callstep_name(kernel_sym.symbols(), callstep.addr);
+                    meta.comment += get_callstep_name(kernel_sym.symbols(), callstep.addr);
                     return WALK_NEXT;
                 }
 
-                const auto proc = core.os->proc_current();
-                if(!proc)
-                    return WALK_STOP;
-
+                continue_to_userland   = true;
                 const auto is_wow64cpu = is_wow64_emulated(core, *proc, callstep.addr);
-                const auto thread      = core.os->thread_current();
-                if(!thread)
-                    return WALK_STOP;
-
-                continue_to_userland = true;
-                Private p            = {core, packet, bp_id, &pcap, user_bps};
-                const auto bp        = core.state.set_breakpoint("NdisSendNetBufferLists user return", callstep.addr, *thread, [=]
-                {
-                    auto packet = p.packet;
-                    if(is_wow64cpu)
-                        get_user_callstack32(p.core, packet, *proc, user_callstack);
-                    else
-                        get_user_callstack64(p.core, packet, *proc, user_callstack);
-
-                    LOG(INFO, "Callstack: {}", packet.meta.comment);
-                    p.pcap->add_packet(packet);
-                    p.bps.erase(p.id);
-                    return 0;
-                });
-                user_bps[bp_id]      = bp;
+                Private p              = {core, meta, bp_id, is_wow64cpu, &pcap, user_bps};
+                break_in_userland(p, *proc, callstep.addr, data, user_callstack);
                 bp_id++;
-
                 return WALK_STOP;
             });
 
             if(!continue_to_userland)
-            {
-                pcap.add_packet(packet);
-                LOG(INFO, "Callstack: {}", packet.meta.comment);
-            }
+                pcap.add_packet(meta, &data[0], data.size());
 
             return 0;
         });
@@ -335,17 +341,19 @@ namespace
         const auto bp_recv = core.state.set_breakpoint("NdisMIndicateReceiveNetBufferLists", *NdisReturnNetBufferLists, [&]
         {
             const auto netBufferLists = core.os->read_arg(1);
+            if(!netBufferLists)
+                return -1;
 
-            pcap::Packet packet;
-            packet.data           = read_NetBufferList(core, (*netBufferLists).val);
-            auto now              = std::chrono::high_resolution_clock::now();
-            packet.meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
-            pcap.add_packet(packet);
+            const auto data = read_NetBufferList(core, (*netBufferLists).val);
+            pcap::metadata_t meta;
+            auto now       = std::chrono::high_resolution_clock::now();
+            meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
+            pcap.add_packet(meta, &data[0], data.size());
             return 0;
         });
 
         const auto now = std::chrono::high_resolution_clock::now();
-        const auto end = now + std::chrono::minutes(3);
+        const auto end = now + std::chrono::seconds(30);
         while(std::chrono::high_resolution_clock::now() < end)
         {
             core.state.resume();

@@ -7,7 +7,7 @@
 
 namespace pcap
 {
-    struct packet_metadata_t
+    struct metadata_t
     {
         uint32_t    if_id;
         uint64_t    timestamp;
@@ -16,18 +16,12 @@ namespace pcap
         std::string comment;
     };
 
-    struct Packet
+    struct Writer
     {
-        packet_metadata_t    meta;
-        std::vector<uint8_t> data;
-    };
+         Writer();
+        ~Writer();
 
-    struct FileWriterNG
-    {
-         FileWriterNG();
-        ~FileWriterNG();
-
-        void    add_packet  (const pcap::Packet& p);
+        void    add_packet  (const metadata_t& p, const void* data, size_t size);
         bool    write       (const std::string& filepath);
 
         struct Data;
