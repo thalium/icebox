@@ -3,12 +3,14 @@
 #define FDP_MODULE "heapsan"
 #include "log.hpp"
 
+#include "breaker.hpp"
 #include "callstack.hpp"
 #include "nt/nt.hpp"
 #include "os.hpp"
 #include "reader.hpp"
 #include "tracer/heaps.gen.hpp"
 #include "utils/fnview.hpp"
+#include "utils/hash.hpp"
 #include "utils/utils.hpp"
 
 #include <map>
@@ -29,18 +31,6 @@ namespace
                && a.HeapHandle == b.HeapHandle;
     }
 
-    struct return_t
-    {
-        thread_t thread;
-        uint64_t rsp;
-    };
-
-    static inline bool operator==(const return_t& a, const return_t& b)
-    {
-        return a.thread.id == b.thread.id
-               && a.rsp == b.rsp;
-    }
-
     struct heap_t
     {
         nt::PVOID HeapHandle;
@@ -52,16 +42,6 @@ namespace
         return a.HeapHandle == b.HeapHandle
                && a.BaseAddress == b.BaseAddress;
     }
-
-    static inline void hash_combine(std::size_t& /*seed*/) {}
-
-    template <typename T, typename... Rest>
-    static inline void hash_combine(std::size_t& seed, const T& v, Rest... rest)
-    {
-        std::hash<T> hasher;
-        seed ^= hasher(v) + 0x9E3779B97F4A7C15 + (seed << 6) + (seed >> 2);
-        hash_combine(seed, rest...);
-    }
 }
 
 namespace std
@@ -72,18 +52,7 @@ namespace std
         size_t operator()(const realloc_t& arg) const
         {
             size_t seed = 0;
-            hash_combine(seed, arg.thread.id, arg.HeapHandle);
-            return seed;
-        }
-    };
-
-    template <>
-    struct hash<return_t>
-    {
-        size_t operator()(const return_t& arg) const
-        {
-            size_t seed = 0;
-            hash_combine(seed, arg.thread.id, arg.rsp);
+            ::hash::combine(seed, arg.thread.id, arg.HeapHandle);
             return seed;
         }
     };
@@ -94,7 +63,7 @@ namespace std
         size_t operator()(const heap_t& arg) const
         {
             size_t seed = 0;
-            hash_combine(seed, arg.HeapHandle, arg.BaseAddress);
+            ::hash::combine(seed, arg.HeapHandle, arg.BaseAddress);
             return seed;
         }
     };
@@ -103,7 +72,6 @@ namespace std
 namespace
 {
     using Reallocs  = std::unordered_set<realloc_t>;
-    using Returns   = std::unordered_map<return_t, core::Breakpoint>;
     using Heaps     = std::unordered_set<heap_t>;
     using Data      = plugins::HeapSan::Data;
     using Callstack = std::shared_ptr<callstack::ICallstack>;
@@ -121,11 +89,9 @@ struct plugins::HeapSan::Data
     nt::heaps      tracer_;
     Callstack      callstack_;
     Reallocs       reallocs_;
-    Returns        returns_;
     Heaps          heaps_;
     proc_t         target_;
-    reader::Reader reader_;
-    size_t         ptr_size_;
+    state::Breaker breaker_;
 };
 
 Data::Data(core::Core& core, sym::Symbols& syms, proc_t target)
@@ -133,8 +99,7 @@ Data::Data(core::Core& core, sym::Symbols& syms, proc_t target)
     , symbols_(syms)
     , tracer_(core, syms, "ntdll")
     , target_(target)
-    , reader_(reader::make(core, target))
-    , ptr_size_(core.os->proc_flags(target) & flags_e::FLAGS_32BIT ? 4 : 8)
+    , breaker_(core, target)
 {
 }
 
@@ -142,35 +107,6 @@ plugins::HeapSan::~HeapSan() = default;
 
 namespace
 {
-    template <typename T>
-    static void break_on_return(Data& d, std::string_view name, T operand)
-    {
-        const auto thread      = d.core_.os->thread_current();
-        const auto rsp         = d.core_.regs.read(FDP_RSP_REGISTER);
-        const auto return_addr = d.reader_.read(rsp);
-        if(!thread || !return_addr)
-            return;
-
-        struct Private
-        {
-            Data&    d;
-            thread_t thread;
-            T        operand;
-        } p = {d, *thread, operand};
-
-        const auto bp = d.core_.state.set_breakpoint(name, *return_addr, *thread, [=]
-        {
-            const auto rsp = p.d.core_.regs.read(FDP_RSP_REGISTER) - p.d.ptr_size_;
-            auto it        = p.d.returns_.find(return_t{p.thread, rsp});
-            if(it == p.d.returns_.end())
-                return;
-
-            p.operand(p.d);
-            p.d.returns_.erase(it);
-        });
-        d.returns_.emplace(return_t{*thread, rsp}, bp);
-    }
-
     static void on_RtlpAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         const auto thread = d.core_.os->thread_current();
@@ -185,8 +121,10 @@ namespace
         if(!ok)
             return;
 
-        break_on_return(d, "return RtlpAllocateHeapInternal", [=](Data& d)
+        const auto pdata = &d;
+        d.breaker_.break_return("return RtlpAllocateHeapInternal", [=]
         {
+            auto& d        = *pdata;
             const auto ptr = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!ptr)
                 return;
@@ -220,8 +158,10 @@ namespace
         if(!ok)
             return;
 
-        break_on_return(d, "return RtlSizeHeap", [=](Data& d)
+        const auto pdata = &d;
+        d.breaker_.break_return("return RtlSizeHeap", [=]
         {
+            auto& d         = *pdata;
             const auto size = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!size)
                 return;
@@ -256,8 +196,10 @@ namespace
 
         // disable alloc hooks during this call
         d.reallocs_.insert(realloc_t{*thread, HeapHandle});
-        break_on_return(d, "return RtlpReAllocateHeapInternal unknown", [=](Data& d)
+        const auto pdata = &d;
+        d.breaker_.break_return("return RtlpReAllocateHeapInternal unknown", [=]
         {
+            auto& d = *pdata;
             d.reallocs_.erase(realloc_t{*thread, HeapHandle});
         });
     }
@@ -290,8 +232,10 @@ namespace
 
         // remove pointer from heap because it can be freed with original value
         d.heaps_.erase(it);
-        break_on_return(d, "return RtlpReAllocateHeapInternal known", [=](Data& d)
+        const auto pdata = &d;
+        d.breaker_.break_return("return RtlpReAllocateHeapInternal known", [=]
         {
+            auto& d = *pdata;
             d.reallocs_.erase(realloc_t{*thread, HeapHandle});
             const auto ptr = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!ptr)
