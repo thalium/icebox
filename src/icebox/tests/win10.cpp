@@ -1,4 +1,5 @@
 #define FDP_MODULE "tests"
+#include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/os.hpp>
@@ -383,4 +384,45 @@ TEST_F(Win10Test, tracer)
     run_until(core, [&] { return count > 32; });
     for(const auto& call : calls)
         LOG(INFO, "call: {}", call);
+}
+
+namespace
+{
+    static std::string dump_address(sym::Symbols& symbols, uint64_t addr)
+    {
+        const auto cur = symbols.find(addr);
+        if(!cur)
+            return fmt::format("{:#x}", addr);
+
+        return sym::to_string(*cur);
+    }
+}
+
+TEST_F(Win10Test, callstacks)
+{
+    const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
+    ASSERT_TRUE(!!proc);
+
+    auto loader = sym::Loader{core};
+    loader.mod_listen(*proc, {});
+    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    ASSERT_TRUE(ntdll);
+
+    auto& symbols   = loader.symbols();
+    auto tracer     = nt::syscalls{core, symbols, "ntdll"};
+    auto callstacks = callstack::make_callstack_nt(core);
+    auto count      = size_t{0};
+    tracer.register_all(*proc, [&](const auto& /* cfg*/)
+    {
+        LOG(INFO, "");
+        auto idx = size_t{0};
+        callstacks->get_callstack(*proc, [&](callstack::callstep_t step)
+        {
+            const auto symbol = dump_address(symbols, step.addr);
+            LOG(INFO, "{:#x}: {}", idx++, symbol);
+            return WALK_NEXT;
+        });
+        count++;
+    });
+    run_until(core, [&] { return count > 32; });
 }
