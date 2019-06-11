@@ -158,7 +158,7 @@ namespace
         bool            setup               () override;
         bool            is_kernel_address   (uint64_t ptr) override;
         bool            can_inject_fault    (uint64_t ptr) override;
-        bool            reader_setup        (reader::Reader& reader, proc_t proc) override;
+        bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
         sym::Symbols&   kernel_symbols      () override;
 
         bool                proc_list       (on_proc_fn on_process) override;
@@ -1095,13 +1095,19 @@ opt<proc_t> OsNt::proc_parent(proc_t proc)
     return proc_find(*parent_pid);
 }
 
-bool OsNt::reader_setup(reader::Reader& reader, proc_t proc)
+bool OsNt::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
-    const auto dtb = reader_.read(proc.id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_UserDirectoryTableBase]);
+    if(!proc)
+    {
+        reader.kdtb_ = reader_.kdtb_;
+        return true;
+    }
+
+    const auto dtb = reader_.read(proc->id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_UserDirectoryTableBase]);
     if(!dtb)
         return false;
 
-    const auto kdtb = reader_.read(proc.id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_DirectoryTableBase]);
+    const auto kdtb = reader_.read(proc->id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_DirectoryTableBase]);
     if(!kdtb)
         return false;
 

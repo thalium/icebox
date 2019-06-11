@@ -35,7 +35,7 @@ namespace
         bool            setup               () override;
         bool            is_kernel_address   (uint64_t ptr) override;
         bool            can_inject_fault    (uint64_t ptr) override;
-        bool            reader_setup        (reader::Reader& reader, proc_t proc) override;
+        bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
         sym::Symbols&   kernel_symbols      () override;
 
         bool                proc_list       (on_proc_fn on_process) override;
@@ -236,10 +236,13 @@ opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
     return {};
 }
 
-bool OsLinux::reader_setup(reader::Reader& reader, proc_t proc)
+bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
-    reader.udtb_ = proc.dtb;
-    reader.kdtb_ = proc.dtb;
+    if(!proc)
+        return true;
+
+    reader.udtb_ = proc->dtb;
+    reader.kdtb_ = proc->dtb;
     return true;
 }
 

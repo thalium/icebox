@@ -4,6 +4,7 @@
 #include <icebox/os.hpp>
 #include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
+#include <icebox/sym.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/tracer/tracer.hpp>
@@ -324,17 +325,36 @@ TEST_F(Win10Test, memory)
     });
 }
 
+namespace
+{
+    static size_t count_symbols(sym::Symbols& symbols)
+    {
+        size_t count  = 0;
+        const auto ok = symbols.list([&](const auto& /*sym*/)
+        {
+            ++count;
+            return WALK_NEXT;
+        });
+        EXPECT_TRUE(ok);
+        return count;
+    }
+}
+
 TEST_F(Win10Test, loader)
 {
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
     core.os->proc_join(*proc, os::JOIN_ANY_MODE);
-    auto loader = sym::Loader{core};
-    loader.drv_listen({});
+    auto drivers = sym::Loader{core};
+    drivers.drv_listen({});
+    EXPECT_GE(count_symbols(drivers.symbols()), 128u);
 
     core.os->proc_join(*proc, os::JOIN_USER_MODE);
-    loader.mod_listen(*proc, {});
+    auto modules = sym::Loader{core};
+    modules.mod_listen(*proc, {});
+    EXPECT_GE(count_symbols(modules.symbols()), 32u);
+
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 }

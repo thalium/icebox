@@ -17,19 +17,25 @@ namespace
 
         return read(&value);
     }
+
+    static reader::Reader make_reader_with(core::Core& core, const opt<proc_t>& proc)
+    {
+        const auto cr3 = core.regs.read(FDP_CR3_REGISTER);
+        auto reader    = reader::Reader{core, {cr3}, {cr3}};
+        if(core.os)
+            core.os->reader_setup(reader, proc);
+        return reader;
+    }
 }
 
 reader::Reader reader::make(core::Core& core)
 {
-    const auto cr3 = core.regs.read(FDP_CR3_REGISTER);
-    return {core, {cr3}, {cr3}};
+    return make_reader_with(core, {});
 }
 
 reader::Reader reader::make(core::Core& core, proc_t proc)
 {
-    auto reader = reader::make(core);
-    core.os->reader_setup(reader, proc);
-    return reader;
+    return make_reader_with(core, proc);
 }
 
 opt<uint8_t> reader::Reader::byte(uint64_t ptr) const

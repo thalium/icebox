@@ -36,7 +36,7 @@ namespace os
         virtual bool            setup               () = 0;
         virtual bool            is_kernel_address   (uint64_t ptr) = 0;
         virtual bool            can_inject_fault    (uint64_t ptr) = 0;
-        virtual bool            reader_setup        (reader::Reader& reader, proc_t proc) = 0;
+        virtual bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) = 0;
         virtual sym::Symbols&   kernel_symbols      () = 0;
 
         virtual bool                proc_list       (on_proc_fn on_proc) = 0;
