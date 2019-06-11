@@ -4,7 +4,9 @@
 #include <icebox/os.hpp>
 #include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
+#include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
+#include <icebox/tracer/tracer.hpp>
 #include <icebox/utils/fnview.hpp>
 #include <icebox/waiter.hpp>
 
@@ -12,6 +14,7 @@
 #include <gtest/gtest.h>
 
 #include <map>
+#include <unordered_set>
 
 namespace
 {
@@ -319,4 +322,45 @@ TEST_F(Win10Test, memory)
         EXPECT_TRUE(!!phy);
         return WALK_NEXT;
     });
+}
+
+TEST_F(Win10Test, loader)
+{
+    const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
+    ASSERT_TRUE(!!proc);
+
+    core.os->proc_join(*proc, os::JOIN_ANY_MODE);
+    auto loader = sym::Loader{core};
+    loader.drv_listen({});
+
+    core.os->proc_join(*proc, os::JOIN_USER_MODE);
+    loader.mod_listen(*proc, {});
+    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    ASSERT_TRUE(ntdll);
+}
+
+TEST_F(Win10Test, tracer)
+{
+    const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
+    ASSERT_TRUE(!!proc);
+
+    core.os->proc_join(*proc, os::JOIN_USER_MODE);
+    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    ASSERT_TRUE(ntdll);
+
+    auto loader = sym::Loader{core};
+    loader.mod_load(*proc, *ntdll);
+
+    using Calls = std::unordered_set<std::string>;
+    auto calls  = Calls{};
+    auto tracer = nt::syscalls{core, loader.symbols(), "ntdll"};
+    auto count  = 0;
+    tracer.register_all(*proc, [&](const auto& cfg)
+    {
+        calls.insert(cfg.name);
+        ++count;
+    });
+    run_until(core, [&] { return count > 32; });
+    for(const auto& call : calls)
+        LOG(INFO, "call: {}", call);
 }
