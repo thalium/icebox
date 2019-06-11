@@ -273,7 +273,7 @@ namespace
         Breakpoints  user_bps;
         pcap::Writer pcap;
         sym::Loader kernel_sym(core);
-        kernel_sym.drv_listen();
+        kernel_sym.drv_listen({});
         int bp_id = 0;
 
         const auto kernel_callstack = callstack::make_callstack_nt(core);

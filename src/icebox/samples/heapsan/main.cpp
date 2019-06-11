@@ -20,8 +20,8 @@ namespace
             return FAIL(-1, "unable to load ntdll.dll");
 
         LOG(INFO, "ntdll module loaded");
-        auto loader   = sym::Loader{core, *proc};
-        const auto ok = loader.load(*ntdll);
+        auto loader   = sym::Loader{core};
+        const auto ok = loader.mod_load(*proc, *ntdll);
         if(!ok)
             return FAIL(-1, "unable to load ntdll.dll symbols");
 

@@ -15,17 +15,12 @@ namespace sym
 
     struct Loader
     {
-        Loader(core::Core& core, proc_t proc);
-
-        // Loader without proc will load the drivers pdb
          Loader(core::Core& core);
         ~Loader();
 
-        void            mod_listen  ();
-        void            mod_listen  (mod_predicate_fn predicate);
-        void            drv_listen  ();
+        void            mod_listen  (proc_t proc, mod_predicate_fn predicate);
+        bool            mod_load    (proc_t proc, mod_t mod);
         void            drv_listen  (drv_predicate_fn predicate);
-        bool            load        (mod_t mod);
         sym::Symbols&   symbols     ();
 
         struct Data;

@@ -223,8 +223,8 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
-    auto loader   = sym::Loader{core, *proc};
-    const auto ok = loader.load(*ntdll);
+    auto loader   = sym::Loader{core};
+    const auto ok = loader.mod_load(*proc, *ntdll);
     EXPECT_TRUE(ok);
 
     wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
@@ -247,8 +247,8 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
-    auto loader   = sym::Loader{core, *proc};
-    const auto ok = loader.load(*ntdll);
+    auto loader   = sym::Loader{core};
+    const auto ok = loader.mod_load(*proc, *ntdll);
     EXPECT_TRUE(ok);
 
     // break on a single function once

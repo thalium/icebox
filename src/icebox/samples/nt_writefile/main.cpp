@@ -49,8 +49,8 @@ namespace
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 
-        auto loader = sym::Loader{core, *proc};
-        loader.load(*ntdll);
+        auto loader = sym::Loader{core};
+        loader.mod_load(*proc, *ntdll);
         LOG(INFO, "ntdll module loaded");
 
         int idx           = -1;
