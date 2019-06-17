@@ -120,6 +120,7 @@ namespace
         TASKSTRUCT_THREADINFO,
         TASKSTRUCT_COMM,
         TASKSTRUCT_PID,
+        TASKSTRUCT_REALPARENT,
         TASKSTRUCT_GROUPLEADER,
         TASKSTRUCT_THREADGROUP,
         TASKSTRUCT_TASKS,
@@ -143,7 +144,8 @@ namespace
     {
 			{cat_e::REQUIRED,	TASKSTRUCT_THREADINFO,		"kernel_struct",	"task_struct",		"thread_info"	},
 			{cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"			},
-            {cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"			},
+			{cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"			},
+			{cat_e::REQUIRED,	TASKSTRUCT_REALPARENT,		"kernel_struct",	"task_struct",		"real_parent"	},
             {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"kernel_struct",	"task_struct",		"group_leader"	},
 			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"kernel_struct",	"task_struct",		"thread_group"	},
             {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"kernel_struct",	"task_struct",		"tasks"			},
@@ -664,9 +666,13 @@ void OsLinux::proc_join(proc_t /*proc*/, os::join_e /*join*/)
 {
 }
 
-opt<phy_t> OsLinux::proc_resolve(proc_t /*proc*/, uint64_t /*ptr*/)
+opt<phy_t> OsLinux::proc_resolve(proc_t proc, uint64_t ptr)
 {
-    return {};
+    const auto select = proc_select(proc, ptr);
+    if(!select)
+        return {};
+
+    return core_.mem.virtual_to_physical(ptr, (*select).dtb);
 }
 
 opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t ptr)
@@ -677,9 +683,13 @@ opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t ptr)
     return proc_t{proc.id, dtb_t{kpgd}};
 }
 
-opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
+opt<proc_t> OsLinux::proc_parent(proc_t proc)
 {
-    return {};
+    const auto thread_parent = reader_.read(proc.id + offsets_[TASKSTRUCT_REALPARENT]);
+    if(!thread_parent)
+        FAIL(ext::nullopt, "unable to read pointer to the parent of process {:#x}", proc.id);
+
+    return thread_proc(thread_t{*thread_parent});
 }
 
 bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
