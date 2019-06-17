@@ -39,14 +39,15 @@ void display_thread(const core::Core& core, const thread_t& thread)
     LOG(INFO, "thread : {:#x}  id:{} {} {}",
         thread.id,
         (thread_id <= 4194304) ? std::to_string(thread_id).append(7 - std::to_string(thread_id).length(), ' ') : "no",
-        std::string("").append(20, ' '),
+        std::string("").append(24, ' '),
         thread_pc(core, thread));
 }
 
 void display_proc(const core::Core& core, const proc_t& proc)
 {
-    const auto proc_pid = core.os->proc_id(proc);
-    auto proc_name      = core.os->proc_name(proc);
+    const auto proc_pid    = core.os->proc_id(proc);
+    auto proc_name         = core.os->proc_name(proc);
+    const bool proc_32bits = (core.os->proc_flags(proc) & FLAGS_32BIT);
     std::string leader_thread_pc;
 
     std::string threads;
@@ -69,9 +70,10 @@ void display_proc(const core::Core& core, const proc_t& proc)
     if(!proc_name)
         proc_name = "<noname>";
 
-    LOG(INFO, "process: {:#x} pid:{} '{}'{}   {} {}",
+    LOG(INFO, "process: {:#x} pid:{} {} '{}'{}   {} {}",
         proc.id,
         (proc_pid <= 4194304) ? std::to_string(proc_pid).append(7 - std::to_string(proc_pid).length(), ' ') : "no     ",
+        (proc_32bits) ? "x86" : "x64",
         (*proc_name),
         std::string(16 - (*proc_name).length(), ' '),
         leader_thread_pc,
