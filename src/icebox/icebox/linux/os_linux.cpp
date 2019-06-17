@@ -117,6 +117,7 @@ namespace
 
     enum offset_e
     {
+        TASKSTRUCT_THREADINFO,
         TASKSTRUCT_COMM,
         TASKSTRUCT_PID,
         TASKSTRUCT_GROUPLEADER,
@@ -140,7 +141,8 @@ namespace
     // clang-format off
     const LinuxOffset g_offsets[] =
     {
-            {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"			},
+			{cat_e::REQUIRED,	TASKSTRUCT_THREADINFO,		"kernel_struct",	"task_struct",		"thread_info"	},
+			{cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"			},
             {cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"			},
             {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"kernel_struct",	"task_struct",		"group_leader"	},
 			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"kernel_struct",	"task_struct",		"thread_group"	},
@@ -640,9 +642,22 @@ bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
     return false;
 }
 
-flags_e OsLinux::proc_flags(proc_t /*proc*/)
+flags_e OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5 (06/2019)
 {
-    return FLAGS_NONE;
+    unsigned char TIF_IA32 = 17, TIF_ADDR32 = 29, TIF_X32 = 30; // see /arch/x86/include/asm/thread_info.h
+
+    uint32_t mask = 1ul << TIF_IA32;
+    if(kversion >= version("3.4"))
+        mask |= (1ul << TIF_ADDR32 | 1ul << TIF_X32);
+
+    const auto thread_info = reader_.le32(proc.id + offsets_[TASKSTRUCT_THREADINFO]);
+    if(!thread_info)
+        FAIL(FLAGS_NONE, "unable to read thread_info flags of process {:#x}", proc.id);
+
+    if(!(*thread_info & mask))
+        return FLAGS_NONE;
+
+    return FLAGS_32BIT;
 }
 
 void OsLinux::proc_join(proc_t /*proc*/, os::join_e /*join*/)
@@ -654,9 +669,12 @@ opt<phy_t> OsLinux::proc_resolve(proc_t /*proc*/, uint64_t /*ptr*/)
     return {};
 }
 
-opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t /*ptr*/)
+opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t ptr)
 {
-    return proc;
+    if(!is_kernel_address(ptr))
+        return proc;
+
+    return proc_t{proc.id, dtb_t{kpgd}};
 }
 
 opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
