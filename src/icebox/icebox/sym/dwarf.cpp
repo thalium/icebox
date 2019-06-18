@@ -3,6 +3,7 @@
 #define FDP_MODULE "dwarf"
 #include "log.hpp"
 #include "utils/fnview.hpp"
+#include "utils/utils.hpp"
 
 #include <dwarf.h>
 #include <libdwarf.h>
@@ -110,21 +111,17 @@ namespace
         return cu;
     }
 
-    static bool read_children(Dwarf& p, const Dwarf_Die& parent, std::vector<Dwarf_Die>& children)
+    static bool read_children(Dwarf& p, const Dwarf_Die& parent, fn::view<walk_e(const Dwarf_Die&)> on_child)
     {
-        children.clear();
-
         Dwarf_Die child = nullptr;
         auto ok         = dwarf_child(parent, &child, &p.err);
 
         while(ok != DW_DLV_NO_ENTRY)
         {
             if(ok == DW_DLV_ERROR)
-            {
-                children.clear();
                 return FAIL(false, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
-            }
-            children.push_back(child);
+            if(on_child(child) == WALK_STOP)
+                break;
 
             ok = dwarf_siblingof_b(p.dbg, child, true, &child, &p.err);
         }
@@ -132,26 +129,28 @@ namespace
         return true;
     }
 
-    static opt<Dwarf_Die> get_structure(Dwarf& p, const std::string& name, const std::vector<Dwarf_Die>& collection_of_dies, const bool& pass_through_anonymous_struct = false)
+    static opt<Dwarf_Die> get_member(Dwarf& p, const std::string& name, const Dwarf_Die& structure)
     {
-        for(const auto structure : collection_of_dies)
+        opt<Dwarf_Die> result_member = {};
+
+        const auto ok_readchildren = read_children(p, structure, [&](const Dwarf_Die& member)
         {
             char* name_ptr        = nullptr;
-            const auto ok_diename = dwarf_diename(structure, &name_ptr, &p.err);
+            const auto ok_diename = dwarf_diename(member, &name_ptr, &p.err);
 
             if(ok_diename == DW_DLV_ERROR)
                 LOG(ERROR, "libdwarf error {} when reading name of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
-            if(pass_through_anonymous_struct && ok_diename == DW_DLV_NO_ENTRY) // anonymous structure
+            if(ok_diename == DW_DLV_NO_ENTRY) // anonymous struct
             {
                 Dwarf_Off type_offset = 0;
-                auto ok               = dwarf_dietype_offset(structure, &type_offset, &p.err);
+                auto ok               = dwarf_dietype_offset(member, &type_offset, &p.err);
 
                 if(ok == DW_DLV_ERROR)
                     LOG(ERROR, "libdwarf error {} when reading type offset of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    continue;
+                    return WALK_NEXT;
 
                 Dwarf_Die anonymous_struct = nullptr;
                 ok                         = dwarf_offdie_b(p.dbg, type_offset, true, &anonymous_struct, &p.err);
@@ -160,21 +159,47 @@ namespace
                     LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                {
-                    LOG(ERROR, "unable to get DIE at offset {:#x}", type_offset);
-                    continue;
-                }
+                    FAIL(WALK_NEXT, "unable to get DIE at offset {:#x}", type_offset);
 
-                std::vector<Dwarf_Die> children;
-                if(!read_children(p, anonymous_struct, children))
-                    continue;
-
-                const auto child = get_structure(p, name, children, true);
+                const auto child = get_member(p, name, anonymous_struct);
                 if(child)
-                    return *child;
+                {
+                    result_member = *child;
+                    return WALK_STOP;
+                }
             }
 
             if(ok_diename != DW_DLV_OK)
+                return WALK_NEXT;
+
+            const std::string structure_name(name_ptr);
+            if(structure_name == name)
+            {
+                result_member = member;
+                return WALK_STOP;
+            }
+            return WALK_NEXT;
+        });
+
+        if(!result_member)
+            LOG(ERROR, "unable to find {} member", name);
+        return result_member;
+    }
+
+    static opt<Dwarf_Die> get_structure(Dwarf& p, const std::string& name)
+    {
+        if(name.empty())
+            return {};
+
+        for(const auto structure : p.structures)
+        {
+            char* name_ptr = nullptr;
+            const auto ok  = dwarf_diename(structure, &name_ptr, &p.err);
+
+            if(ok == DW_DLV_ERROR)
+                LOG(ERROR, "libdwarf error {} when reading name of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+
+            if(ok != DW_DLV_OK)
                 continue;
 
             const std::string structure_name(name_ptr);
@@ -184,11 +209,6 @@ namespace
 
         LOG(ERROR, "unable to find structure '{}'", name);
         return {};
-    }
-
-    static opt<Dwarf_Die> get_structure(Dwarf& p, const std::string& name)
-    {
-        return get_structure(p, name, p.structures);
     }
 
     static opt<uint64_t> get_attr_member_location(Dwarf& p, const Dwarf_Die& die)
@@ -303,10 +323,14 @@ bool Dwarf::setup()
     if(!cu)
         return false;
 
-    std::vector<Dwarf_Die> children;
     for(const auto die : *cu)
-        if(read_children(*this, die, children))
-            structures.insert(structures.end(), children.begin(), children.end());
+    {
+        read_children(*this, die, [&](const Dwarf_Die& child)
+        {
+            structures.push_back(child);
+            return WALK_NEXT;
+        });
+    }
 
     if(structures.empty())
         return FAIL(false, "no structures found in file {}", filename_.generic_string());
@@ -335,11 +359,7 @@ opt<uint64_t> Dwarf::struc_offset(const std::string& struc, const std::string& m
     if(!structure)
         return {};
 
-    std::vector<Dwarf_Die> children;
-    if(!read_children(*this, *structure, children))
-        return {};
-
-    const auto child = get_structure(*this, member, children, true);
+    const auto child = get_member(*this, member, *structure);
     if(!child)
         return {};
 
