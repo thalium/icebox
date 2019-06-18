@@ -194,7 +194,7 @@ namespace
         for(const auto structure : p.structures)
         {
             char* name_ptr = nullptr;
-            const auto ok  = dwarf_diename(structure, &name_ptr, &p.err);
+            auto ok        = dwarf_diename(structure, &name_ptr, &p.err);
 
             if(ok == DW_DLV_ERROR)
                 LOG(ERROR, "libdwarf error {} when reading name of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
@@ -204,7 +204,27 @@ namespace
 
             const std::string structure_name(name_ptr);
             if(structure_name == name)
-                return structure;
+            {
+                Dwarf_Off type_offset = 0;
+                ok                    = dwarf_dietype_offset(structure, &type_offset, &p.err); // typedef struct if there is an offset
+
+                if(ok == DW_DLV_ERROR)
+                    LOG(ERROR, "libdwarf error {} when reading type offset of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+
+                if(ok != DW_DLV_OK)
+                    return structure;
+
+                Dwarf_Die typedef_struct = nullptr;
+                ok                       = dwarf_offdie_b(p.dbg, type_offset, true, &typedef_struct, &p.err);
+
+                if(ok == DW_DLV_ERROR)
+                    LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+
+                if(ok != DW_DLV_OK)
+                    FAIL(ext::nullopt, "unable to get DIE at offset {:#x}, and so unable to find structure '{}'", type_offset, name);
+
+                return typedef_struct;
+            }
         }
 
         LOG(ERROR, "unable to find structure '{}'", name);
