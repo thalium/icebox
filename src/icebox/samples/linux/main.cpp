@@ -74,7 +74,7 @@ void display_proc(const core::Core& core, const proc_t& proc)
     if(!proc_name)
         proc_name = "<noname>";
 
-    LOG(INFO, "process: {:#x} pid:{} parent:{} {} '{}'{}   {} {}",
+    LOG(INFO, "process: {:#x} pid:{} parent:{} {} '{}'{}   {} {} pgd:{:#x}{}",
         proc.id,
         (proc_pid <= 4194304) ? std::to_string(proc_pid).append(7 - std::to_string(proc_pid).length(), ' ') : "no     ",
         (proc_parent_pid <= 4194304) ? std::to_string(proc_parent_pid).append(7 - std::to_string(proc_parent_pid).length(), ' ') : "error  ",
@@ -82,7 +82,9 @@ void display_proc(const core::Core& core, const proc_t& proc)
         (*proc_name),
         std::string(16 - (*proc_name).length(), ' '),
         leader_thread_pc,
-        (threads_count > 0) ? "+" + std::to_string(threads_count) + " threads (" + threads + ")" : "");
+        (threads_count > 0) ? "+" + std::to_string(threads_count) + " threads (" + threads + ")" : "",
+        proc.dtb.val,
+        (proc.dtb.val) ? "" : " (kernel)");
 }
 
 int main(int argc, char** argv)
