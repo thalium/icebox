@@ -5,6 +5,8 @@
 #include <icebox/sym.hpp>
 #include <icebox/utils/fnview.hpp>
 
+#include <iostream>
+#include <limits>
 #include <sstream>
 
 std::string thread_pc(const core::Core& core, const thread_t& thread)
@@ -117,11 +119,35 @@ int main(int argc, char** argv)
     });
     core.state.resume();
 
-    // get current thread and current process pressing a key
+    // run until a process given its PID and get its info
+    // if PID -1 is given, get current process infos
     while(true)
     {
-        system("pause");
+        int pid;
+        std::cout << "\nEnter a process PID or -1 for current process : ";
+        std::cin >> pid;
+        while(std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Enter a process PID or -1 for current process : ";
+            std::cin >> pid;
+        }
+
         core.state.pause();
+
+        if(pid != -1)
+        {
+            const auto target = core.os->proc_find(pid);
+            if(!target)
+            {
+                LOG(ERROR, "unable to find a process with PID {}", pid);
+                continue;
+            }
+
+            core.os->proc_join(*target, os::JOIN_ANY_MODE);
+        }
+
         const auto thread = core.os->thread_current();
         if(thread)
             display_thread(core, *thread);

@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <memory>
+#include <unordered_set>
 
 namespace core
 {
@@ -31,6 +32,7 @@ namespace core
         Breakpoint  set_breakpoint  (std::string_view name, phy_t phy, thread_t thread, const Task& task);
         void        run_to_proc     (std::string_view name, proc_t proc);
         void        run_to_proc     (std::string_view name, proc_t proc, uint64_t ptr);
+        void        run_to_proc     (std::string_view name, proc_t proc, std::unordered_set<uint64_t> ptrs);
         void        run_to_current  (std::string_view name);
 
         // private data
