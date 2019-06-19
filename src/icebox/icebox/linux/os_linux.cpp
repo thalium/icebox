@@ -127,6 +127,7 @@ namespace
         TASKSTRUCT_MM,
         TASKSTRUCT_ACTIVEMM,
         MMSTRUCT_PGD,
+        PGDT_PGD,
         TASKSTRUCT_STACK,
         OFFSET_COUNT,
     };
@@ -152,6 +153,7 @@ namespace
             {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"			},
             {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"kernel_struct",	"task_struct",		"active_mm"		},
             {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
+			{cat_e::REQUIRED,	PGDT_PGD,					"kernel_struct",	"pgd_t",			"pgd"			},
 			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
     };
     // clang-format on
@@ -729,17 +731,35 @@ opt<thread_t> OsLinux::thread_current()
     return thread_t{*addr};
 }
 
+namespace
+{
+    opt<uint64_t> mm_pgd(OsLinux& p, uint64_t mm)
+    {
+        const auto pgd_t = p.reader_.read(mm + p.offsets_[MMSTRUCT_PGD] + p.offsets_[PGDT_PGD]);
+        if(!pgd_t)
+            FAIL(ext::nullopt, "unable to read pgd_t at {:#x} in mm_struct of process", mm + p.offsets_[MMSTRUCT_PGD] + p.offsets_[PGDT_PGD]);
+
+        const auto pgd = p.core_.mem.virtual_to_physical(*pgd_t, dtb_t{p.kpgd});
+        if(!pgd)
+            FAIL(ext::nullopt, "unable to find the pgd converting virtual addr {:#x} to physical one", *pgd_t);
+
+        return pgd->val;
+    }
+}
+
 opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
     const auto proc_id = reader_.read(thread.id + offsets_[TASKSTRUCT_GROUPLEADER]);
     if(!proc_id)
-        return FAIL(ext::nullopt, "unable to find the leader of thread {:#x}", thread.id);
+        FAIL(ext::nullopt, "unable to find the leader of thread {:#x}", thread.id);
 
-    auto pgd = reader_.read(*proc_id + offsets_[TASKSTRUCT_MM] + offsets_[MMSTRUCT_PGD]);
-    if(!pgd || is_kernel_address(*pgd))
-        pgd = reader_.read(*proc_id + offsets_[TASKSTRUCT_ACTIVEMM] + offsets_[MMSTRUCT_PGD]); // for kernel threads
-    if(!pgd || is_kernel_address(*pgd))
-        return FAIL(ext::nullopt, "unable to read pgd in task_struct.mm or task_struct.active_mm for process {:#x}", *proc_id);
+    const auto mm = reader_.read(*proc_id + offsets_[TASKSTRUCT_MM]);
+    if(!mm | !(*mm))
+        return proc_t{*proc_id, dtb_t{0}};
+
+    const auto pgd = mm_pgd(*this, *mm);
+    if(!pgd)
+        return proc_t{*proc_id, dtb_t{0}};
 
     return proc_t{*proc_id, dtb_t{*pgd}};
 }
