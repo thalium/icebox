@@ -14,6 +14,7 @@
 #include <array>
 #include <regex>
 #include <sstream>
+#include <unordered_set>
 
 #ifdef _MSC_VER
 #    define search                  std::search
@@ -664,8 +665,47 @@ flags_e OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5
     return FLAGS_32BIT;
 }
 
-void OsLinux::proc_join(proc_t /*proc*/, os::join_e /*join*/)
+namespace
 {
+    static void proc_join_any(OsLinux& p, proc_t proc)
+    {
+        std::unordered_set<uint64_t> ptrs;
+        p.thread_list(proc, [&](thread_t thread)
+        {
+            const auto ptr = p.thread_pc({}, thread);
+            if(!ptr)
+                FAIL(NULL, "unable to find the return address of thread {:#x}", thread.id);
+
+            ptrs.insert(*ptr);
+            return WALK_NEXT;
+        });
+
+        p.core_.state.run_to_proc(std::string_view("proc_join_any"), proc, ptrs);
+    }
+
+    static void proc_join_user(OsLinux& /*p*/, proc_t /*proc*/)
+    {
+        LOG(ERROR, "proc_join_user undevelopped");
+    }
+
+    static uint8_t priviledge_mode(OsLinux& os)
+    {
+        return os.core_.regs.read(FDP_CS_REGISTER) & 0b11ull;
+    }
+}
+
+void OsLinux::proc_join(proc_t proc, os::join_e join)
+{
+    const auto current = proc_current();
+
+    if(current->id == proc.id && ((join == os::JOIN_ANY_MODE) | (join == os::JOIN_USER_MODE && priviledge_mode(*this) < 3)))
+        return;
+
+    if(join == os::JOIN_ANY_MODE)
+        proc_join_any(*this, proc);
+
+    if(join == os::JOIN_USER_MODE)
+        proc_join_user(*this, proc);
 }
 
 opt<phy_t> OsLinux::proc_resolve(proc_t proc, uint64_t ptr)

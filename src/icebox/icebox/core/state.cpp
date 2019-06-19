@@ -454,6 +454,20 @@ void core::State::run_to_proc(std::string_view name, proc_t proc, uint64_t ptr)
     });
 }
 
+void core::State::run_to_proc(std::string_view name, proc_t proc, std::unordered_set<uint64_t> ptrs)
+{
+    auto& d = *d_;
+
+    std::vector<Breakpoint> bp;
+    for(const uint64_t& ptr : ptrs)
+        bp.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
+
+    run_until(d, [&]
+    {
+        return (d.breakstate.proc.id == proc.id) & ptrs.count(d.breakstate.rip);
+    });
+}
+
 void core::State::run_to_current(std::string_view name)
 {
     auto& d           = *d_;
