@@ -368,8 +368,8 @@ namespace
         if(!str)
             return {};
 
-        if(!(*str).empty() && (*str).back() == '\n')
-            (*str).pop_back();
+        if(!str->empty() && str->back() == '\n')
+            str->pop_back();
 
         return str;
     }
@@ -395,7 +395,7 @@ namespace
         if(!name)
             return false;
 
-        return ((*name).substr(0, 7) == "swapper");
+        return (name->substr(0, 7) == "swapper");
     }
 }
 
@@ -434,10 +434,10 @@ namespace
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/{}/elf", guid);
 
         auto sysmap = sym::make_map({}, "kernel", guid);
-        if(!sysmap || !(*sysmap).set_aslr(strSymbol, addrSymbol))
+        if(!sysmap || !sysmap->set_aslr(strSymbol, addrSymbol))
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/{}/System.map file", guid);
 
-        const auto kaslr = (*sysmap).get_aslr();
+        const auto kaslr = sysmap->get_aslr();
 
         std::unique_ptr<sym::IMod> sysmap_imod = std::move(sysmap);
         if(!syms.insert("kernel_sym", sysmap_imod))
@@ -557,7 +557,7 @@ bool OsLinux::proc_list(on_proc_fn on_process)
     if(!current)
         return false;
 
-    const auto head    = (*current).id + offsets_[TASKSTRUCT_TASKS];
+    const auto head    = current->id + offsets_[TASKSTRUCT_TASKS];
     opt<uint64_t> link = head;
     do
     {
@@ -657,7 +657,7 @@ flags_e OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5
 
     const auto thread_info = reader_.le32(proc.id + offsets_[TASKSTRUCT_THREADINFO]);
     if(!thread_info)
-        FAIL(FLAGS_NONE, "unable to read thread_info flags of process {:#x}", proc.id);
+        return FAIL(FLAGS_NONE, "unable to read thread_info flags of process {:#x}", proc.id);
 
     if(!(*thread_info & mask))
         return FLAGS_NONE;
@@ -674,13 +674,19 @@ namespace
         {
             const auto ptr = p.thread_pc({}, thread);
             if(!ptr)
-                FAIL(NULL, "unable to find the return address of thread {:#x}", thread.id);
+            {
+                ptrs.clear();
+                return FAIL(WALK_STOP, "unable to find the return address of thread {:#x}", thread.id);
+            }
 
             ptrs.insert(*ptr);
             return WALK_NEXT;
         });
 
-        p.core_.state.run_to_proc(std::string_view("proc_join_any"), proc, ptrs);
+        if(ptrs.empty())
+            LOG(ERROR, "unable to proc_join_any on process {:#x}", proc.id);
+        else
+            p.core_.state.run_to_proc(std::string_view("proc_join_any"), proc, ptrs);
     }
 
     static void proc_join_user(OsLinux& /*p*/, proc_t /*proc*/)
@@ -714,7 +720,7 @@ opt<phy_t> OsLinux::proc_resolve(proc_t proc, uint64_t ptr)
     if(!select)
         return {};
 
-    return core_.mem.virtual_to_physical(ptr, (*select).dtb);
+    return core_.mem.virtual_to_physical(ptr, select->dtb);
 }
 
 opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t ptr)
@@ -729,7 +735,7 @@ opt<proc_t> OsLinux::proc_parent(proc_t proc)
 {
     const auto thread_parent = reader_.read(proc.id + offsets_[TASKSTRUCT_REALPARENT]);
     if(!thread_parent)
-        FAIL(ext::nullopt, "unable to read pointer to the parent of process {:#x}", proc.id);
+        return FAIL(ext::nullopt, "unable to read pointer to the parent of process {:#x}", proc.id);
 
     return thread_proc(thread_t{*thread_parent});
 }
@@ -777,11 +783,11 @@ namespace
     {
         const auto pgd_t = p.reader_.read(mm + p.offsets_[MMSTRUCT_PGD] + p.offsets_[PGDT_PGD]);
         if(!pgd_t)
-            FAIL(ext::nullopt, "unable to read pgd_t at {:#x} in mm_struct of process", mm + p.offsets_[MMSTRUCT_PGD] + p.offsets_[PGDT_PGD]);
+            return FAIL(ext::nullopt, "unable to read pgd_t at {:#x} in mm_struct of process", mm + p.offsets_[MMSTRUCT_PGD] + p.offsets_[PGDT_PGD]);
 
         const auto pgd = p.core_.mem.virtual_to_physical(*pgd_t, dtb_t{p.kpgd});
         if(!pgd)
-            FAIL(ext::nullopt, "unable to find the pgd converting virtual addr {:#x} to physical one", *pgd_t);
+            return FAIL(ext::nullopt, "unable to find the pgd converting virtual addr {:#x} to physical one", *pgd_t);
 
         return pgd->val;
     }
@@ -791,7 +797,7 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
     const auto proc_id = reader_.read(thread.id + offsets_[TASKSTRUCT_GROUPLEADER]);
     if(!proc_id)
-        FAIL(ext::nullopt, "unable to find the leader of thread {:#x}", thread.id);
+        return FAIL(ext::nullopt, "unable to find the leader of thread {:#x}", thread.id);
 
     const auto mm = reader_.read(*proc_id + offsets_[TASKSTRUCT_MM]);
     if(!mm | !(*mm))
@@ -815,7 +821,7 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
     if(!current)
         return {};
 
-    if(thread.id == (*current).id)
+    if(thread.id == current->id)
         return core_.regs.read(FDP_RIP_REGISTER);
 
     const auto stack_ptr = reader_.read(thread.id + offsets_[TASKSTRUCT_STACK]);

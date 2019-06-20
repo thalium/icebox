@@ -159,7 +159,7 @@ namespace
                     LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    FAIL(WALK_NEXT, "unable to get DIE at offset {:#x}", type_offset);
+                    return FAIL(WALK_NEXT, "unable to get DIE at offset {:#x}", type_offset);
 
                 const auto child = get_member(p, name, anonymous_struct);
                 if(child)
@@ -221,7 +221,7 @@ namespace
                     LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    FAIL(ext::nullopt, "unable to get DIE at offset {:#x}, and so unable to find structure '{}'", type_offset, name);
+                    return FAIL(ext::nullopt, "unable to get DIE at offset {:#x}, and so unable to find structure '{}'", type_offset, name);
 
                 return typedef_struct;
             }
