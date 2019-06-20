@@ -167,7 +167,7 @@ bool Data::setup()
         {
             const auto ok = core_.state.single_step();
             if(!ok)
-                FAIL(1, "Unable to single step");
+                return FAIL(1, "Unable to single step");
         }
         return 0;
     });
