@@ -145,7 +145,7 @@ int main(int argc, char** argv)
                 continue;
             }
 
-            core.os->proc_join(*target, os::JOIN_ANY_MODE);
+            core.os->proc_join(*target, os::JOIN_USER_MODE);
         }
 
         const auto thread = core.os->thread_current();
