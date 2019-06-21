@@ -130,6 +130,7 @@ namespace
         MMSTRUCT_PGD,
         PGDT_PGD,
         TASKSTRUCT_STACK,
+        PTREGS_IP,
         OFFSET_COUNT,
     };
 
@@ -156,6 +157,7 @@ namespace
             {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
 			{cat_e::REQUIRED,	PGDT_PGD,					"kernel_struct",	"pgd_t",			"pgd"			},
 			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
+			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -667,6 +669,47 @@ flags_e OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5
 
 namespace
 {
+    opt<uint64_t> pt_regs(OsLinux& p, thread_t thread)
+    {
+        /*
+		Offsets of this method are reliable only for an intel x86_64 CPU
+		and a stable version of kernel (e.g it will not work properly with a kernel v4.0-rc3, 3.15-rc5, ...)
+		*/
+
+        const auto stack_ptr = p.reader_.read(thread.id + p.offsets_[TASKSTRUCT_STACK]);
+        if(!stack_ptr)
+            return FAIL(ext::nullopt, "unable to read task_struct->stack of {:#x} thread", thread.id);
+
+        uint8_t THREAD_SIZE_ORDER;
+        if(p.kversion < version("3.15"))
+            THREAD_SIZE_ORDER = 1;
+        else if(p.kversion < version("4"))
+            THREAD_SIZE_ORDER = 2;
+        else
+        {
+            const uint8_t KASAN_STACK_ORDER = (p.symbols_[KASAN_INIT] != 0);
+            THREAD_SIZE_ORDER               = 2 + KASAN_STACK_ORDER;
+        }
+        const uint64_t THREAD_SIZE = PAGE_SIZE << THREAD_SIZE_ORDER;
+
+        uint8_t TOP_OF_KERNEL_STACK_PADDING;
+        if(p.kversion < version("4"))
+            TOP_OF_KERNEL_STACK_PADDING = 8;
+        else
+            TOP_OF_KERNEL_STACK_PADDING = 0;
+
+        const auto start_stack = *stack_ptr + THREAD_SIZE - TOP_OF_KERNEL_STACK_PADDING;
+        return start_stack - p.pt_regs_size;
+    }
+}
+
+namespace
+{
+    static uint8_t priviledge_mode(OsLinux& os)
+    {
+        return os.core_.regs.read(FDP_CS_REGISTER) & 0b11ull;
+    }
+
     static void proc_join_any(OsLinux& p, proc_t proc)
     {
         std::unordered_set<uint64_t> ptrs;
@@ -688,16 +731,6 @@ namespace
         else
             p.core_.state.run_to_proc(std::string_view("proc_join_any"), proc, ptrs);
     }
-
-    static void proc_join_user(OsLinux& /*p*/, proc_t /*proc*/)
-    {
-        LOG(ERROR, "proc_join_user undevelopped");
-    }
-
-    static uint8_t priviledge_mode(OsLinux& os)
-    {
-        return os.core_.regs.read(FDP_CS_REGISTER) & 0b11ull;
-    }
 }
 
 void OsLinux::proc_join(proc_t proc, os::join_e join)
@@ -707,11 +740,28 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
     if(current->id == proc.id && ((join == os::JOIN_ANY_MODE) | (join == os::JOIN_USER_MODE && priviledge_mode(*this) < 3)))
         return;
 
-    if(join == os::JOIN_ANY_MODE)
-        proc_join_any(*this, proc);
+    proc_join_any(*this, proc);
 
-    if(join == os::JOIN_USER_MODE)
-        proc_join_user(*this, proc);
+    if(join != os::JOIN_USER_MODE)
+        return;
+
+    const auto pt_regs_ptr = pt_regs(*this, thread_t{proc.id});
+    if(!pt_regs_ptr)
+    {
+        LOG(ERROR, "unable to find pt_regs struct of thread {:#x}", proc.id);
+        return;
+    }
+
+    const auto user_rip = reader_.read(*pt_regs_ptr + offsets_[PTREGS_IP]);
+    if(!user_rip)
+    {
+        LOG(ERROR, "unable to read rip in pt_regs struct of thread {:#x}", proc.id);
+        return;
+    }
+
+    std::unordered_set<uint64_t> ptrs;
+    ptrs.insert(*user_rip);
+    core_.state.run_to_proc(std::string_view("proc_join_user"), proc, ptrs);
 }
 
 opt<phy_t> OsLinux::proc_resolve(proc_t proc, uint64_t ptr)
@@ -812,11 +862,6 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
 
 opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
 {
-    /*
-		Offsets of this method are reliable only for an intel x86_64 CPU
-		and a stable version of kernel (e.g it will not work properly with a kernel v4.0-rc3, 3.15-rc5, ...)
-	*/
-
     const auto current = thread_current();
     if(!current)
         return {};
@@ -824,32 +869,11 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
     if(thread.id == current->id)
         return core_.regs.read(FDP_RIP_REGISTER);
 
-    const auto stack_ptr = reader_.read(thread.id + offsets_[TASKSTRUCT_STACK]);
-    if(!stack_ptr)
-        return FAIL(ext::nullopt, "unable to read task_struct->stack of {:#x} thread", thread.id);
+    const auto pt_regs_ptr = pt_regs(*this, thread);
+    if(!pt_regs_ptr)
+        return FAIL(ext::nullopt, "unable to find pt_regs struct of thread {:#x}", thread.id);
 
-    uint8_t THREAD_SIZE_ORDER;
-    if(kversion < version("3.15"))
-        THREAD_SIZE_ORDER = 1;
-    else if(kversion < version("4"))
-        THREAD_SIZE_ORDER = 2;
-    else
-    {
-        const uint8_t KASAN_STACK_ORDER = (symbols_[KASAN_INIT] != 0);
-        THREAD_SIZE_ORDER               = 2 + KASAN_STACK_ORDER;
-    }
-    const uint64_t THREAD_SIZE = PAGE_SIZE << THREAD_SIZE_ORDER;
-
-    uint8_t TOP_OF_KERNEL_STACK_PADDING;
-    if(kversion < version("4"))
-        TOP_OF_KERNEL_STACK_PADDING = 8;
-    else
-        TOP_OF_KERNEL_STACK_PADDING = 0;
-
-    const auto start_stack = *stack_ptr + THREAD_SIZE - TOP_OF_KERNEL_STACK_PADDING;
-    const auto pt_regs_ptr = start_stack - pt_regs_size;
-
-    return reader_.read(pt_regs_ptr - 8);
+    return reader_.read(*pt_regs_ptr - 8);
 }
 
 uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, remove proc ?
