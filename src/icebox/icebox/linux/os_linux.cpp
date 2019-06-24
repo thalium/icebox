@@ -705,9 +705,9 @@ namespace
 
 namespace
 {
-    static uint8_t priviledge_mode(OsLinux& os)
+    static uint8_t cpu_ring(OsLinux& p)
     {
-        return os.core_.regs.read(FDP_CS_REGISTER) & 0b11ull;
+        return p.core_.regs.read(FDP_CS_REGISTER) & 0b11ull;
     }
 
     static void proc_join_any(OsLinux& p, proc_t proc)
@@ -729,39 +729,77 @@ namespace
         if(ptrs.empty())
             LOG(ERROR, "unable to proc_join_any on process {:#x}", proc.id);
         else
-            p.core_.state.run_to_proc(std::string_view("proc_join_any"), proc, ptrs);
+        {
+            p.core_.state.run_to(std::string_view("proc_join_any"), ptrs, core::BP_CR3_NONE, [&](proc_t bp_proc)
+            {
+                return (bp_proc.id == proc.id) ? WALK_STOP : WALK_NEXT;
+            });
+        }
+    }
+
+    void run_until_next_cr3(OsLinux& p)
+    {
+        p.core_.state.run_to(std::string_view("next_cr3"), std::unordered_set<uint64_t>(), core::BP_CR3_ON_WRITINGS, [&](proc_t)
+        {
+            return WALK_STOP;
+        });
     }
 }
 
 void OsLinux::proc_join(proc_t proc, os::join_e join)
 {
-    const auto current = proc_current();
-
-    if(current->id == proc.id && ((join == os::JOIN_ANY_MODE) | (join == os::JOIN_USER_MODE && priviledge_mode(*this) < 3)))
-        return;
-
-    proc_join_any(*this, proc);
-
-    if(join != os::JOIN_USER_MODE)
-        return;
-
-    const auto pt_regs_ptr = pt_regs(*this, thread_t{proc.id});
-    if(!pt_regs_ptr)
+    while(true)
     {
-        LOG(ERROR, "unable to find pt_regs struct of thread {:#x}", proc.id);
-        return;
-    }
+        const auto current = proc_current();
 
-    const auto user_rip = reader_.read(*pt_regs_ptr + offsets_[PTREGS_IP]);
-    if(!user_rip)
-    {
-        LOG(ERROR, "unable to read rip in pt_regs struct of thread {:#x}", proc.id);
-        return;
-    }
+        if(current->id == proc.id && ((join == os::JOIN_ANY_MODE) | (join == os::JOIN_USER_MODE && cpu_ring(*this) == 3)))
+            return;
 
-    std::unordered_set<uint64_t> ptrs;
-    ptrs.insert(*user_rip);
-    core_.state.run_to_proc(std::string_view("proc_join_user"), proc, ptrs);
+        if(current->id != proc.id)
+            proc_join_any(*this, proc);
+
+        // here, we are in the targetted process and in kernel mode
+        // if it was already the case, we did not move
+
+        if(join == os::JOIN_ANY_MODE)
+            return;
+
+        // and we want to join the user mode...
+        const auto pt_regs_ptr = pt_regs(*this, thread_t{proc.id});
+        if(!pt_regs_ptr)
+        {
+            LOG(ERROR, "unable to find pt_regs struct of thread {:#x}", proc.id);
+            run_until_next_cr3(*this);
+            continue;
+        }
+
+        const auto user_rip = reader_.read(*pt_regs_ptr + offsets_[PTREGS_IP]);
+        if(!user_rip)
+            LOG(ERROR, "unable to read rip in pt_regs struct of thread {:#x}", proc.id);
+        if(!user_rip || !(*user_rip))
+        {
+            run_until_next_cr3(*this);
+            continue;
+        }
+
+        core_.state.run_to(std::string_view("proc_join_user"), std::unordered_set<uint64_t>{*user_rip}, core::BP_CR3_ON_WRITINGS, [&](proc_t bp_proc)
+        {
+            if((cpu_ring(*this) == 3) | (bp_proc.id != proc.id))
+                return WALK_STOP;
+
+            // we are still in the targetted process and in kernel mode
+            const auto updated_pt_regs_ptr = pt_regs(*this, thread_t{proc.id});
+            if(!updated_pt_regs_ptr)
+                return WALK_STOP;
+
+            const auto updated_user_rip = reader_.read(*updated_pt_regs_ptr + offsets_[PTREGS_IP]);
+            if(!updated_user_rip || *user_rip != *updated_user_rip)
+                return WALK_STOP;
+
+            // nothing changed
+            return WALK_NEXT;
+        });
+    }
 }
 
 opt<phy_t> OsLinux::proc_resolve(proc_t proc, uint64_t ptr)

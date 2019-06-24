@@ -8,6 +8,7 @@
 #include "os.hpp"
 #include "private.hpp"
 #include "reader.hpp"
+#include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
 #include <map>
@@ -454,20 +455,6 @@ void core::State::run_to_proc(std::string_view name, proc_t proc, uint64_t ptr)
     });
 }
 
-void core::State::run_to_proc(std::string_view name, proc_t proc, std::unordered_set<uint64_t> ptrs)
-{
-    auto& d = *d_;
-
-    std::vector<Breakpoint> bp;
-    for(const uint64_t& ptr : ptrs)
-        bp.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
-
-    run_until(d, [&]
-    {
-        return (d.breakstate.proc.id == proc.id) & ptrs.count(d.breakstate.rip);
-    });
-}
-
 void core::State::run_to_current(std::string_view name)
 {
     auto& d           = *d_;
@@ -481,4 +468,44 @@ void core::State::run_to_current(std::string_view name)
         return d.breakstate.rip == rip
                && got_rsp == rsp;
     });
+}
+
+void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t)> on_bp)
+{
+    auto& d = *d_;
+
+    if((bp_cr3 == BP_CR3_NONE) & ptrs.empty())
+        return;
+
+    std::vector<core::Breakpoint> bp;
+    for(const uint64_t& ptr : ptrs)
+        bp.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
+
+    int bpid = -1;
+    dtb_t cr3;
+    if(bp_cr3 == BP_CR3_ON_WRITINGS)
+    {
+        bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+        if(bpid < 0)
+        {
+            LOG(ERROR, "unable to set a breakpoint on CR3 writes");
+            return;
+        }
+
+        cr3 = dtb_t{d.core.regs.read(FDP_CR3_REGISTER)};
+    }
+
+    run_until(d, [&]
+    {
+        if(!ptrs.count(d.breakstate.rip) & (bp_cr3 == BP_CR3_NONE || cr3.val == d.breakstate.dtb.val))
+            return false; // WALK_NEXT
+
+        if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3.val != d.breakstate.dtb.val)
+            cr3.val = d.breakstate.dtb.val;
+
+        return (on_bp(d.breakstate.proc) == WALK_STOP); // WALK_STOP
+    });
+
+    if(bp_cr3 == BP_CR3_ON_WRITINGS)
+        fdp::unset_breakpoint(d.shm, bpid);
 }

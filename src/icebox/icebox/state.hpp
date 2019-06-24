@@ -15,6 +15,12 @@ namespace core
     // generic functor object
     using Task = std::function<void(void)>;
 
+    enum bp_cr3_e
+    {
+        BP_CR3_ON_WRITINGS,
+        BP_CR3_NONE,
+    };
+
     struct State
     {
          State();
@@ -32,8 +38,8 @@ namespace core
         Breakpoint  set_breakpoint  (std::string_view name, phy_t phy, thread_t thread, const Task& task);
         void        run_to_proc     (std::string_view name, proc_t proc);
         void        run_to_proc     (std::string_view name, proc_t proc, uint64_t ptr);
-        void        run_to_proc     (std::string_view name, proc_t proc, std::unordered_set<uint64_t> ptrs);
         void        run_to_current  (std::string_view name);
+        void        run_to          (std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t)> on_bp);
 
         // private data
         struct Data;
