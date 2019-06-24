@@ -64,6 +64,11 @@ struct arg_t
     uint64_t val;
 };
 
+struct vm_area_t
+{
+    uint64_t id;
+};
+
 namespace fn
 {
     template <typename T>
