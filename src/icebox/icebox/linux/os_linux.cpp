@@ -128,7 +128,6 @@ namespace
         TASKSTRUCT_MM,
         TASKSTRUCT_ACTIVEMM,
         MMSTRUCT_PGD,
-        PGDT_PGD,
         TASKSTRUCT_STACK,
         PTREGS_IP,
         OFFSET_COUNT,
@@ -155,7 +154,6 @@ namespace
             {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"			},
             {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"kernel_struct",	"task_struct",		"active_mm"		},
             {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
-			{cat_e::REQUIRED,	PGDT_PGD,					"kernel_struct",	"pgd_t",			"pgd"			},
 			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
 			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
     };
@@ -869,9 +867,9 @@ namespace
 {
     opt<uint64_t> mm_pgd(OsLinux& p, uint64_t mm)
     {
-        const auto pgd_t = p.reader_.read(mm + p.offsets_[MMSTRUCT_PGD] + p.offsets_[PGDT_PGD]);
+        const auto pgd_t = p.reader_.read(mm + p.offsets_[MMSTRUCT_PGD]);
         if(!pgd_t)
-            return FAIL(ext::nullopt, "unable to read pgd_t at {:#x} in mm_struct of process", mm + p.offsets_[MMSTRUCT_PGD] + p.offsets_[PGDT_PGD]);
+            return FAIL(ext::nullopt, "unable to read pgd_t at {:#x} in mm_struct of process", mm + p.offsets_[MMSTRUCT_PGD]);
 
         const auto pgd = p.core_.mem.virtual_to_physical(*pgd_t, dtb_t{p.kpgd});
         if(!pgd)
