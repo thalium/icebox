@@ -181,15 +181,13 @@ namespace
             return WALK_NEXT;
         });
 
-        if(!result_member)
-            LOG(ERROR, "unable to find {} member", name);
         return result_member;
     }
 
-    static opt<Dwarf_Die> get_structure(Dwarf& p, const std::string& name)
+    static bool get_structure(Dwarf& p, const std::string& name, fn::view<walk_e(const Dwarf_Die&)> on_structure)
     {
         if(name.empty())
-            return {};
+            return false;
 
         for(const auto structure : p.structures)
         {
@@ -212,7 +210,11 @@ namespace
                     LOG(ERROR, "libdwarf error {} when reading type offset of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    return structure;
+                {
+                    if(on_structure(structure) == WALK_STOP)
+                        return true;
+                    continue;
+                }
 
                 Dwarf_Die typedef_struct = nullptr;
                 ok                       = dwarf_offdie_b(p.dbg, type_offset, true, &typedef_struct, &p.err);
@@ -221,14 +223,15 @@ namespace
                     LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    return FAIL(ext::nullopt, "unable to get DIE at offset {:#x}, and so unable to find structure '{}'", type_offset, name);
+                    return FAIL(false, "unable to get DIE at offset {:#x}, and so unable to find structure '{}'", type_offset, name);
 
-                return typedef_struct;
+                if(on_structure(typedef_struct) == WALK_STOP)
+                    return true;
             }
         }
 
         LOG(ERROR, "unable to find structure '{}'", name);
-        return {};
+        return false;
     }
 
     static opt<uint64_t> get_attr_member_location(Dwarf& p, const Dwarf_Die& die)
@@ -296,7 +299,7 @@ namespace
             return FAIL(ext::nullopt, "libdwarf error {} when reading size of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
         if(ok == DW_DLV_NO_ENTRY)
-            return FAIL(ext::nullopt, "die has not DW_AT_byte_size attribute");
+            return {};
 
         return size;
     }
@@ -375,13 +378,17 @@ bool Dwarf::sym_list(sym::on_sym_fn /*on_sym*/)
 
 opt<uint64_t> Dwarf::struc_offset(const std::string& struc, const std::string& member)
 {
-    const auto structure = get_structure(*this, struc);
-    if(!structure)
-        return {};
+    opt<Dwarf_Die> child = {};
+    get_structure(*this, struc, [&](const Dwarf_Die& structure)
+    {
+        child = get_member(*this, member, structure);
+        if(!child)
+            return WALK_NEXT;
 
-    const auto child = get_member(*this, member, *structure);
+        return WALK_STOP;
+    });
     if(!child)
-        return {};
+        return FAIL(ext::nullopt, "unable to find {} member in {} structure", member, struc);
 
     const auto offset = get_attr_member_location(*this, *child);
     if(!offset)
@@ -392,11 +399,20 @@ opt<uint64_t> Dwarf::struc_offset(const std::string& struc, const std::string& m
 
 opt<size_t> Dwarf::struc_size(const std::string& struc)
 {
-    const auto structure = get_structure(*this, struc);
-    if(!structure)
-        return {};
+    opt<size_t> size = {};
+    get_structure(*this, struc, [&](const Dwarf_Die& structure)
+    {
+        size = struc_size_internal(*this, structure);
+        if(!size)
+            return WALK_NEXT;
 
-    return struc_size_internal(*this, *structure);
+        return WALK_STOP;
+    });
+
+    if(!size)
+        LOG(ERROR, "unfound {} structure or die has not DW_AT_byte_size attribute", struc);
+
+    return size;
 }
 
 opt<sym::ModCursor> Dwarf::symbol(uint64_t /*addr*/)
