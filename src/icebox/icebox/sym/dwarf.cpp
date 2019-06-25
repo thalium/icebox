@@ -230,7 +230,6 @@ namespace
             }
         }
 
-        LOG(ERROR, "unable to find structure '{}'", name);
         return false;
     }
 
@@ -388,7 +387,7 @@ opt<uint64_t> Dwarf::struc_offset(const std::string& struc, const std::string& m
         return WALK_STOP;
     });
     if(!child)
-        return FAIL(ext::nullopt, "unable to find {} member in {} structure", member, struc);
+        return {};
 
     const auto offset = get_attr_member_location(*this, *child);
     if(!offset)

@@ -119,6 +119,7 @@ namespace
     enum offset_e
     {
         TASKSTRUCT_THREADINFO,
+        THREADINFO_FLAGS,
         TASKSTRUCT_COMM,
         TASKSTRUCT_PID,
         TASKSTRUCT_REALPARENT,
@@ -144,7 +145,8 @@ namespace
     // clang-format off
     const LinuxOffset g_offsets[] =
     {
-			{cat_e::REQUIRED,	TASKSTRUCT_THREADINFO,		"kernel_struct",	"task_struct",		"thread_info"	},
+			{cat_e::OPTIONAL,	TASKSTRUCT_THREADINFO,		"kernel_struct",	"task_struct",		"thread_info"	},
+			{cat_e::REQUIRED,	THREADINFO_FLAGS,			"kernel_struct",	"thread_info",		"flags"			},
 			{cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"			},
 			{cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"			},
 			{cat_e::REQUIRED,	TASKSTRUCT_REALPARENT,		"kernel_struct",	"task_struct",		"real_parent"	},
@@ -185,8 +187,8 @@ namespace
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
 
-    using LinuxOffsets = std::array<uint64_t, OFFSET_COUNT>;
-    using LinuxSymbols = std::array<uint64_t, SYMBOL_COUNT>;
+    using LinuxOffsets = std::array<opt<uint64_t>, OFFSET_COUNT>;
+    using LinuxSymbols = std::array<opt<uint64_t>, SYMBOL_COUNT>;
 
     struct OsLinux
         : public os::IModule
@@ -450,19 +452,16 @@ namespace
     {
         bool fail = false;
         int i     = -1;
-        memset(&offsets[0], 0, sizeof offsets);
         for(const auto& off : g_offsets)
         {
             fail |= off.e_id != ++i;
-            const auto offset = syms.struc_offset(off.module, off.struc, off.member);
-            if(!offset)
-            {
-                fail |= off.e_cat == cat_e::REQUIRED;
-                if(off.e_cat == cat_e::REQUIRED)
-                    LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
+            offsets[i] = syms.struc_offset(off.module, off.struc, off.member);
+            if(offsets[i])
                 continue;
-            }
-            offsets[i] = *offset;
+
+            fail |= off.e_cat == cat_e::REQUIRED;
+            if(off.e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
         }
         return !fail;
     }
@@ -471,19 +470,16 @@ namespace
     {
         bool fail = false;
         int i     = -1;
-        memset(&symbols[0], 0, sizeof symbols);
         for(const auto& sym : g_symbols)
         {
             fail |= sym.e_id != ++i;
-            const auto addr = syms.symbol(sym.module, sym.name);
-            if(!addr)
-            {
-                fail |= sym.e_cat == cat_e::REQUIRED;
-                if(sym.e_cat == cat_e::REQUIRED)
-                    LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
+            symbols[i] = syms.symbol(sym.module, sym.name);
+            if(symbols[i])
                 continue;
-            }
-            symbols[i] = *addr;
+
+            fail |= sym.e_cat == cat_e::REQUIRED;
+            if(sym.e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
         }
         return !fail;
     }
@@ -557,11 +553,11 @@ bool OsLinux::proc_list(on_proc_fn on_process)
     if(!current)
         return false;
 
-    const auto head    = current->id + offsets_[TASKSTRUCT_TASKS];
+    const auto head    = current->id + *offsets_[TASKSTRUCT_TASKS];
     opt<uint64_t> link = head;
     do
     {
-        const auto thread = thread_t{*link - offsets_[TASKSTRUCT_TASKS]};
+        const auto thread = thread_t{*link - *offsets_[TASKSTRUCT_TASKS]};
         const auto proc   = thread_proc(thread);
         if(proc)
             if(on_process(*proc) == WALK_STOP)
@@ -619,7 +615,7 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    return read_str(reader_, proc.id + offsets_[TASKSTRUCT_COMM], 16);
+    return read_str(reader_, proc.id + *offsets_[TASKSTRUCT_COMM], 16);
     // 16 is COMM member length
     // todo
     //   -> create a member_size() in sym::IMod
@@ -655,11 +651,15 @@ flags_e OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5
     if(kversion >= version("3.4"))
         mask |= (1ul << TIF_ADDR32 | 1ul << TIF_X32);
 
-    const auto thread_info = reader_.le32(proc.id + offsets_[TASKSTRUCT_THREADINFO]);
+    const auto thread_info = (offsets_[TASKSTRUCT_THREADINFO]) ? proc.id + *offsets_[TASKSTRUCT_THREADINFO] : reader_.read(proc.id + *offsets_[TASKSTRUCT_STACK]);
     if(!thread_info)
+        return FAIL(FLAGS_NONE, "unable to find thread_info address of process {:#x}", proc.id);
+
+    const auto flags = reader_.le32(*thread_info + *offsets_[THREADINFO_FLAGS]);
+    if(!flags)
         return FAIL(FLAGS_NONE, "unable to read thread_info flags of process {:#x}", proc.id);
 
-    if(!(*thread_info & mask))
+    if(!(*flags & mask))
         return FLAGS_NONE;
 
     return FLAGS_32BIT;
@@ -674,7 +674,7 @@ namespace
 		and a stable version of kernel (e.g it will not work properly with a kernel v4.0-rc3, 3.15-rc5, ...)
 		*/
 
-        const auto stack_ptr = p.reader_.read(thread.id + p.offsets_[TASKSTRUCT_STACK]);
+        const auto stack_ptr = p.reader_.read(thread.id + *p.offsets_[TASKSTRUCT_STACK]);
         if(!stack_ptr)
             return FAIL(ext::nullopt, "unable to read task_struct->stack of {:#x} thread", thread.id);
 
@@ -685,7 +685,7 @@ namespace
             THREAD_SIZE_ORDER = 2;
         else
         {
-            const uint8_t KASAN_STACK_ORDER = (p.symbols_[KASAN_INIT] != 0);
+            const uint8_t KASAN_STACK_ORDER = (bool) p.symbols_[KASAN_INIT];
             THREAD_SIZE_ORDER               = 2 + KASAN_STACK_ORDER;
         }
         const uint64_t THREAD_SIZE = PAGE_SIZE << THREAD_SIZE_ORDER;
@@ -771,7 +771,7 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
             continue;
         }
 
-        const auto user_rip = reader_.read(*pt_regs_ptr + offsets_[PTREGS_IP]);
+        const auto user_rip = reader_.read(*pt_regs_ptr + *offsets_[PTREGS_IP]);
         if(!user_rip)
             LOG(ERROR, "unable to read rip in pt_regs struct of thread {:#x}", proc.id);
         if(!user_rip || !(*user_rip))
@@ -790,7 +790,7 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
             if(!updated_pt_regs_ptr)
                 return WALK_STOP;
 
-            const auto updated_user_rip = reader_.read(*updated_pt_regs_ptr + offsets_[PTREGS_IP]);
+            const auto updated_user_rip = reader_.read(*updated_pt_regs_ptr + *offsets_[PTREGS_IP]);
             if(!updated_user_rip || *user_rip != *updated_user_rip)
                 return WALK_STOP;
 
@@ -819,7 +819,7 @@ opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t ptr)
 
 opt<proc_t> OsLinux::proc_parent(proc_t proc)
 {
-    const auto thread_parent = reader_.read(proc.id + offsets_[TASKSTRUCT_REALPARENT]);
+    const auto thread_parent = reader_.read(proc.id + *offsets_[TASKSTRUCT_REALPARENT]);
     if(!thread_parent)
         return FAIL(ext::nullopt, "unable to read pointer to the parent of process {:#x}", proc.id);
 
@@ -840,11 +840,11 @@ sym::Symbols& OsLinux::kernel_symbols()
 
 bool OsLinux::thread_list(proc_t proc, on_thread_fn on_thread)
 {
-    const auto head    = proc.id + offsets_[TASKSTRUCT_THREADGROUP];
+    const auto head    = proc.id + *offsets_[TASKSTRUCT_THREADGROUP];
     opt<uint64_t> link = head;
     do
     {
-        on_thread(thread_t{*link - offsets_[TASKSTRUCT_THREADGROUP]});
+        on_thread(thread_t{*link - *offsets_[TASKSTRUCT_THREADGROUP]});
 
         link = reader_.read(*link);
         if(!link)
@@ -856,7 +856,7 @@ bool OsLinux::thread_list(proc_t proc, on_thread_fn on_thread)
 
 opt<thread_t> OsLinux::thread_current()
 {
-    const auto addr = reader_.read(per_cpu + symbols_[CURRENT_TASK] - symbols_[PER_CPU_START]);
+    const auto addr = reader_.read(per_cpu + *symbols_[CURRENT_TASK] - *symbols_[PER_CPU_START]);
     if(!addr)
         return FAIL(ext::nullopt, "unable to read current_task in per_cpu area");
 
@@ -867,9 +867,9 @@ namespace
 {
     opt<uint64_t> mm_pgd(OsLinux& p, uint64_t mm)
     {
-        const auto pgd_t = p.reader_.read(mm + p.offsets_[MMSTRUCT_PGD]);
+        const auto pgd_t = p.reader_.read(mm + *p.offsets_[MMSTRUCT_PGD]);
         if(!pgd_t)
-            return FAIL(ext::nullopt, "unable to read pgd_t at {:#x} in mm_struct of process", mm + p.offsets_[MMSTRUCT_PGD]);
+            return FAIL(ext::nullopt, "unable to read pgd_t at {:#x} in mm_struct of process", mm + *p.offsets_[MMSTRUCT_PGD]);
 
         const auto pgd = p.core_.mem.virtual_to_physical(*pgd_t, dtb_t{p.kpgd});
         if(!pgd)
@@ -881,11 +881,11 @@ namespace
 
 opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
-    const auto proc_id = reader_.read(thread.id + offsets_[TASKSTRUCT_GROUPLEADER]);
+    const auto proc_id = reader_.read(thread.id + *offsets_[TASKSTRUCT_GROUPLEADER]);
     if(!proc_id)
         return FAIL(ext::nullopt, "unable to find the leader of thread {:#x}", thread.id);
 
-    const auto mm = reader_.read(*proc_id + offsets_[TASKSTRUCT_MM]);
+    const auto mm = reader_.read(*proc_id + *offsets_[TASKSTRUCT_MM]);
     if(!mm | !(*mm))
         return proc_t{*proc_id, dtb_t{0}};
 
@@ -914,7 +914,7 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
 
 uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, remove proc ?
 {
-    const auto pid = reader_.le32(thread.id + offsets_[TASKSTRUCT_PID]);
+    const auto pid = reader_.le32(thread.id + *offsets_[TASKSTRUCT_PID]);
     if(!pid)
         return 0xffffffffffffffff; // opt<uint64_t> either ? (0 is a valid pid for an iddle task in linux)
 
