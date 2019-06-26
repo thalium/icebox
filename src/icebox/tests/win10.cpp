@@ -1,4 +1,4 @@
-#define FDP_MODULE "tests"
+#define FDP_MODULE "tests_win10"
 #include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
@@ -40,13 +40,6 @@ namespace
 
         core::Core core;
     };
-}
-
-int main(int argc, char** argv)
-{
-    logg::init(argc, argv);
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }
 
 TEST_F(Win10Test, attach)
