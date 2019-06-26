@@ -26,16 +26,16 @@ namespace
       protected:
         void SetUp() override
         {
-            const auto ok = core.setup("win10");
-            EXPECT_TRUE(ok);
+            const auto core_setup = core.setup("win10");
+            ASSERT_TRUE(core_setup);
             const auto paused = core.state.pause();
-            EXPECT_TRUE(paused);
+            ASSERT_TRUE(paused);
         }
 
         void TearDown() override
         {
-            const auto ok = core.state.resume();
-            EXPECT_TRUE(ok);
+            const auto resumed = core.state.resume();
+            EXPECT_TRUE(resumed);
         }
 
         core::Core core;
@@ -44,7 +44,6 @@ namespace
 
 TEST_F(Win10Test, attach)
 {
-    core.state.resume();
 }
 
 TEST_F(Win10Test, drivers)
