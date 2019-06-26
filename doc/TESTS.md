@@ -9,3 +9,14 @@ After building, tests can be launch with the _icebox_tests_ binary.
 To launch windows tests specifically, use command line _icebox_tests --gtest_filter=Win10*_
 
 You must have have a windows 10 guest running in the modified VirtualBox. The VM must be named "win10".
+
+### Linux Guest
+
+To launch linux tests specifically, use command line _icebox_tests --gtest_filter=Linux*_
+
+You must have have a linux guest running in the modified VirtualBox. The VM must be named "linux".
+
+Icebox should have the right profile of the linux kernel running as guest. See doc/make_profil_linux for more details.
+
+#### VM prerequisites
+None
