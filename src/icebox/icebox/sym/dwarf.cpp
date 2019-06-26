@@ -311,10 +311,7 @@ Dwarf::Dwarf(fs::path filename)
 
 Dwarf::~Dwarf()
 {
-    if(dwarf_finish(dbg, &err) != DW_DLV_OK)
-    {
-        LOG(ERROR, "unable to free dwarf ressources ({}) : {}", dwarf_errno(err), dwarf_errmsg(err));
-    }
+    dwarf_finish(dbg, &err);
 }
 
 std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const std::string& module, const std::string& guid)
