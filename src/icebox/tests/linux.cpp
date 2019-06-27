@@ -2,9 +2,12 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/os.hpp>
+#include <icebox/utils/fnview.hpp>
 
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
+
+#define UTILITY_NAME "linux_tst_ibx"
 
 namespace
 {
@@ -14,18 +17,17 @@ namespace
       protected:
         void SetUp() override
         {
-            const auto ok = core.setup("linux");
-            EXPECT_TRUE(ok);
-            if(!ok)
-                return;
+            const auto core_setup = core.setup("linux");
+            ASSERT_TRUE(core_setup);
+
             const auto paused = core.state.pause();
-            EXPECT_TRUE(paused);
+            ASSERT_TRUE(paused);
         }
 
         void TearDown() override
         {
-            const auto ok = core.state.resume();
-            EXPECT_TRUE(ok);
+            const auto resumed = core.state.resume();
+            EXPECT_TRUE(resumed);
         }
 
         core::Core core;
@@ -34,5 +36,4 @@ namespace
 
 TEST_F(LinuxTest, attach)
 {
-    core.state.resume();
 }
