@@ -9,7 +9,7 @@
 #   - the "elf" file which is a binary of an empty module
 #     including required structures
 #
-# dependance needs : make gcc zip
+# dependance needed for this script : make gcc zip
 #
 # --------------------------------------------------------------
 
@@ -20,18 +20,20 @@ version=`dmesg -t | grep "Linux version" | tr -d '\n'`
 echo "Version of linux found : '$version'"
 
 hash=`printf '%s' "$version" | sha1sum | cut -c1-40`
-mkdir $tmp/$hash
+wdir=$tmp/kernel/$hash
+mkdir $tmp/kernel
+mkdir $wdir
 
 make
-mv elf $tmp/$hash
+mv elf $wdir
 
 user_script=$USER
-sudo cp /boot/System.map-$(uname -r) $tmp/$hash/System.map
-sudo chown $user_script:$user_script $tmp/$hash/System.map
-chmod 664 $tmp/$hash/System.map
+sudo cp /boot/System.map-$(uname -r) $wdir/System.map
+sudo chown $user_script:$user_script $wdir/System.map
+chmod 664 $wdir/System.map
 
 echo "Writing ./profil.zip"
 pwd_script=$PWD
 cd $tmp
-zip -r $pwd_script/profil.zip $hash/
+zip -r $pwd_script/profil.zip kernel/
 
