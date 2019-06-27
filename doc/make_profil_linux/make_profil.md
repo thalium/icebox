@@ -11,7 +11,12 @@ unzip make_profil.zip
 ./make_profil.sh
 ~~~~
 
-The profil will be created in profil.zip
+The profil will be created in profil.zip.<br>
+It has to be decompressed in your folder pointed by _PATH _LINUX_SYMBOL_PATH.<br>
+Finaly, the required files are :
+- _LINUX_SYMBOL_PATH/kernel/sha1_hash_of_guest_banner_kernel/elf (the binary of module.c)
+- _LINUX_SYMBOL_PATH/kernel/sha1_hash_of_guest_banner_kernel/System.map (found in /boot)
+
 <br><br>
 # Alternatives
 - includes can be added to module.c if needed
