@@ -39,7 +39,7 @@ namespace core
         void        run_to_proc     (std::string_view name, proc_t proc);
         void        run_to_proc     (std::string_view name, proc_t proc, uint64_t ptr);
         void        run_to_current  (std::string_view name);
-        void        run_to          (std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t)> on_bp);
+        void        run_to          (std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t, thread_t)> on_bp);
 
         // private data
         struct Data;
