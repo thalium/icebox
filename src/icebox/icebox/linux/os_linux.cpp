@@ -728,7 +728,7 @@ namespace
             LOG(ERROR, "unable to proc_join_any on process {:#x}", proc.id);
         else
         {
-            p.core_.state.run_to(std::string_view("proc_join_any"), ptrs, core::BP_CR3_NONE, [&](proc_t bp_proc)
+            p.core_.state.run_to(std::string_view("proc_join_any"), ptrs, core::BP_CR3_NONE, [&](proc_t bp_proc, thread_t)
             {
                 return (bp_proc.id == proc.id) ? WALK_STOP : WALK_NEXT;
             });
@@ -737,7 +737,7 @@ namespace
 
     void run_until_next_cr3(OsLinux& p)
     {
-        p.core_.state.run_to(std::string_view("next_cr3"), std::unordered_set<uint64_t>(), core::BP_CR3_ON_WRITINGS, [&](proc_t)
+        p.core_.state.run_to(std::string_view("next_cr3"), std::unordered_set<uint64_t>(), core::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t)
         {
             return WALK_STOP;
         });
@@ -748,12 +748,17 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
 {
     while(true)
     {
-        const auto current = proc_current();
+        const auto current_proc = proc_current();
+        if(!current_proc)
+        {
+            LOG(ERROR, "unable to join process {:#x} because current thread is undeterminable", proc.id);
+            return;
+        }
 
-        if(current->id == proc.id && ((join == os::JOIN_ANY_MODE) | (join == os::JOIN_USER_MODE && cpu_ring(*this) == 3)))
+        if(current_proc->id == proc.id && ((join == os::JOIN_ANY_MODE) | (join == os::JOIN_USER_MODE && cpu_ring(*this) == 3)))
             return;
 
-        if(current->id != proc.id)
+        if(current_proc->id != proc.id)
             proc_join_any(*this, proc);
 
         // here, we are in the targetted process and in kernel mode
@@ -763,30 +768,34 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
             return;
 
         // and we want to join the user mode...
-        const auto pt_regs_ptr = pt_regs(*this, thread_t{proc.id});
+        const auto current_thread = thread_current();
+        if(!current_thread)
+            continue;
+
+        const auto pt_regs_ptr = pt_regs(*this, *current_thread);
         if(!pt_regs_ptr)
         {
-            LOG(ERROR, "unable to find pt_regs struct of thread {:#x}", proc.id);
+            LOG(ERROR, "unable to find pt_regs struct of thread {:#x}", current_thread->id);
             run_until_next_cr3(*this);
             continue;
         }
 
         const auto user_rip = reader_.read(*pt_regs_ptr + *offsets_[PTREGS_IP]);
         if(!user_rip)
-            LOG(ERROR, "unable to read rip in pt_regs struct of thread {:#x}", proc.id);
+            LOG(ERROR, "unable to read rip in pt_regs struct of thread {:#x}", current_thread->id);
         if(!user_rip || !(*user_rip))
         {
             run_until_next_cr3(*this);
             continue;
         }
 
-        core_.state.run_to(std::string_view("proc_join_user"), std::unordered_set<uint64_t>{*user_rip}, core::BP_CR3_ON_WRITINGS, [&](proc_t bp_proc)
+        core_.state.run_to("proc_join_user", std::unordered_set<uint64_t>{*user_rip}, core::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t bp_thread)
         {
-            if((cpu_ring(*this) == 3) | (bp_proc.id != proc.id))
+            if((cpu_ring(*this) == 3) | (bp_thread.id != current_thread->id))
                 return WALK_STOP;
 
             // we are still in the targetted process and in kernel mode
-            const auto updated_pt_regs_ptr = pt_regs(*this, thread_t{proc.id});
+            const auto updated_pt_regs_ptr = pt_regs(*this, *current_thread);
             if(!updated_pt_regs_ptr)
                 return WALK_STOP;
 

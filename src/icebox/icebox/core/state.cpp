@@ -470,7 +470,7 @@ void core::State::run_to_current(std::string_view name)
     });
 }
 
-void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t)> on_bp)
+void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t, thread_t)> on_bp)
 {
     auto& d = *d_;
 
@@ -503,7 +503,7 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
         if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3.val != d.breakstate.dtb.val)
             cr3.val = d.breakstate.dtb.val;
 
-        return (on_bp(d.breakstate.proc) == WALK_STOP); // WALK_STOP
+        return (on_bp(d.breakstate.proc, d.breakstate.thread) == WALK_STOP); // WALK_STOP
     });
 
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
