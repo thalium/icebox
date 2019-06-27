@@ -1,3 +1,5 @@
+___Only 64 bits guests are supported.___<br>
+
 ___Before use, it should be necessary to supply debug information to Icebox.___<br><br>
 
 ## Linux guests
