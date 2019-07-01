@@ -1,11 +1,9 @@
 #define FDP_MODULE "tests_linux"
-#include <chrono>
-#include <future>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/os.hpp>
 #include <icebox/utils/fnview.hpp>
-#include <thread>
+#include <tests/common.hpp>
 
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
@@ -20,7 +18,8 @@ namespace
       protected:
         void SetUp() override
         {
-            const auto core_setup = core.setup("linux");
+            bool core_setup = false;
+            ASSERT_EXEC_BEFORE_TIMEOUT_NS(core_setup = core.setup("linux"), 30 * SECOND_NS);
             ASSERT_TRUE(core_setup);
 
             const auto paused = core.state.pause();
@@ -85,38 +84,6 @@ namespace
 
         return {};
     }
-
-    uint8_t cpu_ring(core::Core& core)
-    {
-        return core.regs.read(FDP_CS_REGISTER) & 0b11ull;
-    }
-
-    template <class _Rep,
-              class _Per>
-    void proc_join_with_timeout(core::Core& core, proc_t proc, os::join_e mode, const std::chrono::duration<_Rep, _Per> timeout)
-    {
-        std::packaged_task<void()> task([&]
-        {
-            core.os->proc_join(proc, mode);
-        });
-        const auto future = task.get_future();
-
-        std::thread thread(std::move(task));
-        thread.detach();
-
-        const auto status = future.wait_for(timeout);
-        ASSERT_EQ(status, std::future_status::ready);
-    }
-
-    template <class _Rep,
-              class _Per>
-    bool run_for(core::Core& core, const std::chrono::duration<_Rep, _Per> duration)
-    {
-        if(!core.state.resume())
-            return false;
-        std::this_thread::sleep_for(duration);
-        return core.state.pause();
-    }
 }
 
 TEST_F(LinuxTest, processes)
@@ -176,20 +143,18 @@ TEST_F(LinuxTest, processes)
             EXPECT_EQ(*name, UTILITY_NAME);
     }
 
-    proc_join_with_timeout(core, *child, os::JOIN_ANY_MODE, std::chrono::seconds(5));
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*child, os::JOIN_ANY_MODE), 5 * SECOND_NS);
     auto current = core.os->proc_current();
     EXPECT_TRUE(current);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
 
-    srand(time(nullptr) & UINT_MAX);
-    ASSERT_TRUE(run_for(core, std::chrono::milliseconds(300 + (rand() % 200)))); // run for 300 to 500 ms
+    ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
 
-    proc_join_with_timeout(core, *child, os::JOIN_USER_MODE, std::chrono::seconds(5));
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*child, os::JOIN_USER_MODE), 5 * SECOND_NS);
     current = core.os->proc_current();
     EXPECT_TRUE(current);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
-    EXPECT_EQ(cpu_ring(core), 3);
-    EXPECT_FALSE(core.os->is_kernel_address(core.regs.read(FDP_RIP_REGISTER)));
+    EXPECT_TRUE(tests::is_user_mode(core));
 }
