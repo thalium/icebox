@@ -11,6 +11,7 @@
 #include <icebox/tracer/tracer.hpp>
 #include <icebox/utils/fnview.hpp>
 #include <icebox/waiter.hpp>
+#include <tests/common.hpp>
 
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
@@ -26,8 +27,10 @@ namespace
       protected:
         void SetUp() override
         {
-            const auto core_setup = core.setup("win10");
+            bool core_setup = false;
+            ASSERT_EXEC_BEFORE_TIMEOUT_NS(core_setup = core.setup("win10"), 30 * SECOND_NS);
             ASSERT_TRUE(core_setup);
+
             const auto paused = core.state.pause();
             ASSERT_TRUE(paused);
         }
@@ -92,9 +95,9 @@ TEST_F(Win10Test, processes)
         processes.emplace(*name, Process{proc.id, proc.dtb.val, pid, flags});
         return WALK_NEXT;
     });
-    EXPECT_NE(processes.size(), 0u);
+    ASSERT_NE(processes.size(), 0u);
     const auto it = processes.find("explorer.exe");
-    EXPECT_NE(it, processes.end());
+    ASSERT_NE(it, processes.end());
 
     const auto [id, dtb, pid, flags] = it->second;
     EXPECT_NE(id, 0u);
@@ -102,7 +105,7 @@ TEST_F(Win10Test, processes)
     EXPECT_NE(pid, 0u);
 
     const auto proc = core.os->proc_find(pid);
-    EXPECT_TRUE(!!proc);
+    ASSERT_TRUE(!!proc);
     EXPECT_EQ(id, proc->id);
     EXPECT_EQ(dtb, proc->dtb.val);
 
@@ -112,23 +115,30 @@ TEST_F(Win10Test, processes)
     // check parent
     const auto parent = core.os->proc_parent(*proc);
     EXPECT_TRUE(!!parent);
-    const auto parent_name = core.os->proc_name(*parent);
-    EXPECT_TRUE(!!parent_name);
-    EXPECT_EQ(*parent_name, "userinit.exe");
+    if(parent)
+    {
+        const auto parent_name = core.os->proc_name(*parent);
+        EXPECT_TRUE(!!parent_name);
+        EXPECT_EQ(*parent_name, "userinit.exe");
+    }
 
     // join proc in kernel
-    core.os->proc_join(*proc, os::JOIN_ANY_MODE);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_ANY_MODE), 5 * SECOND_NS);
     const auto kcur = core.os->proc_current();
     EXPECT_TRUE(!!kcur);
     EXPECT_EQ(id, kcur->id);
     EXPECT_EQ(dtb, kcur->dtb.val);
 
+    // run during multiple slice times to leave the process
+    ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS));
+
     // join proc in user-mode
-    core.os->proc_join(*proc, os::JOIN_USER_MODE);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_USER_MODE), 5 * SECOND_NS);
     const auto cur = core.os->proc_current();
     EXPECT_TRUE(!!cur);
     EXPECT_EQ(id, cur->id);
     EXPECT_EQ(dtb, cur->dtb.val);
+    EXPECT_TRUE(tests::is_user_mode(core));
 }
 
 TEST_F(Win10Test, threads)
