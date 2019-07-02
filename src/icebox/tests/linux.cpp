@@ -157,4 +157,46 @@ TEST_F(LinuxTest, processes)
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
     EXPECT_TRUE(tests::is_user_mode(core));
+
+    ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
+}
+
+TEST_F(LinuxTest, threads)
+{
+    const auto current = core.os->thread_current();
+    ASSERT_TRUE(current && current->id);
+
+    const auto current_pc = core.os->thread_pc({}, *current);
+    EXPECT_TRUE(current_pc && *current_pc);
+    if(current_pc)
+        EXPECT_EQ(current_pc, core.regs.read(FDP_RIP_REGISTER));
+
+    const auto child = utility_child(core);
+    ASSERT_TRUE(child && child->id);
+
+    int thread_list_counter = 0;
+    core.os->thread_list(*child, [&](thread_t thread)
+    {
+        EXPECT_NE(thread.id, 0);
+        if(!thread.id)
+            return WALK_NEXT;
+
+        thread_list_counter++;
+
+        const auto proc = core.os->thread_proc(thread);
+        EXPECT_TRUE(proc && proc->id);
+        EXPECT_EQ(child->id, proc->id);
+
+        const auto pid = core.os->thread_id({}, thread);
+        EXPECT_TRUE(pid <= 4194304); // PID <= 4194304 for linux
+
+        const auto pc = core.os->thread_pc({}, thread);
+        EXPECT_TRUE(pc && *pc);
+        if(pc)
+            if(thread.id != current->id)
+                EXPECT_TRUE(core.os->is_kernel_address(*pc));
+
+        return WALK_NEXT;
+    });
+    ASSERT_EQ(thread_list_counter, 2);
 }
