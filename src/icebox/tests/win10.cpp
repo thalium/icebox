@@ -58,15 +58,19 @@ TEST_F(Win10Test, drivers)
     core.os->driver_list([&](driver_t drv)
     {
         const auto name = core.os->driver_name(drv);
-        EXPECT_TRUE(!!name);
+        EXPECT_TRUE(name);
+
         const auto span = core.os->driver_span(drv);
-        EXPECT_TRUE(!!span);
-        drivers.emplace(*name, Driver{drv.id, span->addr, span->size});
+        EXPECT_TRUE(span);
+
+        if(name)
+            drivers.emplace(*name, Driver{drv.id, span->addr, span->size});
+
         return WALK_NEXT;
     });
-    EXPECT_NE(drivers.size(), 0u);
+    ASSERT_NE(drivers.size(), 0u);
     const auto it = drivers.find(R"(\SystemRoot\system32\ntoskrnl.exe)");
-    EXPECT_NE(it, drivers.end());
+    ASSERT_NE(it, drivers.end());
 
     const auto [id, addr, size] = it->second;
     EXPECT_NE(id, 0u);
@@ -75,7 +79,7 @@ TEST_F(Win10Test, drivers)
 
     const auto want = addr + (size >> 1);
     const auto drv  = core.os->driver_find(want);
-    EXPECT_TRUE(!!drv);
+    ASSERT_TRUE(drv);
     EXPECT_EQ(id, drv->id);
 }
 
@@ -88,11 +92,16 @@ TEST_F(Win10Test, processes)
     core.os->proc_list([&](proc_t proc)
     {
         const auto name = core.os->proc_name(proc);
-        EXPECT_TRUE(!!name);
+        EXPECT_TRUE(name);
+
         const auto pid = core.os->proc_id(proc);
         EXPECT_NE(pid, 0u);
+
         const auto flags = core.os->proc_flags(proc);
-        processes.emplace(*name, Process{proc.id, proc.dtb.val, pid, flags});
+
+        if(name)
+            processes.emplace(*name, Process{proc.id, proc.dtb.val, pid, flags});
+
         return WALK_NEXT;
     });
     ASSERT_NE(processes.size(), 0u);
@@ -105,7 +114,7 @@ TEST_F(Win10Test, processes)
     EXPECT_NE(pid, 0u);
 
     const auto proc = core.os->proc_find(pid);
-    ASSERT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
     EXPECT_EQ(id, proc->id);
     EXPECT_EQ(dtb, proc->dtb.val);
 
@@ -114,18 +123,19 @@ TEST_F(Win10Test, processes)
 
     // check parent
     const auto parent = core.os->proc_parent(*proc);
-    EXPECT_TRUE(!!parent);
+    EXPECT_TRUE(parent && parent->id && parent->dtb.val);
     if(parent)
     {
         const auto parent_name = core.os->proc_name(*parent);
-        EXPECT_TRUE(!!parent_name);
-        EXPECT_EQ(*parent_name, "userinit.exe");
+        EXPECT_TRUE(parent_name);
+        if(parent_name)
+            EXPECT_EQ(*parent_name, "userinit.exe");
     }
 
     // join proc in kernel
     ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_ANY_MODE), 5 * SECOND_NS);
     const auto kcur = core.os->proc_current();
-    EXPECT_TRUE(!!kcur);
+    EXPECT_TRUE(kcur && kcur->id && kcur->dtb.val);
     EXPECT_EQ(id, kcur->id);
     EXPECT_EQ(dtb, kcur->dtb.val);
 
@@ -135,10 +145,13 @@ TEST_F(Win10Test, processes)
     // join proc in user-mode
     ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_USER_MODE), 5 * SECOND_NS);
     const auto cur = core.os->proc_current();
-    EXPECT_TRUE(!!cur);
+    EXPECT_TRUE(cur && cur->id && cur->dtb.val);
     EXPECT_EQ(id, cur->id);
     EXPECT_EQ(dtb, cur->dtb.val);
     EXPECT_TRUE(tests::is_user_mode(core));
+
+    // run during multiple slice times to leave the process for next tests
+    ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
 }
 
 TEST_F(Win10Test, threads)
@@ -146,27 +159,33 @@ TEST_F(Win10Test, threads)
     using Threads = std::set<uint64_t>;
 
     const auto explorer = core.os->proc_find("explorer.exe", flags_e::FLAGS_NONE);
-    EXPECT_TRUE(!!explorer);
+    ASSERT_TRUE(explorer && explorer->id && explorer->dtb.val);
 
     Threads threads;
     core.os->thread_list(*explorer, [&](thread_t thread)
     {
         const auto proc = core.os->thread_proc(thread);
-        EXPECT_TRUE(!!proc);
+        EXPECT_TRUE(proc && proc->id && proc->dtb.val);
         EXPECT_EQ(proc->id, explorer->id);
+
         const auto tid = core.os->thread_id(*proc, thread);
         EXPECT_NE(tid, 0u);
-        threads.emplace(tid);
+
+        if(tid)
+            threads.emplace(tid);
+
         return WALK_NEXT;
     });
-    EXPECT_NE(threads.size(), 0u);
 
-    core.os->proc_join(*explorer, os::JOIN_ANY_MODE);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*explorer, os::JOIN_ANY_MODE), 5 * SECOND_NS);
     const auto current = core.os->thread_current();
-    EXPECT_TRUE(!!current);
+    ASSERT_TRUE(current && current->id);
 
     const auto tid = core.os->thread_id(*explorer, *current);
-    const auto it  = threads.find(tid);
+    ASSERT_NE(tid, 0u);
+
+    ASSERT_NE(threads.size(), 0u);
+    const auto it = threads.find(tid);
     EXPECT_NE(it, threads.end());
 }
 
@@ -176,7 +195,7 @@ TEST_F(Win10Test, modules)
     using Modules = std::multimap<std::string, Module>;
 
     const auto proc = core.os->proc_find("explorer.exe", flags_e::FLAGS_NONE);
-    EXPECT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
 
     Modules modules;
     core.os->mod_list(*proc, [&](mod_t mod)
@@ -186,14 +205,15 @@ TEST_F(Win10Test, modules)
             return WALK_NEXT; // FIXME
 
         const auto span = core.os->mod_span(*proc, mod);
-        EXPECT_TRUE(!!span);
+        EXPECT_TRUE(span);
+
         modules.emplace(*name, Module{mod.id, span->addr, span->size, mod.flags});
         return WALK_NEXT;
     });
-    EXPECT_NE(modules.size(), 0u);
+    ASSERT_NE(modules.size(), 0u);
 
     const auto it = modules.find(R"(C:\Windows\SYSTEM32\ntdll.dll)");
-    EXPECT_NE(it, modules.end());
+    ASSERT_NE(it, modules.end());
 
     const auto [id, addr, size, flags] = it->second;
     EXPECT_NE(id, 0u);
@@ -202,12 +222,14 @@ TEST_F(Win10Test, modules)
 
     const auto want = addr + (size >> 1);
     const auto mod  = core.os->mod_find(*proc, want);
-    EXPECT_TRUE(!!mod);
+    ASSERT_TRUE(mod);
     EXPECT_EQ(id, mod->id);
 }
 
 namespace
 {
+    // TODO could be mutualize with run_until of common.hpp ?
+
     template <typename T>
     static void run_until(core::Core& core, T predicate)
     {
@@ -218,21 +240,21 @@ namespace
             core.state.resume();
             core.state.wait();
         }
-        EXPECT_TRUE(predicate());
+        ASSERT_TRUE(predicate());
     }
 }
 
 TEST_F(Win10Test, unable_to_single_step_query_information_process)
 {
     const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
-    EXPECT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
 
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
-    EXPECT_TRUE(!!ntdll);
+    ASSERT_TRUE(ntdll);
 
-    auto loader   = sym::Loader{core};
-    const auto ok = loader.mod_load(*proc, *ntdll);
-    EXPECT_TRUE(ok);
+    auto loader           = sym::Loader{core};
+    const auto load_ntdll = loader.mod_load(*proc, *ntdll);
+    ASSERT_TRUE(load_ntdll);
 
     wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
     bool found = false;
@@ -243,20 +265,21 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     {
         found = true;
     });
+
     run_until(core, [&] { return found; });
 }
 
 TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 {
     const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
-    EXPECT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
 
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
-    EXPECT_TRUE(!!ntdll);
+    ASSERT_TRUE(ntdll);
 
-    auto loader   = sym::Loader{core};
-    const auto ok = loader.mod_load(*proc, *ntdll);
-    EXPECT_TRUE(ok);
+    auto loader           = sym::Loader{core};
+    const auto load_ntdll = loader.mod_load(*proc, *ntdll);
+    ASSERT_TRUE(load_ntdll);
 
     // break on a single function once
     wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
@@ -268,7 +291,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     run_until(core, [&] { return func_start > 0; });
 
     // set a breakpoint on next instruction
-    core.state.single_step();
+    core.state.single_step(); // TODO check single step worked well
     const auto addr_a = core.regs.read(FDP_RIP_REGISTER);
     int func_a        = 0;
     auto bp_a         = core.state.set_breakpoint("ZwWaitForSingleObject + $1", addr_a, *proc, [&]
@@ -278,7 +301,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 
     // set a breakpoint on next instruction again
     // we are sure the previous bp share a physical page with at least one bp
-    core.state.single_step();
+    core.state.single_step(); // TODO check single step worked well
     const auto addr_b = core.regs.read(FDP_RIP_REGISTER);
     int func_b        = 0;
     const auto bp_b   = core.state.set_breakpoint("ZwWaitForSingleObject + $2", addr_b, *proc, [&]
@@ -299,10 +322,10 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 TEST_F(Win10Test, memory)
 {
     const auto proc = core.os->proc_find("explorer.exe", flags_e::FLAGS_NONE);
-    EXPECT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
     LOG(INFO, "explorer dtb: {:#x}", proc->dtb.val);
 
-    core.os->proc_join(*proc, os::JOIN_USER_MODE);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_USER_MODE), 5 * SECOND_NS);
 
     auto from_reader  = std::vector<uint8_t>{};
     auto from_virtual = std::vector<uint8_t>{};
@@ -310,20 +333,23 @@ TEST_F(Win10Test, memory)
     core.os->mod_list(*proc, [&](mod_t mod)
     {
         const auto span = core.os->mod_span(*proc, mod);
-        EXPECT_TRUE(!!span);
+        EXPECT_TRUE(span);
+        if(!span)
+            return WALK_NEXT;
 
         from_reader.resize(span->size);
-        auto ok = reader.read(&from_reader[0], span->addr, span->size);
-        EXPECT_TRUE(ok);
+        auto read_memory = reader.read(&from_reader[0], span->addr, span->size);
+        EXPECT_TRUE(read_memory);
 
         from_virtual.resize(span->size);
-        ok = core.mem.read_virtual(&from_virtual[0], proc->dtb, span->addr, span->size);
-        EXPECT_TRUE(ok);
+        read_memory = core.mem.read_virtual(&from_virtual[0], proc->dtb, span->addr, span->size);
+        EXPECT_TRUE(read_memory);
 
         EXPECT_EQ(0, memcmp(&from_reader[0], &from_virtual[0], span->size));
 
         const auto phy = core.mem.virtual_to_physical(span->addr, proc->dtb);
-        EXPECT_TRUE(!!phy);
+        EXPECT_TRUE(phy);
+
         return WALK_NEXT;
     });
 }
@@ -346,14 +372,14 @@ namespace
 TEST_F(Win10Test, loader)
 {
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
-    ASSERT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
 
-    core.os->proc_join(*proc, os::JOIN_ANY_MODE);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_ANY_MODE), 5 * SECOND_NS);
     auto drivers = sym::Loader{core};
     drivers.drv_listen({});
     EXPECT_GE(count_symbols(drivers.symbols()), 128u);
 
-    core.os->proc_join(*proc, os::JOIN_USER_MODE);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_USER_MODE), 5 * SECOND_NS);
     auto modules = sym::Loader{core};
     modules.mod_listen(*proc, {});
     EXPECT_GE(count_symbols(modules.symbols()), 32u);
@@ -365,9 +391,9 @@ TEST_F(Win10Test, loader)
 TEST_F(Win10Test, tracer)
 {
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
-    ASSERT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
 
-    core.os->proc_join(*proc, os::JOIN_USER_MODE);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*proc, os::JOIN_USER_MODE), 5 * SECOND_NS);
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
@@ -403,7 +429,7 @@ namespace
 TEST_F(Win10Test, callstacks)
 {
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
-    ASSERT_TRUE(!!proc);
+    ASSERT_TRUE(proc && proc->id && proc->dtb.val);
 
     auto loader = sym::Loader{core};
     loader.mod_listen(*proc, {});
