@@ -98,7 +98,7 @@ TEST_F(LinuxTest, processes)
         proc_list_empty = false;
 
         const auto name = core.os->proc_name(proc);
-        EXPECT_TRUE(!!name & !name->empty());
+        EXPECT_TRUE(name && !name->empty());
 
         if(name && *name == UTILITY_NAME)
             EXPECT_EQ(core.os->proc_flags(proc), FLAGS_32BIT);
@@ -114,7 +114,7 @@ TEST_F(LinuxTest, processes)
         while(children_pid <= 4194304 && children_pid != 0)
         {
             children = core.os->proc_parent(*children);
-            EXPECT_TRUE(children);
+            EXPECT_TRUE(children && children->id);
             if(!children)
                 break;
 
@@ -127,14 +127,14 @@ TEST_F(LinuxTest, processes)
     ASSERT_FALSE(proc_list_empty);
 
     const auto child = utility_child(core);
-    ASSERT_TRUE(child);
+    ASSERT_TRUE(child && child->id && child->dtb.val);
 
     const auto child_find_by_pid = core.os->proc_find(core.os->proc_id(*child));
     EXPECT_EQ(child->id, child_find_by_pid->id);
     EXPECT_EQ(child->dtb.val, child_find_by_pid->dtb.val);
 
     const auto utility_find_by_name = core.os->proc_find(UTILITY_NAME, FLAGS_NONE);
-    EXPECT_TRUE(utility_find_by_name);
+    EXPECT_TRUE(utility_find_by_name && utility_find_by_name->id && utility_find_by_name->dtb.val);
     if(utility_find_by_name)
     {
         const auto name = core.os->proc_name(*utility_find_by_name);
@@ -145,7 +145,7 @@ TEST_F(LinuxTest, processes)
 
     ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*child, os::JOIN_ANY_MODE), 5 * SECOND_NS);
     auto current = core.os->proc_current();
-    EXPECT_TRUE(current);
+    EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
 
@@ -153,7 +153,7 @@ TEST_F(LinuxTest, processes)
 
     ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*child, os::JOIN_USER_MODE), 5 * SECOND_NS);
     current = core.os->proc_current();
-    EXPECT_TRUE(current);
+    EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
     EXPECT_TRUE(tests::is_user_mode(core));
@@ -172,7 +172,7 @@ TEST_F(LinuxTest, threads)
         EXPECT_EQ(current_pc, core.regs.read(FDP_RIP_REGISTER));
 
     const auto child = utility_child(core);
-    ASSERT_TRUE(child && child->id);
+    ASSERT_TRUE(child && child->id && child->dtb.val);
 
     int thread_list_counter = 0;
     core.os->thread_list(*child, [&](thread_t thread)
@@ -184,8 +184,9 @@ TEST_F(LinuxTest, threads)
         thread_list_counter++;
 
         const auto proc = core.os->thread_proc(thread);
-        EXPECT_TRUE(proc && proc->id);
+        EXPECT_TRUE(proc && proc->id && proc->dtb.val);
         EXPECT_EQ(child->id, proc->id);
+        EXPECT_EQ(child->dtb.val, proc->dtb.val);
 
         const auto pid = core.os->thread_id({}, thread);
         EXPECT_TRUE(pid <= 4194304); // PID <= 4194304 for linux
