@@ -63,3 +63,17 @@ bool tests::run_for_ns_with_rand(core::Core& core, const uint64_t min_duration_n
 
     return run_for_ns(core, distr(generator));
 }
+
+bool tests::run_until_or_timeout_ns(core::Core& core, const uint64_t timeout_ns, const std::function<bool()>& predicate)
+{
+    const auto now = std::chrono::high_resolution_clock::now();
+    const auto end = now + std::chrono::nanoseconds(timeout_ns);
+
+    while(!predicate() && std::chrono::high_resolution_clock::now() < end)
+    {
+        core.state.resume();
+        core.state.wait();
+    }
+
+    return predicate();
+}

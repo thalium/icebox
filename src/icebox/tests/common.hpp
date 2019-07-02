@@ -15,6 +15,9 @@
 
 #define ASSERT_EXEC_BEFORE_TIMEOUT_NS(function, timeout_ns) tests::assert_exec_before_timeout_ns(std::packaged_task<void()>([&] { function; }), timeout_ns)
 
+#define EXPECT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, condition, timeout_ns) EXPECT_TRUE(tests::run_until_or_timeout_ns(core, timeout_ns, [&] { return condition; }));
+#define ASSERT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, condition, timeout_ns) ASSERT_TRUE(tests::run_until_or_timeout_ns(core, timeout_ns, [&] { return condition; }));
+
 namespace tests
 {
     void    assert_exec_before_timeout_ns   (std::packaged_task<void()> task, const uint64_t timeout_ns);
@@ -22,4 +25,6 @@ namespace tests
 
     bool    run_for_ns          (core::Core& core, const uint64_t duration_ns);
     bool    run_for_ns_with_rand(core::Core& core, const uint64_t min_duration_ns, const uint64_t max_duration_ns);
+
+    bool run_until_or_timeout_ns(core::Core& core, const uint64_t timeout_ns, const std::function<bool()>& predicate);
 } // namespace tests

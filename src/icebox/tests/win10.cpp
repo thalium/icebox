@@ -226,24 +226,6 @@ TEST_F(Win10Test, modules)
     EXPECT_EQ(id, mod->id);
 }
 
-namespace
-{
-    // TODO could be mutualize with run_until of common.hpp ?
-
-    template <typename T>
-    static void run_until(core::Core& core, T predicate)
-    {
-        const auto now = std::chrono::high_resolution_clock::now();
-        const auto end = now + std::chrono::seconds(8);
-        while(!predicate() && std::chrono::high_resolution_clock::now() < end)
-        {
-            core.state.resume();
-            core.state.wait();
-        }
-        ASSERT_TRUE(predicate());
-    }
-}
-
 TEST_F(Win10Test, unable_to_single_step_query_information_process)
 {
     const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
@@ -265,8 +247,7 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     {
         found = true;
     });
-
-    run_until(core, [&] { return found; });
+    EXPECT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, found, 8 * SECOND_NS);
 }
 
 TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
@@ -288,7 +269,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     {
         ++func_start;
     });
-    run_until(core, [&] { return func_start > 0; });
+    ASSERT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, func_start > 0, 8 * SECOND_NS);
 
     // set a breakpoint on next instruction
     core.state.single_step(); // TODO check single step worked well
@@ -310,13 +291,13 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     });
 
     // wait to break on third breakpoint
-    run_until(core, [&] { return func_b > 0; });
+    EXPECT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, func_b > 0, 8 * SECOND_NS);
 
     // remove mid breakpoint
     bp_a.reset();
 
     // ensure vm is not frozen
-    run_until(core, [&] { return func_start > 4; });
+    ASSERT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, func_start > 4, 8 * SECOND_NS);
 }
 
 TEST_F(Win10Test, memory)
@@ -409,7 +390,8 @@ TEST_F(Win10Test, tracer)
         calls.insert(cfg.name);
         ++count;
     });
-    run_until(core, [&] { return count > 32; });
+    EXPECT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, count > 32, 8 * SECOND_NS);
+
     for(const auto& call : calls)
         LOG(INFO, "call: {}", call);
 }
@@ -452,5 +434,5 @@ TEST_F(Win10Test, callstacks)
         });
         count++;
     });
-    run_until(core, [&] { return count > 32; });
+    EXPECT_CONDITION_RUNNING_BEFORE_TIMEOUT_NS(core, count > 32, 8 * SECOND_NS);
 }
