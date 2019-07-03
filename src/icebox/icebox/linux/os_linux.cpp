@@ -131,6 +131,8 @@ namespace
         MMSTRUCT_PGD,
         TASKSTRUCT_STACK,
         PTREGS_IP,
+        MODULE_LIST,
+        MODULE_NAME,
         OFFSET_COUNT,
     };
 
@@ -158,6 +160,8 @@ namespace
             {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
 			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
 			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
+			{cat_e::REQUIRED,	MODULE_LIST,				"kernel_struct",	"module",			"list"			},
+			{cat_e::REQUIRED,	MODULE_NAME,				"kernel_struct",	"module",			"name"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -167,6 +171,7 @@ namespace
         PER_CPU_START,
         CURRENT_TASK,
         KASAN_INIT,
+        MODULES,
         SYMBOL_COUNT,
     };
 
@@ -183,6 +188,7 @@ namespace
             {cat_e::REQUIRED,	PER_CPU_START,				"kernel_sym",	"__per_cpu_start"	},
 			{cat_e::REQUIRED,	CURRENT_TASK,				"kernel_sym",	"current_task"		},
 			{cat_e::OPTIONAL,	KASAN_INIT,					"kernel_sym",	"kasan_init"		},
+			{cat_e::REQUIRED,	MODULES,					"kernel_sym",	"modules"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -853,7 +859,8 @@ bool OsLinux::thread_list(proc_t proc, on_thread_fn on_thread)
     opt<uint64_t> link = head;
     do
     {
-        on_thread(thread_t{*link - *offsets_[TASKSTRUCT_THREADGROUP]});
+        if(on_thread(thread_t{*link - *offsets_[TASKSTRUCT_THREADGROUP]}) == WALK_STOP)
+            return true;
 
         link = reader_.read(*link);
         if(!link)
@@ -984,8 +991,20 @@ opt<std::string> OsLinux::vm_area_name(proc_t /*proc*/, vm_area_t /*vm_area*/)
 
 bool OsLinux::driver_list(on_driver_fn on_driver)
 {
-    driver_t dummy_driver = {0};
-    on_driver(dummy_driver);
+    auto link = reader_.read(*symbols_[MODULES]);
+    if(!link)
+        return FAIL(false, "unable to read next module address from modules symbol");
+
+    do
+    {
+        if(on_driver(driver_t{*link - *offsets_[MODULE_LIST]}) == WALK_STOP)
+            return true;
+
+        link = reader_.read(*link);
+        if(!link)
+            return FAIL(false, "unable to read next module address");
+    } while(link != *symbols_[MODULES]);
+
     return true;
 }
 
@@ -994,9 +1013,9 @@ opt<driver_t> OsLinux::driver_find(uint64_t /*addr*/)
     return {};
 }
 
-opt<std::string> OsLinux::driver_name(driver_t /*drv*/)
+opt<std::string> OsLinux::driver_name(driver_t drv)
 {
-    return {};
+    return read_str(reader_, drv.id + *offsets_[MODULE_NAME], 32);
 }
 
 opt<span_t> OsLinux::driver_span(driver_t /*drv*/)

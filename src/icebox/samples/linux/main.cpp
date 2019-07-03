@@ -110,6 +110,17 @@ int main(int argc, char** argv)
 
     system("pause");
 
+    // get list of drivers
+    core.os->driver_list([&](driver_t driver)
+    {
+        const auto name = core.os->driver_name(driver);
+        LOG(INFO, "driver: {}", *name);
+
+        return WALK_NEXT;
+    });
+
+    system("pause");
+
     // get list of processes
     core.state.pause();
     core.os->proc_list([&](proc_t proc)
