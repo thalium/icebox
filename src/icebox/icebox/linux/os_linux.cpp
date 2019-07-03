@@ -133,6 +133,9 @@ namespace
         PTREGS_IP,
         MODULE_LIST,
         MODULE_NAME,
+        MODULE_CORELAYOUT,
+        MODULELAYOUT_BASE,
+        MODULELAYOUT_SIZE,
         OFFSET_COUNT,
     };
 
@@ -162,6 +165,9 @@ namespace
 			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
 			{cat_e::REQUIRED,	MODULE_LIST,				"kernel_struct",	"module",			"list"			},
 			{cat_e::REQUIRED,	MODULE_NAME,				"kernel_struct",	"module",			"name"			},
+			{cat_e::REQUIRED,	MODULE_CORELAYOUT,			"kernel_struct",	"module",			"core_layout"	},
+			{cat_e::REQUIRED,	MODULELAYOUT_BASE,			"kernel_struct",	"module_layout",	"base"			},
+			{cat_e::REQUIRED,	MODULELAYOUT_SIZE,			"kernel_struct",	"module_layout",	"size"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -1008,19 +1014,37 @@ bool OsLinux::driver_list(on_driver_fn on_driver)
     return true;
 }
 
-opt<driver_t> OsLinux::driver_find(uint64_t /*addr*/)
+opt<driver_t> OsLinux::driver_find(uint64_t addr)
 {
-    return {};
+    opt<driver_t> found;
+    driver_list([&](driver_t drv)
+    {
+        const auto span = core_.os->driver_span(drv);
+        if(!span)
+            return WALK_NEXT;
+
+        if(!(span->addr <= addr && addr < span->addr + span->size))
+            return WALK_NEXT;
+
+        found = drv;
+        return WALK_STOP;
+    });
+    return found;
 }
 
 opt<std::string> OsLinux::driver_name(driver_t drv)
 {
-    return read_str(reader_, drv.id + *offsets_[MODULE_NAME], 32);
+    return read_str(reader_, drv.id + *offsets_[MODULE_NAME], 64);
 }
 
-opt<span_t> OsLinux::driver_span(driver_t /*drv*/)
+opt<span_t> OsLinux::driver_span(driver_t drv)
 {
-    return {};
+    const auto addr = reader_.read(drv.id + *offsets_[MODULE_CORELAYOUT] + *offsets_[MODULELAYOUT_BASE]);
+    const auto size = reader_.le32(drv.id + *offsets_[MODULE_CORELAYOUT] + *offsets_[MODULELAYOUT_SIZE]);
+    if(!addr | !size)
+        return {};
+
+    return span_t{*addr, *size};
 }
 
 opt<arg_t> OsLinux::read_stack(size_t /*index*/)
