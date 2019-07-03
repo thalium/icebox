@@ -113,8 +113,15 @@ int main(int argc, char** argv)
     // get list of drivers
     core.os->driver_list([&](driver_t driver)
     {
-        const auto name = core.os->driver_name(driver);
-        LOG(INFO, "driver: {}", *name);
+        const auto span = core.os->driver_span(driver);
+        auto name       = core.os->driver_name(driver);
+        if(!name)
+            name = "<no-name>";
+
+        LOG(INFO, "driver: {:#x} {} {} bytes",
+            span->addr,
+            (*name).append(32 - name->length(), ' '),
+            span->size);
 
         return WALK_NEXT;
     });
