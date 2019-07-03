@@ -928,7 +928,7 @@ opt<driver_t> OsNt::driver_find(uint64_t addr)
         if(!span)
             return WALK_NEXT;
 
-        if(!(span->addr <= addr && addr <= span->addr + span->size))
+        if(!(span->addr <= addr && addr < span->addr + span->size))
             return WALK_NEXT;
 
         found = drv;
