@@ -854,7 +854,7 @@ opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
         if(!span)
             return WALK_NEXT;
 
-        if(!(span->addr <= addr && addr <= span->addr + span->size))
+        if(!(span->addr <= addr && addr < span->addr + span->size))
             return WALK_NEXT;
 
         found = mod;
