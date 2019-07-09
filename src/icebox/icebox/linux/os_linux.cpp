@@ -997,7 +997,7 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
     if(!first_vm_area)
         return false;
 
-    bool linker_found = false;
+    bool loader_found = false;
     const auto ok     = vm_area_list_from(*this, *first_vm_area, [&](uint64_t vm_area)
     {
         const auto file = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMFILE]);
@@ -1021,19 +1021,19 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
         const auto name = mod_name(proc, mod);
         if(!name)
             return WALK_STOP;
-        if(name->substr(0, 3) == "ld-") // linker module
+        if(name->substr(0, 3) == "ld-") // loader module
         {
             // we stop the list here because vm_areas after the .text section
             // of ld are dynamically allocated and because ld is the last module
-            linker_found = true;
+            loader_found = true;
             return WALK_STOP;
         }
 
         return WALK_NEXT;
     });
 
-    if(!linker_found)
-        return FAIL(false, "unable to find the linker (ld) in module list");
+    if(!loader_found)
+        return FAIL(false, "unable to find the loader (ld) in module list");
 
     return ok;
 }
@@ -1061,7 +1061,7 @@ opt<std::string> OsLinux::mod_name(proc_t, mod_t mod)
 opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 {
     /*
-		The ld (linker) module for linux may be splitted by dynamically allocated areas.
+		The ld (loader) module for linux may be splitted by dynamically allocated areas.
 		In this case, this function returns only the size of .text section of ld module and the normal size otherwise.
 	*/
 
@@ -1124,7 +1124,7 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
 {
     /*
-		for linker module (ld), mod_find works only if addr is in the .text section
+		for loader module (ld), mod_find works only if addr is in the .text section
 		see comment at start of mod_span to see why
 	*/
 
