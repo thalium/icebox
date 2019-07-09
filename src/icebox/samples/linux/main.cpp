@@ -89,6 +89,25 @@ void display_proc(const core::Core& core, const proc_t& proc)
         (proc.dtb.val) ? "" : " (kernel)");
 }
 
+void display_mod(const core::Core& core, const proc_t& proc)
+{
+    core.os->mod_list(proc, [&](mod_t mod)
+    {
+        const auto span = core.os->mod_span(proc, mod);
+        auto name       = core.os->mod_name({}, mod);
+        if(!name)
+            name = "<no-name>";
+
+        LOG(INFO, "module: {:#x} {} {} {} bytes",
+            span->addr,
+            (*name).append(32 - name->length(), ' '),
+            (mod.flags & FLAGS_32BIT) ? "x86" : "x64",
+            span->size);
+
+        return WALK_NEXT;
+    });
+}
+
 int main(int argc, char** argv)
 {
     logg::init(argc, argv);
@@ -109,6 +128,7 @@ int main(int argc, char** argv)
         return FAIL(-1, "unable to start core at {}", name.data());
 
     system("pause");
+    std::cout << "\n";
 
     // get list of drivers
     core.os->driver_list([&](driver_t driver)
@@ -127,6 +147,7 @@ int main(int argc, char** argv)
     });
 
     system("pause");
+    std::cout << "\n";
 
     // get list of processes
     core.state.pause();
@@ -160,6 +181,7 @@ int main(int argc, char** argv)
             if(!target)
             {
                 LOG(ERROR, "unable to find a process with PID {}", pid);
+                core.state.resume();
                 continue;
             }
 
@@ -177,6 +199,9 @@ int main(int argc, char** argv)
             display_proc(core, *proc);
         else
             LOG(ERROR, "no current proc");
+
+        display_mod(core, *proc);
+
         core.state.resume();
     }
 
