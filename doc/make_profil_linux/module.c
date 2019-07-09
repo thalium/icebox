@@ -1,5 +1,7 @@
-#include <linux/sched.h>		// debug information for task_struct and its members
-#include <linux/thread_info.h>	// debug information for thread_info structure
+#include <linux/sched.h>		// task_struct
+#include <linux/thread_info.h>		// thread_info
+#include <linux/fs.h>			// file, path
+#include <linux/dcache.h>		// qstr
 
 void do_nothing(void)
 {

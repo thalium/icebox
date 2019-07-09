@@ -110,8 +110,9 @@ namespace
         TASKSTRUCT_THREADGROUP,
         TASKSTRUCT_TASKS,
         TASKSTRUCT_MM,
-        TASKSTRUCT_ACTIVEMM,
         MMSTRUCT_PGD,
+        MMSTRUCT_STARTBRK,
+        MMSTRUCT_MMAPBASE,
         TASKSTRUCT_STACK,
         PTREGS_IP,
         MODULE_LIST,
@@ -119,6 +120,16 @@ namespace
         MODULE_CORELAYOUT,
         MODULELAYOUT_BASE,
         MODULELAYOUT_SIZE,
+        MMSTRUCT_MMAP,
+        VMAREASTRUCT_VMSTART,
+        VMAREASTRUCT_VMEND,
+        VMAREASTRUCT_VMNEXT,
+        VMAREASTRUCT_VMFILE,
+        VMAREASTRUCT_VMPGOFF,
+        FILE_FPATH,
+        PATH_DENTRY,
+        DENTRY_DNAME,
+        QSTR_NAME,
         OFFSET_COUNT,
     };
 
@@ -142,8 +153,9 @@ namespace
 			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"kernel_struct",	"task_struct",		"thread_group"	},
             {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"kernel_struct",	"task_struct",		"tasks"			},
             {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"			},
-            {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"kernel_struct",	"task_struct",		"active_mm"		},
             {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
+			{cat_e::REQUIRED,	MMSTRUCT_STARTBRK,			"kernel_struct",	"mm_struct",		"start_brk"		},
+			{cat_e::REQUIRED,	MMSTRUCT_MMAPBASE,			"kernel_struct",	"mm_struct",		"mmap_base"		},
 			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
 			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
 			{cat_e::REQUIRED,	MODULE_LIST,				"kernel_struct",	"module",			"list"			},
@@ -151,6 +163,16 @@ namespace
 			{cat_e::REQUIRED,	MODULE_CORELAYOUT,			"kernel_struct",	"module",			"core_layout"	},
 			{cat_e::REQUIRED,	MODULELAYOUT_BASE,			"kernel_struct",	"module_layout",	"base"			},
 			{cat_e::REQUIRED,	MODULELAYOUT_SIZE,			"kernel_struct",	"module_layout",	"size"			},
+			{cat_e::REQUIRED,	MMSTRUCT_MMAP,				"kernel_struct",	"mm_struct",		"mmap"			},
+			{cat_e::REQUIRED,	VMAREASTRUCT_VMSTART,		"kernel_struct",	"vm_area_struct",	"vm_start"		},
+			{cat_e::REQUIRED,	VMAREASTRUCT_VMEND,			"kernel_struct",	"vm_area_struct",	"vm_end"		},
+			{cat_e::REQUIRED,	VMAREASTRUCT_VMNEXT,		"kernel_struct",	"vm_area_struct",	"vm_next"		},
+			{cat_e::REQUIRED,	VMAREASTRUCT_VMFILE,		"kernel_struct",	"vm_area_struct",	"vm_file"		},
+			{cat_e::REQUIRED,	VMAREASTRUCT_VMPGOFF,		"kernel_struct",	"vm_area_struct",	"vm_pgoff"		},
+			{cat_e::REQUIRED,	FILE_FPATH,					"kernel_struct",	"file",				"f_path"		},
+			{cat_e::REQUIRED,	PATH_DENTRY,				"kernel_struct",	"path",				"dentry"		},
+			{cat_e::REQUIRED,	DENTRY_DNAME,				"kernel_struct",	"dentry",			"d_name"		},
+			{cat_e::REQUIRED,	QSTR_NAME,					"kernel_struct",	"qstr",				"name"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -578,7 +600,7 @@ opt<proc_t> OsLinux::proc_current()
     return thread_proc(*thread);
 }
 
-opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e /*flags*/)
+opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
@@ -873,6 +895,15 @@ opt<thread_t> OsLinux::thread_current()
 
 namespace
 {
+    opt<uint64_t> proc_mm(OsLinux& p, uint64_t proc_thread_id)
+    {
+        const auto mm = p.reader_.read(proc_thread_id + *p.offsets_[TASKSTRUCT_MM]);
+        if(mm && !*mm)
+            return {};
+
+        return mm;
+    }
+
     opt<uint64_t> mm_pgd(OsLinux& p, uint64_t mm)
     {
         const auto pgd_t = p.reader_.read(mm + *p.offsets_[MMSTRUCT_PGD]);
@@ -893,8 +924,8 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
     if(!proc_id)
         return FAIL(ext::nullopt, "unable to find the leader of thread {:#x}", thread.id);
 
-    const auto mm = reader_.read(*proc_id + *offsets_[TASKSTRUCT_MM]);
-    if(!mm | !(*mm))
+    const auto mm = proc_mm(*this, *proc_id);
+    if(!mm)
         return proc_t{*proc_id, dtb_t{0}};
 
     const auto pgd = mm_pgd(*this, *mm);
@@ -904,7 +935,7 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
     return proc_t{*proc_id, dtb_t{*pgd}};
 }
 
-opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
+opt<uint64_t> OsLinux::thread_pc(proc_t, thread_t thread)
 {
     const auto current = thread_current();
     if(!current)
@@ -920,7 +951,7 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
     return reader_.read(*pt_regs_ptr - 8);
 }
 
-uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, remove proc ?
+uint64_t OsLinux::thread_id(proc_t, thread_t thread) // return opt ?, remove proc ?
 {
     const auto pid = reader_.le32(thread.id + *offsets_[TASKSTRUCT_PID]);
     if(!pid)
@@ -929,26 +960,188 @@ uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, r
     return *pid;
 }
 
-bool OsLinux::mod_list(proc_t /*proc*/, on_mod_fn on_module)
+namespace
 {
-    mod_t dummy_mod = {0, FLAGS_NONE};
-    on_module(dummy_mod);
-    return true;
+    bool vm_area_list_from(OsLinux& p, uint64_t from_vm_area, fn::view<walk_e(uint64_t)> on_vm_area)
+    {
+        opt<uint64_t> vm_area;
+        for(vm_area = from_vm_area; vm_area && *vm_area; vm_area = p.reader_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))
+            if(on_vm_area(*vm_area) == WALK_STOP)
+                return true;
+
+        if(!vm_area)
+            return FAIL(false, "unable to read the next vm_area_struct pointer");
+
+        return true;
+    }
+
+    opt<uint64_t> proc_first_vm_area(OsLinux& p, proc_t proc)
+    {
+        const auto mm = proc_mm(p, proc.id);
+        if(!mm)
+            return {};
+
+        const auto first_vm_area = p.reader_.read(*mm + *p.offsets_[MMSTRUCT_MMAP]);
+        if(!first_vm_area)
+            return FAIL(ext::nullopt, "unable to read mmap of process {:#x}", proc.id);
+
+        return first_vm_area;
+    }
 }
 
-opt<std::string> OsLinux::mod_name(proc_t /*proc*/, mod_t /*mod*/)
+bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
 {
-    return {};
+    flags_e flag = proc_flags(proc);
+
+    const auto first_vm_area = proc_first_vm_area(*this, proc);
+    if(!first_vm_area)
+        return false;
+
+    bool linker_found = false;
+    const auto ok     = vm_area_list_from(*this, *first_vm_area, [&](uint64_t vm_area)
+    {
+        const auto file = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMFILE]);
+        if(!file)
+            LOG(ERROR, "unable to read mmap->vm_file of process {:#x}", proc.id);
+
+        if(!file || !*file) // error reading or anonymous module like stack, heap or other...
+            return WALK_NEXT;
+
+        const auto offset = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMPGOFF]);
+        if(!offset)
+            LOG(ERROR, "unable to read mmap->vm_pgoff of process {:#x}", proc.id);
+
+        if(!offset || *offset) // error or not the first section of the module
+            return WALK_NEXT;
+
+        const auto mod = mod_t{vm_area, flag};
+        if(on_module(mod) == WALK_STOP)
+            return WALK_STOP;
+
+        const auto name = mod_name(proc, mod);
+        if(!name)
+            return WALK_STOP;
+        if(name->substr(0, 3) == "ld-") // linker module
+        {
+            // we stop the list here because vm_areas after the .text section
+            // of ld are dynamically allocated and because ld is the last module
+            linker_found = true;
+            return WALK_STOP;
+        }
+
+        return WALK_NEXT;
+    });
+
+    if(!linker_found)
+        return FAIL(false, "unable to find the linker (ld) in module list");
+
+    return ok;
 }
 
-opt<span_t> OsLinux::mod_span(proc_t /*proc*/, mod_t /*mod*/)
+opt<std::string> OsLinux::mod_name(proc_t, mod_t mod)
 {
-    return {};
+    const auto file = reader_.read(mod.id + *offsets_[VMAREASTRUCT_VMFILE]);
+    if(!file)
+        return FAIL(ext::nullopt, "unable to read vm_file pointer in module {:#x}", mod.id);
+
+    if(!*file) // anonymous module like stack, heap or other...
+        return {};
+
+    const auto path = reader_.read(*file + *offsets_[FILE_FPATH] + *offsets_[PATH_DENTRY]);
+    if(!path)
+        return FAIL(ext::nullopt, "unable to read path_entry pointer in file {:#x}", *file);
+
+    const auto name = reader_.read(*path + *offsets_[DENTRY_DNAME] + *offsets_[QSTR_NAME]);
+    if(!name)
+        return FAIL(ext::nullopt, "unable to read qstr_name pointer in dentry_path {:#x}", *path);
+
+    return read_str(reader_, *name, 32);
 }
 
-opt<mod_t> OsLinux::mod_find(proc_t /*proc*/, uint64_t /*addr*/)
+opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 {
-    return {};
+    /*
+		The ld (linker) module for linux may be splitted by dynamically allocated areas.
+		In this case, this function returns only the size of .text section of ld module and the normal size otherwise.
+	*/
+
+    assert(proc.id && mod.id);
+    const auto mm = proc_mm(*this, proc.id);
+    if(!mm)
+        return FAIL(ext::nullopt, "unable to find the mm_struct which module {:#x} belongs", mod.id);
+
+    const auto start_brk = reader_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
+    const auto mmap_base = reader_.read(*mm + *offsets_[MMSTRUCT_MMAPBASE]);
+    if(!start_brk || !mmap_base || !*start_brk || !*mmap_base)
+        return FAIL(ext::nullopt, "unable to read addresses of start_brk, brk and mmap_base in mm {:#x}", *mm);
+
+    const auto mod_start = reader_.read(mod.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    if(!mod_start)
+        return FAIL(ext::nullopt, "unable to read vm_start of module {:#x}", mod.id);
+
+    bool main_elf = (mod_start < start_brk);
+
+    const auto file_first_part = reader_.read(mod.id + *offsets_[VMAREASTRUCT_VMFILE]);
+    if(!file_first_part)
+        return FAIL(ext::nullopt, "unable to read vm_file pointer in module {:#x}", mod.id);
+
+    opt<uint64_t> mod_end = {};
+    const auto ok         = vm_area_list_from(*this, mod.id, [&](uint64_t vm_area)
+    {
+        const auto end = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMEND]);
+        if(!end || !*end)
+        {
+            mod_end = {};
+            return FAIL(WALK_STOP, "unable to read vm_end of vm_area {:#x}", vm_area);
+        }
+
+        if(*end > mmap_base) // vm_area belongs to stack
+            return WALK_STOP;
+
+        if(main_elf && *end > *start_brk) // vm_area belongs to heap
+            return WALK_STOP;
+
+        const auto file = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMFILE]);
+        if(!file)
+        {
+            mod_end = {};
+            return FAIL(WALK_STOP, "unable to read vm_file of vm_area {:#x}", vm_area);
+        }
+
+        if(*file && file != file_first_part) // vm_area belongs to next module
+            return WALK_STOP;
+
+        mod_end = end;
+        return WALK_NEXT;
+    });
+
+    if(!ok || !mod_end || !*mod_end)
+        return FAIL(ext::nullopt, "unable to find the end of module {:#x}", mod.id);
+
+    return span_t{*mod_start, *mod_end - *mod_start};
+}
+
+opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
+{
+    /*
+		for linker module (ld), mod_find works only if addr is in the .text section
+		see comment at start of mod_span to see why
+	*/
+
+    opt<mod_t> found = {};
+    mod_list(proc, [&](mod_t mod)
+    {
+        const auto span = mod_span(proc, mod);
+        if(!span)
+            return WALK_NEXT;
+
+        if(!(span->addr <= addr && addr < span->addr + span->size))
+            return WALK_NEXT;
+
+        found = mod;
+        return WALK_STOP;
+    });
+    return found;
 }
 
 bool OsLinux::vm_area_list(proc_t /*proc*/, on_vm_area_fn /*on_vm_area*/)
