@@ -62,12 +62,12 @@ namespace
         opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
-        bool                vm_area_list        (proc_t proc, on_vm_area_fn on_vm_area) override;
-        opt<vm_area_t>      vm_area_find        (proc_t proc, uint64_t addr) override;
-        opt<span_t>         vm_area_span        (proc_t proc, vm_area_t vm_area) override;
-        uint8_t             vm_area_access_flags(proc_t proc, vm_area_t vm_area) override;
-        vma_type_e          vm_area_type        (proc_t proc, vm_area_t vm_area) override;
-        opt<std::string>    vm_area_name        (proc_t proc, vm_area_t vm_area) override;
+        bool                vm_area_list    (proc_t proc, on_vm_area_fn on_vm_area) override;
+        opt<vm_area_t>      vm_area_find    (proc_t proc, uint64_t addr) override;
+        opt<span_t>         vm_area_span    (proc_t proc, vm_area_t vm_area) override;
+        vma_access_e        vm_area_access  (proc_t proc, vm_area_t vm_area) override;
+        vma_type_e          vm_area_type    (proc_t proc, vm_area_t vm_area) override;
+        opt<std::string>    vm_area_name    (proc_t proc, vm_area_t vm_area) override;
 
         bool                driver_list (on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (uint64_t addr) override;
@@ -322,14 +322,14 @@ opt<span_t> OsLinux::vm_area_span(proc_t /*proc*/, vm_area_t /*vm_area*/)
     return {};
 }
 
-uint8_t OsLinux::vm_area_access_flags(proc_t /*proc*/, vm_area_t /*vm_area*/)
+vma_access_e OsLinux::vm_area_access(proc_t /*proc*/, vm_area_t /*vm_area*/)
 {
     return VMA_ACCESS_NONE;
 }
 
 vma_type_e OsLinux::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
 {
-    return VMA_TYPE_NONE;
+    return vma_type_e::none;
 }
 
 opt<std::string> OsLinux::vm_area_name(proc_t /*proc*/, vm_area_t /*vm_area*/)
