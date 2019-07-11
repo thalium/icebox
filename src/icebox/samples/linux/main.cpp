@@ -109,6 +109,46 @@ void display_mod(const core::Core& core, const proc_t& proc)
     });
 }
 
+void display_vm_area(const core::Core& core, const proc_t& proc)
+{
+    core.os->vm_area_list(proc, [&](vm_area_t vm_area)
+    {
+        const auto span      = core.os->vm_area_span(proc, vm_area);
+        const auto type      = core.os->vm_area_type(proc, vm_area);
+        std::string type_str = "";
+        if(type == vma_type_e::main_binary)
+            type_str = "main-binary";
+        else if(type == vma_type_e::heap)
+            type_str = "[heap]";
+        else if(type == vma_type_e::stack)
+            type_str = "[stack]";
+        else if(type == vma_type_e::module)
+            type_str = "module";
+        else if(type == vma_type_e::specific_os)
+            type_str = "[os-area]";
+
+        const auto access      = core.os->vm_area_access(proc, vm_area);
+        std::string access_str = "";
+        access_str += (access & VMA_ACCESS_READ) ? "r" : "-";
+        access_str += (access & VMA_ACCESS_WRITE) ? "w" : "-";
+        access_str += (access & VMA_ACCESS_EXEC) ? "x" : "-";
+        access_str += (access & VMA_ACCESS_SHARED) ? "s" : "p";
+
+        auto name = core.os->vm_area_name({}, vm_area);
+        if(!name)
+            name = "<no-name>";
+
+        LOG(INFO, "vm_area: {:#x}-{:#x} {} {} {}",
+            (span) ? span->addr : 0,
+            (span) ? span->addr + span->size : 0,
+            access_str,
+            type_str,
+            *name);
+
+        return WALK_NEXT;
+    });
+}
+
 int main(int argc, char** argv)
 {
     logg::init(argc, argv);
@@ -204,7 +244,11 @@ int main(int argc, char** argv)
         else
             LOG(ERROR, "no current proc");
 
+        printf("\n");
         display_mod(core, *proc);
+
+        printf("\n");
+        display_vm_area(core, *proc);
 
         core.state.resume();
     }
