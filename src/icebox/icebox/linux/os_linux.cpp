@@ -976,11 +976,11 @@ uint64_t OsLinux::thread_id(proc_t, thread_t thread) // return opt ?, remove pro
 
 namespace
 {
-    bool vm_area_list_from(OsLinux& p, uint64_t from_vm_area, fn::view<walk_e(uint64_t)> on_vm_area)
+    bool vm_area_list_from(OsLinux& p, vm_area_t from, OsLinux::on_vm_area_fn on_vm_area)
     {
         opt<uint64_t> vm_area;
-        for(vm_area = from_vm_area; vm_area && *vm_area; vm_area = p.reader_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))
-            if(on_vm_area(*vm_area) == WALK_STOP)
+        for(vm_area = from.id; vm_area && *vm_area; vm_area = p.reader_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))
+            if(on_vm_area(vm_area_t{*vm_area}) == WALK_STOP)
                 return true;
 
         if(!vm_area)
@@ -988,48 +988,31 @@ namespace
 
         return true;
     }
-
-    opt<uint64_t> proc_first_vm_area(OsLinux& p, proc_t proc)
-    {
-        const auto mm = proc_mm(p, proc.id);
-        if(!mm)
-            return {};
-
-        const auto first_vm_area = p.reader_.read(*mm + *p.offsets_[MMSTRUCT_MMAP]);
-        if(!first_vm_area)
-            return FAIL(ext::nullopt, "unable to read mmap of process {:#x}", proc.id);
-
-        return first_vm_area;
-    }
 }
 
 bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
 {
     flags_e flag = proc_flags(proc);
 
-    const auto first_vm_area = proc_first_vm_area(*this, proc);
-    if(!first_vm_area)
-        return false;
-
     bool loader_found       = false;
     opt<uint64_t> last_file = {};
-    const auto ok           = vm_area_list_from(*this, *first_vm_area, [&](uint64_t vm_area)
+    const auto ok           = vm_area_list(proc, [&](vm_area_t vm_area)
     {
-        const auto file = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMFILE]);
+        const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
             LOG(ERROR, "unable to read mmap->vm_file of process {:#x}", proc.id);
 
         if(!file || !*file || (last_file && file == last_file)) // error reading OR anonymous module OR same mod as last one
             return WALK_NEXT;
 
-        const auto offset = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMPGOFF]);
+        const auto offset = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMPGOFF]);
         if(!offset)
             LOG(ERROR, "unable to read mmap->vm_pgoff of process {:#x}", proc.id);
 
         if(!offset || *offset) // error or not the first section of the module
             return WALK_NEXT;
 
-        const auto mod = mod_t{vm_area, flag};
+        const auto mod = mod_t{vm_area.id, flag};
         if(on_module(mod) == WALK_STOP)
             return WALK_STOP;
 
@@ -1102,13 +1085,13 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
         return FAIL(ext::nullopt, "unable to read vm_file pointer in module {:#x}", mod.id);
 
     opt<uint64_t> mod_end = {};
-    const auto ok         = vm_area_list_from(*this, mod.id, [&](uint64_t vm_area)
+    const auto ok         = vm_area_list_from(*this, vm_area_t{mod.id}, [&](vm_area_t vm_area)
     {
-        const auto end = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMEND]);
+        const auto end = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
         if(!end || !*end)
         {
             mod_end = {};
-            return FAIL(WALK_STOP, "unable to read vm_end of vm_area {:#x}", vm_area);
+            return FAIL(WALK_STOP, "unable to read vm_end of vm_area {:#x}", vm_area.id);
         }
 
         if(*end > mmap_base) // vm_area belongs to stack
@@ -1117,11 +1100,11 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
         if(main_elf && *end > *start_brk) // vm_area belongs to heap
             return WALK_STOP;
 
-        const auto file = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMFILE]);
+        const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
         {
             mod_end = {};
-            return FAIL(WALK_STOP, "unable to read vm_file of vm_area {:#x}", vm_area);
+            return FAIL(WALK_STOP, "unable to read vm_file of vm_area {:#x}", vm_area.id);
         }
 
         if(*file && file != file_first_part) // vm_area belongs to next module
@@ -1170,9 +1153,17 @@ opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
     return found;
 }
 
-bool OsLinux::vm_area_list(proc_t /*proc*/, on_vm_area_fn /*on_vm_area*/)
+bool OsLinux::vm_area_list(proc_t proc, on_vm_area_fn on_vm_area)
 {
-    return false;
+    const auto mm = proc_mm(*this, proc.id);
+    if(!mm)
+        return false;
+
+    const auto first = reader_.read(*mm + *offsets_[MMSTRUCT_MMAP]);
+    if(!first)
+        return FAIL(false, "unable to read mmap of process {:#x}", proc.id);
+
+    return vm_area_list_from(*this, vm_area_t{*first}, on_vm_area);
 }
 
 opt<vm_area_t> OsLinux::vm_area_find(proc_t /*proc*/, uint64_t /*addr*/)
