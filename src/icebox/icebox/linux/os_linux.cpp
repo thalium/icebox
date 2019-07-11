@@ -997,14 +997,15 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
     if(!first_vm_area)
         return false;
 
-    bool loader_found = false;
-    const auto ok     = vm_area_list_from(*this, *first_vm_area, [&](uint64_t vm_area)
+    bool loader_found       = false;
+    opt<uint64_t> last_file = {};
+    const auto ok           = vm_area_list_from(*this, *first_vm_area, [&](uint64_t vm_area)
     {
         const auto file = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
             LOG(ERROR, "unable to read mmap->vm_file of process {:#x}", proc.id);
 
-        if(!file || !*file) // error reading or anonymous module like stack, heap or other...
+        if(!file || !*file || (last_file && file == last_file)) // error reading OR anonymous module OR same mod as last one
             return WALK_NEXT;
 
         const auto offset = reader_.read(vm_area + *offsets_[VMAREASTRUCT_VMPGOFF]);
@@ -1029,6 +1030,7 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
             return WALK_STOP;
         }
 
+        last_file = file;
         return WALK_NEXT;
     });
 
@@ -1112,6 +1114,16 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
             return WALK_STOP;
 
         mod_end = end;
+
+        const auto name = mod_name(proc, mod);
+        if(!name)
+            return WALK_STOP;
+        if(name->substr(0, 3) == "ld-") // loader module
+        {
+            LOG(INFO, "The size returned for the loader module (ld) takes into account only its .text section");
+            return WALK_STOP;
+        }
+
         return WALK_NEXT;
     });
 
