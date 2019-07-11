@@ -992,6 +992,26 @@ namespace
 
         return true;
     }
+
+    opt<std::string> vm_area_file_mapped(OsLinux& p, vm_area_t vm_area)
+    {
+        const auto file = p.reader_.read(vm_area.id + *p.offsets_[VMAREASTRUCT_VMFILE]);
+        if(!file)
+            return FAIL(ext::nullopt, "unable to read vm_file pointer in vm_area {:#x}", vm_area.id);
+
+        if(!*file) // anonymous vm_area like stack, heap or other...
+            return {};
+
+        const auto path = p.reader_.read(*file + *p.offsets_[FILE_FPATH] + *p.offsets_[PATH_DENTRY]);
+        if(!path)
+            return FAIL(ext::nullopt, "unable to read path_entry pointer in file {:#x}", *file);
+
+        const auto name = p.reader_.read(*path + *p.offsets_[DENTRY_DNAME] + *p.offsets_[QSTR_NAME]);
+        if(!name)
+            return FAIL(ext::nullopt, "unable to read qstr_name pointer in dentry_path {:#x}", *path);
+
+        return read_str(p.reader_, *name, 32);
+    }
 }
 
 bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
@@ -1049,22 +1069,7 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
 
 opt<std::string> OsLinux::mod_name(proc_t, mod_t mod)
 {
-    const auto file = reader_.read(mod.id + *offsets_[VMAREASTRUCT_VMFILE]);
-    if(!file)
-        return FAIL(ext::nullopt, "unable to read vm_file pointer in module {:#x}", mod.id);
-
-    if(!*file) // anonymous module like stack, heap or other...
-        return {};
-
-    const auto path = reader_.read(*file + *offsets_[FILE_FPATH] + *offsets_[PATH_DENTRY]);
-    if(!path)
-        return FAIL(ext::nullopt, "unable to read path_entry pointer in file {:#x}", *file);
-
-    const auto name = reader_.read(*path + *offsets_[DENTRY_DNAME] + *offsets_[QSTR_NAME]);
-    if(!name)
-        return FAIL(ext::nullopt, "unable to read qstr_name pointer in dentry_path {:#x}", *path);
-
-    return read_str(reader_, *name, 32);
+    return vm_area_file_mapped(*this, vm_area_t{mod.id});
 }
 
 opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
@@ -1268,9 +1273,17 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
     return vma_type_e::none;
 }
 
-opt<std::string> OsLinux::vm_area_name(proc_t /*proc*/, vm_area_t /*vm_area*/)
+opt<std::string> OsLinux::vm_area_name(proc_t proc, vm_area_t vm_area)
 {
-    return {};
+    const auto vma_start = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    if(!vma_start)
+        return FAIL(ext::nullopt, "unable to read vm_start of vm_area {:#x}", vm_area.id);
+
+    const auto mod = mod_find(proc, *vma_start);
+    if(mod)
+        return mod_name(proc, *mod);
+
+    return vm_area_file_mapped(*this, vm_area);
 }
 
 bool OsLinux::driver_list(on_driver_fn on_driver)

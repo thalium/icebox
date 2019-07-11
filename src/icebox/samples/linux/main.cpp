@@ -133,7 +133,7 @@ void display_vm_area(const core::Core& core, const proc_t& proc)
         access_str += (access & VMA_ACCESS_EXEC) ? "x" : "-";
         access_str += (access & VMA_ACCESS_SHARED) ? "s" : "p";
 
-        auto name = core.os->vm_area_name({}, vm_area);
+        auto name = core.os->vm_area_name(proc, vm_area);
         if(!name)
             name = "";
 
