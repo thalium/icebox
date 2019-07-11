@@ -1166,14 +1166,32 @@ bool OsLinux::vm_area_list(proc_t proc, on_vm_area_fn on_vm_area)
     return vm_area_list_from(*this, vm_area_t{*first}, on_vm_area);
 }
 
-opt<vm_area_t> OsLinux::vm_area_find(proc_t /*proc*/, uint64_t /*addr*/)
+opt<vm_area_t> OsLinux::vm_area_find(proc_t proc, uint64_t addr)
 {
-    return {};
+    opt<vm_area_t> found = {};
+    vm_area_list(proc, [&](vm_area_t vm_area)
+    {
+        const auto span = vm_area_span(proc, vm_area);
+        if(!span)
+            return WALK_NEXT;
+
+        if(!(span->addr <= addr && addr < span->addr + span->size))
+            return WALK_NEXT;
+
+        found = vm_area;
+        return WALK_STOP;
+    });
+    return found;
 }
 
-opt<span_t> OsLinux::vm_area_span(proc_t /*proc*/, vm_area_t /*vm_area*/)
+opt<span_t> OsLinux::vm_area_span(proc_t, vm_area_t vm_area)
 {
-    return {};
+    const auto start = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    const auto end   = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
+    if(!start || !end || !*end || *start > *end)
+        return FAIL(ext::nullopt, "unable to read vm_start and vm_end of vm_area {:#x}", vm_area.id);
+
+    return span_t{*start, *end - *start};
 }
 
 vma_access_e OsLinux::vm_area_access(proc_t /*proc*/, vm_area_t /*vm_area*/)
