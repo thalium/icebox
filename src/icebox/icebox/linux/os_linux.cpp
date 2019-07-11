@@ -126,6 +126,7 @@ namespace
         VMAREASTRUCT_VMNEXT,
         VMAREASTRUCT_VMFILE,
         VMAREASTRUCT_VMPGOFF,
+        VMAREASTRUCT_VMFLAGS,
         FILE_FPATH,
         PATH_DENTRY,
         DENTRY_DNAME,
@@ -169,6 +170,7 @@ namespace
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMNEXT,		"kernel_struct",	"vm_area_struct",	"vm_next"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMFILE,		"kernel_struct",	"vm_area_struct",	"vm_file"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMPGOFF,		"kernel_struct",	"vm_area_struct",	"vm_pgoff"		},
+			{cat_e::REQUIRED,	VMAREASTRUCT_VMFLAGS,		"kernel_struct",	"vm_area_struct",	"vm_flags"		},
 			{cat_e::REQUIRED,	FILE_FPATH,					"kernel_struct",	"file",				"f_path"		},
 			{cat_e::REQUIRED,	PATH_DENTRY,				"kernel_struct",	"path",				"dentry"		},
 			{cat_e::REQUIRED,	DENTRY_DNAME,				"kernel_struct",	"dentry",			"d_name"		},
@@ -1180,9 +1182,25 @@ opt<span_t> OsLinux::vm_area_span(proc_t, vm_area_t vm_area)
     return span_t{*start, *end - *start};
 }
 
-vma_access_e OsLinux::vm_area_access(proc_t /*proc*/, vm_area_t /*vm_area*/)
+vma_access_e OsLinux::vm_area_access(proc_t, vm_area_t vm_area)
 {
-    return VMA_ACCESS_NONE;
+    const uint8_t VM_READ = 1, VM_WRITE = 2, VM_EXEC = 4, VM_SHARED = 8; // defined in include/linux/mm.h
+
+    const auto flags = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFLAGS]);
+    if(!flags)
+        return FAIL(VMA_ACCESS_NONE, "unable to read flags of vm_area {:#x}", vm_area.id);
+
+    vma_access_e ret = VMA_ACCESS_NONE;
+    if(*flags & VM_READ)
+        ret = (vma_access_e)(ret | VMA_ACCESS_READ);
+    if(*flags & VM_WRITE)
+        ret = (vma_access_e)(ret | VMA_ACCESS_WRITE);
+    if(*flags & VM_EXEC)
+        ret = (vma_access_e)(ret | VMA_ACCESS_EXEC);
+    if(*flags & VM_SHARED)
+        ret = (vma_access_e)(ret | VMA_ACCESS_SHARED);
+
+    return ret;
 }
 
 vma_type_e OsLinux::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
