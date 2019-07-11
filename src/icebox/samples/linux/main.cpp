@@ -114,17 +114,17 @@ void display_vm_area(const core::Core& core, const proc_t& proc)
     {
         const auto span      = core.os->vm_area_span(proc, vm_area);
         const auto type      = core.os->vm_area_type(proc, vm_area);
-        std::string type_str = "";
+        std::string type_str = "             ";
         if(type == vma_type_e::main_binary)
-            type_str = "main-binary";
+            type_str = "[main-binary]";
         else if(type == vma_type_e::heap)
-            type_str = "[heap]";
+            type_str = "[heap]       ";
         else if(type == vma_type_e::stack)
-            type_str = "[stack]";
+            type_str = "[stack]      ";
         else if(type == vma_type_e::module)
-            type_str = "module";
+            type_str = "[module]     ";
         else if(type == vma_type_e::specific_os)
-            type_str = "[os-area]";
+            type_str = "[os-area]    ";
 
         const auto access      = core.os->vm_area_access(proc, vm_area);
         std::string access_str = "";
@@ -135,7 +135,7 @@ void display_vm_area(const core::Core& core, const proc_t& proc)
 
         auto name = core.os->vm_area_name({}, vm_area);
         if(!name)
-            name = "<no-name>";
+            name = "";
 
         LOG(INFO, "vm_area: {:#x}-{:#x} {} {} {}",
             (span) ? span->addr : 0,

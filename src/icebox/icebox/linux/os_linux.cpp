@@ -129,6 +129,7 @@ namespace
         TASKSTRUCT_MM,
         MMSTRUCT_PGD,
         MMSTRUCT_STARTBRK,
+        MMSTRUCT_STARTSTACK,
         MMSTRUCT_MMAPBASE,
         TASKSTRUCT_STACK,
         PTREGS_IP,
@@ -173,6 +174,7 @@ namespace
             {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"			},
             {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
 			{cat_e::REQUIRED,	MMSTRUCT_STARTBRK,			"kernel_struct",	"mm_struct",		"start_brk"		},
+			{cat_e::REQUIRED,	MMSTRUCT_STARTSTACK,		"kernel_struct",	"mm_struct",		"start_stack"	},
 			{cat_e::REQUIRED,	MMSTRUCT_MMAPBASE,			"kernel_struct",	"mm_struct",		"mmap_base"		},
 			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
 			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
@@ -996,9 +998,9 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
 {
     flags_e flag = proc_flags(proc);
 
-    bool loader_found       = false;
-    opt<uint64_t> last_file = {};
-    const auto ok           = vm_area_list(proc, [&](vm_area_t vm_area)
+    bool loader_found_or_stopped_before = false;
+    opt<uint64_t> last_file             = {};
+    const auto ok                       = vm_area_list(proc, [&](vm_area_t vm_area)
     {
         const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
@@ -1016,16 +1018,22 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
 
         const auto mod = mod_t{vm_area.id, flag};
         if(on_module(mod) == WALK_STOP)
+        {
+            loader_found_or_stopped_before = true;
             return WALK_STOP;
+        }
 
         const auto name = mod_name(proc, mod);
         if(!name)
+        {
+            loader_found_or_stopped_before = true;
             return WALK_STOP;
+        }
         if(name->substr(0, 3) == "ld-") // loader module
         {
             // we stop the list here because vm_areas after the .text section
             // of ld are dynamically allocated and because ld is the last module
-            loader_found = true;
+            loader_found_or_stopped_before = true;
             return WALK_STOP;
         }
 
@@ -1033,7 +1041,7 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
         return WALK_NEXT;
     });
 
-    if(!loader_found)
+    if(!loader_found_or_stopped_before)
         return FAIL(false, "unable to find the loader (ld) in module list");
 
     return ok;
@@ -1066,7 +1074,6 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 		In this case, this function returns only the size of .text section of ld module and the normal size otherwise.
 	*/
 
-    assert(proc.id && mod.id);
     const auto mm = proc_mm(*this, proc.id);
     if(!mm)
         return FAIL(ext::nullopt, "unable to find the mm_struct which module {:#x} belongs", mod.id);
@@ -1074,7 +1081,7 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
     const auto start_brk = reader_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
     const auto mmap_base = reader_.read(*mm + *offsets_[MMSTRUCT_MMAPBASE]);
     if(!start_brk || !mmap_base || !*start_brk || !*mmap_base)
-        return FAIL(ext::nullopt, "unable to read addresses of start_brk, brk and mmap_base in mm {:#x}", *mm);
+        return FAIL(ext::nullopt, "unable to read addresses of start_brk and mmap_base in mm {:#x}", *mm);
 
     const auto mod_start = reader_.read(mod.id + *offsets_[VMAREASTRUCT_VMSTART]);
     if(!mod_start)
@@ -1118,10 +1125,9 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
         if(!name)
             return WALK_STOP;
         if(name->substr(0, 3) == "ld-") // loader module
-        {
-            LOG(INFO, "The size returned for the loader module (ld) takes into account only its .text section");
+            // The size returned for the loader module (ld) takes
+            // into account only its .text section
             return WALK_STOP;
-        }
 
         return WALK_NEXT;
     });
@@ -1217,8 +1223,48 @@ vma_access_e OsLinux::vm_area_access(proc_t, vm_area_t vm_area)
     return ret;
 }
 
-vma_type_e OsLinux::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
+vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
 {
+    const auto mm = proc_mm(*this, proc.id);
+    if(!mm)
+        return FAIL(vma_type_e::none, "unable to find the mm_struct which vm_area {:#x} belongs", vm_area.id);
+
+    const auto vma_start = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    if(!vma_start)
+        return FAIL(vma_type_e::none, "unable to read vm_start of vm_area {:#x}", vm_area.id);
+
+    const auto start_brk = reader_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
+    if(start_brk && *start_brk)
+    {
+        const auto vma_heap = vm_area_find(proc, *start_brk);
+        if(!vma_heap)
+            LOG(ERROR, "unable to find a vm_area which start_brk ({:#x}) belongs", *start_brk);
+        else if(vma_heap->id == vm_area.id)
+            return vma_type_e::heap;
+        else if(*vma_start < *start_brk)
+            return vma_type_e::main_binary;
+    }
+    else
+        LOG(ERROR, "unable to read address of start_brk in mm {:#x}", *mm);
+
+    const auto start_stack = reader_.read(*mm + *offsets_[MMSTRUCT_STARTSTACK]);
+    if(start_stack && *start_stack)
+    {
+        const auto vma_stack = vm_area_find(proc, *start_stack);
+        if(!vma_stack)
+            LOG(ERROR, "unable to find a vm_area which vma_stack ({:#x}) belongs", *start_stack);
+        else if(vma_stack->id == vm_area.id)
+            return vma_type_e::stack;
+        else if(*vma_start > *start_stack)
+            return vma_type_e::specific_os;
+    }
+    else
+        LOG(ERROR, "unable to read address of start_stack in mm {:#x}", *mm);
+
+    const auto mod = mod_find(proc, *vma_start);
+    if(mod)
+        return vma_type_e::module;
+
     return vma_type_e::none;
 }
 
