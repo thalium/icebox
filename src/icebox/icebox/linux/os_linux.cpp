@@ -383,11 +383,18 @@ namespace
         const auto buffer_begin    = &buffer[0];
         const auto buffer_afterend = buffer.data() + buffer.size();
 
-        uint64_t offset = START_KERNEL;
+        uint64_t offset   = START_KERNEL;
+        bool start_kernel = true;
         while(offset <= END_KERNEL)
         {
             if(p.reader_.read(&buffer[sizeof target], offset, PAGE_SIZE))
             {
+                if(start_kernel)
+                {
+                    LOG(INFO, "start of kernel : {:#x}", offset);
+                    start_kernel = false;
+                }
+
                 const auto match = search(buffer_begin, buffer_afterend, pattern);
                 if(match != buffer_afterend)
                     if(on_candidate((offset + (match - buffer_begin)) - sizeof target) == WALK_STOP)
@@ -527,6 +534,7 @@ bool OsLinux::setup()
 {
     if(!set_per_cpu(*this))
         return false;
+    LOG(INFO, "address of per_cpu_area : {:#x}", per_cpu);
 
     auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
@@ -534,6 +542,7 @@ bool OsLinux::setup()
         reader.kdtb_.val = kpgd;
         return (!!reader.read(per_cpu));
     });
+    LOG(INFO, "address of page directory with kernel permissions : {:#x}", kpgd);
 
     std::regex pattern("^Linux version ((\?:\\.\?\\d+)+)");
     std::smatch match;
@@ -550,10 +559,13 @@ bool OsLinux::setup()
             return WALK_NEXT;
         LOG(INFO, "linux banner found '{}'", *linux_banner);
 
-        const auto hash  = guid(*linux_banner);
+        const auto hash = guid(*linux_banner);
+        LOG(INFO, "hash of linux banner : {}", hash);
+
         const auto kaslr = make_symbols(syms_, hash, "linux_banner", candidate);
         if(!kaslr)
             return WALK_NEXT;
+        LOG(INFO, "debug profile found");
 
         if(!loadOffsets(syms_, offsets_) | !loadSymbols(syms_, symbols_))
             return WALK_NEXT;
