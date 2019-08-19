@@ -90,8 +90,9 @@ void display_proc(const core::Core& core, const proc_t& proc)
         (proc.dtb.val) ? "" : " (kernel)");
 }
 
-void display_mod(const core::Core& core, const proc_t& proc)
+void display_mod(core::Core& core, const proc_t& proc)
 {
+    core.state.pause();
     core.os->mod_list(proc, [&](mod_t mod)
     {
         const auto span = core.os->mod_span(proc, mod);
@@ -107,10 +108,12 @@ void display_mod(const core::Core& core, const proc_t& proc)
 
         return WALK_NEXT;
     });
+    core.state.resume();
 }
 
-void display_vm_area(const core::Core& core, const proc_t& proc)
+void display_vm_area(core::Core& core, const proc_t& proc)
 {
+    core.state.pause();
     core.os->vm_area_list(proc, [&](vm_area_t vm_area)
     {
         const auto span      = core.os->vm_area_span(proc, vm_area);
@@ -147,6 +150,65 @@ void display_vm_area(const core::Core& core, const proc_t& proc)
 
         return WALK_NEXT;
     });
+    core.state.resume();
+}
+
+opt<proc_t> select_process(core::Core& core)
+{
+    while(true)
+    {
+        int pid;
+        std::cout << "Enter a process PID or -1 to skip : ";
+        std::cin >> pid;
+        while(std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Enter a process PID or -1 to skip : ";
+            std::cin >> pid;
+        }
+
+        if(pid == -1)
+            return {};
+
+        core.state.pause();
+        const auto target = core.os->proc_find(pid);
+        core.state.resume();
+        if(target)
+            return *target;
+
+        LOG(ERROR, "unable to find a process with PID {}", pid);
+    }
+}
+
+void proc_join(core::Core& core, proc_t target, os::join_e mode)
+{
+    core.state.pause();
+
+    printf("Process found, VM running...\n");
+    core.os->proc_join(target, mode);
+
+    const auto thread = core.os->thread_current();
+    if(thread)
+    {
+        std::cout << "Current thread  : ";
+        display_thread(core, *thread);
+    }
+    else
+        LOG(ERROR, "no current thread");
+
+    const auto proc = core.os->proc_current();
+    if(proc)
+    {
+        std::cout << "Current process : ";
+        display_proc(core, *proc);
+    }
+    else
+        LOG(ERROR, "no current proc");
+
+    printf("\nPress a key to resume VM...\n");
+    system("pause");
+    core.state.resume();
 }
 
 int main(int argc, char** argv)
@@ -169,11 +231,36 @@ int main(int argc, char** argv)
     if(!ok)
         return FAIL(-1, "unable to start core at {}", name.data());
 
-    ret = system("pause");
-    (void) ret;
-    std::cout << "\n";
+    system("pause");
+    printf("\n");
+
+    // get list of processes
+    core.state.pause();
+    core.os->proc_list([&](proc_t proc)
+    {
+        display_proc(core, proc);
+        return WALK_NEXT;
+    });
+    core.state.resume();
+
+    // proc_join in kernel mode
+    printf("\n--- Join a process in kernel mode ---\n");
+    auto target = select_process(core);
+    if(target)
+        proc_join(core, *target, os::JOIN_ANY_MODE);
+
+    // proc_join in user mode
+    printf("\n--- Join a process in user mode ---\n");
+    target = select_process(core);
+    if(target)
+        proc_join(core, *target, os::JOIN_USER_MODE);
+
+    printf("\n");
+    system("pause");
+    printf("\n");
 
     // get list of drivers
+    core.state.pause();
     core.os->driver_list([&](driver_t driver)
     {
         const auto span = core.os->driver_span(driver);
@@ -188,71 +275,30 @@ int main(int argc, char** argv)
 
         return WALK_NEXT;
     });
-
-    ret = system("pause");
-    (void) ret;
-    std::cout << "\n";
-
-    // get list of processes
-    core.state.pause();
-    core.os->proc_list([&](proc_t proc)
-    {
-        display_proc(core, proc);
-        return WALK_NEXT;
-    });
     core.state.resume();
 
-    // run until a process given its PID and get its info
-    // if PID -1 is given, get current process infos
-    while(true)
+    printf("\n");
+    system("pause");
+    printf("\n");
+
+    // get list of vm_area
+    printf("\n--- Display virtual memory areas and modules of a process ---\n");
+    target = select_process(core);
+    if(target)
     {
-        int pid;
-        std::cout << "\nEnter a process PID or -1 for current process : ";
-        std::cin >> pid;
-        while(std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Enter a process PID or -1 for current process : ";
-            std::cin >> pid;
-        }
-
-        core.state.pause();
-
-        if(pid != -1)
-        {
-            const auto target = core.os->proc_find(pid);
-            if(!target)
-            {
-                LOG(ERROR, "unable to find a process with PID {}", pid);
-                core.state.resume();
-                continue;
-            }
-
-            core.os->proc_join(*target, os::JOIN_USER_MODE);
-        }
-
-        const auto thread = core.os->thread_current();
-        if(thread)
-            display_thread(core, *thread);
-        else
-            LOG(ERROR, "no current thread");
-
-        const auto proc = core.os->proc_current();
-        if(proc)
-            display_proc(core, *proc);
-        else
-            LOG(ERROR, "no current proc");
+        printf("\nVirtual memory areas :\n");
+        display_vm_area(core, *target);
 
         printf("\n");
-        display_mod(core, *proc);
+        system("pause");
 
-        printf("\n");
-        display_vm_area(core, *proc);
-
-        core.state.resume();
+        printf("\nModules :\n");
+        display_mod(core, *target);
     }
 
-    core.state.resume();
+    printf("\n");
+    system("pause");
+    printf("\n");
+
     return 0;
 }
