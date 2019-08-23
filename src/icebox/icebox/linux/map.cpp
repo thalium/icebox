@@ -13,8 +13,7 @@ namespace
     std::ifstream filestream;
     bool settedup = false;
 
-    uint64_t aslr = 0;
-    bool is_aslr  = false;
+    opt<uint64_t> aslr = {};
 }
 
 sym::Map::Map(fs::path path)
@@ -39,11 +38,11 @@ bool sym::Map::setup()
 
 bool sym::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
 {
-    is_aslr               = true;
+    aslr                  = 0;
     const auto addrSymbol = symbol(strSymbol);
     if(!addrSymbol)
     {
-        is_aslr = false;
+        aslr = {};
         return FAIL(false, "unable to find symbol {}", strSymbol);
     }
 
@@ -53,10 +52,7 @@ bool sym::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
 
 opt<uint64_t> sym::Map::get_aslr()
 {
-    if(is_aslr)
-        return aslr;
-    else
-        return {};
+    return aslr;
 }
 
 std::unique_ptr<sym::Map> sym::make_map(span_t /*span*/, const std::string& module, const std::string& guid)
@@ -99,8 +95,8 @@ bool sym::Map::sym_list(sym::on_sym_fn on_sym)
     if(!settedup)
         return FAIL(false, "map parser has not been set up");
 
-    if(!is_aslr)
-        LOG(WARNING, "Symbol address is required whereas ASLR was not setted");
+    if(!aslr)
+        return FAIL(false, "Symbol address is required whereas ASLR was not yet setted");
 
     std::string    row;
     std::string    str_offset;
@@ -119,7 +115,7 @@ bool sym::Map::sym_list(sym::on_sym_fn on_sym)
         if(!(iss_offset >> cursor.offset))
             return FAIL(false, "unable to parse hex '{}' in file {}", str_offset, filename.generic_string());
 
-        const auto ret = on_sym(cursor.symbol, cursor.offset + aslr);
+        const auto ret = on_sym(cursor.symbol, cursor.offset + *aslr);
         if(ret == WALK_STOP)
             return true;
     }
