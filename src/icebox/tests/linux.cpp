@@ -201,3 +201,33 @@ TEST_F(LinuxTest, threads)
     });
     ASSERT_EQ(thread_list_counter, 2);
 }
+
+TEST_F(LinuxTest, drivers)
+{
+    int driver_list_counter = 0;
+    core.os->driver_list([&](driver_t driver)
+    {
+        EXPECT_NE(driver.id, 0);
+        if(!driver.id)
+            return WALK_NEXT;
+
+        driver_list_counter++;
+
+        const auto name = core.os->driver_name(driver);
+        EXPECT_TRUE(name);
+        if(name)
+            EXPECT_NE(*name, "");
+
+        const auto span = core.os->driver_span(driver);
+        EXPECT_TRUE(span);
+        if(span)
+        {
+            EXPECT_NE(span->addr, 0);
+            EXPECT_TRUE(core.os->is_kernel_address(span->addr));
+            EXPECT_NE(span->size, 0);
+        }
+
+        return WALK_NEXT;
+    });
+    EXPECT_NE(driver_list_counter, 0);
+}
