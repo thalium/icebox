@@ -130,6 +130,7 @@ namespace
         VMAREASTRUCT_VMFILE,
         VMAREASTRUCT_VMFLAGS,
         FILE_FPATH,
+        FILE_FDENTRY,
         PATH_DENTRY,
         DENTRY_DNAME,
         QSTR_NAME,
@@ -176,9 +177,10 @@ namespace
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMFILE,		"kernel_struct",	"vm_area_struct",	"vm_file"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMFLAGS,		"kernel_struct",	"vm_area_struct",	"vm_flags"		},
 			{cat_e::OPTIONAL,	FILE_FPATH,					"kernel_struct",	"file",				"f_path"		},
+			{cat_e::OPTIONAL,	FILE_FDENTRY,				"kernel_struct",	"file",				"f_dentry"		},
 			{cat_e::OPTIONAL,	PATH_DENTRY,				"kernel_struct",	"path",				"dentry"		},
-			{cat_e::OPTIONAL,	DENTRY_DNAME,				"kernel_struct",	"dentry",			"d_name"		},
-			{cat_e::OPTIONAL,	QSTR_NAME,					"kernel_struct",	"qstr",				"name"			},
+			{cat_e::REQUIRED,	DENTRY_DNAME,				"kernel_struct",	"dentry",			"d_name"		},
+			{cat_e::REQUIRED,	QSTR_NAME,					"kernel_struct",	"qstr",				"name"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -1002,13 +1004,21 @@ namespace
         if(!*file) // anonymous vm_area like stack, heap or other...
             return {};
 
-        const auto path = p.reader_.read(*file + *p.offsets_[FILE_FPATH] + *p.offsets_[PATH_DENTRY]);
-        if(!path)
-            return FAIL(ext::nullopt, "unable to read path_entry pointer in file {:#x}", *file);
+        uint64_t dentry_offset;
+        if(p.offsets_[FILE_FPATH] && p.offsets_[PATH_DENTRY])
+            dentry_offset = *p.offsets_[FILE_FPATH] + *p.offsets_[PATH_DENTRY];
+        else if(p.offsets_[FILE_FDENTRY])
+            dentry_offset = *p.offsets_[FILE_FDENTRY];
+        else
+            return FAIL(ext::nullopt, "unable to find the offset of dentry member in file structures");
 
-        const auto name = p.reader_.read(*path + *p.offsets_[DENTRY_DNAME] + *p.offsets_[QSTR_NAME]);
+        const auto dentry = p.reader_.read(*file + dentry_offset);
+        if(!dentry)
+            return FAIL(ext::nullopt, "unable to read dentry pointer in file {:#x}", *file);
+
+        const auto name = p.reader_.read(*dentry + *p.offsets_[DENTRY_DNAME] + *p.offsets_[QSTR_NAME]);
         if(!name)
-            return FAIL(ext::nullopt, "unable to read qstr_name pointer in dentry_path {:#x}", *path);
+            return FAIL(ext::nullopt, "unable to read qstr_name pointer in dentry {:#x}", *dentry);
 
         return read_str(p.reader_, *name, 32);
     }
