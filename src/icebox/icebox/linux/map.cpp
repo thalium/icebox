@@ -16,7 +16,7 @@ namespace
     fs::path                                        filename;
     std::vector<sym::ModCursor> cursors_by_address, cursors_by_name;
 
-    opt<uint64_t> aslr = {};
+    opt<uint64_t> aslr;
 }
 
 sym::Map::Map(fs::path path)
@@ -39,6 +39,10 @@ namespace
 
 bool sym::Map::setup()
 {
+    cursors_by_address.clear();
+    cursors_by_name.clear();
+    aslr = {};
+
     std::ifstream filestream;
 
     filestream = std::ifstream(filename.generic_string().data());
