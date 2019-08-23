@@ -1028,10 +1028,12 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
 {
     flags_e flag = proc_flags(proc);
 
-    bool loader_found_or_stopped_before = false;
+    bool loader_found_or_stopped_before = true;
     uint64_t last_file                  = 0;
     const auto ok                       = vm_area_list(proc, [&](vm_area_t vm_area)
     {
+        loader_found_or_stopped_before = false;
+
         const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
         {
