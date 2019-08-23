@@ -7,8 +7,7 @@ namespace sym
     struct Map
         : public sym::IMod
     {
-         Map(fs::path path);
-        ~Map();
+        Map(fs::path path);
 
         // methods
         bool            setup   ();
