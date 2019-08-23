@@ -118,6 +118,8 @@ namespace
         PTREGS_IP,
         MODULE_LIST,
         MODULE_NAME,
+        MODULE_MODULECORE,
+        MODULE_CORESIZE,
         MODULE_CORELAYOUT,
         MODULELAYOUT_BASE,
         MODULELAYOUT_SIZE,
@@ -162,19 +164,21 @@ namespace
 			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
 			{cat_e::REQUIRED,	MODULE_LIST,				"kernel_struct",	"module",			"list"			},
 			{cat_e::REQUIRED,	MODULE_NAME,				"kernel_struct",	"module",			"name"			},
-			{cat_e::REQUIRED,	MODULE_CORELAYOUT,			"kernel_struct",	"module",			"core_layout"	},
-			{cat_e::REQUIRED,	MODULELAYOUT_BASE,			"kernel_struct",	"module_layout",	"base"			},
-			{cat_e::REQUIRED,	MODULELAYOUT_SIZE,			"kernel_struct",	"module_layout",	"size"			},
+			{cat_e::OPTIONAL,	MODULE_MODULECORE,			"kernel_struct",	"module",			"module_core"	},
+			{cat_e::OPTIONAL,	MODULE_CORESIZE,			"kernel_struct",	"module",			"core_size"		},
+			{cat_e::OPTIONAL,	MODULE_CORELAYOUT,			"kernel_struct",	"module",			"core_layout"	},
+			{cat_e::OPTIONAL,	MODULELAYOUT_BASE,			"kernel_struct",	"module_layout",	"base"			},
+			{cat_e::OPTIONAL,	MODULELAYOUT_SIZE,			"kernel_struct",	"module_layout",	"size"			},
 			{cat_e::REQUIRED,	MMSTRUCT_MMAP,				"kernel_struct",	"mm_struct",		"mmap"			},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMSTART,		"kernel_struct",	"vm_area_struct",	"vm_start"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMEND,			"kernel_struct",	"vm_area_struct",	"vm_end"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMNEXT,		"kernel_struct",	"vm_area_struct",	"vm_next"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMFILE,		"kernel_struct",	"vm_area_struct",	"vm_file"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMFLAGS,		"kernel_struct",	"vm_area_struct",	"vm_flags"		},
-			{cat_e::REQUIRED,	FILE_FPATH,					"kernel_struct",	"file",				"f_path"		},
-			{cat_e::REQUIRED,	PATH_DENTRY,				"kernel_struct",	"path",				"dentry"		},
-			{cat_e::REQUIRED,	DENTRY_DNAME,				"kernel_struct",	"dentry",			"d_name"		},
-			{cat_e::REQUIRED,	QSTR_NAME,					"kernel_struct",	"qstr",				"name"			},
+			{cat_e::OPTIONAL,	FILE_FPATH,					"kernel_struct",	"file",				"f_path"		},
+			{cat_e::OPTIONAL,	PATH_DENTRY,				"kernel_struct",	"path",				"dentry"		},
+			{cat_e::OPTIONAL,	DENTRY_DNAME,				"kernel_struct",	"dentry",			"d_name"		},
+			{cat_e::OPTIONAL,	QSTR_NAME,					"kernel_struct",	"qstr",				"name"			},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -1324,8 +1328,22 @@ opt<std::string> OsLinux::driver_name(driver_t drv)
 
 opt<span_t> OsLinux::driver_span(driver_t drv)
 {
-    const auto addr = reader_.read(drv.id + *offsets_[MODULE_CORELAYOUT] + *offsets_[MODULELAYOUT_BASE]);
-    const auto size = reader_.le32(drv.id + *offsets_[MODULE_CORELAYOUT] + *offsets_[MODULELAYOUT_SIZE]);
+    uint64_t addr_offset, size_offet;
+    if(offsets_[MODULE_CORELAYOUT] && offsets_[MODULELAYOUT_BASE] && offsets_[MODULELAYOUT_SIZE])
+    {
+        addr_offset = *offsets_[MODULE_CORELAYOUT] + *offsets_[MODULELAYOUT_BASE];
+        size_offet  = *offsets_[MODULE_CORELAYOUT] + *offsets_[MODULELAYOUT_SIZE];
+    }
+    else if(offsets_[MODULE_MODULECORE] && offsets_[MODULE_CORESIZE])
+    {
+        addr_offset = *offsets_[MODULE_MODULECORE];
+        size_offet  = *offsets_[MODULE_CORESIZE];
+    }
+    else
+        return FAIL(ext::nullopt, "unable to find base address and size in module structures");
+
+    const auto addr = reader_.read(drv.id + addr_offset);
+    const auto size = reader_.le32(drv.id + size_offet);
     if(!addr | !size)
         return {};
 
