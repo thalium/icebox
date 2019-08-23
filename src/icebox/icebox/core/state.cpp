@@ -482,7 +482,7 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
         bp.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
 
     int bpid = -1;
-    dtb_t cr3;
+    uint64_t cr3;
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
     {
         bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
@@ -492,16 +492,18 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
             return;
         }
 
-        cr3 = dtb_t{d.core.regs.read(FDP_CR3_REGISTER)};
+        cr3 = d.core.regs.read(FDP_CR3_REGISTER);
     }
 
     run_until(d, [&]
     {
-        if(!ptrs.count(d.breakstate.rip) & (bp_cr3 == BP_CR3_NONE || cr3.val == d.breakstate.dtb.val))
+        uint64_t new_cr3 = d.core.regs.read(FDP_CR3_REGISTER);
+
+        if(!ptrs.count(d.breakstate.rip) & (bp_cr3 == BP_CR3_NONE || cr3 == new_cr3))
             return false; // WALK_NEXT
 
-        if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3.val != d.breakstate.dtb.val)
-            cr3.val = d.breakstate.dtb.val;
+        if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3 != new_cr3)
+            cr3 = new_cr3;
 
         return (on_bp(d.breakstate.proc, d.breakstate.thread) == WALK_STOP); // WALK_STOP
     });
