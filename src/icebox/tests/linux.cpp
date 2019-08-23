@@ -231,3 +231,96 @@ TEST_F(LinuxTest, drivers)
     });
     EXPECT_NE(driver_list_counter, 0);
 }
+
+TEST_F(LinuxTest, vma_modules_64bits)
+{
+    const auto child = utility_child(core);
+    ASSERT_TRUE(child && child->id && child->dtb.val);
+
+    const auto bash = core.os->proc_parent(*child);
+    ASSERT_TRUE(bash && bash->id && bash->dtb.val);
+
+    const auto bash_name = core.os->proc_name(*bash);
+    ASSERT_TRUE(bash_name);
+    ASSERT_EQ(*bash_name, "sh");
+
+    int vma_heap_or_stack = 0;
+    core.os->vm_area_list(*bash, [&](vm_area_t vm_area)
+    {
+        EXPECT_NE(vm_area.id, 0);
+        if(!vm_area.id)
+            return WALK_NEXT;
+
+        const auto span = core.os->vm_area_span(*bash, vm_area);
+        EXPECT_TRUE(span);
+        if(span)
+        {
+            EXPECT_NE(span->addr, 0);
+            EXPECT_FALSE(core.os->is_kernel_address(span->addr));
+            EXPECT_NE(span->size, 0);
+        }
+
+        const auto name = core.os->vm_area_name(*bash, vm_area);
+        const auto type = core.os->vm_area_type(*bash, vm_area);
+
+        if(type == vma_type_e::heap || type == vma_type_e::stack)
+        {
+            vma_heap_or_stack++;
+
+            EXPECT_FALSE(name);
+            EXPECT_EQ(core.os->vm_area_access(*bash, vm_area), VMA_ACCESS_READ + VMA_ACCESS_WRITE);
+        }
+
+        if(type == vma_type_e::module && span && span->addr && span->size)
+        {
+            const auto mod = core.os->mod_find(*bash, span->addr + span->size / 2);
+            EXPECT_TRUE(mod);
+
+            if(mod && name)
+                EXPECT_EQ(*name, core.os->mod_name(*bash, *mod));
+        }
+
+        if(type == vma_type_e::main_binary && name)
+            EXPECT_EQ(*name, "dash");
+
+        return WALK_NEXT;
+    });
+    EXPECT_EQ(vma_heap_or_stack, 2);
+
+    int mod_list_counter = 0;
+    opt<std::string> last_mod_name;
+    bool first_mod = true;
+    core.os->mod_list(*bash, [&](mod_t mod)
+    {
+        EXPECT_NE(mod.id, 0);
+        if(!mod.id)
+            return WALK_NEXT;
+
+        mod_list_counter++;
+
+        const auto span = core.os->mod_span(*bash, mod);
+        EXPECT_TRUE(span);
+        if(span)
+        {
+            EXPECT_NE(span->addr, 0);
+            EXPECT_FALSE(core.os->is_kernel_address(span->addr));
+            EXPECT_NE(span->size, 0);
+        }
+
+        const auto last_mod_name = core.os->mod_name(*bash, mod);
+        EXPECT_TRUE(last_mod_name);
+
+        if(first_mod)
+        {
+            first_mod = false;
+            if(last_mod_name)
+                EXPECT_EQ(*last_mod_name, "dash");
+        }
+
+        return WALK_NEXT;
+    });
+    ASSERT_EQ(mod_list_counter, 3);
+
+    if(last_mod_name)
+        ASSERT_EQ(last_mod_name->substr(0, 3), "ld-");
+}
