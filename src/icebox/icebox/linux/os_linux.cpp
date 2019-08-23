@@ -126,7 +126,6 @@ namespace
         VMAREASTRUCT_VMEND,
         VMAREASTRUCT_VMNEXT,
         VMAREASTRUCT_VMFILE,
-        VMAREASTRUCT_VMPGOFF,
         VMAREASTRUCT_VMFLAGS,
         FILE_FPATH,
         PATH_DENTRY,
@@ -171,7 +170,6 @@ namespace
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMEND,			"kernel_struct",	"vm_area_struct",	"vm_end"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMNEXT,		"kernel_struct",	"vm_area_struct",	"vm_next"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMFILE,		"kernel_struct",	"vm_area_struct",	"vm_file"		},
-			{cat_e::REQUIRED,	VMAREASTRUCT_VMPGOFF,		"kernel_struct",	"vm_area_struct",	"vm_pgoff"		},
 			{cat_e::REQUIRED,	VMAREASTRUCT_VMFLAGS,		"kernel_struct",	"vm_area_struct",	"vm_flags"		},
 			{cat_e::REQUIRED,	FILE_FPATH,					"kernel_struct",	"file",				"f_path"		},
 			{cat_e::REQUIRED,	PATH_DENTRY,				"kernel_struct",	"path",				"dentry"		},
@@ -1017,21 +1015,17 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
     flags_e flag = proc_flags(proc);
 
     bool loader_found_or_stopped_before = false;
-    opt<uint64_t> last_file             = {};
+    uint64_t last_file                  = 0;
     const auto ok                       = vm_area_list(proc, [&](vm_area_t vm_area)
     {
         const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
-            LOG(ERROR, "unable to read mmap->vm_file of process {:#x}", proc.id);
+        {
+            loader_found_or_stopped_before = true;
+            return FAIL(WALK_STOP, "unable to read mmap->vm_file of process {:#x}", proc.id);
+        }
 
-        if(!file || !*file || (last_file && file == last_file)) // error reading OR anonymous module OR same mod as last one
-            return WALK_NEXT;
-
-        const auto offset = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMPGOFF]);
-        if(!offset)
-            LOG(ERROR, "unable to read mmap->vm_pgoff of process {:#x}", proc.id);
-
-        if(!offset || *offset) // error or not the first section of the module
+        if(!*file || *file == last_file) // anonymous module OR same mod as last one
             return WALK_NEXT;
 
         const auto mod = mod_t{vm_area.id, flag};
@@ -1045,7 +1039,7 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
         if(!name)
         {
             loader_found_or_stopped_before = true;
-            return WALK_STOP;
+            return FAIL(WALK_STOP, "unable to read the name of module {:#x}", mod.id);
         }
         if(name->substr(0, 3) == "ld-") // loader module
         {
@@ -1055,7 +1049,7 @@ bool OsLinux::mod_list(proc_t proc, on_mod_fn on_module)
             return WALK_STOP;
         }
 
-        last_file = file;
+        last_file = *file;
         return WALK_NEXT;
     });
 
