@@ -100,6 +100,7 @@ TEST_F(Win10Test, processes)
     EXPECT_NE(id, 0u);
     EXPECT_NE(dtb, 0u);
     EXPECT_NE(pid, 0u);
+    UNUSED(flags);
 
     const auto proc = core.os->proc_find(pid);
     EXPECT_TRUE(!!proc);
@@ -189,6 +190,7 @@ TEST_F(Win10Test, modules)
     EXPECT_NE(id, 0u);
     EXPECT_NE(addr, 0u);
     EXPECT_GT(size, 0u);
+    UNUSED(flags);
 
     const auto want = addr + (size >> 1);
     const auto mod  = core.os->mod_find(*proc, want);
