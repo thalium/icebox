@@ -526,7 +526,7 @@ bool OsLinux::setup()
         return false;
     LOG(INFO, "address of per_cpu_area : {:#x}", per_cpu);
 
-    auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
+    set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
         auto reader      = reader::make(core_);
         reader.kdtb_.val = kpgd;
@@ -539,7 +539,7 @@ bool OsLinux::setup()
     auto pattern      = std::regex{R"(^Linux version ((?:\.?\d+)+))"};
     auto match        = std::smatch{};
     bool firstattempt = true;
-    ok                = find_linux_banner(*this, [&](uint64_t candidate)
+    auto ok           = find_linux_banner(*this, [&](uint64_t candidate)
     {
         if(firstattempt)
             firstattempt = false;

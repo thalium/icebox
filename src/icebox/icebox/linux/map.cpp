@@ -26,12 +26,12 @@ sym::Map::Map(fs::path path)
 
 namespace
 {
-    const auto ModCursor_order_address = [&](const sym::ModCursor& a, const sym::ModCursor& b)
+    const auto ModCursor_order_address = [](const sym::ModCursor& a, const sym::ModCursor& b)
     {
         return a.offset < b.offset;
     };
 
-    const auto ModCursor_order_name = [&](const sym::ModCursor& a, const sym::ModCursor& b)
+    const auto ModCursor_order_name = [](const sym::ModCursor& a, const sym::ModCursor& b)
     {
         return a.symbol < b.symbol;
     };
@@ -151,7 +151,7 @@ bool sym::Map::sym_list(sym::on_sym_fn on_sym)
     if(!check_setup())
         return false;
 
-    for(const auto cursor : cursors_by_address)
+    for(const auto& cursor : cursors_by_address)
         if(on_sym(cursor.symbol, cursor.offset + *aslr) == WALK_STOP)
             return true;
 

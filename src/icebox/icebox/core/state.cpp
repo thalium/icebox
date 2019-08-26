@@ -478,6 +478,7 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
         return;
 
     auto bps = std::vector<core::Breakpoint>{};
+    bps.reserve(ptrs.size());
     for(const uint64_t& ptr : ptrs)
         bps.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
 
