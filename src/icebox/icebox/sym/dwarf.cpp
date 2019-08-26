@@ -133,7 +133,7 @@ namespace
     {
         opt<Dwarf_Die> result_member = {};
 
-        const auto ok_readchildren = read_children(p, structure, [&](const Dwarf_Die& member)
+        read_children(p, structure, [&](const Dwarf_Die& member)
         {
             char* name_ptr        = nullptr;
             const auto ok_diename = dwarf_diename(member, &name_ptr, &p.err);

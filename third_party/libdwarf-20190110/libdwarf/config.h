@@ -112,7 +112,9 @@
 /* #undef HAVE___UINT64_T_IN_SGIDEFS_H */
 
 /* Define 1 if sys/types.h defines __uint64_t. */
-//#define HAVE___UINT64_T_IN_SYS_TYPES_H 1
+#ifdef __linux__
+	#define HAVE___UINT64_T_IN_SYS_TYPES_H 1
+#endif
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""

@@ -12,14 +12,19 @@
 #include "sym.hpp"
 
 #include <array>
+#include <iomanip>
 #include <regex>
 #include <sstream>
 #include <unordered_set>
 
 #ifdef _MSC_VER
+#    include <algorithm>
+#    include <functional>
 #    define search                  std::search
 #    define boyer_moore_searcher    std::boyer_moore_searcher
 #else
+#    include <experimental/algorithm>
+#    include <experimental/functional>
 #    define search                  std::experimental::search
 #    define boyer_moore_searcher    std::experimental::make_boyer_moore_searcher
 #endif
@@ -37,10 +42,10 @@ namespace
         bool operator==(const version&);
         bool operator<(const version&);
 
-        bool operator<=(const version&);
-        bool operator>(const version&);
-        bool operator>=(const version&);
-        bool operator!=(const version&);
+        [[maybe_unused]] bool operator<=(const version&);
+        [[maybe_unused]] bool operator>(const version&);
+        [[maybe_unused]] bool operator>=(const version&);
+        [[maybe_unused]] bool operator!=(const version&);
     };
 
     version::version(const std::string& vers)
@@ -78,7 +83,7 @@ namespace
         if(*this == other)
             return false;
 
-        for(int i = 0; i < std::min(nums.size(), other.nums.size()); i++)
+        for(unsigned int i = 0; i < std::min(nums.size(), other.nums.size()); i++)
         {
             if(nums[i] == other.nums[i])
                 continue;
@@ -302,7 +307,7 @@ namespace
         LinuxSymbols   symbols_;
         uint64_t per_cpu = 0;
         uint64_t kpgd    = 0;
-        version kversion = "0";
+        version kversion = version("0");
         uint64_t pt_regs_size;
     };
 }
