@@ -13,8 +13,8 @@ namespace
     struct Dwarf
         : public sym::IMod
     {
-         Dwarf(fs::path filename);
-        ~Dwarf();
+        Dwarf(fs::path filename);
+        ~Dwarf() override;
 
         // methods
         bool setup();
@@ -45,7 +45,7 @@ namespace
             0,                                   // true_path_bufferlen
             DW_DLC_READ,                         // access
             DW_GROUPNUMBER_ANY,                  // groupnumber
-            0,                                   // errhand
+            nullptr,                             // errhand
             nullptr,                             // errarg
             &p.dbg,                              // ret_dbg
             nullptr,                             // reserved1
@@ -94,7 +94,7 @@ namespace
                 break;
 
             Dwarf_Die die = nullptr;
-            ok            = dwarf_siblingof_b(p.dbg, 0, true, &die, &p.err);
+            ok            = dwarf_siblingof_b(p.dbg, nullptr, true, &die, &p.err);
 
             if(ok == DW_DLV_NO_ENTRY)
                 continue;

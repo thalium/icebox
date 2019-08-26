@@ -359,7 +359,7 @@ namespace
         return true;
     }
 
-    static bool set_kernel_page_dir(OsLinux& p, std::function<bool(uint64_t)> check)
+    static bool set_kernel_page_dir(OsLinux& p, const std::function<bool(uint64_t)>& check)
     {
         auto kpgd = p.core_.regs.read(FDP_CR3_REGISTER);
         kpgd &= ~0x1fffull; // clear 12th bits due to meltdown patch
@@ -467,7 +467,7 @@ namespace
         return oss.str();
     }
 
-    static std::string guid(const std::string str) // todo - simplify
+    static std::string guid(const std::string& str) // todo - simplify
     {
         std::vector<unsigned char> vstr(str.data(), str.data() + str.length());
         unsigned char hash[20]; // sha1 length
@@ -545,7 +545,7 @@ bool OsLinux::setup()
         return false;
     LOG(INFO, "address of per_cpu_area : {:#x}", per_cpu);
 
-    auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
+    set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
         auto reader      = reader::make(core_);
         reader.kdtb_.val = kpgd;
@@ -553,10 +553,10 @@ bool OsLinux::setup()
     });
     LOG(INFO, "address of page directory with kernel permissions : {:#x}", kpgd);
 
-    std::regex pattern("^Linux version ((\?:\\.\?\\d+)+)");
+    std::regex pattern(R"(^Linux version ((?:\.?\d+)+))");
     std::smatch match;
     bool firstattempt = true;
-    ok                = find_linux_banner(*this, [&](uint64_t candidate)
+    auto ok           = find_linux_banner(*this, [&](uint64_t candidate)
     {
         if(firstattempt)
             firstattempt = false;

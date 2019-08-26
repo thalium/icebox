@@ -478,6 +478,7 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
         return;
 
     std::vector<core::Breakpoint> bp;
+    bp.reserve(ptrs.size());
     for(const uint64_t& ptr : ptrs)
         bp.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
 
