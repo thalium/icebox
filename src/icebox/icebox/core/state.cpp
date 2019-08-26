@@ -481,8 +481,8 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
     for(const uint64_t& ptr : ptrs)
         bps.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
 
-    int bpid = -1;
-    uint64_t cr3;
+    int bpid     = -1;
+    uint64_t cr3 = 0;
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
     {
         bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);

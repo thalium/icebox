@@ -11,7 +11,9 @@
 #include "mbedtls/sha1.h"
 #include "sym.hpp"
 
+#include <algorithm>
 #include <array>
+#include <functional>
 #include <iomanip>
 #include <regex>
 #include <sstream>
@@ -30,10 +32,10 @@ namespace
         bool operator==(const version&);
         bool operator<(const version&);
 
-        bool operator<=(const version&);
-        bool operator>(const version&);
-        bool operator>=(const version&);
-        bool operator!=(const version&);
+        [[maybe_unused]] bool operator<=(const version&);
+        [[maybe_unused]] bool operator>(const version&);
+        [[maybe_unused]] bool operator>=(const version&);
+        [[maybe_unused]] bool operator!=(const version&);
     };
 
     version::version(const std::string& vers)

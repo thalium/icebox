@@ -10,6 +10,11 @@
 #include <limits>
 #include <sstream>
 
+#define SYSTEM_PAUSE    \
+    if(system("pause")) \
+    {                   \
+    }
+
 std::string thread_pc(const core::Core& core, const thread_t& thread)
 {
     const auto pc = core.os->thread_pc({}, thread);
@@ -207,7 +212,7 @@ void proc_join(core::Core& core, proc_t target, os::join_e mode)
         LOG(ERROR, "no current proc");
 
     printf("\nPress a key to resume VM...\n");
-    system("pause");
+    SYSTEM_PAUSE
     core.state.resume();
 }
 
@@ -219,8 +224,7 @@ int main(int argc, char** argv)
     if(argc != 2)
         return FAIL(-1, "usage: linux <name>");
 
-    auto ret = system("pause");
-    (void) ret;
+    SYSTEM_PAUSE
 
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on {}", name.data());
@@ -231,7 +235,7 @@ int main(int argc, char** argv)
     if(!ok)
         return FAIL(-1, "unable to start core at {}", name.data());
 
-    system("pause");
+    SYSTEM_PAUSE
     printf("\n");
 
     // get list of processes
@@ -256,7 +260,7 @@ int main(int argc, char** argv)
         proc_join(core, *target, os::JOIN_USER_MODE);
 
     printf("\n");
-    system("pause");
+    SYSTEM_PAUSE
     printf("\n");
 
     // get list of drivers
@@ -278,7 +282,7 @@ int main(int argc, char** argv)
     core.state.resume();
 
     printf("\n");
-    system("pause");
+    SYSTEM_PAUSE
     printf("\n");
 
     // get list of vm_area
@@ -290,14 +294,14 @@ int main(int argc, char** argv)
         display_vm_area(core, *target);
 
         printf("\n");
-        system("pause");
+        SYSTEM_PAUSE
 
         printf("\nModules :\n");
         display_mod(core, *target);
     }
 
     printf("\n");
-    system("pause");
+    SYSTEM_PAUSE
     printf("\n");
 
     return 0;

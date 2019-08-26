@@ -16,6 +16,7 @@ Documentations (not last version of API) :
 - add to libdwarf/config.h :
 	- #define \_\_LIBELF_INTERNAL\_\_ 1
 	- typedef long long ssize_t;
+	- #ifdef \_\_linux__ #define HAVE___UINT64_T_IN_SYS_TYPES_H 1 #endif
 
 <br><br>Note on this website :<br>
 By mid-2019 (maybe earlier) the libdwarf functions dwarf_elf_init() and dwarf_elf_init_b() will return errors in all cases. Use dwarf_init(),dwarf_init_b(), or dwarf_init_path() instead (dwarf_init_path() was added in October 2018). This change allows us to delete use of libelf and Elf.h from libdwarf and dwarfdump and that deletion will simplify building libdwarf and dwarfdump for everyone.

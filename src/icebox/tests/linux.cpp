@@ -217,7 +217,7 @@ TEST_F(LinuxTest, drivers)
     int driver_list_counter = 0;
     core.os->driver_list([&](driver_t driver)
     {
-        EXPECT_NE(driver.id, 0);
+        EXPECT_NE(driver.id, 0ull);
         if(!driver.id)
             return WALK_NEXT;
 
@@ -226,15 +226,17 @@ TEST_F(LinuxTest, drivers)
         const auto name = core.os->driver_name(driver);
         EXPECT_TRUE(name);
         if(name)
+        {
             EXPECT_NE(*name, "");
+        }
 
         const auto span = core.os->driver_span(driver);
         EXPECT_TRUE(span);
         if(span)
         {
-            EXPECT_NE(span->addr, 0);
+            EXPECT_NE(span->addr, 0ull);
             EXPECT_TRUE(core.os->is_kernel_address(span->addr));
-            EXPECT_NE(span->size, 0);
+            EXPECT_NE(span->size, 0ull);
         }
 
         return WALK_NEXT;
@@ -249,7 +251,7 @@ namespace
         int vma_heap_or_stack = 0;
         core.os->vm_area_list(proc, [&](vm_area_t vm_area)
         {
-            EXPECT_NE(vm_area.id, 0);
+            EXPECT_NE(vm_area.id, 0ull);
             if(!vm_area.id)
                 return WALK_NEXT;
 
@@ -257,9 +259,9 @@ namespace
             EXPECT_TRUE(span);
             if(span)
             {
-                EXPECT_NE(span->addr, 0);
+                EXPECT_NE(span->addr, 0ull);
                 EXPECT_FALSE(core.os->is_kernel_address(span->addr));
-                EXPECT_NE(span->size, 0);
+                EXPECT_NE(span->size, 0ull);
             }
 
             const auto name = core.os->vm_area_name(proc, vm_area);
@@ -279,11 +281,15 @@ namespace
                 EXPECT_TRUE(mod);
 
                 if(mod && name)
+                {
                     EXPECT_EQ(*name, core.os->mod_name(proc, *mod));
+                }
             }
 
             if(type == vma_type_e::main_binary && name)
+            {
                 EXPECT_EQ(*name, proc_name);
+            }
 
             return WALK_NEXT;
         });
@@ -294,7 +300,7 @@ namespace
         bool first_mod = true;
         core.os->mod_list(proc, [&](mod_t mod)
         {
-            EXPECT_NE(mod.id, 0);
+            EXPECT_NE(mod.id, 0ull);
             if(!mod.id)
                 return WALK_NEXT;
 
@@ -304,9 +310,9 @@ namespace
             EXPECT_TRUE(span);
             if(span)
             {
-                EXPECT_NE(span->addr, 0);
+                EXPECT_NE(span->addr, 0ull);
                 EXPECT_FALSE(core.os->is_kernel_address(span->addr));
-                EXPECT_NE(span->size, 0);
+                EXPECT_NE(span->size, 0ull);
             }
 
             const auto last_mod_name = core.os->mod_name(proc, mod);
@@ -316,7 +322,9 @@ namespace
             {
                 first_mod = false;
                 if(last_mod_name)
+                {
                     EXPECT_EQ(*last_mod_name, proc_name);
+                }
             }
 
             return WALK_NEXT;
@@ -324,7 +332,9 @@ namespace
         ASSERT_EQ(mod_list_counter, nb_mod);
 
         if(last_mod_name)
+        {
             ASSERT_EQ(last_mod_name->substr(0, 3), "ld-");
+        }
     }
 }
 

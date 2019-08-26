@@ -1,6 +1,7 @@
 #define FDP_MODULE "tests_common"
 
 #include <chrono>
+#include <iomanip>
 #include <random>
 #include <thread>
 
