@@ -526,7 +526,7 @@ bool OsLinux::setup()
         return false;
     LOG(INFO, "address of per_cpu_area : {:#x}", per_cpu);
 
-    set_kernel_page_dir(*this, [&](uint64_t kpgd)
+    auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
         auto reader      = reader::make(core_);
         reader.kdtb_.val = kpgd;
@@ -534,12 +534,12 @@ bool OsLinux::setup()
     });
     if(!ok)
         return FAIL(false, "unable to read kernel DTB");
-    
+
     LOG(INFO, "address of page directory with kernel permissions : {:#x}", kpgd);
     auto pattern      = std::regex{R"(^Linux version ((?:\.?\d+)+))"};
     auto match        = std::smatch{};
     bool firstattempt = true;
-    auto ok           = find_linux_banner(*this, [&](uint64_t candidate)
+    ok                = find_linux_banner(*this, [&](uint64_t candidate)
     {
         if(firstattempt)
             firstattempt = false;
