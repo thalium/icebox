@@ -111,6 +111,13 @@ get_files(libdwarf_files "${libdwarf_dir}")
 filter_out(libdwarf_files "dwarf_test_errmsg_list\.c")
 make_target(libdwarf third_party ${libdwarf_files} OPTIONS external)
 target_link_libraries(libdwarf PRIVATE libelf)
+if(NOT WIN32)
+    target_compile_definitions(libdwarf PRIVATE
+        HAVE_SYS_TYPES_H
+        HAVE___UINT32_T_IN_SYS_TYPES_H
+        HAVE___UINT64_T_IN_SYS_TYPES_H
+    )
+endif()
 target_include_directories(libdwarf PUBLIC
     "${libdwarf_dir}"
 )

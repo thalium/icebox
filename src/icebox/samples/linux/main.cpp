@@ -5,6 +5,7 @@
 #include <icebox/sym.hpp>
 #include <icebox/utils/fnview.hpp>
 
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -97,7 +98,8 @@ int main(int argc, char** argv)
     if(argc != 2)
         return FAIL(-1, "usage: linux <name>");
 
-    system("pause");
+    auto ret = system("pause");
+    (void) ret;
 
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on {}", name.data());
@@ -108,7 +110,8 @@ int main(int argc, char** argv)
     if(!ok)
         return FAIL(-1, "unable to start core at {}", name.data());
 
-    system("pause");
+    ret = system("pause");
+    (void) ret;
 
     // get list of drivers
     core.os->driver_list([&](driver_t driver)
@@ -126,7 +129,8 @@ int main(int argc, char** argv)
         return WALK_NEXT;
     });
 
-    system("pause");
+    ret = system("pause");
+    (void) ret;
 
     // get list of processes
     core.state.pause();

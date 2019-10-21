@@ -12,17 +12,10 @@
 #include "sym.hpp"
 
 #include <array>
+#include <iomanip>
 #include <regex>
 #include <sstream>
 #include <unordered_set>
-
-#ifdef _MSC_VER
-#    define search                  std::search
-#    define boyer_moore_searcher    std::boyer_moore_searcher
-#else
-#    define search                  std::experimental::search
-#    define boyer_moore_searcher    std::experimental::make_boyer_moore_searcher
-#endif
 
 namespace
 {
@@ -78,7 +71,7 @@ namespace
         if(*this == other)
             return false;
 
-        for(int i = 0; i < std::min(nums.size(), other.nums.size()); i++)
+        for(size_t i = 0; i < std::min(nums.size(), other.nums.size()); i++)
         {
             if(nums[i] == other.nums[i])
                 continue;
@@ -95,16 +88,6 @@ namespace
     bool version::operator>=(const version& other)
     {
         return (*this > other) | (*this == other);
-    }
-
-    bool version::operator<=(const version& other)
-    {
-        return (*this < other) | (*this == other);
-    }
-
-    bool version::operator!=(const version& other)
-    {
-        return !(*this == other);
     }
 }
 
@@ -272,7 +255,7 @@ namespace
         LinuxSymbols   symbols_;
         uint64_t per_cpu = 0;
         uint64_t kpgd    = 0;
-        version kversion = "0";
+        version  kversion = {"0"};
         uint64_t pt_regs_size;
     };
 }
@@ -324,7 +307,8 @@ namespace
         return true;
     }
 
-    static bool set_kernel_page_dir(OsLinux& p, std::function<bool(uint64_t)> check)
+    template <typename T>
+    static bool set_kernel_page_dir(OsLinux& p, T check)
     {
         auto kpgd = p.core_.regs.read(FDP_CR3_REGISTER);
         kpgd &= ~0x1fffull; // clear 12th bits due to meltdown patch
@@ -347,7 +331,7 @@ namespace
 
         const char target[] = {'L', 'i', 'n', 'u', 'x', ' ', 'v', 'e', 'r', 's', 'i', 'o', 'n'};
         // compability was checked for kernel from 2.6.12 (2005) to 5.1.2 (2019)
-        const auto pattern = boyer_moore_searcher(std::begin(target), std::end(target));
+        const auto pattern = std::boyer_moore_searcher(std::begin(target), std::end(target));
 
         std::vector<char> buffer(PAGE_SIZE + sizeof target);
 
@@ -362,7 +346,7 @@ namespace
         {
             if(p.reader_.read(&buffer[sizeof target], offset, PAGE_SIZE))
             {
-                const auto match = search(buffer_begin, buffer_afterend, pattern);
+                const auto match = std::search(buffer_begin, buffer_afterend, pattern);
                 if(match != buffer_afterend)
                     if(on_candidate((offset + (match - buffer_begin)) - sizeof target) == WALK_STOP)
                         return true;
@@ -425,7 +409,7 @@ namespace
         return oss.str();
     }
 
-    static std::string guid(const std::string str) // todo - simplify
+    static std::string guid(const std::string& str) // todo - simplify
     {
         std::vector<unsigned char> vstr(str.data(), str.data() + str.length());
         unsigned char hash[20]; // sha1 length
@@ -506,11 +490,13 @@ bool OsLinux::setup()
     {
         auto reader      = reader::make(core_);
         reader.kdtb_.val = kpgd;
-        return (!!reader.read(per_cpu));
+        return !!reader.read(per_cpu);
     });
+    if(!ok)
+        return FAIL(false, "unable to read kernel DTB");
 
-    std::regex pattern("^Linux version ((\?:\\.\?\\d+)+)");
-    std::smatch match;
+    auto pattern      = std::regex{R"(^Linux version ((?:\.?\d+)+))"};
+    auto match        = std::smatch{};
     bool firstattempt = true;
     ok                = find_linux_banner(*this, [&](uint64_t candidate)
     {

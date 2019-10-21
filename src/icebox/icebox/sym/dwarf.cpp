@@ -13,8 +13,8 @@ namespace
     struct Dwarf
         : public sym::IMod
     {
-         Dwarf(fs::path filename);
-        ~Dwarf();
+        Dwarf(fs::path filename);
+        ~Dwarf() override;
 
         // methods
         bool setup();
@@ -45,7 +45,7 @@ namespace
             0,                                   // true_path_bufferlen
             DW_DLC_READ,                         // access
             DW_GROUPNUMBER_ANY,                  // groupnumber
-            0,                                   // errhand
+            nullptr,                             // errhand
             nullptr,                             // errarg
             &p.dbg,                              // ret_dbg
             nullptr,                             // reserved1
@@ -94,7 +94,7 @@ namespace
                 break;
 
             Dwarf_Die die = nullptr;
-            ok            = dwarf_siblingof_b(p.dbg, 0, true, &die, &p.err);
+            ok            = dwarf_siblingof_b(p.dbg, nullptr, true, &die, &p.err);
 
             if(ok == DW_DLV_NO_ENTRY)
                 continue;
@@ -132,8 +132,7 @@ namespace
     static opt<Dwarf_Die> get_member(Dwarf& p, const std::string& name, const Dwarf_Die& structure)
     {
         opt<Dwarf_Die> result_member = {};
-
-        const auto ok_readchildren = read_children(p, structure, [&](const Dwarf_Die& member)
+        read_children(p, structure, [&](const Dwarf_Die& member)
         {
             char* name_ptr        = nullptr;
             const auto ok_diename = dwarf_diename(member, &name_ptr, &p.err);
@@ -180,7 +179,6 @@ namespace
             }
             return WALK_NEXT;
         });
-
         return result_member;
     }
 

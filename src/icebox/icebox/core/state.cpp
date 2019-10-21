@@ -477,12 +477,12 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
     if((bp_cr3 == BP_CR3_NONE) & ptrs.empty())
         return;
 
-    std::vector<core::Breakpoint> bp;
+    auto bps = std::vector<core::Breakpoint>{};
     for(const uint64_t& ptr : ptrs)
-        bp.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
+        bps.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
 
     int bpid = -1;
-    dtb_t cr3;
+    auto cr3 = dtb_t{};
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
     {
         bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
@@ -497,7 +497,7 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
 
     run_until(d, [&]
     {
-        if(!ptrs.count(d.breakstate.rip) & (bp_cr3 == BP_CR3_NONE || cr3.val == d.breakstate.dtb.val))
+        if(!ptrs.count(d.breakstate.rip) && (bp_cr3 == BP_CR3_NONE || cr3.val == d.breakstate.dtb.val))
             return false; // WALK_NEXT
 
         if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3.val != d.breakstate.dtb.val)

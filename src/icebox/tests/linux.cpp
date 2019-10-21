@@ -91,7 +91,7 @@ TEST_F(LinuxTest, processes)
     bool proc_list_empty = true;
     core.os->proc_list([&](proc_t proc)
     {
-        EXPECT_NE(proc.id, 0);
+        EXPECT_NE(proc.id, 0u);
         if(!proc.id)
             return WALK_NEXT;
 
@@ -101,13 +101,17 @@ TEST_F(LinuxTest, processes)
         EXPECT_TRUE(name && !name->empty());
 
         if(name && *name == UTILITY_NAME)
+        {
             EXPECT_EQ(core.os->proc_flags(proc), FLAGS_32BIT);
+        }
 
         const auto pid = core.os->proc_id(proc);
-        EXPECT_TRUE(pid <= 4194304); // PID <= 4194304 for linux
+        EXPECT_LE(pid, 4194304u); // PID <= 4194304 for linux
 
         if(pid <= 1) // swapper and systemd/initrd
+        {
             EXPECT_EQ(core.os->proc_flags(proc), FLAGS_NONE);
+        }
 
         opt<proc_t> children = proc;
         auto children_pid    = pid;
@@ -120,7 +124,7 @@ TEST_F(LinuxTest, processes)
 
             children_pid = core.os->proc_id(*children);
         }
-        EXPECT_EQ(children_pid, 0);
+        EXPECT_EQ(children_pid, 0u);
 
         return WALK_NEXT;
     });
@@ -140,7 +144,9 @@ TEST_F(LinuxTest, processes)
         const auto name = core.os->proc_name(*utility_find_by_name);
         EXPECT_TRUE(name);
         if(name)
+        {
             EXPECT_EQ(*name, UTILITY_NAME);
+        }
     }
 
     ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*child, os::JOIN_ANY_MODE), 5 * SECOND_NS);
@@ -169,7 +175,9 @@ TEST_F(LinuxTest, threads)
     const auto current_pc = core.os->thread_pc({}, *current);
     EXPECT_TRUE(current_pc && *current_pc);
     if(current_pc)
+    {
         EXPECT_EQ(current_pc, core.regs.read(FDP_RIP_REGISTER));
+    }
 
     const auto child = utility_child(core);
     ASSERT_TRUE(child && child->id && child->dtb.val);
@@ -177,7 +185,7 @@ TEST_F(LinuxTest, threads)
     int thread_list_counter = 0;
     core.os->thread_list(*child, [&](thread_t thread)
     {
-        EXPECT_NE(thread.id, 0);
+        EXPECT_NE(thread.id, 0u);
         if(!thread.id)
             return WALK_NEXT;
 
@@ -195,7 +203,9 @@ TEST_F(LinuxTest, threads)
         EXPECT_TRUE(pc && *pc);
         if(pc)
             if(thread.id != current->id)
+            {
                 EXPECT_TRUE(core.os->is_kernel_address(*pc));
+            }
 
         return WALK_NEXT;
     });
