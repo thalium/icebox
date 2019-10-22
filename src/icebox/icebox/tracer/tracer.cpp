@@ -6,6 +6,8 @@
 #include "os.hpp"
 #include "types.hpp"
 
+#include <fmt/format.h>
+
 #include <vector>
 
 namespace
@@ -39,5 +41,5 @@ void tracer::log_call(core::Core& core, const tracer::callcfg_t& call)
     args.reserve(call.argc);
     for(size_t i = 0; i < call.argc; ++i)
         args.emplace_back(fmt::format("{}:{:#x}", call.args[i].name, read_arg(core, i, call.args[i].size)));
-    LOG(INFO, "{}({})", call.name, join(args, ", "));
+    LOG(INFO, "%s(%s)", call.name, join(args, ", ").data());
 }

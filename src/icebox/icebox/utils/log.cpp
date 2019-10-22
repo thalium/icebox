@@ -3,6 +3,9 @@
 
 #include <loguru.hpp>
 
+#include <cstdarg>
+#include <cstdio>
+
 void logg::init(int argc, char** argv)
 {
     loguru::g_preamble_uptime = false;
@@ -12,16 +15,27 @@ void logg::init(int argc, char** argv)
     loguru::init(argc, argv);
 }
 
-void logg::print(logg::level_t level, std::string_view arg)
+#ifdef _MSC_VER
+#    define FMT_VSNPRINTF vsprintf_s
+#else
+#    define FMT_VSNPRINTF vsnprintf
+#endif
+
+void logg::print(logg::level_t level, const char* fmt, ...)
 {
+    char    buffer[4096];
+    va_list args;
+    va_start(args, fmt);
+    FMT_VSNPRINTF(buffer, sizeof buffer, fmt, args);
+    va_end(args);
     switch(level)
     {
         case level_t::info:
-            LOG_F(INFO, "%s", arg.data());
+            LOG_F(INFO, "%s", buffer);
             return;
 
         case level_t::error:
-            LOG_F(ERROR, "%s", arg.data());
+            LOG_F(ERROR, "%s", buffer);
             return;
     }
 }

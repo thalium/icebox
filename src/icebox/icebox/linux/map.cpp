@@ -47,7 +47,7 @@ bool sym::Map::setup()
 
     filestream = std::ifstream(filename.generic_string().data());
     if(!filestream)
-        return FAIL(false, "unable to open {}", filename.generic_string());
+        return FAIL(false, "unable to open %s", filename.generic_string().data());
 
     std::string    row;
     std::string    str_offset;
@@ -57,12 +57,12 @@ bool sym::Map::setup()
     while(std::getline(filestream, row))
     {
         if(!(std::istringstream(row) >> str_offset >> type >> cursor.symbol))
-            return FAIL(false, "unable to parse row '{}' in file {}", row, filename.generic_string());
+            return FAIL(false, "unable to parse row '%s' in file %s", row.data(), filename.generic_string().data());
 
         std::istringstream iss_offset(str_offset);
         iss_offset >> std::hex;
         if(!(iss_offset >> cursor.offset))
-            return FAIL(false, "unable to parse hex '{}' in file {}", str_offset, filename.generic_string());
+            return FAIL(false, "unable to parse hex '%s' in file %s", str_offset.data(), filename.generic_string().data());
 
         cursors_by_address.push_back(cursor);
         cursors_by_name.push_back(cursor);
@@ -83,7 +83,7 @@ bool sym::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
     if(!addrSymbol)
     {
         aslr = {};
-        return FAIL(false, "unable to find symbol {}", strSymbol);
+        return FAIL(false, "unable to find symbol %s", strSymbol.data());
     }
 
     aslr = addr - *addrSymbol;
@@ -141,7 +141,7 @@ opt<uint64_t> sym::Map::symbol(const std::string& symbol)
         return {};
 
     if(itrCursor.first != (itrCursor.second - 1))
-        LOG(WARNING, "The symbol {} has been found multiple times", symbol);
+        LOG(WARNING, "The symbol %s has been found multiple times", symbol.data());
 
     return itrCursor.first->offset + *aslr;
 }

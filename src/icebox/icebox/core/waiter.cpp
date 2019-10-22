@@ -9,6 +9,7 @@
 #ifdef _MSC_VER
 #    define stricmp _stricmp
 #else
+#    include <strings.h>
 #    define stricmp strcasecmp
 #endif
 
@@ -57,7 +58,7 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
         if(!name)
             return;
 
-        LOG(INFO, "proc started: {}", name->data());
+        LOG(INFO, "proc started: %s", name->data());
         if(*name == proc_name)
             found = proc;
     });

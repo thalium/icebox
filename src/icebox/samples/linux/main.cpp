@@ -44,11 +44,18 @@ void display_thread(const core::Core& core, const thread_t& thread)
 {
     const auto thread_id = core.os->thread_id({}, thread);
 
-    LOG(INFO, "thread : {:#x}  id:{} {} {}",
+    LOG(INFO, "thread : 0x%" PRIx64 "  id:%s %s %s",
         thread.id,
-        (thread_id <= 4194304) ? std::to_string(thread_id).append(7 - std::to_string(thread_id).length(), ' ') : "no",
-        std::string("").append(39, ' '),
-        thread_pc(core, thread));
+        thread_id <= 4194304 ? std::to_string(thread_id).append(7 - std::to_string(thread_id).length(), ' ').data() : "no",
+        std::string("").append(39, ' ').data(),
+        thread_pc(core, thread).data());
+}
+
+const std::string pad_with(const std::string& arg, int pad)
+{
+    const auto need = std::max(0, pad - static_cast<int>(arg.size()));
+    auto reply      = arg;
+    return reply.append(need, ' ');
 }
 
 void display_proc(const core::Core& core, const proc_t& proc)
@@ -82,17 +89,16 @@ void display_proc(const core::Core& core, const proc_t& proc)
     if(!proc_name)
         proc_name = "<noname>";
 
-    LOG(INFO, "process: {:#x} pid:{} parent:{} {} '{}'{}   {} {} pgd:{:#x}{}",
+    LOG(INFO, "process: 0x%" PRIx64 " pid:%s parent:%s %s %s   %s %s pgd:0x%" PRIx64 "%s",
         proc.id,
-        (proc_pid <= 4194304) ? std::to_string(proc_pid).append(7 - std::to_string(proc_pid).length(), ' ') : "no     ",
-        (proc_parent_pid <= 4194304) ? std::to_string(proc_parent_pid).append(7 - std::to_string(proc_parent_pid).length(), ' ') : "error  ",
-        (proc_32bits) ? "x86" : "x64",
-        (*proc_name),
-        std::string(16 - (*proc_name).length(), ' '),
-        leader_thread_pc,
-        (threads_count > 0) ? "+" + std::to_string(threads_count) + " threads (" + threads + ")" : "",
+        pad_with(proc_pid <= 4194304 ? std::to_string(proc_pid) : "no", 7).data(),
+        pad_with(proc_parent_pid <= 4194304 ? std::to_string(proc_parent_pid) : "error", 7).data(),
+        proc_32bits ? "x86" : "x64",
+        pad_with(*proc_name, 16).data(),
+        leader_thread_pc.data(),
+        threads_count > 0 ? ("+" + std::to_string(threads_count) + " threads (" + threads + ")").data() : "",
         proc.dtb.val,
-        (proc.dtb.val) ? "" : " (kernel)");
+        proc.dtb.val ? "" : " (kernel)");
 }
 
 void display_mod(core::Core& core, const proc_t& proc)
@@ -105,10 +111,10 @@ void display_mod(core::Core& core, const proc_t& proc)
         if(!name)
             name = "<no-name>";
 
-        LOG(INFO, "module: {:#x} {} {} {} bytes",
+        LOG(INFO, "module: 0x%" PRIx64 " %s %s %zd bytes",
             span->addr,
-            (*name).append(32 - name->length(), ' '),
-            (mod.flags & FLAGS_32BIT) ? "x86" : "x64",
+            name->append(32 - name->length(), ' ').data(),
+            mod.flags & FLAGS_32BIT ? "x86" : "x64",
             span->size);
 
         return WALK_NEXT;
@@ -146,12 +152,12 @@ void display_vm_area(core::Core& core, const proc_t& proc)
         if(!name)
             name = "";
 
-        LOG(INFO, "vm_area: {:#x}-{:#x} {} {} {}",
-            (span) ? span->addr : 0,
-            (span) ? span->addr + span->size : 0,
-            access_str,
-            type_str,
-            *name);
+        LOG(INFO, "vm_area: 0x%" PRIx64 "-0x%" PRIx64 " %s %s %s",
+            span ? span->addr : 0,
+            span ? span->addr + span->size : 0,
+            access_str.data(),
+            type_str.data(),
+            name->data());
 
         return WALK_NEXT;
     });
@@ -182,7 +188,7 @@ opt<proc_t> select_process(core::Core& core)
         if(target)
             return *target;
 
-        LOG(ERROR, "unable to find a process with PID {}", pid);
+        LOG(ERROR, "unable to find a process with PID %d", pid);
     }
 }
 
@@ -227,13 +233,13 @@ int main(int argc, char** argv)
     SYSTEM_PAUSE
 
     const auto name = std::string{argv[1]};
-    LOG(INFO, "starting on {}", name.data());
+    LOG(INFO, "starting on %s", name.data());
 
     core::Core core;
     const auto ok = core.setup(name);
     core.state.resume();
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at %s", name.data());
 
     SYSTEM_PAUSE
     printf("\n");
@@ -272,9 +278,9 @@ int main(int argc, char** argv)
         if(!name)
             name = "<no-name>";
 
-        LOG(INFO, "driver: {:#x} {} {} bytes",
+        LOG(INFO, "driver: 0x%" PRIx64 " %s %zd bytes",
             span->addr,
-            (*name).append(32 - name->length(), ' '),
+            name->append(32 - name->length(), ' ').data(),
             span->size);
 
         return WALK_NEXT;

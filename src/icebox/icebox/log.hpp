@@ -1,7 +1,5 @@
 #pragma once
 
-#include <fmt/format.h>
-
 #ifndef FDP_MODULE
 #    error "missing FDP_MODULE define"
 #endif
@@ -15,13 +13,15 @@ namespace logg
     };
 
     void    init    (int argc, char** argv);
-    void    print   (level_t level, std::string_view arg);
+    void    print   (level_t level, const char* fmt, ...);
 } // namespace logg
 
-#define LOG_WITH(LEVEL, FMT, ...)                                                          \
-    do                                                                                     \
-    {                                                                                      \
-        logg::print((LEVEL), fmt::format(FMT_STRING(FDP_MODULE ": " FMT), ##__VA_ARGS__)); \
+#define LOG_WITH(LEVEL, FMT, ...)                                 \
+    do                                                            \
+    {                                                             \
+        if(false)                                                 \
+            printf((FMT), ##__VA_ARGS__);                         \
+        logg::print((LEVEL), FDP_MODULE ": " FMT, ##__VA_ARGS__); \
     } while(0)
 
 #define LOG(LEVEL, FMT, ...) LOG_WITH(logg::level_t::info, FMT, ##__VA_ARGS__)

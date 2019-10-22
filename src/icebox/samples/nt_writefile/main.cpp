@@ -9,17 +9,19 @@
 #include <icebox/utils/path.hpp>
 #include <icebox/waiter.hpp>
 
+#include <string>
+
 namespace
 {
     static bool read_file(std::vector<uint8_t>& dst, const reader::Reader& reader, nt::PVOID Buffer, nt::ULONG Length)
     {
         if(Length > 64 * 1024 * 1024)
-            return FAIL(false, "buffer too big size:{}", Length);
+            return FAIL(false, "buffer too big size:%d", Length);
 
         dst.resize(Length);
         const auto ok = reader.read(&dst[0], Buffer, Length);
         if(!ok)
-            return FAIL(false, "unable to read range:{:#x}-{:#x}", Buffer, Buffer + Length);
+            return FAIL(false, "unable to read range:0x%" PRIx64 "-0x%" PRIx64, Buffer, Buffer + Length);
 
         return true;
     }
@@ -28,23 +30,23 @@ namespace
     {
         const auto file = objects.file_read(FileHandle);
         if(!file)
-            return FAIL(ext::nullopt, "unable to read object {:#x}", FileHandle);
+            return FAIL(ext::nullopt, "unable to read object 0x%" PRIx64, FileHandle);
 
         const auto filename = objects.file_name(*file);
         if(!filename)
-            return FAIL(ext::nullopt, "unable to read filename from object {:#x}", file->id);
+            return FAIL(ext::nullopt, "unable to read filename from object 0x%" PRIx64, file->id);
 
         return *filename;
     }
 
-    static int listen_writefile(core::Core& core, std::string_view target)
+    static int listen_writefile(core::Core& core, const std::string& target)
     {
-        LOG(INFO, "waiting for {}...", target);
+        LOG(INFO, "waiting for %s...", target.data());
         const auto proc = waiter::proc_wait(core, target, FLAGS_NONE);
         if(!proc)
-            return FAIL(-1, "unable to wait for {}", target);
+            return FAIL(-1, "unable to wait for %s", target.data());
 
-        LOG(INFO, "process {} active", target);
+        LOG(INFO, "process %s active", target.data());
         const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
@@ -68,10 +70,10 @@ namespace
             if(!filename || !read)
                 return;
 
-            LOG(INFO, "{}: {} byte(s)", *filename, Length);
+            LOG(INFO, "%s: %d byte(s)", filename->data(), Length);
             const auto ext = fs::path(*filename).extension().generic_string();
             const auto dst = path::filename(*filename).replace_extension(std::to_string(idx) + ext);
-            LOG(INFO, "dumping {}: {} byte(s)...", dst.generic_string(), buffer.size());
+            LOG(INFO, "dumping %s: %" PRId64 " byte(s)...", dst.generic_string().data(), buffer.size());
             file::write(dst, &buffer[0], buffer.size());
         });
 
@@ -96,13 +98,13 @@ int main(int argc, char** argv)
         return FAIL(-1, "usage: nt_writefile <name> <process_name>");
 
     const auto name   = std::string{argv[1]};
-    const auto target = std::string_view{argv[2]};
-    LOG(INFO, "starting on {}", name.data());
+    const auto target = std::string{argv[2]};
+    LOG(INFO, "starting on %s", name.data());
 
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at %s", name.data());
 
     core.state.pause();
     const auto ret = listen_writefile(core, target);

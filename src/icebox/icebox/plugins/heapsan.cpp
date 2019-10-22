@@ -261,7 +261,7 @@ namespace
             if(!cursor)
                 cursor = sym::Cursor{"_", "_", cstep.addr};
 
-            LOG(INFO, "{:>3} - {:#x}- {}", cs_size, cstep.addr, sym::to_string(*cursor).data());
+            LOG(INFO, "%-3" PRIx64 " - 0x%" PRIx64 "- %s", cs_size, cstep.addr, sym::to_string(*cursor).data());
 
             cs_size++;
             if(cs_size < cs_depth)

@@ -107,7 +107,7 @@ bool Pdb::setup()
 {
     const auto err = pdb_.load_pdb_file(filename_.generic_string().data());
     if(err != pdb::PDB_STATE_OK)
-        return FAIL(false, "unable to open pdb {}: {}", filename_.generic_string().data(), to_string(err));
+        return FAIL(false, "unable to open pdb %s: %s", filename_.generic_string().data(), to_string(err));
 
     pdb_.initialize(BASE_ADDRESS);
     const auto globals = pdb_.get_global_variables();
@@ -272,6 +272,6 @@ std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const void* data, const si
     if(!pdb)
         return nullptr;
 
-    LOG(INFO, "{} {}", pdb->name.data(), pdb->guid.data());
+    LOG(INFO, "%s %s", pdb->name.data(), pdb->guid.data());
     return make_pdb(span, pdb->name.data(), pdb->guid.data());
 }

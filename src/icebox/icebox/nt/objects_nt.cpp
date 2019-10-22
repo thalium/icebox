@@ -114,7 +114,7 @@ namespace
             if(!addr)
             {
                 fail = true;
-                LOG(INFO, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+                LOG(INFO, "unable to read %s!%s symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
                 continue;
             }
 
@@ -126,7 +126,7 @@ namespace
             if(!offset)
             {
                 fail = true;
-                LOG(INFO, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+                LOG(INFO, "unable to read %s!%s.%s member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
                 continue;
             }
             d.members[i] = *offset;

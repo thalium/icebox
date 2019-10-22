@@ -11,6 +11,7 @@
 #include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
+#include <cstring>
 #include <map>
 #include <thread>
 #include <unordered_map>
@@ -234,7 +235,7 @@ struct core::BreakpointPrivate
 
         const auto ok = fdp::unset_breakpoint(data_.shm, observer_->bpid);
         if(!ok)
-            LOG(ERROR, "unable to remove breakpoint {}", observer_->bpid);
+            LOG(ERROR, "unable to remove breakpoint %d", observer_->bpid);
 
         data_.targets.erase(observer_->phy);
     }

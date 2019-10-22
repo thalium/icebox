@@ -9,12 +9,12 @@ int main(int argc, char** argv)
         return FAIL(-1, "usage: vm_resume <name>");
 
     const auto name = std::string{argv[1]};
-    LOG(INFO, "starting on {}", name.data());
+    LOG(INFO, "starting on %s", name.data());
 
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at %s", name.data());
 
     core.state.pause();
     core.state.resume();

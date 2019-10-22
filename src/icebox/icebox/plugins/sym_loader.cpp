@@ -42,7 +42,7 @@ namespace
 
     static bool load_span_named(Data& d, const reader::Reader& reader, const span_t& span, const std::string& name)
     {
-        LOG(INFO, "{} loaded at {:x}:{:x}", name, span.addr, span.addr + span.size);
+        LOG(INFO, "%s loaded at %" PRIx64 ":%" PRIx64, name.data(), span.addr, span.addr + span.size);
         const auto loaded = load_module_buffer(d, reader, span);
         if(!loaded)
             return false;
@@ -54,7 +54,7 @@ namespace
 
     static bool load_module_named(Data& d, const reader::Reader& reader, proc_t proc, mod_t mod, const std::string& name)
     {
-        LOG(INFO, "loading module {}", name);
+        LOG(INFO, "loading module %s", name.data());
         const auto span = d.core.os->mod_span(proc, mod);
         if(!span)
             return false;
@@ -64,7 +64,7 @@ namespace
 
     static bool load_driver_named(Data& d, const reader::Reader& reader, driver_t drv, const std::string& name)
     {
-        LOG(INFO, "loading driver {}", name);
+        LOG(INFO, "loading driver %s", name.data());
         const auto span = d.core.os->driver_span(drv);
         if(!span)
             return false;
@@ -83,7 +83,7 @@ namespace
 
         const auto loaded = load_module_named(d, reader, proc, mod, *name);
         if(!loaded)
-            return FAIL(false, "unable to load symbols from {}", *name);
+            return FAIL(false, "unable to load symbols from %s", name->data());
 
         return true;
     }
@@ -99,7 +99,7 @@ namespace
 
         const auto loaded = load_driver_named(d, reader, drv, *name);
         if(!loaded)
-            LOG(ERROR, "unable to load symbols from {}", *name);
+            LOG(ERROR, "unable to load symbols from %s", name->data());
     }
 }
 

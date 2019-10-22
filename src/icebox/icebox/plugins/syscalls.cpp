@@ -130,7 +130,7 @@ namespace
                 if(!cursor)
                     cursor = sym::Cursor{"_", "_", cstep.addr};
 
-                LOG(INFO, "{} - {}", cs_size, sym::to_string(*cursor).data());
+                LOG(INFO, "%zd - %s", cs_size, sym::to_string(*cursor).data());
             }
 
             cs_size++;
@@ -171,7 +171,7 @@ bool Data::setup()
         const auto device_obj   = objects_.file_device(*file);
         const auto driver_obj   = objects_.device_driver(*device_obj);
         const auto driver_name  = objects_.driver_name(*driver_obj);
-        LOG(INFO, " File handle; {:#x}, typename : {}, filename : {}, driver_name : {}", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
+        LOG(INFO, " File handle; 0x%" PRIx64 ", typename : %s, filename : %s, driver_name : %s", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
         args_[nb_triggers_]["FileName"] = obj_filename->data();
         args_[nb_triggers_]["Buffer"]   = buf;

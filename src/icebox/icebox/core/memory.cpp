@@ -158,7 +158,7 @@ namespace
         {
             const auto ok = operand(buffer, ptr, sizeof buffer);
             if(!ok)
-                return FAIL(false, "unable to read {} mem {:#x}-{:#x} ({} {:#x} bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+                return FAIL(false, "unable to read %s mem 0x%" PRIx64 "-0x%" PRIx64 " (%zu 0x%zx bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
 
             const auto chunk = std::min(size - fill, sizeof buffer - skip);
             memcpy(&dst[fill], &buffer[skip], chunk);

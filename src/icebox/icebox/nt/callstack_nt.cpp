@@ -279,7 +279,7 @@ opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, con
     std::vector<uint8_t> buffer(exception_dir->size);
     auto ok = reader.read(&buffer[0], exception_dir->addr, exception_dir->size);
     if(!ok)
-        return FAIL(ext::nullopt, "unable to read exception dir of {}", name.c_str());
+        return FAIL(ext::nullopt, "unable to read exception dir of %s", name.data());
 
     const auto function_table = parse_exception_dir(proc, &buffer[0], span.addr, *exception_dir);
     const auto ret            = exception_dirs_.emplace(name, *function_table);
@@ -361,7 +361,7 @@ namespace
             const auto offset = sym->struc_offset("ntdll", g_nt_offsets[i].struc, g_nt_offsets[i].member);
             if(!offset)
             {
-                LOG(ERROR, "unable to read ntdll!{}.{} member offset", g_nt_offsets[i].struc, g_nt_offsets[i].member);
+                LOG(ERROR, "unable to read ntdll!%s.%s member offset", g_nt_offsets[i].struc, g_nt_offsets[i].member);
                 continue;
             }
             offsets[i] = *offset;
@@ -489,17 +489,17 @@ namespace
 
             const auto return_addr = reader.read(caller_addr_on_stack);
             if(!return_addr)
-                return FAIL(false, "unable to read return address at {:#x}", caller_addr_on_stack);
+                return FAIL(false, "unable to read return address at 0x%" PRIx64, caller_addr_on_stack);
 
 #ifdef USE_DEBUG_PRINT
             // print stack
             const auto print_d = 25;
             for(int k = -3 * reg_size; k < print_d * reg_size; k += reg_size)
             {
-                LOG(INFO, "{:#x} - {:#x}", ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
+                LOG(INFO, "0x%" PRIx64 " - 0x%" PRIx64, ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
             }
-            LOG(INFO, "Chosen chosen {:#x} start address {:#x} end {:#x}", off_in_mod, function_entry->start_address, function_entry->end_address);
-            LOG(INFO, "Offset of current func {:#x}, Caller address on stack {:#x} so {:#x}", off_in_mod, caller_addr_on_stack, *return_addr);
+            LOG(INFO, "Chosen chosen 0x%" PRIx64 " start address 0x%" PRIx64 " end 0x%" PRIx64, off_in_mod, function_entry->start_address, function_entry->end_address);
+            LOG(INFO, "Offset of current func 0x%" PRIx64 ", Caller address on stack 0x%" PRIx64 " so 0x%" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
 #endif
 
             if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
@@ -530,11 +530,11 @@ namespace
 
             const auto caller_addr_on_stack = reader.le32(ctx.bp);
             if(!caller_addr_on_stack)
-                return FAIL(false, "unable to read caller address on stack at %lx", ctx.bp);
+                return FAIL(false, "unable to read caller address on stack at 0x%" PRIx64, ctx.bp);
 
             const auto return_addr = reader.le32(ctx.bp + reg_size);
             if(!return_addr)
-                return FAIL(false, "unable to read return address at {}", ctx.bp + reg_size);
+                return FAIL(false, "unable to read return address at 0x%" PRIx64, ctx.bp + reg_size);
 
             if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
                 return true;
@@ -679,7 +679,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         const auto frame_register       = unwind_info[3] & 0x0F;      // register used as frame pointer
         function_entry.frame_reg_offset = 16 * (unwind_info[3] >> 4); // offset of frame register
         if(function_entry.frame_reg_offset != 0 && frame_register != UWINFO_RBP)
-            LOG(ERROR, "WARNING : the used framed register is not rbp (code {}), this case is never used and not implemented", frame_register);
+            LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
 
         const auto SIZE_UC           = 2;
         const auto chained_info_size = chained_flag ? sizeof(RuntimeFunction) : 0;
@@ -718,7 +718,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         function_table.function_entries.push_back(function_entry);
 
 #ifdef USE_DEBUG_PRINT
-        LOG(INFO, "Function entry : start {:#x} end {:#x} prolog size {:#x} number of codes {:#x} unwind info pointer {:#x} stack frame size {:#x}, previous frame reg {:#x}", function_entry.start_address, function_entry.end_address, function_entry.prolog_size, function_entry.unwind_codes_nb,
+        LOG(INFO, "Function entry : start 0x%" PRIx64 " end 0x%" PRIx64 " prolog size 0x%" PRIx64 " number of codes 0x%" PRIx64 " unwind info pointer 0x%" PRIx64 " stack frame size 0x%" PRIx64 ", previous frame reg 0x%" PRIx64, function_entry.start_address, function_entry.end_address, function_entry.prolog_size, function_entry.unwind_codes_nb,
             unwind_info_ptr, function_entry.stack_frame_size, function_entry.prev_frame_reg);
 #endif
     }

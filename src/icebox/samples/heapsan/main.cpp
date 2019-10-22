@@ -7,14 +7,14 @@
 
 namespace
 {
-    static int heapsan(core::Core& core, std::string_view target)
+    static int heapsan(core::Core& core, const std::string& target)
     {
-        LOG(INFO, "waiting for {}...", target);
+        LOG(INFO, "waiting for %s...", target.data());
         const auto proc = waiter::proc_wait(core, target, FLAGS_NONE);
         if(!proc)
-            return FAIL(-1, "unable to wait for {}", target);
+            return FAIL(-1, "unable to wait for %s", target.data());
 
-        LOG(INFO, "process {} active", target);
+        LOG(INFO, "process %s active", target.data());
         const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
@@ -45,13 +45,13 @@ int main(int argc, char** argv)
         return FAIL(-1, "usage: nt_writefile <name> <process_name>");
 
     const auto name   = std::string{argv[1]};
-    const auto target = std::string_view{argv[2]};
-    LOG(INFO, "starting on {}", name.data());
+    const auto target = std::string{argv[2]};
+    LOG(INFO, "starting on %s", name.data());
 
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at %s", name.data());
 
     core.state.pause();
     const auto ret = heapsan(core, target);

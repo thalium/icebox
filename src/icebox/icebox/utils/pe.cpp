@@ -220,7 +220,7 @@ opt<span_t> pe::find_debug_codeview(const reader::Reader& reader, span_t module)
         return {};
 
     if(*type != 2)
-        return FAIL(ext::nullopt, "invalid IMAGE_DEBUG_TYPE, want IMAGE_DEBUG_TYPE_CODEVIEW = 2, got {}", *type);
+        return FAIL(ext::nullopt, "invalid IMAGE_DEBUG_TYPE, want IMAGE_DEBUG_TYPE_CODEVIEW = 2, got %d", *type);
 
     const auto addr = reader.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, AddressOfRawData));
     const auto size = reader.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, SizeOfData));

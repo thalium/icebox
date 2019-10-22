@@ -55,10 +55,10 @@ namespace
         );
 
         if(ok == DW_DLV_ERROR)
-            return FAIL(false, "libdwarf error {} when initializing dwarf file : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+            return FAIL(false, "libdwarf error %llu when initializing dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
         if(ok == DW_DLV_NO_ENTRY)
-            return FAIL(false, "unfound file or dwarf information in file '{}'", p.filename_.generic_string());
+            return FAIL(false, "unfound file or dwarf information in file '%s'", p.filename_.generic_string().data());
 
         return true;
     }
@@ -88,7 +88,7 @@ namespace
             );
 
             if(ok == DW_DLV_ERROR)
-                return FAIL(ext::nullopt, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                return FAIL(ext::nullopt, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
             if(ok == DW_DLV_NO_ENTRY)
                 break;
@@ -100,13 +100,13 @@ namespace
                 continue;
 
             if(ok == DW_DLV_ERROR)
-                return FAIL(ext::nullopt, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                return FAIL(ext::nullopt, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
             cu.push_back(die);
         }
 
         if(cu.empty())
-            return FAIL(ext::nullopt, "no compilation unit found in file {}", p.filename_.generic_string());
+            return FAIL(ext::nullopt, "no compilation unit found in file %s", p.filename_.generic_string().data());
 
         return cu;
     }
@@ -119,7 +119,7 @@ namespace
         while(ok != DW_DLV_NO_ENTRY)
         {
             if(ok == DW_DLV_ERROR)
-                return FAIL(false, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                return FAIL(false, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
             if(on_child(child) == WALK_STOP)
                 break;
 
@@ -138,7 +138,7 @@ namespace
             const auto ok_diename = dwarf_diename(member, &name_ptr, &p.err);
 
             if(ok_diename == DW_DLV_ERROR)
-                LOG(ERROR, "libdwarf error {} when reading name of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                LOG(ERROR, "libdwarf error %llu when reading name of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
             if(ok_diename == DW_DLV_NO_ENTRY) // anonymous struct
             {
@@ -146,7 +146,7 @@ namespace
                 auto ok               = dwarf_dietype_offset(member, &type_offset, &p.err);
 
                 if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error {} when reading type offset of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                    LOG(ERROR, "libdwarf error %llu when reading type offset of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
                     return WALK_NEXT;
@@ -155,10 +155,10 @@ namespace
                 ok                         = dwarf_offdie_b(p.dbg, type_offset, true, &anonymous_struct, &p.err);
 
                 if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                    LOG(ERROR, "libdwarf error %llu when getting DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    return FAIL(WALK_NEXT, "unable to get DIE at offset {:#x}", type_offset);
+                    return FAIL(WALK_NEXT, "unable to get DIE at offset 0x%llu", type_offset);
 
                 const auto child = get_member(p, name, anonymous_struct);
                 if(child)
@@ -193,7 +193,7 @@ namespace
             auto ok        = dwarf_diename(structure, &name_ptr, &p.err);
 
             if(ok == DW_DLV_ERROR)
-                LOG(ERROR, "libdwarf error {} when reading name of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                LOG(ERROR, "libdwarf error %llu when reading name of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
             if(ok != DW_DLV_OK)
                 continue;
@@ -205,7 +205,7 @@ namespace
                 ok                    = dwarf_dietype_offset(structure, &type_offset, &p.err); // typedef struct if there is an offset
 
                 if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error {} when reading type offset of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                    LOG(ERROR, "libdwarf error %llu when reading type offset of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
                 {
@@ -218,10 +218,10 @@ namespace
                 ok                       = dwarf_offdie_b(p.dbg, type_offset, true, &typedef_struct, &p.err);
 
                 if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error {} when getting DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                    LOG(ERROR, "libdwarf error %llu when getting DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    return FAIL(false, "unable to get DIE at offset {:#x}, and so unable to find structure '{}'", type_offset, name);
+                    return FAIL(false, "unable to get DIE at offset 0x%llu, and so unable to find structure '%s'", type_offset, name.data());
 
                 if(on_structure(typedef_struct) == WALK_STOP)
                     return true;
@@ -237,20 +237,20 @@ namespace
         const auto ok        = dwarf_attr(die, DW_AT_data_member_location, &attr, &p.err);
 
         if(ok == DW_DLV_ERROR)
-            return FAIL(ext::nullopt, "libdwarf error {} when reading attributes of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+            return FAIL(ext::nullopt, "libdwarf error %llu when reading attributes of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
         if(ok == DW_DLV_NO_ENTRY)
             return FAIL(ext::nullopt, "die member has not DW_AT_data_member_location attribute");
 
         Dwarf_Half form;
         if(dwarf_whatform(attr, &form, &p.err) != DW_DLV_OK)
-            return FAIL(ext::nullopt, "libdwarf error {} when reading form of DW_AT_data_member_location attribute : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+            return FAIL(ext::nullopt, "libdwarf error %llu when reading form of DW_AT_data_member_location attribute : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
         if(form == DW_FORM_data1 || form == DW_FORM_data2 || form == DW_FORM_data4 || form == DW_FORM_data8 || form == DW_FORM_udata)
         {
             Dwarf_Unsigned offset;
             if(dwarf_formudata(attr, &offset, &p.err) != DW_DLV_OK)
-                return FAIL(ext::nullopt, "libdwarf error {} when reading DW_AT_data_member_location attribute : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
             return (uint64_t) offset;
         }
@@ -258,7 +258,7 @@ namespace
         {
             Dwarf_Signed soffset;
             if(dwarf_formsdata(attr, &soffset, &p.err) != DW_DLV_OK)
-                return FAIL(ext::nullopt, "libdwarf error {} when reading DW_AT_data_member_location attribute : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
             if(soffset < 0)
                 return FAIL(ext::nullopt, "unsupported negative offset for DW_AT_data_member_location attribute");
@@ -293,7 +293,7 @@ namespace
         const auto ok = dwarf_bytesize(struc, &size, &p.err);
 
         if(ok == DW_DLV_ERROR)
-            return FAIL(ext::nullopt, "libdwarf error {} when reading size of a DIE : {}", dwarf_errno(p.err), dwarf_errmsg(p.err));
+            return FAIL(ext::nullopt, "libdwarf error %llu when reading size of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
         if(ok == DW_DLV_NO_ENTRY)
             return {};
@@ -350,7 +350,7 @@ bool Dwarf::setup()
     }
 
     if(structures.empty())
-        return FAIL(false, "no structures found in file {}", filename_.generic_string());
+        return FAIL(false, "no structures found in file %s", filename_.generic_string().data());
 
     return true;
 }
@@ -404,7 +404,7 @@ opt<size_t> Dwarf::struc_size(const std::string& struc)
     });
 
     if(!size)
-        LOG(ERROR, "unfound {} structure or die has not DW_AT_byte_size attribute", struc);
+        LOG(ERROR, "unfound %s structure or die has not DW_AT_byte_size attribute", struc.data());
 
     return size;
 }

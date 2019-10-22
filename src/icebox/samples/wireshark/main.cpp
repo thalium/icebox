@@ -140,7 +140,7 @@ namespace
         const auto WOW64_CONTEXT = reader.read(TlsSlot);
         if(!WOW64_CONTEXT)
             return {};
-        LOG(INFO, "TEB is: {:#x}, r12 is: {:#x}, r13 is: {:#x}", teb, TlsSlot, *WOW64_CONTEXT);
+        LOG(INFO, "TEB is: 0x%" PRIx64 ", r12 is: 0x%" PRIx64 ", r13 is: 0x%" PRIx64, teb, TlsSlot, *WOW64_CONTEXT);
 
         auto offset = 4; // FIXME: why 4 on 10240 ?
         nt_types::_WOW64_CONTEXT wow64ctx;
@@ -259,7 +259,7 @@ namespace
             else
                 get_user_callstack64(p.core, meta, proc, callstack);
 
-            LOG(INFO, "Callstack: {}", meta.comment);
+            LOG(INFO, "Callstack: %s", meta.comment.data());
             p.pcap->add_packet(meta, &data[0], data.size());
             p.bps.erase(p.id);
             return 0;
@@ -371,14 +371,14 @@ int main(int argc, char** argv)
         return FAIL(-1, "usage: wireshark <name> <path_to_capture_file>");
 
     const auto name = std::string{argv[1]};
-    LOG(INFO, "starting on: {}", name.data());
+    LOG(INFO, "starting on: %s", name.data());
     const auto capture_path = std::string{argv[2]};
-    LOG(INFO, "capture path: {}", capture_path.data());
+    LOG(INFO, "capture path: %s", capture_path.data());
 
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at %s", name.data());
 
     core.state.pause();
     const auto ret = capture(core, capture_path);

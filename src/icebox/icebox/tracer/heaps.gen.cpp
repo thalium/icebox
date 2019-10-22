@@ -4,6 +4,7 @@
 #include "log.hpp"
 #include "os.hpp"
 
+#include <cstring>
 #include <map>
 
 namespace
@@ -56,7 +57,7 @@ namespace
     {
         const auto addr = d.syms.symbol(d.module, name);
         if(!addr)
-            return FAIL(ext::nullopt, "unable to find symbole {}!{}", d.module, name);
+            return FAIL(ext::nullopt, "unable to find symbole %s!%s", d.module.data(), name);
 
         const auto bp = d.core.state.set_breakpoint(name, *addr, proc, on_call);
         if(!bp)

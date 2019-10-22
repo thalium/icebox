@@ -12,6 +12,8 @@
 #include <icebox/utils/fnview.hpp>
 #include <icebox/waiter.hpp>
 
+#include <fmt/format.h>
+
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
 
@@ -292,7 +294,7 @@ TEST_F(Win10Test, memory)
 {
     const auto proc = core.os->proc_find("explorer.exe", flags_e::FLAGS_NONE);
     EXPECT_TRUE(!!proc);
-    LOG(INFO, "explorer dtb: {:#x}", proc->dtb.val);
+    LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
 
     core.os->proc_join(*proc, os::JOIN_USER_MODE);
 
@@ -377,7 +379,7 @@ TEST_F(Win10Test, tracer)
     });
     run_until(core, [&] { return count > 32; });
     for(const auto& call : calls)
-        LOG(INFO, "call: {}", call);
+        LOG(INFO, "call: %s", call.data());
 }
 
 namespace
@@ -408,12 +410,12 @@ TEST_F(Win10Test, callstacks)
     auto count      = size_t{0};
     tracer.register_all(*proc, [&](const auto& /* cfg*/)
     {
-        LOG(INFO, "");
+        LOG(INFO, " ");
         auto idx = size_t{0};
         callstacks->get_callstack(*proc, [&](callstack::callstep_t step)
         {
             const auto symbol = dump_address(symbols, step.addr);
-            LOG(INFO, "{:#x}: {}", idx++, symbol);
+            LOG(INFO, "0x%" PRIx64 ": %s", idx++, symbol.data());
             return WALK_NEXT;
         });
         count++;

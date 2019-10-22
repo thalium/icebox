@@ -134,7 +134,7 @@ namespace
                 if(!cursor)
                     cursor = sym::Cursor{"_", "_", cstep.addr};
 
-                LOG(INFO, "{} - {}", cs_size, sym::to_string(*cursor).data());
+                LOG(INFO, "%zd - %s", cs_size, sym::to_string(*cursor).data());
             }
 
             cs_size++;
@@ -203,7 +203,7 @@ bool Data::setup()
         if(!driver_name)
             return 1;
 
-        LOG(INFO, " File handle; {:#x}, filename : {}, driver_name {}", FileHandle, obj_filename->data(), driver_name->data());
+        LOG(INFO, " File handle; 0x%x, filename : %s, driver_name %s", FileHandle, obj_filename->data(), driver_name->data());
 
         args_[nb_triggers_]["FileName"]    = obj_filename->data();
         args_[nb_triggers_]["Driver Name"] = driver_name->data();

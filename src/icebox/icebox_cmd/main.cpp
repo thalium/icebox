@@ -11,6 +11,7 @@
 #include <icebox/waiter.hpp>
 
 #include <chrono>
+#include <string>
 #include <thread>
 
 namespace
@@ -32,9 +33,9 @@ namespace
         syscall_plugin.generate("output.json");
     }
 
-    void test_wait_and_trace(core::Core& core, std::string_view proc_target)
+    void test_wait_and_trace(core::Core& core, const std::string& proc_target)
     {
-        LOG(INFO, "searching for 32 bits {} process", proc_target);
+        LOG(INFO, "searching for 32 bits %s process", proc_target.data());
         const auto target = waiter::proc_wait(core, proc_target, FLAGS_32BIT);
         if(!target)
             return;
@@ -74,7 +75,7 @@ namespace
             core.state.resume();
             core.state.wait();
             if(i % 200 == 0)
-                LOG(INFO, "{}", i);
+                LOG(INFO, "%zd", i);
         }
 
         syscalls.generate("output.json");
@@ -88,31 +89,31 @@ namespace
             const auto name     = core.os->driver_name(drv);
             const auto span     = core.os->driver_span(drv);
             const auto filename = name ? path::filename(*name).generic_string() : "_";
-            LOG(INFO, "    driver: {:#x} {} {:#x} {:#x}", drv.id, filename.data(), span ? span->addr : 0, span ? span->size : 0);
+            LOG(INFO, "    driver: 0x%" PRIx64 " %s 0x%" PRIx64 " 0x%" PRIx64, drv.id, filename.data(), span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
         });
 
         const auto pc = core.os->proc_current();
-        LOG(INFO, "current process: {:#x} dtb: {:#x} {}", pc->id, pc->dtb.val, core.os->proc_name(*pc)->data());
+        LOG(INFO, "current process: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", pc->id, pc->dtb.val, core.os->proc_name(*pc)->data());
 
         const auto tc = core.os->thread_current();
-        LOG(INFO, "current thread: {:#x}", tc->id);
+        LOG(INFO, "current thread: 0x%" PRIx64, tc->id);
 
         LOG(INFO, "processes:");
         core.os->proc_list([&](proc_t proc)
         {
             const auto procname = core.os->proc_name(proc);
-            LOG(INFO, "proc: {:#x} {}", proc.id, procname ? procname->data() : "<noname>");
+            LOG(INFO, "proc: 0x%" PRIx64 " %s", proc.id, procname ? procname->data() : "<noname>");
             return WALK_NEXT;
         });
 
         const char proc_target[] = "notepad.exe";
-        LOG(INFO, "searching for {}", proc_target);
+        LOG(INFO, "searching for %s", proc_target);
         const auto target = waiter::proc_wait(core, proc_target, FLAGS_NONE);
         if(!target)
             return false;
 
-        LOG(INFO, "{}: {:#x} dtb: {:#x} {}", proc_target, target->id, target->dtb.val, core.os->proc_name(*target)->data());
+        LOG(INFO, "%s: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", proc_target, target->id, target->dtb.val, core.os->proc_name(*target)->data());
         core.os->proc_join(*target, os::JOIN_ANY_MODE);
         core.os->proc_join(*target, os::JOIN_USER_MODE);
 
@@ -135,7 +136,7 @@ namespace
             if(!name || !span)
                 return WALK_NEXT;
 
-            LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}{}", modi, modcount, name->data(), span->addr, span->size,
+            LOG(INFO, "module[%2zd/%-2zd] %s: 0x%" PRIx64 " 0x%" PRIx64 "%s", modi, modcount, name->data(), span->addr, span->size,
                 mod.flags & FLAGS_32BIT ? " wow64" : "");
             ++modi;
 
@@ -163,7 +164,7 @@ namespace
                 return WALK_NEXT;
 
             const auto name = syms.find(*rip);
-            LOG(INFO, "thread: {:#x} {:#x}{}", thread.id, *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
+            LOG(INFO, "thread: 0x%" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
             return WALK_NEXT;
         });
 
@@ -182,7 +183,7 @@ namespace
                 const auto tid      = core.os->thread_id(*proc, *thread);
                 const auto procname = proc ? core.os->proc_name(*proc) : ext::nullopt;
                 const auto sym      = syms.find(rip);
-                LOG(INFO, "BREAK! rip: {:#x} {} {} pid:{} tid:{}",
+                LOG(INFO, "BREAK! rip: 0x%" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
                     rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
             });
             for(size_t i = 0; i < 16; ++i)
@@ -199,7 +200,7 @@ namespace
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
             const auto func_addr = syms.symbol(pdb_name, func_name);
-            LOG(INFO, "{} = {:#x}", func_name, func_addr ? *func_addr : 0);
+            LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
             const auto bp = core.state.set_breakpoint(func_name, *func_addr, *target, [&]
             {
@@ -210,14 +211,14 @@ namespace
                     if(!cursor)
                         cursor = sym::Cursor{"_", "_", callstep.addr};
 
-                    LOG(INFO, "{:>2} - {}", k, sym::to_string(*cursor).data());
+                    LOG(INFO, "%-2d - %s", k, sym::to_string(*cursor).data());
                     k++;
                     if(k >= cs_depth)
                         return WALK_STOP;
 
                     return WALK_NEXT;
                 });
-                LOG(INFO, "");
+                LOG(INFO, " ");
             });
             for(size_t i = 0; i < 3; ++i)
             {
@@ -250,12 +251,12 @@ int main(int argc, char* argv[])
         return FAIL(-1, "usage: icebox <name>");
 
     const auto name = std::string{argv[1]};
-    LOG(INFO, "starting on {}", name.data());
+    LOG(INFO, "starting on %s", name.data());
 
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at %s", name.data());
 
     // core.state.resume();
     core.state.pause();

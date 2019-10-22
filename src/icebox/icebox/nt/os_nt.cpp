@@ -265,7 +265,7 @@ bool OsNt::setup()
     if(!kernel)
         return FAIL(false, "unable to find kernel");
 
-    LOG(INFO, "kernel: {:#x} - {:#x} ({} {:#x})", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
+    LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
     const auto debug = pe::find_debug_codeview(reader_, *kernel);
     if(!debug)
         return FAIL(false, "unable to find kernel debug section");
@@ -290,9 +290,9 @@ bool OsNt::setup()
         {
             fail |= sym.e_cat == cat_e::REQUIRED;
             if(sym.e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
+                LOG(ERROR, "unable to read %s!%s symbol offset", sym.module, sym.name);
             else
-                LOG(WARNING, "unable to read optional {}!{} symbol offset", sym.module, sym.name);
+                LOG(WARNING, "unable to read optional %s!%s symbol offset", sym.module, sym.name);
             continue;
         }
         symbols_[i] = *addr;
@@ -308,9 +308,9 @@ bool OsNt::setup()
         {
             fail |= off.e_cat == cat_e::REQUIRED;
             if(off.e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
+                LOG(ERROR, "unable to read %s!%s.%s member offset", off.module, off.struc, off.member);
             else
-                LOG(WARNING, "unable to read optional {}!{}.{} member offset", off.module, off.struc, off.member);
+                LOG(WARNING, "unable to read optional %s!%s.%s member offset", off.module, off.struc, off.member);
             continue;
         }
         offsets_[i] = *offset;
@@ -337,7 +337,7 @@ bool OsNt::setup()
         offsets_[KPROCESS_UserDirectoryTableBase] = offsets_[KPROCESS_DirectoryTableBase];
 
     reader_.kdtb_ = gdtb;
-    LOG(WARNING, "kernel: kpcr: {:#x} kdtb: {:#x}", kpcr_, gdtb.val);
+    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, gdtb.val);
     return true;
 }
 
@@ -353,7 +353,7 @@ namespace
         const auto dtb = os.reader_.read(eproc + os.offsets_[EPROCESS_Pcb] + os.offsets_[KPROCESS_UserDirectoryTableBase]);
         if(!dtb)
         {
-            LOG(ERROR, "unable to read KPROCESS.UserDirectoryTableBase from {:#x}", eproc);
+            LOG(ERROR, "unable to read KPROCESS.UserDirectoryTableBase from 0x%" PRIx64, eproc);
             return {};
         }
 
@@ -1302,6 +1302,6 @@ void OsNt::debug_print()
                       + " p:" + to_hex(proc ? proc->id : 0)
                       + " t:" + to_hex(thread ? thread->id : 0);
     if(dump != last_dump_)
-        LOG(INFO, "{}", dump.data());
+        LOG(INFO, "%s", dump.data());
     last_dump_ = dump;
 }
