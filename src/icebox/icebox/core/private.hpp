@@ -14,7 +14,6 @@ namespace core { struct Core; }
 
 namespace core
 {
-    void    setup   (Registers& regs, fdp::shm& shm);
     void    setup   (Memory& mem, fdp::shm& shm, Core& core);
     void    setup   (State& mem, fdp::shm& shm, Core& core);
 } // namespace core

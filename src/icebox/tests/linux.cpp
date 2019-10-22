@@ -176,7 +176,7 @@ TEST_F(LinuxTest, threads)
     EXPECT_TRUE(current_pc && *current_pc);
     if(current_pc)
     {
-        EXPECT_EQ(current_pc, core.regs.read(FDP_RIP_REGISTER));
+        EXPECT_EQ(current_pc, registers::read(core, FDP_RIP_REGISTER));
     }
 
     const auto child = utility_child(core);

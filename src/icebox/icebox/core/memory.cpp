@@ -205,7 +205,7 @@ bool core::Memory::read_virtual(void* vdst, uint64_t src, size_t size)
 {
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    const auto dtb   = dtb_t{d_->core.regs.read(FDP_CR3_REGISTER)};
+    const auto dtb   = dtb_t{registers::read(d_->core, FDP_CR3_REGISTER)};
     return ::read_virtual(*d_, dst, dtb, src, usize);
 }
 

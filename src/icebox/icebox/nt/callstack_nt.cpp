@@ -385,7 +385,7 @@ namespace
         if(!read_offsets(c, proc, is_32bit))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
-        const auto teb    = c.core_.regs.read(is_32bit ? MSR_FS_BASE : MSR_GS_BASE);
+        const auto teb    = registers::read_msr(c.core_, is_32bit ? MSR_FS_BASE : MSR_GS_BASE);
         const auto nt_tib = teb + offset(c, is_32bit, TEB_NtTib);
         const auto base   = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackBase));
         const auto limit  = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackLimit));
@@ -548,10 +548,10 @@ namespace
 
 bool CallstackNt::get_callstack(proc_t proc, callstack::on_callstep_fn on_callstep)
 {
-    const auto ip         = core_.regs.read(FDP_RIP_REGISTER);
-    const auto sp         = core_.regs.read(FDP_RSP_REGISTER);
-    const auto bp         = core_.regs.read(FDP_RBP_REGISTER);
-    const auto cs         = core_.regs.read(FDP_CS_REGISTER);
+    const auto ip         = registers::read(core_, FDP_RIP_REGISTER);
+    const auto sp         = registers::read(core_, FDP_RSP_REGISTER);
+    const auto bp         = registers::read(core_, FDP_RBP_REGISTER);
+    const auto cs         = registers::read(core_, FDP_CS_REGISTER);
     const auto ctx        = callstack::context_t{ip, sp, bp, cs};
     constexpr auto x86_cs = 0x23;
     if(cs == x86_cs)

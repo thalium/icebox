@@ -3,21 +3,12 @@
 #include "enums.hpp"
 #include "types.hpp"
 
-#include <memory>
+namespace core { struct Core; }
 
-namespace core
+namespace registers
 {
-    struct Registers
-    {
-         Registers();
-        ~Registers();
-
-        uint64_t    read    (reg_e reg);
-        bool        write   (reg_e reg, uint64_t value);
-        uint64_t    read    (msr_e reg);
-        bool        write   (msr_e reg, uint64_t value);
-
-        struct Data;
-        std::unique_ptr<Data> d_;
-    };
-} // namespace core
+    uint64_t    read        (core::Core& core, reg_e reg);
+    bool        write       (core::Core& core, reg_e reg, uint64_t value);
+    uint64_t    read_msr    (core::Core& core, msr_e reg);
+    bool        write_msr   (core::Core& core, msr_e reg, uint64_t value);
+}; // namespace registers

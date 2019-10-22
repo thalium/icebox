@@ -21,7 +21,6 @@ namespace core
         bool setup(std::string_view name);
 
         // members
-        Registers                    regs;
         Memory                       mem;
         State                        state;
         std::unique_ptr<os::IModule> os;

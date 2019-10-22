@@ -2,6 +2,7 @@
 
 #define PRIVATE_CORE__
 #define FDP_MODULE "core"
+#include "core_private.hpp"
 #include "fdp.hpp"
 #include "log.hpp"
 #include "os.hpp"
@@ -15,17 +16,11 @@ namespace
     using Data = core::Core::Data;
 }
 
-struct core::Core::Data
+Data::Data(std::string_view name)
+    : name_(name)
+    , shm_(nullptr)
 {
-    Data(std::string_view name)
-        : name_(name)
-    {
-    }
-
-    // members
-    const std::string name_;
-    fdp::shm*         shm_;
-};
+}
 
 core::Core::Core()  = default;
 core::Core::~Core() = default;
@@ -55,7 +50,6 @@ namespace
 
         fdp::reset(*ptr_shm);
 
-        core::setup(core.regs, *ptr_shm);
         core::setup(core.mem, *ptr_shm, core);
         core::setup(core.state, *ptr_shm, core);
 

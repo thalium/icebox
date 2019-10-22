@@ -40,7 +40,7 @@ bool state::Breaker::break_return(std::string_view name, const state::Task& task
 {
     auto& d                = *d_;
     const auto thread      = d.core.os->thread_current();
-    const auto want_rsp    = d.core.regs.read(FDP_RSP_REGISTER);
+    const auto want_rsp    = registers::read(d.core, FDP_RSP_REGISTER);
     const auto return_addr = d.reader.read(want_rsp);
     if(!thread || !return_addr)
         return false;
@@ -54,7 +54,7 @@ bool state::Breaker::break_return(std::string_view name, const state::Task& task
 
     const auto bp = d.core.state.set_breakpoint(name, *return_addr, *thread, [=]
     {
-        const auto rsp = ctx.d.core.regs.read(FDP_RSP_REGISTER) - ctx.d.ptr_size;
+        const auto rsp = registers::read(ctx.d.core, FDP_RSP_REGISTER) - ctx.d.ptr_size;
         auto it        = ctx.d.returns.find(rsp);
         if(it == ctx.d.returns.end())
             return;

@@ -127,9 +127,9 @@ namespace
     {
         const auto reader = reader::make(core, proc);
 
-        const auto cs            = core.regs.read(FDP_CS_REGISTER);
+        const auto cs            = registers::read(core, FDP_CS_REGISTER);
         const auto is_kernel_ctx = cs && 0x0F == 0x00;
-        const auto teb           = core.regs.read(is_kernel_ctx ? MSR_KERNEL_GS_BASE : MSR_GS_BASE);
+        const auto teb           = registers::read_msr(core, is_kernel_ctx ? MSR_KERNEL_GS_BASE : MSR_GS_BASE);
 
         auto& ksyms             = core.os->kernel_symbols();
         const auto TEB_TlsSlots = ksyms.struc_offset("nt", "_TEB", "TlsSlots");
