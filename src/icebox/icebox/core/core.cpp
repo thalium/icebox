@@ -25,7 +25,7 @@ namespace
     } g_os_modules[] =
     {
             {&os::make_nt, "windows_nt"},
-            {&os::make_linux, "linux_nt"},
+            {&os::make_linux, "linux"},
     };
 
     static auto setup(core::Core& core, const std::string& name)
