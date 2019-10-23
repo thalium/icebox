@@ -238,12 +238,12 @@ namespace
         return !!(ptr & 0xFFF0000000000000);
     }
 
-    static opt<span_t> find_kernel(core::Memory& mem, uint64_t lstar)
+    static opt<span_t> find_kernel(core::Core& core, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
         for(auto ptr = utils::align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
         {
-            auto ok = mem.read_virtual(buf, ptr, sizeof buf);
+            auto ok = memory::read_virtual(core, buf, ptr, sizeof buf);
             if(!ok)
                 return {};
 
@@ -261,7 +261,7 @@ namespace
 bool OsNt::setup()
 {
     const auto lstar  = registers::read_msr(core_, MSR_LSTAR);
-    const auto kernel = find_kernel(core_.mem, lstar);
+    const auto kernel = find_kernel(core_, lstar);
     if(!kernel)
         return FAIL(false, "unable to find kernel");
 
@@ -271,7 +271,7 @@ bool OsNt::setup()
         return FAIL(false, "unable to find kernel debug section");
 
     std::vector<uint8_t> buffer(debug->size);
-    auto ok = core_.mem.read_virtual(&buffer[0], debug->addr, debug->size);
+    auto ok = memory::read_virtual(core_, &buffer[0], debug->addr, debug->size);
     if(!ok)
         return FAIL(false, "unable to read kernel module");
 
@@ -327,7 +327,7 @@ bool OsNt::setup()
     auto gdtb = dtb_t{registers::read(core_, FDP_CR3_REGISTER)};
     if(offsets_[KPRCB_KernelDirectoryTableBase])
     {
-        ok = core_.mem.read_virtual(&gdtb, kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
+        ok = memory::read_virtual(core_, &gdtb, kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
         if(!ok)
             return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
     }
@@ -1090,11 +1090,11 @@ void OsNt::proc_join(proc_t proc, os::join_e join)
 
 opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
 {
-    const auto phy = core_.mem.virtual_to_physical(ptr, proc.dtb);
+    const auto phy = memory::virtual_to_physical(core_, ptr, proc.dtb);
     if(phy)
         return phy;
 
-    return core_.mem.virtual_to_physical(ptr, reader_.kdtb_);
+    return memory::virtual_to_physical(core_, ptr, reader_.kdtb_);
 }
 
 bool OsNt::is_kernel_address(uint64_t ptr)

@@ -49,8 +49,7 @@ namespace
             return FAIL(false, "unable to init shm");
 
         fdp::reset(*ptr_shm);
-
-        core::setup(core.mem, *ptr_shm, core);
+        core.d_->mem_ = memory::setup(core);
         core::setup(core.state, *ptr_shm, core);
 
         // register os helpers

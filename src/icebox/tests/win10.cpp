@@ -311,12 +311,12 @@ TEST_F(Win10Test, memory)
         EXPECT_TRUE(ok);
 
         from_virtual.resize(span->size);
-        ok = core.mem.read_virtual(&from_virtual[0], proc->dtb, span->addr, span->size);
+        ok = memory::read_virtual_with_dtb(core, &from_virtual[0], proc->dtb, span->addr, span->size);
         EXPECT_TRUE(ok);
 
         EXPECT_EQ(0, memcmp(&from_reader[0], &from_virtual[0], span->size));
 
-        const auto phy = core.mem.virtual_to_physical(span->addr, proc->dtb);
+        const auto phy = memory::virtual_to_physical(core, span->addr, proc->dtb);
         EXPECT_TRUE(!!phy);
         return WALK_NEXT;
     });

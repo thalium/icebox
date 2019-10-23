@@ -119,7 +119,7 @@ namespace
 
         const auto rip = registers::read(d.core, FDP_RIP_REGISTER);
         const auto dtb = dtb_t{registers::read(d.core, FDP_CR3_REGISTER)};
-        const auto phy = d.core.mem.virtual_to_physical(rip, dtb);
+        const auto phy = memory::virtual_to_physical(d.core, rip, dtb);
         if(!phy)
             return FAIL(false, "unable to get current physical address");
 

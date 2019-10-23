@@ -857,7 +857,7 @@ opt<phy_t> OsLinux::proc_resolve(proc_t proc, uint64_t ptr)
     if(!select)
         return {};
 
-    return core_.mem.virtual_to_physical(ptr, select->dtb);
+    return memory::virtual_to_physical(core_, ptr, select->dtb);
 }
 
 opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t ptr)
@@ -932,7 +932,7 @@ namespace
         if(!pgd_t)
             return FAIL(ext::nullopt, "unable to read pgd_t at 0x%" PRIx64 " in mm_struct of process", mm + *p.offsets_[MMSTRUCT_PGD]);
 
-        const auto pgd = p.core_.mem.virtual_to_physical(*pgd_t, dtb_t{p.kpgd});
+        const auto pgd = memory::virtual_to_physical(p.core_, *pgd_t, dtb_t{p.kpgd});
         if(!pgd)
             return FAIL(ext::nullopt, "unable to find the pgd converting virtual addr 0x%" PRIx64 " to physical one", *pgd_t);
 

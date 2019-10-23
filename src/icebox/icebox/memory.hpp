@@ -2,25 +2,12 @@
 
 #include "types.hpp"
 
-#include <memory>
+namespace core { struct Core; }
 
-namespace core
+namespace memory
 {
-    // auto-managed process object
-    struct ProcessContextPrivate;
-    using ProcessContext = std::shared_ptr<ProcessContextPrivate>;
-
-    struct Memory
-    {
-         Memory();
-        ~Memory();
-
-        opt<phy_t>  virtual_to_physical (uint64_t ptr, dtb_t dtb);
-        bool        read_virtual        (void* dst, uint64_t src, size_t size);
-        bool        read_virtual        (void* dst, dtb_t dtb, uint64_t src, size_t size);
-        bool        read_physical       (void* dst, uint64_t src, size_t size);
-
-        struct Data;
-        std::unique_ptr<Data> d_;
-    };
-} // namespace core
+    opt<phy_t>  virtual_to_physical     (core::Core& core, uint64_t ptr, dtb_t dtb);
+    bool        read_virtual            (core::Core& core, void* dst, uint64_t src, size_t size);
+    bool        read_virtual_with_dtb   (core::Core& core, void* dst, dtb_t dtb, uint64_t src, size_t size);
+    bool        read_physical           (core::Core& core, void* dst, uint64_t src, size_t size);
+} // namespace memory
