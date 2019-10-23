@@ -13,7 +13,7 @@
 
 namespace
 {
-    using Data = core::Core::Data;
+    using Data = core::Data;
 }
 
 Data::Data(std::string_view name)
@@ -37,18 +37,13 @@ namespace
             {&os::make_linux, "linux_nt"},
     };
 
-    static auto setup(core::Core& core, Data& d, std::string_view name)
+    static auto setup(core::Core& core, const std::string& name)
     {
-        auto ptr_shm = fdp::open(name.data());
-        if(!ptr_shm)
-            return FAIL(false, "unable to open shm");
-
-        d.shm_  = ptr_shm;
-        auto ok = fdp::init(*ptr_shm);
-        if(!ok)
+        core.d_->shm_ = fdp::setup(name);
+        if(!core.d_->shm_)
             return FAIL(false, "unable to init shm");
 
-        fdp::reset(*ptr_shm);
+        fdp::reset(core);
         core.d_->mem_   = memory::setup();
         core.d_->state_ = state::setup();
 
@@ -59,7 +54,7 @@ namespace
             if(!core.os)
                 continue;
 
-            ok = core.os->setup();
+            const auto ok = core.os->setup();
             if(ok)
                 break;
 
@@ -73,9 +68,9 @@ namespace
     }
 }
 
-bool core::Core::setup(std::string_view name)
+bool core::Core::setup(const std::string& name)
 {
-    d_ = std::make_unique<core::Core::Data>(name);
+    d_ = std::make_unique<core::Data>(name);
 
     // try to connect multiple times
     const auto now = std::chrono::high_resolution_clock::now();
@@ -83,7 +78,7 @@ bool core::Core::setup(std::string_view name)
     int n_ms       = 10;
     while(std::chrono::high_resolution_clock::now() < end)
     {
-        if(::setup(*this, *d_, name))
+        if(::setup(*this, name))
             return true;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(n_ms));

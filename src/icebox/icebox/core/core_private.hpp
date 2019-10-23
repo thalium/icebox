@@ -1,12 +1,16 @@
 #pragma once
 
-#include "core.hpp"
-
 #ifndef PRIVATE_CORE__
 #    error do not include this header directly
 #endif
 
 namespace fdp { struct shm; }
+
+namespace fdp
+{
+    struct shm;
+    shm* setup(const std::string& name);
+} // namespace fdp
 
 namespace memory
 {
@@ -25,7 +29,7 @@ namespace core
     using Memory = std::shared_ptr<memory::Memory>;
     using State  = std::shared_ptr<state::State>;
 
-    struct Core::Data
+    struct Data
     {
         Data(std::string_view name);
 

@@ -13,18 +13,19 @@ namespace os { struct IModule; }
 
 namespace core
 {
+    struct Data;
+
     struct Core
     {
          Core();
         ~Core();
 
-        bool setup(std::string_view name);
+        bool setup(const std::string& name);
 
         // members
         std::unique_ptr<os::IModule> os;
 
         // private data
-        struct Data;
         std::unique_ptr<Data> d_;
     };
 

@@ -123,14 +123,14 @@ namespace
 
     static bool try_pause(core::Core& core)
     {
-        const auto state = fdp::state(*core.d_->shm_);
+        const auto state = fdp::state(core);
         if(!state)
             return false;
 
         if(*state & FDP_STATE_PAUSED)
             return true;
 
-        const auto ok = fdp::pause(*core.d_->shm_);
+        const auto ok = fdp::pause(core);
         if(!ok)
             return FAIL(false, "unable to pause");
 
@@ -140,12 +140,12 @@ namespace
 
     static bool try_single_step(core::Core& core)
     {
-        return fdp::step_once(*core.d_->shm_);
+        return fdp::step_once(core);
     }
 
     static bool try_resume(core::Core& core)
     {
-        const auto state = fdp::state(*core.d_->shm_);
+        const auto state = fdp::state(core);
         if(!state)
             return false;
 
@@ -156,7 +156,7 @@ namespace
             if(!try_single_step(core))
                 return false;
 
-        const auto resumed = fdp::resume(*core.d_->shm_);
+        const auto resumed = fdp::resume(core);
         if(!resumed)
             return FAIL(false, "unable to resume");
 
@@ -223,7 +223,7 @@ struct state::BreakpointPrivate
         if(!unique_observer)
             return;
 
-        const auto ok = fdp::unset_breakpoint(*core_.d_->shm_, observer_->bpid);
+        const auto ok = fdp::unset_breakpoint(core_, observer_->bpid);
         if(!ok)
             LOG(ERROR, "unable to remove breakpoint %d", observer_->bpid);
 
@@ -238,7 +238,7 @@ namespace
 {
     static void check_breakpoints(core::Core& core)
     {
-        const auto state = fdp::state(*core.d_->shm_);
+        const auto state = fdp::state(core);
         if(!state)
             return;
 
@@ -276,7 +276,7 @@ namespace
         while(true)
         {
             std::this_thread::yield();
-            const auto ok = fdp::state_changed(*core.d_->shm_);
+            const auto ok = fdp::state_changed(core);
             if(!ok)
                 continue;
 
@@ -324,7 +324,7 @@ namespace
                 return it->second.id;
 
             // filtering rules are too restrictive, remove old breakpoint & add an unfiltered breakpoint
-            const auto ok = fdp::unset_breakpoint(*core.d_->shm_, it->second.id);
+            const auto ok = fdp::unset_breakpoint(core, it->second.id);
             targets.erase(it);
             if(!ok)
                 return -1;
@@ -333,7 +333,7 @@ namespace
             dtb = {};
         }
 
-        const auto bpid = fdp::set_breakpoint(*core.d_->shm_, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb ? dtb->val : 0);
+        const auto bpid = fdp::set_breakpoint(core, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb ? dtb->val : 0);
         if(bpid < 0)
             return -1;
 
@@ -427,7 +427,7 @@ namespace
 
 void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc)
 {
-    const auto bpid = fdp::set_breakpoint(*core.d_->shm_, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+    const auto bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
     if(bpid < 0)
         return;
 
@@ -436,7 +436,7 @@ void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc
     {
         return d.breakstate.proc == proc;
     });
-    fdp::unset_breakpoint(*core.d_->shm_, bpid);
+    fdp::unset_breakpoint(core, bpid);
 }
 
 void state::run_to_proc(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr)
@@ -478,7 +478,7 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     uint64_t cr3 = 0;
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
     {
-        bpid = fdp::set_breakpoint(*core.d_->shm_, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+        bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
         if(bpid < 0)
         {
             LOG(ERROR, "unable to set a breakpoint on CR3 writes");
@@ -503,5 +503,5 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     });
 
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
-        fdp::unset_breakpoint(*core.d_->shm_, bpid);
+        fdp::unset_breakpoint(core, bpid);
 }
