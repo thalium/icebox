@@ -37,6 +37,7 @@ namespace
         fdp::reset(core);
         core.mem_   = memory::setup();
         core.state_ = state::setup();
+        core.func_  = functions::setup();
 
         // register os helpers
         for(const auto& h : g_os_modules)

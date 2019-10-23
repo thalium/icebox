@@ -4,7 +4,7 @@
 #include <string>
 
 #include "drivers.hpp"
-#include "function.hpp"
+#include "functions.hpp"
 #include "memory.hpp"
 #include "modules.hpp"
 #include "os.hpp"

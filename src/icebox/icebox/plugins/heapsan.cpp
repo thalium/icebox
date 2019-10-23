@@ -1,11 +1,9 @@
 #include "heapsan.hpp"
 
 #define FDP_MODULE "heapsan"
-#include "log.hpp"
-
-#include "breaker.hpp"
 #include "callstack.hpp"
 #include "core.hpp"
+#include "log.hpp"
 #include "nt/nt.hpp"
 #include "reader.hpp"
 #include "tracer/heaps.gen.hpp"
@@ -83,14 +81,13 @@ struct plugins::HeapSan::Data
 {
     Data(core::Core& core, sym::Symbols& syms, proc_t target);
 
-    core::Core&    core_;
-    sym::Symbols&  symbols_;
-    nt::heaps      tracer_;
-    Callstack      callstack_;
-    Reallocs       reallocs_;
-    Heaps          heaps_;
-    proc_t         target_;
-    state::Breaker breaker_;
+    core::Core&   core_;
+    sym::Symbols& symbols_;
+    nt::heaps     tracer_;
+    Callstack     callstack_;
+    Reallocs      reallocs_;
+    Heaps         heaps_;
+    proc_t        target_;
 };
 
 Data::Data(core::Core& core, sym::Symbols& syms, proc_t target)
@@ -98,7 +95,6 @@ Data::Data(core::Core& core, sym::Symbols& syms, proc_t target)
     , symbols_(syms)
     , tracer_(core, syms, "ntdll")
     , target_(target)
-    , breaker_(core, target)
 {
 }
 
@@ -116,12 +112,12 @@ namespace
         if(it != d.reallocs_.end())
             return;
 
-        const auto ok = function::write_arg(d.core_, 1, {ptr_prolog + Size + ptr_epilog});
+        const auto ok = functions::write_arg(d.core_, 1, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
 
         const auto pdata = &d;
-        d.breaker_.break_return("return RtlpAllocateHeapInternal", [=]
+        functions::break_on_return(d.core_, "return RtlpAllocateHeapInternal", [=]
         {
             auto& d        = *pdata;
             const auto ptr = registers::read(d.core_, FDP_RAX_REGISTER);
@@ -143,7 +139,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        functions::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         d.heaps_.erase(it);
     }
 
@@ -153,12 +149,12 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        const auto ok = function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        const auto ok = functions::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         if(!ok)
             return;
 
         const auto pdata = &d;
-        d.breaker_.break_return("return RtlSizeHeap", [=]
+        functions::break_on_return(d.core_, "return RtlSizeHeap", [=]
         {
             auto& d         = *pdata;
             const auto size = registers::read(d.core_, FDP_RAX_REGISTER);
@@ -175,7 +171,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        functions::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
     static void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
@@ -184,7 +180,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        functions::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
     static void realloc_unknown_pointer(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID /*BaseAddress*/, nt::ULONG /*Size*/)
@@ -196,7 +192,7 @@ namespace
         // disable alloc hooks during this call
         d.reallocs_.insert(realloc_t{*thread, HeapHandle});
         const auto pdata = &d;
-        d.breaker_.break_return("return RtlpReAllocateHeapInternal unknown", [=]
+        functions::break_on_return(d.core_, "return RtlpReAllocateHeapInternal unknown", [=]
         {
             auto& d = *pdata;
             d.reallocs_.erase(realloc_t{*thread, HeapHandle});
@@ -217,12 +213,12 @@ namespace
             return;
 
         // tweak back pointer
-        auto ok = function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        auto ok = functions::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         if(!ok)
             return;
 
         // tweak size up
-        ok = function::write_arg(d.core_, 3, {ptr_prolog + Size + ptr_epilog});
+        ok = functions::write_arg(d.core_, 3, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
 
@@ -232,7 +228,7 @@ namespace
         // remove pointer from heap because it can be freed with original value
         d.heaps_.erase(it);
         const auto pdata = &d;
-        d.breaker_.break_return("return RtlpReAllocateHeapInternal known", [=]
+        functions::break_on_return(d.core_, "return RtlpReAllocateHeapInternal known", [=]
         {
             auto& d = *pdata;
             d.reallocs_.erase(realloc_t{*thread, HeapHandle});

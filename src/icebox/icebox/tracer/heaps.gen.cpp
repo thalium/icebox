@@ -70,7 +70,7 @@ namespace
     template <typename T>
     static T arg(core::Core& core, size_t i)
     {
-        const auto arg = function::read_arg(core, i);
+        const auto arg = functions::read_arg(core, i);
         if(!arg)
             return {};
 

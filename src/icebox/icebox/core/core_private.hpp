@@ -22,13 +22,20 @@ namespace state
     std::shared_ptr<State> setup();
 } // namespace state
 
+namespace functions
+{
+    struct Data;
+    std::shared_ptr<Data> setup();
+} // namespace functions
+
 namespace os { struct IModule; }
 
 namespace core
 {
-    using Memory = std::shared_ptr<memory::Memory>;
-    using State  = std::shared_ptr<state::State>;
-    using Os     = std::unique_ptr<os::IModule>;
+    using Memory    = std::shared_ptr<memory::Memory>;
+    using State     = std::shared_ptr<state::State>;
+    using Os        = std::unique_ptr<os::IModule>;
+    using Functions = std::shared_ptr<functions::Data>;
 
     struct Core
     {
@@ -38,6 +45,7 @@ namespace core
         fdp::shm*         shm_;
         Memory            mem_;
         State             state_;
+        Functions         func_;
         Os                os_;
     };
 } // namespace core
