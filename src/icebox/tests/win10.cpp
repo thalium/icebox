@@ -7,7 +7,6 @@
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/tracer/tracer.hpp>
-#include <icebox/waiter.hpp>
 
 #include <fmt/format.h>
 
@@ -220,10 +219,10 @@ namespace
 TEST_F(Win10Test, unable_to_single_step_query_information_process)
 {
     auto& core      = *ptr_core;
-    const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "ProcessHacker.exe", FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
-    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
     auto loader   = sym::Loader{core};
@@ -245,10 +244,10 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
 TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 {
     auto& core      = *ptr_core;
-    const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "ProcessHacker.exe", FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
-    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
     auto loader   = sym::Loader{core};
@@ -344,7 +343,7 @@ namespace
 TEST_F(Win10Test, loader)
 {
     auto& core      = *ptr_core;
-    const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
     process::join(core, *proc, process::JOIN_ANY_MODE);
@@ -357,18 +356,18 @@ TEST_F(Win10Test, loader)
     modules.mod_listen(*proc, {});
     EXPECT_GE(count_symbols(modules.symbols()), 32u);
 
-    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 }
 
 TEST_F(Win10Test, tracer)
 {
     auto& core      = *ptr_core;
-    const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
     process::join(core, *proc, process::JOIN_USER_MODE);
-    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
     auto loader = sym::Loader{core};
@@ -403,12 +402,12 @@ namespace
 TEST_F(Win10Test, callstacks)
 {
     auto& core      = *ptr_core;
-    const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
     auto loader = sym::Loader{core};
     loader.mod_listen(*proc, {});
-    const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
     auto& symbols   = loader.symbols();

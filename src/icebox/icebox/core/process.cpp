@@ -4,6 +4,7 @@
 #define FDP_MODULE "process"
 #include "core.hpp"
 #include "core_private.hpp"
+#include "log.hpp"
 #include "os_private.hpp"
 
 bool process::list(core::Core& core, process::on_proc_fn on_proc)
@@ -74,4 +75,40 @@ opt<os::bpid_t> process::listen_create(core::Core& core, const on_event_fn& on_p
 opt<os::bpid_t> process::listen_delete(core::Core& core, const on_event_fn& on_proc_event)
 {
     return core.os_->listen_proc_delete(on_proc_event);
+}
+
+opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_e flags)
+{
+    const auto proc = process::find_name(core, proc_name, flags);
+    if(proc)
+    {
+        process::join(core, *proc, process::JOIN_ANY_MODE);
+        return *proc;
+    }
+
+    opt<proc_t> found;
+    const auto bpid = process::listen_create(core, [&](proc_t proc)
+    {
+        const auto new_flags = process::flags(core, proc);
+        if(flags && !(new_flags & flags))
+            return;
+
+        const auto name = process::name(core, proc);
+        if(!name)
+            return;
+
+        LOG(INFO, "proc started: %s", name->data());
+        if(*name == proc_name)
+            found = proc;
+    });
+    if(!bpid)
+        return {};
+
+    while(!found)
+    {
+        state::resume(core);
+        state::wait(core);
+    }
+    os::unlisten(core, *bpid);
+    return found;
 }

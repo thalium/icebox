@@ -7,7 +7,6 @@
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/utils/file.hpp>
 #include <icebox/utils/path.hpp>
-#include <icebox/waiter.hpp>
 
 #include <string>
 
@@ -42,12 +41,12 @@ namespace
     static int listen_writefile(core::Core& core, const std::string& target)
     {
         LOG(INFO, "waiting for %s...", target.data());
-        const auto proc = waiter::proc_wait(core, target, FLAGS_NONE);
+        const auto proc = process::wait(core, target, FLAGS_NONE);
         if(!proc)
             return FAIL(-1, "unable to wait for %s", target.data());
 
         LOG(INFO, "process %s active", target.data());
-        const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+        const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 

@@ -31,6 +31,7 @@ namespace process
     opt<phy_t>          resolve         (core::Core&, proc_t proc, uint64_t ptr);
     opt<proc_t>         select          (core::Core&, proc_t proc, uint64_t ptr);
     opt<proc_t>         parent          (core::Core&, proc_t proc);
+    opt<proc_t>         wait            (core::Core& core, std::string_view name, flags_e flags);
     opt<bpid_t>         listen_create   (core::Core&, const on_event_fn& on_proc_event);
     opt<bpid_t>         listen_delete   (core::Core&, const on_event_fn& on_proc_event);
 } // namespace process

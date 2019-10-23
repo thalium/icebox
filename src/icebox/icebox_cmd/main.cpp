@@ -2,12 +2,10 @@
 #include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
-#include <icebox/os.hpp>
 #include <icebox/plugins/syscalls.hpp>
 #include <icebox/reader.hpp>
 #include <icebox/utils/path.hpp>
 #include <icebox/utils/pe.hpp>
-#include <icebox/waiter.hpp>
 
 #include <chrono>
 #include <string>
@@ -35,13 +33,13 @@ namespace
     void test_wait_and_trace(core::Core& core, const std::string& proc_target)
     {
         LOG(INFO, "searching for 32 bits %s process", proc_target.data());
-        const auto target = waiter::proc_wait(core, proc_target, FLAGS_32BIT);
+        const auto target = process::wait(core, proc_target, FLAGS_32BIT);
         if(!target)
             return;
 
         process::join(core, *target, process::JOIN_USER_MODE);
         const auto reader = reader::make(core, *target);
-        const auto mod    = waiter::mod_wait(core, *target, "ntdll.dll", FLAGS_32BIT);
+        const auto mod    = modules::wait(core, *target, "ntdll.dll", FLAGS_32BIT);
         if(!mod)
             return;
 
@@ -108,7 +106,7 @@ namespace
 
         const char proc_target[] = "notepad.exe";
         LOG(INFO, "searching for %s", proc_target);
-        const auto target = waiter::proc_wait(core, proc_target, FLAGS_NONE);
+        const auto target = process::wait(core, proc_target, FLAGS_NONE);
         if(!target)
             return false;
 

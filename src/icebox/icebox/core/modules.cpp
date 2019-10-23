@@ -5,6 +5,14 @@
 #include "core.hpp"
 #include "core_private.hpp"
 #include "os_private.hpp"
+#include "utils/path.hpp"
+
+#ifdef _MSC_VER
+#    define stricmp _stricmp
+#else
+#    include <strings.h>
+#    define stricmp strcasecmp
+#endif
 
 bool modules::list(core::Core& core, proc_t proc, modules::on_mod_fn on_mod)
 {
@@ -29,4 +37,68 @@ opt<mod_t> modules::find(core::Core& core, proc_t proc, uint64_t addr)
 opt<os::bpid_t> modules::listen_create(core::Core& core, const on_event_fn& on_load)
 {
     return core.os_->listen_mod_create(on_load);
+}
+
+namespace
+{
+    static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
+    {
+        opt<mod_t> found;
+        modules::list(core, proc, [&](mod_t mod)
+        {
+            const auto name = modules::name(core, proc, mod);
+            if(!name)
+                return WALK_NEXT;
+
+            if(flags && !(mod.flags & flags))
+                return WALK_NEXT;
+
+            if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
+                return WALK_NEXT;
+
+            found = mod;
+            return WALK_STOP;
+        });
+
+        return found;
+    }
+}
+
+opt<mod_t> modules::wait(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
+{
+    const auto mod = search_mod(core, proc, mod_name, flags);
+    if(mod)
+    {
+        process::join(core, proc, process::JOIN_USER_MODE);
+        return *mod;
+    }
+
+    opt<mod_t> found;
+    const auto bpid = modules::listen_create(core, [&](proc_t proc_loading, mod_t mod)
+    {
+        if(proc_loading.id != proc.id)
+            return;
+
+        if(flags && !(mod.flags & flags))
+            return;
+
+        const auto name = modules::name(core, proc_loading, mod);
+        if(!name)
+            return;
+
+        if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
+            return;
+
+        found = mod;
+    });
+    if(!bpid)
+        return {};
+
+    while(!found)
+    {
+        state::resume(core);
+        state::wait(core);
+    }
+    os::unlisten(core, *bpid);
+    return found;
 }
