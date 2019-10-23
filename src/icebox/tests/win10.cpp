@@ -7,7 +7,6 @@
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/tracer/tracer.hpp>
-#include <icebox/utils/fnview.hpp>
 #include <icebox/waiter.hpp>
 
 #include <fmt/format.h>

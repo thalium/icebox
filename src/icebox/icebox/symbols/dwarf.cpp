@@ -2,7 +2,6 @@
 
 #define FDP_MODULE "dwarf"
 #include "log.hpp"
-#include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
 #include <dwarf.h>
@@ -111,7 +110,7 @@ namespace
         return cu;
     }
 
-    static bool read_children(Dwarf& p, const Dwarf_Die& parent, fn::view<walk_e(const Dwarf_Die&)> on_child)
+    static bool read_children(Dwarf& p, const Dwarf_Die& parent, std::function<walk_e(const Dwarf_Die&)> on_child)
     {
         Dwarf_Die child = nullptr;
         auto ok         = dwarf_child(parent, &child, &p.err);
@@ -182,7 +181,7 @@ namespace
         return result_member;
     }
 
-    static bool get_structure(Dwarf& p, const std::string& name, fn::view<walk_e(const Dwarf_Die&)> on_structure)
+    static bool get_structure(Dwarf& p, const std::string& name, std::function<walk_e(const Dwarf_Die&)> on_structure)
     {
         if(name.empty())
             return false;

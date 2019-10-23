@@ -5,7 +5,6 @@
 #include "endian.hpp"
 #include "log.hpp"
 #include "reader.hpp"
-#include "utils/fnview.hpp"
 #include "utils/path.hpp"
 #include "utils/pe.hpp"
 #include "utils/utils.hpp"

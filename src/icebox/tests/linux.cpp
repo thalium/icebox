@@ -2,7 +2,6 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/os.hpp>
-#include <icebox/utils/fnview.hpp>
 #include <tests/common.hpp>
 
 #define GTEST_DONT_DEFINE_FAIL 1

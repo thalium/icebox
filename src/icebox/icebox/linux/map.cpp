@@ -2,7 +2,6 @@
 
 #define FDP_MODULE "map"
 #include "log.hpp"
-#include "utils/fnview.hpp"
 
 #include <algorithm>
 #include <fstream>

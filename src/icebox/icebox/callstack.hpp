@@ -3,6 +3,8 @@
 #include "enums.hpp"
 #include "types.hpp"
 
+#include <functional>
+
 namespace core { struct Core; }
 
 namespace callstack
@@ -19,7 +21,7 @@ namespace callstack
     {
         uint64_t addr;
     };
-    using on_callstep_fn = fn::view<walk_e(callstep_t)>;
+    using on_callstep_fn = std::function<walk_e(callstep_t)>;
 
     struct ICallstack
     {

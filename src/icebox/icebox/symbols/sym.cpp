@@ -1,6 +1,5 @@
 #include "symbols.hpp"
 
-#include "icebox/utils/fnview.hpp"
 #include "icebox/utils/hex.hpp"
 
 #include <unordered_map>

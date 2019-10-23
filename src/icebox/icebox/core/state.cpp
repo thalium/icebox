@@ -7,7 +7,6 @@
 #include "fdp.hpp"
 #include "log.hpp"
 #include "reader.hpp"
-#include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
 #include <cstring>
@@ -462,7 +461,7 @@ void state::run_to_current(core::Core& core, std::string_view name)
     });
 }
 
-void state::run_to(core::Core& core, std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t, thread_t)> on_bp)
+void state::run_to(core::Core& core, std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, std::function<walk_e(proc_t, thread_t)> on_bp)
 {
     if((bp_cr3 == BP_CR3_NONE) & ptrs.empty())
         return;

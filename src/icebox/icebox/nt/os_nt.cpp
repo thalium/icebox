@@ -6,7 +6,6 @@
 #include "log.hpp"
 #include "nt.hpp"
 #include "reader.hpp"
-#include "utils/fnview.hpp"
 #include "utils/hex.hpp"
 #include "utils/path.hpp"
 #include "utils/pe.hpp"

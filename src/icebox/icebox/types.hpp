@@ -68,9 +68,3 @@ struct vm_area_t
 {
     uint64_t id;
 };
-
-namespace fn
-{
-    template <typename T>
-    struct view;
-}

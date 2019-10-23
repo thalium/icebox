@@ -1,7 +1,6 @@
 #define FDP_MODULE "linux"
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
-#include <icebox/utils/fnview.hpp>
 
 #include <iomanip>
 #include <iostream>

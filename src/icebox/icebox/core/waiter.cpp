@@ -3,7 +3,6 @@
 #define FDP_MODULE "waiter"
 #include "core.hpp"
 #include "log.hpp"
-#include "utils/fnview.hpp"
 #include "utils/path.hpp"
 
 #ifdef _MSC_VER

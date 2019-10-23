@@ -11,7 +11,6 @@
 #include "reader.hpp"
 #include "tracer/syscalls32.gen.hpp"
 #include "utils/file.hpp"
-#include "utils/fnview.hpp"
 #include "utils/pe.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"

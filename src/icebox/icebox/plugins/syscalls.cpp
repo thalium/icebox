@@ -9,7 +9,6 @@
 #include "reader.hpp"
 #include "tracer/syscalls.gen.hpp"
 #include "utils/file.hpp"
-#include "utils/fnview.hpp"
 #include "utils/pe.hpp"
 
 #include <nlohmann/json.hpp>

@@ -8,7 +8,6 @@
 #include <icebox/os.hpp>
 #include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
-#include <icebox/utils/fnview.hpp>
 #include <icebox/utils/path.hpp>
 #include <icebox/utils/pe.hpp>
 

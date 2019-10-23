@@ -3,6 +3,8 @@
 #include "enums.hpp"
 #include "types.hpp"
 
+#include <functional>
+
 namespace sym
 {
     struct ModCursor
@@ -11,7 +13,7 @@ namespace sym
         uint64_t    offset;
     };
 
-    using on_sym_fn = fn::view<walk_e(std::string, uint64_t)>;
+    using on_sym_fn = std::function<walk_e(std::string, uint64_t)>;
 
     struct IMod
     {
@@ -45,7 +47,7 @@ namespace sym
          Symbols();
         ~Symbols();
 
-        using on_module_fn = fn::view<walk_e(const IMod& module)>;
+        using on_module_fn = std::function<walk_e(const IMod& module)>;
 
         bool            insert      (const std::string& name, std::unique_ptr<IMod>& module);
         bool            insert      (const std::string& name, span_t module, const void* data, const size_t data_size);

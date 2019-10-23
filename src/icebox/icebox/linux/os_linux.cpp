@@ -5,7 +5,6 @@
 #include "core/os_private.hpp"
 #include "log.hpp"
 #include "reader.hpp"
-#include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
 #include "map.hpp"
@@ -356,7 +355,7 @@ namespace
         return true;
     }
 
-    static bool find_linux_banner(OsLinux& p, fn::view<walk_e(uint64_t)> on_candidate)
+    static bool find_linux_banner(OsLinux& p, std::function<walk_e(uint64_t)> on_candidate)
     {
         if(!p.kpgd)
             return FAIL(false, "finding linux_banner requires a kernel page directory");
