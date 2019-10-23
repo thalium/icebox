@@ -17,26 +17,6 @@ namespace utils
         return x & ~(n - 1);
     }
 
-    template <typename T>
-    struct Defer
-    {
-        Defer(const T& defer)
-            : defer_(defer)
-        {
-        }
-        ~Defer()
-        {
-            defer_();
-        }
-        const T& defer_;
-    };
-
-    template <typename T>
-    Defer<T> defer(const T& defer)
-    {
-        return Defer<T>(defer);
-    }
-
     template <int WANT, int GOT>
     struct expect_eq
     {
