@@ -18,9 +18,9 @@ namespace
     static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
     {
         opt<mod_t> found;
-        core.os->mod_list(proc, [&](mod_t mod)
+        os::mod_list(core, proc, [&](mod_t mod)
         {
-            const auto name = core.os->mod_name(proc, mod);
+            const auto name = os::mod_name(core, proc, mod);
             if(!name)
                 return WALK_NEXT;
 
@@ -40,21 +40,21 @@ namespace
 
 opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flags_e flags)
 {
-    const auto proc = core.os->proc_find(proc_name, flags);
+    const auto proc = os::proc_find(core, proc_name, flags);
     if(proc)
     {
-        core.os->proc_join(*proc, os::JOIN_ANY_MODE);
+        os::proc_join(core, *proc, os::JOIN_ANY_MODE);
         return *proc;
     }
 
     opt<proc_t> found;
-    const auto bpid = core.os->listen_proc_create([&](proc_t proc)
+    const auto bpid = os::listen_proc_create(core, [&](proc_t proc)
     {
-        const auto new_flags = core.os->proc_flags(proc);
+        const auto new_flags = os::proc_flags(core, proc);
         if(flags && !(new_flags & flags))
             return;
 
-        const auto name = core.os->proc_name(proc);
+        const auto name = os::proc_name(core, proc);
         if(!name)
             return;
 
@@ -70,7 +70,7 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
         state::resume(core);
         state::wait(core);
     }
-    core.os->unlisten(*bpid);
+    os::unlisten(core, *bpid);
     return found;
 }
 
@@ -79,12 +79,12 @@ opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_
     const auto mod = search_mod(core, proc, mod_name, flags);
     if(mod)
     {
-        core.os->proc_join(proc, os::JOIN_USER_MODE);
+        os::proc_join(core, proc, os::JOIN_USER_MODE);
         return *mod;
     }
 
     opt<mod_t> found;
-    const auto bpid = core.os->listen_mod_create([&](proc_t proc_loading, mod_t mod)
+    const auto bpid = os::listen_mod_create(core, [&](proc_t proc_loading, mod_t mod)
     {
         if(proc_loading.id != proc.id)
             return;
@@ -92,7 +92,7 @@ opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_
         if(flags && !(mod.flags & flags))
             return;
 
-        const auto name = core.os->mod_name(proc_loading, mod);
+        const auto name = os::mod_name(core, proc_loading, mod);
         if(!name)
             return;
 
@@ -109,6 +109,6 @@ opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_
         state::resume(core);
         state::wait(core);
     }
-    core.os->unlisten(*bpid);
+    os::unlisten(core, *bpid);
     return found;
 }

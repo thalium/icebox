@@ -24,10 +24,13 @@ namespace state
     std::shared_ptr<State> setup();
 } // namespace state
 
+namespace os { struct IModule; }
+
 namespace core
 {
     using Memory = std::shared_ptr<memory::Memory>;
     using State  = std::shared_ptr<state::State>;
+    using Os     = std::unique_ptr<os::IModule>;
 
     struct Data
     {
@@ -37,5 +40,6 @@ namespace core
         fdp::shm*         shm_;
         Memory            mem_;
         State             state_;
+        Os                os_;
     };
 } // namespace core

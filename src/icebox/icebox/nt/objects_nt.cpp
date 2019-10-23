@@ -87,7 +87,7 @@ struct nt::ObjectNt::Data
 {
     Data(core::Core& core, proc_t proc)
         : core(core)
-        , syms(core.os->kernel_symbols())
+        , syms(os::kernel_symbols(core))
         , proc(proc)
         , reader(reader::make(core, proc))
     {

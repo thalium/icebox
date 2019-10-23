@@ -14,7 +14,7 @@ namespace
 {
     static uint64_t read_arg(core::Core& core, size_t i, size_t size)
     {
-        const auto arg = core.os->read_arg(i);
+        const auto arg = os::read_arg(core, i);
         if(!arg)
             return {};
 

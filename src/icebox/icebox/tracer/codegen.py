@@ -175,7 +175,7 @@ namespace
     template <typename T>
     static T arg(core::Core& core, size_t i)
     {{
-        const auto arg = core.os->read_arg(i);
+        const auto arg = os::read_arg(core, i);
         if(!arg)
             return {{}};
 

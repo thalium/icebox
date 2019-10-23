@@ -45,9 +45,9 @@ namespace
     opt<proc_t> utility_child(core::Core& core)
     {
         std::vector<proc_t> utilities;
-        core.os->proc_list([&](proc_t proc)
+        os::proc_list(core, [&](proc_t proc)
         {
-            const auto name = core.os->proc_name(proc);
+            const auto name = os::proc_name(core, proc);
             if(name && *name == UTILITY_NAME)
                 utilities.push_back(proc);
 
@@ -63,22 +63,22 @@ namespace
         for(const auto utility : utilities)
         {
             opt<proc_t> proc = utility;
-            auto pid         = core.os->proc_id(*proc);
+            auto pid         = os::proc_id(core, *proc);
 
             while(pid <= 4194304 && pid != 0)
             {
-                proc = core.os->proc_parent(*proc);
+                proc = os::proc_parent(core, *proc);
                 if(!proc)
                     break;
 
-                const auto name = core.os->proc_name(*proc);
+                const auto name = os::proc_name(core, *proc);
                 if(!name)
                     break;
 
                 if(*name == UTILITY_NAME)
                     return utility;
 
-                pid = core.os->proc_id(*proc);
+                pid = os::proc_id(core, *proc);
             }
         }
 
@@ -89,7 +89,7 @@ namespace
 TEST_F(LinuxTest, processes)
 {
     bool proc_list_empty = true;
-    core.os->proc_list([&](proc_t proc)
+    os::proc_list(core, [&](proc_t proc)
     {
         EXPECT_NE(proc.id, 0u);
         if(!proc.id)
@@ -97,32 +97,32 @@ TEST_F(LinuxTest, processes)
 
         proc_list_empty = false;
 
-        const auto name = core.os->proc_name(proc);
+        const auto name = os::proc_name(core, proc);
         EXPECT_TRUE(name && !name->empty());
 
         if(name && *name == UTILITY_NAME)
         {
-            EXPECT_EQ(core.os->proc_flags(proc), FLAGS_32BIT);
+            EXPECT_EQ(os::proc_flags(core, proc), FLAGS_32BIT);
         }
 
-        const auto pid = core.os->proc_id(proc);
+        const auto pid = os::proc_id(core, proc);
         EXPECT_LE(pid, 4194304u); // PID <= 4194304 for linux
 
         if(pid <= 1) // swapper and systemd/initrd
         {
-            EXPECT_EQ(core.os->proc_flags(proc), FLAGS_NONE);
+            EXPECT_EQ(os::proc_flags(core, proc), FLAGS_NONE);
         }
 
         opt<proc_t> children = proc;
         auto children_pid    = pid;
         while(children_pid <= 4194304 && children_pid != 0)
         {
-            children = core.os->proc_parent(*children);
+            children = os::proc_parent(core, *children);
             EXPECT_TRUE(children && children->id);
             if(!children)
                 break;
 
-            children_pid = core.os->proc_id(*children);
+            children_pid = os::proc_id(core, *children);
         }
         EXPECT_EQ(children_pid, 0u);
 
@@ -133,15 +133,15 @@ TEST_F(LinuxTest, processes)
     const auto child = utility_child(core);
     ASSERT_TRUE(child && child->id && child->dtb.val);
 
-    const auto child_find_by_pid = core.os->proc_find(core.os->proc_id(*child));
+    const auto child_find_by_pid = os::proc_find(core, os::proc_id(core, *child));
     EXPECT_EQ(child->id, child_find_by_pid->id);
     EXPECT_EQ(child->dtb.val, child_find_by_pid->dtb.val);
 
-    const auto utility_find_by_name = core.os->proc_find(UTILITY_NAME, FLAGS_NONE);
+    const auto utility_find_by_name = os::proc_find(core, UTILITY_NAME, FLAGS_NONE);
     EXPECT_TRUE(utility_find_by_name && utility_find_by_name->id && utility_find_by_name->dtb.val);
     if(utility_find_by_name)
     {
-        const auto name = core.os->proc_name(*utility_find_by_name);
+        const auto name = os::proc_name(core, *utility_find_by_name);
         EXPECT_TRUE(name);
         if(name)
         {
@@ -149,16 +149,16 @@ TEST_F(LinuxTest, processes)
         }
     }
 
-    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*child, os::JOIN_ANY_MODE), 5 * SECOND_NS);
-    auto current = core.os->proc_current();
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(os::proc_join(core, *child, os::JOIN_ANY_MODE), 5 * SECOND_NS);
+    auto current = os::proc_current(core);
     EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
 
     ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
 
-    ASSERT_EXEC_BEFORE_TIMEOUT_NS(core.os->proc_join(*child, os::JOIN_USER_MODE), 5 * SECOND_NS);
-    current = core.os->proc_current();
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(os::proc_join(core, *child, os::JOIN_USER_MODE), 5 * SECOND_NS);
+    current = os::proc_current(core);
     EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
@@ -169,10 +169,10 @@ TEST_F(LinuxTest, processes)
 
 TEST_F(LinuxTest, threads)
 {
-    const auto current = core.os->thread_current();
+    const auto current = os::thread_current(core);
     ASSERT_TRUE(current && current->id);
 
-    const auto current_pc = core.os->thread_pc({}, *current);
+    const auto current_pc = os::thread_pc(core, {}, *current);
     EXPECT_TRUE(current_pc && *current_pc);
     if(current_pc)
     {
@@ -183,7 +183,7 @@ TEST_F(LinuxTest, threads)
     ASSERT_TRUE(child && child->id && child->dtb.val);
 
     int thread_list_counter = 0;
-    core.os->thread_list(*child, [&](thread_t thread)
+    os::thread_list(core, *child, [&](thread_t thread)
     {
         EXPECT_NE(thread.id, 0u);
         if(!thread.id)
@@ -191,20 +191,20 @@ TEST_F(LinuxTest, threads)
 
         thread_list_counter++;
 
-        const auto proc = core.os->thread_proc(thread);
+        const auto proc = os::thread_proc(core, thread);
         EXPECT_TRUE(proc && proc->id && proc->dtb.val);
         EXPECT_EQ(child->id, proc->id);
         EXPECT_EQ(child->dtb.val, proc->dtb.val);
 
-        const auto pid = core.os->thread_id({}, thread);
+        const auto pid = os::thread_id(core, {}, thread);
         EXPECT_TRUE(pid <= 4194304); // PID <= 4194304 for linux
 
-        const auto pc = core.os->thread_pc({}, thread);
+        const auto pc = os::thread_pc(core, {}, thread);
         EXPECT_TRUE(pc && *pc);
         if(pc)
             if(thread.id != current->id)
             {
-                EXPECT_TRUE(core.os->is_kernel_address(*pc));
+                EXPECT_TRUE(os::is_kernel_address(core, *pc));
             }
 
         return WALK_NEXT;
@@ -215,7 +215,7 @@ TEST_F(LinuxTest, threads)
 TEST_F(LinuxTest, drivers)
 {
     int driver_list_counter = 0;
-    core.os->driver_list([&](driver_t driver)
+    os::driver_list(core, [&](driver_t driver)
     {
         EXPECT_NE(driver.id, 0ull);
         if(!driver.id)
@@ -223,19 +223,19 @@ TEST_F(LinuxTest, drivers)
 
         driver_list_counter++;
 
-        const auto name = core.os->driver_name(driver);
+        const auto name = os::driver_name(core, driver);
         EXPECT_TRUE(name);
         if(name)
         {
             EXPECT_NE(*name, "");
         }
 
-        const auto span = core.os->driver_span(driver);
+        const auto span = os::driver_span(core, driver);
         EXPECT_TRUE(span);
         if(span)
         {
             EXPECT_NE(span->addr, 0ull);
-            EXPECT_TRUE(core.os->is_kernel_address(span->addr));
+            EXPECT_TRUE(os::is_kernel_address(core, span->addr));
             EXPECT_NE(span->size, 0ull);
         }
 
@@ -246,43 +246,43 @@ TEST_F(LinuxTest, drivers)
 
 namespace
 {
-    void test_vma_modules(const core::Core& core, proc_t proc, std::string proc_name, int nb_mod)
+    void test_vma_modules(core::Core& core, proc_t proc, std::string proc_name, int nb_mod)
     {
         int vma_heap_or_stack = 0;
-        core.os->vm_area_list(proc, [&](vm_area_t vm_area)
+        os::vm_area_list(core, proc, [&](vm_area_t vm_area)
         {
             EXPECT_NE(vm_area.id, 0ull);
             if(!vm_area.id)
                 return WALK_NEXT;
 
-            const auto span = core.os->vm_area_span(proc, vm_area);
+            const auto span = os::vm_area_span(core, proc, vm_area);
             EXPECT_TRUE(span);
             if(span)
             {
                 EXPECT_NE(span->addr, 0ull);
-                EXPECT_FALSE(core.os->is_kernel_address(span->addr));
+                EXPECT_FALSE(os::is_kernel_address(core, span->addr));
                 EXPECT_NE(span->size, 0ull);
             }
 
-            const auto name = core.os->vm_area_name(proc, vm_area);
-            const auto type = core.os->vm_area_type(proc, vm_area);
+            const auto name = os::vm_area_name(core, proc, vm_area);
+            const auto type = os::vm_area_type(core, proc, vm_area);
 
             if(type == vma_type_e::heap || type == vma_type_e::stack)
             {
                 vma_heap_or_stack++;
 
                 EXPECT_FALSE(name);
-                EXPECT_EQ(core.os->vm_area_access(proc, vm_area), VMA_ACCESS_READ + VMA_ACCESS_WRITE);
+                EXPECT_EQ(os::vm_area_access(core, proc, vm_area), VMA_ACCESS_READ + VMA_ACCESS_WRITE);
             }
 
             if(type == vma_type_e::module && span && span->addr && span->size)
             {
-                const auto mod = core.os->mod_find(proc, span->addr + span->size / 2);
+                const auto mod = os::mod_find(core, proc, span->addr + span->size / 2);
                 EXPECT_TRUE(mod);
 
                 if(mod && name)
                 {
-                    EXPECT_EQ(*name, core.os->mod_name(proc, *mod));
+                    EXPECT_EQ(*name, os::mod_name(core, proc, *mod));
                 }
             }
 
@@ -298,7 +298,7 @@ namespace
         int mod_list_counter = 0;
         opt<std::string> last_mod_name;
         bool first_mod = true;
-        core.os->mod_list(proc, [&](mod_t mod)
+        os::mod_list(core, proc, [&](mod_t mod)
         {
             EXPECT_NE(mod.id, 0ull);
             if(!mod.id)
@@ -306,16 +306,16 @@ namespace
 
             mod_list_counter++;
 
-            const auto span = core.os->mod_span(proc, mod);
+            const auto span = os::mod_span(core, proc, mod);
             EXPECT_TRUE(span);
             if(span)
             {
                 EXPECT_NE(span->addr, 0ull);
-                EXPECT_FALSE(core.os->is_kernel_address(span->addr));
+                EXPECT_FALSE(os::is_kernel_address(core, span->addr));
                 EXPECT_NE(span->size, 0ull);
             }
 
-            const auto last_mod_name = core.os->mod_name(proc, mod);
+            const auto last_mod_name = os::mod_name(core, proc, mod);
             EXPECT_TRUE(last_mod_name);
 
             if(first_mod)
@@ -345,10 +345,10 @@ TEST_F(LinuxTest, vma_modules)
 
     test_vma_modules(core, *child, "linux_tst_ibx", 4); // 32 bits process
 
-    const auto bash = core.os->proc_parent(*child);
+    const auto bash = os::proc_parent(core, *child);
     ASSERT_TRUE(bash && bash->id && bash->dtb.val);
 
-    const auto bash_name = core.os->proc_name(*bash);
+    const auto bash_name = os::proc_name(core, *bash);
     ASSERT_TRUE(bash_name);
     ASSERT_EQ(*bash_name, "sh");
 

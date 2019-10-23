@@ -31,7 +31,7 @@ namespace
 
     bool is_rip_in_kernel(core::Core& core)
     {
-        return core.os->is_kernel_address(registers::read(core, FDP_RIP_REGISTER));
+        return os::is_kernel_address(core, registers::read(core, FDP_RIP_REGISTER));
     }
 }
 

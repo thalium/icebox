@@ -40,14 +40,14 @@ namespace
         if(!target)
             return;
 
-        core.os->proc_join(*target, os::JOIN_USER_MODE);
+        os::proc_join(core, *target, os::JOIN_USER_MODE);
         const auto reader = reader::make(core, *target);
         const auto mod    = waiter::mod_wait(core, *target, "ntdll.dll", FLAGS_32BIT);
         if(!mod)
             return;
 
-        core.os->proc_join(*target, os::JOIN_USER_MODE);
-        const auto span = core.os->mod_span(*target, *mod);
+        os::proc_join(core, *target, os::JOIN_USER_MODE);
+        const auto span = os::mod_span(core, *target, *mod);
         if(!span)
             return;
 
@@ -84,25 +84,25 @@ namespace
     bool test_core(core::Core& core)
     {
         LOG(INFO, "drivers:");
-        core.os->driver_list([&](driver_t drv)
+        os::driver_list(core, [&](driver_t drv)
         {
-            const auto name     = core.os->driver_name(drv);
-            const auto span     = core.os->driver_span(drv);
+            const auto name     = os::driver_name(core, drv);
+            const auto span     = os::driver_span(core, drv);
             const auto filename = name ? path::filename(*name).generic_string() : "_";
             LOG(INFO, "    driver: 0x%" PRIx64 " %s 0x%" PRIx64 " 0x%" PRIx64, drv.id, filename.data(), span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
         });
 
-        const auto pc = core.os->proc_current();
-        LOG(INFO, "current process: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", pc->id, pc->dtb.val, core.os->proc_name(*pc)->data());
+        const auto pc = os::proc_current(core);
+        LOG(INFO, "current process: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", pc->id, pc->dtb.val, os::proc_name(core, *pc)->data());
 
-        const auto tc = core.os->thread_current();
+        const auto tc = os::thread_current(core);
         LOG(INFO, "current thread: 0x%" PRIx64, tc->id);
 
         LOG(INFO, "processes:");
-        core.os->proc_list([&](proc_t proc)
+        os::proc_list(core, [&](proc_t proc)
         {
-            const auto procname = core.os->proc_name(proc);
+            const auto procname = os::proc_name(core, proc);
             LOG(INFO, "proc: 0x%" PRIx64 " %s", proc.id, procname ? procname->data() : "<noname>");
             return WALK_NEXT;
         });
@@ -113,26 +113,26 @@ namespace
         if(!target)
             return false;
 
-        LOG(INFO, "%s: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", proc_target, target->id, target->dtb.val, core.os->proc_name(*target)->data());
-        core.os->proc_join(*target, os::JOIN_ANY_MODE);
-        core.os->proc_join(*target, os::JOIN_USER_MODE);
+        LOG(INFO, "%s: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", proc_target, target->id, target->dtb.val, os::proc_name(core, *target)->data());
+        os::proc_join(core, *target, os::JOIN_ANY_MODE);
+        os::proc_join(core, *target, os::JOIN_USER_MODE);
 
-        const auto is_32bit = core.os->proc_flags(*target) & FLAGS_32BIT;
+        const auto is_32bit = os::proc_flags(core, *target) & FLAGS_32BIT;
 
         std::vector<uint8_t> buffer;
         const auto reader = reader::make(core, *target);
         size_t modcount   = 0;
-        core.os->mod_list(*target, [&](mod_t)
+        os::mod_list(core, *target, [&](mod_t)
         {
             ++modcount;
             return WALK_NEXT;
         });
         size_t modi = 0;
         sym::Symbols syms;
-        core.os->mod_list(*target, [&](mod_t mod)
+        os::mod_list(core, *target, [&](mod_t mod)
         {
-            const auto name = core.os->mod_name(*target, mod);
-            const auto span = core.os->mod_span(*target, mod);
+            const auto name = os::mod_name(core, *target, mod);
+            const auto span = os::mod_span(core, *target, mod);
             if(!name || !span)
                 return WALK_NEXT;
 
@@ -157,9 +157,9 @@ namespace
             return WALK_NEXT;
         });
 
-        core.os->thread_list(*target, [&](thread_t thread)
+        os::thread_list(core, *target, [&](thread_t thread)
         {
-            const auto rip = core.os->thread_pc(*target, thread);
+            const auto rip = os::thread_pc(core, *target, thread);
             if(!rip)
                 return WALK_NEXT;
 
@@ -170,18 +170,18 @@ namespace
 
         // check breakpoints
         {
-            const auto ptr = core.os->kernel_symbols().symbol("nt", "SwapContext");
+            const auto ptr = os::kernel_symbols(core).symbol("nt", "SwapContext");
             const auto bp  = state::set_breakpoint(core, "SwapContext", *ptr, [&]
             {
                 const auto rip = registers::read(core, FDP_RIP_REGISTER);
                 if(!rip)
                     return;
 
-                const auto proc     = core.os->proc_current();
-                const auto pid      = core.os->proc_id(*proc);
-                const auto thread   = core.os->thread_current();
-                const auto tid      = core.os->thread_id(*proc, *thread);
-                const auto procname = proc ? core.os->proc_name(*proc) : ext::nullopt;
+                const auto proc     = os::proc_current(core);
+                const auto pid      = os::proc_id(core, *proc);
+                const auto thread   = os::thread_current(core);
+                const auto tid      = os::thread_id(core, *proc, *thread);
+                const auto procname = proc ? os::proc_name(core, *proc) : ext::nullopt;
                 const auto sym      = syms.find(rip);
                 LOG(INFO, "BREAK! rip: 0x%" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
                     rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);

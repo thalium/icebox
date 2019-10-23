@@ -98,11 +98,11 @@ namespace
     {
         auto& d = *core.d_->state_;
         memset(&d.breakstate, 0, sizeof d.breakstate);
-        const auto thread = core.os->thread_current();
+        const auto thread = os::thread_current(core);
         if(!thread)
             return FAIL(false, "unable to get current thread");
 
-        const auto proc = core.os->thread_proc(*thread);
+        const auto proc = os::thread_proc(core, *thread);
         if(!proc)
             return FAIL(false, "unable to get current proc");
 
@@ -117,7 +117,7 @@ namespace
         d.breakstate.rip    = rip;
         d.breakstate.dtb    = dtb;
         d.breakstate.phy    = *phy;
-        core.os->debug_print();
+        os::debug_print(core);
         return true;
     }
 
@@ -303,7 +303,7 @@ namespace
         if(!bp.thread)
             return {};
 
-        const auto proc = core.os->thread_proc(*bp.thread);
+        const auto proc = os::thread_proc(core, *bp.thread);
         if(!proc)
             return {};
 
@@ -359,16 +359,16 @@ namespace
 
     static opt<phy_t> to_phy(core::Core& core, uint64_t ptr, const opt<proc_t>& proc)
     {
-        const auto current = proc ? proc : core.os->proc_current();
+        const auto current = proc ? proc : os::proc_current(core);
         if(!current)
             return {};
 
-        return core.os->proc_resolve(*current, ptr);
+        return os::proc_resolve(core, *current, ptr);
     }
 
     static state::Breakpoint set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        const auto target = proc ? core.os->proc_select(*proc, ptr) : ext::nullopt;
+        const auto target = proc ? os::proc_select(core, *proc, ptr) : ext::nullopt;
         const auto phy    = to_phy(core, ptr, target);
         if(!phy)
             return nullptr;
@@ -452,7 +452,7 @@ void state::run_to_proc(core::Core& core, std::string_view name, proc_t proc, ui
 void state::run_to_current(core::Core& core, std::string_view name)
 {
     auto& d           = *core.d_->state_;
-    const auto thread = core.os->thread_current();
+    const auto thread = os::thread_current(core);
     const auto rsp    = registers::read(core, FDP_RSP_REGISTER);
     const auto rip    = registers::read(core, FDP_RIP_REGISTER);
     const auto bp     = ::set_breakpoint(core, name, rip, {}, *thread, {});

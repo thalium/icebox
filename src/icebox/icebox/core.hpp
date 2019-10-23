@@ -22,9 +22,6 @@ namespace core
 
         bool setup(const std::string& name);
 
-        // members
-        std::unique_ptr<os::IModule> os;
-
         // private data
         std::unique_ptr<Data> d_;
     };

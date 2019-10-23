@@ -111,11 +111,11 @@ namespace
 
     static bool is_wow64_emulated(core::Core& core, const proc_t proc, const uint64_t addr)
     {
-        const auto mod = core.os->mod_find(proc, addr);
+        const auto mod = os::mod_find(core, proc, addr);
         if(!mod)
             return WALK_NEXT;
 
-        const auto mod_name = core.os->mod_name(proc, *mod);
+        const auto mod_name = os::mod_name(core, proc, *mod);
         if(!mod_name)
             return WALK_NEXT;
 
@@ -131,7 +131,7 @@ namespace
         const auto is_kernel_ctx = cs && 0x0F == 0x00;
         const auto teb           = registers::read_msr(core, is_kernel_ctx ? MSR_KERNEL_GS_BASE : MSR_GS_BASE);
 
-        auto& ksyms             = core.os->kernel_symbols();
+        auto& ksyms             = os::kernel_symbols(core);
         const auto TEB_TlsSlots = ksyms.struc_offset("nt", "_TEB", "TlsSlots");
         if(!TEB_TlsSlots)
             return {};
@@ -158,16 +158,16 @@ namespace
     static void load_proc_symbols(core::Core& core, proc_t proc, sym::Symbols& symbols, flags_e flag)
     {
         const auto reader = reader::make(core, proc);
-        core.os->mod_list(proc, [&](mod_t mod)
+        os::mod_list(core, proc, [&](mod_t mod)
         {
             if(flag && mod.flags != flag)
                 return WALK_NEXT;
 
-            const auto name = core.os->mod_name(proc, mod);
+            const auto name = os::mod_name(core, proc, mod);
             if(!name)
                 return WALK_NEXT;
 
-            const auto span = core.os->mod_span(proc, mod);
+            const auto span = os::mod_span(core, proc, mod);
             if(!span)
                 return WALK_NEXT;
 
@@ -247,7 +247,7 @@ namespace
 
     static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data, const CallStack& callstack)
     {
-        const auto thread = p.core.os->thread_current();
+        const auto thread = os::thread_current(p.core);
         if(!thread)
             return false;
 
@@ -291,29 +291,29 @@ namespace
 
         const auto bp_send = state::set_breakpoint(core, "NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
         {
-            const auto proc = core.os->proc_current();
+            const auto proc = os::proc_current(core);
             if(!proc)
                 return -1;
 
-            const auto netBufferLists = core.os->read_arg(1);
+            const auto netBufferLists = os::read_arg(core, 1);
             if(!netBufferLists)
                 return -1;
 
             const auto data = read_NetBufferList(core, netBufferLists->val);
 
-            const auto proc_name = core.os->proc_name(*proc);
+            const auto proc_name = os::proc_name(core, *proc);
             if(!proc_name)
                 return -1;
 
             pcap::metadata_t meta;
-            meta.comment   = *proc_name + "(" + std::to_string(core.os->proc_id(*proc)) + ")\n";
+            meta.comment   = *proc_name + "(" + std::to_string(os::proc_id(core, *proc)) + ")\n";
             const auto now = std::chrono::high_resolution_clock::now();
             meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
 
             auto continue_to_userland = false;
             kernel_callstack->get_callstack(*proc, [&](callstack::callstep_t callstep)
             {
-                if(core.os->is_kernel_address(callstep.addr))
+                if(os::is_kernel_address(core, callstep.addr))
                 {
                     meta.comment += get_callstep_name(kernel_sym.symbols(), callstep.addr);
                     return WALK_NEXT;
@@ -340,7 +340,7 @@ namespace
 
         const auto bp_recv = state::set_breakpoint(core, "NdisMIndicateReceiveNetBufferLists", *NdisReturnNetBufferLists, [&]
         {
-            const auto netBufferLists = core.os->read_arg(1);
+            const auto netBufferLists = os::read_arg(core, 1);
             if(!netBufferLists)
                 return -1;
 

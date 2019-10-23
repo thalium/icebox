@@ -109,7 +109,7 @@ namespace
 {
     static void on_RtlpAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
-        const auto thread = d.core_.os->thread_current();
+        const auto thread = os::thread_current(d.core_);
         if(!thread)
             return;
 
@@ -117,7 +117,7 @@ namespace
         if(it != d.reallocs_.end())
             return;
 
-        const auto ok = d.core_.os->write_arg(1, {ptr_prolog + Size + ptr_epilog});
+        const auto ok = os::write_arg(d.core_, 1, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
 
@@ -144,7 +144,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
+        os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         d.heaps_.erase(it);
     }
 
@@ -154,7 +154,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        const auto ok = d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
+        const auto ok = os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         if(!ok)
             return;
 
@@ -176,7 +176,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
+        os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
     static void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
@@ -185,12 +185,12 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
+        os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
     static void realloc_unknown_pointer(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID /*BaseAddress*/, nt::ULONG /*Size*/)
     {
-        const auto thread = d.core_.os->thread_current();
+        const auto thread = os::thread_current(d.core_);
         if(!thread)
             return;
 
@@ -213,17 +213,17 @@ namespace
         if(it == d.heaps_.end())
             return realloc_unknown_pointer(d, HeapHandle, Flags, BaseAddress, Size);
 
-        const auto thread = d.core_.os->thread_current();
+        const auto thread = os::thread_current(d.core_);
         if(!thread)
             return;
 
         // tweak back pointer
-        auto ok = d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
+        auto ok = os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         if(!ok)
             return;
 
         // tweak size up
-        ok = d.core_.os->write_arg(3, {ptr_prolog + Size + ptr_epilog});
+        ok = os::write_arg(d.core_, 3, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
 

@@ -6,6 +6,7 @@
 #include "fdp.hpp"
 #include "log.hpp"
 #include "os.hpp"
+#include "os_private.hpp"
 #include "private.hpp"
 
 #include <chrono>
@@ -50,17 +51,17 @@ namespace
         // register os helpers
         for(const auto& h : g_os_modules)
         {
-            core.os = h.make(core);
-            if(!core.os)
+            core.d_->os_ = h.make(core);
+            if(!core.d_->os_)
                 continue;
 
-            const auto ok = core.os->setup();
+            const auto ok = core.d_->os_->setup();
             if(ok)
                 break;
 
-            core.os.reset();
+            core.d_->os_.reset();
         }
-        if(core.os)
+        if(core.d_->os_)
             return true;
 
         state::resume(core);

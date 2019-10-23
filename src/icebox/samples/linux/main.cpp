@@ -15,14 +15,14 @@
     {                   \
     }
 
-std::string thread_pc(const core::Core& core, const thread_t& thread)
+std::string thread_pc(core::Core& core, const thread_t& thread)
 {
-    const auto pc = core.os->thread_pc({}, thread);
+    const auto pc = os::thread_pc(core, {}, thread);
 
     if(!pc)
         return "<err>";
 
-    auto syms = core.os->kernel_symbols().find("kernel_sym");
+    auto syms = os::kernel_symbols(core).find("kernel_sym");
     opt<sym::ModCursor> cursor;
     const uint64_t START_KERNEL = 0xffffffff80000000, END_KERNEL = 0xfffffffffff00000;
 
@@ -40,9 +40,9 @@ std::string thread_pc(const core::Core& core, const thread_t& thread)
     return (*cursor).symbol + internalOffset;
 }
 
-void display_thread(const core::Core& core, const thread_t& thread)
+void display_thread(core::Core& core, const thread_t& thread)
 {
-    const auto thread_id = core.os->thread_id({}, thread);
+    const auto thread_id = os::thread_id(core, {}, thread);
 
     LOG(INFO, "thread : 0x%" PRIx64 "  id:%s %s %s",
         thread.id,
@@ -58,20 +58,20 @@ const std::string pad_with(const std::string& arg, int pad)
     return reply.append(need, ' ');
 }
 
-void display_proc(const core::Core& core, const proc_t& proc)
+void display_proc(core::Core& core, const proc_t& proc)
 {
-    const auto proc_pid      = core.os->proc_id(proc);
-    auto proc_name           = core.os->proc_name(proc);
-    const bool proc_32bits   = (core.os->proc_flags(proc) & FLAGS_32BIT);
-    const auto proc_parent   = core.os->proc_parent(proc);
+    const auto proc_pid      = os::proc_id(core, proc);
+    auto proc_name           = os::proc_name(core, proc);
+    const bool proc_32bits   = (os::proc_flags(core, proc) & FLAGS_32BIT);
+    const auto proc_parent   = os::proc_parent(core, proc);
     uint64_t proc_parent_pid = 0xffffffffffffffff;
     if(proc_parent)
-        proc_parent_pid = core.os->proc_id(*proc_parent);
+        proc_parent_pid = os::proc_id(core, *proc_parent);
 
     std::string leader_thread_pc;
     std::string threads;
     int threads_count = -1;
-    core.os->thread_list(proc, [&](thread_t thread)
+    os::thread_list(core, proc, [&](thread_t thread)
     {
         if(threads_count++ < 0)
         {
@@ -82,7 +82,7 @@ void display_proc(const core::Core& core, const proc_t& proc)
         if(threads_count > 1)
             threads.append(", ");
 
-        threads.append(std::to_string(core.os->thread_id({}, thread)));
+        threads.append(std::to_string(os::thread_id(core, {}, thread)));
         return WALK_NEXT;
     });
 
@@ -104,10 +104,10 @@ void display_proc(const core::Core& core, const proc_t& proc)
 void display_mod(core::Core& core, const proc_t& proc)
 {
     state::pause(core);
-    core.os->mod_list(proc, [&](mod_t mod)
+    os::mod_list(core, proc, [&](mod_t mod)
     {
-        const auto span = core.os->mod_span(proc, mod);
-        auto name       = core.os->mod_name({}, mod);
+        const auto span = os::mod_span(core, proc, mod);
+        auto name       = os::mod_name(core, {}, mod);
         if(!name)
             name = "<no-name>";
 
@@ -125,10 +125,10 @@ void display_mod(core::Core& core, const proc_t& proc)
 void display_vm_area(core::Core& core, const proc_t& proc)
 {
     state::pause(core);
-    core.os->vm_area_list(proc, [&](vm_area_t vm_area)
+    os::vm_area_list(core, proc, [&](vm_area_t vm_area)
     {
-        const auto span      = core.os->vm_area_span(proc, vm_area);
-        const auto type      = core.os->vm_area_type(proc, vm_area);
+        const auto span      = os::vm_area_span(core, proc, vm_area);
+        const auto type      = os::vm_area_type(core, proc, vm_area);
         std::string type_str = "             ";
         if(type == vma_type_e::main_binary)
             type_str = "[main-binary]";
@@ -141,14 +141,14 @@ void display_vm_area(core::Core& core, const proc_t& proc)
         else if(type == vma_type_e::specific_os)
             type_str = "[os-area]    ";
 
-        const auto access      = core.os->vm_area_access(proc, vm_area);
+        const auto access      = os::vm_area_access(core, proc, vm_area);
         std::string access_str = "";
         access_str += (access & VMA_ACCESS_READ) ? "r" : "-";
         access_str += (access & VMA_ACCESS_WRITE) ? "w" : "-";
         access_str += (access & VMA_ACCESS_EXEC) ? "x" : "-";
         access_str += (access & VMA_ACCESS_SHARED) ? "s" : "p";
 
-        auto name = core.os->vm_area_name(proc, vm_area);
+        auto name = os::vm_area_name(core, proc, vm_area);
         if(!name)
             name = "";
 
@@ -183,7 +183,7 @@ opt<proc_t> select_process(core::Core& core)
             return {};
 
         state::pause(core);
-        const auto target = core.os->proc_find(pid);
+        const auto target = os::proc_find(core, pid);
         state::resume(core);
         if(target)
             return *target;
@@ -197,9 +197,9 @@ void proc_join(core::Core& core, proc_t target, os::join_e mode)
     state::pause(core);
 
     printf("Process found, VM running...\n");
-    core.os->proc_join(target, mode);
+    os::proc_join(core, target, mode);
 
-    const auto thread = core.os->thread_current();
+    const auto thread = os::thread_current(core);
     if(thread)
     {
         std::cout << "Current thread  : ";
@@ -208,7 +208,7 @@ void proc_join(core::Core& core, proc_t target, os::join_e mode)
     else
         LOG(ERROR, "no current thread");
 
-    const auto proc = core.os->proc_current();
+    const auto proc = os::proc_current(core);
     if(proc)
     {
         std::cout << "Current process : ";
@@ -246,7 +246,7 @@ int main(int argc, char** argv)
 
     // get list of processes
     state::pause(core);
-    core.os->proc_list([&](proc_t proc)
+    os::proc_list(core, [&](proc_t proc)
     {
         display_proc(core, proc);
         return WALK_NEXT;
@@ -257,13 +257,13 @@ int main(int argc, char** argv)
     printf("\n--- Join a process in kernel mode ---\n");
     auto target = select_process(core);
     if(target)
-        proc_join(core, *target, os::JOIN_ANY_MODE);
+        os::proc_join(core, *target, os::JOIN_ANY_MODE);
 
     // proc_join in user mode
     printf("\n--- Join a process in user mode ---\n");
     target = select_process(core);
     if(target)
-        proc_join(core, *target, os::JOIN_USER_MODE);
+        os::proc_join(core, *target, os::JOIN_USER_MODE);
 
     printf("\n");
     SYSTEM_PAUSE
@@ -271,10 +271,10 @@ int main(int argc, char** argv)
 
     // get list of drivers
     state::pause(core);
-    core.os->driver_list([&](driver_t driver)
+    os::driver_list(core, [&](driver_t driver)
     {
-        const auto span = core.os->driver_span(driver);
-        auto name       = core.os->driver_name(driver);
+        const auto span = os::driver_span(core, driver);
+        auto name       = os::driver_name(core, driver);
         if(!name)
             name = "<no-name>";
 

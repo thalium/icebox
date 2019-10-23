@@ -10,7 +10,7 @@ namespace
     static opt<T> read_mem(const reader::Reader& r, uint64_t ptr)
     {
         T value;
-        const auto dtb = r.core_.os->is_kernel_address(ptr) ? r.kdtb_ : r.udtb_;
+        const auto dtb = os::is_kernel_address(r.core_, ptr) ? r.kdtb_ : r.udtb_;
         const auto ok  = memory::read_virtual_with_dtb(r.core_, &value, dtb, ptr, sizeof value);
         if(!ok)
             return {};
@@ -22,8 +22,7 @@ namespace
     {
         const auto cr3 = registers::read(core, FDP_CR3_REGISTER);
         auto reader    = reader::Reader{core, {cr3}, {cr3}};
-        if(core.os)
-            core.os->reader_setup(reader, proc);
+        os::reader_setup(core, reader, proc);
         return reader;
     }
 }
@@ -83,13 +82,13 @@ opt<uint64_t> reader::Reader::read(uint64_t ptr) const
 
 bool reader::Reader::read(void* dst, uint64_t ptr, size_t size) const
 {
-    const auto dtb = core_.os->is_kernel_address(ptr) ? kdtb_ : udtb_;
+    const auto dtb = os::is_kernel_address(core_, ptr) ? kdtb_ : udtb_;
     return memory::read_virtual_with_dtb(core_, dst, dtb, ptr, size);
 }
 
 opt<phy_t> reader::Reader::physical(uint64_t ptr) const
 {
-    const auto dtb = core_.os->is_kernel_address(ptr) ? kdtb_ : udtb_;
+    const auto dtb = os::is_kernel_address(core_, ptr) ? kdtb_ : udtb_;
     const auto phy = memory::virtual_to_physical(core_, ptr, dtb);
     if(!phy)
         return {};

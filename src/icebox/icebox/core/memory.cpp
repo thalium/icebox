@@ -116,7 +116,7 @@ opt<phy_t> memory::virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb
     if(ret)
         return ret;
 
-    if(!core.os || !core.os->can_inject_fault(ptr))
+    if(!os::can_inject_fault(core, ptr))
         return {};
 
     auto& mem = *core.d_->mem_;
@@ -162,7 +162,7 @@ namespace
         if(full)
             return true;
 
-        if(!core.os || !core.os->can_inject_fault(src))
+        if(!os::can_inject_fault(core, src))
             return false;
 
         return read_pages("virtual", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)

@@ -236,16 +236,16 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     auto mod      = find_prev(addr, modules);
     if(mod)
     {
-        const auto span = core_.os->mod_span(proc, *mod);
+        const auto span = os::mod_span(core_, proc, *mod);
         if(addr <= span->addr + span->size)
             return mod;
     }
 
-    mod = core_.os->mod_find(proc, addr);
+    mod = os::mod_find(core_, proc, addr);
     if(!mod)
         return {};
 
-    const auto span = core_.os->mod_span(proc, *mod);
+    const auto span = os::mod_span(core_, proc, *mod);
     modules.emplace(span->addr, *mod);
     return mod;
 }
@@ -255,16 +255,16 @@ opt<driver_t> CallstackNt::find_drv(uint64_t addr)
     auto drv = find_prev(addr, all_drivers_);
     if(drv)
     {
-        const auto span = core_.os->driver_span(*drv);
+        const auto span = os::driver_span(core_, *drv);
         if(addr <= span->addr + span->size)
             return drv;
     }
 
-    drv = core_.os->driver_find(addr);
+    drv = os::driver_find(core_, addr);
     if(!drv)
         return {};
 
-    const auto span = core_.os->driver_span(*drv);
+    const auto span = os::driver_span(core_, *drv);
     all_drivers_.emplace(span->addr, *drv);
     return drv;
 }
@@ -304,9 +304,9 @@ namespace
     {
         std::unique_ptr<sym::Symbols> sym;
         const auto reader = reader::make(core, proc);
-        core.os->mod_list(proc, [&](mod_t mod)
+        os::mod_list(core, proc, [&](mod_t mod)
         {
-            const auto name = core.os->mod_name(proc, mod);
+            const auto name = os::mod_name(core, proc, mod);
             if(!name)
                 return WALK_NEXT;
 
@@ -318,7 +318,7 @@ namespace
             if(is_32bit ^ is_wow64)
                 return WALK_NEXT;
 
-            const auto span = core.os->mod_span(proc, mod);
+            const auto span = os::mod_span(core, proc, mod);
             if(!span)
                 return WALK_NEXT;
 
@@ -403,7 +403,7 @@ namespace
 
     static opt<span_t> get_stack(CallstackNt& c, proc_t proc, const callstack::context_t& ctxt, bool is_32bits)
     {
-        if(c.core_.os->is_kernel_address(ctxt.ip))
+        if(os::is_kernel_address(c.core_, ctxt.ip))
             return get_kernel_stack(c);
 
         return get_user_stack(c, proc, is_32bits);
@@ -411,14 +411,14 @@ namespace
 
     static opt<std::tuple<std::string, span_t>> get_name_span(CallstackNt& c, proc_t proc, const callstack::context_t& ctx)
     {
-        if(c.core_.os->is_kernel_address(ctx.ip))
+        if(os::is_kernel_address(c.core_, ctx.ip))
         {
             const auto drv = c.find_drv(ctx.ip);
             if(!drv)
                 return {};
 
-            auto name = c.core_.os->driver_name(*drv);
-            auto span = c.core_.os->driver_span(*drv);
+            auto name = os::driver_name(c.core_, *drv);
+            auto span = os::driver_span(c.core_, *drv);
             if(!name || !span)
                 return {};
 
@@ -429,8 +429,8 @@ namespace
         if(!mod)
             return {};
 
-        auto name = c.core_.os->mod_name(proc, *mod);
-        auto span = c.core_.os->mod_span(proc, *mod);
+        auto name = os::mod_name(c.core_, proc, *mod);
+        auto span = os::mod_span(c.core_, proc, *mod);
         if(!name || !span)
             return {};
 

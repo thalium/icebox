@@ -55,7 +55,7 @@ namespace
     static bool load_module_named(Data& d, const reader::Reader& reader, proc_t proc, mod_t mod, const std::string& name)
     {
         LOG(INFO, "loading module %s", name.data());
-        const auto span = d.core.os->mod_span(proc, mod);
+        const auto span = os::mod_span(d.core, proc, mod);
         if(!span)
             return false;
 
@@ -65,7 +65,7 @@ namespace
     static bool load_driver_named(Data& d, const reader::Reader& reader, driver_t drv, const std::string& name)
     {
         LOG(INFO, "loading driver %s", name.data());
-        const auto span = d.core.os->driver_span(drv);
+        const auto span = os::driver_span(d.core, drv);
         if(!span)
             return false;
 
@@ -74,7 +74,7 @@ namespace
 
     static bool load_module(Data& d, const reader::Reader& reader, proc_t proc, mod_t mod, const sym::mod_predicate_fn& predicate)
     {
-        const auto name = d.core.os->mod_name(proc, mod);
+        const auto name = os::mod_name(d.core, proc, mod);
         if(!name)
             return false;
 
@@ -90,7 +90,7 @@ namespace
 
     static void load_driver(Data& d, const reader::Reader& reader, driver_t drv, const sym::drv_predicate_fn& predicate)
     {
-        const auto name = d.core.os->driver_name(drv);
+        const auto name = os::driver_name(d.core, drv);
         if(!name)
             return;
 
@@ -117,12 +117,12 @@ void sym::Loader::mod_listen(proc_t proc, sym::mod_predicate_fn predicate)
 {
     auto& d           = *d_;
     const auto reader = reader::make(d.core, proc);
-    d.core.os->mod_list(proc, [&](mod_t mod)
+    os::mod_list(d.core, proc, [&](mod_t mod)
     {
         load_module(d, reader, proc, mod, predicate);
         return WALK_NEXT;
     });
-    const auto bpid = d.core.os->listen_mod_create([=](proc_t mod_proc, mod_t mod)
+    const auto bpid = os::listen_mod_create(d.core, [=](proc_t mod_proc, mod_t mod)
     {
         if(proc.id != mod_proc.id)
             return;
@@ -137,12 +137,12 @@ void sym::Loader::drv_listen(sym::drv_predicate_fn predicate)
 {
     auto& d           = *d_;
     const auto reader = reader::make(d.core);
-    d.core.os->driver_list([&](driver_t drv)
+    os::driver_list(d.core, [&](driver_t drv)
     {
         load_driver(d, reader, drv, predicate);
         return WALK_NEXT;
     });
-    const auto bpid = d.core.os->listen_drv_create([=](driver_t drv, bool load)
+    const auto bpid = os::listen_drv_create(d.core, [=](driver_t drv, bool load)
     {
         if(load)
             load_driver(*d_, reader, drv, predicate);
@@ -155,7 +155,7 @@ sym::Loader::~Loader()
 {
     auto& d = *d_;
     for(const auto bpid : d.breakpoints)
-        d.core.os->unlisten(bpid);
+        os::unlisten(d.core, bpid);
 }
 
 bool sym::Loader::mod_load(proc_t proc, mod_t mod)

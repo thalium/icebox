@@ -2,6 +2,7 @@
 
 #define FDP_MODULE "os_nt"
 #include "core.hpp"
+#include "core/os_private.hpp"
 #include "log.hpp"
 #include "nt.hpp"
 #include "reader.hpp"
@@ -146,7 +147,7 @@ namespace
     using NtOffsets = std::array<uint64_t, OFFSET_COUNT>;
     using NtSymbols = std::array<uint64_t, SYMBOL_COUNT>;
 
-    using bpid_t      = os::IModule::bpid_t;
+    using bpid_t      = os::bpid_t;
     using Breakpoints = std::multimap<bpid_t, state::Breakpoint>;
 
     struct OsNt
@@ -161,7 +162,7 @@ namespace
         bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
         sym::Symbols&   kernel_symbols      () override;
 
-        bool                proc_list       (on_proc_fn on_process) override;
+        bool                proc_list       (os::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
         opt<proc_t>         proc_find       (std::string_view name, flags_e flags) override;
         opt<proc_t>         proc_find       (uint64_t pid) override;
@@ -174,35 +175,35 @@ namespace
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
 
-        bool            thread_list     (proc_t proc, on_thread_fn on_thread) override;
+        bool            thread_list     (proc_t proc, os::on_thread_fn on_thread) override;
         opt<thread_t>   thread_current  () override;
         opt<proc_t>     thread_proc     (thread_t thread) override;
         opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
         uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list(proc_t proc, on_mod_fn on_module) override;
+        bool                mod_list(proc_t proc, os::on_mod_fn on_module) override;
         opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
         opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
-        bool                vm_area_list    (proc_t proc, on_vm_area_fn on_vm_area) override;
+        bool                vm_area_list    (proc_t proc, os::on_vm_area_fn on_vm_area) override;
         opt<vm_area_t>      vm_area_find    (proc_t proc, uint64_t addr) override;
         opt<span_t>         vm_area_span    (proc_t proc, vm_area_t vm_area) override;
         vma_access_e        vm_area_access  (proc_t proc, vm_area_t vm_area) override;
         vma_type_e          vm_area_type    (proc_t proc, vm_area_t vm_area) override;
         opt<std::string>    vm_area_name    (proc_t proc, vm_area_t vm_area) override;
 
-        bool                driver_list (on_driver_fn on_driver) override;
+        bool                driver_list (os::on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (uint64_t addr) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
-        opt<bpid_t> listen_proc_create  (const on_proc_event_fn& on_proc_event) override;
-        opt<bpid_t> listen_proc_delete  (const on_proc_event_fn& on_proc_event) override;
-        opt<bpid_t> listen_thread_create(const on_thread_event_fn& on_thread_event) override;
-        opt<bpid_t> listen_thread_delete(const on_thread_event_fn& on_thread_event) override;
-        opt<bpid_t> listen_mod_create   (const on_mod_event_fn& on_load) override;
-        opt<bpid_t> listen_drv_create   (const on_drv_event_fn& on_drv) override;
+        opt<bpid_t> listen_proc_create  (const os::on_proc_event_fn& on_proc_event) override;
+        opt<bpid_t> listen_proc_delete  (const os::on_proc_event_fn& on_proc_event) override;
+        opt<bpid_t> listen_thread_create(const os::on_thread_event_fn& on_thread_event) override;
+        opt<bpid_t> listen_thread_delete(const os::on_thread_event_fn& on_thread_event) override;
+        opt<bpid_t> listen_mod_create   (const os::on_mod_event_fn& on_load) override;
+        opt<bpid_t> listen_drv_create   (const os::on_drv_event_fn& on_drv) override;
         size_t      unlisten            (bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
@@ -361,7 +362,7 @@ namespace
     }
 }
 
-bool OsNt::proc_list(on_proc_fn on_process)
+bool OsNt::proc_list(os::on_proc_fn on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
@@ -501,7 +502,7 @@ namespace
         return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
     }
 
-    static void on_PspInsertThread(OsNt& os, bpid_t, const OsNt::on_proc_event_fn& on_proc)
+    static void on_PspInsertThread(OsNt& os, bpid_t, const os::on_proc_event_fn& on_proc)
     {
         // check if it is a CreateProcess if ActiveThreads = 0
         const auto eproc          = registers::read(os.core_, FDP_RDX_REGISTER);
@@ -516,42 +517,42 @@ namespace
             on_proc(*proc);
     }
 
-    static void on_PspInsertThread(OsNt& os, bpid_t, const OsNt::on_thread_event_fn& on_thread)
+    static void on_PspInsertThread(OsNt& os, bpid_t, const os::on_thread_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, FDP_RCX_REGISTER);
         on_thread({thread});
     }
 
-    static void on_PspExitProcess(OsNt& os, bpid_t, const OsNt::on_proc_event_fn& on_proc)
+    static void on_PspExitProcess(OsNt& os, bpid_t, const os::on_proc_event_fn& on_proc)
     {
         const auto eproc = registers::read(os.core_, FDP_RDX_REGISTER);
         if(const auto proc = make_proc(os, eproc))
             on_proc(*proc);
     }
 
-    static void on_PspExitThread(OsNt& os, bpid_t, const OsNt::on_thread_event_fn& on_thread)
+    static void on_PspExitThread(OsNt& os, bpid_t, const os::on_thread_event_fn& on_thread)
     {
         if(const auto thread = os.thread_current())
             on_thread(*thread);
     }
 }
 
-opt<bpid_t> OsNt::listen_proc_create(const on_proc_event_fn& on_create)
+opt<bpid_t> OsNt::listen_proc_create(const os::on_proc_event_fn& on_create)
 {
     return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
-opt<bpid_t> OsNt::listen_proc_delete(const on_proc_event_fn& on_delete)
+opt<bpid_t> OsNt::listen_proc_delete(const os::on_proc_event_fn& on_delete)
 {
     return register_listener(*this, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
 }
 
-opt<bpid_t> OsNt::listen_thread_create(const on_thread_event_fn& on_create)
+opt<bpid_t> OsNt::listen_thread_create(const os::on_thread_event_fn& on_create)
 {
     return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
-opt<bpid_t> OsNt::listen_thread_delete(const on_thread_event_fn& on_delete)
+opt<bpid_t> OsNt::listen_thread_delete(const os::on_thread_event_fn& on_delete)
 {
     return register_listener(*this, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
 }
@@ -642,7 +643,7 @@ namespace
 
     constexpr auto x86_cs = 0x23;
 
-    static void on_LdrpInsertDataTableEntry(OsNt& os, bpid_t, const OsNt::on_mod_event_fn& on_mod)
+    static void on_LdrpInsertDataTableEntry(OsNt& os, bpid_t, const os::on_mod_event_fn& on_mod)
     {
         const auto proc = os.proc_current();
         if(!proc)
@@ -693,7 +694,7 @@ namespace
         return get_phy_from_sym(os, proc, os.syms_, mod, name);
     }
 
-    static void on_PsCallImageNotifyRoutines(OsNt& os, KernelModCreateCtx& ctx, bpid_t bpid, const OsNt::on_mod_event_fn& on_mod)
+    static void on_PsCallImageNotifyRoutines(OsNt& os, KernelModCreateCtx& ctx, bpid_t bpid, const os::on_mod_event_fn& on_mod)
     {
         if(ctx.done)
             return;
@@ -719,7 +720,7 @@ namespace
     }
 }
 
-opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
+opt<bpid_t> OsNt::listen_mod_create(const os::on_mod_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
     const auto ctx  = std::make_shared<KernelModCreateCtx>();
@@ -742,7 +743,7 @@ opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
     return bpid;
 }
 
-opt<bpid_t> OsNt::listen_drv_create(const on_drv_event_fn& on_drv)
+opt<bpid_t> OsNt::listen_drv_create(const os::on_drv_event_fn& on_drv)
 {
     const auto bpid = ++last_bpid_;
     const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_drv, [](OsNt& os, bpid_t /*bpid*/, const auto& on_drv)
@@ -764,7 +765,7 @@ size_t OsNt::unlisten(bpid_t bpid)
 
 namespace
 {
-    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, os::IModule::on_mod_fn on_mod)
+    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, os::on_mod_fn on_mod)
     {
         const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
@@ -793,7 +794,7 @@ namespace
         return WALK_NEXT;
     }
 
-    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, os::IModule::on_mod_fn on_mod)
+    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, os::on_mod_fn on_mod)
     {
         const auto peb32 = read_wow64_peb(os, reader, proc);
         if(!peb32)
@@ -823,7 +824,7 @@ namespace
     }
 }
 
-bool OsNt::mod_list(proc_t proc, on_mod_fn on_mod)
+bool OsNt::mod_list(proc_t proc, os::on_mod_fn on_mod)
 {
     const auto reader = reader::make(core_, proc);
     auto ret          = mod_list_64(*this, proc, reader, on_mod);
@@ -850,7 +851,7 @@ opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
     opt<mod_t> found = {};
     mod_list(proc, [&](mod_t mod)
     {
-        const auto span = core_.os->mod_span(proc, mod);
+        const auto span = mod_span(proc, mod);
         if(!span)
             return WALK_NEXT;
 
@@ -917,7 +918,7 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
     return mod_span_64(reader, mod);
 }
 
-bool OsNt::vm_area_list(proc_t /*proc*/, on_vm_area_fn /*on_vm_area*/)
+bool OsNt::vm_area_list(proc_t /*proc*/, os::on_vm_area_fn /*on_vm_area*/)
 {
     return false;
 }
@@ -947,7 +948,7 @@ opt<std::string> OsNt::vm_area_name(proc_t /*proc*/, vm_area_t /*vm_area*/)
     return {};
 }
 
-bool OsNt::driver_list(on_driver_fn on_driver)
+bool OsNt::driver_list(os::on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
@@ -961,7 +962,7 @@ opt<driver_t> OsNt::driver_find(uint64_t addr)
     opt<driver_t> found;
     driver_list([&](driver_t drv)
     {
-        const auto span = core_.os->driver_span(drv);
+        const auto span = driver_span(drv);
         if(!span)
             return WALK_NEXT;
 
@@ -992,7 +993,7 @@ opt<span_t> OsNt::driver_span(driver_t drv)
     return span_t{*base, *size};
 }
 
-bool OsNt::thread_list(proc_t proc, on_thread_fn on_thread)
+bool OsNt::thread_list(proc_t proc, os::on_thread_fn on_thread)
 {
     const auto head = proc.id + offsets_[EPROCESS_ThreadListHead];
     for(auto link = reader_.read(head); link && link != head; link = reader_.read(*link))
