@@ -63,26 +63,6 @@ opt<std::string> os::vm_area_name(core::Core& core, proc_t proc, vm_area_t vm_ar
     return core.os_->vm_area_name(proc, vm_area);
 }
 
-bool os::driver_list(core::Core& core, on_driver_fn on_driver)
-{
-    return core.os_->driver_list(on_driver);
-}
-
-opt<driver_t> os::driver_find(core::Core& core, uint64_t addr)
-{
-    return core.os_->driver_find(addr);
-}
-
-opt<std::string> os::driver_name(core::Core& core, driver_t drv)
-{
-    return core.os_->driver_name(drv);
-}
-
-opt<span_t> os::driver_span(core::Core& core, driver_t drv)
-{
-    return core.os_->driver_span(drv);
-}
-
 opt<os::bpid_t> os::listen_proc_create(core::Core& core, const on_proc_event_fn& on_proc_event)
 {
     return core.os_->listen_proc_create(on_proc_event);

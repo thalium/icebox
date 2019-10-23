@@ -84,10 +84,10 @@ namespace
     bool test_core(core::Core& core)
     {
         LOG(INFO, "drivers:");
-        os::driver_list(core, [&](driver_t drv)
+        drivers::list(core, [&](driver_t drv)
         {
-            const auto name     = os::driver_name(core, drv);
-            const auto span     = os::driver_span(core, drv);
+            const auto name     = drivers::name(core, drv);
+            const auto span     = drivers::span(core, drv);
             const auto filename = name ? path::filename(*name).generic_string() : "_";
             LOG(INFO, "    driver: 0x%" PRIx64 " %s 0x%" PRIx64 " 0x%" PRIx64, drv.id, filename.data(), span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;

@@ -193,7 +193,7 @@ namespace
         vma_type_e          vm_area_type    (proc_t proc, vm_area_t vm_area) override;
         opt<std::string>    vm_area_name    (proc_t proc, vm_area_t vm_area) override;
 
-        bool                driver_list (os::on_driver_fn on_driver) override;
+        bool                driver_list (drivers::on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (uint64_t addr) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
@@ -948,7 +948,7 @@ opt<std::string> OsNt::vm_area_name(proc_t /*proc*/, vm_area_t /*vm_area*/)
     return {};
 }
 
-bool OsNt::driver_list(os::on_driver_fn on_driver)
+bool OsNt::driver_list(drivers::on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))

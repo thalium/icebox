@@ -65,7 +65,7 @@ namespace
     static bool load_driver_named(Data& d, const reader::Reader& reader, driver_t drv, const std::string& name)
     {
         LOG(INFO, "loading driver %s", name.data());
-        const auto span = os::driver_span(d.core, drv);
+        const auto span = drivers::span(d.core, drv);
         if(!span)
             return false;
 
@@ -90,7 +90,7 @@ namespace
 
     static void load_driver(Data& d, const reader::Reader& reader, driver_t drv, const sym::drv_predicate_fn& predicate)
     {
-        const auto name = os::driver_name(d.core, drv);
+        const auto name = drivers::name(d.core, drv);
         if(!name)
             return;
 
@@ -137,7 +137,7 @@ void sym::Loader::drv_listen(sym::drv_predicate_fn predicate)
 {
     auto& d           = *d_;
     const auto reader = reader::make(d.core);
-    os::driver_list(d.core, [&](driver_t drv)
+    drivers::list(d.core, [&](driver_t drv)
     {
         load_driver(d, reader, drv, predicate);
         return WALK_NEXT;

@@ -255,16 +255,16 @@ opt<driver_t> CallstackNt::find_drv(uint64_t addr)
     auto drv = find_prev(addr, all_drivers_);
     if(drv)
     {
-        const auto span = os::driver_span(core_, *drv);
+        const auto span = drivers::span(core_, *drv);
         if(addr <= span->addr + span->size)
             return drv;
     }
 
-    drv = os::driver_find(core_, addr);
+    drv = drivers::find(core_, addr);
     if(!drv)
         return {};
 
-    const auto span = os::driver_span(core_, *drv);
+    const auto span = drivers::span(core_, *drv);
     all_drivers_.emplace(span->addr, *drv);
     return drv;
 }
@@ -417,8 +417,8 @@ namespace
             if(!drv)
                 return {};
 
-            auto name = os::driver_name(c.core_, *drv);
-            auto span = os::driver_span(c.core_, *drv);
+            auto name = drivers::name(c.core_, *drv);
+            auto span = drivers::span(c.core_, *drv);
             if(!name || !span)
                 return {};
 

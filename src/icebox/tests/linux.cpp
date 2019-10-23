@@ -217,7 +217,7 @@ TEST_F(LinuxTest, drivers)
 {
     auto& core              = *ptr_core;
     int driver_list_counter = 0;
-    os::driver_list(core, [&](driver_t driver)
+    drivers::list(core, [&](driver_t driver)
     {
         EXPECT_NE(driver.id, 0ull);
         if(!driver.id)
@@ -225,14 +225,14 @@ TEST_F(LinuxTest, drivers)
 
         driver_list_counter++;
 
-        const auto name = os::driver_name(core, driver);
+        const auto name = drivers::name(core, driver);
         EXPECT_TRUE(name);
         if(name)
         {
             EXPECT_NE(*name, "");
         }
 
-        const auto span = os::driver_span(core, driver);
+        const auto span = drivers::span(core, driver);
         EXPECT_TRUE(span);
         if(span)
         {

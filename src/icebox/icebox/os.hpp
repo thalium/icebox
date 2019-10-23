@@ -12,7 +12,6 @@ namespace reader { struct Reader; }
 namespace os
 {
     using on_vm_area_fn = fn::view<walk_e(vm_area_t)>;
-    using on_driver_fn  = fn::view<walk_e(driver_t)>;
 
     using bpid_t             = uint64_t;
     using on_proc_event_fn   = std::function<void(proc_t)>;
@@ -31,11 +30,6 @@ namespace os
     vma_access_e        vm_area_access  (core::Core&, proc_t proc, vm_area_t vm_area);
     vma_type_e          vm_area_type    (core::Core&, proc_t proc, vm_area_t vm_area);
     opt<std::string>    vm_area_name    (core::Core&, proc_t proc, vm_area_t vm_area);
-
-    bool                driver_list (core::Core&, on_driver_fn on_driver);
-    opt<driver_t>       driver_find (core::Core&, uint64_t addr);
-    opt<std::string>    driver_name (core::Core&, driver_t drv);
-    opt<span_t>         driver_span (core::Core&, driver_t drv);
 
     opt<bpid_t> listen_proc_create  (core::Core&, const on_proc_event_fn& on_proc_event);
     opt<bpid_t> listen_proc_delete  (core::Core&, const on_proc_event_fn& on_proc_event);

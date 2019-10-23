@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 
+#include "drivers.hpp"
 #include "memory.hpp"
 #include "modules.hpp"
 #include "os.hpp"

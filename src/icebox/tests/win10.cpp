@@ -55,11 +55,11 @@ TEST_F(Win10Test, drivers)
 
     Drivers drivers;
     auto& core = *ptr_core;
-    os::driver_list(core, [&](driver_t drv)
+    drivers::list(core, [&](driver_t drv)
     {
-        const auto name = os::driver_name(core, drv);
+        const auto name = drivers::name(core, drv);
         EXPECT_TRUE(!!name);
-        const auto span = os::driver_span(core, drv);
+        const auto span = drivers::span(core, drv);
         EXPECT_TRUE(!!span);
         drivers.emplace(*name, Driver{drv.id, span->addr, span->size});
         return WALK_NEXT;
@@ -74,7 +74,7 @@ TEST_F(Win10Test, drivers)
     EXPECT_GT(size, 0u);
 
     const auto want = addr + (size >> 1);
-    const auto drv  = os::driver_find(core, want);
+    const auto drv  = drivers::find(core, want);
     EXPECT_TRUE(!!drv);
     EXPECT_EQ(id, drv->id);
 }

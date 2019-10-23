@@ -270,10 +270,10 @@ int main(int argc, char** argv)
 
     // get list of drivers
     state::pause(*core);
-    os::driver_list(*core, [&](driver_t driver)
+    drivers::list(*core, [&](driver_t driver)
     {
-        const auto span = os::driver_span(*core, driver);
-        auto name       = os::driver_name(*core, driver);
+        const auto span = drivers::span(*core, driver);
+        auto name       = drivers::name(*core, driver);
         if(!name)
             name = "<no-name>";
 
