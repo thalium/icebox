@@ -198,12 +198,12 @@ namespace
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
-        opt<bpid_t> listen_proc_create  (const os::on_proc_event_fn& on_proc_event) override;
-        opt<bpid_t> listen_proc_delete  (const os::on_proc_event_fn& on_proc_event) override;
-        opt<bpid_t> listen_thread_create(const os::on_thread_event_fn& on_thread_event) override;
-        opt<bpid_t> listen_thread_delete(const os::on_thread_event_fn& on_thread_event) override;
-        opt<bpid_t> listen_mod_create   (const os::on_mod_event_fn& on_load) override;
-        opt<bpid_t> listen_drv_create   (const os::on_drv_event_fn& on_drv) override;
+        opt<bpid_t> listen_proc_create  (const process::on_event_fn& on_proc_event) override;
+        opt<bpid_t> listen_proc_delete  (const process::on_event_fn& on_proc_event) override;
+        opt<bpid_t> listen_thread_create(const threads::on_event_fn& on_thread_event) override;
+        opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_thread_event) override;
+        opt<bpid_t> listen_mod_create   (const modules::on_event_fn& on_load) override;
+        opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_drv) override;
         size_t      unlisten            (bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
@@ -502,7 +502,7 @@ namespace
         return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
     }
 
-    static void on_PspInsertThread(OsNt& os, bpid_t, const os::on_proc_event_fn& on_proc)
+    static void on_PspInsertThread(OsNt& os, bpid_t, const process::on_event_fn& on_proc)
     {
         // check if it is a CreateProcess if ActiveThreads = 0
         const auto eproc          = registers::read(os.core_, FDP_RDX_REGISTER);
@@ -517,42 +517,42 @@ namespace
             on_proc(*proc);
     }
 
-    static void on_PspInsertThread(OsNt& os, bpid_t, const os::on_thread_event_fn& on_thread)
+    static void on_PspInsertThread(OsNt& os, bpid_t, const threads::on_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, FDP_RCX_REGISTER);
         on_thread({thread});
     }
 
-    static void on_PspExitProcess(OsNt& os, bpid_t, const os::on_proc_event_fn& on_proc)
+    static void on_PspExitProcess(OsNt& os, bpid_t, const process::on_event_fn& on_proc)
     {
         const auto eproc = registers::read(os.core_, FDP_RDX_REGISTER);
         if(const auto proc = make_proc(os, eproc))
             on_proc(*proc);
     }
 
-    static void on_PspExitThread(OsNt& os, bpid_t, const os::on_thread_event_fn& on_thread)
+    static void on_PspExitThread(OsNt& os, bpid_t, const threads::on_event_fn& on_thread)
     {
         if(const auto thread = os.thread_current())
             on_thread(*thread);
     }
 }
 
-opt<bpid_t> OsNt::listen_proc_create(const os::on_proc_event_fn& on_create)
+opt<bpid_t> OsNt::listen_proc_create(const process::on_event_fn& on_create)
 {
     return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
-opt<bpid_t> OsNt::listen_proc_delete(const os::on_proc_event_fn& on_delete)
+opt<bpid_t> OsNt::listen_proc_delete(const process::on_event_fn& on_delete)
 {
     return register_listener(*this, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
 }
 
-opt<bpid_t> OsNt::listen_thread_create(const os::on_thread_event_fn& on_create)
+opt<bpid_t> OsNt::listen_thread_create(const threads::on_event_fn& on_create)
 {
     return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
-opt<bpid_t> OsNt::listen_thread_delete(const os::on_thread_event_fn& on_delete)
+opt<bpid_t> OsNt::listen_thread_delete(const threads::on_event_fn& on_delete)
 {
     return register_listener(*this, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
 }
@@ -643,7 +643,7 @@ namespace
 
     constexpr auto x86_cs = 0x23;
 
-    static void on_LdrpInsertDataTableEntry(OsNt& os, bpid_t, const os::on_mod_event_fn& on_mod)
+    static void on_LdrpInsertDataTableEntry(OsNt& os, bpid_t, const modules::on_event_fn& on_mod)
     {
         const auto proc = os.proc_current();
         if(!proc)
@@ -694,7 +694,7 @@ namespace
         return get_phy_from_sym(os, proc, os.syms_, mod, name);
     }
 
-    static void on_PsCallImageNotifyRoutines(OsNt& os, KernelModCreateCtx& ctx, bpid_t bpid, const os::on_mod_event_fn& on_mod)
+    static void on_PsCallImageNotifyRoutines(OsNt& os, KernelModCreateCtx& ctx, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
         if(ctx.done)
             return;
@@ -720,7 +720,7 @@ namespace
     }
 }
 
-opt<bpid_t> OsNt::listen_mod_create(const os::on_mod_event_fn& on_mod)
+opt<bpid_t> OsNt::listen_mod_create(const modules::on_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
     const auto ctx  = std::make_shared<KernelModCreateCtx>();
@@ -743,7 +743,7 @@ opt<bpid_t> OsNt::listen_mod_create(const os::on_mod_event_fn& on_mod)
     return bpid;
 }
 
-opt<bpid_t> OsNt::listen_drv_create(const os::on_drv_event_fn& on_drv)
+opt<bpid_t> OsNt::listen_drv_create(const drivers::on_event_fn& on_drv)
 {
     const auto bpid = ++last_bpid_;
     const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_drv, [](OsNt& os, bpid_t /*bpid*/, const auto& on_drv)

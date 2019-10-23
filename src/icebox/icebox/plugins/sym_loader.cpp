@@ -122,7 +122,7 @@ void sym::Loader::mod_listen(proc_t proc, sym::mod_predicate_fn predicate)
         load_module(d, reader, proc, mod, predicate);
         return WALK_NEXT;
     });
-    const auto bpid = os::listen_mod_create(d.core, [=](proc_t mod_proc, mod_t mod)
+    const auto bpid = modules::listen_create(d.core, [=](proc_t mod_proc, mod_t mod)
     {
         if(proc.id != mod_proc.id)
             return;
@@ -142,7 +142,7 @@ void sym::Loader::drv_listen(sym::drv_predicate_fn predicate)
         load_driver(d, reader, drv, predicate);
         return WALK_NEXT;
     });
-    const auto bpid = os::listen_drv_create(d.core, [=](driver_t drv, bool load)
+    const auto bpid = drivers::listen_create(d.core, [=](driver_t drv, bool load)
     {
         if(load)
             load_driver(*d_, reader, drv, predicate);

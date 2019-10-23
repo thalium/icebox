@@ -33,36 +33,6 @@ sym::Symbols& os::kernel_symbols(core::Core& core)
     return core.os_->kernel_symbols();
 }
 
-opt<os::bpid_t> os::listen_proc_create(core::Core& core, const on_proc_event_fn& on_proc_event)
-{
-    return core.os_->listen_proc_create(on_proc_event);
-}
-
-opt<os::bpid_t> os::listen_proc_delete(core::Core& core, const on_proc_event_fn& on_proc_event)
-{
-    return core.os_->listen_proc_delete(on_proc_event);
-}
-
-opt<os::bpid_t> os::listen_thread_create(core::Core& core, const on_thread_event_fn& on_thread_event)
-{
-    return core.os_->listen_thread_create(on_thread_event);
-}
-
-opt<os::bpid_t> os::listen_thread_delete(core::Core& core, const on_thread_event_fn& on_thread_event)
-{
-    return core.os_->listen_thread_delete(on_thread_event);
-}
-
-opt<os::bpid_t> os::listen_mod_create(core::Core& core, const on_mod_event_fn& on_load)
-{
-    return core.os_->listen_mod_create(on_load);
-}
-
-opt<os::bpid_t> os::listen_drv_create(core::Core& core, const on_drv_event_fn& on_load)
-{
-    return core.os_->listen_drv_create(on_load);
-}
-
 size_t os::unlisten(core::Core& core, bpid_t bpid)
 {
     return core.os_->unlisten(bpid);

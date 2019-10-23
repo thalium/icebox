@@ -266,12 +266,12 @@ namespace
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
-        opt<os::bpid_t> listen_proc_create  (const os::on_proc_event_fn& on_create) override;
-        opt<os::bpid_t> listen_proc_delete  (const os::on_proc_event_fn& on_delete) override;
-        opt<os::bpid_t> listen_thread_create(const os::on_thread_event_fn& on_create) override;
-        opt<os::bpid_t> listen_thread_delete(const os::on_thread_event_fn& on_delete) override;
-        opt<os::bpid_t> listen_mod_create   (const os::on_mod_event_fn& on_create) override;
-        opt<os::bpid_t> listen_drv_create   (const os::on_drv_event_fn& on_drv) override;
+        opt<os::bpid_t> listen_proc_create  (const process::on_event_fn& on_create) override;
+        opt<os::bpid_t> listen_proc_delete  (const process::on_event_fn& on_delete) override;
+        opt<os::bpid_t> listen_thread_create(const threads::on_event_fn& on_create) override;
+        opt<os::bpid_t> listen_thread_delete(const threads::on_event_fn& on_delete) override;
+        opt<os::bpid_t> listen_mod_create   (const modules::on_event_fn& on_create) override;
+        opt<os::bpid_t> listen_drv_create   (const drivers::on_event_fn& on_drv) override;
         size_t          unlisten            (os::bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
@@ -1382,32 +1382,32 @@ void OsLinux::debug_print()
 {
 }
 
-opt<os::bpid_t> OsLinux::listen_proc_create(const os::on_proc_event_fn& /*on_create*/)
+opt<os::bpid_t> OsLinux::listen_proc_create(const process::on_event_fn& /*on_create*/)
 {
     return {};
 }
 
-opt<os::bpid_t> OsLinux::listen_proc_delete(const os::on_proc_event_fn& /*on_delete*/)
+opt<os::bpid_t> OsLinux::listen_proc_delete(const process::on_event_fn& /*on_delete*/)
 {
     return {};
 }
 
-opt<os::bpid_t> OsLinux::listen_thread_create(const os::on_thread_event_fn& /*on_create*/)
+opt<os::bpid_t> OsLinux::listen_thread_create(const threads::on_event_fn& /*on_create*/)
 {
     return {};
 }
 
-opt<os::bpid_t> OsLinux::listen_thread_delete(const os::on_thread_event_fn& /*on_remove*/)
+opt<os::bpid_t> OsLinux::listen_thread_delete(const threads::on_event_fn& /*on_remove*/)
 {
     return {};
 }
 
-opt<os::bpid_t> OsLinux::listen_mod_create(const os::on_mod_event_fn& /*on_create*/)
+opt<os::bpid_t> OsLinux::listen_mod_create(const modules::on_event_fn& /*on_create*/)
 {
     return {};
 }
 
-opt<os::bpid_t> OsLinux::listen_drv_create(const os::on_drv_event_fn&)
+opt<os::bpid_t> OsLinux::listen_drv_create(const drivers::on_event_fn&)
 {
     return {};
 }

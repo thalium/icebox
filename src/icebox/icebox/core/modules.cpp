@@ -25,3 +25,8 @@ opt<mod_t> modules::find(core::Core& core, proc_t proc, uint64_t addr)
 {
     return core.os_->mod_find(proc, addr);
 }
+
+opt<os::bpid_t> modules::listen_create(core::Core& core, const on_event_fn& on_load)
+{
+    return core.os_->listen_mod_create(on_load);
+}
