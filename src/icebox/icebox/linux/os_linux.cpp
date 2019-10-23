@@ -355,7 +355,8 @@ namespace
         return true;
     }
 
-    static bool find_linux_banner(OsLinux& p, std::function<walk_e(uint64_t)> on_candidate)
+    template <typename T>
+    static bool find_linux_banner(OsLinux& p, T on_candidate)
     {
         if(!p.kpgd)
             return FAIL(false, "finding linux_banner requires a kernel page directory");
@@ -983,7 +984,8 @@ uint64_t OsLinux::thread_id(proc_t, thread_t thread) // return opt ?, remove pro
 
 namespace
 {
-    bool vm_area_list_from(OsLinux& p, vm_area_t from, vm_area::on_vm_area_fn on_vm_area)
+    template <typename T>
+    bool vm_area_list_from(OsLinux& p, vm_area_t from, T on_vm_area)
     {
         opt<uint64_t> vm_area;
         for(vm_area = from.id; vm_area && *vm_area; vm_area = p.reader_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))

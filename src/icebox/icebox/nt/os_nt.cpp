@@ -764,7 +764,7 @@ size_t OsNt::unlisten(bpid_t bpid)
 
 namespace
 {
-    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, modules::on_mod_fn on_mod)
+    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
     {
         const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
@@ -793,7 +793,7 @@ namespace
         return WALK_NEXT;
     }
 
-    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, modules::on_mod_fn on_mod)
+    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
     {
         const auto peb32 = read_wow64_peb(os, reader, proc);
         if(!peb32)

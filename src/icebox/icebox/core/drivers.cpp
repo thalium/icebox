@@ -8,7 +8,7 @@
 
 bool drivers::list(core::Core& core, on_driver_fn on_driver)
 {
-    return core.os_->driver_list(on_driver);
+    return core.os_->driver_list(std::move(on_driver));
 }
 
 opt<driver_t> drivers::find(core::Core& core, uint64_t addr)

@@ -110,7 +110,8 @@ namespace
         return cu;
     }
 
-    static bool read_children(Dwarf& p, const Dwarf_Die& parent, std::function<walk_e(const Dwarf_Die&)> on_child)
+    template <typename T>
+    static bool read_children(Dwarf& p, const Dwarf_Die& parent, T on_child)
     {
         Dwarf_Die child = nullptr;
         auto ok         = dwarf_child(parent, &child, &p.err);
@@ -181,7 +182,8 @@ namespace
         return result_member;
     }
 
-    static bool get_structure(Dwarf& p, const std::string& name, std::function<walk_e(const Dwarf_Die&)> on_structure)
+    template <typename T>
+    static bool get_structure(Dwarf& p, const std::string& name, T on_structure)
     {
         if(name.empty())
             return false;

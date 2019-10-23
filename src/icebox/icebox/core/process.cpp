@@ -9,7 +9,7 @@
 
 bool process::list(core::Core& core, process::on_proc_fn on_proc)
 {
-    return core.os_->proc_list(on_proc);
+    return core.os_->proc_list(std::move(on_proc));
 }
 
 opt<proc_t> process::current(core::Core& core)

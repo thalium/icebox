@@ -24,7 +24,7 @@ bool os::reader_setup(core::Core& core, reader::Reader& reader, opt<proc_t> proc
     if(!core.os_)
         return true;
 
-    return core.os_->reader_setup(reader, proc);
+    return core.os_->reader_setup(reader, std::move(proc));
 }
 
 sym::Symbols& os::kernel_symbols(core::Core& core)

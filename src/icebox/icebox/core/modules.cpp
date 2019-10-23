@@ -16,7 +16,7 @@
 
 bool modules::list(core::Core& core, proc_t proc, modules::on_mod_fn on_mod)
 {
-    return core.os_->mod_list(proc, on_mod);
+    return core.os_->mod_list(proc, std::move(on_mod));
 }
 
 opt<std::string> modules::name(core::Core& core, proc_t proc, mod_t mod)

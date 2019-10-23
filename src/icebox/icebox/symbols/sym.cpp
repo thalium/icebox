@@ -77,7 +77,7 @@ bool sym::Symbols::remove(const std::string& name)
     return !!ret;
 }
 
-bool sym::Symbols::list(on_module_fn on_module)
+bool sym::Symbols::list(const on_module_fn& on_module)
 {
     for(const auto& m : d_->mods_)
         if(on_module(*m.second) == WALK_STOP)

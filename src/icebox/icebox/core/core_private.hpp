@@ -4,8 +4,6 @@
 #    error do not include this header directly
 #endif
 
-namespace fdp { struct shm; }
-
 namespace fdp
 {
     struct shm;
@@ -34,7 +32,7 @@ namespace core
 
     struct Core
     {
-        Core(const std::string& name);
+        Core(std::string name);
 
         const std::string name_;
         fdp::shm*         shm_;

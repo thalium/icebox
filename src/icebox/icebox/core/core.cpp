@@ -10,8 +10,8 @@
 #include <chrono>
 #include <thread>
 
-core::Core::Core(const std::string& name)
-    : name_(name)
+core::Core::Core(std::string name)
+    : name_(std::move(name))
     , shm_(nullptr)
 {
 }

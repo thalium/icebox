@@ -52,7 +52,7 @@ namespace sym
         bool            insert      (const std::string& name, std::unique_ptr<IMod>& module);
         bool            insert      (const std::string& name, span_t module, const void* data, const size_t data_size);
         bool            remove      (const std::string& name);
-        bool            list        (on_module_fn on_module);
+        bool            list        (const on_module_fn& on_module);
         IMod*           find        (const std::string& name);
         opt<uint64_t>   symbol      (const std::string& module, const std::string& symbol);
         opt<uint64_t>   struc_offset(const std::string& module, const std::string& struc, const std::string& member);

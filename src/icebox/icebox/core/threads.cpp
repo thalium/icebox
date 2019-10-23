@@ -8,7 +8,7 @@
 
 bool threads::list(core::Core& core, proc_t proc, threads::on_thread_fn on_thread)
 {
-    return core.os_->thread_list(proc, on_thread);
+    return core.os_->thread_list(proc, std::move(on_thread));
 }
 
 opt<thread_t> threads::current(core::Core& core)

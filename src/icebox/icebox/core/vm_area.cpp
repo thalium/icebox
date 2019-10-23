@@ -8,7 +8,7 @@
 
 bool vm_area::list(core::Core& core, proc_t proc, on_vm_area_fn on_vm_area)
 {
-    return core.os_->vm_area_list(proc, on_vm_area);
+    return core.os_->vm_area_list(proc, std::move(on_vm_area));
 }
 
 opt<vm_area_t> vm_area::find(core::Core& core, proc_t proc, uint64_t addr)
