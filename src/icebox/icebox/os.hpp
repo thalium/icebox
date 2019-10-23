@@ -11,8 +11,6 @@ namespace reader { struct Reader; }
 
 namespace os
 {
-    using on_vm_area_fn = fn::view<walk_e(vm_area_t)>;
-
     using bpid_t             = uint64_t;
     using on_proc_event_fn   = std::function<void(proc_t)>;
     using on_thread_event_fn = std::function<void(thread_t)>;
@@ -23,13 +21,6 @@ namespace os
     bool            can_inject_fault    (core::Core&, uint64_t ptr);
     bool            reader_setup        (core::Core&, reader::Reader& reader, opt<proc_t> proc);
     sym::Symbols&   kernel_symbols      (core::Core&);
-
-    bool                vm_area_list    (core::Core&, proc_t proc, on_vm_area_fn on_vm_area);
-    opt<vm_area_t>      vm_area_find    (core::Core&, proc_t proc, uint64_t addr);
-    opt<span_t>         vm_area_span    (core::Core&, proc_t proc, vm_area_t vm_area);
-    vma_access_e        vm_area_access  (core::Core&, proc_t proc, vm_area_t vm_area);
-    vma_type_e          vm_area_type    (core::Core&, proc_t proc, vm_area_t vm_area);
-    opt<std::string>    vm_area_name    (core::Core&, proc_t proc, vm_area_t vm_area);
 
     opt<bpid_t> listen_proc_create  (core::Core&, const on_proc_event_fn& on_proc_event);
     opt<bpid_t> listen_proc_delete  (core::Core&, const on_proc_event_fn& on_proc_event);

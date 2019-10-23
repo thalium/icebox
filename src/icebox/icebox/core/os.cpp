@@ -33,36 +33,6 @@ sym::Symbols& os::kernel_symbols(core::Core& core)
     return core.os_->kernel_symbols();
 }
 
-bool os::vm_area_list(core::Core& core, proc_t proc, on_vm_area_fn on_vm_area)
-{
-    return core.os_->vm_area_list(proc, on_vm_area);
-}
-
-opt<vm_area_t> os::vm_area_find(core::Core& core, proc_t proc, uint64_t addr)
-{
-    return core.os_->vm_area_find(proc, addr);
-}
-
-opt<span_t> os::vm_area_span(core::Core& core, proc_t proc, vm_area_t vm_area)
-{
-    return core.os_->vm_area_span(proc, vm_area);
-}
-
-vma_access_e os::vm_area_access(core::Core& core, proc_t proc, vm_area_t vm_area)
-{
-    return core.os_->vm_area_access(proc, vm_area);
-}
-
-vma_type_e os::vm_area_type(core::Core& core, proc_t proc, vm_area_t vm_area)
-{
-    return core.os_->vm_area_type(proc, vm_area);
-}
-
-opt<std::string> os::vm_area_name(core::Core& core, proc_t proc, vm_area_t vm_area)
-{
-    return core.os_->vm_area_name(proc, vm_area);
-}
-
 opt<os::bpid_t> os::listen_proc_create(core::Core& core, const on_proc_event_fn& on_proc_event)
 {
     return core.os_->listen_proc_create(on_proc_event);

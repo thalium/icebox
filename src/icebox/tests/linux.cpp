@@ -251,13 +251,13 @@ namespace
     void test_vma_modules(core::Core& core, proc_t proc, std::string proc_name, int nb_mod)
     {
         int vma_heap_or_stack = 0;
-        os::vm_area_list(core, proc, [&](vm_area_t vm_area)
+        vm_area::list(core, proc, [&](vm_area_t vm_area)
         {
             EXPECT_NE(vm_area.id, 0ull);
             if(!vm_area.id)
                 return WALK_NEXT;
 
-            const auto span = os::vm_area_span(core, proc, vm_area);
+            const auto span = vm_area::span(core, proc, vm_area);
             EXPECT_TRUE(span);
             if(span)
             {
@@ -266,15 +266,15 @@ namespace
                 EXPECT_NE(span->size, 0ull);
             }
 
-            const auto name = os::vm_area_name(core, proc, vm_area);
-            const auto type = os::vm_area_type(core, proc, vm_area);
+            const auto name = vm_area::name(core, proc, vm_area);
+            const auto type = vm_area::type(core, proc, vm_area);
 
             if(type == vma_type_e::heap || type == vma_type_e::stack)
             {
                 vma_heap_or_stack++;
 
                 EXPECT_FALSE(name);
-                EXPECT_EQ(os::vm_area_access(core, proc, vm_area), VMA_ACCESS_READ + VMA_ACCESS_WRITE);
+                EXPECT_EQ(vm_area::access(core, proc, vm_area), VMA_ACCESS_READ + VMA_ACCESS_WRITE);
             }
 
             if(type == vma_type_e::module && span && span->addr && span->size)

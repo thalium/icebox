@@ -12,6 +12,7 @@
 #include "state.hpp"
 #include "sym.hpp"
 #include "threads.hpp"
+#include "vm_area.hpp"
 
 namespace core
 {

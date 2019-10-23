@@ -186,7 +186,7 @@ namespace
         opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
-        bool                vm_area_list    (proc_t proc, os::on_vm_area_fn on_vm_area) override;
+        bool                vm_area_list    (proc_t proc, vm_area::on_vm_area_fn on_vm_area) override;
         opt<vm_area_t>      vm_area_find    (proc_t proc, uint64_t addr) override;
         opt<span_t>         vm_area_span    (proc_t proc, vm_area_t vm_area) override;
         vma_access_e        vm_area_access  (proc_t proc, vm_area_t vm_area) override;
@@ -918,7 +918,7 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
     return mod_span_64(reader, mod);
 }
 
-bool OsNt::vm_area_list(proc_t /*proc*/, os::on_vm_area_fn /*on_vm_area*/)
+bool OsNt::vm_area_list(proc_t /*proc*/, vm_area::on_vm_area_fn /*on_vm_area*/)
 {
     return false;
 }

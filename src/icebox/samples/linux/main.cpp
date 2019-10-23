@@ -125,10 +125,10 @@ void display_mod(core::Core& core, const proc_t& proc)
 void display_vm_area(core::Core& core, const proc_t& proc)
 {
     state::pause(core);
-    os::vm_area_list(core, proc, [&](vm_area_t vm_area)
+    vm_area::list(core, proc, [&](vm_area_t vm_area)
     {
-        const auto span      = os::vm_area_span(core, proc, vm_area);
-        const auto type      = os::vm_area_type(core, proc, vm_area);
+        const auto span      = vm_area::span(core, proc, vm_area);
+        const auto type      = vm_area::type(core, proc, vm_area);
         std::string type_str = "             ";
         if(type == vma_type_e::main_binary)
             type_str = "[main-binary]";
@@ -141,14 +141,14 @@ void display_vm_area(core::Core& core, const proc_t& proc)
         else if(type == vma_type_e::specific_os)
             type_str = "[os-area]    ";
 
-        const auto access      = os::vm_area_access(core, proc, vm_area);
+        const auto access      = vm_area::access(core, proc, vm_area);
         std::string access_str = "";
         access_str += (access & VMA_ACCESS_READ) ? "r" : "-";
         access_str += (access & VMA_ACCESS_WRITE) ? "w" : "-";
         access_str += (access & VMA_ACCESS_EXEC) ? "x" : "-";
         access_str += (access & VMA_ACCESS_SHARED) ? "s" : "p";
 
-        auto name = os::vm_area_name(core, proc, vm_area);
+        auto name = vm_area::name(core, proc, vm_area);
         if(!name)
             name = "";
 

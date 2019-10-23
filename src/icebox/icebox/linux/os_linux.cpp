@@ -254,7 +254,7 @@ namespace
         opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
-        bool                vm_area_list    (proc_t proc, os::on_vm_area_fn on_vm_area) override;
+        bool                vm_area_list    (proc_t proc, vm_area::on_vm_area_fn on_vm_area) override;
         opt<vm_area_t>      vm_area_find    (proc_t proc, uint64_t addr) override;
         opt<span_t>         vm_area_span    (proc_t proc, vm_area_t vm_area) override;
         vma_access_e        vm_area_access  (proc_t proc, vm_area_t vm_area) override;
@@ -985,7 +985,7 @@ uint64_t OsLinux::thread_id(proc_t, thread_t thread) // return opt ?, remove pro
 
 namespace
 {
-    bool vm_area_list_from(OsLinux& p, vm_area_t from, os::on_vm_area_fn on_vm_area)
+    bool vm_area_list_from(OsLinux& p, vm_area_t from, vm_area::on_vm_area_fn on_vm_area)
     {
         opt<uint64_t> vm_area;
         for(vm_area = from.id; vm_area && *vm_area; vm_area = p.reader_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))
@@ -1177,7 +1177,7 @@ opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
     return found;
 }
 
-bool OsLinux::vm_area_list(proc_t proc, os::on_vm_area_fn on_vm_area)
+bool OsLinux::vm_area_list(proc_t proc, vm_area::on_vm_area_fn on_vm_area)
 {
     const auto mm = proc_mm(*this, proc.id);
     if(!mm)
