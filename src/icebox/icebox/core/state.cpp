@@ -357,16 +357,16 @@ namespace
 
     static opt<phy_t> to_phy(core::Core& core, uint64_t ptr, const opt<proc_t>& proc)
     {
-        const auto current = proc ? proc : os::proc_current(core);
+        const auto current = proc ? proc : process::current(core);
         if(!current)
             return {};
 
-        return os::proc_resolve(core, *current, ptr);
+        return process::resolve(core, *current, ptr);
     }
 
     static state::Breakpoint set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        const auto target = proc ? os::proc_select(core, *proc, ptr) : ext::nullopt;
+        const auto target = proc ? process::select(core, *proc, ptr) : ext::nullopt;
         const auto phy    = to_phy(core, ptr, target);
         if(!phy)
             return nullptr;

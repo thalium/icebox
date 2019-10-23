@@ -40,13 +40,13 @@ namespace
         if(!target)
             return;
 
-        os::proc_join(core, *target, os::JOIN_USER_MODE);
+        process::join(core, *target, process::JOIN_USER_MODE);
         const auto reader = reader::make(core, *target);
         const auto mod    = waiter::mod_wait(core, *target, "ntdll.dll", FLAGS_32BIT);
         if(!mod)
             return;
 
-        os::proc_join(core, *target, os::JOIN_USER_MODE);
+        process::join(core, *target, process::JOIN_USER_MODE);
         const auto span = os::mod_span(core, *target, *mod);
         if(!span)
             return;
@@ -93,16 +93,16 @@ namespace
             return WALK_NEXT;
         });
 
-        const auto pc = os::proc_current(core);
-        LOG(INFO, "current process: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", pc->id, pc->dtb.val, os::proc_name(core, *pc)->data());
+        const auto pc = process::current(core);
+        LOG(INFO, "current process: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", pc->id, pc->dtb.val, process::name(core, *pc)->data());
 
         const auto tc = os::thread_current(core);
         LOG(INFO, "current thread: 0x%" PRIx64, tc->id);
 
         LOG(INFO, "processes:");
-        os::proc_list(core, [&](proc_t proc)
+        process::list(core, [&](proc_t proc)
         {
-            const auto procname = os::proc_name(core, proc);
+            const auto procname = process::name(core, proc);
             LOG(INFO, "proc: 0x%" PRIx64 " %s", proc.id, procname ? procname->data() : "<noname>");
             return WALK_NEXT;
         });
@@ -113,11 +113,11 @@ namespace
         if(!target)
             return false;
 
-        LOG(INFO, "%s: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", proc_target, target->id, target->dtb.val, os::proc_name(core, *target)->data());
-        os::proc_join(core, *target, os::JOIN_ANY_MODE);
-        os::proc_join(core, *target, os::JOIN_USER_MODE);
+        LOG(INFO, "%s: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", proc_target, target->id, target->dtb.val, process::name(core, *target)->data());
+        process::join(core, *target, process::JOIN_ANY_MODE);
+        process::join(core, *target, process::JOIN_USER_MODE);
 
-        const auto is_32bit = os::proc_flags(core, *target) & FLAGS_32BIT;
+        const auto is_32bit = process::flags(core, *target) & FLAGS_32BIT;
 
         std::vector<uint8_t> buffer;
         const auto reader = reader::make(core, *target);
@@ -177,11 +177,11 @@ namespace
                 if(!rip)
                     return;
 
-                const auto proc     = os::proc_current(core);
-                const auto pid      = os::proc_id(core, *proc);
+                const auto proc     = process::current(core);
+                const auto pid      = process::pid(core, *proc);
                 const auto thread   = os::thread_current(core);
                 const auto tid      = os::thread_id(core, *proc, *thread);
-                const auto procname = proc ? os::proc_name(core, *proc) : ext::nullopt;
+                const auto procname = proc ? process::name(core, *proc) : ext::nullopt;
                 const auto sym      = syms.find(rip);
                 LOG(INFO, "BREAK! rip: 0x%" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
                     rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);

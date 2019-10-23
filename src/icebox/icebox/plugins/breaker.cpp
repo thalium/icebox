@@ -18,7 +18,7 @@ struct state::Breaker::Data
         : core(core)
         , proc(proc)
         , reader(reader::make(core, proc))
-        , ptr_size(os::proc_flags(core, proc) & flags_e::FLAGS_32BIT ? 4 : 8)
+        , ptr_size(process::flags(core, proc) & flags_e::FLAGS_32BIT ? 4 : 8)
     {
     }
 

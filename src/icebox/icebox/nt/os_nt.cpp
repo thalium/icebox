@@ -162,7 +162,7 @@ namespace
         bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
         sym::Symbols&   kernel_symbols      () override;
 
-        bool                proc_list       (os::on_proc_fn on_process) override;
+        bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
         opt<proc_t>         proc_find       (std::string_view name, flags_e flags) override;
         opt<proc_t>         proc_find       (uint64_t pid) override;
@@ -170,7 +170,7 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         flags_e             proc_flags      (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
-        void                proc_join       (proc_t proc, os::join_e join) override;
+        void                proc_join       (proc_t proc, process::join_e join) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
@@ -362,7 +362,7 @@ namespace
     }
 }
 
-bool OsNt::proc_list(os::on_proc_fn on_process)
+bool OsNt::proc_list(process::on_proc_fn on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
@@ -676,7 +676,7 @@ namespace
         if(!ntdll)
             return {};
 
-        os.proc_join(proc, os::JOIN_USER_MODE);
+        os.proc_join(proc, process::JOIN_USER_MODE);
         const auto reader = reader::make(os.core_, proc);
         const auto debug  = pe::find_debug_codeview(reader, *ntdll);
         if(!debug)
@@ -1073,14 +1073,14 @@ namespace
     }
 }
 
-void OsNt::proc_join(proc_t proc, os::join_e join)
+void OsNt::proc_join(proc_t proc, process::join_e join)
 {
     const auto current   = proc_current();
     const auto same_proc = current && current->id == proc.id;
-    if(join == os::JOIN_ANY_MODE && same_proc)
+    if(join == process::JOIN_ANY_MODE && same_proc)
         return;
 
-    if(join == os::JOIN_ANY_MODE)
+    if(join == process::JOIN_ANY_MODE)
         return proc_join_kernel(*this, proc);
 
     if(same_proc && is_user_mode(registers::read(core_, FDP_CS_REGISTER)))

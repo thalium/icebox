@@ -230,7 +230,7 @@ namespace
         bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
         sym::Symbols&   kernel_symbols      () override;
 
-        bool                proc_list       (os::on_proc_fn on_process) override;
+        bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
         opt<proc_t>         proc_find       (std::string_view name, flags_e flags) override;
         opt<proc_t>         proc_find       (uint64_t pid) override;
@@ -238,7 +238,7 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         flags_e             proc_flags      (proc_t proc) override;
-        void                proc_join       (proc_t proc, os::join_e join) override;
+        void                proc_join       (proc_t proc, process::join_e join) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
@@ -590,7 +590,7 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
     return std::make_unique<OsLinux>(core);
 }
 
-bool OsLinux::proc_list(os::on_proc_fn on_process)
+bool OsLinux::proc_list(process::on_proc_fn on_process)
 {
     const auto current = proc_current();
     if(!current)
@@ -787,7 +787,7 @@ namespace
     }
 }
 
-void OsLinux::proc_join(proc_t proc, os::join_e join)
+void OsLinux::proc_join(proc_t proc, process::join_e join)
 {
     while(true)
     {
@@ -798,7 +798,7 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
             return;
         }
 
-        if(current_proc->id == proc.id && ((join == os::JOIN_ANY_MODE) | (join == os::JOIN_USER_MODE && cpu_ring(*this) == 3)))
+        if(current_proc->id == proc.id && ((join == process::JOIN_ANY_MODE) | (join == process::JOIN_USER_MODE && cpu_ring(*this) == 3)))
             return;
 
         if(current_proc->id != proc.id)
@@ -807,7 +807,7 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
         // here, we are in the targetted process and in kernel mode
         // if it was already the case, we did not move
 
-        if(join == os::JOIN_ANY_MODE)
+        if(join == process::JOIN_ANY_MODE)
             return;
 
         // and we want to join the user mode...

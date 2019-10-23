@@ -22,7 +22,7 @@ namespace os
         virtual bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) = 0;
         virtual sym::Symbols&   kernel_symbols      () = 0;
 
-        virtual bool                proc_list       (on_proc_fn on_proc) = 0;
+        virtual bool                proc_list       (process::on_proc_fn on_proc) = 0;
         virtual opt<proc_t>         proc_current    () = 0;
         virtual opt<proc_t>         proc_find       (std::string_view name, flags_e flags) = 0;
         virtual opt<proc_t>         proc_find       (uint64_t pid) = 0;
@@ -30,7 +30,7 @@ namespace os
         virtual bool                proc_is_valid   (proc_t proc) = 0;
         virtual uint64_t            proc_id         (proc_t proc) = 0;
         virtual flags_e             proc_flags      (proc_t proc) = 0;
-        virtual void                proc_join       (proc_t proc, join_e join) = 0;
+        virtual void                proc_join       (proc_t proc, process::join_e join) = 0;
         virtual opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) = 0;
         virtual opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) = 0;
         virtual opt<proc_t>         proc_parent     (proc_t proc) = 0;

@@ -40,21 +40,21 @@ namespace
 
 opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flags_e flags)
 {
-    const auto proc = os::proc_find(core, proc_name, flags);
+    const auto proc = process::find_name(core, proc_name, flags);
     if(proc)
     {
-        os::proc_join(core, *proc, os::JOIN_ANY_MODE);
+        process::join(core, *proc, process::JOIN_ANY_MODE);
         return *proc;
     }
 
     opt<proc_t> found;
     const auto bpid = os::listen_proc_create(core, [&](proc_t proc)
     {
-        const auto new_flags = os::proc_flags(core, proc);
+        const auto new_flags = process::flags(core, proc);
         if(flags && !(new_flags & flags))
             return;
 
-        const auto name = os::proc_name(core, proc);
+        const auto name = process::name(core, proc);
         if(!name)
             return;
 
@@ -79,7 +79,7 @@ opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_
     const auto mod = search_mod(core, proc, mod_name, flags);
     if(mod)
     {
-        os::proc_join(core, proc, os::JOIN_USER_MODE);
+        process::join(core, proc, process::JOIN_USER_MODE);
         return *mod;
     }
 

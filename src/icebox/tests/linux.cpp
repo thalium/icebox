@@ -44,9 +44,9 @@ namespace
     opt<proc_t> utility_child(core::Core& core)
     {
         std::vector<proc_t> utilities;
-        os::proc_list(core, [&](proc_t proc)
+        process::list(core, [&](proc_t proc)
         {
-            const auto name = os::proc_name(core, proc);
+            const auto name = process::name(core, proc);
             if(name && *name == UTILITY_NAME)
                 utilities.push_back(proc);
 
@@ -62,22 +62,22 @@ namespace
         for(const auto utility : utilities)
         {
             opt<proc_t> proc = utility;
-            auto pid         = os::proc_id(core, *proc);
+            auto pid         = process::pid(core, *proc);
 
             while(pid <= 4194304 && pid != 0)
             {
-                proc = os::proc_parent(core, *proc);
+                proc = process::parent(core, *proc);
                 if(!proc)
                     break;
 
-                const auto name = os::proc_name(core, *proc);
+                const auto name = process::name(core, *proc);
                 if(!name)
                     break;
 
                 if(*name == UTILITY_NAME)
                     return utility;
 
-                pid = os::proc_id(core, *proc);
+                pid = process::pid(core, *proc);
             }
         }
 
@@ -89,7 +89,7 @@ TEST_F(LinuxTest, processes)
 {
     auto& core           = *ptr_core;
     bool proc_list_empty = true;
-    os::proc_list(core, [&](proc_t proc)
+    process::list(core, [&](proc_t proc)
     {
         EXPECT_NE(proc.id, 0u);
         if(!proc.id)
@@ -97,32 +97,32 @@ TEST_F(LinuxTest, processes)
 
         proc_list_empty = false;
 
-        const auto name = os::proc_name(core, proc);
+        const auto name = process::name(core, proc);
         EXPECT_TRUE(name && !name->empty());
 
         if(name && *name == UTILITY_NAME)
         {
-            EXPECT_EQ(os::proc_flags(core, proc), FLAGS_32BIT);
+            EXPECT_EQ(process::flags(core, proc), FLAGS_32BIT);
         }
 
-        const auto pid = os::proc_id(core, proc);
+        const auto pid = process::pid(core, proc);
         EXPECT_LE(pid, 4194304u); // PID <= 4194304 for linux
 
         if(pid <= 1) // swapper and systemd/initrd
         {
-            EXPECT_EQ(os::proc_flags(core, proc), FLAGS_NONE);
+            EXPECT_EQ(process::flags(core, proc), FLAGS_NONE);
         }
 
         opt<proc_t> children = proc;
         auto children_pid    = pid;
         while(children_pid <= 4194304 && children_pid != 0)
         {
-            children = os::proc_parent(core, *children);
+            children = process::parent(core, *children);
             EXPECT_TRUE(children && children->id);
             if(!children)
                 break;
 
-            children_pid = os::proc_id(core, *children);
+            children_pid = process::pid(core, *children);
         }
         EXPECT_EQ(children_pid, 0u);
 
@@ -133,15 +133,15 @@ TEST_F(LinuxTest, processes)
     const auto child = utility_child(core);
     ASSERT_TRUE(child && child->id && child->dtb.val);
 
-    const auto child_find_by_pid = os::proc_find(core, os::proc_id(core, *child));
+    const auto child_find_by_pid = process::find_pid(core, process::pid(core, *child));
     EXPECT_EQ(child->id, child_find_by_pid->id);
     EXPECT_EQ(child->dtb.val, child_find_by_pid->dtb.val);
 
-    const auto utility_find_by_name = os::proc_find(core, UTILITY_NAME, FLAGS_NONE);
+    const auto utility_find_by_name = process::find_name(core, UTILITY_NAME, FLAGS_NONE);
     EXPECT_TRUE(utility_find_by_name && utility_find_by_name->id && utility_find_by_name->dtb.val);
     if(utility_find_by_name)
     {
-        const auto name = os::proc_name(core, *utility_find_by_name);
+        const auto name = process::name(core, *utility_find_by_name);
         EXPECT_TRUE(name);
         if(name)
         {
@@ -149,16 +149,16 @@ TEST_F(LinuxTest, processes)
         }
     }
 
-    ASSERT_EXEC_BEFORE_TIMEOUT_NS(os::proc_join(core, *child, os::JOIN_ANY_MODE), 5 * SECOND_NS);
-    auto current = os::proc_current(core);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, process::JOIN_ANY_MODE), 5 * SECOND_NS);
+    auto current = process::current(core);
     EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
 
     ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
 
-    ASSERT_EXEC_BEFORE_TIMEOUT_NS(os::proc_join(core, *child, os::JOIN_USER_MODE), 5 * SECOND_NS);
-    current = os::proc_current(core);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, process::JOIN_USER_MODE), 5 * SECOND_NS);
+    current = process::current(core);
     EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->dtb.val, current->dtb.val);
@@ -348,10 +348,10 @@ TEST_F(LinuxTest, vma_modules)
 
     test_vma_modules(core, *child, "linux_tst_ibx", 4); // 32 bits process
 
-    const auto bash = os::proc_parent(core, *child);
+    const auto bash = process::parent(core, *child);
     ASSERT_TRUE(bash && bash->id && bash->dtb.val);
 
-    const auto bash_name = os::proc_name(core, *bash);
+    const auto bash_name = process::name(core, *bash);
     ASSERT_TRUE(bash_name);
     ASSERT_EQ(*bash_name, "sh");
 

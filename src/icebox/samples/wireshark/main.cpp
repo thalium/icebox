@@ -291,7 +291,7 @@ namespace
 
         const auto bp_send = state::set_breakpoint(core, "NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
         {
-            const auto proc = os::proc_current(core);
+            const auto proc = process::current(core);
             if(!proc)
                 return -1;
 
@@ -301,12 +301,12 @@ namespace
 
             const auto data = read_NetBufferList(core, netBufferLists->val);
 
-            const auto proc_name = os::proc_name(core, *proc);
+            const auto proc_name = process::name(core, *proc);
             if(!proc_name)
                 return -1;
 
             pcap::metadata_t meta;
-            meta.comment   = *proc_name + "(" + std::to_string(os::proc_id(core, *proc)) + ")\n";
+            meta.comment   = *proc_name + "(" + std::to_string(process::pid(core, *proc)) + ")\n";
             const auto now = std::chrono::high_resolution_clock::now();
             meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
 

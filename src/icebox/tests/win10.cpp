@@ -86,13 +86,13 @@ TEST_F(Win10Test, processes)
 
     Processes processes;
     auto& core = *ptr_core;
-    os::proc_list(core, [&](proc_t proc)
+    process::list(core, [&](proc_t proc)
     {
-        const auto name = os::proc_name(core, proc);
+        const auto name = process::name(core, proc);
         EXPECT_TRUE(!!name);
-        const auto pid = os::proc_id(core, proc);
+        const auto pid = process::pid(core, proc);
         EXPECT_NE(pid, 0u);
-        const auto flags = os::proc_flags(core, proc);
+        const auto flags = process::flags(core, proc);
         processes.emplace(*name, Process{proc.id, proc.dtb.val, pid, flags});
         return WALK_NEXT;
     });
@@ -106,31 +106,31 @@ TEST_F(Win10Test, processes)
     EXPECT_NE(pid, 0u);
     UNUSED(flags);
 
-    const auto proc = os::proc_find(core, pid);
+    const auto proc = process::find_pid(core, pid);
     EXPECT_TRUE(!!proc);
     EXPECT_EQ(id, proc->id);
     EXPECT_EQ(dtb, proc->dtb.val);
 
-    const auto valid = os::proc_is_valid(core, *proc);
+    const auto valid = process::is_valid(core, *proc);
     EXPECT_TRUE(valid);
 
     // check parent
-    const auto parent = os::proc_parent(core, *proc);
+    const auto parent = process::parent(core, *proc);
     EXPECT_TRUE(!!parent);
-    const auto parent_name = os::proc_name(core, *parent);
+    const auto parent_name = process::name(core, *parent);
     EXPECT_TRUE(!!parent_name);
     EXPECT_EQ(*parent_name, "userinit.exe");
 
     // join proc in kernel
-    os::proc_join(core, *proc, os::JOIN_ANY_MODE);
-    const auto kcur = os::proc_current(core);
+    process::join(core, *proc, process::JOIN_ANY_MODE);
+    const auto kcur = process::current(core);
     EXPECT_TRUE(!!kcur);
     EXPECT_EQ(id, kcur->id);
     EXPECT_EQ(dtb, kcur->dtb.val);
 
     // join proc in user-mode
-    os::proc_join(core, *proc, os::JOIN_USER_MODE);
-    const auto cur = os::proc_current(core);
+    process::join(core, *proc, process::JOIN_USER_MODE);
+    const auto cur = process::current(core);
     EXPECT_TRUE(!!cur);
     EXPECT_EQ(id, cur->id);
     EXPECT_EQ(dtb, cur->dtb.val);
@@ -141,7 +141,7 @@ TEST_F(Win10Test, threads)
     using Threads = std::set<uint64_t>;
 
     auto& core          = *ptr_core;
-    const auto explorer = os::proc_find(core, "explorer.exe", flags_e::FLAGS_NONE);
+    const auto explorer = process::find_name(core, "explorer.exe", flags_e::FLAGS_NONE);
     EXPECT_TRUE(!!explorer);
 
     Threads threads;
@@ -157,7 +157,7 @@ TEST_F(Win10Test, threads)
     });
     EXPECT_NE(threads.size(), 0u);
 
-    os::proc_join(core, *explorer, os::JOIN_ANY_MODE);
+    process::join(core, *explorer, process::JOIN_ANY_MODE);
     const auto current = os::thread_current(core);
     EXPECT_TRUE(!!current);
 
@@ -172,7 +172,7 @@ TEST_F(Win10Test, modules)
     using Modules = std::multimap<std::string, Module>;
 
     auto& core      = *ptr_core;
-    const auto proc = os::proc_find(core, "explorer.exe", flags_e::FLAGS_NONE);
+    const auto proc = process::find_name(core, "explorer.exe", flags_e::FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
     Modules modules;
@@ -299,11 +299,11 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 TEST_F(Win10Test, memory)
 {
     auto& core      = *ptr_core;
-    const auto proc = os::proc_find(core, "explorer.exe", flags_e::FLAGS_NONE);
+    const auto proc = process::find_name(core, "explorer.exe", flags_e::FLAGS_NONE);
     EXPECT_TRUE(!!proc);
     LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
 
-    os::proc_join(core, *proc, os::JOIN_USER_MODE);
+    process::join(core, *proc, process::JOIN_USER_MODE);
 
     auto from_reader  = std::vector<uint8_t>{};
     auto from_virtual = std::vector<uint8_t>{};
@@ -350,12 +350,12 @@ TEST_F(Win10Test, loader)
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
-    os::proc_join(core, *proc, os::JOIN_ANY_MODE);
+    process::join(core, *proc, process::JOIN_ANY_MODE);
     auto drivers = sym::Loader{core};
     drivers.drv_listen({});
     EXPECT_GE(count_symbols(drivers.symbols()), 128u);
 
-    os::proc_join(core, *proc, os::JOIN_USER_MODE);
+    process::join(core, *proc, process::JOIN_USER_MODE);
     auto modules = sym::Loader{core};
     modules.mod_listen(*proc, {});
     EXPECT_GE(count_symbols(modules.symbols()), 32u);
@@ -370,7 +370,7 @@ TEST_F(Win10Test, tracer)
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
-    os::proc_join(core, *proc, os::JOIN_USER_MODE);
+    process::join(core, *proc, process::JOIN_USER_MODE);
     const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 

@@ -60,13 +60,13 @@ const std::string pad_with(const std::string& arg, int pad)
 
 void display_proc(core::Core& core, const proc_t& proc)
 {
-    const auto proc_pid      = os::proc_id(core, proc);
-    auto proc_name           = os::proc_name(core, proc);
-    const bool proc_32bits   = (os::proc_flags(core, proc) & FLAGS_32BIT);
-    const auto proc_parent   = os::proc_parent(core, proc);
+    const auto proc_pid      = process::pid(core, proc);
+    auto proc_name           = process::name(core, proc);
+    const bool proc_32bits   = (process::flags(core, proc) & FLAGS_32BIT);
+    const auto proc_parent   = process::parent(core, proc);
     uint64_t proc_parent_pid = 0xffffffffffffffff;
     if(proc_parent)
-        proc_parent_pid = os::proc_id(core, *proc_parent);
+        proc_parent_pid = process::pid(core, *proc_parent);
 
     std::string leader_thread_pc;
     std::string threads;
@@ -183,7 +183,7 @@ opt<proc_t> select_process(core::Core& core)
             return {};
 
         state::pause(core);
-        const auto target = os::proc_find(core, pid);
+        const auto target = process::find_pid(core, pid);
         state::resume(core);
         if(target)
             return *target;
@@ -192,12 +192,12 @@ opt<proc_t> select_process(core::Core& core)
     }
 }
 
-void proc_join(core::Core& core, proc_t target, os::join_e mode)
+void proc_join(core::Core& core, proc_t target, process::join_e mode)
 {
     state::pause(core);
 
     printf("Process found, VM running...\n");
-    os::proc_join(core, target, mode);
+    process::join(core, target, mode);
 
     const auto thread = os::thread_current(core);
     if(thread)
@@ -208,7 +208,7 @@ void proc_join(core::Core& core, proc_t target, os::join_e mode)
     else
         LOG(ERROR, "no current thread");
 
-    const auto proc = os::proc_current(core);
+    const auto proc = process::current(core);
     if(proc)
     {
         std::cout << "Current process : ";
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
 
     // get list of processes
     state::pause(*core);
-    os::proc_list(*core, [&](proc_t proc)
+    process::list(*core, [&](proc_t proc)
     {
         display_proc(*core, proc);
         return WALK_NEXT;
@@ -256,13 +256,13 @@ int main(int argc, char** argv)
     printf("\n--- Join a process in kernel mode ---\n");
     auto target = select_process(*core);
     if(target)
-        os::proc_join(*core, *target, os::JOIN_ANY_MODE);
+        process::join(*core, *target, process::JOIN_ANY_MODE);
 
     // proc_join in user mode
     printf("\n--- Join a process in user mode ---\n");
     target = select_process(*core);
     if(target)
-        os::proc_join(*core, *target, os::JOIN_USER_MODE);
+        process::join(*core, *target, process::JOIN_USER_MODE);
 
     printf("\n");
     SYSTEM_PAUSE

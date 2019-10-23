@@ -33,66 +33,6 @@ sym::Symbols& os::kernel_symbols(core::Core& core)
     return core.os_->kernel_symbols();
 }
 
-bool os::proc_list(core::Core& core, on_proc_fn on_proc)
-{
-    return core.os_->proc_list(on_proc);
-}
-
-opt<proc_t> os::proc_current(core::Core& core)
-{
-    return core.os_->proc_current();
-}
-
-opt<proc_t> os::proc_find(core::Core& core, std::string_view name, flags_e flags)
-{
-    return core.os_->proc_find(name, flags);
-}
-
-opt<proc_t> os::proc_find(core::Core& core, uint64_t pid)
-{
-    return core.os_->proc_find(pid);
-}
-
-opt<std::string> os::proc_name(core::Core& core, proc_t proc)
-{
-    return core.os_->proc_name(proc);
-}
-
-bool os::proc_is_valid(core::Core& core, proc_t proc)
-{
-    return core.os_->proc_is_valid(proc);
-}
-
-uint64_t os::proc_id(core::Core& core, proc_t proc)
-{
-    return core.os_->proc_id(proc);
-}
-
-flags_e os::proc_flags(core::Core& core, proc_t proc)
-{
-    return core.os_->proc_flags(proc);
-}
-
-void os::proc_join(core::Core& core, proc_t proc, join_e join)
-{
-    return core.os_->proc_join(proc, join);
-}
-
-opt<phy_t> os::proc_resolve(core::Core& core, proc_t proc, uint64_t ptr)
-{
-    return core.os_->proc_resolve(proc, ptr);
-}
-
-opt<proc_t> os::proc_select(core::Core& core, proc_t proc, uint64_t ptr)
-{
-    return core.os_->proc_select(proc, ptr);
-}
-
-opt<proc_t> os::proc_parent(core::Core& core, proc_t proc)
-{
-    return core.os_->proc_parent(proc);
-}
-
 bool os::thread_list(core::Core& core, proc_t proc, on_thread_fn on_thread)
 {
     return core.os_->thread_list(proc, on_thread);

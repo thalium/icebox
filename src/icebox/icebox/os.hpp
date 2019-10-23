@@ -12,13 +12,6 @@ namespace reader { struct Reader; }
 
 namespace os
 {
-    enum join_e
-    {
-        JOIN_ANY_MODE,
-        JOIN_USER_MODE
-    };
-
-    using on_proc_fn    = fn::view<walk_e(proc_t)>;
     using on_thread_fn  = fn::view<walk_e(thread_t)>;
     using on_mod_fn     = fn::view<walk_e(mod_t)>;
     using on_vm_area_fn = fn::view<walk_e(vm_area_t)>;
@@ -34,19 +27,6 @@ namespace os
     bool            can_inject_fault    (core::Core&, uint64_t ptr);
     bool            reader_setup        (core::Core&, reader::Reader& reader, opt<proc_t> proc);
     sym::Symbols&   kernel_symbols      (core::Core&);
-
-    bool                proc_list       (core::Core&, on_proc_fn on_proc);
-    opt<proc_t>         proc_current    (core::Core&);
-    opt<proc_t>         proc_find       (core::Core&, std::string_view name, flags_e flags);
-    opt<proc_t>         proc_find       (core::Core&, uint64_t pid);
-    opt<std::string>    proc_name       (core::Core&, proc_t proc);
-    bool                proc_is_valid   (core::Core&, proc_t proc);
-    uint64_t            proc_id         (core::Core&, proc_t proc);
-    flags_e             proc_flags      (core::Core&, proc_t proc);
-    void                proc_join       (core::Core&, proc_t proc, join_e join);
-    opt<phy_t>          proc_resolve    (core::Core&, proc_t proc, uint64_t ptr);
-    opt<proc_t>         proc_select     (core::Core&, proc_t proc, uint64_t ptr);
-    opt<proc_t>         proc_parent     (core::Core&, proc_t proc);
 
     bool            thread_list     (core::Core&, proc_t proc, on_thread_fn on_thread);
     opt<thread_t>   thread_current  (core::Core&);

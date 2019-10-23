@@ -5,6 +5,7 @@
 
 #include "memory.hpp"
 #include "os.hpp"
+#include "process.hpp"
 #include "registers.hpp"
 #include "state.hpp"
 #include "sym.hpp"
