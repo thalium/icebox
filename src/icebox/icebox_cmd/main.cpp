@@ -170,7 +170,7 @@ namespace
             const auto ptr = os::kernel_symbols(core).symbol("nt", "SwapContext");
             const auto bp  = state::set_breakpoint(core, "SwapContext", *ptr, [&]
             {
-                const auto rip = registers::read(core, FDP_RIP_REGISTER);
+                const auto rip = registers::read(core, reg_e::rip);
                 if(!rip)
                     return;
 

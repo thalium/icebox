@@ -120,12 +120,12 @@ namespace
         functions::break_on_return(d.core_, "return RtlpAllocateHeapInternal", [=]
         {
             auto& d        = *pdata;
-            const auto ptr = registers::read(d.core_, FDP_RAX_REGISTER);
+            const auto ptr = registers::read(d.core_, reg_e::rax);
             if(!ptr)
                 return;
 
             const auto new_ptr = ptr_prolog + ptr;
-            const auto ok      = registers::write(d.core_, FDP_RAX_REGISTER, new_ptr);
+            const auto ok      = registers::write(d.core_, reg_e::rax, new_ptr);
             if(!ok)
                 return;
 
@@ -157,11 +157,11 @@ namespace
         functions::break_on_return(d.core_, "return RtlSizeHeap", [=]
         {
             auto& d         = *pdata;
-            const auto size = registers::read(d.core_, FDP_RAX_REGISTER);
+            const auto size = registers::read(d.core_, reg_e::rax);
             if(!size)
                 return;
 
-            registers::write(d.core_, FDP_RAX_REGISTER, size - ptr_prolog - ptr_epilog);
+            registers::write(d.core_, reg_e::rax, size - ptr_prolog - ptr_epilog);
         });
     }
 
@@ -232,14 +232,14 @@ namespace
         {
             auto& d = *pdata;
             d.reallocs_.erase(realloc_t{*thread, HeapHandle});
-            const auto ptr = registers::read(d.core_, FDP_RAX_REGISTER);
+            const auto ptr = registers::read(d.core_, reg_e::rax);
             if(!ptr)
                 return;
 
             // store new pointer which always have prolog
             const auto new_ptr = ptr + ptr_prolog;
             d.heaps_.emplace(heap_t{HeapHandle, new_ptr});
-            registers::write(d.core_, FDP_RAX_REGISTER, new_ptr);
+            registers::write(d.core_, reg_e::rax, new_ptr);
         });
     }
 

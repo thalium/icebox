@@ -265,7 +265,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 
     // set a breakpoint on next instruction
     state::single_step(core);
-    const auto addr_a = registers::read(core, FDP_RIP_REGISTER);
+    const auto addr_a = registers::read(core, reg_e::rip);
     int func_a        = 0;
     auto bp_a         = state::set_breakpoint(core, "ZwWaitForSingleObject + $1", addr_a, *proc, [&]
     {
@@ -275,7 +275,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     // set a breakpoint on next instruction again
     // we are sure the previous bp share a physical page with at least one bp
     state::single_step(core);
-    const auto addr_b = registers::read(core, FDP_RIP_REGISTER);
+    const auto addr_b = registers::read(core, reg_e::rip);
     int func_b        = 0;
     const auto bp_b   = state::set_breakpoint(core, "ZwWaitForSingleObject + $2", addr_b, *proc, [&]
     {

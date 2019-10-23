@@ -324,7 +324,7 @@ bool OsNt::setup()
     if(!is_kernel(kpcr_))
         return FAIL(false, "unable to read KPCR");
 
-    auto gdtb = dtb_t{registers::read(core_, FDP_CR3_REGISTER)};
+    auto gdtb = dtb_t{registers::read(core_, reg_e::cr3)};
     if(offsets_[KPRCB_KernelDirectoryTableBase])
     {
         ok = memory::read_virtual(core_, &gdtb, kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
@@ -504,7 +504,7 @@ namespace
     static void on_PspInsertThread(OsNt& os, bpid_t, const process::on_event_fn& on_proc)
     {
         // check if it is a CreateProcess if ActiveThreads = 0
-        const auto eproc          = registers::read(os.core_, FDP_RDX_REGISTER);
+        const auto eproc          = registers::read(os.core_, reg_e::rdx);
         const auto active_threads = os.reader_.le32(eproc + os.offsets_[EPROCESS_ActiveThreads]);
         if(!active_threads)
             return;
@@ -518,13 +518,13 @@ namespace
 
     static void on_PspInsertThread(OsNt& os, bpid_t, const threads::on_event_fn& on_thread)
     {
-        const auto thread = registers::read(os.core_, FDP_RCX_REGISTER);
+        const auto thread = registers::read(os.core_, reg_e::rcx);
         on_thread({thread});
     }
 
     static void on_PspExitProcess(OsNt& os, bpid_t, const process::on_event_fn& on_proc)
     {
-        const auto eproc = registers::read(os.core_, FDP_RDX_REGISTER);
+        const auto eproc = registers::read(os.core_, reg_e::rdx);
         if(const auto proc = make_proc(os, eproc))
             on_proc(*proc);
     }
@@ -593,7 +593,7 @@ namespace
             uint64_t ImageSectionNumber;
         };
 
-        const auto name_addr = registers::read(os.core_, FDP_RCX_REGISTER);
+        const auto name_addr = registers::read(os.core_, reg_e::rcx);
 
         const auto reader   = reader::make(os.core_, proc);
         const auto mod_name = nt::read_unicode_string(reader, name_addr);
@@ -604,7 +604,7 @@ namespace
         if(filename != "ntdll.dll")
             return {};
 
-        const auto image_info_addr = registers::read(os.core_, FDP_R8_REGISTER);
+        const auto image_info_addr = registers::read(os.core_, reg_e::r8);
         const auto base            = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageBase));
         if(!base)
             return {};
@@ -648,11 +648,11 @@ namespace
         if(!proc)
             return;
 
-        const auto cs       = registers::read(os.core_, FDP_CS_REGISTER);
+        const auto cs       = registers::read(os.core_, reg_e::cs);
         const auto is_32bit = cs == x86_cs;
 
         // LdrpInsertDataTableEntry has a fastcall calling convention whether it's in ntdll or ntdll32
-        const auto rcx      = registers::read(os.core_, FDP_RCX_REGISTER);
+        const auto rcx      = registers::read(os.core_, reg_e::rcx);
         const auto mod_addr = is_32bit ? static_cast<uint32_t>(rcx) : rcx;
         const auto flags    = is_32bit ? FLAGS_32BIT : FLAGS_NONE;
         on_mod(*proc, {mod_addr, flags});
@@ -747,8 +747,8 @@ opt<bpid_t> OsNt::listen_drv_create(const drivers::on_event_fn& on_drv)
     const auto bpid = ++last_bpid_;
     const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_drv, [](OsNt& os, bpid_t /*bpid*/, const auto& on_drv)
     {
-        const auto drv_addr   = registers::read(os.core_, FDP_RCX_REGISTER);
-        const auto drv_loaded = registers::read(os.core_, FDP_RDX_REGISTER);
+        const auto drv_addr   = registers::read(os.core_, reg_e::rcx);
+        const auto drv_loaded = registers::read(os.core_, reg_e::rdx);
         on_drv({drv_addr}, drv_loaded);
     });
     if(!ok)
@@ -1062,7 +1062,7 @@ namespace
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, MSR_LSTAR);
         state::run_to_proc(os.core_, "KiKernelSysretExit", proc, where);
-        const auto rip = registers::read(os.core_, FDP_RCX_REGISTER);
+        const auto rip = registers::read(os.core_, reg_e::rcx);
         state::run_to_proc(os.core_, "return KiKernelSysretExit", proc, rip);
     }
 
@@ -1082,7 +1082,7 @@ void OsNt::proc_join(proc_t proc, process::join_e join)
     if(join == process::JOIN_ANY_MODE)
         return proc_join_kernel(*this, proc);
 
-    if(same_proc && is_user_mode(registers::read(core_, FDP_CS_REGISTER)))
+    if(same_proc && is_user_mode(registers::read(core_, reg_e::cs)))
         return;
 
     return proc_join_user(*this, proc);
@@ -1107,7 +1107,7 @@ bool OsNt::can_inject_fault(uint64_t ptr)
     if(is_kernel_address(ptr))
         return false;
 
-    return is_user_mode(registers::read(core_, FDP_CS_REGISTER));
+    return is_user_mode(registers::read(core_, reg_e::cs));
 }
 
 opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
@@ -1204,10 +1204,10 @@ namespace
     {
         switch(index)
         {
-            case 0:     return to_arg      (registers::read(core, FDP_RCX_REGISTER));
-            case 1:     return to_arg      (registers::read(core, FDP_RDX_REGISTER));
-            case 2:     return to_arg      (registers::read(core, FDP_R8_REGISTER));
-            case 3:     return to_arg      (registers::read(core, FDP_R9_REGISTER));
+            case 0:     return to_arg      (registers::read(core, reg_e::rcx));
+            case 1:     return to_arg      (registers::read(core, reg_e::rdx));
+            case 2:     return to_arg      (registers::read(core, reg_e::r8));
+            case 3:     return to_arg      (registers::read(core, reg_e::r9));
             default:    return read_stack64(reader, sp, index + 1);
         }
     }
@@ -1216,10 +1216,10 @@ namespace
     {
         switch(index)
         {
-            case 0:     return registers::write(core, FDP_RCX_REGISTER, arg.val);
-            case 1:     return registers::write(core, FDP_RDX_REGISTER, arg.val);
-            case 2:     return registers::write(core, FDP_R8_REGISTER, arg.val);
-            case 3:     return registers::write(core, FDP_R9_REGISTER, arg.val);
+            case 0:     return registers::write(core, reg_e::rcx, arg.val);
+            case 1:     return registers::write(core, reg_e::rdx, arg.val);
+            case 2:     return registers::write(core, reg_e::r8, arg.val);
+            case 3:     return registers::write(core, reg_e::r9, arg.val);
             default:    return write_stack64(core, index + 1, arg.val);
         }
     }
@@ -1227,9 +1227,9 @@ namespace
 
 opt<arg_t> OsNt::read_stack(size_t index)
 {
-    const auto cs       = registers::read(core_, FDP_CS_REGISTER);
+    const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
-    const auto sp       = registers::read(core_, FDP_RSP_REGISTER);
+    const auto sp       = registers::read(core_, reg_e::rsp);
     const auto reader   = reader::make(core_);
     if(is_32bit)
         return read_stack32(reader, sp, index);
@@ -1239,9 +1239,9 @@ opt<arg_t> OsNt::read_stack(size_t index)
 
 opt<arg_t> OsNt::read_arg(size_t index)
 {
-    const auto cs       = registers::read(core_, FDP_CS_REGISTER);
+    const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
-    const auto sp       = registers::read(core_, FDP_RSP_REGISTER);
+    const auto sp       = registers::read(core_, reg_e::rsp);
     const auto reader   = reader::make(core_);
     if(is_32bit)
         return read_arg32(reader, sp, index);
@@ -1251,7 +1251,7 @@ opt<arg_t> OsNt::read_arg(size_t index)
 
 bool OsNt::write_arg(size_t index, arg_t arg)
 {
-    const auto cs       = registers::read(core_, FDP_CS_REGISTER);
+    const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
     if(is_32bit)
         return write_arg32(core_, index, arg);
@@ -1284,9 +1284,9 @@ void OsNt::debug_print()
     if(true)
         return;
     const auto irql   = reader_.byte(kpcr_ + offsets_[KPCR_Irql]);
-    const auto cs     = registers::read(core_, FDP_CS_REGISTER);
-    const auto rip    = registers::read(core_, FDP_RIP_REGISTER);
-    const auto cr3    = registers::read(core_, FDP_CR3_REGISTER);
+    const auto cs     = registers::read(core_, reg_e::cs);
+    const auto rip    = registers::read(core_, reg_e::rip);
+    const auto cr3    = registers::read(core_, reg_e::cr3);
     const auto ripcur = syms_.find(rip);
     const auto ripsym = ripcur ? sym::to_string(*ripcur) : "";
     const auto thread = thread_current();

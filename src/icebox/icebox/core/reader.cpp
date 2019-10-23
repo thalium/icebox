@@ -20,7 +20,7 @@ namespace
 
     static reader::Reader make_reader_with(core::Core& core, const opt<proc_t>& proc)
     {
-        const auto cr3 = registers::read(core, FDP_CR3_REGISTER);
+        const auto cr3 = registers::read(core, reg_e::cr3);
         auto reader    = reader::Reader{core, {cr3}, {cr3}};
         os::reader_setup(core, reader, proc);
         return reader;

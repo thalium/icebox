@@ -545,10 +545,10 @@ namespace
 
 bool CallstackNt::get_callstack(proc_t proc, callstack::on_callstep_fn on_callstep)
 {
-    const auto ip         = registers::read(core_, FDP_RIP_REGISTER);
-    const auto sp         = registers::read(core_, FDP_RSP_REGISTER);
-    const auto bp         = registers::read(core_, FDP_RBP_REGISTER);
-    const auto cs         = registers::read(core_, FDP_CS_REGISTER);
+    const auto ip         = registers::read(core_, reg_e::rip);
+    const auto sp         = registers::read(core_, reg_e::rsp);
+    const auto bp         = registers::read(core_, reg_e::rbp);
+    const auto cs         = registers::read(core_, reg_e::cs);
     const auto ctx        = callstack::context_t{ip, sp, bp, cs};
     constexpr auto x86_cs = 0x23;
     if(cs == x86_cs)

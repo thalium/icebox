@@ -103,8 +103,8 @@ namespace
         if(!proc)
             return FAIL(false, "unable to get current proc");
 
-        const auto rip = registers::read(core, FDP_RIP_REGISTER);
-        const auto dtb = dtb_t{registers::read(core, FDP_CR3_REGISTER)};
+        const auto rip = registers::read(core, reg_e::rip);
+        const auto dtb = dtb_t{registers::read(core, reg_e::cr3)};
         const auto phy = memory::virtual_to_physical(core, rip, dtb);
         if(!phy)
             return FAIL(false, "unable to get current physical address");
@@ -450,12 +450,12 @@ void state::run_to_current(core::Core& core, std::string_view name)
 {
     auto& d           = *core.state_;
     const auto thread = threads::current(core);
-    const auto rsp    = registers::read(core, FDP_RSP_REGISTER);
-    const auto rip    = registers::read(core, FDP_RIP_REGISTER);
+    const auto rsp    = registers::read(core, reg_e::rsp);
+    const auto rip    = registers::read(core, reg_e::rip);
     const auto bp     = ::set_breakpoint(core, name, rip, {}, *thread, {});
     run_until(core, [&]
     {
-        const auto got_rsp = registers::read(core, FDP_RSP_REGISTER);
+        const auto got_rsp = registers::read(core, reg_e::rsp);
         return d.breakstate.rip == rip
                && got_rsp == rsp;
     });
@@ -482,13 +482,13 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
             return;
         }
 
-        cr3 = registers::read(core, FDP_CR3_REGISTER);
+        cr3 = registers::read(core, reg_e::cr3);
     }
 
     auto& d = *core.state_;
     run_until(core, [&]
     {
-        uint64_t new_cr3 = registers::read(core, FDP_CR3_REGISTER);
+        uint64_t new_cr3 = registers::read(core, reg_e::cr3);
 
         if(!ptrs.count(d.breakstate.rip) & (bp_cr3 == BP_CR3_NONE || cr3 == new_cr3))
             return false; // WALK_NEXT

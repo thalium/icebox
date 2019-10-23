@@ -36,7 +36,7 @@ bool functions::break_on_return(core::Core& core, std::string_view name, const f
 
     const auto ptr_size    = process::flags(core, *proc) & flags_e::FLAGS_32BIT ? 4 : 8;
     const auto reader      = reader::make(core, *proc);
-    const auto want_rsp    = registers::read(core, FDP_RSP_REGISTER);
+    const auto want_rsp    = registers::read(core, reg_e::rsp);
     const auto return_addr = reader.read(want_rsp);
     if(!return_addr)
         return false;
@@ -49,7 +49,7 @@ bool functions::break_on_return(core::Core& core, std::string_view name, const f
     const auto bp = state::set_breakpoint(core, name, *return_addr, *thread, [=]
     {
         auto& d        = *ctx.core.func_;
-        const auto rsp = registers::read(ctx.core, FDP_RSP_REGISTER) - ptr_size;
+        const auto rsp = registers::read(ctx.core, reg_e::rsp) - ptr_size;
         auto it        = d.returns.find(rsp);
         if(it == d.returns.end())
             return;

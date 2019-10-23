@@ -26,12 +26,12 @@ namespace
 {
     uint8_t cpu_ring(core::Core& core)
     {
-        return registers::read(core, FDP_CS_REGISTER) & 0b11ull;
+        return registers::read(core, reg_e::cs) & 0b11ull;
     }
 
     bool is_rip_in_kernel(core::Core& core)
     {
-        return os::is_kernel_address(core, registers::read(core, FDP_RIP_REGISTER));
+        return os::is_kernel_address(core, registers::read(core, reg_e::rip));
     }
 }
 

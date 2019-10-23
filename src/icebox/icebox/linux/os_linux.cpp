@@ -341,7 +341,7 @@ namespace
     template <typename T>
     static bool set_kernel_page_dir(OsLinux& p, T check)
     {
-        auto kpgd = registers::read(p.core_, FDP_CR3_REGISTER);
+        auto kpgd = registers::read(p.core_, reg_e::cr3);
         kpgd &= ~0x1fffull; // clear 12th bits due to meltdown patch
         if(!check(kpgd))
         {
@@ -747,7 +747,7 @@ namespace
 {
     static uint8_t cpu_ring(OsLinux& p)
     {
-        return registers::read(p.core_, FDP_CS_REGISTER) & 0b11ull;
+        return registers::read(p.core_, reg_e::cs) & 0b11ull;
     }
 
     static void proc_join_any(OsLinux& p, proc_t proc)
@@ -964,7 +964,7 @@ opt<uint64_t> OsLinux::thread_pc(proc_t, thread_t thread)
         return {};
 
     if(thread.id == current->id)
-        return registers::read(core_, FDP_RIP_REGISTER);
+        return registers::read(core_, reg_e::rip);
 
     const auto pt_regs_ptr = pt_regs(*this, thread);
     if(!pt_regs_ptr)

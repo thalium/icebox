@@ -105,13 +105,13 @@ namespace
     template <typename T>
     static auto switch_dtb(core::Core& core, dtb_t dtb, T operand)
     {
-        const auto backup      = fdp::read_register(core, FDP_CR3_REGISTER);
+        const auto backup      = fdp::read_register(core, reg_e::cr3);
         const auto need_switch = backup && *backup != dtb.val;
         if(need_switch)
-            fdp::write_register(core, FDP_CR3_REGISTER, dtb.val);
+            fdp::write_register(core, reg_e::cr3, dtb.val);
         const auto ret = operand();
         if(need_switch)
-            fdp::write_register(core, FDP_CR3_REGISTER, *backup);
+            fdp::write_register(core, reg_e::cr3, *backup);
         return ret;
     }
 }
@@ -144,10 +144,40 @@ bool fdp::inject_interrupt(core::Core& core, uint32_t code, uint32_t error, uint
     return FDP_InjectInterrupt(cast(core.shm_), 0, code, error, cr2);
 }
 
+namespace
+{
+    FDP_Register cast(reg_e arg)
+    {
+        switch(arg)
+        {
+            case reg_e::cs:     return FDP_CS_REGISTER;
+            case reg_e::rsp:    return FDP_RSP_REGISTER;
+            case reg_e::rip:    return FDP_RIP_REGISTER;
+            case reg_e::rbp:    return FDP_RBP_REGISTER;
+            case reg_e::cr3:    return FDP_CR3_REGISTER;
+            case reg_e::rax:    return FDP_RAX_REGISTER;
+            case reg_e::rbx:    return FDP_RBX_REGISTER;
+            case reg_e::rcx:    return FDP_RCX_REGISTER;
+            case reg_e::rdx:    return FDP_RDX_REGISTER;
+            case reg_e::rsi:    return FDP_RSI_REGISTER;
+            case reg_e::rdi:    return FDP_RDI_REGISTER;
+            case reg_e::r8:     return FDP_R8_REGISTER;
+            case reg_e::r9:     return FDP_R9_REGISTER;
+            case reg_e::r10:    return FDP_R10_REGISTER;
+            case reg_e::r11:    return FDP_R11_REGISTER;
+            case reg_e::r12:    return FDP_R12_REGISTER;
+            case reg_e::r13:    return FDP_R13_REGISTER;
+            case reg_e::r14:    return FDP_R14_REGISTER;
+            case reg_e::r15:    return FDP_R15_REGISTER;
+        }
+        return FDP_REGISTER_UINT16_TRICK;
+    }
+}
+
 opt<uint64_t> fdp::read_register(core::Core& core, reg_e reg)
 {
     uint64_t value = 0;
-    const auto ok  = FDP_ReadRegister(cast(core.shm_), 0, reg, &value);
+    const auto ok  = FDP_ReadRegister(cast(core.shm_), 0, cast(reg), &value);
     if(!ok)
         return {};
 
@@ -166,7 +196,7 @@ opt<uint64_t> fdp::read_msr_register(core::Core& core, msr_e msr)
 
 bool fdp::write_register(core::Core& core, reg_e reg, uint64_t value)
 {
-    return FDP_WriteRegister(cast(core.shm_), 0, reg, value);
+    return FDP_WriteRegister(cast(core.shm_), 0, cast(reg), value);
 }
 
 bool fdp::write_msr_register(core::Core& core, msr_e msr, uint64_t value)

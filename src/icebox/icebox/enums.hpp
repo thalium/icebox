@@ -2,12 +2,28 @@
 
 #include <stdint.h>
 
-extern "C"
+enum class reg_e
 {
-#include <FDP_enum.h>
-}
-
-using reg_e = FDP_Register;
+    cs,
+    rsp,
+    rip,
+    rbp,
+    cr3,
+    rax,
+    rbx,
+    rcx,
+    rdx,
+    rsi,
+    rdi,
+    r8,
+    r9,
+    r10,
+    r11,
+    r12,
+    r13,
+    r14,
+    r15,
+};
 
 enum walk_e
 {
