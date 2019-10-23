@@ -33,26 +33,6 @@ sym::Symbols& os::kernel_symbols(core::Core& core)
     return core.os_->kernel_symbols();
 }
 
-bool os::mod_list(core::Core& core, proc_t proc, on_mod_fn on_mod)
-{
-    return core.os_->mod_list(proc, on_mod);
-}
-
-opt<std::string> os::mod_name(core::Core& core, proc_t proc, mod_t mod)
-{
-    return core.os_->mod_name(proc, mod);
-}
-
-opt<span_t> os::mod_span(core::Core& core, proc_t proc, mod_t mod)
-{
-    return core.os_->mod_span(proc, mod);
-}
-
-opt<mod_t> os::mod_find(core::Core& core, proc_t proc, uint64_t addr)
-{
-    return core.os_->mod_find(proc, addr);
-}
-
 bool os::vm_area_list(core::Core& core, proc_t proc, on_vm_area_fn on_vm_area)
 {
     return core.os_->vm_area_list(proc, on_vm_area);

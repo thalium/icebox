@@ -104,10 +104,10 @@ void display_proc(core::Core& core, const proc_t& proc)
 void display_mod(core::Core& core, const proc_t& proc)
 {
     state::pause(core);
-    os::mod_list(core, proc, [&](mod_t mod)
+    modules::list(core, proc, [&](mod_t mod)
     {
-        const auto span = os::mod_span(core, proc, mod);
-        auto name       = os::mod_name(core, {}, mod);
+        const auto span = modules::span(core, proc, mod);
+        auto name       = modules::name(core, {}, mod);
         if(!name)
             name = "<no-name>";
 

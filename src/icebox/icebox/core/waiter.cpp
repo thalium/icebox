@@ -18,9 +18,9 @@ namespace
     static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
     {
         opt<mod_t> found;
-        os::mod_list(core, proc, [&](mod_t mod)
+        modules::list(core, proc, [&](mod_t mod)
         {
-            const auto name = os::mod_name(core, proc, mod);
+            const auto name = modules::name(core, proc, mod);
             if(!name)
                 return WALK_NEXT;
 
@@ -92,7 +92,7 @@ opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_
         if(flags && !(mod.flags & flags))
             return;
 
-        const auto name = os::mod_name(core, proc_loading, mod);
+        const auto name = modules::name(core, proc_loading, mod);
         if(!name)
             return;
 

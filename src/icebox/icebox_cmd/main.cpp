@@ -47,7 +47,7 @@ namespace
             return;
 
         process::join(core, *target, process::JOIN_USER_MODE);
-        const auto span = os::mod_span(core, *target, *mod);
+        const auto span = modules::span(core, *target, *mod);
         if(!span)
             return;
 
@@ -122,17 +122,17 @@ namespace
         std::vector<uint8_t> buffer;
         const auto reader = reader::make(core, *target);
         size_t modcount   = 0;
-        os::mod_list(core, *target, [&](mod_t)
+        modules::list(core, *target, [&](mod_t)
         {
             ++modcount;
             return WALK_NEXT;
         });
         size_t modi = 0;
         sym::Symbols syms;
-        os::mod_list(core, *target, [&](mod_t mod)
+        modules::list(core, *target, [&](mod_t mod)
         {
-            const auto name = os::mod_name(core, *target, mod);
-            const auto span = os::mod_span(core, *target, mod);
+            const auto name = modules::name(core, *target, mod);
+            const auto span = modules::span(core, *target, mod);
             if(!name || !span)
                 return WALK_NEXT;
 

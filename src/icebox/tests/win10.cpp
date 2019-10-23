@@ -176,13 +176,13 @@ TEST_F(Win10Test, modules)
     EXPECT_TRUE(!!proc);
 
     Modules modules;
-    os::mod_list(core, *proc, [&](mod_t mod)
+    modules::list(core, *proc, [&](mod_t mod)
     {
-        const auto name = os::mod_name(core, *proc, mod);
+        const auto name = modules::name(core, *proc, mod);
         if(!name)
             return WALK_NEXT; // FIXME
 
-        const auto span = os::mod_span(core, *proc, mod);
+        const auto span = modules::span(core, *proc, mod);
         EXPECT_TRUE(!!span);
         modules.emplace(*name, Module{mod.id, span->addr, span->size, mod.flags});
         return WALK_NEXT;
@@ -199,7 +199,7 @@ TEST_F(Win10Test, modules)
     UNUSED(flags);
 
     const auto want = addr + (size >> 1);
-    const auto mod  = os::mod_find(core, *proc, want);
+    const auto mod  = modules::find(core, *proc, want);
     EXPECT_TRUE(!!mod);
     EXPECT_EQ(id, mod->id);
 }
@@ -308,9 +308,9 @@ TEST_F(Win10Test, memory)
     auto from_reader  = std::vector<uint8_t>{};
     auto from_virtual = std::vector<uint8_t>{};
     const auto reader = reader::make(core, *proc);
-    os::mod_list(core, *proc, [&](mod_t mod)
+    modules::list(core, *proc, [&](mod_t mod)
     {
-        const auto span = os::mod_span(core, *proc, mod);
+        const auto span = modules::span(core, *proc, mod);
         EXPECT_TRUE(!!span);
 
         from_reader.resize(span->size);

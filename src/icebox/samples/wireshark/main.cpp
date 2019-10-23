@@ -111,11 +111,11 @@ namespace
 
     static bool is_wow64_emulated(core::Core& core, const proc_t proc, const uint64_t addr)
     {
-        const auto mod = os::mod_find(core, proc, addr);
+        const auto mod = modules::find(core, proc, addr);
         if(!mod)
             return WALK_NEXT;
 
-        const auto mod_name = os::mod_name(core, proc, *mod);
+        const auto mod_name = modules::name(core, proc, *mod);
         if(!mod_name)
             return WALK_NEXT;
 
@@ -158,16 +158,16 @@ namespace
     static void load_proc_symbols(core::Core& core, proc_t proc, sym::Symbols& symbols, flags_e flag)
     {
         const auto reader = reader::make(core, proc);
-        os::mod_list(core, proc, [&](mod_t mod)
+        modules::list(core, proc, [&](mod_t mod)
         {
             if(flag && mod.flags != flag)
                 return WALK_NEXT;
 
-            const auto name = os::mod_name(core, proc, mod);
+            const auto name = modules::name(core, proc, mod);
             if(!name)
                 return WALK_NEXT;
 
-            const auto span = os::mod_span(core, proc, mod);
+            const auto span = modules::span(core, proc, mod);
             if(!span)
                 return WALK_NEXT;
 

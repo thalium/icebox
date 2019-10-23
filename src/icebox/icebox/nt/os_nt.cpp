@@ -181,7 +181,7 @@ namespace
         opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
         uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list(proc_t proc, os::on_mod_fn on_module) override;
+        bool                mod_list(proc_t proc, modules::on_mod_fn on_module) override;
         opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
         opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
@@ -765,7 +765,7 @@ size_t OsNt::unlisten(bpid_t bpid)
 
 namespace
 {
-    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, os::on_mod_fn on_mod)
+    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, modules::on_mod_fn on_mod)
     {
         const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
@@ -794,7 +794,7 @@ namespace
         return WALK_NEXT;
     }
 
-    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, os::on_mod_fn on_mod)
+    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, modules::on_mod_fn on_mod)
     {
         const auto peb32 = read_wow64_peb(os, reader, proc);
         if(!peb32)
@@ -824,7 +824,7 @@ namespace
     }
 }
 
-bool OsNt::mod_list(proc_t proc, os::on_mod_fn on_mod)
+bool OsNt::mod_list(proc_t proc, modules::on_mod_fn on_mod)
 {
     const auto reader = reader::make(core_, proc);
     auto ret          = mod_list_64(*this, proc, reader, on_mod);

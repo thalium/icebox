@@ -236,16 +236,16 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     auto mod      = find_prev(addr, modules);
     if(mod)
     {
-        const auto span = os::mod_span(core_, proc, *mod);
+        const auto span = modules::span(core_, proc, *mod);
         if(addr <= span->addr + span->size)
             return mod;
     }
 
-    mod = os::mod_find(core_, proc, addr);
+    mod = modules::find(core_, proc, addr);
     if(!mod)
         return {};
 
-    const auto span = os::mod_span(core_, proc, *mod);
+    const auto span = modules::span(core_, proc, *mod);
     modules.emplace(span->addr, *mod);
     return mod;
 }
@@ -304,9 +304,9 @@ namespace
     {
         std::unique_ptr<sym::Symbols> sym;
         const auto reader = reader::make(core, proc);
-        os::mod_list(core, proc, [&](mod_t mod)
+        modules::list(core, proc, [&](mod_t mod)
         {
-            const auto name = os::mod_name(core, proc, mod);
+            const auto name = modules::name(core, proc, mod);
             if(!name)
                 return WALK_NEXT;
 
@@ -318,7 +318,7 @@ namespace
             if(is_32bit ^ is_wow64)
                 return WALK_NEXT;
 
-            const auto span = os::mod_span(core, proc, mod);
+            const auto span = modules::span(core, proc, mod);
             if(!span)
                 return WALK_NEXT;
 
@@ -429,8 +429,8 @@ namespace
         if(!mod)
             return {};
 
-        auto name = os::mod_name(c.core_, proc, *mod);
-        auto span = os::mod_span(c.core_, proc, *mod);
+        auto name = modules::name(c.core_, proc, *mod);
+        auto span = modules::span(c.core_, proc, *mod);
         if(!name || !span)
             return {};
 

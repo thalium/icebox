@@ -279,12 +279,12 @@ namespace
 
             if(type == vma_type_e::module && span && span->addr && span->size)
             {
-                const auto mod = os::mod_find(core, proc, span->addr + span->size / 2);
+                const auto mod = modules::find(core, proc, span->addr + span->size / 2);
                 EXPECT_TRUE(mod);
 
                 if(mod && name)
                 {
-                    EXPECT_EQ(*name, os::mod_name(core, proc, *mod));
+                    EXPECT_EQ(*name, modules::name(core, proc, *mod));
                 }
             }
 
@@ -300,7 +300,7 @@ namespace
         int mod_list_counter = 0;
         opt<std::string> last_mod_name;
         bool first_mod = true;
-        os::mod_list(core, proc, [&](mod_t mod)
+        modules::list(core, proc, [&](mod_t mod)
         {
             EXPECT_NE(mod.id, 0ull);
             if(!mod.id)
@@ -308,7 +308,7 @@ namespace
 
             mod_list_counter++;
 
-            const auto span = os::mod_span(core, proc, mod);
+            const auto span = modules::span(core, proc, mod);
             EXPECT_TRUE(span);
             if(span)
             {
@@ -317,7 +317,7 @@ namespace
                 EXPECT_NE(span->size, 0ull);
             }
 
-            const auto last_mod_name = os::mod_name(core, proc, mod);
+            const auto last_mod_name = modules::name(core, proc, mod);
             EXPECT_TRUE(last_mod_name);
 
             if(first_mod)

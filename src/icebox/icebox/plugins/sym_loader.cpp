@@ -55,7 +55,7 @@ namespace
     static bool load_module_named(Data& d, const reader::Reader& reader, proc_t proc, mod_t mod, const std::string& name)
     {
         LOG(INFO, "loading module %s", name.data());
-        const auto span = os::mod_span(d.core, proc, mod);
+        const auto span = modules::span(d.core, proc, mod);
         if(!span)
             return false;
 
@@ -74,7 +74,7 @@ namespace
 
     static bool load_module(Data& d, const reader::Reader& reader, proc_t proc, mod_t mod, const sym::mod_predicate_fn& predicate)
     {
-        const auto name = os::mod_name(d.core, proc, mod);
+        const auto name = modules::name(d.core, proc, mod);
         if(!name)
             return false;
 
@@ -117,7 +117,7 @@ void sym::Loader::mod_listen(proc_t proc, sym::mod_predicate_fn predicate)
 {
     auto& d           = *d_;
     const auto reader = reader::make(d.core, proc);
-    os::mod_list(d.core, proc, [&](mod_t mod)
+    modules::list(d.core, proc, [&](mod_t mod)
     {
         load_module(d, reader, proc, mod, predicate);
         return WALK_NEXT;

@@ -11,7 +11,6 @@ namespace reader { struct Reader; }
 
 namespace os
 {
-    using on_mod_fn     = fn::view<walk_e(mod_t)>;
     using on_vm_area_fn = fn::view<walk_e(vm_area_t)>;
     using on_driver_fn  = fn::view<walk_e(driver_t)>;
 
@@ -25,11 +24,6 @@ namespace os
     bool            can_inject_fault    (core::Core&, uint64_t ptr);
     bool            reader_setup        (core::Core&, reader::Reader& reader, opt<proc_t> proc);
     sym::Symbols&   kernel_symbols      (core::Core&);
-
-    bool                mod_list(core::Core&, proc_t proc, on_mod_fn on_mod);
-    opt<std::string>    mod_name(core::Core&, proc_t proc, mod_t mod);
-    opt<span_t>         mod_span(core::Core&, proc_t proc, mod_t mod);
-    opt<mod_t>          mod_find(core::Core&, proc_t proc, uint64_t addr);
 
     bool                vm_area_list    (core::Core&, proc_t proc, on_vm_area_fn on_vm_area);
     opt<vm_area_t>      vm_area_find    (core::Core&, proc_t proc, uint64_t addr);
