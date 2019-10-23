@@ -10,7 +10,6 @@
 
 #include "map.hpp"
 #include "mbedtls/sha1.h"
-#include "sym.hpp"
 
 #include <algorithm>
 #include <array>

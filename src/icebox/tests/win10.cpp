@@ -2,10 +2,8 @@
 #include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
-#include <icebox/os.hpp>
 #include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
-#include <icebox/sym.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/tracer/tracer.hpp>

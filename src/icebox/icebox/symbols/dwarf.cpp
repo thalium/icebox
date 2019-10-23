@@ -1,4 +1,4 @@
-#include "sym.hpp"
+#include "symbols.hpp"
 
 #define FDP_MODULE "dwarf"
 #include "log.hpp"

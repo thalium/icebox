@@ -1,4 +1,4 @@
-#include "sym.hpp"
+#include "symbols.hpp"
 
 #define FDP_MODULE "pdb"
 #include "log.hpp"

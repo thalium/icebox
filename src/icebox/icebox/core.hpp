@@ -11,7 +11,7 @@
 #include "process.hpp"
 #include "registers.hpp"
 #include "state.hpp"
-#include "sym.hpp"
+#include "symbols.hpp"
 #include "threads.hpp"
 #include "vm_area.hpp"
 

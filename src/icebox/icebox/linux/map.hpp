@@ -1,6 +1,6 @@
 #pragma once
 
-#include "icebox/sym.hpp"
+#include "symbols.hpp"
 
 namespace sym
 {
