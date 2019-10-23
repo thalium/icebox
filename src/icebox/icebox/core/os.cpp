@@ -38,21 +38,6 @@ size_t os::unlisten(core::Core& core, bpid_t bpid)
     return core.os_->unlisten(bpid);
 }
 
-opt<arg_t> os::read_stack(core::Core& core, size_t index)
-{
-    return core.os_->read_stack(index);
-}
-
-opt<arg_t> os::read_arg(core::Core& core, size_t index)
-{
-    return core.os_->read_arg(index);
-}
-
-bool os::write_arg(core::Core& core, size_t index, arg_t arg)
-{
-    return core.os_->write_arg(index, arg);
-}
-
 void os::debug_print(core::Core& core)
 {
     return core.os_->debug_print();

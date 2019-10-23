@@ -295,7 +295,7 @@ namespace
             if(!proc)
                 return -1;
 
-            const auto netBufferLists = os::read_arg(core, 1);
+            const auto netBufferLists = function::read_arg(core, 1);
             if(!netBufferLists)
                 return -1;
 
@@ -340,7 +340,7 @@ namespace
 
         const auto bp_recv = state::set_breakpoint(core, "NdisMIndicateReceiveNetBufferLists", *NdisReturnNetBufferLists, [&]
         {
-            const auto netBufferLists = os::read_arg(core, 1);
+            const auto netBufferLists = function::read_arg(core, 1);
             if(!netBufferLists)
                 return -1;
 

@@ -117,7 +117,7 @@ namespace
         if(it != d.reallocs_.end())
             return;
 
-        const auto ok = os::write_arg(d.core_, 1, {ptr_prolog + Size + ptr_epilog});
+        const auto ok = function::write_arg(d.core_, 1, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
 
@@ -144,7 +144,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         d.heaps_.erase(it);
     }
 
@@ -154,7 +154,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        const auto ok = os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        const auto ok = function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         if(!ok)
             return;
 
@@ -176,7 +176,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
     static void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
@@ -185,7 +185,7 @@ namespace
         if(it == d.heaps_.end())
             return;
 
-        os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
     static void realloc_unknown_pointer(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID /*BaseAddress*/, nt::ULONG /*Size*/)
@@ -218,12 +218,12 @@ namespace
             return;
 
         // tweak back pointer
-        auto ok = os::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
+        auto ok = function::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
         if(!ok)
             return;
 
         // tweak size up
-        ok = os::write_arg(d.core_, 3, {ptr_prolog + Size + ptr_epilog});
+        ok = function::write_arg(d.core_, 3, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
 
