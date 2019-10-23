@@ -17,7 +17,7 @@
 
 std::string thread_pc(core::Core& core, const thread_t& thread)
 {
-    const auto pc = os::thread_pc(core, {}, thread);
+    const auto pc = threads::program_counter(core, {}, thread);
 
     if(!pc)
         return "<err>";
@@ -42,7 +42,7 @@ std::string thread_pc(core::Core& core, const thread_t& thread)
 
 void display_thread(core::Core& core, const thread_t& thread)
 {
-    const auto thread_id = os::thread_id(core, {}, thread);
+    const auto thread_id = threads::tid(core, {}, thread);
 
     LOG(INFO, "thread : 0x%" PRIx64 "  id:%s %s %s",
         thread.id,
@@ -71,7 +71,7 @@ void display_proc(core::Core& core, const proc_t& proc)
     std::string leader_thread_pc;
     std::string threads;
     int threads_count = -1;
-    os::thread_list(core, proc, [&](thread_t thread)
+    threads::list(core, proc, [&](thread_t thread)
     {
         if(threads_count++ < 0)
         {
@@ -82,7 +82,7 @@ void display_proc(core::Core& core, const proc_t& proc)
         if(threads_count > 1)
             threads.append(", ");
 
-        threads.append(std::to_string(os::thread_id(core, {}, thread)));
+        threads.append(std::to_string(threads::tid(core, {}, thread)));
         return WALK_NEXT;
     });
 
@@ -199,7 +199,7 @@ void proc_join(core::Core& core, proc_t target, process::join_e mode)
     printf("Process found, VM running...\n");
     process::join(core, target, mode);
 
-    const auto thread = os::thread_current(core);
+    const auto thread = threads::current(core);
     if(thread)
     {
         std::cout << "Current thread  : ";

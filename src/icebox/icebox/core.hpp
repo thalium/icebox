@@ -9,6 +9,7 @@
 #include "registers.hpp"
 #include "state.hpp"
 #include "sym.hpp"
+#include "threads.hpp"
 
 namespace core
 {

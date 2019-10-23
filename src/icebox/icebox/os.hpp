@@ -4,7 +4,6 @@
 #include "types.hpp"
 
 #include <functional>
-#include <memory>
 
 namespace core { struct Core; }
 namespace sym { struct Symbols; }
@@ -12,7 +11,6 @@ namespace reader { struct Reader; }
 
 namespace os
 {
-    using on_thread_fn  = fn::view<walk_e(thread_t)>;
     using on_mod_fn     = fn::view<walk_e(mod_t)>;
     using on_vm_area_fn = fn::view<walk_e(vm_area_t)>;
     using on_driver_fn  = fn::view<walk_e(driver_t)>;
@@ -27,12 +25,6 @@ namespace os
     bool            can_inject_fault    (core::Core&, uint64_t ptr);
     bool            reader_setup        (core::Core&, reader::Reader& reader, opt<proc_t> proc);
     sym::Symbols&   kernel_symbols      (core::Core&);
-
-    bool            thread_list     (core::Core&, proc_t proc, on_thread_fn on_thread);
-    opt<thread_t>   thread_current  (core::Core&);
-    opt<proc_t>     thread_proc     (core::Core&, thread_t thread);
-    opt<uint64_t>   thread_pc       (core::Core&, proc_t proc, thread_t thread);
-    uint64_t        thread_id       (core::Core&, proc_t proc, thread_t thread);
 
     bool                mod_list(core::Core&, proc_t proc, on_mod_fn on_mod);
     opt<std::string>    mod_name(core::Core&, proc_t proc, mod_t mod);

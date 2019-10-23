@@ -1,7 +1,7 @@
-#include "os.hpp"
+#include "process.hpp"
 
 #define PRIVATE_CORE__
-#define FDP_MODULE "core"
+#define FDP_MODULE "process"
 #include "core.hpp"
 #include "core_private.hpp"
 #include "os_private.hpp"

@@ -109,7 +109,7 @@ namespace
 {
     static void on_RtlpAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
-        const auto thread = os::thread_current(d.core_);
+        const auto thread = threads::current(d.core_);
         if(!thread)
             return;
 
@@ -190,7 +190,7 @@ namespace
 
     static void realloc_unknown_pointer(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID /*BaseAddress*/, nt::ULONG /*Size*/)
     {
-        const auto thread = os::thread_current(d.core_);
+        const auto thread = threads::current(d.core_);
         if(!thread)
             return;
 
@@ -213,7 +213,7 @@ namespace
         if(it == d.heaps_.end())
             return realloc_unknown_pointer(d, HeapHandle, Flags, BaseAddress, Size);
 
-        const auto thread = os::thread_current(d.core_);
+        const auto thread = threads::current(d.core_);
         if(!thread)
             return;
 

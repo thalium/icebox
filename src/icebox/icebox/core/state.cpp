@@ -96,11 +96,11 @@ namespace
     {
         auto& d = *core.state_;
         memset(&d.breakstate, 0, sizeof d.breakstate);
-        const auto thread = os::thread_current(core);
+        const auto thread = threads::current(core);
         if(!thread)
             return FAIL(false, "unable to get current thread");
 
-        const auto proc = os::thread_proc(core, *thread);
+        const auto proc = threads::process(core, *thread);
         if(!proc)
             return FAIL(false, "unable to get current proc");
 
@@ -301,7 +301,7 @@ namespace
         if(!bp.thread)
             return {};
 
-        const auto proc = os::thread_proc(core, *bp.thread);
+        const auto proc = threads::process(core, *bp.thread);
         if(!proc)
             return {};
 
@@ -450,7 +450,7 @@ void state::run_to_proc(core::Core& core, std::string_view name, proc_t proc, ui
 void state::run_to_current(core::Core& core, std::string_view name)
 {
     auto& d           = *core.state_;
-    const auto thread = os::thread_current(core);
+    const auto thread = threads::current(core);
     const auto rsp    = registers::read(core, FDP_RSP_REGISTER);
     const auto rip    = registers::read(core, FDP_RIP_REGISTER);
     const auto bp     = ::set_breakpoint(core, name, rip, {}, *thread, {});

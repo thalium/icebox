@@ -145,12 +145,12 @@ TEST_F(Win10Test, threads)
     EXPECT_TRUE(!!explorer);
 
     Threads threads;
-    os::thread_list(core, *explorer, [&](thread_t thread)
+    threads::list(core, *explorer, [&](thread_t thread)
     {
-        const auto proc = os::thread_proc(core, thread);
+        const auto proc = threads::process(core, thread);
         EXPECT_TRUE(!!proc);
         EXPECT_EQ(proc->id, explorer->id);
-        const auto tid = os::thread_id(core, *proc, thread);
+        const auto tid = threads::tid(core, *proc, thread);
         EXPECT_NE(tid, 0u);
         threads.emplace(tid);
         return WALK_NEXT;
@@ -158,10 +158,10 @@ TEST_F(Win10Test, threads)
     EXPECT_NE(threads.size(), 0u);
 
     process::join(core, *explorer, process::JOIN_ANY_MODE);
-    const auto current = os::thread_current(core);
+    const auto current = threads::current(core);
     EXPECT_TRUE(!!current);
 
-    const auto tid = os::thread_id(core, *explorer, *current);
+    const auto tid = threads::tid(core, *explorer, *current);
     const auto it  = threads.find(tid);
     EXPECT_NE(it, threads.end());
 }

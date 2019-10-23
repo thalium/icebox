@@ -96,7 +96,7 @@ namespace
         const auto pc = process::current(core);
         LOG(INFO, "current process: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", pc->id, pc->dtb.val, process::name(core, *pc)->data());
 
-        const auto tc = os::thread_current(core);
+        const auto tc = threads::current(core);
         LOG(INFO, "current thread: 0x%" PRIx64, tc->id);
 
         LOG(INFO, "processes:");
@@ -157,9 +157,9 @@ namespace
             return WALK_NEXT;
         });
 
-        os::thread_list(core, *target, [&](thread_t thread)
+        threads::list(core, *target, [&](thread_t thread)
         {
-            const auto rip = os::thread_pc(core, *target, thread);
+            const auto rip = threads::program_counter(core, *target, thread);
             if(!rip)
                 return WALK_NEXT;
 
@@ -179,8 +179,8 @@ namespace
 
                 const auto proc     = process::current(core);
                 const auto pid      = process::pid(core, *proc);
-                const auto thread   = os::thread_current(core);
-                const auto tid      = os::thread_id(core, *proc, *thread);
+                const auto thread   = threads::current(core);
+                const auto tid      = threads::tid(core, *proc, *thread);
                 const auto procname = proc ? process::name(core, *proc) : ext::nullopt;
                 const auto sym      = syms.find(rip);
                 LOG(INFO, "BREAK! rip: 0x%" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,

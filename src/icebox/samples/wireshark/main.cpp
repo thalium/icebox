@@ -247,7 +247,7 @@ namespace
 
     static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data, const CallStack& callstack)
     {
-        const auto thread = os::thread_current(p.core);
+        const auto thread = threads::current(p.core);
         if(!thread)
             return false;
 

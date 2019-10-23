@@ -175,7 +175,7 @@ namespace
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
 
-        bool            thread_list     (proc_t proc, os::on_thread_fn on_thread) override;
+        bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) override;
         opt<thread_t>   thread_current  () override;
         opt<proc_t>     thread_proc     (thread_t thread) override;
         opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
@@ -993,7 +993,7 @@ opt<span_t> OsNt::driver_span(driver_t drv)
     return span_t{*base, *size};
 }
 
-bool OsNt::thread_list(proc_t proc, os::on_thread_fn on_thread)
+bool OsNt::thread_list(proc_t proc, threads::on_thread_fn on_thread)
 {
     const auto head = proc.id + offsets_[EPROCESS_ThreadListHead];
     for(auto link = reader_.read(head); link && link != head; link = reader_.read(*link))

@@ -33,31 +33,6 @@ sym::Symbols& os::kernel_symbols(core::Core& core)
     return core.os_->kernel_symbols();
 }
 
-bool os::thread_list(core::Core& core, proc_t proc, on_thread_fn on_thread)
-{
-    return core.os_->thread_list(proc, on_thread);
-}
-
-opt<thread_t> os::thread_current(core::Core& core)
-{
-    return core.os_->thread_current();
-}
-
-opt<proc_t> os::thread_proc(core::Core& core, thread_t thread)
-{
-    return core.os_->thread_proc(thread);
-}
-
-opt<uint64_t> os::thread_pc(core::Core& core, proc_t proc, thread_t thread)
-{
-    return core.os_->thread_pc(proc, thread);
-}
-
-uint64_t os::thread_id(core::Core& core, proc_t proc, thread_t thread)
-{
-    return core.os_->thread_id(proc, thread);
-}
-
 bool os::mod_list(core::Core& core, proc_t proc, on_mod_fn on_mod)
 {
     return core.os_->mod_list(proc, on_mod);

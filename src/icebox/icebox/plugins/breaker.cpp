@@ -39,7 +39,7 @@ state::Breaker::~Breaker() = default;
 bool state::Breaker::break_return(std::string_view name, const state::Task& task)
 {
     auto& d                = *d_;
-    const auto thread      = os::thread_current(d.core);
+    const auto thread      = threads::current(d.core);
     const auto want_rsp    = registers::read(d.core, FDP_RSP_REGISTER);
     const auto return_addr = d.reader.read(want_rsp);
     if(!thread || !return_addr)

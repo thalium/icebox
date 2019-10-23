@@ -170,10 +170,10 @@ TEST_F(LinuxTest, processes)
 TEST_F(LinuxTest, threads)
 {
     auto& core         = *ptr_core;
-    const auto current = os::thread_current(core);
+    const auto current = threads::current(core);
     ASSERT_TRUE(current && current->id);
 
-    const auto current_pc = os::thread_pc(core, {}, *current);
+    const auto current_pc = threads::program_counter(core, {}, *current);
     EXPECT_TRUE(current_pc && *current_pc);
     if(current_pc)
     {
@@ -184,7 +184,7 @@ TEST_F(LinuxTest, threads)
     ASSERT_TRUE(child && child->id && child->dtb.val);
 
     int thread_list_counter = 0;
-    os::thread_list(core, *child, [&](thread_t thread)
+    threads::list(core, *child, [&](thread_t thread)
     {
         EXPECT_NE(thread.id, 0u);
         if(!thread.id)
@@ -192,15 +192,15 @@ TEST_F(LinuxTest, threads)
 
         thread_list_counter++;
 
-        const auto proc = os::thread_proc(core, thread);
+        const auto proc = threads::process(core, thread);
         EXPECT_TRUE(proc && proc->id && proc->dtb.val);
         EXPECT_EQ(child->id, proc->id);
         EXPECT_EQ(child->dtb.val, proc->dtb.val);
 
-        const auto pid = os::thread_id(core, {}, thread);
+        const auto pid = threads::tid(core, {}, thread);
         EXPECT_TRUE(pid <= 4194304); // PID <= 4194304 for linux
 
-        const auto pc = os::thread_pc(core, {}, thread);
+        const auto pc = threads::program_counter(core, {}, thread);
         EXPECT_TRUE(pc && *pc);
         if(pc)
             if(thread.id != current->id)

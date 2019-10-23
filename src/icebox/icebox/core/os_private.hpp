@@ -35,7 +35,7 @@ namespace os
         virtual opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) = 0;
         virtual opt<proc_t>         proc_parent     (proc_t proc) = 0;
 
-        virtual bool            thread_list     (proc_t proc, on_thread_fn on_thread) = 0;
+        virtual bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) = 0;
         virtual opt<thread_t>   thread_current  () = 0;
         virtual opt<proc_t>     thread_proc     (thread_t thread) = 0;
         virtual opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) = 0;
