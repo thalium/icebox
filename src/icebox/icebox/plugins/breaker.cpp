@@ -9,7 +9,7 @@
 
 namespace
 {
-    using Returns = std::unordered_map<uint64_t, core::Breakpoint>;
+    using Returns = std::unordered_map<uint64_t, state::Breakpoint>;
 }
 
 struct state::Breaker::Data
@@ -52,7 +52,7 @@ bool state::Breaker::break_return(std::string_view name, const state::Task& task
         Task     task;
     } ctx = {d, want_rsp, task};
 
-    const auto bp = d.core.state.set_breakpoint(name, *return_addr, *thread, [=]
+    const auto bp = state::set_breakpoint(d.core, name, *return_addr, *thread, [=]
     {
         const auto rsp = registers::read(ctx.d.core, FDP_RSP_REGISTER) - ctx.d.ptr_size;
         auto it        = ctx.d.returns.find(rsp);

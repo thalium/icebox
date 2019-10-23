@@ -31,8 +31,8 @@ namespace
         const auto end    = now + std::chrono::minutes(5);
         while(std::chrono::high_resolution_clock::now() < end)
         {
-            core.state.resume();
-            core.state.wait();
+            state::resume(core);
+            state::wait(core);
         }
         return 0;
     }
@@ -53,8 +53,8 @@ int main(int argc, char** argv)
     if(!ok)
         return FAIL(-1, "unable to start core at %s", name.data());
 
-    core.state.pause();
+    state::pause(core);
     const auto ret = heapsan(core, target);
-    core.state.resume();
+    state::resume(core);
     return ret;
 }

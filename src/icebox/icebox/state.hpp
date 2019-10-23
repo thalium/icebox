@@ -6,14 +6,13 @@
 #include <memory>
 #include <unordered_set>
 
-namespace core
+namespace core { struct Core; }
+
+namespace state
 {
     // auto-managed breakpoint object
     struct BreakpointPrivate;
     using Breakpoint = std::shared_ptr<BreakpointPrivate>;
-
-    // generic functor object
-    using Task = std::function<void(void)>;
 
     enum bp_cr3_e
     {
@@ -21,28 +20,21 @@ namespace core
         BP_CR3_NONE,
     };
 
-    struct State
-    {
-         State();
-        ~State();
+    // generic functor object
+    using Task = std::function<void(void)>;
 
-        bool        pause           ();
-        bool        resume          ();
-        bool        single_step     ();
-        bool        wait            ();
-        Breakpoint  set_breakpoint  (std::string_view name, uint64_t ptr, const Task& task);
-        Breakpoint  set_breakpoint  (std::string_view name, uint64_t ptr, proc_t proc, const Task& task);
-        Breakpoint  set_breakpoint  (std::string_view name, uint64_t ptr, thread_t thread, const Task& task);
-        Breakpoint  set_breakpoint  (std::string_view name, phy_t phy, const Task& task);
-        Breakpoint  set_breakpoint  (std::string_view name, phy_t phy, proc_t proc, const Task& task);
-        Breakpoint  set_breakpoint  (std::string_view name, phy_t phy, thread_t thread, const Task& task);
-        void        run_to_proc     (std::string_view name, proc_t proc);
-        void        run_to_proc     (std::string_view name, proc_t proc, uint64_t ptr);
-        void        run_to_current  (std::string_view name);
-        void        run_to          (std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t, thread_t)> on_bp);
-
-        // private data
-        struct Data;
-        std::unique_ptr<Data> d_;
-    };
-} // namespace core
+    bool        pause           (core::Core& core);
+    bool        resume          (core::Core& core);
+    bool        single_step     (core::Core& core);
+    bool        wait            (core::Core& core);
+    Breakpoint  set_breakpoint  (core::Core& core, std::string_view name, uint64_t ptr, const Task& task);
+    Breakpoint  set_breakpoint  (core::Core& core, std::string_view name, uint64_t ptr, proc_t proc, const Task& task);
+    Breakpoint  set_breakpoint  (core::Core& core, std::string_view name, uint64_t ptr, thread_t thread, const Task& task);
+    Breakpoint  set_breakpoint  (core::Core& core, std::string_view name, phy_t phy, const Task& task);
+    Breakpoint  set_breakpoint  (core::Core& core, std::string_view name, phy_t phy, proc_t proc, const Task& task);
+    Breakpoint  set_breakpoint  (core::Core& core, std::string_view name, phy_t phy, thread_t thread, const Task& task);
+    void        run_to_proc     (core::Core& core, std::string_view name, proc_t proc);
+    void        run_to_proc     (core::Core& core, std::string_view name, proc_t proc, uint64_t ptr);
+    void        run_to_current  (core::Core& core, std::string_view name);
+    void        run_to          (core::Core& core, std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t, thread_t)> on_bp);
+} // namespace state

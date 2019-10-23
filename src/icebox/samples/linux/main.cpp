@@ -103,7 +103,7 @@ void display_proc(const core::Core& core, const proc_t& proc)
 
 void display_mod(core::Core& core, const proc_t& proc)
 {
-    core.state.pause();
+    state::pause(core);
     core.os->mod_list(proc, [&](mod_t mod)
     {
         const auto span = core.os->mod_span(proc, mod);
@@ -119,12 +119,12 @@ void display_mod(core::Core& core, const proc_t& proc)
 
         return WALK_NEXT;
     });
-    core.state.resume();
+    state::resume(core);
 }
 
 void display_vm_area(core::Core& core, const proc_t& proc)
 {
-    core.state.pause();
+    state::pause(core);
     core.os->vm_area_list(proc, [&](vm_area_t vm_area)
     {
         const auto span      = core.os->vm_area_span(proc, vm_area);
@@ -161,7 +161,7 @@ void display_vm_area(core::Core& core, const proc_t& proc)
 
         return WALK_NEXT;
     });
-    core.state.resume();
+    state::resume(core);
 }
 
 opt<proc_t> select_process(core::Core& core)
@@ -182,9 +182,9 @@ opt<proc_t> select_process(core::Core& core)
         if(pid == -1)
             return {};
 
-        core.state.pause();
+        state::pause(core);
         const auto target = core.os->proc_find(pid);
-        core.state.resume();
+        state::resume(core);
         if(target)
             return *target;
 
@@ -194,7 +194,7 @@ opt<proc_t> select_process(core::Core& core)
 
 void proc_join(core::Core& core, proc_t target, os::join_e mode)
 {
-    core.state.pause();
+    state::pause(core);
 
     printf("Process found, VM running...\n");
     core.os->proc_join(target, mode);
@@ -219,7 +219,7 @@ void proc_join(core::Core& core, proc_t target, os::join_e mode)
 
     printf("\nPress a key to resume VM...\n");
     SYSTEM_PAUSE
-    core.state.resume();
+    state::resume(core);
 }
 
 int main(int argc, char** argv)
@@ -237,7 +237,7 @@ int main(int argc, char** argv)
 
     core::Core core;
     const auto ok = core.setup(name);
-    core.state.resume();
+    state::resume(core);
     if(!ok)
         return FAIL(-1, "unable to start core at %s", name.data());
 
@@ -245,13 +245,13 @@ int main(int argc, char** argv)
     printf("\n");
 
     // get list of processes
-    core.state.pause();
+    state::pause(core);
     core.os->proc_list([&](proc_t proc)
     {
         display_proc(core, proc);
         return WALK_NEXT;
     });
-    core.state.resume();
+    state::resume(core);
 
     // proc_join in kernel mode
     printf("\n--- Join a process in kernel mode ---\n");
@@ -270,7 +270,7 @@ int main(int argc, char** argv)
     printf("\n");
 
     // get list of drivers
-    core.state.pause();
+    state::pause(core);
     core.os->driver_list([&](driver_t driver)
     {
         const auto span = core.os->driver_span(driver);
@@ -285,7 +285,7 @@ int main(int argc, char** argv)
 
         return WALK_NEXT;
     });
-    core.state.resume();
+    state::resume(core);
 
     printf("\n");
     SYSTEM_PAUSE

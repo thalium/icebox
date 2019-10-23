@@ -165,7 +165,7 @@ bool Data::setup()
         const auto nbr = 4;
         for(auto i = 0; i < nbr; i++)
         {
-            const auto ok = core_.state.single_step();
+            const auto ok = state::single_step(core_);
             if(!ok)
                 return FAIL(1, "Unable to single step");
         }

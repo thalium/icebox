@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     if(!ok)
         return FAIL(-1, "unable to start core at %s", name.data());
 
-    core.state.pause();
-    core.state.resume();
+    state::pause(core);
+    state::resume(core);
     return 0;
 }

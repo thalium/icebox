@@ -770,7 +770,7 @@ namespace
             LOG(ERROR, "unable to proc_join_any on process 0x%" PRIx64, proc.id);
         else
         {
-            p.core_.state.run_to(std::string_view("proc_join_any"), ptrs, core::BP_CR3_NONE, [&](proc_t bp_proc, thread_t)
+            state::run_to(p.core_, std::string_view("proc_join_any"), ptrs, state::BP_CR3_NONE, [&](proc_t bp_proc, thread_t)
             {
                 return (bp_proc.id == proc.id) ? WALK_STOP : WALK_NEXT;
             });
@@ -779,7 +779,7 @@ namespace
 
     void run_until_next_cr3(OsLinux& p)
     {
-        p.core_.state.run_to(std::string_view("next_cr3"), std::unordered_set<uint64_t>(), core::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t)
+        state::run_to(p.core_, std::string_view("next_cr3"), std::unordered_set<uint64_t>(), state::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t)
         {
             return WALK_STOP;
         });
@@ -831,7 +831,7 @@ void OsLinux::proc_join(proc_t proc, os::join_e join)
             continue;
         }
 
-        core_.state.run_to("proc_join_user", std::unordered_set<uint64_t>{*user_rip}, core::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t bp_thread)
+        state::run_to(core_, "proc_join_user", std::unordered_set<uint64_t>{*user_rip}, state::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t bp_thread)
         {
             if((cpu_ring(*this) == 3) | (bp_thread.id != current_thread->id))
                 return WALK_STOP;

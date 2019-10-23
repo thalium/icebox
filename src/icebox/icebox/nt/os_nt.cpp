@@ -147,7 +147,7 @@ namespace
     using NtSymbols = std::array<uint64_t, SYMBOL_COUNT>;
 
     using bpid_t      = os::IModule::bpid_t;
-    using Breakpoints = std::multimap<bpid_t, core::Breakpoint>;
+    using Breakpoints = std::multimap<bpid_t, state::Breakpoint>;
 
     struct OsNt
         : public os::IModule
@@ -484,7 +484,7 @@ namespace
     static opt<bpid_t> listen_to(OsNt& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
     {
         const auto osptr = &os;
-        const auto bp    = os.core_.state.set_breakpoint(name, addr, [=]
+        const auto bp    = state::set_breakpoint(os.core_, name, addr, [=]
         {
             callback(*osptr, bpid, on_value);
         });
@@ -1054,16 +1054,16 @@ namespace
 {
     static void proc_join_kernel(OsNt& os, proc_t proc)
     {
-        os.core_.state.run_to_proc("proc_join_kernel", proc);
+        state::run_to_proc(os.core_, "proc_join_kernel", proc);
     }
 
     static void proc_join_user(OsNt& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, MSR_LSTAR);
-        os.core_.state.run_to_proc("KiKernelSysretExit", proc, where);
+        state::run_to_proc(os.core_, "KiKernelSysretExit", proc, where);
         const auto rip = registers::read(os.core_, FDP_RCX_REGISTER);
-        os.core_.state.run_to_proc("return KiKernelSysretExit", proc, rip);
+        state::run_to_proc(os.core_, "return KiKernelSysretExit", proc, rip);
     }
 
     static bool is_user_mode(uint64_t cs)

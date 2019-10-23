@@ -42,10 +42,10 @@ bool tests::is_user_mode(core::Core& core)
 
 bool tests::run_for_ns(core::Core& core, const uint64_t duration_ns)
 {
-    if(!core.state.resume())
+    if(!state::resume(core))
         return false;
     std::this_thread::sleep_for(std::chrono::nanoseconds(duration_ns));
-    return core.state.pause();
+    return state::pause(core);
 }
 
 bool tests::run_for_ns_with_rand(core::Core& core, const uint64_t min_duration_ns, const uint64_t max_duration_ns)

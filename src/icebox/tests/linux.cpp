@@ -22,13 +22,13 @@ namespace
             ASSERT_EXEC_BEFORE_TIMEOUT_NS(core_setup = core.setup("linux"), 30 * SECOND_NS);
             ASSERT_TRUE(core_setup);
 
-            const auto paused = core.state.pause();
+            const auto paused = state::pause(core);
             ASSERT_TRUE(paused);
         }
 
         void TearDown() override
         {
-            const auto resumed = core.state.resume();
+            const auto resumed = state::resume(core);
             EXPECT_TRUE(resumed);
         }
 

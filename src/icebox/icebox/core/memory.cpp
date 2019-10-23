@@ -17,7 +17,7 @@ struct memory::Memory
     int depth = 0;
 };
 
-std::shared_ptr<memory::Memory> memory::setup(core::Core& /*core*/)
+std::shared_ptr<memory::Memory> memory::setup()
 {
     return std::make_shared<Memory>();
 }
@@ -96,7 +96,7 @@ namespace
         if(!injected)
             return FAIL(false, "unable to inject page fault");
 
-        core.state.run_to_current("inject_pf");
+        state::run_to_current(core, "inject_pf");
         return true;
     }
 

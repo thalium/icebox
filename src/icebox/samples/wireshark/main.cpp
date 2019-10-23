@@ -190,7 +190,7 @@ namespace
         });
     }
 
-    using Breakpoints = std::map<int, core::Breakpoint>;
+    using Breakpoints = std::map<int, state::Breakpoint>;
 
     struct Private
     {
@@ -251,7 +251,7 @@ namespace
         if(!thread)
             return false;
 
-        const auto bp = p.core.state.set_breakpoint("NdisSendNetBufferLists user return", addr, *thread, [=]
+        const auto bp = state::set_breakpoint(p.core, "NdisSendNetBufferLists user return", addr, *thread, [=]
         {
             auto meta = p.meta;
             if(p.is_wow64cpu)
@@ -289,7 +289,7 @@ namespace
         if(!NdisSendNetBufferLists)
             return FAIL(-1, "unable to set a BP on ndis!NdisSendNetBufferLists");
 
-        const auto bp_send = core.state.set_breakpoint("NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
+        const auto bp_send = state::set_breakpoint(core, "NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
         {
             const auto proc = core.os->proc_current();
             if(!proc)
@@ -338,7 +338,7 @@ namespace
         if(!NdisReturnNetBufferLists)
             return FAIL(-1, "unable to et a BP on ndis!NdisMIndicateReceiveNetBufferLists");
 
-        const auto bp_recv = core.state.set_breakpoint("NdisMIndicateReceiveNetBufferLists", *NdisReturnNetBufferLists, [&]
+        const auto bp_recv = state::set_breakpoint(core, "NdisMIndicateReceiveNetBufferLists", *NdisReturnNetBufferLists, [&]
         {
             const auto netBufferLists = core.os->read_arg(1);
             if(!netBufferLists)
@@ -356,8 +356,8 @@ namespace
         const auto end = now + std::chrono::seconds(30);
         while(std::chrono::high_resolution_clock::now() < end)
         {
-            core.state.resume();
-            core.state.wait();
+            state::resume(core);
+            state::wait(core);
         }
         pcap.write(capture_path.data());
 
@@ -380,8 +380,8 @@ int main(int argc, char** argv)
     if(!ok)
         return FAIL(-1, "unable to start core at %s", name.data());
 
-    core.state.pause();
+    state::pause(core);
     const auto ret = capture(core, capture_path);
-    core.state.resume();
+    state::resume(core);
     return ret;
 }

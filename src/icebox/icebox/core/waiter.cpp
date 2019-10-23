@@ -67,8 +67,8 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
 
     while(!found)
     {
-        core.state.resume();
-        core.state.wait();
+        state::resume(core);
+        state::wait(core);
     }
     core.os->unlisten(*bpid);
     return found;
@@ -106,8 +106,8 @@ opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_
 
     while(!found)
     {
-        core.state.resume();
-        core.state.wait();
+        state::resume(core);
+        state::wait(core);
     }
     core.os->unlisten(*bpid);
     return found;

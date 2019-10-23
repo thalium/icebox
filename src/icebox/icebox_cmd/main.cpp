@@ -26,8 +26,8 @@ namespace
         const auto n = 100;
         for(size_t i = 0; i < n; ++i)
         {
-            core.state.resume();
-            core.state.wait();
+            state::resume(core);
+            state::wait(core);
         }
 
         syscall_plugin.generate("output.json");
@@ -72,8 +72,8 @@ namespace
 
         for(size_t i = 0; i < 3000; ++i)
         {
-            core.state.resume();
-            core.state.wait();
+            state::resume(core);
+            state::wait(core);
             if(i % 200 == 0)
                 LOG(INFO, "%zd", i);
         }
@@ -171,7 +171,7 @@ namespace
         // check breakpoints
         {
             const auto ptr = core.os->kernel_symbols().symbol("nt", "SwapContext");
-            const auto bp  = core.state.set_breakpoint("SwapContext", *ptr, [&]
+            const auto bp  = state::set_breakpoint(core, "SwapContext", *ptr, [&]
             {
                 const auto rip = registers::read(core, FDP_RIP_REGISTER);
                 if(!rip)
@@ -188,8 +188,8 @@ namespace
             });
             for(size_t i = 0; i < 16; ++i)
             {
-                core.state.resume();
-                core.state.wait();
+                state::resume(core);
+                state::wait(core);
             }
         }
 
@@ -202,7 +202,7 @@ namespace
             const auto func_addr = syms.symbol(pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
-            const auto bp = core.state.set_breakpoint(func_name, *func_addr, *target, [&]
+            const auto bp = state::set_breakpoint(core, func_name, *func_addr, *target, [&]
             {
                 int k = 0;
                 callstack->get_callstack(*target, [&](callstack::callstep_t callstep)
@@ -222,8 +222,8 @@ namespace
             });
             for(size_t i = 0; i < 3; ++i)
             {
-                core.state.resume();
-                core.state.wait();
+                state::resume(core);
+                state::wait(core);
             }
         }
 
@@ -259,8 +259,8 @@ int main(int argc, char* argv[])
         return FAIL(-1, "unable to start core at %s", name.data());
 
     // core.state.resume();
-    core.state.pause();
+    state::pause(core);
     const auto valid = test_core(core);
-    core.state.resume();
+    state::resume(core);
     return !valid;
 }

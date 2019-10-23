@@ -415,7 +415,7 @@ namespace
 	};
 
     using bpid_t    = wow64::syscalls32::bpid_t;
-    using Listeners = std::multimap<bpid_t, core::Breakpoint>;
+    using Listeners = std::multimap<bpid_t, state::Breakpoint>;
 }
 
 struct wow64::syscalls32::Data
@@ -446,13 +446,13 @@ wow64::syscalls32::~syscalls32() = default;
 
 namespace
 {
-    static opt<bpid_t> register_callback(wow64::syscalls32::Data& d, bpid_t id, proc_t proc, const char* name, const core::Task& on_call)
+    static opt<bpid_t> register_callback(wow64::syscalls32::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
     {
         const auto addr = d.syms.symbol(d.module, name);
         if(!addr)
             return FAIL(ext::nullopt, "unable to find symbole %s!%s", d.module.data(), name);
 
-        const auto bp = d.core.state.set_breakpoint(name, *addr, proc, on_call);
+        const auto bp = state::set_breakpoint(d.core, name, *addr, proc, on_call);
         if(!bp)
             return FAIL(ext::nullopt, "unable to set breakpoint");
 

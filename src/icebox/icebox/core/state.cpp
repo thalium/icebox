@@ -3,6 +3,7 @@
 #define PRIVATE_CORE__
 #define FDP_MODULE "state"
 #include "core.hpp"
+#include "core_private.hpp"
 #include "fdp.hpp"
 #include "log.hpp"
 #include "os.hpp"
@@ -47,7 +48,7 @@ namespace
 
     struct BreakpointObserver
     {
-        BreakpointObserver(core::Task task, std::string_view name, phy_t phy, opt<proc_t> proc, opt<thread_t> thread)
+        BreakpointObserver(state::Task task, std::string_view name, phy_t phy, opt<proc_t> proc, opt<thread_t> thread)
             : task(std::move(task))
             , name(name)
             , phy(phy)
@@ -57,7 +58,7 @@ namespace
         {
         }
 
-        core::Task    task;
+        state::Task   task;
         std::string   name;
         phy_t         phy;
         opt<proc_t>   proc;
@@ -79,47 +80,35 @@ namespace
     };
 }
 
-struct core::State::Data
+struct state::State
 {
-    Data(fdp::shm& shm, Core& core)
-        : shm(shm)
-        , core(core)
-    {
-    }
-
-    fdp::shm&  shm;
-    Core&      core;
     Breakers   targets;
     Observers  observers;
     BreakState breakstate;
 };
 
-using StateData = core::State::Data;
-
-core::State::State()  = default;
-core::State::~State() = default;
-
-void core::setup(State& state, fdp::shm& shm, Core& core)
+std::shared_ptr<state::State> state::setup()
 {
-    state.d_ = std::make_unique<core::State::Data>(shm, core);
+    return std::make_shared<state::State>();
 }
 
 namespace
 {
-    static bool update_break_state(StateData& d)
+    static bool update_break_state(core::Core& core)
     {
+        auto& d = *core.d_->state_;
         memset(&d.breakstate, 0, sizeof d.breakstate);
-        const auto thread = d.core.os->thread_current();
+        const auto thread = core.os->thread_current();
         if(!thread)
             return FAIL(false, "unable to get current thread");
 
-        const auto proc = d.core.os->thread_proc(*thread);
+        const auto proc = core.os->thread_proc(*thread);
         if(!proc)
             return FAIL(false, "unable to get current proc");
 
-        const auto rip = registers::read(d.core, FDP_RIP_REGISTER);
-        const auto dtb = dtb_t{registers::read(d.core, FDP_CR3_REGISTER)};
-        const auto phy = memory::virtual_to_physical(d.core, rip, dtb);
+        const auto rip = registers::read(core, FDP_RIP_REGISTER);
+        const auto dtb = dtb_t{registers::read(core, FDP_CR3_REGISTER)};
+        const auto phy = memory::virtual_to_physical(core, rip, dtb);
         if(!phy)
             return FAIL(false, "unable to get current physical address");
 
@@ -128,35 +117,35 @@ namespace
         d.breakstate.rip    = rip;
         d.breakstate.dtb    = dtb;
         d.breakstate.phy    = *phy;
-        d.core.os->debug_print();
+        core.os->debug_print();
         return true;
     }
 
-    static bool try_pause(StateData& d)
+    static bool try_pause(core::Core& core)
     {
-        const auto state = fdp::state(d.shm);
+        const auto state = fdp::state(*core.d_->shm_);
         if(!state)
             return false;
 
         if(*state & FDP_STATE_PAUSED)
             return true;
 
-        const auto ok = fdp::pause(d.shm);
+        const auto ok = fdp::pause(*core.d_->shm_);
         if(!ok)
             return FAIL(false, "unable to pause");
 
-        const auto updated = update_break_state(d);
+        const auto updated = update_break_state(core);
         return updated;
     }
 
-    static bool try_single_step(StateData& d)
+    static bool try_single_step(core::Core& core)
     {
-        return fdp::step_once(d.shm);
+        return fdp::step_once(*core.d_->shm_);
     }
 
-    static bool try_resume(StateData& d)
+    static bool try_resume(core::Core& core)
     {
-        const auto state = fdp::state(d.shm);
+        const auto state = fdp::state(*core.d_->shm_);
         if(!state)
             return false;
 
@@ -164,10 +153,10 @@ namespace
             return true;
 
         if(*state & (FDP_STATE_BREAKPOINT_HIT | FDP_STATE_HARD_BREAKPOINT_HIT))
-            if(!try_single_step(d))
+            if(!try_single_step(core))
                 return false;
 
-        const auto resumed = fdp::resume(d.shm);
+        const auto resumed = fdp::resume(*core.d_->shm_);
         if(!resumed)
             return FAIL(false, "unable to resume");
 
@@ -175,19 +164,19 @@ namespace
     }
 }
 
-bool core::State::pause()
+bool state::pause(core::Core& core)
 {
-    return try_pause(*d_);
+    return try_pause(core);
 }
 
-bool core::State::resume()
+bool state::resume(core::Core& core)
 {
-    return try_resume(*d_);
+    return try_resume(core);
 }
 
-bool core::State::single_step()
+bool state::single_step(core::Core& core)
 {
-    return try_single_step(*d_);
+    return try_single_step(core);
 }
 
 namespace
@@ -203,19 +192,20 @@ namespace
     }
 }
 
-struct core::BreakpointPrivate
+struct state::BreakpointPrivate
 {
-    BreakpointPrivate(StateData& data, Observer observer)
-        : data_(data)
+    BreakpointPrivate(core::Core& core, Observer observer)
+        : core_(core)
         , observer_(std::move(observer))
     {
     }
 
     ~BreakpointPrivate()
     {
+        auto& d              = *core_.d_->state_;
         bool unique_observer = true;
         opt<Observers::iterator> target;
-        lookup_observers(data_.observers, observer_->phy, [&](auto it)
+        lookup_observers(d.observers, observer_->phy, [&](auto it)
         {
             if(observer_ == it->second)
                 target = it;
@@ -229,32 +219,33 @@ struct core::BreakpointPrivate
         if(!target)
             return;
 
-        data_.observers.erase(*target);
+        d.observers.erase(*target);
         if(!unique_observer)
             return;
 
-        const auto ok = fdp::unset_breakpoint(data_.shm, observer_->bpid);
+        const auto ok = fdp::unset_breakpoint(*core_.d_->shm_, observer_->bpid);
         if(!ok)
             LOG(ERROR, "unable to remove breakpoint %d", observer_->bpid);
 
-        data_.targets.erase(observer_->phy);
+        d.targets.erase(observer_->phy);
     }
 
-    StateData& data_;
-    Observer   observer_;
+    core::Core& core_;
+    Observer    observer_;
 };
 
 namespace
 {
-    static void check_breakpoints(StateData& d)
+    static void check_breakpoints(core::Core& core)
     {
-        const auto state = fdp::state(d.shm);
+        const auto state = fdp::state(*core.d_->shm_);
         if(!state)
             return;
 
         if(!(*state & FDP_STATE_BREAKPOINT_HIT))
             return;
 
+        auto& d = *core.d_->state_;
         std::vector<Observer> observers;
         lookup_observers(d.observers, d.breakstate.phy, [&](auto it)
         {
@@ -280,31 +271,31 @@ namespace
         SKIP_BREAKPOINTS
     };
 
-    static bool try_wait(StateData& d, check_e check)
+    static bool try_wait(core::Core& core, check_e check)
     {
         while(true)
         {
             std::this_thread::yield();
-            const auto ok = fdp::state_changed(d.shm);
+            const auto ok = fdp::state_changed(*core.d_->shm_);
             if(!ok)
                 continue;
 
-            update_break_state(d);
+            update_break_state(core);
             if(check == CHECK_BREAKPOINTS)
-                check_breakpoints(d);
+                check_breakpoints(core);
             return true;
         }
     }
 }
 
-bool core::State::wait()
+bool state::wait(core::Core& core)
 {
-    return try_wait(*d_, CHECK_BREAKPOINTS);
+    return try_wait(core, CHECK_BREAKPOINTS);
 }
 
 namespace
 {
-    static opt<dtb_t> get_dtb_filter(StateData& d, const BreakpointObserver& bp)
+    static opt<dtb_t> get_dtb_filter(core::Core& core, const BreakpointObserver& bp)
     {
         if(bp.proc)
             return bp.proc->dtb;
@@ -312,17 +303,18 @@ namespace
         if(!bp.thread)
             return {};
 
-        const auto proc = d.core.os->thread_proc(*bp.thread);
+        const auto proc = core.os->thread_proc(*bp.thread);
         if(!proc)
             return {};
 
         return proc->dtb;
     }
 
-    static int try_add_breakpoint(StateData& d, phy_t phy, const BreakpointObserver& bp)
+    static int try_add_breakpoint(core::Core& core, phy_t phy, const BreakpointObserver& bp)
     {
+        auto& d       = *core.d_->state_;
         auto& targets = d.targets;
-        auto dtb      = get_dtb_filter(d, bp);
+        auto dtb      = get_dtb_filter(core, bp);
         const auto it = targets.find(phy);
         if(it != targets.end())
         {
@@ -332,7 +324,7 @@ namespace
                 return it->second.id;
 
             // filtering rules are too restrictive, remove old breakpoint & add an unfiltered breakpoint
-            const auto ok = fdp::unset_breakpoint(d.shm, it->second.id);
+            const auto ok = fdp::unset_breakpoint(*core.d_->shm_, it->second.id);
             targets.erase(it);
             if(!ok)
                 return -1;
@@ -341,7 +333,7 @@ namespace
             dtb = {};
         }
 
-        const auto bpid = fdp::set_breakpoint(d.shm, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb ? dtb->val : 0);
+        const auto bpid = fdp::set_breakpoint(*core.d_->shm_, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb ? dtb->val : 0);
         if(bpid < 0)
             return -1;
 
@@ -349,11 +341,12 @@ namespace
         return bpid;
     }
 
-    static core::Breakpoint set_breakpoint(StateData& d, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
+    static state::Breakpoint set_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
+        auto& d       = *core.d_->state_;
         const auto bp = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
         d.observers.emplace(phy, bp);
-        const auto bpid = try_add_breakpoint(d, phy, *bp);
+        const auto bpid = try_add_breakpoint(core, phy, *bp);
 
         // update all observers breakpoint id
         lookup_observers(d.observers, phy, [&](auto it)
@@ -361,145 +354,144 @@ namespace
             it->second->bpid = bpid;
             return WALK_NEXT;
         });
-        return std::make_shared<core::BreakpointPrivate>(d, bp);
+        return std::make_shared<state::BreakpointPrivate>(core, bp);
     }
 
-    static opt<phy_t> to_phy(StateData& d, uint64_t ptr, const opt<proc_t>& proc)
+    static opt<phy_t> to_phy(core::Core& core, uint64_t ptr, const opt<proc_t>& proc)
     {
-        const auto current = proc ? proc : d.core.os->proc_current();
+        const auto current = proc ? proc : core.os->proc_current();
         if(!current)
             return {};
 
-        return d.core.os->proc_resolve(*current, ptr);
+        return core.os->proc_resolve(*current, ptr);
     }
 
-    static core::Breakpoint set_breakpoint(StateData& d, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
+    static state::Breakpoint set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        const auto target = proc ? d.core.os->proc_select(*proc, ptr) : ext::nullopt;
-        const auto phy    = to_phy(d, ptr, target);
+        const auto target = proc ? core.os->proc_select(*proc, ptr) : ext::nullopt;
+        const auto phy    = to_phy(core, ptr, target);
         if(!phy)
             return nullptr;
 
-        return set_breakpoint(d, name, *phy, target, thread, task);
+        return set_breakpoint(core, name, *phy, target, thread, task);
     }
 }
 
-core::Breakpoint core::State::set_breakpoint(std::string_view name, uint64_t ptr, const core::Task& task)
+state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const state::Task& task)
 {
-    return ::set_breakpoint(*d_, name, ptr, {}, {}, task);
+    return ::set_breakpoint(core, name, ptr, {}, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(std::string_view name, uint64_t ptr, proc_t proc, const core::Task& task)
+state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, proc_t proc, const state::Task& task)
 {
-    return ::set_breakpoint(*d_, name, ptr, proc, {}, task);
+    return ::set_breakpoint(core, name, ptr, proc, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(std::string_view name, uint64_t ptr, thread_t thread, const core::Task& task)
+state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, thread_t thread, const state::Task& task)
 {
-    return ::set_breakpoint(*d_, name, ptr, {}, thread, task);
+    return ::set_breakpoint(core, name, ptr, {}, thread, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(std::string_view name, phy_t phy, const core::Task& task)
+state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, phy_t phy, const state::Task& task)
 {
-    return ::set_breakpoint(*d_, name, phy, {}, {}, task);
+    return ::set_breakpoint(core, name, phy, {}, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(std::string_view name, phy_t phy, proc_t proc, const core::Task& task)
+state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, phy_t phy, proc_t proc, const state::Task& task)
 {
-    return ::set_breakpoint(*d_, name, phy, proc, {}, task);
+    return ::set_breakpoint(core, name, phy, proc, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(std::string_view name, phy_t phy, thread_t thread, const core::Task& task)
+state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, phy_t phy, thread_t thread, const state::Task& task)
 {
-    return ::set_breakpoint(*d_, name, phy, {}, thread, task);
+    return ::set_breakpoint(core, name, phy, {}, thread, task);
 }
 
 namespace
 {
     template <typename T>
-    static void run_until(StateData& d, const T& predicate)
+    static void run_until(core::Core& core, const T& predicate)
     {
         while(true)
         {
-            try_resume(d);
-            try_wait(d, SKIP_BREAKPOINTS);
+            try_resume(core);
+            try_wait(core, SKIP_BREAKPOINTS);
 
             if(predicate())
                 return;
 
-            check_breakpoints(d);
+            check_breakpoints(core);
         }
     }
 }
 
-void core::State::run_to_proc(std::string_view /*name*/, proc_t proc)
+void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc)
 {
-    auto d          = *d_;
-    const auto bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+    const auto bpid = fdp::set_breakpoint(*core.d_->shm_, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
     if(bpid < 0)
         return;
 
-    run_until(d, [&]
+    auto& d = *core.d_->state_;
+    run_until(core, [&]
     {
         return d.breakstate.proc == proc;
     });
-    fdp::unset_breakpoint(d.shm, bpid);
+    fdp::unset_breakpoint(*core.d_->shm_, bpid);
 }
 
-void core::State::run_to_proc(std::string_view name, proc_t proc, uint64_t ptr)
+void state::run_to_proc(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr)
 {
-    auto& d       = *d_;
-    const auto bp = ::set_breakpoint(d, name, ptr, proc, {}, {});
-    run_until(d, [&]
+    auto& d       = *core.d_->state_;
+    const auto bp = ::set_breakpoint(core, name, ptr, proc, {}, {});
+    run_until(core, [&]
     {
         return d.breakstate.rip == ptr;
     });
 }
 
-void core::State::run_to_current(std::string_view name)
+void state::run_to_current(core::Core& core, std::string_view name)
 {
-    auto& d           = *d_;
-    const auto thread = d.core.os->thread_current();
-    const auto rsp    = registers::read(d.core, FDP_RSP_REGISTER);
-    const auto rip    = registers::read(d.core, FDP_RIP_REGISTER);
-    const auto bp     = ::set_breakpoint(d, name, rip, {}, *thread, {});
-    run_until(d, [&]
+    auto& d           = *core.d_->state_;
+    const auto thread = core.os->thread_current();
+    const auto rsp    = registers::read(core, FDP_RSP_REGISTER);
+    const auto rip    = registers::read(core, FDP_RIP_REGISTER);
+    const auto bp     = ::set_breakpoint(core, name, rip, {}, *thread, {});
+    run_until(core, [&]
     {
-        const auto got_rsp = registers::read(d.core, FDP_RSP_REGISTER);
+        const auto got_rsp = registers::read(core, FDP_RSP_REGISTER);
         return d.breakstate.rip == rip
                && got_rsp == rsp;
     });
 }
 
-void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t, thread_t)> on_bp)
+void state::run_to(core::Core& core, std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, fn::view<walk_e(proc_t, thread_t)> on_bp)
 {
-    auto& d = *d_;
-
     if((bp_cr3 == BP_CR3_NONE) & ptrs.empty())
         return;
 
-    auto bps = std::vector<core::Breakpoint>{};
+    auto bps = std::vector<state::Breakpoint>{};
     bps.reserve(ptrs.size());
     for(const uint64_t& ptr : ptrs)
-        bps.push_back(::set_breakpoint(d, name, ptr, {}, {}, {}));
+        bps.push_back(::set_breakpoint(core, name, ptr, {}, {}, {}));
 
     int bpid     = -1;
     uint64_t cr3 = 0;
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
     {
-        bpid = fdp::set_breakpoint(d.shm, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+        bpid = fdp::set_breakpoint(*core.d_->shm_, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
         if(bpid < 0)
         {
             LOG(ERROR, "unable to set a breakpoint on CR3 writes");
             return;
         }
 
-        cr3 = registers::read(d.core, FDP_CR3_REGISTER);
+        cr3 = registers::read(core, FDP_CR3_REGISTER);
     }
 
-    run_until(d, [&]
+    auto& d = *core.d_->state_;
+    run_until(core, [&]
     {
-        uint64_t new_cr3 = registers::read(d.core, FDP_CR3_REGISTER);
+        uint64_t new_cr3 = registers::read(core, FDP_CR3_REGISTER);
 
         if(!ptrs.count(d.breakstate.rip) & (bp_cr3 == BP_CR3_NONE || cr3 == new_cr3))
             return false; // WALK_NEXT
@@ -511,5 +503,5 @@ void core::State::run_to(std::string_view name, std::unordered_set<uint64_t> ptr
     });
 
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
-        fdp::unset_breakpoint(d.shm, bpid);
+        fdp::unset_breakpoint(*core.d_->shm_, bpid);
 }

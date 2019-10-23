@@ -30,13 +30,13 @@ namespace
         {
             const auto core_setup = core.setup("win10");
             ASSERT_TRUE(core_setup);
-            const auto paused = core.state.pause();
+            const auto paused = state::pause(core);
             ASSERT_TRUE(paused);
         }
 
         void TearDown() override
         {
-            const auto resumed = core.state.resume();
+            const auto resumed = state::resume(core);
             EXPECT_TRUE(resumed);
         }
 
@@ -209,8 +209,8 @@ namespace
         const auto end = now + std::chrono::seconds(8);
         while(!predicate() && std::chrono::high_resolution_clock::now() < end)
         {
-            core.state.resume();
-            core.state.wait();
+            state::resume(core);
+            state::wait(core);
         }
         EXPECT_TRUE(predicate());
     }
@@ -262,20 +262,20 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     run_until(core, [&] { return func_start > 0; });
 
     // set a breakpoint on next instruction
-    core.state.single_step();
+    state::single_step(core);
     const auto addr_a = registers::read(core, FDP_RIP_REGISTER);
     int func_a        = 0;
-    auto bp_a         = core.state.set_breakpoint("ZwWaitForSingleObject + $1", addr_a, *proc, [&]
+    auto bp_a         = state::set_breakpoint(core, "ZwWaitForSingleObject + $1", addr_a, *proc, [&]
     {
         func_a++;
     });
 
     // set a breakpoint on next instruction again
     // we are sure the previous bp share a physical page with at least one bp
-    core.state.single_step();
+    state::single_step(core);
     const auto addr_b = registers::read(core, FDP_RIP_REGISTER);
     int func_b        = 0;
-    const auto bp_b   = core.state.set_breakpoint("ZwWaitForSingleObject + $2", addr_b, *proc, [&]
+    const auto bp_b   = state::set_breakpoint(core, "ZwWaitForSingleObject + $2", addr_b, *proc, [&]
     {
         func_b++;
     });
