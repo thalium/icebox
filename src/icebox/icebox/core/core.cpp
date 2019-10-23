@@ -5,26 +5,16 @@
 #include "core_private.hpp"
 #include "fdp.hpp"
 #include "log.hpp"
-#include "os.hpp"
 #include "os_private.hpp"
-#include "private.hpp"
 
 #include <chrono>
 #include <thread>
 
-namespace
-{
-    using Data = core::Data;
-}
-
-Data::Data(std::string_view name)
+core::Core::Core(const std::string& name)
     : name_(name)
     , shm_(nullptr)
 {
 }
-
-core::Core::Core()  = default;
-core::Core::~Core() = default;
 
 namespace
 {
@@ -40,28 +30,28 @@ namespace
 
     static auto setup(core::Core& core, const std::string& name)
     {
-        core.d_->shm_ = fdp::setup(name);
-        if(!core.d_->shm_)
+        core.shm_ = fdp::setup(name);
+        if(!core.shm_)
             return FAIL(false, "unable to init shm");
 
         fdp::reset(core);
-        core.d_->mem_   = memory::setup();
-        core.d_->state_ = state::setup();
+        core.mem_   = memory::setup();
+        core.state_ = state::setup();
 
         // register os helpers
         for(const auto& h : g_os_modules)
         {
-            core.d_->os_ = h.make(core);
-            if(!core.d_->os_)
+            core.os_ = h.make(core);
+            if(!core.os_)
                 continue;
 
-            const auto ok = core.d_->os_->setup();
+            const auto ok = core.os_->setup();
             if(ok)
                 break;
 
-            core.d_->os_.reset();
+            core.os_.reset();
         }
-        if(core.d_->os_)
+        if(core.os_)
             return true;
 
         state::resume(core);
@@ -69,9 +59,11 @@ namespace
     }
 }
 
-bool core::Core::setup(const std::string& name)
+std::shared_ptr<core::Core> core::attach(const std::string& name)
 {
-    d_ = std::make_unique<core::Data>(name);
+    auto ptr = std::make_shared<core::Core>(name);
+    if(!ptr)
+        return {};
 
     // try to connect multiple times
     const auto now = std::chrono::high_resolution_clock::now();
@@ -79,12 +71,12 @@ bool core::Core::setup(const std::string& name)
     int n_ms       = 10;
     while(std::chrono::high_resolution_clock::now() < end)
     {
-        if(::setup(*this, name))
-            return true;
+        if(::setup(*ptr, name))
+            return ptr;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(n_ms));
         n_ms = std::min(n_ms * 2, 400);
     }
 
-    return false;
+    return {};
 }

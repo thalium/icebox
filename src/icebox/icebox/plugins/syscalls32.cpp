@@ -4,6 +4,7 @@
 #include "log.hpp"
 
 #include "callstack.hpp"
+#include "core.hpp"
 #include "endian.hpp"
 #include "nt/nt.hpp"
 #include "nt/objects_nt.hpp"

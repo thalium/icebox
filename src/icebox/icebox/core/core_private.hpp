@@ -32,9 +32,9 @@ namespace core
     using State  = std::shared_ptr<state::State>;
     using Os     = std::unique_ptr<os::IModule>;
 
-    struct Data
+    struct Core
     {
-        Data(std::string_view name);
+        Core(const std::string& name);
 
         const std::string name_;
         fdp::shm*         shm_;

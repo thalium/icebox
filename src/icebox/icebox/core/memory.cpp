@@ -8,8 +8,6 @@
 #include "fdp.hpp"
 #include "log.hpp"
 #include "mmu.hpp"
-#include "os.hpp"
-#include "private.hpp"
 #include "utils/utils.hpp"
 
 struct memory::Memory
@@ -119,7 +117,7 @@ opt<phy_t> memory::virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb
     if(!os::can_inject_fault(core, ptr))
         return {};
 
-    auto& mem = *core.d_->mem_;
+    auto& mem = *core.mem_;
     mem.depth++;
     if(mem.depth > 1)
         return {};

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "core.hpp"
+#include "types.hpp"
+
+namespace core { struct Core; }
 
 namespace waiter
 {

@@ -235,46 +235,45 @@ int main(int argc, char** argv)
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on %s", name.data());
 
-    core::Core core;
-    const auto ok = core.setup(name);
-    state::resume(core);
-    if(!ok)
+    const auto core = core::attach(name);
+    if(!core)
         return FAIL(-1, "unable to start core at %s", name.data());
 
+    state::resume(*core);
     SYSTEM_PAUSE
     printf("\n");
 
     // get list of processes
-    state::pause(core);
-    os::proc_list(core, [&](proc_t proc)
+    state::pause(*core);
+    os::proc_list(*core, [&](proc_t proc)
     {
-        display_proc(core, proc);
+        display_proc(*core, proc);
         return WALK_NEXT;
     });
-    state::resume(core);
+    state::resume(*core);
 
     // proc_join in kernel mode
     printf("\n--- Join a process in kernel mode ---\n");
-    auto target = select_process(core);
+    auto target = select_process(*core);
     if(target)
-        os::proc_join(core, *target, os::JOIN_ANY_MODE);
+        os::proc_join(*core, *target, os::JOIN_ANY_MODE);
 
     // proc_join in user mode
     printf("\n--- Join a process in user mode ---\n");
-    target = select_process(core);
+    target = select_process(*core);
     if(target)
-        os::proc_join(core, *target, os::JOIN_USER_MODE);
+        os::proc_join(*core, *target, os::JOIN_USER_MODE);
 
     printf("\n");
     SYSTEM_PAUSE
     printf("\n");
 
     // get list of drivers
-    state::pause(core);
-    os::driver_list(core, [&](driver_t driver)
+    state::pause(*core);
+    os::driver_list(*core, [&](driver_t driver)
     {
-        const auto span = os::driver_span(core, driver);
-        auto name       = os::driver_name(core, driver);
+        const auto span = os::driver_span(*core, driver);
+        auto name       = os::driver_name(*core, driver);
         if(!name)
             name = "<no-name>";
 
@@ -285,7 +284,7 @@ int main(int argc, char** argv)
 
         return WALK_NEXT;
     });
-    state::resume(core);
+    state::resume(*core);
 
     printf("\n");
     SYSTEM_PAUSE
@@ -293,17 +292,17 @@ int main(int argc, char** argv)
 
     // get list of vm_area
     printf("\n--- Display virtual memory areas and modules of a process ---\n");
-    target = select_process(core);
+    target = select_process(*core);
     if(target)
     {
         printf("\nVirtual memory areas :\n");
-        display_vm_area(core, *target);
+        display_vm_area(*core, *target);
 
         printf("\n");
         SYSTEM_PAUSE
 
         printf("\nModules :\n");
-        display_mod(core, *target);
+        display_mod(*core, *target);
     }
 
     printf("\n");

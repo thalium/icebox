@@ -48,13 +48,12 @@ int main(int argc, char** argv)
     const auto target = std::string{argv[2]};
     LOG(INFO, "starting on %s", name.data());
 
-    core::Core core;
-    const auto ok = core.setup(name);
-    if(!ok)
+    const auto core = core::attach(name);
+    if(!core)
         return FAIL(-1, "unable to start core at %s", name.data());
 
-    state::pause(core);
-    const auto ret = heapsan(core, target);
-    state::resume(core);
+    state::pause(*core);
+    const auto ret = heapsan(*core, target);
+    state::resume(*core);
     return ret;
 }

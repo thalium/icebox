@@ -2,7 +2,7 @@
 
 #define FDP_MODULE "heaps"
 #include "log.hpp"
-#include "os.hpp"
+#include "core.hpp"
 
 #include <cstring>
 #include <map>

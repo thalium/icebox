@@ -11,12 +11,11 @@ int main(int argc, char** argv)
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on %s", name.data());
 
-    core::Core core;
-    const auto ok = core.setup(name);
-    if(!ok)
+    const auto core = core::attach(name);
+    if(!core)
         return FAIL(-1, "unable to start core at %s", name.data());
 
-    state::pause(core);
-    state::resume(core);
+    state::pause(*core);
+    state::resume(*core);
     return 0;
 }

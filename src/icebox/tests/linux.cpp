@@ -18,21 +18,20 @@ namespace
       protected:
         void SetUp() override
         {
-            bool core_setup = false;
-            ASSERT_EXEC_BEFORE_TIMEOUT_NS(core_setup = core.setup("linux"), 30 * SECOND_NS);
-            ASSERT_TRUE(core_setup);
+            ASSERT_EXEC_BEFORE_TIMEOUT_NS(ptr_core = core::attach("linux"), 30 * SECOND_NS);
+            ASSERT_TRUE(ptr_core);
 
-            const auto paused = state::pause(core);
+            const auto paused = state::pause(*ptr_core);
             ASSERT_TRUE(paused);
         }
 
         void TearDown() override
         {
-            const auto resumed = state::resume(core);
+            const auto resumed = state::resume(*ptr_core);
             EXPECT_TRUE(resumed);
         }
 
-        core::Core core;
+        std::shared_ptr<core::Core> ptr_core;
     };
 }
 
@@ -88,6 +87,7 @@ namespace
 
 TEST_F(LinuxTest, processes)
 {
+    auto& core           = *ptr_core;
     bool proc_list_empty = true;
     os::proc_list(core, [&](proc_t proc)
     {
@@ -169,6 +169,7 @@ TEST_F(LinuxTest, processes)
 
 TEST_F(LinuxTest, threads)
 {
+    auto& core         = *ptr_core;
     const auto current = os::thread_current(core);
     ASSERT_TRUE(current && current->id);
 
@@ -214,6 +215,7 @@ TEST_F(LinuxTest, threads)
 
 TEST_F(LinuxTest, drivers)
 {
+    auto& core              = *ptr_core;
     int driver_list_counter = 0;
     os::driver_list(core, [&](driver_t driver)
     {
@@ -340,6 +342,7 @@ namespace
 
 TEST_F(LinuxTest, vma_modules)
 {
+    auto& core       = *ptr_core;
     const auto child = utility_child(core);
     ASSERT_TRUE(child && child->id && child->dtb.val);
 

@@ -28,12 +28,14 @@ def generate_registers(json_data, pad):
 def generate_header(json_data, filename, namespace, pad, wow64):
     return """#pragma once
 
-#include "icebox/core.hpp"
 #include "icebox/nt/{namespace}.hpp"
 #include "icebox/types.hpp"
 #include "tracer.hpp"
 
 #include <functional>
+
+namespace core {{ struct Core; }}
+namespace sym {{ struct Symbols; }}
 
 namespace {namespace}
 {{
@@ -112,7 +114,7 @@ def generate_impl(json_data, filename, namespace, pad, wow64):
 
 #define FDP_MODULE "{filename}"
 #include "log.hpp"
-#include "os.hpp"
+#include "core.hpp"
 
 #include <cstring>
 #include <map>

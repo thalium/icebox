@@ -253,14 +253,13 @@ int main(int argc, char* argv[])
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on %s", name.data());
 
-    core::Core core;
-    const auto ok = core.setup(name);
-    if(!ok)
+    const auto core = core::attach(name);
+    if(!core)
         return FAIL(-1, "unable to start core at %s", name.data());
 
     // core.state.resume();
-    state::pause(core);
-    const auto valid = test_core(core);
-    state::resume(core);
+    state::pause(*core);
+    const auto valid = test_core(*core);
+    state::resume(*core);
     return !valid;
 }

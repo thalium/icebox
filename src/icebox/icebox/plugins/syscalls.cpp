@@ -1,8 +1,8 @@
 #include "syscalls.hpp"
 
 #define FDP_MODULE "syscalls"
+#include "core.hpp"
 #include "log.hpp"
-#include "os.hpp"
 
 #include "callstack.hpp"
 #include "nt/objects_nt.hpp"

@@ -1,11 +1,13 @@
 #pragma once
 
-#include "icebox/core.hpp"
 #include "icebox/nt/nt.hpp"
 #include "icebox/types.hpp"
 #include "tracer.hpp"
 
 #include <functional>
+
+namespace core { struct Core; }
+namespace sym { struct Symbols; }
 
 namespace nt
 {

@@ -375,13 +375,12 @@ int main(int argc, char** argv)
     const auto capture_path = std::string{argv[2]};
     LOG(INFO, "capture path: %s", capture_path.data());
 
-    core::Core core;
-    const auto ok = core.setup(name);
-    if(!ok)
+    const auto core = core::attach(name);
+    if(!core)
         return FAIL(-1, "unable to start core at %s", name.data());
 
-    state::pause(core);
-    const auto ret = capture(core, capture_path);
-    state::resume(core);
+    state::pause(*core);
+    const auto ret = capture(*core, capture_path);
+    state::resume(*core);
     return ret;
 }

@@ -6,8 +6,6 @@
 #include "core_private.hpp"
 #include "fdp.hpp"
 #include "log.hpp"
-#include "os.hpp"
-#include "private.hpp"
 #include "reader.hpp"
 #include "utils/fnview.hpp"
 #include "utils/utils.hpp"
@@ -96,7 +94,7 @@ namespace
 {
     static bool update_break_state(core::Core& core)
     {
-        auto& d = *core.d_->state_;
+        auto& d = *core.state_;
         memset(&d.breakstate, 0, sizeof d.breakstate);
         const auto thread = os::thread_current(core);
         if(!thread)
@@ -202,7 +200,7 @@ struct state::BreakpointPrivate
 
     ~BreakpointPrivate()
     {
-        auto& d              = *core_.d_->state_;
+        auto& d              = *core_.state_;
         bool unique_observer = true;
         opt<Observers::iterator> target;
         lookup_observers(d.observers, observer_->phy, [&](auto it)
@@ -245,7 +243,7 @@ namespace
         if(!(*state & FDP_STATE_BREAKPOINT_HIT))
             return;
 
-        auto& d = *core.d_->state_;
+        auto& d = *core.state_;
         std::vector<Observer> observers;
         lookup_observers(d.observers, d.breakstate.phy, [&](auto it)
         {
@@ -312,7 +310,7 @@ namespace
 
     static int try_add_breakpoint(core::Core& core, phy_t phy, const BreakpointObserver& bp)
     {
-        auto& d       = *core.d_->state_;
+        auto& d       = *core.state_;
         auto& targets = d.targets;
         auto dtb      = get_dtb_filter(core, bp);
         const auto it = targets.find(phy);
@@ -343,7 +341,7 @@ namespace
 
     static state::Breakpoint set_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        auto& d       = *core.d_->state_;
+        auto& d       = *core.state_;
         const auto bp = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
         d.observers.emplace(phy, bp);
         const auto bpid = try_add_breakpoint(core, phy, *bp);
@@ -431,7 +429,7 @@ void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc
     if(bpid < 0)
         return;
 
-    auto& d = *core.d_->state_;
+    auto& d = *core.state_;
     run_until(core, [&]
     {
         return d.breakstate.proc == proc;
@@ -441,7 +439,7 @@ void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc
 
 void state::run_to_proc(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr)
 {
-    auto& d       = *core.d_->state_;
+    auto& d       = *core.state_;
     const auto bp = ::set_breakpoint(core, name, ptr, proc, {}, {});
     run_until(core, [&]
     {
@@ -451,7 +449,7 @@ void state::run_to_proc(core::Core& core, std::string_view name, proc_t proc, ui
 
 void state::run_to_current(core::Core& core, std::string_view name)
 {
-    auto& d           = *core.d_->state_;
+    auto& d           = *core.state_;
     const auto thread = os::thread_current(core);
     const auto rsp    = registers::read(core, FDP_RSP_REGISTER);
     const auto rip    = registers::read(core, FDP_RIP_REGISTER);
@@ -488,7 +486,7 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
         cr3 = registers::read(core, FDP_CR3_REGISTER);
     }
 
-    auto& d = *core.d_->state_;
+    auto& d = *core.state_;
     run_until(core, [&]
     {
         uint64_t new_cr3 = registers::read(core, FDP_CR3_REGISTER);

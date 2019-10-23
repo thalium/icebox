@@ -1,8 +1,8 @@
 #include "waiter.hpp"
 
 #define FDP_MODULE "waiter"
+#include "core.hpp"
 #include "log.hpp"
-#include "os.hpp"
 #include "utils/fnview.hpp"
 #include "utils/path.hpp"
 

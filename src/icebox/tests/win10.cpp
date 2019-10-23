@@ -28,19 +28,19 @@ namespace
       protected:
         void SetUp() override
         {
-            const auto core_setup = core.setup("win10");
-            ASSERT_TRUE(core_setup);
-            const auto paused = state::pause(core);
+            ptr_core = core::attach("win10");
+            ASSERT_TRUE(ptr_core);
+            const auto paused = state::pause(*ptr_core);
             ASSERT_TRUE(paused);
         }
 
         void TearDown() override
         {
-            const auto resumed = state::resume(core);
+            const auto resumed = state::resume(*ptr_core);
             EXPECT_TRUE(resumed);
         }
 
-        core::Core core;
+        std::shared_ptr<core::Core> ptr_core;
     };
 }
 
@@ -54,6 +54,7 @@ TEST_F(Win10Test, drivers)
     using Drivers = std::map<std::string, Driver>;
 
     Drivers drivers;
+    auto& core = *ptr_core;
     os::driver_list(core, [&](driver_t drv)
     {
         const auto name = os::driver_name(core, drv);
@@ -84,6 +85,7 @@ TEST_F(Win10Test, processes)
     using Processes = std::multimap<std::string, Process>;
 
     Processes processes;
+    auto& core = *ptr_core;
     os::proc_list(core, [&](proc_t proc)
     {
         const auto name = os::proc_name(core, proc);
@@ -138,6 +140,7 @@ TEST_F(Win10Test, threads)
 {
     using Threads = std::set<uint64_t>;
 
+    auto& core          = *ptr_core;
     const auto explorer = os::proc_find(core, "explorer.exe", flags_e::FLAGS_NONE);
     EXPECT_TRUE(!!explorer);
 
@@ -168,6 +171,7 @@ TEST_F(Win10Test, modules)
     using Module  = std::tuple<uint64_t, uint64_t, size_t, flags_e>;
     using Modules = std::multimap<std::string, Module>;
 
+    auto& core      = *ptr_core;
     const auto proc = os::proc_find(core, "explorer.exe", flags_e::FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
@@ -218,6 +222,7 @@ namespace
 
 TEST_F(Win10Test, unable_to_single_step_query_information_process)
 {
+    auto& core      = *ptr_core;
     const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
@@ -242,6 +247,7 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
 
 TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 {
+    auto& core      = *ptr_core;
     const auto proc = waiter::proc_wait(core, "ProcessHacker.exe", FLAGS_NONE);
     EXPECT_TRUE(!!proc);
 
@@ -292,6 +298,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 
 TEST_F(Win10Test, memory)
 {
+    auto& core      = *ptr_core;
     const auto proc = os::proc_find(core, "explorer.exe", flags_e::FLAGS_NONE);
     EXPECT_TRUE(!!proc);
     LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
@@ -339,6 +346,7 @@ namespace
 
 TEST_F(Win10Test, loader)
 {
+    auto& core      = *ptr_core;
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
@@ -358,6 +366,7 @@ TEST_F(Win10Test, loader)
 
 TEST_F(Win10Test, tracer)
 {
+    auto& core      = *ptr_core;
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
@@ -396,6 +405,7 @@ namespace
 
 TEST_F(Win10Test, callstacks)
 {
+    auto& core      = *ptr_core;
     const auto proc = waiter::proc_wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
