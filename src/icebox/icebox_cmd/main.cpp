@@ -193,28 +193,24 @@ namespace
         // test callstack
         {
             const auto callstack = callstack::make_callstack_nt(core);
-            const auto cs_depth  = 40;
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
             const auto func_addr = syms.symbol(pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
+            auto callers  = std::vector<callstack::caller_t>(128);
             const auto bp = state::set_breakpoint(core, func_name, *func_addr, *target, [&]
             {
-                int k = 0;
-                callstack->get_callstack(*target, [&](callstack::callstep_t callstep)
+                const auto n = callstack->read(&callers[0], callers.size(), *target);
+                for(size_t i = 0; i < n; ++i)
                 {
-                    auto cursor = syms.find(callstep.addr);
+                    const auto addr = callers[i].addr;
+                    auto cursor     = syms.find(addr);
                     if(!cursor)
-                        cursor = sym::Cursor{"_", "_", callstep.addr};
+                        cursor = sym::Cursor{"_", "_", addr};
 
-                    LOG(INFO, "%-2d - %s", k, sym::to_string(*cursor).data());
-                    k++;
-                    if(k >= cs_depth)
-                        return WALK_STOP;
-
-                    return WALK_NEXT;
-                });
+                    LOG(INFO, "%-2zd - %s", i, sym::to_string(*cursor).data());
+                }
                 LOG(INFO, " ");
             });
             for(size_t i = 0; i < 3; ++i)

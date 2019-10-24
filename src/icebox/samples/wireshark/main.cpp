@@ -147,11 +147,11 @@ namespace
         if(!ok)
             return {};
 
-        const auto ebp = static_cast<uint64_t>(wow64ctx.Ebp);
-        const auto eip = static_cast<uint64_t>(wow64ctx.Eip);
-        const auto esp = static_cast<uint64_t>(wow64ctx.Esp);
-
-        return callstack::context_t{eip, esp, ebp, 0};
+        const auto ebp   = static_cast<uint64_t>(wow64ctx.Ebp);
+        const auto eip   = static_cast<uint64_t>(wow64ctx.Eip);
+        const auto esp   = static_cast<uint64_t>(wow64ctx.Esp);
+        const auto segcs = static_cast<uint64_t>(wow64ctx.SegCs);
+        return callstack::context_t{eip, esp, ebp, segcs, FLAGS_32BIT};
     }
 
     static void load_proc_symbols(core::Core& core, proc_t proc, sym::Symbols& symbols, flags_e flag)
@@ -225,11 +225,10 @@ namespace
         if(!ctx)
             return;
 
-        callstack->get_callstack_from_context(proc, *ctx, FLAGS_32BIT, [&](callstack::callstep_t step)
-        {
-            meta.comment += get_callstep_name(symbols, step.addr);
-            return WALK_NEXT;
-        });
+        auto callers = std::vector<callstack::caller_t>(128);
+        const auto n = callstack->read_from(&callers[0], callers.size(), proc, *ctx);
+        for(size_t i = 0; i < n; ++i)
+            meta.comment += get_callstep_name(symbols, callers[i].addr);
     }
 
     static void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc, const CallStack& callstack)
@@ -237,11 +236,10 @@ namespace
         sym::Symbols symbols;
         load_proc_symbols(core, proc, symbols, FLAGS_NONE);
 
-        callstack->get_callstack(proc, [&](callstack::callstep_t step)
-        {
-            meta.comment += get_callstep_name(symbols, step.addr);
-            return WALK_NEXT;
-        });
+        auto callers = std::vector<callstack::caller_t>(128);
+        const auto n = callstack->read(&callers[0], callers.size(), proc);
+        for(size_t i = 0; i < n; ++i)
+            meta.comment += get_callstep_name(symbols, callers[i].addr);
     }
 
     static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data, const CallStack& callstack)
@@ -275,13 +273,7 @@ namespace
         kernel_sym.drv_listen({});
         int bp_id = 0;
 
-        const auto kernel_callstack = callstack::make_callstack_nt(core);
-        if(!kernel_callstack)
-            return -1;
-
-        const auto user_callstack = callstack::make_callstack_nt(core);
-        if(!user_callstack)
-            return -1;
+        const auto callstacks = callstack::make_callstack_nt(core);
 
         // ndis!NdisSendNetBufferLists
         const auto NdisSendNetBufferLists = kernel_sym.symbols().symbol("ndis", "NdisSendNetBufferLists");
@@ -310,21 +302,23 @@ namespace
             meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
 
             auto continue_to_userland = false;
-            kernel_callstack->get_callstack(*proc, [&](callstack::callstep_t callstep)
+            auto callers              = std::vector<callstack::caller_t>(128);
+            const auto n              = callstacks->read(&callers[0], callers.size(), *proc);
+            for(size_t i = 0; i < n; ++i)
             {
-                if(os::is_kernel_address(core, callstep.addr))
+                const auto addr = callers[i].addr;
+                if(!os::is_kernel_address(core, addr))
                 {
-                    meta.comment += get_callstep_name(kernel_sym.symbols(), callstep.addr);
-                    return WALK_NEXT;
+                    continue_to_userland   = true;
+                    const auto is_wow64cpu = is_wow64_emulated(core, *proc, addr);
+                    Private p              = {core, meta, bp_id, is_wow64cpu, &pcap, user_bps};
+                    break_in_userland(p, *proc, addr, data, callstacks);
+                    bp_id++;
+                    break;
                 }
 
-                continue_to_userland   = true;
-                const auto is_wow64cpu = is_wow64_emulated(core, *proc, callstep.addr);
-                Private p              = {core, meta, bp_id, is_wow64cpu, &pcap, user_bps};
-                break_in_userland(p, *proc, callstep.addr, data, user_callstack);
-                bp_id++;
-                return WALK_STOP;
-            });
+                meta.comment += get_callstep_name(kernel_sym.symbols(), addr);
+            }
 
             if(!continue_to_userland)
                 pcap.add_packet(meta, &data[0], data.size());

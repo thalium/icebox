@@ -128,6 +128,8 @@ namespace
     using AllModules    = std::unordered_map<proc_t, Modules>;
     using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
     using Offsets       = std::array<uint64_t, OFFSET_COUNT>;
+    using caller_t      = callstack::caller_t;
+    using context_t     = callstack::context_t;
 
     struct CallstackNt
         : public callstack::ICallstack
@@ -135,8 +137,8 @@ namespace
         CallstackNt(core::Core& core);
 
         // callstack::ICallstack
-        bool    get_callstack               (proc_t proc, callstack::on_callstep_fn on_callstep) override;
-        bool    get_callstack_from_context  (proc_t proc, const callstack::context_t& first, flags_e flag, callstack::on_callstep_fn on_callstep) override;
+        size_t  read        (caller_t* callers, size_t num_callers, proc_t proc) override;
+        size_t  read_from   (caller_t* callers, size_t num_callers, proc_t proc, const context_t& where) override;
 
         // methods
         opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
@@ -434,34 +436,31 @@ namespace
         return std::make_tuple(*name, *span);
     }
 
-    static bool get_callstack64(CallstackNt& c, proc_t proc, const callstack::context_t& first, const callstack::on_callstep_fn& on_callstep)
+    static size_t read_callers_x64(CallstackNt& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
-        std::vector<uint8_t> buffer;
         constexpr auto reg_size = 8;
-        const auto max_cs_depth = size_t(150);
         const auto reader       = reader::make(c.core_, proc);
         const auto stack        = get_stack(c, proc, first, false);
         if(!stack)
             return false;
 
         auto ctx = first;
-        for(size_t i = 0; i < max_cs_depth; ++i)
+        for(size_t i = 0; i < num_callers; ++i)
         {
             // Get module from address
             const auto tuple = get_name_span(c, proc, ctx);
             if(!tuple)
-                return false;
+                return i;
 
             auto [name, span] = *tuple;
             // Get function table of the module
             const auto function_table = c.get_mod_functiontable(proc, name, span);
             if(!function_table)
             {
-                if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
-                    return true;
-
-                return false;
+                callers[i].addr = ctx.ip;
+                return i + 1;
             }
+
             const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span.addr);
             const auto function_entry = c.lookup_function_entry(off_in_mod, function_table->function_entries);
             if(!function_entry)
@@ -482,7 +481,7 @@ namespace
 
             // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
             if(stack->addr > caller_addr_on_stack || stack->addr + stack->size < caller_addr_on_stack)
-                return true;
+                return i;
 
             const auto return_addr = reader.read(caller_addr_on_stack);
             if(!return_addr)
@@ -499,31 +498,26 @@ namespace
             LOG(INFO, "Offset of current func 0x%" PRIx64 ", Caller address on stack 0x%" PRIx64 " so 0x%" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
 #endif
 
-            if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
-                return true;
-
-            ctx.ip = *return_addr;
-            ctx.sp = caller_addr_on_stack + reg_size;
+            callers[i].addr = ctx.ip;
+            ctx.ip          = *return_addr;
+            ctx.sp          = caller_addr_on_stack + reg_size;
         }
-
-        return true;
+        return num_callers;
     }
 
-    static bool get_callstack32(CallstackNt& c, proc_t proc, const callstack::context_t& first, const callstack::on_callstep_fn& on_callstep)
+    static size_t read_callers_x86(CallstackNt& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
-        std::vector<uint8_t> buffer;
         constexpr auto reg_size = 4;
-        const auto max_cs_depth = size_t(150);
         const auto reader       = reader::make(c.core_, proc);
         const auto stack        = get_stack(c, proc, first, true);
         if(!stack)
-            return false;
+            return 0;
 
         auto ctx = first;
-        for(size_t i = 0; i < max_cs_depth; ++i)
+        for(size_t i = 0; i < num_callers; ++i)
         {
             if(stack->addr > ctx.bp || stack->addr + stack->size < ctx.bp)
-                return true;
+                return i;
 
             const auto caller_addr_on_stack = reader.le32(ctx.bp);
             if(!caller_addr_on_stack)
@@ -533,36 +527,33 @@ namespace
             if(!return_addr)
                 return FAIL(false, "unable to read return address at 0x%" PRIx64, ctx.bp + reg_size);
 
-            if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
-                return true;
-
-            ctx.ip = *return_addr;
-            ctx.bp = *caller_addr_on_stack;
+            callers[i].addr = ctx.ip;
+            ctx.ip          = *return_addr;
+            ctx.bp          = *caller_addr_on_stack;
         }
-        return true;
+        return num_callers;
     }
 }
 
-bool CallstackNt::get_callstack(proc_t proc, callstack::on_callstep_fn on_callstep)
+size_t CallstackNt::read_from(caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+{
+    memset(callers, 0, num_callers * sizeof *callers);
+    if(first.flags & FLAGS_32BIT)
+        return read_callers_x86(*this, callers, num_callers, proc, first);
+
+    return read_callers_x64(*this, callers, num_callers, proc, first);
+}
+
+size_t CallstackNt::read(caller_t* callers, size_t num_callers, proc_t proc)
 {
     const auto ip         = registers::read(core_, reg_e::rip);
     const auto sp         = registers::read(core_, reg_e::rsp);
     const auto bp         = registers::read(core_, reg_e::rbp);
     const auto cs         = registers::read(core_, reg_e::cs);
-    const auto ctx        = callstack::context_t{ip, sp, bp, cs};
     constexpr auto x86_cs = 0x23;
-    if(cs == x86_cs)
-        return ::get_callstack32(*this, proc, ctx, on_callstep);
-
-    return get_callstack64(*this, proc, ctx, on_callstep);
-}
-
-bool CallstackNt::get_callstack_from_context(proc_t proc, const callstack::context_t& first, flags_e flag, callstack::on_callstep_fn on_callstep)
-{
-    if(flag & FLAGS_32BIT)
-        return get_callstack32(*this, proc, first, on_callstep);
-
-    return get_callstack64(*this, proc, first, on_callstep);
+    const auto flags      = cs == x86_cs ? FLAGS_32BIT : FLAGS_NONE;
+    const auto ctx        = callstack::context_t{ip, sp, bp, cs, flags};
+    return read_from(callers, num_callers, proc, ctx);
 }
 
 namespace

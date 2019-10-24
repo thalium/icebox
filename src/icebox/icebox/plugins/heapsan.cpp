@@ -248,22 +248,17 @@ namespace
         if(true)
             return;
 
-        uint64_t cs_size  = 0;
-        uint64_t cs_depth = 150;
-        d.callstack_->get_callstack(d.target_, [&](callstack::callstep_t cstep)
+        auto callers = std::vector<callstack::caller_t>(128);
+        const auto n = d.callstack_->read(&callers[0], callers.size(), d.target_);
+        for(size_t i = 0; i < n; ++i)
         {
-            auto cursor = d.symbols_.find(cstep.addr);
+            const auto addr = callers[i].addr;
+            auto cursor     = d.symbols_.find(addr);
             if(!cursor)
-                cursor = sym::Cursor{"_", "_", cstep.addr};
+                cursor = sym::Cursor{"_", "_", addr};
 
-            LOG(INFO, "%-3" PRIx64 " - 0x%" PRIx64 "- %s", cs_size, cstep.addr, sym::to_string(*cursor).data());
-
-            cs_size++;
-            if(cs_size < cs_depth)
-                return WALK_NEXT;
-
-            return WALK_STOP;
-        });
+            LOG(INFO, "%-3" PRIx64 " - 0x%" PRIx64 "- %s", i, addr, sym::to_string(*cursor).data());
+        }
     }
 }
 

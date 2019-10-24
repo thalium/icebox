@@ -417,13 +417,10 @@ TEST_F(Win10Test, callstacks)
     tracer.register_all(*proc, [&](const auto& /* cfg*/)
     {
         LOG(INFO, " ");
-        auto idx = size_t{0};
-        callstacks->get_callstack(*proc, [&](callstack::callstep_t step)
-        {
-            const auto symbol = dump_address(symbols, step.addr);
-            LOG(INFO, "0x%" PRIx64 ": %s", idx++, symbol.data());
-            return WALK_NEXT;
-        });
+        auto callers = std::vector<callstack::caller_t>(128);
+        const auto n = callstacks->read(&callers[0], callers.size(), *proc);
+        for(size_t i = 0; i < n; ++i)
+            LOG(INFO, "0x%" PRIx64 ": %s", i, dump_address(symbols, callers[i].addr).data());
         count++;
     });
     run_until(core, [&] { return count > 32; });

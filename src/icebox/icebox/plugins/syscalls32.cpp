@@ -32,7 +32,7 @@ namespace
     };
 
     using json      = nlohmann::json;
-    using Callsteps = std::vector<callstack::callstep_t>;
+    using Callsteps = std::vector<callstack::caller_t>;
     using Triggers  = std::vector<bp_trigger_info_t>;
     using Callstack = std::shared_ptr<callstack::ICallstack>;
     using Data      = plugins::Syscalls32::Data;
@@ -120,31 +120,21 @@ namespace
 
     static bool private_get_callstack(Data& d)
     {
-        constexpr size_t cs_max_depth = 70;
-
-        const auto idx = d.callsteps_.size();
-        size_t cs_size = 0;
-        d.callstack_->get_callstack(d.proc_, [&](callstack::callstep_t cstep)
-        {
-            d.callsteps_.push_back(cstep);
-
-            if(false)
+        constexpr auto max_size = 128;
+        const auto idx          = d.callsteps_.size();
+        d.callsteps_.resize(idx + max_size);
+        const auto n = d.callstack_->read(&d.callsteps_[idx], max_size, d.proc_);
+        if(false)
+            for(size_t i = idx; i < idx + n; ++i)
             {
-                auto cursor = d.syms_.find(cstep.addr);
+                const auto addr = d.callsteps_[i].addr;
+                auto cursor     = d.syms_.find(addr);
                 if(!cursor)
-                    cursor = sym::Cursor{"_", "_", cstep.addr};
+                    cursor = sym::Cursor{"_", "_", addr};
 
-                LOG(INFO, "%zd - %s", cs_size, sym::to_string(*cursor).data());
+                LOG(INFO, "%zd - %s", i - idx, sym::to_string(*cursor).data());
             }
-
-            cs_size++;
-            if(cs_size < cs_max_depth)
-                return WALK_NEXT;
-
-            return WALK_STOP;
-        });
-
-        d.triggers_.push_back(bp_trigger_info_t{{idx, cs_size}, d.nb_triggers_});
+        d.triggers_.push_back(bp_trigger_info_t{{idx, n}, d.nb_triggers_});
         return true;
     }
 }

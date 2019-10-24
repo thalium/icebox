@@ -3,32 +3,30 @@
 #include "enums.hpp"
 #include "types.hpp"
 
-#include <functional>
-
 namespace core { struct Core; }
 
 namespace callstack
 {
     struct context_t
     {
-        uint64_t ip; // instruction pointer
-        uint64_t sp; // stack pointer
-        uint64_t bp; // base pointer
-        uint64_t cs; // code segment
+        uint64_t ip;    // instruction pointer
+        uint64_t sp;    // stack pointer
+        uint64_t bp;    // base pointer
+        uint64_t cs;    // code segment
+        flags_e  flags; // process flags
     };
 
-    struct callstep_t
+    struct caller_t
     {
         uint64_t addr;
     };
-    using on_callstep_fn = std::function<walk_e(callstep_t)>;
 
     struct ICallstack
     {
         virtual ~ICallstack() = default;
 
-        virtual bool    get_callstack               (proc_t proc, on_callstep_fn on_callstep) = 0;
-        virtual bool    get_callstack_from_context  (proc_t proc, const context_t& first, flags_e flag, on_callstep_fn on_callstep) = 0;
+        virtual size_t  read        (caller_t* callers, size_t num_callers, proc_t proc) = 0;
+        virtual size_t  read_from   (caller_t* callers, size_t num_callers, proc_t proc, const context_t& where) = 0;
     };
 
     std::shared_ptr<ICallstack> make_callstack_nt(core::Core& core);
