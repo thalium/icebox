@@ -4,8 +4,8 @@
 #define FDP_MODULE "process"
 #include "core.hpp"
 #include "core_private.hpp"
+#include "interfaces/if_os.hpp"
 #include "log.hpp"
-#include "os_private.hpp"
 
 bool process::list(core::Core& core, process::on_proc_fn on_proc)
 {

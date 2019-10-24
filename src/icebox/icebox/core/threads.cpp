@@ -1,10 +1,10 @@
 #include "threads.hpp"
 
 #define PRIVATE_CORE__
-#define FDP_MODULE "thread"
+#define FDP_MODULE "threads"
 #include "core.hpp"
 #include "core_private.hpp"
-#include "os_private.hpp"
+#include "interfaces/if_os.hpp"
 
 bool threads::list(core::Core& core, proc_t proc, threads::on_thread_fn on_thread)
 {

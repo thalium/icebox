@@ -4,6 +4,7 @@
 #define FDP_MODULE "callstacks"
 #include "core.hpp"
 #include "core_private.hpp"
+#include "interfaces/if_callstacks.hpp"
 
 size_t callstacks::read(core::Core& core, caller_t* callers, size_t num_callers, proc_t proc)
 {

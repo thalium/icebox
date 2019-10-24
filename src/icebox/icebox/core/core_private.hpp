@@ -1,7 +1,5 @@
 #pragma once
 
-#include "interfaces/if_callstacks.hpp"
-
 #ifndef PRIVATE_CORE__
 #    error do not include this header directly
 #endif
@@ -30,15 +28,16 @@ namespace functions
     std::shared_ptr<Data> setup();
 } // namespace functions
 
-namespace os { struct IModule; }
+namespace os { struct Module; }
+namespace callstacks { struct Module; }
 
 namespace core
 {
     using Memory     = std::shared_ptr<memory::Memory>;
     using State      = std::shared_ptr<state::State>;
-    using Os         = std::unique_ptr<os::IModule>;
     using Functions  = std::shared_ptr<functions::Data>;
     using Callstacks = std::unique_ptr<callstacks::Module>;
+    using Os         = std::unique_ptr<os::Module>;
 
     struct Core
     {

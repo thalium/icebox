@@ -4,7 +4,7 @@
 #define FDP_MODULE "vm_area"
 #include "core.hpp"
 #include "core_private.hpp"
-#include "os_private.hpp"
+#include "interfaces/if_os.hpp"
 
 bool vm_area::list(core::Core& core, proc_t proc, on_vm_area_fn on_vm_area)
 {

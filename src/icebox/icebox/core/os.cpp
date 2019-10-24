@@ -4,7 +4,7 @@
 #define FDP_MODULE "core"
 #include "core.hpp"
 #include "core_private.hpp"
-#include "os_private.hpp"
+#include "interfaces/if_os.hpp"
 
 bool os::is_kernel_address(core::Core& core, uint64_t ptr)
 {

@@ -2,7 +2,7 @@
 
 #define FDP_MODULE "os_nt"
 #include "core.hpp"
-#include "core/os_private.hpp"
+#include "interfaces/if_os.hpp"
 #include "log.hpp"
 #include "nt.hpp"
 #include "reader.hpp"
@@ -150,7 +150,7 @@ namespace
     using Breakpoints = std::multimap<bpid_t, state::Breakpoint>;
 
     struct OsNt
-        : public os::IModule
+        : public os::Module
     {
         OsNt(core::Core& core);
 
@@ -341,7 +341,7 @@ bool OsNt::setup()
     return true;
 }
 
-std::unique_ptr<os::IModule> os::make_nt(core::Core& core)
+std::unique_ptr<os::Module> os::make_nt(core::Core& core)
 {
     return std::make_unique<OsNt>(core);
 }

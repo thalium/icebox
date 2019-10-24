@@ -2,7 +2,7 @@
 
 #define FDP_MODULE "os_linux"
 #include "core.hpp"
-#include "core/os_private.hpp"
+#include "interfaces/if_os.hpp"
 #include "log.hpp"
 #include "reader.hpp"
 #include "utils/utils.hpp"
@@ -217,7 +217,7 @@ namespace
     using LinuxSymbols = std::array<opt<uint64_t>, SYMBOL_COUNT>;
 
     struct OsLinux
-        : public os::IModule
+        : public os::Module
     {
         OsLinux(core::Core& core);
 
@@ -584,7 +584,7 @@ bool OsLinux::setup()
     return true;
 }
 
-std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
+std::unique_ptr<os::Module> os::make_linux(core::Core& core)
 {
     return std::make_unique<OsLinux>(core);
 }

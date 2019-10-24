@@ -4,7 +4,7 @@
 #define FDP_MODULE "drivers"
 #include "core.hpp"
 #include "core_private.hpp"
-#include "os_private.hpp"
+#include "interfaces/if_os.hpp"
 
 bool drivers::list(core::Core& core, on_driver_fn on_driver)
 {

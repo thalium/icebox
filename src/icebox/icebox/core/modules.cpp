@@ -4,7 +4,7 @@
 #define FDP_MODULE "modules"
 #include "core.hpp"
 #include "core_private.hpp"
-#include "os_private.hpp"
+#include "interfaces/if_os.hpp"
 #include "utils/path.hpp"
 
 #ifdef _MSC_VER

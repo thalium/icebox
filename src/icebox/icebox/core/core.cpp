@@ -4,8 +4,9 @@
 #define FDP_MODULE "core"
 #include "core_private.hpp"
 #include "fdp.hpp"
+#include "interfaces/if_callstacks.hpp"
+#include "interfaces/if_os.hpp"
 #include "log.hpp"
-#include "os_private.hpp"
 
 #include <chrono>
 #include <thread>
@@ -21,7 +22,7 @@ namespace
     struct interfaces_t
     {
         const char name[32];
-        std::unique_ptr<os::IModule>        (*make)             (core::Core& core);
+        std::unique_ptr<os::Module>         (*make)             (core::Core& core);
         std::unique_ptr<callstacks::Module> (*make_callstacks)  (core::Core& core);
     };
     static const interfaces_t g_interfaces[] =

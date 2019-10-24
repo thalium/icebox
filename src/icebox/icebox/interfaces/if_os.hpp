@@ -1,6 +1,5 @@
 #pragma once
 
-#include "enums.hpp"
 #include "types.hpp"
 
 #include <functional>
@@ -12,9 +11,9 @@ namespace reader { struct Reader; }
 
 namespace os
 {
-    struct IModule
+    struct Module
     {
-        virtual ~IModule() = default;
+        virtual ~Module() = default;
 
         virtual bool            setup               () = 0;
         virtual bool            is_kernel_address   (uint64_t ptr) = 0;
@@ -73,6 +72,6 @@ namespace os
         virtual void debug_print() = 0;
     };
 
-    std::unique_ptr<IModule>    make_nt     (core::Core& core);
-    std::unique_ptr<IModule>    make_linux  (core::Core& core);
+    std::unique_ptr<Module> make_nt     (core::Core& core);
+    std::unique_ptr<Module> make_linux  (core::Core& core);
 } // namespace os
