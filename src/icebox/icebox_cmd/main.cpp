@@ -1,5 +1,4 @@
 #define FDP_MODULE "main"
-#include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/plugins/syscalls.hpp>
@@ -192,16 +191,15 @@ namespace
 
         // test callstack
         {
-            const auto callstack = callstack::make_callstack_nt(core);
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
             const auto func_addr = syms.symbol(pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
-            auto callers  = std::vector<callstack::caller_t>(128);
+            auto callers  = std::vector<callstacks::caller_t>(128);
             const auto bp = state::set_breakpoint(core, func_name, *func_addr, *target, [&]
             {
-                const auto n = callstack->read(&callers[0], callers.size(), *target);
+                const auto n = callstacks::read(core, &callers[0], callers.size(), *target);
                 for(size_t i = 0; i < n; ++i)
                 {
                     const auto addr = callers[i].addr;

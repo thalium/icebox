@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "log.hpp"
 
-#include "callstack.hpp"
 #include "nt/objects_nt.hpp"
 #include "reader.hpp"
 #include "tracer/syscalls.gen.hpp"
@@ -28,7 +27,7 @@ namespace
     };
 
     using json      = nlohmann::json;
-    using Callsteps = std::vector<callstack::caller_t>;
+    using Callsteps = std::vector<callstacks::caller_t>;
     using Triggers  = std::vector<bp_trigger_info_t>;
     using Data      = plugins::Syscalls::Data;
 }
@@ -39,16 +38,15 @@ struct plugins::Syscalls::Data
 
     bool setup();
 
-    core::Core&                            core_;
-    sym::Symbols&                          syms_;
-    proc_t                                 proc_;
-    nt::syscalls                           syscalls_;
-    nt::ObjectNt                           objects_;
-    std::shared_ptr<callstack::ICallstack> callstack_;
-    Callsteps                              callsteps_;
-    Triggers                               triggers_;
-    json                                   args_;
-    uint64_t                               nb_triggers_;
+    core::Core&   core_;
+    sym::Symbols& syms_;
+    proc_t        proc_;
+    nt::syscalls  syscalls_;
+    nt::ObjectNt  objects_;
+    Callsteps     callsteps_;
+    Triggers      triggers_;
+    json          args_;
+    uint64_t      nb_triggers_;
 };
 
 plugins::Syscalls::Data::Data(core::Core& core, sym::Symbols& syms, proc_t proc)
@@ -118,7 +116,7 @@ namespace
         constexpr auto max_size = 128;
         const auto idx          = d.callsteps_.size();
         d.callsteps_.resize(idx + max_size);
-        const auto n = d.callstack_->read(&d.callsteps_[idx], max_size, d.proc_);
+        const auto n = callstacks::read(d.core_, &d.callsteps_[idx], max_size, d.proc_);
         if(false)
             for(size_t i = idx; i < idx + n; ++i)
             {
@@ -137,11 +135,6 @@ namespace
 bool Data::setup()
 {
     nb_triggers_ = 0;
-
-    callstack_ = callstack::make_callstack_nt(core_);
-    if(!callstack_)
-        return FAIL(false, "unable to create callstack object");
-
     syscalls_.register_NtWriteFile(proc_, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
                                               nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,
                                               nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)

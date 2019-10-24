@@ -1,7 +1,6 @@
 #define FDP_MODULE "wireshark"
 #include "pcap.hpp"
 
-#include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/nt/nt_types.hpp>
@@ -122,7 +121,7 @@ namespace
         return filename == "wow64cpu.dll";
     }
 
-    static opt<callstack::context_t> get_saved_wow64_ctx(core::Core& core, proc_t proc)
+    static opt<callstacks::context_t> get_saved_wow64_ctx(core::Core& core, proc_t proc)
     {
         const auto reader = reader::make(core, proc);
 
@@ -151,7 +150,7 @@ namespace
         const auto eip   = static_cast<uint64_t>(wow64ctx.Eip);
         const auto esp   = static_cast<uint64_t>(wow64ctx.Esp);
         const auto segcs = static_cast<uint64_t>(wow64ctx.SegCs);
-        return callstack::context_t{eip, esp, ebp, segcs, FLAGS_32BIT};
+        return callstacks::context_t{eip, esp, ebp, segcs, FLAGS_32BIT};
     }
 
     static void load_proc_symbols(core::Core& core, proc_t proc, sym::Symbols& symbols, flags_e flag)
@@ -201,8 +200,6 @@ namespace
         Breakpoints&     bps;
     };
 
-    using CallStack = std::shared_ptr<callstack::ICallstack>;
-
     static std::string get_callstep_name(sym::Symbols& syms, uint64_t addr)
     {
         const auto cur = syms.find(addr);
@@ -216,7 +213,7 @@ namespace
         return comment;
     }
 
-    static void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc, const CallStack& callstack)
+    static void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
         sym::Symbols symbols;
         load_proc_symbols(core, proc, symbols, FLAGS_32BIT);
@@ -225,24 +222,24 @@ namespace
         if(!ctx)
             return;
 
-        auto callers = std::vector<callstack::caller_t>(128);
-        const auto n = callstack->read_from(&callers[0], callers.size(), proc, *ctx);
+        auto callers = std::vector<callstacks::caller_t>(128);
+        const auto n = callstacks::read_from(core, &callers[0], callers.size(), proc, *ctx);
         for(size_t i = 0; i < n; ++i)
             meta.comment += get_callstep_name(symbols, callers[i].addr);
     }
 
-    static void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc, const CallStack& callstack)
+    static void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
         sym::Symbols symbols;
         load_proc_symbols(core, proc, symbols, FLAGS_NONE);
 
-        auto callers = std::vector<callstack::caller_t>(128);
-        const auto n = callstack->read(&callers[0], callers.size(), proc);
+        auto callers = std::vector<callstacks::caller_t>(128);
+        const auto n = callstacks::read(core, &callers[0], callers.size(), proc);
         for(size_t i = 0; i < n; ++i)
             meta.comment += get_callstep_name(symbols, callers[i].addr);
     }
 
-    static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data, const CallStack& callstack)
+    static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data)
     {
         const auto thread = threads::current(p.core);
         if(!thread)
@@ -252,9 +249,9 @@ namespace
         {
             auto meta = p.meta;
             if(p.is_wow64cpu)
-                get_user_callstack32(p.core, meta, proc, callstack);
+                get_user_callstack32(p.core, meta, proc);
             else
-                get_user_callstack64(p.core, meta, proc, callstack);
+                get_user_callstack64(p.core, meta, proc);
 
             LOG(INFO, "Callstack: %s", meta.comment.data());
             p.pcap->add_packet(meta, &data[0], data.size());
@@ -272,8 +269,6 @@ namespace
         sym::Loader kernel_sym(core);
         kernel_sym.drv_listen({});
         int bp_id = 0;
-
-        const auto callstacks = callstack::make_callstack_nt(core);
 
         // ndis!NdisSendNetBufferLists
         const auto NdisSendNetBufferLists = kernel_sym.symbols().symbol("ndis", "NdisSendNetBufferLists");
@@ -302,8 +297,8 @@ namespace
             meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
 
             auto continue_to_userland = false;
-            auto callers              = std::vector<callstack::caller_t>(128);
-            const auto n              = callstacks->read(&callers[0], callers.size(), *proc);
+            auto callers              = std::vector<callstacks::caller_t>(128);
+            const auto n              = callstacks::read(core, &callers[0], callers.size(), *proc);
             for(size_t i = 0; i < n; ++i)
             {
                 const auto addr = callers[i].addr;
@@ -312,7 +307,7 @@ namespace
                     continue_to_userland   = true;
                     const auto is_wow64cpu = is_wow64_emulated(core, *proc, addr);
                     Private p              = {core, meta, bp_id, is_wow64cpu, &pcap, user_bps};
-                    break_in_userland(p, *proc, addr, data, callstacks);
+                    break_in_userland(p, *proc, addr, data);
                     bp_id++;
                     break;
                 }

@@ -1,8 +1,9 @@
-#include "callstack.hpp"
+#include "callstacks.hpp"
 
-#define FDP_MODULE "callstack_nt"
+#define FDP_MODULE "nt_callstacks"
 #include "core.hpp"
 #include "endian.hpp"
+#include "interfaces/if_callstacks.hpp"
 #include "log.hpp"
 #include "reader.hpp"
 #include "utils/path.hpp"
@@ -128,15 +129,15 @@ namespace
     using AllModules    = std::unordered_map<proc_t, Modules>;
     using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
     using Offsets       = std::array<uint64_t, OFFSET_COUNT>;
-    using caller_t      = callstack::caller_t;
-    using context_t     = callstack::context_t;
+    using caller_t      = callstacks::caller_t;
+    using context_t     = callstacks::context_t;
 
-    struct CallstackNt
-        : public callstack::ICallstack
+    struct NtCallstacks
+        : public callstacks::Module
     {
-        CallstackNt(core::Core& core);
+        NtCallstacks(core::Core& core);
 
-        // callstack::ICallstack
+        // callstacks::Module
         size_t  read        (caller_t* callers, size_t num_callers, proc_t proc) override;
         size_t  read_from   (caller_t* callers, size_t num_callers, proc_t proc, const context_t& where) override;
 
@@ -158,14 +159,14 @@ namespace
     };
 }
 
-CallstackNt::CallstackNt(core::Core& core)
+NtCallstacks::NtCallstacks(core::Core& core)
     : core_(core)
 {
 }
 
-std::shared_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core)
+std::unique_ptr<callstacks::Module> callstacks::make_nt(core::Core& core)
 {
-    return std::make_shared<CallstackNt>(core);
+    return std::make_unique<NtCallstacks>(core);
 }
 
 namespace
@@ -229,7 +230,7 @@ namespace
     }
 }
 
-opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
+opt<mod_t> NtCallstacks::find_mod(proc_t proc, uint64_t addr)
 {
     auto& modules = get_modules(all_modules_, proc);
     auto mod      = find_prev(addr, modules);
@@ -249,7 +250,7 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     return mod;
 }
 
-opt<driver_t> CallstackNt::find_drv(uint64_t addr)
+opt<driver_t> NtCallstacks::find_drv(uint64_t addr)
 {
     auto drv = find_prev(addr, all_drivers_);
     if(drv)
@@ -268,7 +269,7 @@ opt<driver_t> CallstackNt::find_drv(uint64_t addr)
     return drv;
 }
 
-opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, const span_t span)
+opt<FunctionTable> NtCallstacks::insert(proc_t proc, const std::string& name, const span_t span)
 {
     const auto reader        = reader::make(core_, proc);
     const auto exception_dir = pe::find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
@@ -288,7 +289,7 @@ opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, con
     return function_table;
 }
 
-opt<FunctionTable> CallstackNt::get_mod_functiontable(proc_t proc, const std::string& name, const span_t span)
+opt<FunctionTable> NtCallstacks::get_mod_functiontable(proc_t proc, const std::string& name, const span_t span)
 {
     const auto it = exception_dirs_.find(name);
     if(it != exception_dirs_.end())
@@ -341,7 +342,7 @@ namespace
         return sym;
     }
 
-    static bool read_offsets(CallstackNt& c, proc_t proc, bool is_32bit)
+    static bool read_offsets(NtCallstacks& c, proc_t proc, bool is_32bit)
     {
         auto& opt_offsets = is_32bit ? c.offsets32_ : c.offsets64_;
         if(opt_offsets)
@@ -372,13 +373,13 @@ namespace
         return true;
     }
 
-    static uint64_t offset(const CallstackNt& c, bool is_32bit, offsets_e off)
+    static uint64_t offset(const NtCallstacks& c, bool is_32bit, offsets_e off)
     {
         const auto& offsets = is_32bit ? *c.offsets32_ : *c.offsets64_;
         return offsets[off];
     }
 
-    static opt<span_t> get_user_stack(CallstackNt& c, proc_t proc, bool is_32bit)
+    static opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, bool is_32bit)
     {
         const auto reader = reader::make(c.core_, proc);
         if(!read_offsets(c, proc, is_32bit))
@@ -394,13 +395,13 @@ namespace
         return span_t{*limit, *base - *limit};
     }
 
-    static opt<span_t> get_kernel_stack(CallstackNt& /*c*/)
+    static opt<span_t> get_kernel_stack(NtCallstacks& /*c*/)
     {
         // TODO: get kernel stack boundaries
         return span_t{(size_t) 0, (size_t) -1};
     }
 
-    static opt<span_t> get_stack(CallstackNt& c, proc_t proc, const callstack::context_t& ctxt, bool is_32bits)
+    static opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctxt, bool is_32bits)
     {
         if(os::is_kernel_address(c.core_, ctxt.ip))
             return get_kernel_stack(c);
@@ -408,7 +409,7 @@ namespace
         return get_user_stack(c, proc, is_32bits);
     }
 
-    static opt<std::tuple<std::string, span_t>> get_name_span(CallstackNt& c, proc_t proc, const callstack::context_t& ctx)
+    static opt<std::tuple<std::string, span_t>> get_name_span(NtCallstacks& c, proc_t proc, const context_t& ctx)
     {
         if(os::is_kernel_address(c.core_, ctx.ip))
         {
@@ -436,7 +437,7 @@ namespace
         return std::make_tuple(*name, *span);
     }
 
-    static size_t read_callers_x64(CallstackNt& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+    static size_t read_callers_x64(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
         constexpr auto reg_size = 8;
         const auto reader       = reader::make(c.core_, proc);
@@ -505,7 +506,7 @@ namespace
         return num_callers;
     }
 
-    static size_t read_callers_x86(CallstackNt& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+    static size_t read_callers_x86(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
         constexpr auto reg_size = 4;
         const auto reader       = reader::make(c.core_, proc);
@@ -535,7 +536,7 @@ namespace
     }
 }
 
-size_t CallstackNt::read_from(caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+size_t NtCallstacks::read_from(caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
 {
     memset(callers, 0, num_callers * sizeof *callers);
     if(first.flags & FLAGS_32BIT)
@@ -544,7 +545,7 @@ size_t CallstackNt::read_from(caller_t* callers, size_t num_callers, proc_t proc
     return read_callers_x64(*this, callers, num_callers, proc, first);
 }
 
-size_t CallstackNt::read(caller_t* callers, size_t num_callers, proc_t proc)
+size_t NtCallstacks::read(caller_t* callers, size_t num_callers, proc_t proc)
 {
     const auto ip         = registers::read(core_, reg_e::rip);
     const auto sp         = registers::read(core_, reg_e::rsp);
@@ -552,7 +553,7 @@ size_t CallstackNt::read(caller_t* callers, size_t num_callers, proc_t proc)
     const auto cs         = registers::read(core_, reg_e::cs);
     constexpr auto x86_cs = 0x23;
     const auto flags      = cs == x86_cs ? FLAGS_32BIT : FLAGS_NONE;
-    const auto ctx        = callstack::context_t{ip, sp, bp, cs, flags};
+    const auto ctx        = context_t{ip, sp, bp, cs, flags};
     return read_from(callers, num_callers, proc, ctx);
 }
 
@@ -636,7 +637,7 @@ namespace
     }
 }
 
-opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
+opt<FunctionTable> NtCallstacks::parse_exception_dir(proc_t proc, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
 {
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
@@ -740,7 +741,7 @@ namespace
     }
 }
 
-const function_entry_t* CallstackNt::lookup_function_entry(uint32_t offset_in_mod, const FunctionEntries& function_entries)
+const function_entry_t* NtCallstacks::lookup_function_entry(uint32_t offset_in_mod, const FunctionEntries& function_entries)
 {
     // lower bound returns first item greater or equal
     function_entry_t entry;

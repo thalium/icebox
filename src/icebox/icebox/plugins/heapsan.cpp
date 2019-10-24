@@ -1,7 +1,6 @@
 #include "heapsan.hpp"
 
 #define FDP_MODULE "heapsan"
-#include "callstack.hpp"
 #include "core.hpp"
 #include "log.hpp"
 #include "nt/nt.hpp"
@@ -68,10 +67,9 @@ namespace std
 
 namespace
 {
-    using Reallocs  = std::unordered_set<realloc_t>;
-    using Heaps     = std::unordered_set<heap_t>;
-    using Data      = plugins::HeapSan::Data;
-    using Callstack = std::shared_ptr<callstack::ICallstack>;
+    using Reallocs = std::unordered_set<realloc_t>;
+    using Heaps    = std::unordered_set<heap_t>;
+    using Data     = plugins::HeapSan::Data;
 
     constexpr size_t ptr_prolog = 0x20;
     constexpr size_t ptr_epilog = 0x20;
@@ -84,7 +82,6 @@ struct plugins::HeapSan::Data
     core::Core&   core_;
     sym::Symbols& symbols_;
     nt::heaps     tracer_;
-    Callstack     callstack_;
     Reallocs      reallocs_;
     Heaps         heaps_;
     proc_t        target_;
@@ -248,8 +245,8 @@ namespace
         if(true)
             return;
 
-        auto callers = std::vector<callstack::caller_t>(128);
-        const auto n = d.callstack_->read(&callers[0], callers.size(), d.target_);
+        auto callers = std::vector<callstacks::caller_t>(128);
+        const auto n = callstacks::read(d.core_, &callers[0], callers.size(), d.target_);
         for(size_t i = 0; i < n; ++i)
         {
             const auto addr = callers[i].addr;
@@ -265,8 +262,7 @@ namespace
 plugins::HeapSan::HeapSan(core::Core& core, sym::Symbols& syms, proc_t target)
     : d_(std::make_unique<Data>(core, syms, target))
 {
-    auto& d      = *d_;
-    d.callstack_ = callstack::make_callstack_nt(d.core_);
+    auto& d = *d_;
     d.tracer_.register_RtlpAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         get_callstack(*d_);

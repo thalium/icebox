@@ -1,5 +1,4 @@
 #define FDP_MODULE "tests_win10"
-#include <icebox/callstack.hpp>
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/plugins/sym_loader.hpp>
@@ -410,15 +409,14 @@ TEST_F(Win10Test, callstacks)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
-    auto& symbols   = loader.symbols();
-    auto tracer     = nt::syscalls{core, symbols, "ntdll"};
-    auto callstacks = callstack::make_callstack_nt(core);
-    auto count      = size_t{0};
+    auto& symbols = loader.symbols();
+    auto tracer   = nt::syscalls{core, symbols, "ntdll"};
+    auto count    = size_t{0};
     tracer.register_all(*proc, [&](const auto& /* cfg*/)
     {
         LOG(INFO, " ");
-        auto callers = std::vector<callstack::caller_t>(128);
-        const auto n = callstacks->read(&callers[0], callers.size(), *proc);
+        auto callers = std::vector<callstacks::caller_t>(128);
+        const auto n = callstacks::read(core, &callers[0], callers.size(), *proc);
         for(size_t i = 0; i < n; ++i)
             LOG(INFO, "0x%" PRIx64 ": %s", i, dump_address(symbols, callers[i].addr).data());
         count++;

@@ -18,14 +18,24 @@ core::Core::Core(std::string name)
 
 namespace
 {
-    static const struct
+    struct interfaces_t
     {
-        std::unique_ptr<os::IModule> (*make)(core::Core& core);
         const char name[32];
-    } g_os_modules[] =
+        std::unique_ptr<os::IModule>        (*make)             (core::Core& core);
+        std::unique_ptr<callstacks::Module> (*make_callstacks)  (core::Core& core);
+    };
+    static const interfaces_t g_interfaces[] =
     {
-            {&os::make_nt, "windows_nt"},
-            {&os::make_linux, "linux"},
+            {
+                "nt",
+                &os::make_nt,
+                &callstacks::make_nt,
+            },
+            {
+                "linux",
+                &os::make_linux,
+                nullptr,
+            },
     };
 
     static auto setup(core::Core& core, const std::string& name)
@@ -40,23 +50,29 @@ namespace
         core.func_  = functions::setup();
 
         // register os helpers
-        for(const auto& h : g_os_modules)
+        auto interfaces = static_cast<const interfaces_t*>(nullptr);
+        for(const auto& h : g_interfaces)
         {
             core.os_ = h.make(core);
             if(!core.os_)
                 continue;
 
             const auto ok = core.os_->setup();
+            interfaces    = &h;
             if(ok)
                 break;
 
             core.os_.reset();
         }
-        if(core.os_)
-            return true;
+        if(!core.os_)
+        {
+            state::resume(core);
+            return false;
+        }
 
-        state::resume(core);
-        return false;
+        if(interfaces->make_callstacks)
+            core.callstacks_ = interfaces->make_callstacks(core);
+        return true;
     }
 }
 

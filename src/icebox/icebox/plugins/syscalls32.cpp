@@ -3,7 +3,6 @@
 #define FDP_MODULE "syscall_tracer"
 #include "log.hpp"
 
-#include "callstack.hpp"
 #include "core.hpp"
 #include "endian.hpp"
 #include "nt/nt.hpp"
@@ -32,9 +31,8 @@ namespace
     };
 
     using json      = nlohmann::json;
-    using Callsteps = std::vector<callstack::caller_t>;
+    using Callsteps = std::vector<callstacks::caller_t>;
     using Triggers  = std::vector<bp_trigger_info_t>;
-    using Callstack = std::shared_ptr<callstack::ICallstack>;
     using Data      = plugins::Syscalls32::Data;
 }
 
@@ -49,7 +47,6 @@ struct plugins::Syscalls32::Data
     proc_t            proc_;
     wow64::syscalls32 syscalls_;
     nt::ObjectNt      objects_;
-    Callstack         callstack_;
     Callsteps         callsteps_;
     Triggers          triggers_;
     json              args_;
@@ -123,7 +120,7 @@ namespace
         constexpr auto max_size = 128;
         const auto idx          = d.callsteps_.size();
         d.callsteps_.resize(idx + max_size);
-        const auto n = d.callstack_->read(&d.callsteps_[idx], max_size, d.proc_);
+        const auto n = callstacks::read(d.core_, &d.callsteps_[idx], max_size, d.proc_);
         if(false)
             for(size_t i = idx; i < idx + n; ++i)
             {
@@ -142,10 +139,6 @@ namespace
 bool Data::setup()
 {
     nb_triggers_ = 0;
-
-    callstack_ = callstack::make_callstack_nt(core_);
-    if(!callstack_)
-        return FAIL(false, "unable to create callstack object");
 
     // Horrible workaround : Windows's 32 bit version on ntdll patches 4 bits of this function. Setting a breakpoint on this page with FDP
     // creates a glitch on the instruction that reads the patched bytes. Single stepping this instruction "simplify" the page resolution
