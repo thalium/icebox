@@ -81,10 +81,7 @@ opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_e 
 {
     const auto proc = process::find_name(core, proc_name, flags);
     if(proc)
-    {
-        process::join(core, *proc, process::JOIN_ANY_MODE);
         return *proc;
-    }
 
     opt<proc_t> found;
     const auto bpid = process::listen_create(core, [&](proc_t proc)
