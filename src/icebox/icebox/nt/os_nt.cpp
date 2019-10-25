@@ -547,30 +547,7 @@ opt<bpid_t> OsNt::listen_thread_delete(const threads::on_event_fn& on_delete)
 
 namespace
 {
-    static opt<span_t> get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
-    {
-        opt<span_t> found;
-        os.mod_list(proc, [&](mod_t mod)
-        {
-            const auto name = os.mod_name(proc, mod);
-            if(!name)
-                return WALK_NEXT;
-
-            const auto filename = path::filename(*name);
-            if(filename != "ntdll.dll")
-                return WALK_NEXT;
-
-            const auto is_wow64 = !!(mod.flags & FLAGS_32BIT);
-            if(is_32bit && !is_wow64)
-                return WALK_NEXT;
-
-            found = os.mod_span(proc, mod);
-            return WALK_STOP;
-        });
-        return found;
-    }
-
-    static opt<span_t> get_ntdll_span_on_event(OsNt& os, proc_t proc, bool is_32bit)
+    static opt<span_t> try_get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
     {
         struct _IMAGE_INFO
         {
@@ -583,9 +560,8 @@ namespace
         };
 
         const auto name_addr = registers::read(os.core_, reg_e::rcx);
-
-        const auto reader   = reader::make(os.core_, proc);
-        const auto mod_name = nt::read_unicode_string(reader, name_addr);
+        const auto reader    = reader::make(os.core_, proc);
+        const auto mod_name  = nt::read_unicode_string(reader, name_addr);
         if(!mod_name)
             return {};
 
@@ -609,15 +585,6 @@ namespace
             return {};
 
         return span_t{*base, *size};
-    }
-
-    static opt<span_t> try_get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
-    {
-        const auto span = get_ntdll_span(os, proc, is_32bit);
-        if(!span)
-            return get_ntdll_span_on_event(os, proc, is_32bit);
-
-        return span;
     }
 
     static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, const std::string& mod_name, const std::string& sym_name)
