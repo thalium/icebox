@@ -13,9 +13,9 @@
 namespace
 {
     template <typename T>
-    void test_tracer(core::Core& core, sym::Symbols& syms, proc_t target)
+    void test_tracer(core::Core& core, proc_t target)
     {
-        T syscall_plugin(core, syms, target);
+        T syscall_plugin(core, target);
 
         LOG(INFO, "Everything is set up ! Please trigger some syscalls");
 
@@ -37,8 +37,7 @@ namespace
             return;
 
         process::join(core, *target, process::JOIN_USER_MODE);
-        const auto reader = reader::make(core, *target);
-        const auto mod    = modules::wait(core, *target, "ntdll.dll", FLAGS_32BIT);
+        const auto mod = modules::wait(core, *target, "ntdll.dll", FLAGS_32BIT);
         if(!mod)
             return;
 
@@ -47,23 +46,11 @@ namespace
         if(!span)
             return;
 
-        // Load ntdll32 pdb
-        const auto debug = pe::find_debug_codeview(reader, *span);
-        if(!debug)
-            return;
-
-        std::vector<uint8_t> buffer;
-        buffer.resize(debug->size);
-        auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-        if(!ok)
-            return;
-
-        sym::Symbols symbols;
-        const auto inserted = symbols.insert("ntdll32", *span, &buffer[0], buffer.size());
+        const auto inserted = symbols::load_module_at(core, *target, "wntdll", *span);
         if(!inserted)
             return;
 
-        plugins::Syscalls32 syscalls(core, symbols, *target);
+        plugins::Syscalls32 syscalls(core, *target);
         LOG(INFO, "Every thing is ready ! Please trigger some syscalls");
 
         for(size_t i = 0; i < 3000; ++i)
@@ -116,15 +103,13 @@ namespace
         const auto is_32bit = process::flags(core, *target) & FLAGS_32BIT;
 
         std::vector<uint8_t> buffer;
-        const auto reader = reader::make(core, *target);
-        size_t modcount   = 0;
+        size_t modcount = 0;
         modules::list(core, *target, [&](mod_t)
         {
             ++modcount;
             return WALK_NEXT;
         });
         size_t modi = 0;
-        sym::Symbols syms;
         modules::list(core, *target, [&](mod_t mod)
         {
             const auto name = modules::name(core, *target, mod);
@@ -136,17 +121,7 @@ namespace
                 mod.flags & FLAGS_32BIT ? " wow64" : "");
             ++modi;
 
-            const auto debug = pe::find_debug_codeview(reader, *span);
-            if(!debug)
-                return WALK_NEXT;
-
-            buffer.resize(debug->size);
-            const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-            if(!ok)
-                return FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
-
-            const auto filename = path::filename(*name).replace_extension("").generic_string();
-            const auto inserted = syms.insert(filename.data(), *span, &buffer[0], buffer.size());
+            const auto inserted = symbols::load_module(core, *target, mod);
             if(!inserted)
                 return WALK_NEXT;
 
@@ -159,14 +134,14 @@ namespace
             if(!rip)
                 return WALK_NEXT;
 
-            const auto name = syms.find(*rip);
-            LOG(INFO, "thread: 0x%" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
+            const auto name = symbols::find(core, *target, *rip);
+            LOG(INFO, "thread: 0x%" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, symbols::to_string(name).data());
             return WALK_NEXT;
         });
 
         // check breakpoints
         {
-            const auto ptr = os::kernel_symbols(core).symbol("nt", "SwapContext");
+            const auto ptr = symbols::symbol(core, symbols::kernel, "nt", "SwapContext");
             const auto bp  = state::set_breakpoint(core, "SwapContext", *ptr, [&]
             {
                 const auto rip = registers::read(core, reg_e::rip);
@@ -178,9 +153,9 @@ namespace
                 const auto thread   = threads::current(core);
                 const auto tid      = threads::tid(core, *proc, *thread);
                 const auto procname = proc ? process::name(core, *proc) : ext::nullopt;
-                const auto sym      = syms.find(rip);
+                const auto symbol   = symbols::find(core, *proc, rip);
                 LOG(INFO, "BREAK! rip: 0x%" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
-                    rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
+                    rip, symbols::to_string(symbol).data(), procname ? procname->data() : "", pid, tid);
             });
             for(size_t i = 0; i < 16; ++i)
             {
@@ -193,7 +168,7 @@ namespace
         {
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
-            const auto func_addr = syms.symbol(pdb_name, func_name);
+            const auto func_addr = symbols::symbol(core, *target, pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
             auto callers  = std::vector<callstacks::caller_t>(128);
@@ -202,12 +177,9 @@ namespace
                 const auto n = callstacks::read(core, &callers[0], callers.size(), *target);
                 for(size_t i = 0; i < n; ++i)
                 {
-                    const auto addr = callers[i].addr;
-                    auto cursor     = syms.find(addr);
-                    if(!cursor)
-                        cursor = sym::Cursor{"_", "_", addr};
-
-                    LOG(INFO, "%-2zd - %s", i, sym::to_string(*cursor).data());
+                    const auto addr   = callers[i].addr;
+                    const auto symbol = symbols::find(core, *target, addr);
+                    LOG(INFO, "%-2zd - %s", i, symbols::to_string(symbol).data());
                 }
                 LOG(INFO, " ");
             });
@@ -221,9 +193,9 @@ namespace
         // test syscall plugin
         {
             if(is_32bit)
-                test_tracer<plugins::Syscalls32>(core, syms, *target);
+                test_tracer<plugins::Syscalls32>(core, *target);
             else
-                test_tracer<plugins::Syscalls>(core, syms, *target);
+                test_tracer<plugins::Syscalls>(core, *target);
         }
 
         {

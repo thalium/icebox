@@ -5,7 +5,6 @@
 #include <icebox/log.hpp>
 #include <icebox/nt/nt_types.hpp>
 #include <icebox/os.hpp>
-#include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
 #include <icebox/utils/path.hpp>
 #include <icebox/utils/pe.hpp>
@@ -129,8 +128,7 @@ namespace
         const auto is_kernel_ctx = cs && 0x0F == 0x00;
         const auto teb           = registers::read_msr(core, is_kernel_ctx ? MSR_KERNEL_GS_BASE : MSR_GS_BASE);
 
-        auto& ksyms             = os::kernel_symbols(core);
-        const auto TEB_TlsSlots = ksyms.struc_offset("nt", "_TEB", "TlsSlots");
+        const auto TEB_TlsSlots = symbols::struc_offset(core, symbols::kernel, "nt", "_TEB", "TlsSlots");
         if(!TEB_TlsSlots)
             return {};
 
@@ -153,34 +151,14 @@ namespace
         return callstacks::context_t{eip, esp, ebp, segcs, FLAGS_32BIT};
     }
 
-    static void load_proc_symbols(core::Core& core, proc_t proc, sym::Symbols& symbols, flags_e flag)
+    static void load_proc_symbols(core::Core& core, proc_t proc, flags_e flag)
     {
-        const auto reader = reader::make(core, proc);
         modules::list(core, proc, [&](mod_t mod)
         {
             if(flag && mod.flags != flag)
                 return WALK_NEXT;
 
-            const auto name = modules::name(core, proc, mod);
-            if(!name)
-                return WALK_NEXT;
-
-            const auto span = modules::span(core, proc, mod);
-            if(!span)
-                return WALK_NEXT;
-
-            const auto debug = pe::find_debug_codeview(reader, *span);
-            if(!debug)
-                return WALK_NEXT;
-
-            std::vector<uint8_t> buffer;
-            buffer.resize(debug->size);
-            auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-            if(!ok)
-                return WALK_NEXT;
-
-            const auto filename = path::filename(*name).replace_extension("").generic_string();
-            const auto inserted = symbols.insert(filename.data(), *span, &buffer[0], buffer.size());
+            const auto inserted = symbols::load_module(core, proc, mod);
             if(!inserted)
                 return WALK_NEXT;
 
@@ -200,23 +178,15 @@ namespace
         Breakpoints&     bps;
     };
 
-    static std::string get_callstep_name(sym::Symbols& syms, uint64_t addr)
+    static std::string get_callstep_name(core::Core& core, proc_t proc, uint64_t addr)
     {
-        const auto cur = syms.find(addr);
-        std::string comment;
-        if(!cur)
-            comment = std::to_string(addr);
-        else
-            comment = sym::to_string(*cur).data();
-
-        comment += "\n";
-        return comment;
+        const auto symbol = symbols::find(core, proc, addr);
+        return symbols::to_string(symbol) + "\n";
     }
 
     static void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
-        sym::Symbols symbols;
-        load_proc_symbols(core, proc, symbols, FLAGS_32BIT);
+        load_proc_symbols(core, proc, FLAGS_32BIT);
 
         const auto ctx = get_saved_wow64_ctx(core, proc);
         if(!ctx)
@@ -225,18 +195,17 @@ namespace
         auto callers = std::vector<callstacks::caller_t>(128);
         const auto n = callstacks::read_from(core, &callers[0], callers.size(), proc, *ctx);
         for(size_t i = 0; i < n; ++i)
-            meta.comment += get_callstep_name(symbols, callers[i].addr);
+            meta.comment += get_callstep_name(core, proc, callers[i].addr);
     }
 
     static void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
-        sym::Symbols symbols;
-        load_proc_symbols(core, proc, symbols, FLAGS_NONE);
+        load_proc_symbols(core, proc, FLAGS_NONE);
 
         auto callers = std::vector<callstacks::caller_t>(128);
         const auto n = callstacks::read(core, &callers[0], callers.size(), proc);
         for(size_t i = 0; i < n; ++i)
-            meta.comment += get_callstep_name(symbols, callers[i].addr);
+            meta.comment += get_callstep_name(core, proc, callers[i].addr);
     }
 
     static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data)
@@ -266,12 +235,11 @@ namespace
     {
         Breakpoints  user_bps;
         pcap::Writer pcap;
-        sym::Loader kernel_sym(core);
-        kernel_sym.drv_listen({});
         int bp_id = 0;
 
+        symbols::load_drivers(core);
         // ndis!NdisSendNetBufferLists
-        const auto NdisSendNetBufferLists = kernel_sym.symbols().symbol("ndis", "NdisSendNetBufferLists");
+        const auto NdisSendNetBufferLists = symbols::symbol(core, symbols::kernel, "ndis", "NdisSendNetBufferLists");
         if(!NdisSendNetBufferLists)
             return FAIL(-1, "unable to set a BP on ndis!NdisSendNetBufferLists");
 
@@ -312,7 +280,7 @@ namespace
                     break;
                 }
 
-                meta.comment += get_callstep_name(kernel_sym.symbols(), addr);
+                meta.comment += get_callstep_name(core, *proc, addr);
             }
 
             if(!continue_to_userland)
@@ -322,7 +290,7 @@ namespace
         });
 
         // ndis!NdisReturnNetBufferLists
-        const auto NdisReturnNetBufferLists = kernel_sym.symbols().symbol("ndis", "NdisMIndicateReceiveNetBufferLists");
+        const auto NdisReturnNetBufferLists = symbols::symbol(core, symbols::kernel, "ndis", "NdisMIndicateReceiveNetBufferLists");
         if(!NdisReturnNetBufferLists)
             return FAIL(-1, "unable to et a BP on ndis!NdisMIndicateReceiveNetBufferLists");
 

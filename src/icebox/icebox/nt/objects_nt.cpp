@@ -87,14 +87,12 @@ struct nt::ObjectNt::Data
 {
     Data(core::Core& core, proc_t proc)
         : core(core)
-        , syms(os::kernel_symbols(core))
         , proc(proc)
         , reader(reader::make(core, proc))
     {
     }
 
     core::Core&    core;
-    sym::Symbols&  syms;
     proc_t         proc;
     reader::Reader reader;
     MemberOffsets  members;
@@ -110,11 +108,12 @@ namespace
         bool fail = false;
         for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
         {
-            const auto addr = d.syms.symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+            const auto& sym = g_symbol_offsets[i];
+            const auto addr = symbols::symbol(d.core, symbols::kernel, sym.module, sym.name);
             if(!addr)
             {
                 fail = true;
-                LOG(INFO, "unable to read %s!%s symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+                LOG(INFO, "unable to read %s!%s symbol offset", sym.module, sym.name);
                 continue;
             }
 
@@ -122,11 +121,12 @@ namespace
         }
         for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
         {
-            const auto offset = d.syms.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            const auto& mb    = g_member_offsets[i];
+            const auto offset = symbols::struc_offset(d.core, symbols::kernel, mb.module, mb.struc, mb.member);
             if(!offset)
             {
                 fail = true;
-                LOG(INFO, "unable to read %s!%s.%s member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+                LOG(INFO, "unable to read %s!%s.%s member offset", mb.module, mb.struc, mb.member);
                 continue;
             }
             d.members[i] = *offset;

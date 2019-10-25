@@ -3,6 +3,7 @@
 #define FDP_MODULE "os_linux"
 #include "core.hpp"
 #include "interfaces/if_os.hpp"
+#include "interfaces/if_symbols.hpp"
 #include "log.hpp"
 #include "reader.hpp"
 #include "utils/utils.hpp"
@@ -222,11 +223,10 @@ namespace
         OsLinux(core::Core& core);
 
         // os::IModule
-        bool            setup               () override;
-        bool            is_kernel_address   (uint64_t ptr) override;
-        bool            can_inject_fault    (uint64_t ptr) override;
-        bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
-        sym::Symbols&   kernel_symbols      () override;
+        bool    setup               () override;
+        bool    is_kernel_address   (uint64_t ptr) override;
+        bool    can_inject_fault    (uint64_t ptr) override;
+        bool    reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -280,7 +280,6 @@ namespace
 
         // members
         core::Core&    core_;
-        sym::Symbols   syms_;
         reader::Reader reader_;
         LinuxOffsets   offsets_;
         LinuxSymbols   symbols_;
@@ -461,36 +460,35 @@ namespace
 
 namespace
 {
-    static opt<uint64_t> make_symbols(sym::Symbols& syms, const std::string& guid, const std::string& strSymbol, const uint64_t& addrSymbol)
+    static opt<uint64_t> make_symbols(core::Core& core, const std::string& guid, const std::string& strSymbol, const uint64_t& addrSymbol)
     {
-        syms.remove("kernel_struct");
-        syms.remove("kernel_sym");
+        symbols::unload(core, symbols::kernel, "kernel");
+        symbols::unload(core, symbols::kernel, "kernel_sym");
 
-        auto dwarf = sym::make_dwarf({}, "kernel", guid);
-        if(!dwarf || !syms.insert("kernel_struct", dwarf))
+        auto& symbols = symbols::Modules::modules(core);
+        auto dwarf    = symbols::make_dwarf({}, "kernel", guid);
+        if(!dwarf || !symbols.insert(symbols::kernel, "kernel", std::move(dwarf)))
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/elf", guid.data());
 
-        auto sysmap = sym::make_map({}, "kernel", guid);
+        auto sysmap = symbols::make_map({}, "kernel", guid);
         if(!sysmap || !sysmap->set_aslr(strSymbol, addrSymbol))
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/System.map file", guid.data());
 
         const auto kaslr = sysmap->get_aslr();
-
-        std::unique_ptr<sym::IMod> sysmap_imod = std::move(sysmap);
-        if(!syms.insert("kernel_sym", sysmap_imod))
+        if(!symbols.insert(symbols::kernel, "kernel_sym", std::move(sysmap)))
             return FAIL(ext::nullopt, "unable to read System.map file");
 
         return kaslr;
     }
 
-    static bool loadOffsets(sym::Symbols& syms, LinuxOffsets& offsets)
+    static bool load_offsets(core::Core& core, LinuxOffsets& offsets)
     {
         bool fail = false;
         int i     = -1;
         for(const auto& off : g_offsets)
         {
             fail |= off.e_id != ++i;
-            offsets[i] = syms.struc_offset(off.module, off.struc, off.member);
+            offsets[i] = symbols::struc_offset(core, symbols::kernel, off.module, off.struc, off.member);
             if(offsets[i])
                 continue;
 
@@ -501,14 +499,14 @@ namespace
         return !fail;
     }
 
-    static bool loadSymbols(sym::Symbols& syms, LinuxSymbols& symbols)
+    static bool load_symbols(core::Core& core, LinuxSymbols& symbols)
     {
         bool fail = false;
         int i     = -1;
         for(const auto& sym : g_symbols)
         {
             fail |= sym.e_id != ++i;
-            symbols[i] = syms.symbol(sym.module, sym.name);
+            symbols[i] = symbols::symbol(core, symbols::kernel, sym.module, sym.name);
             if(symbols[i])
                 continue;
 
@@ -554,12 +552,12 @@ bool OsLinux::setup()
         const auto hash = guid(*linux_banner);
         LOG(INFO, "hash of linux banner : %s", hash.data());
 
-        const auto kaslr = make_symbols(syms_, hash, "linux_banner", candidate);
+        const auto kaslr = make_symbols(core_, hash, "linux_banner", candidate);
         if(!kaslr)
             return WALK_NEXT;
         LOG(INFO, "debug profile found");
 
-        if(!loadOffsets(syms_, offsets_) | !loadSymbols(syms_, symbols_))
+        if(!load_offsets(core_, offsets_) | !load_symbols(core_, symbols_))
             return WALK_NEXT;
 
         if(!check_setup(*this))
@@ -569,7 +567,7 @@ bool OsLinux::setup()
             return FAIL(WALK_NEXT, "unable to parse kernel version in this linux banner");
         kversion = match[1].str();
 
-        const auto opt_pt_regs_size = syms_.struc_size("kernel_struct", "pt_regs");
+        const auto opt_pt_regs_size = symbols::struc_size(core_, symbols::kernel, "kernel_struct", "pt_regs");
         if(!opt_pt_regs_size)
             return FAIL(WALK_NEXT, "unable to read the size of pt_regs structure");
         pt_regs_size = *opt_pt_regs_size;
@@ -882,11 +880,6 @@ bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
     reader.udtb_ = (proc) ? proc->dtb : dtb_t{0};
     reader.kdtb_ = dtb_t{kpgd};
     return true;
-}
-
-sym::Symbols& OsLinux::kernel_symbols()
-{
-    return syms_;
 }
 
 bool OsLinux::thread_list(proc_t proc, threads::on_thread_fn on_thread)

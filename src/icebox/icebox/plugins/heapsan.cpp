@@ -77,20 +77,18 @@ namespace
 
 struct plugins::HeapSan::Data
 {
-    Data(core::Core& core, sym::Symbols& syms, proc_t target);
+    Data(core::Core& core, proc_t target);
 
-    core::Core&   core_;
-    sym::Symbols& symbols_;
-    nt::heaps     tracer_;
-    Reallocs      reallocs_;
-    Heaps         heaps_;
-    proc_t        target_;
+    core::Core& core_;
+    nt::heaps   tracer_;
+    Reallocs    reallocs_;
+    Heaps       heaps_;
+    proc_t      target_;
 };
 
-Data::Data(core::Core& core, sym::Symbols& syms, proc_t target)
+Data::Data(core::Core& core, proc_t target)
     : core_(core)
-    , symbols_(syms)
-    , tracer_(core, syms, "ntdll")
+    , tracer_(core, "ntdll")
     , target_(target)
 {
 }
@@ -249,18 +247,15 @@ namespace
         const auto n = callstacks::read(d.core_, &callers[0], callers.size(), d.target_);
         for(size_t i = 0; i < n; ++i)
         {
-            const auto addr = callers[i].addr;
-            auto cursor     = d.symbols_.find(addr);
-            if(!cursor)
-                cursor = sym::Cursor{"_", "_", addr};
-
-            LOG(INFO, "%-3" PRIx64 " - 0x%" PRIx64 "- %s", i, addr, sym::to_string(*cursor).data());
+            const auto addr   = callers[i].addr;
+            const auto symbol = symbols::find(d.core_, d.target_, addr);
+            LOG(INFO, "%-3" PRIx64 " - 0x%" PRIx64 "- %s", i, addr, symbols::to_string(symbol).data());
         }
     }
 }
 
-plugins::HeapSan::HeapSan(core::Core& core, sym::Symbols& syms, proc_t target)
-    : d_(std::make_unique<Data>(core, syms, target))
+plugins::HeapSan::HeapSan(core::Core& core, proc_t target)
+    : d_(std::make_unique<Data>(core, target))
 {
     auto& d = *d_;
     d.tracer_.register_RtlpAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)

@@ -1,6 +1,7 @@
 #include "symbols.hpp"
 
 #define FDP_MODULE "dwarf"
+#include "interfaces/if_symbols.hpp"
 #include "log.hpp"
 #include "utils/utils.hpp"
 
@@ -10,7 +11,7 @@
 namespace
 {
     struct Dwarf
-        : public sym::IMod
+        : public symbols::Module
     {
         Dwarf(fs::path filename);
         ~Dwarf() override;
@@ -19,12 +20,12 @@ namespace
         bool setup();
 
         // IModule methods
-        span_t              span        () override;
-        opt<uint64_t>       symbol      (const std::string& symbol) override;
-        opt<uint64_t>       struc_offset(const std::string& struc, const std::string& member) override;
-        opt<size_t>         struc_size  (const std::string& struc) override;
-        opt<sym::ModCursor> symbol      (uint64_t addr) override;
-        bool                sym_list    (sym::on_sym_fn on_sym) override;
+        span_t                  span        () override;
+        opt<uint64_t>           symbol      (const std::string& symbol) override;
+        opt<uint64_t>           struc_offset(const std::string& struc, const std::string& member) override;
+        opt<size_t>             struc_size  (const std::string& struc) override;
+        opt<symbols::Offset>    symbol      (uint64_t addr) override;
+        bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
 
         // members
         const fs::path filename_;
@@ -313,7 +314,7 @@ Dwarf::~Dwarf()
     dwarf_finish(dbg, &err);
 }
 
-std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const std::string& module, const std::string& guid)
+std::unique_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
@@ -326,10 +327,9 @@ std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const std::string& m
     return ptr;
 }
 
-std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const void* /*data*/, const size_t /*data_size*/)
+std::unique_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const reader::Reader& /*reader*/)
 {
-    LOG(ERROR, "make_dwarf(span, data, data_size) not implemented");
-    return nullptr;
+    return {};
 }
 
 bool Dwarf::setup()
@@ -366,7 +366,7 @@ opt<uint64_t> Dwarf::symbol(const std::string& /*symbol*/)
     return {};
 }
 
-bool Dwarf::sym_list(sym::on_sym_fn /*on_sym*/)
+bool Dwarf::sym_list(symbols::on_symbol_fn /*on_sym*/)
 {
     return false;
 }
@@ -410,7 +410,7 @@ opt<size_t> Dwarf::struc_size(const std::string& struc)
     return size;
 }
 
-opt<sym::ModCursor> Dwarf::symbol(uint64_t /*addr*/)
+opt<symbols::Offset> Dwarf::symbol(uint64_t /*addr*/)
 {
     return {};
 }

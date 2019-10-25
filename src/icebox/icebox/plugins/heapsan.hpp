@@ -5,13 +5,12 @@
 #include <memory>
 
 namespace core { struct Core; }
-namespace sym { struct Symbols; }
 
 namespace plugins
 {
     struct HeapSan
     {
-         HeapSan(core::Core& core, sym::Symbols& syms, proc_t target);
+         HeapSan(core::Core& core, proc_t target);
         ~HeapSan();
 
         struct Data;

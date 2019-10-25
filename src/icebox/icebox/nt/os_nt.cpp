@@ -155,11 +155,10 @@ namespace
         OsNt(core::Core& core);
 
         // os::IModule
-        bool            setup               () override;
-        bool            is_kernel_address   (uint64_t ptr) override;
-        bool            can_inject_fault    (uint64_t ptr) override;
-        bool            reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
-        sym::Symbols&   kernel_symbols      () override;
+        bool    setup               () override;
+        bool    is_kernel_address   (uint64_t ptr) override;
+        bool    can_inject_fault    (uint64_t ptr) override;
+        bool    reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -213,7 +212,6 @@ namespace
 
         // members
         core::Core&    core_;
-        sym::Symbols   syms_;
         NtOffsets      offsets_;
         NtSymbols      symbols_;
         std::string    last_dump_;
@@ -266,16 +264,7 @@ bool OsNt::setup()
         return FAIL(false, "unable to find kernel");
 
     LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    const auto debug = pe::find_debug_codeview(reader_, *kernel);
-    if(!debug)
-        return FAIL(false, "unable to find kernel debug section");
-
-    std::vector<uint8_t> buffer(debug->size);
-    auto ok = memory::read_virtual(core_, &buffer[0], debug->addr, debug->size);
-    if(!ok)
-        return FAIL(false, "unable to read kernel module");
-
-    ok = syms_.insert("nt", *kernel, &buffer[0], buffer.size());
+    auto ok = symbols::load_module_at(core_, symbols::kernel, "nt", *kernel);
     if(!ok)
         return FAIL(false, "unable to load symbols from kernel module");
 
@@ -285,7 +274,7 @@ bool OsNt::setup()
     for(const auto& sym : g_symbols)
     {
         fail |= sym.e_id != ++i;
-        const auto addr = syms_.symbol(sym.module, sym.name);
+        const auto addr = symbols::symbol(core_, symbols::kernel, sym.module, sym.name);
         if(!addr)
         {
             fail |= sym.e_cat == cat_e::REQUIRED;
@@ -303,7 +292,7 @@ bool OsNt::setup()
     for(const auto& off : g_offsets)
     {
         fail |= off.e_id != ++i;
-        const auto offset = syms_.struc_offset(off.module, off.struc, off.member);
+        const auto offset = symbols::struc_offset(core_, symbols::kernel, off.module, off.struc, off.member);
         if(!offset)
         {
             fail |= off.e_cat == cat_e::REQUIRED;
@@ -631,9 +620,9 @@ namespace
         return span;
     }
 
-    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, sym::Symbols& sym, const std::string& mod_name, const std::string& sym_name)
+    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, const std::string& mod_name, const std::string& sym_name)
     {
-        const auto addr = sym.symbol(mod_name, sym_name);
+        const auto addr = symbols::symbol(os.core_, symbols::kernel, mod_name, sym_name);
         if(!addr)
             return {};
 
@@ -667,7 +656,7 @@ namespace
 
     static opt<phy_t> load_ntdll_symbol(OsNt& os, proc_t proc, bool is_32bit, const char* mod, const char* name)
     {
-        const auto phy = get_phy_from_sym(os, proc, os.syms_, mod, name);
+        const auto phy = get_phy_from_sym(os, proc, mod, name);
         if(phy)
             return phy;
 
@@ -676,21 +665,12 @@ namespace
             return {};
 
         os.proc_join(proc, process::JOIN_USER_MODE);
-        const auto reader = reader::make(os.core_, proc);
-        const auto debug  = pe::find_debug_codeview(reader, *ntdll);
-        if(!debug)
-            return {};
 
-        std::vector<uint8_t> buffer(debug->size);
-        const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-        if(!ok)
-            return {};
-
-        const auto inserted = os.syms_.insert(mod, *ntdll, &buffer[0], buffer.size());
+        const auto inserted = symbols::load_module_at(os.core_, symbols::kernel, mod, *ntdll);
         if(!inserted)
             return {};
 
-        return get_phy_from_sym(os, proc, os.syms_, mod, name);
+        return get_phy_from_sym(os, proc, mod, name);
     }
 
     static void on_PsCallImageNotifyRoutines(OsNt& os, KernelModCreateCtx& ctx, bpid_t bpid, const modules::on_event_fn& on_mod)
@@ -706,7 +686,7 @@ namespace
         if(ctx.is_32bit && !is_32bit)
             return;
 
-        const auto mod  = ctx.is_32bit ? "ntdll32" : "ntdll";
+        const auto mod  = ctx.is_32bit ? "wntdll" : "ntdll";
         const auto name = ctx.is_32bit ? "_LdrpProcessMappedModule@16" : "LdrpProcessMappedModule";
         ctx.entry       = load_ntdll_symbol(os, *proc, ctx.is_32bit, mod, name);
         if(!ctx.entry)
@@ -1153,11 +1133,6 @@ bool OsNt::reader_setup(reader::Reader& reader, opt<proc_t> proc)
     return true;
 }
 
-sym::Symbols& OsNt::kernel_symbols()
-{
-    return syms_;
-}
-
 namespace
 {
     static opt<arg_t> to_arg(opt<uint64_t> arg)
@@ -1287,10 +1262,10 @@ void OsNt::debug_print()
     const auto cs     = registers::read(core_, reg_e::cs);
     const auto rip    = registers::read(core_, reg_e::rip);
     const auto cr3    = registers::read(core_, reg_e::cr3);
-    const auto ripcur = syms_.find(rip);
-    const auto ripsym = ripcur ? sym::to_string(*ripcur) : "";
     const auto thread = thread_current();
     const auto proc   = thread_proc(*thread);
+    const auto ripcur = symbols::find(core_, *proc, rip);
+    const auto ripsym = symbols::to_string(ripcur);
     const auto name   = proc_name(*proc);
     const auto dump   = "rip: " + to_hex(rip)
                       + " cr3:" + to_hex(cr3)

@@ -2,8 +2,11 @@
 
 #define FDP_MODULE "pdb"
 #include "endian.hpp"
+#include "interfaces/if_symbols.hpp"
 #include "log.hpp"
+#include "reader.hpp"
 #include "utils/hex.hpp"
+#include "utils/pe.hpp"
 #include "utils/utils.hpp"
 
 #include <cctype>
@@ -37,7 +40,7 @@ namespace
     using SymbolsByOffset = std::map<uint64_t, pdb::PDBGlobalVariable>;
 
     struct Pdb
-        : public sym::IMod
+        : public symbols::Module
     {
         Pdb(fs::path filename, span_t span);
 
@@ -45,12 +48,12 @@ namespace
         bool setup();
 
         // IModule methods
-        span_t              span        () override;
-        opt<uint64_t>       symbol      (const std::string& symbol) override;
-        opt<uint64_t>       struc_offset(const std::string& struc, const std::string& member) override;
-        opt<size_t>         struc_size  (const std::string& struc) override;
-        opt<sym::ModCursor> symbol      (uint64_t addr) override;
-        bool                sym_list    (sym::on_sym_fn on_sym) override;
+        span_t                  span        () override;
+        opt<uint64_t>           symbol      (const std::string& symbol) override;
+        opt<uint64_t>           struc_offset(const std::string& struc, const std::string& member) override;
+        opt<size_t>             struc_size  (const std::string& struc) override;
+        opt<symbols::Offset>    symbol      (uint64_t addr) override;
+        bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
 
         // members
         const fs::path  filename_;
@@ -67,7 +70,7 @@ Pdb::Pdb(fs::path filename, span_t span)
 {
 }
 
-std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const std::string& module, const std::string& guid)
+std::unique_ptr<symbols::Module> symbols::make_pdb(span_t span, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_NT_SYMBOL_PATH");
     if(!path)
@@ -133,7 +136,7 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
     return get_offset(*this, it->second);
 }
 
-bool Pdb::sym_list(sym::on_sym_fn on_sym)
+bool Pdb::sym_list(symbols::on_symbol_fn on_sym)
 {
     for(const auto& symbol : symbols_)
         if(on_sym(symbol.first, get_offset(*this, symbol.second)) == WALK_STOP)
@@ -182,16 +185,16 @@ opt<size_t> Pdb::struc_size(const std::string& struc)
 namespace
 {
     template <typename T>
-    static opt<sym::ModCursor> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
+    static opt<symbols::Offset> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
     {
         if(it == end)
             return {};
 
-        return sym::ModCursor{it->second.name, addr - get_offset(p, it->second)};
+        return symbols::Offset{it->second.name, addr - get_offset(p, it->second)};
     }
 }
 
-opt<sym::ModCursor> Pdb::symbol(uint64_t addr)
+opt<symbols::Offset> Pdb::symbol(uint64_t addr)
 {
     // lower bound returns first item greater or equal
     auto it        = symbols_by_offset.lower_bound(addr);
@@ -265,12 +268,21 @@ namespace
     }
 }
 
-std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const void* data, const size_t data_size)
+std::unique_ptr<symbols::Module> symbols::make_pdb(span_t span, const reader::Reader& reader)
 {
-    const auto pdb = read_pdb(data, data_size);
-    if(!pdb)
-        return nullptr;
+    // try to find pe debug section
+    const auto debug     = pe::find_debug_codeview(reader, span);
+    const auto span_read = debug ? *debug : span;
 
-    LOG(INFO, "%s %s", pdb->name.data(), pdb->guid.data());
+    auto buffer   = std::vector<uint8_t>(span_read.size);
+    const auto ok = reader.read(&buffer[0], span_read.addr, span_read.size);
+    if(!ok)
+        return {};
+
+    const auto pdb = read_pdb(&buffer[0], span_read.size);
+    if(!pdb)
+        return {};
+
+    LOG(INFO, "%s %s", pdb->guid.data(), pdb->name.data());
     return make_pdb(span, pdb->name.data(), pdb->guid.data());
 }

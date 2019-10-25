@@ -27,11 +27,6 @@ bool os::reader_setup(core::Core& core, reader::Reader& reader, opt<proc_t> proc
     return core.os_->reader_setup(reader, std::move(proc));
 }
 
-sym::Symbols& os::kernel_symbols(core::Core& core)
-{
-    return core.os_->kernel_symbols();
-}
-
 size_t os::unlisten(core::Core& core, bpid_t bpid)
 {
     return core.os_->unlisten(bpid);

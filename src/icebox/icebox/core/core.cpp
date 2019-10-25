@@ -6,6 +6,7 @@
 #include "fdp.hpp"
 #include "interfaces/if_callstacks.hpp"
 #include "interfaces/if_os.hpp"
+#include "interfaces/if_symbols.hpp"
 #include "log.hpp"
 
 #include <chrono>
@@ -46,9 +47,10 @@ namespace
             return FAIL(false, "unable to init shm");
 
         fdp::reset(core);
-        core.mem_   = memory::setup();
-        core.state_ = state::setup();
-        core.func_  = functions::setup();
+        core.mem_     = memory::setup();
+        core.state_   = state::setup();
+        core.func_    = functions::setup();
+        core.symbols_ = std::make_unique<symbols::Modules>(core);
 
         // register os helpers
         auto interfaces = static_cast<const interfaces_t*>(nullptr);

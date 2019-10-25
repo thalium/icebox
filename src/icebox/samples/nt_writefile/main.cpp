@@ -2,7 +2,6 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/nt/objects_nt.hpp>
-#include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/utils/file.hpp>
@@ -50,13 +49,12 @@ namespace
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 
-        auto loader = sym::Loader{core};
-        loader.mod_load(*proc, *ntdll);
+        symbols::load_module(core, *proc, *ntdll);
         LOG(INFO, "ntdll module loaded");
 
         int idx           = -1;
         auto objects      = nt::ObjectNt{core, *proc};
-        auto tracer       = nt::syscalls{core, loader.symbols(), "ntdll"};
+        auto tracer       = nt::syscalls{core, "ntdll"};
         auto buffer       = std::vector<uint8_t>{};
         const auto reader = reader::make(core, *proc);
         const auto bp     = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,

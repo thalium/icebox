@@ -15,26 +15,12 @@
 std::string thread_pc(core::Core& core, const thread_t& thread)
 {
     const auto pc = threads::program_counter(core, {}, thread);
-
     if(!pc)
         return "<err>";
 
-    auto syms = os::kernel_symbols(core).find("kernel_sym");
-    opt<sym::ModCursor> cursor;
-    const uint64_t START_KERNEL = 0xffffffff80000000, END_KERNEL = 0xfffffffffff00000;
-
-    if(!syms || *pc < START_KERNEL || *pc >= END_KERNEL || !(cursor = syms->symbol(*pc)))
-    {
-        std::stringstream stream;
-        stream << "0x" << std::setw(16) << std::setfill('0') << std::hex << *pc;
-        return stream.str();
-    }
-
-    std::string internalOffset = "";
-    if(*pc != (*cursor).offset)
-        internalOffset = "+" + std::to_string(*pc - (*cursor).offset);
-
-    return (*cursor).symbol + internalOffset;
+    const auto proc   = threads::process(core, thread);
+    const auto symbol = symbols::find(core, *proc, *pc);
+    return symbols::to_string(symbol);
 }
 
 void display_thread(core::Core& core, const thread_t& thread)

@@ -30,6 +30,7 @@ namespace functions
 
 namespace os { struct Module; }
 namespace callstacks { struct Module; }
+namespace symbols { struct Modules; }
 
 namespace core
 {
@@ -38,6 +39,7 @@ namespace core
     using Functions  = std::shared_ptr<functions::Data>;
     using Callstacks = std::unique_ptr<callstacks::Module>;
     using Os         = std::unique_ptr<os::Module>;
+    using Symbols    = std::unique_ptr<symbols::Modules>;
 
     struct Core
     {
@@ -50,5 +52,6 @@ namespace core
         Functions         func_;
         Os                os_;
         Callstacks        callstacks_;
+        Symbols           symbols_;
     };
 } // namespace core

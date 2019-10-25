@@ -7,7 +7,6 @@
 #include <functional>
 
 namespace core { struct Core; }
-namespace sym { struct Symbols; }
 
 namespace nt
 {
@@ -413,7 +412,7 @@ namespace nt
 
     struct syscalls
     {
-         syscalls(core::Core& core, sym::Symbols& syms, std::string_view module);
+         syscalls(core::Core& core, std::string_view module);
         ~syscalls();
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;

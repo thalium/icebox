@@ -34,33 +34,31 @@ namespace
 
 struct plugins::Syscalls::Data
 {
-    Data(core::Core& core, sym::Symbols& syms, proc_t proc);
+    Data(core::Core& core, proc_t proc);
 
     bool setup();
 
-    core::Core&   core_;
-    sym::Symbols& syms_;
-    proc_t        proc_;
-    nt::syscalls  syscalls_;
-    nt::ObjectNt  objects_;
-    Callsteps     callsteps_;
-    Triggers      triggers_;
-    json          args_;
-    uint64_t      nb_triggers_;
+    core::Core&  core_;
+    proc_t       proc_;
+    nt::syscalls syscalls_;
+    nt::ObjectNt objects_;
+    Callsteps    callsteps_;
+    Triggers     triggers_;
+    json         args_;
+    uint64_t     nb_triggers_;
 };
 
-plugins::Syscalls::Data::Data(core::Core& core, sym::Symbols& syms, proc_t proc)
+plugins::Syscalls::Data::Data(core::Core& core, proc_t proc)
     : core_(core)
-    , syms_(syms)
     , proc_(proc)
-    , syscalls_(core, syms, "ntdll")
+    , syscalls_(core, "ntdll")
     , objects_(core, proc)
     , nb_triggers_()
 {
 }
 
-plugins::Syscalls::Syscalls(core::Core& core, sym::Symbols& syms, proc_t proc)
-    : d_(std::make_unique<Data>(core, syms, proc))
+plugins::Syscalls::Syscalls(core::Core& core, proc_t proc)
+    : d_(std::make_unique<Data>(core, proc))
 {
     d_->setup();
 }
@@ -69,7 +67,7 @@ plugins::Syscalls::~Syscalls() = default;
 
 namespace
 {
-    static json create_calltree(core::Core& core, sym::Symbols& syms, Triggers& triggers, json& args, proc_t target, const Callsteps& callsteps)
+    static json create_calltree(core::Core& core, Triggers& triggers, json& args, proc_t target, const Callsteps& callsteps)
     {
         using TriggersHash = std::unordered_map<uint64_t, Triggers>;
         json         calltree;
@@ -96,11 +94,9 @@ namespace
         // Call function recursively to create subtrees
         for(auto& it : intermediate_tree)
         {
-            auto cursor = syms.find(it.first);
-            if(!cursor)
-                cursor = sym::Cursor{"_", "_>", it.first};
-
-            calltree[sym::to_string(*cursor).data()] = create_calltree(core, syms, it.second, args, target, callsteps);
+            const auto symbol     = symbols::find(core, target, it.first);
+            const auto symbol_txt = symbols::to_string(symbol);
+            calltree[symbol_txt]  = create_calltree(core, it.second, args, target, callsteps);
         }
 
         // Place args (contained in a json that was made by the observer) on end nodes
@@ -120,12 +116,9 @@ namespace
         if(false)
             for(size_t i = idx; i < idx + n; ++i)
             {
-                const auto addr = d.callsteps_[i].addr;
-                auto cursor     = d.syms_.find(addr);
-                if(!cursor)
-                    cursor = sym::Cursor{"_", "_", addr};
-
-                LOG(INFO, "%zd - %s", i - idx, sym::to_string(*cursor).data());
+                const auto addr   = d.callsteps_[i].addr;
+                const auto symbol = symbols::find(d.core_, d.proc_, addr);
+                LOG(INFO, "%zd - %s", i - idx, symbols::to_string(symbol).data());
             }
         d.triggers_.push_back(bp_trigger_info_t{{idx, n}, d.nb_triggers_});
         return true;
@@ -184,7 +177,7 @@ bool Data::setup()
 bool plugins::Syscalls::generate(const fs::path& file_name)
 {
     auto& d           = *d_;
-    const auto output = create_calltree(d.core_, d.syms_, d.triggers_, d.args_, d.proc_, d.callsteps_);
+    const auto output = create_calltree(d.core_, d.triggers_, d.args_, d.proc_, d.callsteps_);
     const auto dump   = output.dump();
     const auto ok     = file::write(file_name, dump.data(), dump.size());
     return !!ok;

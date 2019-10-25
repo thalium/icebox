@@ -2,7 +2,6 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/plugins/heapsan.hpp>
-#include <icebox/plugins/sym_loader.hpp>
 
 namespace
 {
@@ -19,13 +18,12 @@ namespace
             return FAIL(-1, "unable to load ntdll.dll");
 
         LOG(INFO, "ntdll module loaded");
-        auto loader   = sym::Loader{core};
-        const auto ok = loader.mod_load(*proc, *ntdll);
+        const auto ok = symbols::load_module(core, *proc, *ntdll);
         if(!ok)
             return FAIL(-1, "unable to load ntdll.dll symbols");
 
         LOG(INFO, "listening events...");
-        const auto fdpsan = plugins::HeapSan{core, loader.symbols(), *proc};
+        const auto fdpsan = plugins::HeapSan{core, *proc};
         const auto now    = std::chrono::high_resolution_clock::now();
         const auto end    = now + std::chrono::minutes(5);
         while(std::chrono::high_resolution_clock::now() < end)

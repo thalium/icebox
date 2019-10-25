@@ -7,7 +7,6 @@
 #include <functional>
 
 namespace core { struct Core; }
-namespace sym { struct Symbols; }
 
 namespace wow64
 {
@@ -413,7 +412,7 @@ namespace wow64
 
     struct syscalls32
     {
-         syscalls32(core::Core& core, sym::Symbols& syms, std::string_view module);
+         syscalls32(core::Core& core, std::string_view module);
         ~syscalls32();
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;

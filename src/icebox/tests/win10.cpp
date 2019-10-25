@@ -1,7 +1,6 @@
 #define FDP_MODULE "tests_win10"
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
-#include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
@@ -224,11 +223,10 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
-    auto loader   = sym::Loader{core};
-    const auto ok = loader.mod_load(*proc, *ntdll);
+    const auto ok = symbols::load_module(core, *proc, *ntdll);
     EXPECT_TRUE(ok);
 
-    wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
+    wow64::syscalls32 tracer{core, "ntdll"};
     bool found = false;
     // ZwQueryInformationProcess in 32-bit has code reading itself
     // we need to ensure we can break this function & resume properly
@@ -249,12 +247,11 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
-    auto loader   = sym::Loader{core};
-    const auto ok = loader.mod_load(*proc, *ntdll);
+    const auto ok = symbols::load_module(core, *proc, *ntdll);
     EXPECT_TRUE(ok);
 
     // break on a single function once
-    wow64::syscalls32 tracer{core, loader.symbols(), "ntdll"};
+    wow64::syscalls32 tracer{core, "ntdll"};
     int func_start = 0;
     tracer.register_ZwWaitForSingleObject(*proc, [&](wow64::HANDLE, wow64::BOOLEAN, wow64::PLARGE_INTEGER)
     {
@@ -324,21 +321,6 @@ TEST_F(Win10Test, memory)
     });
 }
 
-namespace
-{
-    static size_t count_symbols(sym::Symbols& symbols)
-    {
-        size_t count  = 0;
-        const auto ok = symbols.list([&](const auto& /*sym*/)
-        {
-            ++count;
-            return WALK_NEXT;
-        });
-        EXPECT_TRUE(ok);
-        return count;
-    }
-}
-
 TEST_F(Win10Test, loader)
 {
     auto& core      = *ptr_core;
@@ -346,14 +328,10 @@ TEST_F(Win10Test, loader)
     ASSERT_TRUE(!!proc);
 
     process::join(core, *proc, process::JOIN_ANY_MODE);
-    auto drivers = sym::Loader{core};
-    drivers.drv_listen({});
-    EXPECT_GE(count_symbols(drivers.symbols()), 128u);
+    symbols::load_drivers(core);
 
     process::join(core, *proc, process::JOIN_USER_MODE);
-    auto modules = sym::Loader{core};
-    modules.mod_listen(*proc, {});
-    EXPECT_GE(count_symbols(modules.symbols()), 32u);
+    symbols::listen_and_load(core, *proc, {});
 
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
@@ -369,12 +347,12 @@ TEST_F(Win10Test, tracer)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
-    auto loader = sym::Loader{core};
-    loader.mod_load(*proc, *ntdll);
+    const auto ok = symbols::load_module(core, *proc, *ntdll);
+    ASSERT_TRUE(ok);
 
     using Calls = std::unordered_set<std::string>;
     auto calls  = Calls{};
-    auto tracer = nt::syscalls{core, loader.symbols(), "ntdll"};
+    auto tracer = nt::syscalls{core, "ntdll"};
     auto count  = 0;
     tracer.register_all(*proc, [&](const auto& cfg)
     {
@@ -388,13 +366,10 @@ TEST_F(Win10Test, tracer)
 
 namespace
 {
-    static std::string dump_address(sym::Symbols& symbols, uint64_t addr)
+    static std::string dump_address(core::Core& core, proc_t proc, uint64_t addr)
     {
-        const auto cur = symbols.find(addr);
-        if(!cur)
-            return fmt::format("{:#x}", addr);
-
-        return sym::to_string(*cur);
+        const auto symbol = symbols::find(core, proc, addr);
+        return symbols::to_string(symbol);
     }
 }
 
@@ -404,22 +379,24 @@ TEST_F(Win10Test, callstacks)
     const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
-    auto loader = sym::Loader{core};
-    loader.mod_listen(*proc, {});
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
-    auto& symbols = loader.symbols();
-    auto tracer   = nt::syscalls{core, symbols, "ntdll"};
-    auto count    = size_t{0};
+    symbols::listen_and_load(core, *proc, {});
+    auto tracer      = nt::syscalls{core, "ntdll"};
+    auto count       = size_t{0};
+    auto num_callers = size_t{0};
     tracer.register_all(*proc, [&](const auto& /* cfg*/)
     {
         LOG(INFO, " ");
         auto callers = std::vector<callstacks::caller_t>(128);
         const auto n = callstacks::read(core, &callers[0], callers.size(), *proc);
         for(size_t i = 0; i < n; ++i)
-            LOG(INFO, "0x%" PRIx64 ": %s", i, dump_address(symbols, callers[i].addr).data());
+            LOG(INFO, "0x%02" PRIx64 ": %s", i, dump_address(core, *proc, callers[i].addr).data());
         count++;
+        num_callers += n;
     });
     run_until(core, [&] { return count > 32; });
+    EXPECT_EQ(count, 33u);
+    EXPECT_NE(num_callers, 0u);
 }

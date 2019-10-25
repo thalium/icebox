@@ -300,10 +300,9 @@ opt<FunctionTable> NtCallstacks::get_mod_functiontable(proc_t proc, const std::s
 
 namespace
 {
-    static std::unique_ptr<sym::Symbols> load_ntdll(core::Core& core, proc_t proc, bool is_32bit)
+    static bool load_ntdll(core::Core& core, proc_t proc, const char* want_name, bool is_32bit)
     {
-        std::unique_ptr<sym::Symbols> sym;
-        const auto reader = reader::make(core, proc);
+        auto inserted = false;
         modules::list(core, proc, [&](mod_t mod)
         {
             const auto name = modules::name(core, proc, mod);
@@ -322,34 +321,21 @@ namespace
             if(!span)
                 return WALK_NEXT;
 
-            const auto debug = pe::find_debug_codeview(reader, *span);
-            if(!debug)
-                return WALK_NEXT;
-
-            std::vector<uint8_t> buffer(debug->size);
-            const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-            if(!ok)
-                return FAIL(WALK_NEXT, "unable to read IMAGE_CODEVIEW (RSDS)");
-
-            auto tmp            = std::make_unique<sym::Symbols>();
-            const auto inserted = tmp->insert("ntdll", *span, &buffer[0], buffer.size());
-            if(!inserted)
-                return WALK_NEXT;
-
-            sym = std::move(tmp);
-            return WALK_STOP;
+            inserted = symbols::load_module_at(core, proc, want_name, *span);
+            return inserted ? WALK_STOP : WALK_NEXT;
         });
-        return sym;
+        return inserted;
     }
 
     static bool read_offsets(NtCallstacks& c, proc_t proc, bool is_32bit)
     {
         auto& opt_offsets = is_32bit ? c.offsets32_ : c.offsets64_;
+        const auto name   = is_32bit ? "wntdll" : "ntdll";
         if(opt_offsets)
             return true;
 
-        const auto sym = load_ntdll(c.core_, proc, is_32bit);
-        if(!sym)
+        const auto ok = load_ntdll(c.core_, proc, name, is_32bit);
+        if(!ok)
             return FAIL(false, "unable to load ntdll");
 
         bool fail = false;
@@ -358,10 +344,10 @@ namespace
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_nt_offsets[i].e_id != i;
-            const auto offset = sym->struc_offset("ntdll", g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            const auto offset = symbols::struc_offset(c.core_, proc, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
             if(!offset)
             {
-                LOG(ERROR, "unable to read ntdll!%s.%s member offset", g_nt_offsets[i].struc, g_nt_offsets[i].member);
+                LOG(ERROR, "unable to read %s!%s.%s member offset", name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
                 continue;
             }
             offsets[i] = *offset;

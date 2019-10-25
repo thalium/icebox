@@ -12,31 +12,31 @@
 
 namespace
 {
-    fs::path                                        filename;
-    std::vector<sym::ModCursor> cursors_by_address, cursors_by_name;
-
-    opt<uint64_t> aslr;
+    fs::path                     filename;
+    std::vector<symbols::Offset> cursors_by_address;
+    std::vector<symbols::Offset> cursors_by_name;
+    opt<uint64_t>                aslr;
 }
 
-sym::Map::Map(fs::path path)
+symbols::Map::Map(fs::path path)
 {
     filename = std::move(path);
 }
 
 namespace
 {
-    const auto ModCursor_order_address = [](const sym::ModCursor& a, const sym::ModCursor& b)
+    const auto ModCursor_order_address = [](const symbols::Offset& a, const symbols::Offset& b)
     {
         return a.offset < b.offset;
     };
 
-    const auto ModCursor_order_name = [](const sym::ModCursor& a, const sym::ModCursor& b)
+    const auto ModCursor_order_name = [](const symbols::Offset& a, const symbols::Offset& b)
     {
         return a.symbol < b.symbol;
     };
 }
 
-bool sym::Map::setup()
+bool symbols::Map::setup()
 {
     cursors_by_address.clear();
     cursors_by_name.clear();
@@ -48,10 +48,10 @@ bool sym::Map::setup()
     if(!filestream)
         return FAIL(false, "unable to open %s", filename.generic_string().data());
 
-    std::string    row;
-    std::string    str_offset;
-    sym::ModCursor cursor;
-    char           type;
+    std::string     row;
+    std::string     str_offset;
+    symbols::Offset cursor;
+    char            type;
 
     while(std::getline(filestream, row))
     {
@@ -75,7 +75,7 @@ bool sym::Map::setup()
     return true;
 }
 
-bool sym::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
+bool symbols::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
 {
     aslr                  = 0;
     const auto addrSymbol = symbol(strSymbol);
@@ -89,12 +89,12 @@ bool sym::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
     return true;
 }
 
-opt<uint64_t> sym::Map::get_aslr()
+opt<uint64_t> symbols::Map::get_aslr()
 {
     return aslr;
 }
 
-std::unique_ptr<sym::Map> sym::make_map(span_t, const std::string& module, const std::string& guid)
+std::unique_ptr<symbols::Map> symbols::make_map(span_t, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
@@ -107,7 +107,7 @@ std::unique_ptr<sym::Map> sym::make_map(span_t, const std::string& module, const
     return ptr;
 }
 
-span_t sym::Map::span()
+span_t symbols::Map::span()
 {
     return {};
 }
@@ -126,12 +126,12 @@ namespace
     }
 }
 
-opt<uint64_t> sym::Map::symbol(const std::string& symbol)
+opt<uint64_t> symbols::Map::symbol(const std::string& symbol)
 {
     if(!check_setup())
         return {};
 
-    ModCursor target;
+    Offset target;
     target.symbol = symbol;
 
     const auto itrCursor = std::equal_range(cursors_by_name.begin(), cursors_by_name.end(), target, ModCursor_order_name);
@@ -145,7 +145,7 @@ opt<uint64_t> sym::Map::symbol(const std::string& symbol)
     return itrCursor.first->offset + *aslr;
 }
 
-bool sym::Map::sym_list(sym::on_sym_fn on_sym)
+bool symbols::Map::sym_list(symbols::on_symbol_fn on_sym)
 {
     if(!check_setup())
         return false;
@@ -157,29 +157,29 @@ bool sym::Map::sym_list(sym::on_sym_fn on_sym)
     return true;
 }
 
-opt<uint64_t> sym::Map::struc_offset(const std::string&, const std::string&)
+opt<uint64_t> symbols::Map::struc_offset(const std::string&, const std::string&)
 {
     return {};
 }
 
-opt<size_t> sym::Map::struc_size(const std::string&)
+opt<size_t> symbols::Map::struc_size(const std::string&)
 {
     return {};
 }
 
-opt<sym::ModCursor> sym::Map::symbol(uint64_t addr)
+opt<symbols::Offset> symbols::Map::symbol(uint64_t addr)
 {
     if(!check_setup())
         return {};
 
-    ModCursor target;
+    Offset target;
     target.offset            = addr - *aslr;
     const auto first_address = cursors_by_address.begin()->offset, last_address = (cursors_by_address.end() - 1)->offset;
 
     if(target.offset < first_address || target.offset > last_address)
         return {};
 
-    ModCursor cursor;
+    Offset cursor;
     if(target.offset != last_address)
     {
         const auto itrCursor = std::upper_bound(cursors_by_address.begin(), cursors_by_address.end(), target, ModCursor_order_address);

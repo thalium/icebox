@@ -7,7 +7,6 @@
 #include <functional>
 
 namespace core { struct Core; }
-namespace sym { struct Symbols; }
 
 namespace nt
 {
@@ -20,7 +19,7 @@ namespace nt
 
     struct heaps
     {
-         heaps(core::Core& core, sym::Symbols& syms, std::string_view module);
+         heaps(core::Core& core, std::string_view module);
         ~heaps();
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
