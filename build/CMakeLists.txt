@@ -133,7 +133,7 @@ target_include_directories(mbedtls PUBLIC
 set(icebox_dir "${root_dir}/src/icebox/icebox")
 set(tracer_dir "${icebox_dir}/tracer")
 function(add_tracer namespace input_file)
-    find_package(PythonInterp 3.6 QUIET REQUIRED)
+    find_package(PythonInterp QUIET REQUIRED)
     get_filename_component(directory ${input_file} DIRECTORY)
     get_filename_component(filename ${input_file} NAME_WE)
     add_custom_command(
