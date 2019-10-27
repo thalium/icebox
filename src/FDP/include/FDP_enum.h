@@ -24,6 +24,8 @@
 #ifndef _FDP_ENUM_H_
 #define _FDP_ENUM_H_
 
+#include <stdint.h>
+
 enum FDP_BreakpointType_
 {
     FDP_INVHBP = 0x0,
