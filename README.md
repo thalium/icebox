@@ -1,4 +1,4 @@
-# IceBox [![Build Status](https://travis-ci.com/thalium/icebox.svg?branch=master)](https://travis-ci.com/thalium/icebox.svg?branch=master)
+# IceBox [![Build Status](https://travis-ci.com/thalium/icebox.svg?branch=master)](https://travis-ci.com/thalium)
 
 Icebox is a Virtual Machine Introspection solution that enable you to stealthily trace and debug any process (kernel or user).
 It's based on project [Winbagility](https://github.com/Winbagility/Winbagility).
