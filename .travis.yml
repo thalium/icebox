@@ -1,0 +1,25 @@
+language: cpp
+dist: bionic
+
+matrix:
+    include:
+        - compiler: gcc
+          script:
+            - cd build
+            - ./configure.sh
+            - cd ../out/x64
+            - make
+        - compiler: clang
+          script:
+            - cd build
+            - ./configure.sh
+            - cd ../out/x64
+            - make
+        - compiler: clang
+          env:
+            - USE_STATIC_ANALYZER=1
+          script:
+            - cd build
+            - ./configure.sh
+            - cd ../out/x64
+            - make
