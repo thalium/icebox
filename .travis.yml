@@ -1,25 +1,31 @@
 language: cpp
-dist: bionic
+
+linux-build: &linux-build
+  dist: bionic
+  script:
+    - cd build
+    - ./configure.sh
+    - cd ../out/x64
+    - make
 
 matrix:
     include:
-        - compiler: gcc
+        - name: gcc linux
+          compiler: gcc
+          <<: *linux-build
+        - name: clang linux
+          compiler: clang
+          <<: *linux-build
+        - name: clang linux with static analysis
+          compiler: clang
+          env: USE_STATIC_ANALYZER=1
+          <<: *linux-build
+        - name: visual studio 2017 windows
+          os: windows
+          before_install:
+            - choco install python
           script:
             - cd build
-            - ./configure.sh
+            - ./configure_2017.cmd
             - cd ../out/x64
-            - make
-        - compiler: clang
-          script:
-            - cd build
-            - ./configure.sh
-            - cd ../out/x64
-            - make
-        - compiler: clang
-          env:
-            - USE_STATIC_ANALYZER=1
-          script:
-            - cd build
-            - ./configure.sh
-            - cd ../out/x64
-            - make
+            - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
