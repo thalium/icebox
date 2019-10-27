@@ -121,7 +121,7 @@ namespace
         {
             if(ok == DW_DLV_ERROR)
                 return FAIL(false, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-            if(on_child(child) == WALK_STOP)
+            if(on_child(child) == walk_e::stop)
                 break;
 
             ok = dwarf_siblingof_b(p.dbg, child, true, &child, &p.err);
@@ -150,7 +150,7 @@ namespace
                     LOG(ERROR, "libdwarf error %llu when reading type offset of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    return WALK_NEXT;
+                    return walk_e::next;
 
                 Dwarf_Die anonymous_struct = nullptr;
                 ok                         = dwarf_offdie_b(p.dbg, type_offset, true, &anonymous_struct, &p.err);
@@ -159,26 +159,26 @@ namespace
                     LOG(ERROR, "libdwarf error %llu when getting DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
 
                 if(ok != DW_DLV_OK)
-                    return FAIL(WALK_NEXT, "unable to get DIE at offset 0x%llu", type_offset);
+                    return FAIL(walk_e::next, "unable to get DIE at offset 0x%llu", type_offset);
 
                 const auto child = get_member(p, name, anonymous_struct);
                 if(child)
                 {
                     result_member = *child;
-                    return WALK_STOP;
+                    return walk_e::stop;
                 }
             }
 
             if(ok_diename != DW_DLV_OK)
-                return WALK_NEXT;
+                return walk_e::next;
 
             const std::string structure_name(name_ptr);
             if(structure_name == name)
             {
                 result_member = member;
-                return WALK_STOP;
+                return walk_e::stop;
             }
-            return WALK_NEXT;
+            return walk_e::next;
         });
         return result_member;
     }
@@ -211,7 +211,7 @@ namespace
 
                 if(ok != DW_DLV_OK)
                 {
-                    if(on_structure(structure) == WALK_STOP)
+                    if(on_structure(structure) == walk_e::stop)
                         return true;
                     continue;
                 }
@@ -225,7 +225,7 @@ namespace
                 if(ok != DW_DLV_OK)
                     return FAIL(false, "unable to get DIE at offset 0x%llu, and so unable to find structure '%s'", type_offset, name.data());
 
-                if(on_structure(typedef_struct) == WALK_STOP)
+                if(on_structure(typedef_struct) == walk_e::stop)
                     return true;
             }
         }
@@ -346,7 +346,7 @@ bool Dwarf::setup()
         read_children(*this, die, [&](const Dwarf_Die& child)
         {
             structures.push_back(child);
-            return WALK_NEXT;
+            return walk_e::next;
         });
     }
 
@@ -378,9 +378,9 @@ opt<uint64_t> Dwarf::struc_offset(const std::string& struc, const std::string& m
     {
         child = get_member(*this, member, structure);
         if(!child)
-            return WALK_NEXT;
+            return walk_e::next;
 
-        return WALK_STOP;
+        return walk_e::stop;
     });
     if(!child)
         return {};
@@ -399,9 +399,9 @@ opt<size_t> Dwarf::struc_size(const std::string& struc)
     {
         size = struc_size_internal(*this, structure);
         if(!size)
-            return WALK_NEXT;
+            return walk_e::next;
 
-        return WALK_STOP;
+        return walk_e::stop;
     });
 
     if(!size)

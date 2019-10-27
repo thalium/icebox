@@ -258,7 +258,7 @@ namespace
 
 bool OsNt::setup()
 {
-    const auto lstar  = registers::read_msr(core_, MSR_LSTAR);
+    const auto lstar  = registers::read_msr(core_, msr_e::lstar);
     const auto kernel = find_kernel(core_, lstar);
     if(!kernel)
         return FAIL(false, "unable to find kernel");
@@ -307,9 +307,9 @@ bool OsNt::setup()
     if(fail)
         return false;
 
-    kpcr_ = registers::read_msr(core_, MSR_GS_BASE);
+    kpcr_ = registers::read_msr(core_, msr_e::gs_base);
     if(!is_kernel(kpcr_))
-        kpcr_ = registers::read_msr(core_, MSR_KERNEL_GS_BASE);
+        kpcr_ = registers::read_msr(core_, msr_e::kernel_gs_base);
     if(!is_kernel(kpcr_))
         return FAIL(false, "unable to read KPCR");
 
@@ -361,7 +361,7 @@ bool OsNt::proc_list(process::on_proc_fn on_process)
             continue;
 
         const auto err = on_process(*proc);
-        if(err == WALK_STOP)
+        if(err == walk_e::stop)
             break;
     }
     return true;
@@ -383,14 +383,14 @@ opt<proc_t> OsNt::proc_find(std::string_view name, flags_e flags)
     {
         const auto got = proc_name(proc);
         if(*got != name)
-            return WALK_NEXT;
+            return walk_e::next;
 
         const auto f = proc_flags(proc);
         if(flags && !(f & flags))
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = proc;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }
@@ -402,10 +402,10 @@ opt<proc_t> OsNt::proc_find(uint64_t pid)
     {
         const auto got = proc_id(proc);
         if(got != pid)
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = proc;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }
@@ -719,7 +719,7 @@ namespace
 
         // no PEB on system process
         if(!*peb)
-            return WALK_NEXT;
+            return walk_e::next;
 
         const auto ldr = reader.read(*peb + os.offsets_[PEB_Ldr]);
         if(!ldr)
@@ -727,17 +727,17 @@ namespace
 
         // Ldr = 0 before the process loads it's first module
         if(!*ldr)
-            return WALK_NEXT;
+            return walk_e::next;
 
         const auto head = *ldr + offsetof(nt::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
         {
             const auto ret = on_mod({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_NONE});
-            if(ret == WALK_STOP)
+            if(ret == walk_e::stop)
                 return ret;
         }
 
-        return WALK_NEXT;
+        return walk_e::next;
     }
 
     static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
@@ -748,7 +748,7 @@ namespace
 
         // no PEB on system process
         if(!*peb32)
-            return WALK_NEXT;
+            return walk_e::next;
 
         const auto ldr32 = reader.le32(*peb32 + os.offsets_[PEB32_Ldr]);
         if(!ldr32)
@@ -756,17 +756,17 @@ namespace
 
         // Ldr = 0 before the process loads it's first module
         if(!*ldr32)
-            return WALK_NEXT;
+            return walk_e::next;
 
         const auto head = *ldr32 + offsetof32(wow64::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
         {
             const auto ret = on_mod({*link - offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_32BIT});
-            if(ret == WALK_STOP)
+            if(ret == walk_e::stop)
                 return ret;
         }
 
-        return WALK_NEXT;
+        return walk_e::next;
     }
 }
 
@@ -776,7 +776,7 @@ bool OsNt::mod_list(proc_t proc, modules::on_mod_fn on_mod)
     auto ret          = mod_list_64(*this, proc, reader, on_mod);
     if(!ret)
         return false;
-    if(*ret == WALK_STOP)
+    if(*ret == walk_e::stop)
         return true;
 
     ret = mod_list_32(*this, proc, reader, on_mod);
@@ -799,13 +799,13 @@ opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
     {
         const auto span = mod_span(proc, mod);
         if(!span)
-            return WALK_NEXT;
+            return walk_e::next;
 
         if(!(span->addr <= addr && addr < span->addr + span->size))
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = mod;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }
@@ -898,7 +898,7 @@ bool OsNt::driver_list(drivers::on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
-        if(on_driver({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
+        if(on_driver({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == walk_e::stop)
             break;
     return true;
 }
@@ -910,13 +910,13 @@ opt<driver_t> OsNt::driver_find(uint64_t addr)
     {
         const auto span = driver_span(drv);
         if(!span)
-            return WALK_NEXT;
+            return walk_e::next;
 
         if(!(span->addr <= addr && addr < span->addr + span->size))
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = drv;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }
@@ -943,7 +943,7 @@ bool OsNt::thread_list(proc_t proc, threads::on_thread_fn on_thread)
 {
     const auto head = proc.id + offsets_[EPROCESS_ThreadListHead];
     for(auto link = reader_.read(head); link && link != head; link = reader_.read(*link))
-        if(on_thread({*link - offsets_[ETHREAD_ThreadListEntry]}) == WALK_STOP)
+        if(on_thread({*link - offsets_[ETHREAD_ThreadListEntry]}) == walk_e::stop)
             break;
 
     return true;
@@ -1007,7 +1007,7 @@ namespace
     static void proc_join_user(OsNt& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
-        const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, MSR_LSTAR);
+        const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
         state::run_to_proc(os.core_, "KiKernelSysretExit", proc, where);
         const auto rip = registers::read(os.core_, reg_e::rcx);
         state::run_to_proc(os.core_, "return KiKernelSysretExit", proc, rip);

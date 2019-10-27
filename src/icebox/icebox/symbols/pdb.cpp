@@ -139,7 +139,7 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
 bool Pdb::sym_list(symbols::on_symbol_fn on_sym)
 {
     for(const auto& symbol : symbols_)
-        if(on_sym(symbol.first, get_offset(*this, symbol.second)) == WALK_STOP)
+        if(on_sym(symbol.first, get_offset(*this, symbol.second)) == walk_e::stop)
             break;
 
     return true;

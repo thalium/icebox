@@ -184,7 +184,7 @@ namespace
         // fast observer lookup while allowing current iterator deletion
         const auto end = observers.end();
         for(auto it = observers.lower_bound(phy); it != end && it->first == phy; /**/)
-            if(operand(it++) == walk_e::WALK_STOP)
+            if(operand(it++) == walk_e::stop)
                 break;
     }
 }
@@ -209,9 +209,9 @@ struct state::BreakpointPrivate
             else
                 unique_observer = false;
             if(target && !unique_observer)
-                return WALK_STOP;
+                return walk_e::stop;
 
-            return WALK_NEXT;
+            return walk_e::next;
         });
         if(!target)
             return;
@@ -248,15 +248,15 @@ namespace
         {
             const auto& bp = *it->second;
             if(bp.proc && bp.proc != d.breakstate.proc)
-                return WALK_NEXT;
+                return walk_e::next;
 
             if(bp.thread && bp.thread != d.breakstate.thread)
-                return WALK_NEXT;
+                return walk_e::next;
 
             if(bp.task)
                 observers.push_back(it->second);
 
-            return WALK_NEXT;
+            return walk_e::next;
         });
         for(const auto& it : observers)
             it->task();
@@ -349,7 +349,7 @@ namespace
         lookup_observers(d.observers, phy, [&](auto it)
         {
             it->second->bpid = bpid;
-            return WALK_NEXT;
+            return walk_e::next;
         });
         return std::make_shared<state::BreakpointPrivate>(core, bp);
     }
@@ -490,13 +490,13 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     {
         uint64_t new_cr3 = registers::read(core, reg_e::cr3);
 
-        if(!ptrs.count(d.breakstate.rip) & (bp_cr3 == BP_CR3_NONE || cr3 == new_cr3))
-            return false; // WALK_NEXT
+        if(!ptrs.count(d.breakstate.rip) && (bp_cr3 == BP_CR3_NONE || cr3 == new_cr3))
+            return false;
 
         if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3 != new_cr3)
             cr3 = new_cr3;
 
-        return (on_bp(d.breakstate.proc, d.breakstate.thread) == WALK_STOP); // WALK_STOP
+        return on_bp(d.breakstate.proc, d.breakstate.thread) == walk_e::stop;
     });
 
     if(bp_cr3 == BP_CR3_ON_WRITINGS)

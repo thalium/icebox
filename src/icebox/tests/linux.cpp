@@ -49,7 +49,7 @@ namespace
             if(name && *name == UTILITY_NAME)
                 utilities.push_back(proc);
 
-            return WALK_NEXT;
+            return walk_e::next;
         });
 
         if(utilities.empty())
@@ -92,7 +92,7 @@ TEST_F(LinuxTest, processes)
     {
         EXPECT_NE(proc.id, 0u);
         if(!proc.id)
-            return WALK_NEXT;
+            return walk_e::next;
 
         proc_list_empty = false;
 
@@ -125,7 +125,7 @@ TEST_F(LinuxTest, processes)
         }
         EXPECT_EQ(children_pid, 0u);
 
-        return WALK_NEXT;
+        return walk_e::next;
     });
     ASSERT_FALSE(proc_list_empty);
 
@@ -187,7 +187,7 @@ TEST_F(LinuxTest, threads)
     {
         EXPECT_NE(thread.id, 0u);
         if(!thread.id)
-            return WALK_NEXT;
+            return walk_e::next;
 
         thread_list_counter++;
 
@@ -207,7 +207,7 @@ TEST_F(LinuxTest, threads)
                 EXPECT_TRUE(os::is_kernel_address(core, *pc));
             }
 
-        return WALK_NEXT;
+        return walk_e::next;
     });
     ASSERT_EQ(thread_list_counter, 2);
 }
@@ -220,7 +220,7 @@ TEST_F(LinuxTest, drivers)
     {
         EXPECT_NE(driver.id, 0ull);
         if(!driver.id)
-            return WALK_NEXT;
+            return walk_e::next;
 
         driver_list_counter++;
 
@@ -240,7 +240,7 @@ TEST_F(LinuxTest, drivers)
             EXPECT_NE(span->size, 0ull);
         }
 
-        return WALK_NEXT;
+        return walk_e::next;
     });
     EXPECT_NE(driver_list_counter, 0);
 }
@@ -254,7 +254,7 @@ namespace
         {
             EXPECT_NE(vm_area.id, 0ull);
             if(!vm_area.id)
-                return WALK_NEXT;
+                return walk_e::next;
 
             const auto span = vm_area::span(core, proc, vm_area);
             EXPECT_TRUE(span);
@@ -287,12 +287,12 @@ namespace
                 }
             }
 
-            if(type == vma_type_e::main_binary && name)
+            if(type == vma_type_e::binary && name)
             {
                 EXPECT_EQ(*name, proc_name);
             }
 
-            return WALK_NEXT;
+            return walk_e::next;
         });
         EXPECT_EQ(vma_heap_or_stack, 2);
 
@@ -303,7 +303,7 @@ namespace
         {
             EXPECT_NE(mod.id, 0ull);
             if(!mod.id)
-                return WALK_NEXT;
+                return walk_e::next;
 
             mod_list_counter++;
 
@@ -328,7 +328,7 @@ namespace
                 }
             }
 
-            return WALK_NEXT;
+            return walk_e::next;
         });
         ASSERT_EQ(mod_list_counter, nb_mod);
 

@@ -56,7 +56,7 @@ TEST_F(Win10Test, drivers)
         const auto span = drivers::span(core, drv);
         EXPECT_TRUE(!!span);
         drivers.emplace(*name, Driver{drv.id, span->addr, span->size});
-        return WALK_NEXT;
+        return walk_e::next;
     });
     EXPECT_NE(drivers.size(), 0u);
     const auto it = drivers.find(R"(\SystemRoot\system32\ntoskrnl.exe)");
@@ -88,7 +88,7 @@ TEST_F(Win10Test, processes)
         EXPECT_NE(pid, 0u);
         const auto flags = process::flags(core, proc);
         processes.emplace(*name, Process{proc.id, proc.dtb.val, pid, flags});
-        return WALK_NEXT;
+        return walk_e::next;
     });
     EXPECT_NE(processes.size(), 0u);
     const auto it = processes.find("explorer.exe");
@@ -147,7 +147,7 @@ TEST_F(Win10Test, threads)
         const auto tid = threads::tid(core, *proc, thread);
         EXPECT_NE(tid, 0u);
         threads.emplace(tid);
-        return WALK_NEXT;
+        return walk_e::next;
     });
     EXPECT_NE(threads.size(), 0u);
 
@@ -174,12 +174,12 @@ TEST_F(Win10Test, modules)
     {
         const auto name = modules::name(core, *proc, mod);
         if(!name)
-            return WALK_NEXT; // FIXME
+            return walk_e::next; // FIXME
 
         const auto span = modules::span(core, *proc, mod);
         EXPECT_TRUE(!!span);
         modules.emplace(*name, Module{mod.id, span->addr, span->size, mod.flags});
-        return WALK_NEXT;
+        return walk_e::next;
     });
     EXPECT_NE(modules.size(), 0u);
 
@@ -317,7 +317,7 @@ TEST_F(Win10Test, memory)
 
         const auto phy = memory::virtual_to_physical(core, span->addr, proc->dtb);
         EXPECT_TRUE(!!phy);
-        return WALK_NEXT;
+        return walk_e::next;
     });
 }
 

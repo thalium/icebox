@@ -48,16 +48,16 @@ namespace
         {
             const auto name = modules::name(core, proc, mod);
             if(!name)
-                return WALK_NEXT;
+                return walk_e::next;
 
             if(flags && !(mod.flags & flags))
-                return WALK_NEXT;
+                return walk_e::next;
 
             if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
-                return WALK_NEXT;
+                return walk_e::next;
 
             found = mod;
-            return WALK_STOP;
+            return walk_e::stop;
         });
 
         return found;

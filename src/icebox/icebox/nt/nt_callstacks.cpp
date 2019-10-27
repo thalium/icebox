@@ -307,22 +307,22 @@ namespace
         {
             const auto name = modules::name(core, proc, mod);
             if(!name)
-                return WALK_NEXT;
+                return walk_e::next;
 
             const auto filename = path::filename(*name);
             if(filename != "ntdll.dll")
-                return WALK_NEXT;
+                return walk_e::next;
 
             const auto is_wow64 = !!(mod.flags & FLAGS_32BIT);
             if(is_32bit ^ is_wow64)
-                return WALK_NEXT;
+                return walk_e::next;
 
             const auto span = modules::span(core, proc, mod);
             if(!span)
-                return WALK_NEXT;
+                return walk_e::next;
 
             inserted = symbols::load_module_at(core, proc, want_name, *span);
-            return inserted ? WALK_STOP : WALK_NEXT;
+            return inserted ? walk_e::stop : walk_e::next;
         });
         return inserted;
     }
@@ -371,7 +371,7 @@ namespace
         if(!read_offsets(c, proc, is_32bit))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
-        const auto teb    = registers::read_msr(c.core_, is_32bit ? MSR_FS_BASE : MSR_GS_BASE);
+        const auto teb    = registers::read_msr(c.core_, is_32bit ? msr_e::fs_base : msr_e::gs_base);
         const auto nt_tib = teb + offset(c, is_32bit, TEB_NtTib);
         const auto base   = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackBase));
         const auto limit  = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackLimit));

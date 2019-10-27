@@ -184,10 +184,18 @@ opt<uint64_t> fdp::read_register(core::Core& core, reg_e reg)
     return value;
 }
 
+namespace
+{
+    static uint64_t cast(msr_e reg)
+    {
+        return static_cast<uint64_t>(reg);
+    }
+}
+
 opt<uint64_t> fdp::read_msr_register(core::Core& core, msr_e msr)
 {
     uint64_t value = 0;
-    const auto ok  = FDP_ReadMsr(cast(core.shm_), 0, msr, &value);
+    const auto ok  = FDP_ReadMsr(cast(core.shm_), 0, cast(msr), &value);
     if(!ok)
         return {};
 
@@ -201,5 +209,5 @@ bool fdp::write_register(core::Core& core, reg_e reg, uint64_t value)
 
 bool fdp::write_msr_register(core::Core& core, msr_e msr, uint64_t value)
 {
-    return FDP_WriteMsr(cast(core.shm_), 0, msr, value);
+    return FDP_WriteMsr(cast(core.shm_), 0, cast(msr), value);
 }

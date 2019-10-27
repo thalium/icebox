@@ -144,7 +144,7 @@ bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module)
 {
     for(const auto& m : d_->mods)
         if(m.first.proc.id == proc.id)
-            if(on_module(*m.second) == WALK_STOP)
+            if(on_module(*m.second) == walk_e::stop)
                 break;
     return true;
 }
@@ -317,7 +317,7 @@ bool symbols::load_modules(core::Core& core, proc_t proc)
     modules::list(core, proc, [&](mod_t mod)
     {
         load_module(core, proc, mod);
-        return WALK_NEXT;
+        return walk_e::next;
     });
     return true;
 }
@@ -342,7 +342,7 @@ opt<symbols::bpid_t> symbols::listen_and_load(core::Core& core, proc_t proc, con
     modules::list(core, proc, [&](mod_t mod)
     {
         load_module_if(core, proc, mod, predicate);
-        return WALK_NEXT;
+        return walk_e::next;
     });
     const auto ptr  = &core;
     const auto bpid = modules::listen_create(core, [=](proc_t mod_proc, mod_t mod)
@@ -387,7 +387,7 @@ bool symbols::load_drivers(core::Core& core)
     drivers::list(core, [&](driver_t driver)
     {
         load_driver(core, driver);
-        return WALK_NEXT;
+        return walk_e::next;
     });
     return true;
 }

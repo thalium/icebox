@@ -325,10 +325,10 @@ namespace
 {
     static bool set_per_cpu(OsLinux& p)
     {
-        auto per_cpu = registers::read_msr(p.core_, MSR_GS_BASE);
+        auto per_cpu = registers::read_msr(p.core_, msr_e::gs_base);
         if(!p.is_kernel_address(per_cpu))
         {
-            per_cpu = registers::read_msr(p.core_, MSR_KERNEL_GS_BASE);
+            per_cpu = registers::read_msr(p.core_, msr_e::kernel_gs_base);
             if(!p.is_kernel_address(per_cpu))
                 return FAIL(false, "unable to find per_cpu address");
         }
@@ -386,7 +386,7 @@ namespace
 
                 const auto match = std::search(buffer_begin, buffer_afterend, pattern);
                 if(match != buffer_afterend)
-                    if(on_candidate((offset + (match - buffer_begin)) - sizeof target) == WALK_STOP)
+                    if(on_candidate((offset + (match - buffer_begin)) - sizeof target) == walk_e::stop)
                         return true;
                 std::memcpy(buffer_begin, &buffer[buffer.size() - sizeof target], sizeof target);
             }
@@ -419,10 +419,10 @@ namespace
         p.proc_list([&](proc_t proc)
         {
             if(p.proc_id(proc) != 0)
-                return WALK_NEXT;
+                return walk_e::next;
 
             init_task = proc;
-            return WALK_STOP;
+            return walk_e::stop;
         });
         if(!init_task)
             return false;
@@ -546,7 +546,7 @@ bool OsLinux::setup()
 
         const auto linux_banner = get_linux_banner(reader_, candidate);
         if(!linux_banner)
-            return WALK_NEXT;
+            return walk_e::next;
         LOG(INFO, "linux banner found '%s'", linux_banner->data());
 
         const auto hash = guid(*linux_banner);
@@ -554,26 +554,26 @@ bool OsLinux::setup()
 
         const auto kaslr = make_symbols(core_, hash, "linux_banner", candidate);
         if(!kaslr)
-            return WALK_NEXT;
+            return walk_e::next;
         LOG(INFO, "debug profile found");
 
         if(!load_offsets(core_, offsets_) | !load_symbols(core_, symbols_))
-            return WALK_NEXT;
+            return walk_e::next;
 
         if(!check_setup(*this))
-            return WALK_NEXT;
+            return walk_e::next;
 
         if(!std::regex_search(*linux_banner, match, pattern))
-            return FAIL(WALK_NEXT, "unable to parse kernel version in this linux banner");
+            return FAIL(walk_e::next, "unable to parse kernel version in this linux banner");
         kversion = match[1].str();
 
         const auto opt_pt_regs_size = symbols::struc_size(core_, symbols::kernel, "kernel_struct", "pt_regs");
         if(!opt_pt_regs_size)
-            return FAIL(WALK_NEXT, "unable to read the size of pt_regs structure");
+            return FAIL(walk_e::next, "unable to read the size of pt_regs structure");
         pt_regs_size = *opt_pt_regs_size;
 
         LOG(INFO, "kernel %s loaded with kaslr 0x%" PRIx64, kversion.get().data(), *kaslr);
-        return WALK_STOP;
+        return walk_e::stop;
     });
 
     if(!ok)
@@ -600,7 +600,7 @@ bool OsLinux::proc_list(process::on_proc_fn on_process)
         const auto thread = thread_t{*link - *offsets_[TASKSTRUCT_TASKS]};
         const auto proc   = thread_proc(thread);
         if(proc)
-            if(on_process(*proc) == WALK_STOP)
+            if(on_process(*proc) == walk_e::stop)
                 return true;
 
         link = reader_.read(*link);
@@ -627,10 +627,10 @@ opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e)
     {
         const auto got = proc_name(proc);
         if(*got != name)
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = proc;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }
@@ -642,13 +642,13 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
     {
         const auto got = proc_id(proc);
         if(got > 4194304) // PID <= 4194304 for linux
-            return FAIL(WALK_NEXT, "unable to find the pid of proc 0x%" PRIx64, proc.id);
+            return FAIL(walk_e::next, "unable to find the pid of proc 0x%" PRIx64, proc.id);
 
         if(got != pid)
-            return WALK_NEXT;
+            return walk_e::next;
 
         ret = proc;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return ret;
 }
@@ -757,11 +757,11 @@ namespace
             if(!ptr)
             {
                 ptrs.clear();
-                return FAIL(WALK_STOP, "unable to find the return address of thread 0x%" PRIx64, thread.id);
+                return FAIL(walk_e::stop, "unable to find the return address of thread 0x%" PRIx64, thread.id);
             }
 
             ptrs.insert(*ptr);
-            return WALK_NEXT;
+            return walk_e::next;
         });
 
         if(ptrs.empty())
@@ -770,7 +770,7 @@ namespace
         {
             state::run_to(p.core_, std::string_view("proc_join_any"), ptrs, state::BP_CR3_NONE, [&](proc_t bp_proc, thread_t)
             {
-                return (bp_proc.id == proc.id) ? WALK_STOP : WALK_NEXT;
+                return bp_proc.id == proc.id ? walk_e::stop : walk_e::next;
             });
         }
     }
@@ -779,7 +779,7 @@ namespace
     {
         state::run_to(p.core_, std::string_view("next_cr3"), std::unordered_set<uint64_t>(), state::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t)
         {
-            return WALK_STOP;
+            return walk_e::stop;
         });
     }
 }
@@ -832,19 +832,19 @@ void OsLinux::proc_join(proc_t proc, process::join_e join)
         state::run_to(core_, "proc_join_user", std::unordered_set<uint64_t>{*user_rip}, state::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t bp_thread)
         {
             if((cpu_ring(*this) == 3) | (bp_thread.id != current_thread->id))
-                return WALK_STOP;
+                return walk_e::stop;
 
             // we are still in the targetted process and in kernel mode
             const auto updated_pt_regs_ptr = pt_regs(*this, *current_thread);
             if(!updated_pt_regs_ptr)
-                return WALK_STOP;
+                return walk_e::stop;
 
             const auto updated_user_rip = reader_.read(*updated_pt_regs_ptr + *offsets_[PTREGS_IP]);
             if(!updated_user_rip || *user_rip != *updated_user_rip)
-                return WALK_STOP;
+                return walk_e::stop;
 
             // nothing changed
-            return WALK_NEXT;
+            return walk_e::next;
         });
     }
 }
@@ -888,7 +888,7 @@ bool OsLinux::thread_list(proc_t proc, threads::on_thread_fn on_thread)
     opt<uint64_t> link = head;
     do
     {
-        if(on_thread(thread_t{*link - *offsets_[TASKSTRUCT_THREADGROUP]}) == WALK_STOP)
+        if(on_thread(thread_t{*link - *offsets_[TASKSTRUCT_THREADGROUP]}) == walk_e::stop)
             return true;
 
         link = reader_.read(*link);
@@ -982,7 +982,7 @@ namespace
     {
         opt<uint64_t> vm_area;
         for(vm_area = from.id; vm_area && *vm_area; vm_area = p.reader_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))
-            if(on_vm_area(vm_area_t{*vm_area}) == WALK_STOP)
+            if(on_vm_area(vm_area_t{*vm_area}) == walk_e::stop)
                 return true;
 
         if(!vm_area)
@@ -1034,35 +1034,35 @@ bool OsLinux::mod_list(proc_t proc, modules::on_mod_fn on_module)
         if(!file)
         {
             loader_found_or_stopped_before = true;
-            return FAIL(WALK_STOP, "unable to read mmap->vm_file of process 0x%" PRIx64, proc.id);
+            return FAIL(walk_e::stop, "unable to read mmap->vm_file of process 0x%" PRIx64, proc.id);
         }
 
         if(!*file || *file == last_file) // anonymous module OR same mod as last one
-            return WALK_NEXT;
+            return walk_e::next;
 
         const auto mod = mod_t{vm_area.id, flag};
-        if(on_module(mod) == WALK_STOP)
+        if(on_module(mod) == walk_e::stop)
         {
             loader_found_or_stopped_before = true;
-            return WALK_STOP;
+            return walk_e::stop;
         }
 
         const auto name = mod_name(proc, mod);
         if(!name)
         {
             loader_found_or_stopped_before = true;
-            return FAIL(WALK_STOP, "unable to read the name of module 0x%" PRIx64, mod.id);
+            return FAIL(walk_e::stop, "unable to read the name of module 0x%" PRIx64, mod.id);
         }
         if(name->substr(0, 3) == "ld-") // loader module
         {
             // we stop the list here because vm_areas after the .text section
             // of ld are dynamically allocated and because ld is the last module
             loader_found_or_stopped_before = true;
-            return WALK_STOP;
+            return walk_e::stop;
         }
 
         last_file = *file;
-        return WALK_NEXT;
+        return walk_e::next;
     });
 
     if(!loader_found_or_stopped_before)
@@ -1109,36 +1109,36 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
         if(!end || !*end)
         {
             mod_end = {};
-            return FAIL(WALK_STOP, "unable to read vm_end of vm_area 0x%" PRIx64, vm_area.id);
+            return FAIL(walk_e::stop, "unable to read vm_end of vm_area 0x%" PRIx64, vm_area.id);
         }
 
         if(*end > mmap_base) // vm_area belongs to stack
-            return WALK_STOP;
+            return walk_e::stop;
 
         if(main_elf && *end > *start_brk) // vm_area belongs to heap
-            return WALK_STOP;
+            return walk_e::stop;
 
         const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
         {
             mod_end = {};
-            return FAIL(WALK_STOP, "unable to read vm_file of vm_area 0x%" PRIx64, vm_area.id);
+            return FAIL(walk_e::stop, "unable to read vm_file of vm_area 0x%" PRIx64, vm_area.id);
         }
 
         if(*file && file != file_first_part) // vm_area belongs to next module
-            return WALK_STOP;
+            return walk_e::stop;
 
         mod_end = end;
 
         const auto name = mod_name(proc, mod);
         if(!name)
-            return WALK_STOP;
+            return walk_e::stop;
         if(name->substr(0, 3) == "ld-") // loader module
             // The size returned for the loader module (ld) takes
             // into account only its .text section
-            return WALK_STOP;
+            return walk_e::stop;
 
-        return WALK_NEXT;
+        return walk_e::next;
     });
 
     if(!ok || !mod_end || !*mod_end)
@@ -1159,13 +1159,13 @@ opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
     {
         const auto span = mod_span(proc, mod);
         if(!span)
-            return WALK_NEXT;
+            return walk_e::next;
 
         if(!(span->addr <= addr && addr < span->addr + span->size))
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = mod;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }
@@ -1190,13 +1190,13 @@ opt<vm_area_t> OsLinux::vm_area_find(proc_t proc, uint64_t addr)
     {
         const auto span = vm_area_span(proc, vm_area);
         if(!span)
-            return WALK_NEXT;
+            return walk_e::next;
 
         if(!(span->addr <= addr && addr < span->addr + span->size))
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = vm_area;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }
@@ -1251,7 +1251,7 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
         else if(vma_heap->id == vm_area.id)
             return vma_type_e::heap;
         else if(*vma_start < *start_brk)
-            return vma_type_e::main_binary;
+            return vma_type_e::binary;
     }
     else
         LOG(ERROR, "unable to read address of start_brk in mm 0x%" PRIx64, *mm);
@@ -1265,7 +1265,7 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
         else if(vma_stack->id == vm_area.id)
             return vma_type_e::stack;
         else if(*vma_start > *start_stack)
-            return vma_type_e::specific_os;
+            return vma_type_e::other;
     }
     else
         LOG(ERROR, "unable to read address of start_stack in mm 0x%" PRIx64, *mm);
@@ -1298,7 +1298,7 @@ bool OsLinux::driver_list(drivers::on_driver_fn on_driver)
 
     do
     {
-        if(on_driver(driver_t{*link - *offsets_[MODULE_LIST]}) == WALK_STOP)
+        if(on_driver(driver_t{*link - *offsets_[MODULE_LIST]}) == walk_e::stop)
             return true;
 
         link = reader_.read(*link);
@@ -1316,13 +1316,13 @@ opt<driver_t> OsLinux::driver_find(uint64_t addr)
     {
         const auto span = driver_span(drv);
         if(!span)
-            return WALK_NEXT;
+            return walk_e::next;
 
         if(!(span->addr <= addr && addr < span->addr + span->size))
-            return WALK_NEXT;
+            return walk_e::next;
 
         found = drv;
-        return WALK_STOP;
+        return walk_e::stop;
     });
     return found;
 }

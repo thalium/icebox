@@ -25,18 +25,18 @@ enum class reg_e
     r15,
 };
 
-enum walk_e
+enum class walk_e
 {
-    WALK_STOP,
-    WALK_NEXT,
+    stop,
+    next,
 };
 
-enum msr_e
+enum class msr_e : uint32_t
 {
-    MSR_LSTAR          = 0xC0000082,
-    MSR_FS_BASE        = 0xC0000100,
-    MSR_GS_BASE        = 0xC0000101,
-    MSR_KERNEL_GS_BASE = 0xC0000102,
+    lstar          = 0xC0000082,
+    fs_base        = 0xC0000100,
+    gs_base        = 0xC0000101,
+    kernel_gs_base = 0xC0000102,
 };
 
 enum constants_e
@@ -63,9 +63,9 @@ enum vma_access_e
 enum class vma_type_e
 {
     none,
-    main_binary,
+    binary,
     heap,
     stack,
     module,
-    specific_os,
+    other,
 };

@@ -73,7 +73,7 @@ namespace
             const auto span     = drivers::span(core, drv);
             const auto filename = name ? path::filename(*name).generic_string() : "_";
             LOG(INFO, "    driver: 0x%" PRIx64 " %s 0x%" PRIx64 " 0x%" PRIx64, drv.id, filename.data(), span ? span->addr : 0, span ? span->size : 0);
-            return WALK_NEXT;
+            return walk_e::next;
         });
 
         const auto pc = process::current(core);
@@ -87,7 +87,7 @@ namespace
         {
             const auto procname = process::name(core, proc);
             LOG(INFO, "proc: 0x%" PRIx64 " %s", proc.id, procname ? procname->data() : "<noname>");
-            return WALK_NEXT;
+            return walk_e::next;
         });
 
         const char proc_target[] = "notepad.exe";
@@ -107,7 +107,7 @@ namespace
         modules::list(core, *target, [&](mod_t)
         {
             ++modcount;
-            return WALK_NEXT;
+            return walk_e::next;
         });
         size_t modi = 0;
         modules::list(core, *target, [&](mod_t mod)
@@ -115,7 +115,7 @@ namespace
             const auto name = modules::name(core, *target, mod);
             const auto span = modules::span(core, *target, mod);
             if(!name || !span)
-                return WALK_NEXT;
+                return walk_e::next;
 
             LOG(INFO, "module[%2zd/%-2zd] %s: 0x%" PRIx64 " 0x%" PRIx64 "%s", modi, modcount, name->data(), span->addr, span->size,
                 mod.flags & FLAGS_32BIT ? " wow64" : "");
@@ -123,20 +123,20 @@ namespace
 
             const auto inserted = symbols::load_module(core, *target, mod);
             if(!inserted)
-                return WALK_NEXT;
+                return walk_e::next;
 
-            return WALK_NEXT;
+            return walk_e::next;
         });
 
         threads::list(core, *target, [&](thread_t thread)
         {
             const auto rip = threads::program_counter(core, *target, thread);
             if(!rip)
-                return WALK_NEXT;
+                return walk_e::next;
 
             const auto name = symbols::find(core, *target, *rip);
             LOG(INFO, "thread: 0x%" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, symbols::to_string(name).data());
-            return WALK_NEXT;
+            return walk_e::next;
         });
 
         // check breakpoints

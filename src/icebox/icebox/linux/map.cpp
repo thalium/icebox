@@ -151,7 +151,7 @@ bool symbols::Map::sym_list(symbols::on_symbol_fn on_sym)
         return false;
 
     for(const auto& cursor : cursors_by_address)
-        if(on_sym(cursor.symbol, cursor.offset + *aslr) == WALK_STOP)
+        if(on_sym(cursor.symbol, cursor.offset + *aslr) == walk_e::stop)
             return true;
 
     return true;
