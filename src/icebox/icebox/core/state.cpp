@@ -338,7 +338,7 @@ namespace
         return bpid;
     }
 
-    static state::Breakpoint set_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
+    static state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
         auto& d       = *core.state_;
         const auto bp = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
@@ -363,45 +363,40 @@ namespace
         return process::resolve(core, *current, ptr);
     }
 
-    static state::Breakpoint set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
+    static state::Breakpoint set_virtual_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
         const auto target = proc ? process::select(core, *proc, ptr) : ext::nullopt;
         const auto phy    = to_phy(core, ptr, target);
         if(!phy)
             return nullptr;
 
-        return set_breakpoint(core, name, *phy, target, thread, task);
+        return set_physical_breakpoint(core, name, *phy, target, thread, task);
     }
 }
 
-state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const state::Task& task)
+state::Breakpoint state::break_on(core::Core& core, std::string_view name, uint64_t ptr, const state::Task& task)
 {
-    return ::set_breakpoint(core, name, ptr, {}, {}, task);
+    return set_virtual_breakpoint(core, name, ptr, {}, {}, task);
 }
 
-state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, proc_t proc, const state::Task& task)
+state::Breakpoint state::break_on_process(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr, const state::Task& task)
 {
-    return ::set_breakpoint(core, name, ptr, proc, {}, task);
+    return set_virtual_breakpoint(core, name, ptr, proc, {}, task);
 }
 
-state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, thread_t thread, const state::Task& task)
+state::Breakpoint state::break_on_thread(core::Core& core, std::string_view name, thread_t thread, uint64_t ptr, const state::Task& task)
 {
-    return ::set_breakpoint(core, name, ptr, {}, thread, task);
+    return set_virtual_breakpoint(core, name, ptr, {}, thread, task);
 }
 
-state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, phy_t phy, const state::Task& task)
+state::Breakpoint state::break_on_physical(core::Core& core, std::string_view name, phy_t phy, const state::Task& task)
 {
-    return ::set_breakpoint(core, name, phy, {}, {}, task);
+    return set_physical_breakpoint(core, name, phy, {}, {}, task);
 }
 
-state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, phy_t phy, proc_t proc, const state::Task& task)
+state::Breakpoint state::break_on_physical_process(core::Core& core, std::string_view name, proc_t proc, phy_t phy, const state::Task& task)
 {
-    return ::set_breakpoint(core, name, phy, proc, {}, task);
-}
-
-state::Breakpoint state::set_breakpoint(core::Core& core, std::string_view name, phy_t phy, thread_t thread, const state::Task& task)
-{
-    return ::set_breakpoint(core, name, phy, {}, thread, task);
+    return set_physical_breakpoint(core, name, phy, proc, {}, task);
 }
 
 namespace
@@ -436,10 +431,10 @@ void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc
     fdp::unset_breakpoint(core, bpid);
 }
 
-void state::run_to_proc(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr)
+void state::run_to_proc_at(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr)
 {
     auto& d       = *core.state_;
-    const auto bp = ::set_breakpoint(core, name, ptr, proc, {}, {});
+    const auto bp = set_virtual_breakpoint(core, name, ptr, proc, {}, {});
     run_until(core, [&]
     {
         return d.breakstate.rip == ptr;
@@ -452,7 +447,7 @@ void state::run_to_current(core::Core& core, std::string_view name)
     const auto thread = threads::current(core);
     const auto rsp    = registers::read(core, reg_e::rsp);
     const auto rip    = registers::read(core, reg_e::rip);
-    const auto bp     = ::set_breakpoint(core, name, rip, {}, *thread, {});
+    const auto bp     = set_virtual_breakpoint(core, name, rip, {}, *thread, {});
     run_until(core, [&]
     {
         const auto got_rsp = registers::read(core, reg_e::rsp);
@@ -469,7 +464,7 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     auto bps = std::vector<state::Breakpoint>{};
     bps.reserve(ptrs.size());
     for(const uint64_t& ptr : ptrs)
-        bps.push_back(::set_breakpoint(core, name, ptr, {}, {}, {}));
+        bps.push_back(set_virtual_breakpoint(core, name, ptr, {}, {}, {}));
 
     int bpid     = -1;
     uint64_t cr3 = 0;

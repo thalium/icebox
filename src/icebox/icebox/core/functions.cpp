@@ -46,7 +46,7 @@ bool functions::break_on_return(core::Core& core, std::string_view name, const f
         core::Core& core;
     } ctx = {core};
 
-    const auto bp = state::set_breakpoint(core, name, *return_addr, *thread, [=]
+    const auto bp = state::break_on_thread(core, name, *thread, *return_addr, [=]
     {
         auto& d        = *ctx.core.func_;
         const auto rsp = registers::read(ctx.core, reg_e::rsp) - ptr_size;

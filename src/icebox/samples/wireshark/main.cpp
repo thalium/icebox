@@ -213,7 +213,7 @@ namespace
         if(!thread)
             return false;
 
-        const auto bp = state::set_breakpoint(p.core, "NdisSendNetBufferLists user return", addr, *thread, [=]
+        const auto bp = state::break_on_thread(p.core, "NdisSendNetBufferLists user return", *thread, addr, [=]
         {
             auto meta = p.meta;
             if(p.is_wow64cpu)
@@ -242,7 +242,7 @@ namespace
         if(!NdisSendNetBufferLists)
             return FAIL(-1, "unable to set a BP on ndis!NdisSendNetBufferLists");
 
-        const auto bp_send = state::set_breakpoint(core, "NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
+        const auto bp_send = state::break_on(core, "NdisSendNetBufferLists", *NdisSendNetBufferLists, [&]
         {
             const auto proc = process::current(core);
             if(!proc)
@@ -293,7 +293,7 @@ namespace
         if(!NdisReturnNetBufferLists)
             return FAIL(-1, "unable to et a BP on ndis!NdisMIndicateReceiveNetBufferLists");
 
-        const auto bp_recv = state::set_breakpoint(core, "NdisMIndicateReceiveNetBufferLists", *NdisReturnNetBufferLists, [&]
+        const auto bp_recv = state::break_on(core, "NdisMIndicateReceiveNetBufferLists", *NdisReturnNetBufferLists, [&]
         {
             const auto netBufferLists = functions::read_arg(core, 1);
             if(!netBufferLists)

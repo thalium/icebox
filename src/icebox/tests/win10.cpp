@@ -267,7 +267,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     state::single_step(core);
     const auto addr_a = registers::read(core, reg_e::rip);
     int func_a        = 0;
-    auto bp_a         = state::set_breakpoint(core, "ZwWaitForSingleObject + $1", addr_a, *proc, [&]
+    auto bp_a         = state::break_on_process(core, "ZwWaitForSingleObject + $1", *proc, addr_a, [&]
     {
         func_a++;
     });
@@ -277,7 +277,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     state::single_step(core);
     const auto addr_b = registers::read(core, reg_e::rip);
     int func_b        = 0;
-    const auto bp_b   = state::set_breakpoint(core, "ZwWaitForSingleObject + $2", addr_b, *proc, [&]
+    const auto bp_b   = state::break_on_process(core, "ZwWaitForSingleObject + $2", *proc, addr_b, [&]
     {
         func_b++;
     });

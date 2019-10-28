@@ -142,7 +142,7 @@ namespace
         // check breakpoints
         {
             const auto ptr = symbols::symbol(core, symbols::kernel, "nt", "SwapContext");
-            const auto bp  = state::set_breakpoint(core, "SwapContext", *ptr, [&]
+            const auto bp  = state::break_on(core, "SwapContext", *ptr, [&]
             {
                 const auto rip = registers::read(core, reg_e::rip);
                 if(!rip)
@@ -172,7 +172,7 @@ namespace
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
             auto callers  = std::vector<callstacks::caller_t>(128);
-            const auto bp = state::set_breakpoint(core, func_name, *func_addr, *target, [&]
+            const auto bp = state::break_on_process(core, func_name, *target, *func_addr, [&]
             {
                 const auto n = callstacks::read(core, &callers[0], callers.size(), *target);
                 for(size_t i = 0; i < n; ++i)

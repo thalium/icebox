@@ -265,12 +265,12 @@ namespace
     static bool try_load_ntdll(OsNt& os, core::Core& core)
     {
         const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
-        auto bp                = state::set_breakpoint(core, "KiKernelSysretExit", sysret_exit, {});
+        auto bp                = state::break_on(core, "KiKernelSysretExit", sysret_exit, {});
 
         state::resume(core);
         state::wait(core);
-        const auto ret_address = registers::read(core, reg_e::rcx);
-        bp                     = state::set_breakpoint(core, "KiKernelSysretExit return", ret_address, {});
+        const auto ret_addr = registers::read(core, reg_e::rcx);
+        bp                  = state::break_on(core, "KiKernelSysretExit return", ret_addr, {});
 
         state::resume(core);
         state::wait(core);
@@ -541,7 +541,7 @@ namespace
     static opt<bpid_t> listen_to(OsNt& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
     {
         const auto osptr = &os;
-        const auto bp    = state::set_breakpoint(os.core_, name, addr, [=]
+        const auto bp    = state::break_on(os.core_, name, addr, [=]
         {
             callback(*osptr, bpid, on_value);
         });
@@ -686,7 +686,7 @@ namespace
             return {};
 
         const auto ptr = &os;
-        const auto bp  = state::set_breakpoint(os.core_, "wntdll!_LdrpProcessMappedModule@16", *where, proc, [=]
+        const auto bp  = state::break_on_process(os.core_, "wntdll!_LdrpProcessMappedModule@16", proc, *where, [=]
         {
             on_LdrpInsertDataTableEntry(*ptr, bpid, on_mod);
         });
@@ -710,8 +710,9 @@ namespace
             return;
 
         // break in load module native which is user-land & will allow us to read wntdll
-        const auto ptr = &os;
-        const auto bp  = state::set_breakpoint(os.core_, "ntdll!LdrpProcessMappedModule", os.LdrpProcessMappedModule_, proc, [=]
+        const auto ptr  = &os;
+        const auto name = "ntdll!LdrpProcessMappedModule";
+        const auto bp   = state::break_on_physical_process(os.core_, name, proc, os.LdrpProcessMappedModule_, [=]
         {
             on_LdrpInsertDataTableEntry_wow64(*ptr, proc, bpid, *ntdll, on_mod);
         });
@@ -728,14 +729,15 @@ opt<bpid_t> OsNt::listen_mod_create(proc_t proc, flags_e flags, const modules::o
         if(opt_bpid)
             return opt_bpid;
 
-        const auto bp = state::set_breakpoint(core_, "PsCallImageNotifyRoutines", symbols_[PsCallImageNotifyRoutines], proc, [=]
+        const auto bp = state::break_on_process(core_, "PsCallImageNotifyRoutines", proc, symbols_[PsCallImageNotifyRoutines], [=]
         {
             on_PsCallImageNotifyRoutines(*this, proc, bpid, on_mod);
         });
         return replace_bp(*this, bpid, bp);
     }
 
-    const auto bp = state::set_breakpoint(core_, "ntdll!LdrpProcessMappedModule", LdrpProcessMappedModule_, proc, [=]
+    const auto name = "ntdll!LdrpProcessMappedModule";
+    const auto bp   = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
     {
         on_LdrpInsertDataTableEntry(*this, bpid, on_mod);
     });
@@ -1061,9 +1063,9 @@ namespace
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
-        state::run_to_proc(os.core_, "KiKernelSysretExit", proc, where);
+        state::run_to_proc_at(os.core_, "KiKernelSysretExit", proc, where);
         const auto rip = registers::read(os.core_, reg_e::rcx);
-        state::run_to_proc(os.core_, "return KiKernelSysretExit", proc, rip);
+        state::run_to_proc_at(os.core_, "return KiKernelSysretExit", proc, rip);
     }
 
     static bool is_user_mode(uint64_t cs)
