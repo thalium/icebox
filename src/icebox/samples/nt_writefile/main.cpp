@@ -49,7 +49,7 @@ namespace
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 
-        process::join(core, *proc, process::JOIN_USER_MODE);
+        process::join(core, *proc, mode_e::user);
         symbols::load_module(core, *proc, *ntdll);
         LOG(INFO, "ntdll module loaded");
 

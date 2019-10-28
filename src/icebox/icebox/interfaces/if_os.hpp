@@ -27,7 +27,7 @@ namespace os
         virtual bool                proc_is_valid   (proc_t proc) = 0;
         virtual uint64_t            proc_id         (proc_t proc) = 0;
         virtual flags_e             proc_flags      (proc_t proc) = 0;
-        virtual void                proc_join       (proc_t proc, process::join_e join) = 0;
+        virtual void                proc_join       (proc_t proc, mode_e mode) = 0;
         virtual opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) = 0;
         virtual opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) = 0;
         virtual opt<proc_t>         proc_parent     (proc_t proc) = 0;

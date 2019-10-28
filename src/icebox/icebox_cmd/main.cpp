@@ -36,12 +36,12 @@ namespace
         if(!target)
             return;
 
-        process::join(core, *target, process::JOIN_USER_MODE);
+        process::join(core, *target, mode_e::user);
         const auto mod = modules::wait(core, *target, "ntdll.dll", FLAGS_32BIT);
         if(!mod)
             return;
 
-        process::join(core, *target, process::JOIN_USER_MODE);
+        process::join(core, *target, mode_e::user);
         const auto span = modules::span(core, *target, *mod);
         if(!span)
             return;
@@ -97,8 +97,8 @@ namespace
             return false;
 
         LOG(INFO, "%s: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", proc_target, target->id, target->dtb.val, process::name(core, *target)->data());
-        process::join(core, *target, process::JOIN_ANY_MODE);
-        process::join(core, *target, process::JOIN_USER_MODE);
+        process::join(core, *target, mode_e::kernel);
+        process::join(core, *target, mode_e::user);
 
         const auto is_32bit = process::flags(core, *target) & FLAGS_32BIT;
 

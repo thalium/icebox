@@ -118,14 +118,14 @@ TEST_F(Win10Test, processes)
     EXPECT_EQ(*parent_name, "userinit.exe");
 
     // join proc in kernel
-    process::join(core, *proc, process::JOIN_ANY_MODE);
+    process::join(core, *proc, mode_e::kernel);
     const auto kcur = process::current(core);
     EXPECT_TRUE(!!kcur);
     EXPECT_EQ(id, kcur->id);
     EXPECT_EQ(dtb, kcur->dtb.val);
 
     // join proc in user-mode
-    process::join(core, *proc, process::JOIN_USER_MODE);
+    process::join(core, *proc, mode_e::user);
     const auto cur = process::current(core);
     EXPECT_TRUE(!!cur);
     EXPECT_EQ(id, cur->id);
@@ -153,7 +153,7 @@ TEST_F(Win10Test, threads)
     });
     EXPECT_NE(threads.size(), 0u);
 
-    process::join(core, *explorer, process::JOIN_ANY_MODE);
+    process::join(core, *explorer, mode_e::kernel);
     const auto current = threads::current(core);
     EXPECT_TRUE(!!current);
 
@@ -225,7 +225,7 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
-    process::join(core, *proc, process::JOIN_USER_MODE);
+    process::join(core, *proc, mode_e::user);
     const auto ok = symbols::load_module(core, *proc, *ntdll);
     EXPECT_TRUE(ok);
 
@@ -250,7 +250,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
-    process::join(core, *proc, process::JOIN_USER_MODE);
+    process::join(core, *proc, mode_e::user);
     const auto ok = symbols::load_module(core, *proc, *ntdll);
     EXPECT_TRUE(ok);
 
@@ -299,7 +299,7 @@ TEST_F(Win10Test, memory)
     EXPECT_TRUE(!!proc);
     LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
 
-    process::join(core, *proc, process::JOIN_USER_MODE);
+    process::join(core, *proc, mode_e::user);
 
     auto from_reader  = std::vector<uint8_t>{};
     auto from_virtual = std::vector<uint8_t>{};
@@ -331,10 +331,10 @@ TEST_F(Win10Test, loader)
     const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
-    process::join(core, *proc, process::JOIN_ANY_MODE);
+    process::join(core, *proc, mode_e::kernel);
     symbols::load_drivers(core);
 
-    process::join(core, *proc, process::JOIN_USER_MODE);
+    process::join(core, *proc, mode_e::user);
     symbols::listen_and_load(core, *proc, {});
 
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
@@ -347,11 +347,11 @@ TEST_F(Win10Test, tracer)
     const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
     ASSERT_TRUE(!!proc);
 
-    process::join(core, *proc, process::JOIN_USER_MODE);
+    process::join(core, *proc, mode_e::user);
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
-    process::join(core, *proc, process::JOIN_USER_MODE);
+    process::join(core, *proc, mode_e::user);
     const auto ok = symbols::load_module(core, *proc, *ntdll);
     ASSERT_TRUE(ok);
 

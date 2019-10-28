@@ -148,7 +148,7 @@ TEST_F(LinuxTest, processes)
         }
     }
 
-    ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, process::JOIN_ANY_MODE), 5 * SECOND_NS);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, mode_e::kernel), 5 * SECOND_NS);
     auto current = process::current(core);
     EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);
@@ -156,7 +156,7 @@ TEST_F(LinuxTest, processes)
 
     ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
 
-    ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, process::JOIN_USER_MODE), 5 * SECOND_NS);
+    ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, mode_e::user), 5 * SECOND_NS);
     current = process::current(core);
     EXPECT_TRUE(current && current->id && current->dtb.val);
     EXPECT_EQ(child->id, current->id);

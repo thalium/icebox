@@ -39,6 +39,12 @@ enum class msr_e : uint32_t
     kernel_gs_base = 0xC0000102,
 };
 
+enum class mode_e
+{
+    kernel,
+    user,
+};
+
 enum constants_e
 {
     PAGE_SIZE  = 0x1000,

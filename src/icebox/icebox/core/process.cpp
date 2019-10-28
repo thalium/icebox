@@ -47,9 +47,9 @@ flags_e process::flags(core::Core& core, proc_t proc)
     return core.os_->proc_flags(proc);
 }
 
-void process::join(core::Core& core, proc_t proc, join_e join)
+void process::join(core::Core& core, proc_t proc, mode_e mode)
 {
-    return core.os_->proc_join(proc, join);
+    return core.os_->proc_join(proc, mode);
 }
 
 opt<phy_t> process::resolve(core::Core& core, proc_t proc, uint64_t ptr)

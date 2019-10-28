@@ -236,7 +236,7 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         flags_e             proc_flags      (proc_t proc) override;
-        void                proc_join       (proc_t proc, process::join_e join) override;
+        void                proc_join       (proc_t proc, mode_e mode) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
@@ -784,7 +784,7 @@ namespace
     }
 }
 
-void OsLinux::proc_join(proc_t proc, process::join_e join)
+void OsLinux::proc_join(proc_t proc, mode_e mode)
 {
     while(true)
     {
@@ -795,7 +795,7 @@ void OsLinux::proc_join(proc_t proc, process::join_e join)
             return;
         }
 
-        if(current_proc->id == proc.id && ((join == process::JOIN_ANY_MODE) | (join == process::JOIN_USER_MODE && cpu_ring(*this) == 3)))
+        if(current_proc->id == proc.id && ((mode == mode_e::kernel) | (mode == mode_e::user && cpu_ring(*this) == 3)))
             return;
 
         if(current_proc->id != proc.id)
@@ -804,7 +804,7 @@ void OsLinux::proc_join(proc_t proc, process::join_e join)
         // here, we are in the targetted process and in kernel mode
         // if it was already the case, we did not move
 
-        if(join == process::JOIN_ANY_MODE)
+        if(mode == mode_e::kernel)
             return;
 
         // and we want to join the user mode...

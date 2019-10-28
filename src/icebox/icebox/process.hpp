@@ -9,12 +9,6 @@ namespace core { struct Core; }
 
 namespace process
 {
-    enum join_e
-    {
-        JOIN_ANY_MODE,
-        JOIN_USER_MODE
-    };
-
     using bpid_t      = uint64_t;
     using on_proc_fn  = std::function<walk_e(proc_t)>;
     using on_event_fn = std::function<void(proc_t)>;
@@ -27,7 +21,7 @@ namespace process
     bool                is_valid        (core::Core&, proc_t proc);
     uint64_t            pid             (core::Core&, proc_t proc);
     flags_e             flags           (core::Core&, proc_t proc);
-    void                join            (core::Core&, proc_t proc, join_e join);
+    void                join            (core::Core&, proc_t proc, mode_e mode);
     opt<phy_t>          resolve         (core::Core&, proc_t proc, uint64_t ptr);
     opt<proc_t>         select          (core::Core&, proc_t proc, uint64_t ptr);
     opt<proc_t>         parent          (core::Core&, proc_t proc);

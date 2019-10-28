@@ -171,7 +171,7 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         flags_e             proc_flags      (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
-        void                proc_join       (proc_t proc, process::join_e join) override;
+        void                proc_join       (proc_t proc, mode_e mode) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
@@ -1072,17 +1072,18 @@ namespace
     }
 }
 
-void OsNt::proc_join(proc_t proc, process::join_e join)
+void OsNt::proc_join(proc_t proc, mode_e mode)
 {
     const auto current   = proc_current();
     const auto same_proc = current && current->id == proc.id;
-    if(join == process::JOIN_ANY_MODE && same_proc)
+    const auto user_mode = is_user_mode(registers::read(core_, reg_e::cs));
+    if(mode == mode_e::kernel && same_proc && !user_mode)
         return;
 
-    if(join == process::JOIN_ANY_MODE)
+    if(mode == mode_e::kernel)
         return proc_join_kernel(*this, proc);
 
-    if(same_proc && is_user_mode(registers::read(core_, reg_e::cs)))
+    if(same_proc && user_mode)
         return;
 
     return proc_join_user(*this, proc);

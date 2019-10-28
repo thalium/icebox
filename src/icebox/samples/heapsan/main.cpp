@@ -18,7 +18,7 @@ namespace
             return FAIL(-1, "unable to load ntdll.dll");
 
         LOG(INFO, "ntdll module loaded");
-        process::join(core, *proc, process::JOIN_USER_MODE);
+        process::join(core, *proc, mode_e::user);
         const auto ok = symbols::load_module(core, *proc, *ntdll);
         if(!ok)
             return FAIL(-1, "unable to load ntdll.dll symbols");

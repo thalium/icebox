@@ -175,7 +175,7 @@ opt<proc_t> select_process(core::Core& core)
     }
 }
 
-void proc_join(core::Core& core, proc_t target, process::join_e mode)
+void proc_join(core::Core& core, proc_t target, mode_e mode)
 {
     state::pause(core);
 
@@ -239,13 +239,13 @@ int main(int argc, char** argv)
     printf("\n--- Join a process in kernel mode ---\n");
     auto target = select_process(*core);
     if(target)
-        process::join(*core, *target, process::JOIN_ANY_MODE);
+        process::join(*core, *target, mode_e::kernel);
 
     // proc_join in user mode
     printf("\n--- Join a process in user mode ---\n");
     target = select_process(*core);
     if(target)
-        process::join(*core, *target, process::JOIN_USER_MODE);
+        process::join(*core, *target, mode_e::user);
 
     printf("\n");
     SYSTEM_PAUSE
