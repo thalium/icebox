@@ -64,6 +64,11 @@ namespace
     }
 }
 
+opt<mod_t> modules::find_name(core::Core& core, proc_t proc, std::string_view name, flags_e flags)
+{
+    return search_mod(core, proc, name, flags);
+}
+
 opt<mod_t> modules::wait(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
 {
     const auto mod = search_mod(core, proc, mod_name, flags);

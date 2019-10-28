@@ -256,6 +256,41 @@ namespace
     }
 }
 
+namespace
+{
+    static bool try_load_ntdll(OsNt& os, core::Core& core)
+    {
+        const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
+        auto bp                = state::set_breakpoint(core, "KiKernelSysretExit", sysret_exit, {});
+
+        state::resume(core);
+        state::wait(core);
+        const auto ret_address = registers::read(core, reg_e::rcx);
+        bp                     = state::set_breakpoint(core, "KiKernelSysretExit return", ret_address, {});
+
+        state::resume(core);
+        state::wait(core);
+        const auto proc = os.proc_current();
+        if(!proc)
+            return false;
+
+        const auto ntdll = modules::find_name(core, *proc, "ntdll.dll", FLAGS_NONE);
+        if(!ntdll)
+            return false;
+
+        const auto span = modules::span(core, *proc, *ntdll);
+        if(!span)
+            return false;
+
+        const auto reader = reader::make(core, *proc);
+        auto pdb          = symbols::make_pdb(*span, reader);
+        if(!pdb)
+            return false;
+
+        return core.symbols_->insert(symbols::kernel, "ntdll", std::move(pdb));
+    }
+}
+
 bool OsNt::setup()
 {
     const auto lstar  = registers::read_msr(core_, msr_e::lstar);
@@ -327,7 +362,7 @@ bool OsNt::setup()
 
     reader_.kdtb_ = gdtb;
     LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, gdtb.val);
-    return true;
+    return try_load_ntdll(*this, core_);
 }
 
 std::unique_ptr<os::Module> os::make_nt(core::Core& core)
