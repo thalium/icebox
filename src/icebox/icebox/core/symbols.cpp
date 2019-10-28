@@ -110,17 +110,30 @@ bool symbols::Modules::insert(proc_t proc, const std::string& module, Mod symbol
     return ret.second;
 }
 
+namespace
+{
+    bool has_module(Data& d, const std::string& name, const proc_t (&procs)[2], span_t module)
+    {
+        for(const auto& proc : procs)
+        {
+            const auto it = d.mods.find({name, proc});
+            if(it == d.mods.end())
+                continue;
+
+            const auto span = it->second->span();
+            if(span.addr == module.addr && span.size == module.size)
+                return true;
+        }
+        return false;
+    }
+}
+
 bool symbols::Modules::insert(proc_t proc, const std::string& name, span_t module)
 {
     // do not reload known modules
-    auto& d       = *d_;
-    const auto it = d.mods.find({name, proc});
-    if(it != d.mods.end())
-    {
-        const auto span = it->second->span();
-        if(span.addr == module.addr && span.size == module.size)
-            return true;
-    }
+    auto& d = *d_;
+    if(has_module(d, name, {proc, symbols::kernel}, module))
+        return true;
 
     const auto reader = is_kernel_proc(proc) ? reader::make(d.core) : reader::make(d.core, proc);
     for(const auto& h : g_helpers)
