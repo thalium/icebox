@@ -29,3 +29,50 @@ matrix:
             - ./configure_2017.cmd
             - cd ../out/x64
             - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
+        - name: gcc virtualbox driver linux
+          compiler: gcc
+          dist: bionic
+          before_install:
+            - sudo apt-get -qq update
+            - sudo apt-get -qq -y install
+              acpica-tools
+              build-essential
+              g++-multilib
+              gcc-multilib
+              libcap-dev
+              libcurl4-openssl-dev
+              libdevmapper-dev
+              libidl-dev
+              libelf-dev
+              libopus-dev
+              libpam0g-dev
+              libqt5x11extras5-dev
+              libsdl1.2-dev
+              libsdl2-dev
+              libssl-dev
+              libvpx-dev
+              libxml2-dev
+              libxmu-dev
+              linux-headers-$(uname -r)
+              linux-libc-dev
+              makeself
+              nasm
+              p7zip-full
+              python-dev
+              qt5-default
+              qttools5-dev-tools
+              xsltproc
+          script:
+            - cd third_party/virtualbox/include
+            - ln -s ../../../src/FDP
+            - cd ..
+            - ./configure
+              --disable-hardening
+              --disable-docs
+              --disable-java
+            - source env.sh
+            - kmk VBoxVMM
+              VBOX_WITH_ADDITIONS=
+              VBOX_WITH_TESTCASES=
+              VBOX_WITH_TESTSUITE=
+              VBOX_DO_STRIP=1
