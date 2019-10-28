@@ -82,6 +82,8 @@ TEST_F(Win10Test, processes)
     auto& core = *ptr_core;
     process::list(core, [&](proc_t proc)
     {
+        EXPECT_NE(proc.dtb.val, 0u);
+        EXPECT_NE(proc.dtb.val, 1u);
         const auto name = process::name(core, proc);
         EXPECT_TRUE(!!name);
         const auto pid = process::pid(core, proc);

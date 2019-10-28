@@ -337,16 +337,32 @@ std::unique_ptr<os::Module> os::make_nt(core::Core& core)
 
 namespace
 {
+    static opt<dtb_t> get_user_dtb(OsNt& os, uint64_t kprocess)
+    {
+        const auto dtb = os.reader_.read(kprocess + os.offsets_[KPROCESS_UserDirectoryTableBase]);
+        if(dtb && *dtb != 0 && *dtb != 1)
+            return dtb_t{*dtb};
+
+        if(os.offsets_[KPROCESS_DirectoryTableBase] == os.offsets_[KPROCESS_UserDirectoryTableBase])
+            return {};
+
+        const auto kdtb = os.reader_.read(kprocess + os.offsets_[KPROCESS_DirectoryTableBase]);
+        if(!kdtb)
+            return {};
+
+        return dtb_t{*kdtb};
+    }
+
     static opt<proc_t> make_proc(OsNt& os, uint64_t eproc)
     {
-        const auto dtb = os.reader_.read(eproc + os.offsets_[EPROCESS_Pcb] + os.offsets_[KPROCESS_UserDirectoryTableBase]);
+        const auto dtb = get_user_dtb(os, eproc + os.offsets_[EPROCESS_Pcb]);
         if(!dtb)
         {
-            LOG(ERROR, "unable to read KPROCESS.UserDirectoryTableBase from 0x%" PRIx64, eproc);
+            LOG(ERROR, "unable to read dtb from 0x%" PRIx64, eproc);
             return {};
         }
 
-        return proc_t{eproc, {*dtb}};
+        return proc_t{eproc, *dtb};
     }
 }
 
@@ -964,12 +980,12 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
     if(!kproc)
         return FAIL(ext::nullopt, "unable to read KTHREAD.Process");
 
-    const auto dtb = reader_.read(*kproc + offsets_[KPROCESS_UserDirectoryTableBase]);
+    const auto dtb = get_user_dtb(*this, *kproc);
     if(!dtb)
-        return FAIL(ext::nullopt, "unable to read KPROCESS.DirectoryTableBase");
+        return FAIL(ext::nullopt, "unable to read dtb");
 
     const auto eproc = *kproc - offsets_[EPROCESS_Pcb];
-    return proc_t{eproc, dtb_t{*dtb}};
+    return proc_t{eproc, *dtb};
 }
 
 opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
@@ -1087,7 +1103,7 @@ bool OsNt::reader_setup(reader::Reader& reader, opt<proc_t> proc)
         return true;
     }
 
-    const auto dtb = reader_.read(proc->id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_UserDirectoryTableBase]);
+    const auto dtb = get_user_dtb(*this, proc->id + offsets_[EPROCESS_Pcb]);
     if(!dtb)
         return false;
 
@@ -1095,7 +1111,7 @@ bool OsNt::reader_setup(reader::Reader& reader, opt<proc_t> proc)
     if(!kdtb)
         return false;
 
-    reader.udtb_ = dtb_t{*dtb};
+    reader.udtb_ = *dtb;
     reader.kdtb_ = dtb_t{*kdtb};
     return true;
 }
