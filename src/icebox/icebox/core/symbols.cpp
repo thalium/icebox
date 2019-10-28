@@ -357,12 +357,10 @@ opt<symbols::bpid_t> symbols::listen_and_load(core::Core& core, proc_t proc, con
         load_module_if(core, proc, mod, predicate);
         return walk_e::next;
     });
-    const auto ptr  = &core;
-    const auto bpid = modules::listen_create(core, [=](proc_t mod_proc, mod_t mod)
+    const auto ptr   = &core;
+    const auto flags = process::flags(core, proc);
+    const auto bpid  = modules::listen_create(core, proc, flags, [=](mod_t mod)
     {
-        if(proc.id != mod_proc.id)
-            return;
-
         load_module_if(*ptr, proc, mod, predicate);
     });
     if(bpid)

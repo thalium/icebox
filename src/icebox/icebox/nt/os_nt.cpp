@@ -1,8 +1,11 @@
 #include "os.hpp"
 
+#define PRIVATE_CORE__
 #define FDP_MODULE "os_nt"
 #include "core.hpp"
+#include "core/core_private.hpp"
 #include "interfaces/if_os.hpp"
+#include "interfaces/if_symbols.hpp"
 #include "log.hpp"
 #include "nt.hpp"
 #include "reader.hpp"
@@ -200,7 +203,7 @@ namespace
         opt<bpid_t> listen_proc_delete  (const process::on_event_fn& on_proc_event) override;
         opt<bpid_t> listen_thread_create(const threads::on_event_fn& on_thread_event) override;
         opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_thread_event) override;
-        opt<bpid_t> listen_mod_create   (const modules::on_event_fn& on_load) override;
+        opt<bpid_t> listen_mod_create   (proc_t proc, flags_e flags, const modules::on_event_fn& on_load) override;
         opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_drv) override;
         size_t      unlisten            (bpid_t bpid) override;
 
@@ -219,6 +222,7 @@ namespace
         reader::Reader reader_;
         bpid_t         last_bpid_;
         Breakpoints    breakpoints_;
+        phy_t          LdrpProcessMappedModule_;
     };
 }
 
@@ -287,7 +291,20 @@ namespace
         if(!pdb)
             return false;
 
-        return core.symbols_->insert(symbols::kernel, "ntdll", std::move(pdb));
+        auto ok = core.symbols_->insert(symbols::kernel, "ntdll", std::move(pdb));
+        if(!ok)
+            return false;
+
+        const auto where = symbols::symbol(core, symbols::kernel, "ntdll", "LdrpProcessMappedModule");
+        if(!where)
+            return false;
+
+        const auto phy = memory::virtual_to_physical(core, *where, proc->dtb);
+        if(!phy)
+            return false;
+
+        os.LdrpProcessMappedModule_ = *phy;
+        return true;
     }
 }
 
@@ -598,7 +615,7 @@ opt<bpid_t> OsNt::listen_thread_delete(const threads::on_event_fn& on_delete)
 
 namespace
 {
-    static opt<span_t> try_get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
+    static opt<span_t> try_get_ntdll_span(OsNt& os, proc_t proc)
     {
         struct _IMAGE_INFO
         {
@@ -628,7 +645,7 @@ namespace
         // ntdll32 is always mapped at an address under the maximum 32 bit address
         const auto max_32bit_addr = 0xffffffff;
         const auto is_wow64       = *base <= max_32bit_addr;
-        if((is_32bit && !is_wow64) || (!is_32bit && is_wow64))
+        if(!is_wow64)
             return {};
 
         const auto size = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageSize));
@@ -638,23 +655,10 @@ namespace
         return span_t{*base, *size};
     }
 
-    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, const std::string& mod_name, const std::string& sym_name)
-    {
-        const auto addr = symbols::symbol(os.core_, symbols::kernel, mod_name, sym_name);
-        if(!addr)
-            return {};
-
-        return os.proc_resolve(proc, *addr);
-    }
-
     constexpr auto x86_cs = 0x23;
 
     static void on_LdrpInsertDataTableEntry(OsNt& os, bpid_t, const modules::on_event_fn& on_mod)
     {
-        const auto proc = os.proc_current();
-        if(!proc)
-            return;
-
         const auto cs       = registers::read(os.core_, reg_e::cs);
         const auto is_32bit = cs == x86_cs;
 
@@ -662,82 +666,80 @@ namespace
         const auto rcx      = registers::read(os.core_, reg_e::rcx);
         const auto mod_addr = is_32bit ? static_cast<uint32_t>(rcx) : rcx;
         const auto flags    = is_32bit ? FLAGS_32BIT : FLAGS_NONE;
-        on_mod(*proc, {mod_addr, flags});
+        on_mod({mod_addr, flags});
     }
 
-    struct KernelModCreateCtx
+    static opt<bpid_t> replace_bp(OsNt& os, bpid_t bpid, const state::Breakpoint& bp)
     {
-        opt<phy_t> entry;
-        bool       is_32bit;
-        bool       done;
-    };
-
-    static opt<phy_t> load_ntdll_symbol(OsNt& os, proc_t proc, bool is_32bit, const char* mod, const char* name)
-    {
-        const auto phy = get_phy_from_sym(os, proc, mod, name);
-        if(phy)
-            return phy;
-
-        const auto ntdll = try_get_ntdll_span(os, proc, is_32bit);
-        if(!ntdll)
+        os.breakpoints_.erase(bpid);
+        if(!bp)
             return {};
 
-        os.proc_join(proc, process::JOIN_USER_MODE);
+        os.breakpoints_.emplace(bpid, bp);
+        return bpid;
+    }
 
-        const auto inserted = symbols::load_module_at(os.core_, symbols::kernel, mod, *ntdll);
+    static opt<bpid_t> try_on_LdrpProcessMappedModule(OsNt& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
+    {
+        const auto where = symbols::symbol(os.core_, proc, "wntdll", "_LdrpProcessMappedModule@16");
+        if(!where)
+            return {};
+
+        const auto ptr = &os;
+        const auto bp  = state::set_breakpoint(os.core_, "wntdll!_LdrpProcessMappedModule@16", *where, proc, [=]
+        {
+            on_LdrpInsertDataTableEntry(*ptr, bpid, on_mod);
+        });
+        return replace_bp(os, bpid, bp);
+    }
+
+    static void on_LdrpInsertDataTableEntry_wow64(OsNt& os, proc_t proc, bpid_t bpid, span_t ntdll, const modules::on_event_fn& on_mod)
+    {
+        const auto inserted = symbols::load_module_at(os.core_, symbols::kernel, "wntdll", ntdll);
         if(!inserted)
-            return {};
+            return;
 
-        return get_phy_from_sym(os, proc, mod, name);
+        try_on_LdrpProcessMappedModule(os, proc, bpid, on_mod);
     }
 
-    static void on_PsCallImageNotifyRoutines(OsNt& os, KernelModCreateCtx& ctx, bpid_t bpid, const modules::on_event_fn& on_mod)
+    static void on_PsCallImageNotifyRoutines(OsNt& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
-        if(ctx.done)
+        // try to find ntdll x86 boundaries
+        const auto ntdll = try_get_ntdll_span(os, proc);
+        if(!ntdll)
             return;
 
-        const auto proc = os.proc_current();
-        if(!proc)
-            return;
-
-        const auto is_32bit = os.proc_flags(*proc) & FLAGS_32BIT;
-        if(ctx.is_32bit && !is_32bit)
-            return;
-
-        const auto mod  = ctx.is_32bit ? "wntdll" : "ntdll";
-        const auto name = ctx.is_32bit ? "_LdrpProcessMappedModule@16" : "LdrpProcessMappedModule";
-        ctx.entry       = load_ntdll_symbol(os, *proc, ctx.is_32bit, mod, name);
-        if(!ctx.entry)
-            return;
-
-        if(!listen_to(os, bpid, name, *ctx.entry, on_mod, &on_LdrpInsertDataTableEntry))
-            return;
-
-        ctx.done = true;
+        // break in load module native which is user-land & will allow us to read wntdll
+        const auto ptr = &os;
+        const auto bp  = state::set_breakpoint(os.core_, "ntdll!LdrpProcessMappedModule", os.LdrpProcessMappedModule_, proc, [=]
+        {
+            on_LdrpInsertDataTableEntry_wow64(*ptr, proc, bpid, *ntdll, on_mod);
+        });
+        replace_bp(os, bpid, bp);
     }
 }
 
-opt<bpid_t> OsNt::listen_mod_create(const modules::on_event_fn& on_mod)
+opt<bpid_t> OsNt::listen_mod_create(proc_t proc, flags_e flags, const modules::on_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
-    const auto ctx  = std::make_shared<KernelModCreateCtx>();
-    auto ok         = listen_to(*this, bpid, "PsCallImageNotifyRoutines", symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
+    if(flags == FLAGS_32BIT)
     {
-        on_PsCallImageNotifyRoutines(os, *ctx, bpid, on_mod);
-    });
-    if(!ok)
-        return {};
+        const auto opt_bpid = try_on_LdrpProcessMappedModule(*this, proc, bpid, on_mod);
+        if(opt_bpid)
+            return opt_bpid;
 
-    const auto ctx32 = std::make_shared<KernelModCreateCtx>();
-    ctx32->is_32bit  = true;
-    ok               = listen_to(*this, bpid, "PsCallImageNotifyRoutines", symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
+        const auto bp = state::set_breakpoint(core_, "PsCallImageNotifyRoutines", symbols_[PsCallImageNotifyRoutines], proc, [=]
+        {
+            on_PsCallImageNotifyRoutines(*this, proc, bpid, on_mod);
+        });
+        return replace_bp(*this, bpid, bp);
+    }
+
+    const auto bp = state::set_breakpoint(core_, "ntdll!LdrpProcessMappedModule", LdrpProcessMappedModule_, proc, [=]
     {
-        on_PsCallImageNotifyRoutines(os, *ctx32, bpid, on_mod);
+        on_LdrpInsertDataTableEntry(*this, bpid, on_mod);
     });
-    if(!ok)
-        return {};
-
-    return bpid;
+    return replace_bp(*this, bpid, bp);
 }
 
 opt<bpid_t> OsNt::listen_drv_create(const drivers::on_event_fn& on_drv)

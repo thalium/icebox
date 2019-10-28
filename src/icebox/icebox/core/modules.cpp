@@ -34,9 +34,9 @@ opt<mod_t> modules::find(core::Core& core, proc_t proc, uint64_t addr)
     return core.os_->mod_find(proc, addr);
 }
 
-opt<os::bpid_t> modules::listen_create(core::Core& core, const on_event_fn& on_load)
+opt<os::bpid_t> modules::listen_create(core::Core& core, proc_t proc, flags_e flags, const on_event_fn& on_load)
 {
-    return core.os_->listen_mod_create(on_load);
+    return core.os_->listen_mod_create(proc, flags, on_load);
 }
 
 namespace
@@ -73,21 +73,15 @@ opt<mod_t> modules::wait(core::Core& core, proc_t proc, std::string_view mod_nam
 {
     const auto mod = search_mod(core, proc, mod_name, flags);
     if(mod)
-    {
-        process::join(core, proc, process::JOIN_USER_MODE);
         return *mod;
-    }
 
     opt<mod_t> found;
-    const auto bpid = modules::listen_create(core, [&](proc_t proc_loading, mod_t mod)
+    const auto bpid = modules::listen_create(core, proc, flags, [&](mod_t mod)
     {
-        if(proc_loading.id != proc.id)
-            return;
-
         if(flags && !(mod.flags & flags))
             return;
 
-        const auto name = modules::name(core, proc_loading, mod);
+        const auto name = modules::name(core, proc, mod);
         if(!name)
             return;
 

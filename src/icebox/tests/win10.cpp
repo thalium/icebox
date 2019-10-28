@@ -225,6 +225,7 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
+    process::join(core, *proc, process::JOIN_USER_MODE);
     const auto ok = symbols::load_module(core, *proc, *ntdll);
     EXPECT_TRUE(ok);
 
@@ -249,6 +250,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
     EXPECT_TRUE(!!ntdll);
 
+    process::join(core, *proc, process::JOIN_USER_MODE);
     const auto ok = symbols::load_module(core, *proc, *ntdll);
     EXPECT_TRUE(ok);
 
@@ -349,6 +351,7 @@ TEST_F(Win10Test, tracer)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
     ASSERT_TRUE(ntdll);
 
+    process::join(core, *proc, process::JOIN_USER_MODE);
     const auto ok = symbols::load_module(core, *proc, *ntdll);
     ASSERT_TRUE(ok);
 
@@ -401,4 +404,35 @@ TEST_F(Win10Test, callstacks)
     run_until(core, [&] { return count > 32; });
     EXPECT_EQ(count, 33u);
     EXPECT_NE(num_callers, 0u);
+}
+
+TEST_F(Win10Test, listen_module_wow64)
+{
+    auto& core      = *ptr_core;
+    const auto proc = process::wait(core, "ProcessHacker.exe", FLAGS_NONE);
+    EXPECT_TRUE(!!proc);
+
+    modules::listen_create(core, *proc, FLAGS_NONE, [&](mod_t mod)
+    {
+        const auto name = modules::name(core, *proc, mod);
+        if(!name)
+            return;
+
+        LOG(INFO, "listen_create: 64-bit: %s", name->data());
+    });
+
+    modules::listen_create(core, *proc, FLAGS_32BIT, [&](mod_t mod)
+    {
+        const auto name = modules::name(core, *proc, mod);
+        if(!name)
+            return;
+
+        LOG(INFO, "listen_create: 32-bit: %s", name->data());
+    });
+
+    const auto nt64 = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    EXPECT_TRUE(!!nt64);
+
+    const auto ntwow64 = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    EXPECT_TRUE(!!ntwow64);
 }
