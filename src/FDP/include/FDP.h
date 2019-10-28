@@ -30,7 +30,10 @@ extern "C"
 #endif
 
 #include "FDP_enum.h"
-#include <stdbool.h>
+
+#ifndef __cplusplus
+#    include <stdbool.h>
+#endif
 
 #ifdef _MSC_VER
 #    define FDP_EXPORTED    __declspec(dllexport)

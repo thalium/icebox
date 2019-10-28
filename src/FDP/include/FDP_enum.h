@@ -24,7 +24,11 @@
 #ifndef _FDP_ENUM_H_
 #define _FDP_ENUM_H_
 
-#include <stdint.h>
+#ifdef _MSC_VER
+#    include <stdint.h>
+#else
+#    include <inttypes.h>
+#endif
 
 enum FDP_BreakpointType_
 {
