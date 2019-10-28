@@ -80,7 +80,7 @@ opt<uint64_t> reader::Reader::read(uint64_t ptr) const
         return read_mem<uint64_t, ::read_be64>(*this, ptr);
 }
 
-bool reader::Reader::read(void* dst, uint64_t ptr, size_t size) const
+bool reader::Reader::read_all(void* dst, uint64_t ptr, size_t size) const
 {
     const auto dtb = os::is_kernel_address(core_, ptr) ? kdtb_ : udtb_;
     return memory::read_virtual_with_dtb(core_, dst, dtb, ptr, size);

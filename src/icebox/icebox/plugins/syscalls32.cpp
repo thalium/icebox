@@ -154,7 +154,7 @@ bool Data::setup()
     {
         std::vector<char> buf(Length);
         const auto reader = reader::make(core_, proc_);
-        const auto ok     = reader.read(&buf[0], Buffer, Length);
+        const auto ok     = reader.read_all(&buf[0], Buffer, Length);
         if(!ok)
             return 1;
 
@@ -218,7 +218,7 @@ bool Data::setup()
     {
         wow64::_OBJECT_ATTRIBUTES attr;
         const auto reader = reader::make(core_, proc_);
-        const auto ok     = reader.read(&attr, ObjectAttributes, sizeof attr);
+        const auto ok     = reader.read_all(&attr, ObjectAttributes, sizeof attr);
         if(!ok)
             return 1;
 
@@ -264,7 +264,7 @@ bool Data::setup()
     {
         wow64::_OBJECT_ATTRIBUTES attr;
         const auto reader = reader::make(core_, proc_);
-        const auto ok     = reader.read(&attr, ObjectAttributes, sizeof attr);
+        const auto ok     = reader.read_all(&attr, ObjectAttributes, sizeof attr);
         if(!ok)
             return 1;
 

@@ -13,7 +13,7 @@ namespace
     static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr)
     {
         T str;
-        auto ok = reader.read(&str, addr, sizeof str);
+        auto ok = reader.read_all(&str, addr, sizeof str);
         if(!ok)
             return {};
 
@@ -22,7 +22,7 @@ namespace
             return {};
 
         std::vector<uint8_t> buffer(str.Length);
-        ok = reader.read(&buffer[0], str.Buffer, str.Length);
+        ok = reader.read_all(&buffer[0], str.Buffer, str.Length);
         if(!ok)
             return {};
 

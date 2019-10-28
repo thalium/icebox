@@ -17,7 +17,7 @@ namespace
             return FAIL(false, "buffer too big size:%d", Length);
 
         dst.resize(Length);
-        const auto ok = reader.read(&dst[0], Buffer, Length);
+        const auto ok = reader.read_all(&dst[0], Buffer, Length);
         if(!ok)
             return FAIL(false, "unable to read range:0x%" PRIx64 "-0x%" PRIx64, Buffer, Buffer + Length);
 

@@ -307,7 +307,7 @@ namespace
 
         do
         {
-            const auto ok = reader.read(&buffer[0], addr + offset, buffer_size);
+            const auto ok = reader.read_all(&buffer[0], addr + offset, buffer_size);
             if(!ok)
                 return FAIL(ext::nullopt, "unable to read %u bytes at address (0x%" PRIx64 ")", buffer_size, addr + offset);
 
@@ -376,7 +376,7 @@ namespace
         bool start_kernel = true;
         while(offset <= END_KERNEL)
         {
-            if(p.reader_.read(&buffer[sizeof target], offset, PAGE_SIZE))
+            if(p.reader_.read_all(&buffer[sizeof target], offset, PAGE_SIZE))
             {
                 if(start_kernel)
                 {

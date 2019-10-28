@@ -275,7 +275,7 @@ std::unique_ptr<symbols::Module> symbols::make_pdb(span_t span, const reader::Re
     const auto span_read = debug ? *debug : span;
 
     auto buffer   = std::vector<uint8_t>(span_read.size);
-    const auto ok = reader.read(&buffer[0], span_read.addr, span_read.size);
+    const auto ok = reader.read_all(&buffer[0], span_read.addr, span_read.size);
     if(!ok)
         return {};
 

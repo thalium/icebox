@@ -72,11 +72,11 @@ namespace
 
         for(uint64_t addr = netBuffListAddress; addr != 0; addr = reinterpret_cast<uint64_t>(netBufferList.Next))
         {
-            auto ok = reader.read(&netBufferList, addr, sizeof netBufferList);
+            auto ok = reader.read_all(&netBufferList, addr, sizeof netBufferList);
             if(!ok)
                 return invalid;
 
-            ok = reader.read(&netBuffer, (uint64_t) netBufferList.FirstNetBuffer, sizeof netBuffer);
+            ok = reader.read_all(&netBuffer, (uint64_t) netBufferList.FirstNetBuffer, sizeof netBuffer);
             if(!ok)
                 return invalid;
 
@@ -89,11 +89,11 @@ namespace
             data.resize(data.size() + dataSize);
             do
             {
-                ok = reader.read(&mdl, mdlAddress, sizeof mdl);
+                ok = reader.read_all(&mdl, mdlAddress, sizeof mdl);
                 if(!ok)
                     return invalid;
                 size = std::min(mdl.ByteCount - mdlOffset, dataSize);
-                ok   = reader.read(&data[dataOffset], (uint64_t) mdl.MappedSystemVa + mdlOffset, size);
+                ok   = reader.read_all(&data[dataOffset], (uint64_t) mdl.MappedSystemVa + mdlOffset, size);
                 if(!ok)
                     return invalid;
 
@@ -139,7 +139,7 @@ namespace
 
         auto offset = 4; // FIXME: why 4 on 10240 ?
         nt_types::_WOW64_CONTEXT wow64ctx;
-        const auto ok = reader.read(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
+        const auto ok = reader.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
         if(!ok)
             return {};
 

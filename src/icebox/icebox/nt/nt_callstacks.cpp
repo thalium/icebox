@@ -277,7 +277,7 @@ opt<FunctionTable> NtCallstacks::insert(proc_t proc, const std::string& name, co
         return FAIL(ext::nullopt, "unable to get span of exception_dir");
 
     std::vector<uint8_t> buffer(exception_dir->size);
-    auto ok = reader.read(&buffer[0], exception_dir->addr, exception_dir->size);
+    auto ok = reader.read_all(&buffer[0], exception_dir->addr, exception_dir->size);
     if(!ok)
         return FAIL(ext::nullopt, "unable to read exception dir of %s", name.data());
 
@@ -642,7 +642,7 @@ opt<FunctionTable> NtCallstacks::parse_exception_dir(proc_t proc, const void* vs
 
         UnwindInfo unwind_info;
         const auto to_read = mod_base_addr + unwind_info_ptr;
-        auto ok            = reader.read(unwind_info, to_read, sizeof unwind_info);
+        auto ok            = reader.read_all(unwind_info, to_read, sizeof unwind_info);
         if(!ok)
             return FAIL(ext::nullopt, "unable to read unwind info");
 
@@ -667,7 +667,7 @@ opt<FunctionTable> NtCallstacks::parse_exception_dir(proc_t proc, const void* vs
         }
 
         std::vector<uint8_t> buffer(unwind_codes_size);
-        reader.read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
+        ok = reader.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
         if(!ok)
             return FAIL(ext::nullopt, "unable to read unwind codes");
 
