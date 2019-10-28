@@ -5,6 +5,7 @@
 #include "core.hpp"
 #include "core_private.hpp"
 #include "fdp.hpp"
+#include "interfaces/if_os.hpp"
 #include "log.hpp"
 #include "reader.hpp"
 #include "utils/utils.hpp"
@@ -360,12 +361,12 @@ namespace
         if(!current)
             return {};
 
-        return process::resolve(core, *current, ptr);
+        return core.os_->proc_resolve(*current, ptr);
     }
 
     static state::Breakpoint set_virtual_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        const auto target = proc ? process::select(core, *proc, ptr) : ext::nullopt;
+        const auto target = proc ? core.os_->proc_select(*proc, ptr) : ext::nullopt;
         const auto phy    = to_phy(core, ptr, target);
         if(!phy)
             return nullptr;

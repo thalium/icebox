@@ -22,8 +22,6 @@ namespace process
     uint64_t            pid             (core::Core&, proc_t proc);
     flags_e             flags           (core::Core&, proc_t proc);
     void                join            (core::Core&, proc_t proc, mode_e mode);
-    opt<phy_t>          resolve         (core::Core&, proc_t proc, uint64_t ptr);
-    opt<proc_t>         select          (core::Core&, proc_t proc, uint64_t ptr);
     opt<proc_t>         parent          (core::Core&, proc_t proc);
     opt<proc_t>         wait            (core::Core& core, std::string_view name, flags_e flags);
     opt<bpid_t>         listen_create   (core::Core&, const on_event_fn& on_proc_event);

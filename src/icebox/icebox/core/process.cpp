@@ -52,16 +52,6 @@ void process::join(core::Core& core, proc_t proc, mode_e mode)
     return core.os_->proc_join(proc, mode);
 }
 
-opt<phy_t> process::resolve(core::Core& core, proc_t proc, uint64_t ptr)
-{
-    return core.os_->proc_resolve(proc, ptr);
-}
-
-opt<proc_t> process::select(core::Core& core, proc_t proc, uint64_t ptr)
-{
-    return core.os_->proc_select(proc, ptr);
-}
-
 opt<proc_t> process::parent(core::Core& core, proc_t proc)
 {
     return core.os_->proc_parent(proc);
