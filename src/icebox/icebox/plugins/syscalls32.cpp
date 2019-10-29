@@ -1,12 +1,11 @@
 #include "syscalls.hpp"
 
 #define FDP_MODULE "syscall_tracer"
-#include "log.hpp"
-
 #include "core.hpp"
 #include "endian.hpp"
+#include "log.hpp"
 #include "nt/nt.hpp"
-#include "nt/objects_nt.hpp"
+#include "nt/nt_objects.hpp"
 #include "reader.hpp"
 #include "tracer/syscalls32.gen.hpp"
 #include "utils/file.hpp"
@@ -45,7 +44,7 @@ struct plugins::Syscalls32::Data
     core::Core&       core_;
     proc_t            proc_;
     wow64::syscalls32 syscalls_;
-    nt::ObjectNt      objects_;
+    objects::Handler  objects_;
     Callsteps         callsteps_;
     Triggers          triggers_;
     json              args_;
@@ -56,7 +55,7 @@ plugins::Syscalls32::Data::Data(core::Core& core, proc_t proc)
     : core_(core)
     , proc_(proc)
     , syscalls_(core, "wntdll")
-    , objects_(core, proc)
+    , objects_(objects::make(core, proc))
     , nb_triggers_()
 {
 }
@@ -159,23 +158,23 @@ bool Data::setup()
             return 1;
 
         buf[Length - 1] = 0;
-        const auto file = objects_.file_read(FileHandle);
+        const auto file = objects::file_read(*objects_, FileHandle);
         if(!file)
             return 1;
 
-        const auto obj_filename = objects_.file_name(*file);
+        const auto obj_filename = objects::file_name(*objects_, *file);
         if(!obj_filename)
             return 1;
 
-        const auto device_obj = objects_.file_device(*file);
+        const auto device_obj = objects::file_device(*objects_, *file);
         if(!device_obj)
             return 1;
 
-        const auto driver_obj = objects_.device_driver(*device_obj);
+        const auto driver_obj = objects::device_driver(*objects_, *device_obj);
         if(!driver_obj)
             return 1;
 
-        const auto driver_name = objects_.driver_name(*driver_obj);
+        const auto driver_name = objects::driver_name(*objects_, *driver_obj);
         if(!driver_name)
             return 1;
 
@@ -192,19 +191,19 @@ bool Data::setup()
                                                         wow64::PVOID /*InputBuffer*/, wow64::ULONG /*InputBufferLength*/, wow64::PVOID /*OutputBuffer*/,
                                                         wow64::ULONG /*OutputBufferLength*/)
     {
-        const auto obj = objects_.file_read(FileHandle);
+        const auto obj = objects::file_read(*objects_, FileHandle);
         if(!obj)
             return 1;
 
-        const auto device_obj = objects_.file_device(*obj);
+        const auto device_obj = objects::file_device(*objects_, *obj);
         if(!device_obj)
             return 1;
 
-        const auto driver_obj = objects_.device_driver(*device_obj);
+        const auto driver_obj = objects::device_driver(*objects_, *device_obj);
         if(!driver_obj)
             return 1;
 
-        const auto driver_name = objects_.driver_name(*driver_obj);
+        const auto driver_name = objects::driver_name(*objects_, *driver_obj);
         if(!driver_name)
             return 1;
 

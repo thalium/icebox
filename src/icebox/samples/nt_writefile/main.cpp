@@ -1,7 +1,7 @@
 #define FDP_MODULE "nt_writefile"
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
-#include <icebox/nt/objects_nt.hpp>
+#include <icebox/nt/nt_objects.hpp>
 #include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/utils/file.hpp>
@@ -24,13 +24,13 @@ namespace
         return true;
     }
 
-    static opt<std::string> read_filename(nt::ObjectNt& objects, nt::HANDLE FileHandle)
+    static opt<std::string> read_filename(objects::Data& d, nt::HANDLE FileHandle)
     {
-        const auto file = objects.file_read(FileHandle);
+        const auto file = objects::file_read(d, FileHandle);
         if(!file)
             return FAIL(ext::nullopt, "unable to read object 0x%" PRIx64, FileHandle);
 
-        const auto filename = objects.file_name(*file);
+        const auto filename = objects::file_name(d, *file);
         if(!filename)
             return FAIL(ext::nullopt, "unable to read filename from object 0x%" PRIx64, file->id);
 
@@ -54,7 +54,7 @@ namespace
         LOG(INFO, "ntdll module loaded");
 
         int idx           = -1;
-        auto objects      = nt::ObjectNt{core, *proc};
+        auto objects      = objects::make(core, *proc);
         auto tracer       = nt::syscalls{core, "ntdll"};
         auto buffer       = std::vector<uint8_t>{};
         const auto reader = reader::make(core, *proc);
@@ -63,7 +63,7 @@ namespace
                                                                nt::ULONG Length, nt::PLARGE_INTEGER /*ByteOffset*/, nt::PULONG /*Key*/)
         {
             ++idx;
-            const auto filename = read_filename(objects, FileHandle);
+            const auto filename = read_filename(*objects, FileHandle);
             const auto read     = read_file(buffer, reader, Buffer, Length);
             if(!filename || !read)
                 return;

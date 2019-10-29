@@ -3,8 +3,7 @@
 #define FDP_MODULE "syscalls"
 #include "core.hpp"
 #include "log.hpp"
-
-#include "nt/objects_nt.hpp"
+#include "nt/nt_objects.hpp"
 #include "reader.hpp"
 #include "tracer/syscalls.gen.hpp"
 #include "utils/file.hpp"
@@ -38,21 +37,21 @@ struct plugins::Syscalls::Data
 
     bool setup();
 
-    core::Core&  core_;
-    proc_t       proc_;
-    nt::syscalls syscalls_;
-    nt::ObjectNt objects_;
-    Callsteps    callsteps_;
-    Triggers     triggers_;
-    json         args_;
-    uint64_t     nb_triggers_;
+    core::Core&      core_;
+    proc_t           proc_;
+    nt::syscalls     syscalls_;
+    objects::Handler objects_;
+    Callsteps        callsteps_;
+    Triggers         triggers_;
+    json             args_;
+    uint64_t         nb_triggers_;
 };
 
 plugins::Syscalls::Data::Data(core::Core& core, proc_t proc)
     : core_(core)
     , proc_(proc)
     , syscalls_(core, "ntdll")
-    , objects_(core, proc)
+    , objects_(objects::make(core, proc))
     , nb_triggers_()
 {
 }
@@ -139,13 +138,13 @@ bool Data::setup()
             return 1;
 
         buf[Length - 1]         = 0;
-        const auto obj          = objects_.obj_read(FileHandle);
-        const auto obj_typename = objects_.obj_type(*obj);
-        const auto file         = objects_.file_read(FileHandle);
-        const auto obj_filename = objects_.file_name(*file);
-        const auto device_obj   = objects_.file_device(*file);
-        const auto driver_obj   = objects_.device_driver(*device_obj);
-        const auto driver_name  = objects_.driver_name(*driver_obj);
+        const auto obj          = objects::read(*objects_, FileHandle);
+        const auto obj_typename = objects::type(*objects_, *obj);
+        const auto file         = objects::file_read(*objects_, FileHandle);
+        const auto obj_filename = objects::file_name(*objects_, *file);
+        const auto device_obj   = objects::file_device(*objects_, *file);
+        const auto driver_obj   = objects::device_driver(*objects_, *device_obj);
+        const auto driver_name  = objects::driver_name(*objects_, *driver_obj);
         LOG(INFO, " File handle; 0x%" PRIx64 ", typename : %s, filename : %s, driver_name : %s", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
         args_[nb_triggers_]["FileName"] = obj_filename->data();
