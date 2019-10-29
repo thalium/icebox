@@ -27,7 +27,7 @@ namespace
             return {};
 
         const auto p = &buffer[0];
-        return utf8::convert(p, &p[str.Length]);
+        return utf8::from_utf16(p, &p[str.Length]);
     }
 }
 
