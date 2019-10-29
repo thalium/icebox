@@ -1,7 +1,7 @@
 #include "os.hpp"
 
 #define PRIVATE_CORE__
-#define FDP_MODULE "os_nt"
+#define FDP_MODULE "nt_os"
 #include "core.hpp"
 #include "core/core_private.hpp"
 #include "interfaces/if_os.hpp"
@@ -147,10 +147,10 @@ namespace
     using bpid_t      = os::bpid_t;
     using Breakpoints = std::multimap<bpid_t, state::Breakpoint>;
 
-    struct OsNt
+    struct NtOs
         : public os::Module
     {
-        OsNt(core::Core& core);
+        NtOs(core::Core& core);
 
         // os::IModule
         bool    setup               () override;
@@ -221,7 +221,7 @@ namespace
     };
 }
 
-OsNt::OsNt(core::Core& core)
+NtOs::NtOs(core::Core& core)
     : core_(core)
     , reader_(reader::make(core))
     , last_bpid_(0)
@@ -257,7 +257,7 @@ namespace
 
 namespace
 {
-    static bool try_load_ntdll(OsNt& os, core::Core& core)
+    static bool try_load_ntdll(NtOs& os, core::Core& core)
     {
         const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
         auto bp                = state::break_on(core, "KiKernelSysretExit", sysret_exit, {});
@@ -303,7 +303,7 @@ namespace
     }
 }
 
-bool OsNt::setup()
+bool NtOs::setup()
 {
     const auto lstar  = registers::read_msr(core_, msr_e::lstar);
     const auto kernel = find_kernel(core_, lstar);
@@ -379,12 +379,12 @@ bool OsNt::setup()
 
 std::unique_ptr<os::Module> os::make_nt(core::Core& core)
 {
-    return std::make_unique<OsNt>(core);
+    return std::make_unique<NtOs>(core);
 }
 
 namespace
 {
-    static opt<dtb_t> get_user_dtb(OsNt& os, uint64_t kprocess)
+    static opt<dtb_t> get_user_dtb(NtOs& os, uint64_t kprocess)
     {
         const auto dtb = os.reader_.read(kprocess + os.offsets_[KPROCESS_UserDirectoryTableBase]);
         if(dtb && *dtb != 0 && *dtb != 1)
@@ -400,7 +400,7 @@ namespace
         return dtb_t{*kdtb};
     }
 
-    static opt<proc_t> make_proc(OsNt& os, uint64_t eproc)
+    static opt<proc_t> make_proc(NtOs& os, uint64_t eproc)
     {
         const auto dtb = get_user_dtb(os, eproc + os.offsets_[EPROCESS_Pcb]);
         if(!dtb)
@@ -413,7 +413,7 @@ namespace
     }
 }
 
-bool OsNt::proc_list(process::on_proc_fn on_process)
+bool NtOs::proc_list(process::on_proc_fn on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
@@ -430,7 +430,7 @@ bool OsNt::proc_list(process::on_proc_fn on_process)
     return true;
 }
 
-opt<proc_t> OsNt::proc_current()
+opt<proc_t> NtOs::proc_current()
 {
     const auto current = thread_current();
     if(!current)
@@ -439,7 +439,7 @@ opt<proc_t> OsNt::proc_current()
     return thread_proc(*current);
 }
 
-opt<proc_t> OsNt::proc_find(std::string_view name, flags_e flags)
+opt<proc_t> NtOs::proc_find(std::string_view name, flags_e flags)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
@@ -458,7 +458,7 @@ opt<proc_t> OsNt::proc_find(std::string_view name, flags_e flags)
     return found;
 }
 
-opt<proc_t> OsNt::proc_find(uint64_t pid)
+opt<proc_t> NtOs::proc_find(uint64_t pid)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
@@ -475,7 +475,7 @@ opt<proc_t> OsNt::proc_find(uint64_t pid)
 
 namespace
 {
-    static opt<uint64_t> read_wow64_peb(const OsNt& os, const reader::Reader& reader, proc_t proc)
+    static opt<uint64_t> read_wow64_peb(const NtOs& os, const reader::Reader& reader, proc_t proc)
     {
         const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
@@ -497,7 +497,7 @@ namespace
 #define offsetof32(x, y) static_cast<uint32_t>(offsetof(x, y))
 }
 
-opt<std::string> OsNt::proc_name(proc_t proc)
+opt<std::string> NtOs::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14 + 1];
@@ -521,7 +521,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
     return path::filename(*path).generic_string();
 }
 
-uint64_t OsNt::proc_id(proc_t proc)
+uint64_t NtOs::proc_id(proc_t proc)
 {
     const auto pid = reader_.read(proc.id + offsets_[EPROCESS_UniqueProcessId]);
     if(!pid)
@@ -533,7 +533,7 @@ uint64_t OsNt::proc_id(proc_t proc)
 namespace
 {
     template <typename T, typename U, typename V>
-    static opt<bpid_t> listen_to(OsNt& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
+    static opt<bpid_t> listen_to(NtOs& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
     {
         const auto osptr = &os;
         const auto bp    = state::break_on(os.core_, name, addr, [=]
@@ -548,12 +548,12 @@ namespace
     }
 
     template <typename T>
-    static opt<bpid_t> register_listener(OsNt& os, std::string_view name, uint64_t addr, const T& on_value, void (*callback)(OsNt&, bpid_t, const T&))
+    static opt<bpid_t> register_listener(NtOs& os, std::string_view name, uint64_t addr, const T& on_value, void (*callback)(NtOs&, bpid_t, const T&))
     {
         return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
     }
 
-    static void on_PspInsertThread(OsNt& os, bpid_t, const process::on_event_fn& on_proc)
+    static void on_PspInsertThread(NtOs& os, bpid_t, const process::on_event_fn& on_proc)
     {
         // check if it is a CreateProcess if ActiveThreads = 0
         const auto eproc          = registers::read(os.core_, reg_e::rdx);
@@ -568,42 +568,42 @@ namespace
             on_proc(*proc);
     }
 
-    static void on_PspInsertThread(OsNt& os, bpid_t, const threads::on_event_fn& on_thread)
+    static void on_PspInsertThread(NtOs& os, bpid_t, const threads::on_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, reg_e::rcx);
         on_thread({thread});
     }
 
-    static void on_PspExitProcess(OsNt& os, bpid_t, const process::on_event_fn& on_proc)
+    static void on_PspExitProcess(NtOs& os, bpid_t, const process::on_event_fn& on_proc)
     {
         const auto eproc = registers::read(os.core_, reg_e::rdx);
         if(const auto proc = make_proc(os, eproc))
             on_proc(*proc);
     }
 
-    static void on_PspExitThread(OsNt& os, bpid_t, const threads::on_event_fn& on_thread)
+    static void on_PspExitThread(NtOs& os, bpid_t, const threads::on_event_fn& on_thread)
     {
         if(const auto thread = os.thread_current())
             on_thread(*thread);
     }
 }
 
-opt<bpid_t> OsNt::listen_proc_create(const process::on_event_fn& on_create)
+opt<bpid_t> NtOs::listen_proc_create(const process::on_event_fn& on_create)
 {
     return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
-opt<bpid_t> OsNt::listen_proc_delete(const process::on_event_fn& on_delete)
+opt<bpid_t> NtOs::listen_proc_delete(const process::on_event_fn& on_delete)
 {
     return register_listener(*this, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
 }
 
-opt<bpid_t> OsNt::listen_thread_create(const threads::on_event_fn& on_create)
+opt<bpid_t> NtOs::listen_thread_create(const threads::on_event_fn& on_create)
 {
     return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
-opt<bpid_t> OsNt::listen_thread_delete(const threads::on_event_fn& on_delete)
+opt<bpid_t> NtOs::listen_thread_delete(const threads::on_event_fn& on_delete)
 {
     return register_listener(*this, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
 }
@@ -612,7 +612,7 @@ namespace
 {
     constexpr auto x86_cs = 0x23;
 
-    static void on_LdrpInsertDataTableEntry(OsNt& os, bpid_t, const modules::on_event_fn& on_mod)
+    static void on_LdrpInsertDataTableEntry(NtOs& os, bpid_t, const modules::on_event_fn& on_mod)
     {
         const auto cs       = registers::read(os.core_, reg_e::cs);
         const auto is_32bit = cs == x86_cs;
@@ -624,7 +624,7 @@ namespace
         on_mod({mod_addr, flags});
     }
 
-    static opt<bpid_t> replace_bp(OsNt& os, bpid_t bpid, const state::Breakpoint& bp)
+    static opt<bpid_t> replace_bp(NtOs& os, bpid_t bpid, const state::Breakpoint& bp)
     {
         os.breakpoints_.erase(bpid);
         if(!bp)
@@ -634,7 +634,7 @@ namespace
         return bpid;
     }
 
-    static opt<bpid_t> try_on_LdrpProcessMappedModule(OsNt& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
+    static opt<bpid_t> try_on_LdrpProcessMappedModule(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
         const auto where = symbols::symbol(os.core_, proc, "wntdll", "_LdrpProcessMappedModule@16");
         if(!where)
@@ -648,7 +648,7 @@ namespace
         return replace_bp(os, bpid, bp);
     }
 
-    static void on_LdrpInsertDataTableEntry_wow64(OsNt& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
+    static void on_LdrpInsertDataTableEntry_wow64(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
         const auto objects = objects::make(os.core_, proc);
         if(!objects)
@@ -682,7 +682,7 @@ namespace
     }
 }
 
-opt<bpid_t> OsNt::listen_mod_create(proc_t proc, flags_e flags, const modules::on_event_fn& on_mod)
+opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_e flags, const modules::on_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
     const auto name = "ntdll!LdrpProcessMappedModule";
@@ -706,10 +706,10 @@ opt<bpid_t> OsNt::listen_mod_create(proc_t proc, flags_e flags, const modules::o
     return replace_bp(*this, bpid, bp);
 }
 
-opt<bpid_t> OsNt::listen_drv_create(const drivers::on_event_fn& on_drv)
+opt<bpid_t> NtOs::listen_drv_create(const drivers::on_event_fn& on_drv)
 {
     const auto bpid = ++last_bpid_;
-    const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_drv, [](OsNt& os, bpid_t /*bpid*/, const auto& on_drv)
+    const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_drv, [](NtOs& os, bpid_t /*bpid*/, const auto& on_drv)
     {
         const auto drv_addr   = registers::read(os.core_, reg_e::rcx);
         const auto drv_loaded = registers::read(os.core_, reg_e::rdx);
@@ -721,14 +721,14 @@ opt<bpid_t> OsNt::listen_drv_create(const drivers::on_event_fn& on_drv)
     return bpid;
 }
 
-size_t OsNt::unlisten(bpid_t bpid)
+size_t NtOs::unlisten(bpid_t bpid)
 {
     return breakpoints_.erase(bpid);
 }
 
 namespace
 {
-    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
+    static opt<walk_e> mod_list_64(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
     {
         const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
@@ -757,7 +757,7 @@ namespace
         return walk_e::next;
     }
 
-    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
+    static opt<walk_e> mod_list_32(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
     {
         const auto peb32 = read_wow64_peb(os, reader, proc);
         if(!peb32)
@@ -787,7 +787,7 @@ namespace
     }
 }
 
-bool OsNt::mod_list(proc_t proc, modules::on_mod_fn on_mod)
+bool NtOs::mod_list(proc_t proc, modules::on_mod_fn on_mod)
 {
     const auto reader = reader::make(core_, proc);
     auto ret          = mod_list_64(*this, proc, reader, on_mod);
@@ -800,7 +800,7 @@ bool OsNt::mod_list(proc_t proc, modules::on_mod_fn on_mod)
     return !!ret;
 }
 
-opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
+opt<std::string> NtOs::mod_name(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
     if(mod.flags & FLAGS_32BIT)
@@ -809,7 +809,7 @@ opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
     return nt::read_unicode_string(reader, mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
-opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
+opt<mod_t> NtOs::mod_find(proc_t proc, uint64_t addr)
 {
     opt<mod_t> found = {};
     mod_list(proc, [&](mod_t mod)
@@ -827,13 +827,13 @@ opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
     return found;
 }
 
-bool OsNt::proc_is_valid(proc_t proc)
+bool NtOs::proc_is_valid(proc_t proc)
 {
     const auto vad_root = reader_.read(proc.id + offsets_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
 }
 
-flags_e OsNt::proc_flags(proc_t proc)
+flags_e NtOs::proc_flags(proc_t proc)
 {
     const auto reader = reader::make(core_, proc);
     int flags         = FLAGS_NONE;
@@ -872,7 +872,7 @@ namespace
     }
 }
 
-opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
+opt<span_t> NtOs::mod_span(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
     if(mod.flags & FLAGS_32BIT)
@@ -881,37 +881,37 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
     return mod_span_64(reader, mod);
 }
 
-bool OsNt::vm_area_list(proc_t /*proc*/, vm_area::on_vm_area_fn /*on_vm_area*/)
+bool NtOs::vm_area_list(proc_t /*proc*/, vm_area::on_vm_area_fn /*on_vm_area*/)
 {
     return false;
 }
 
-opt<vm_area_t> OsNt::vm_area_find(proc_t /*proc*/, uint64_t /*addr*/)
+opt<vm_area_t> NtOs::vm_area_find(proc_t /*proc*/, uint64_t /*addr*/)
 {
     return {};
 }
 
-opt<span_t> OsNt::vm_area_span(proc_t /*proc*/, vm_area_t /*vm_area*/)
+opt<span_t> NtOs::vm_area_span(proc_t /*proc*/, vm_area_t /*vm_area*/)
 {
     return {};
 }
 
-vma_access_e OsNt::vm_area_access(proc_t /*proc*/, vm_area_t /*vm_area*/)
+vma_access_e NtOs::vm_area_access(proc_t /*proc*/, vm_area_t /*vm_area*/)
 {
     return VMA_ACCESS_NONE;
 }
 
-vma_type_e OsNt::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
+vma_type_e NtOs::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
 {
     return vma_type_e::none;
 }
 
-opt<std::string> OsNt::vm_area_name(proc_t /*proc*/, vm_area_t /*vm_area*/)
+opt<std::string> NtOs::vm_area_name(proc_t /*proc*/, vm_area_t /*vm_area*/)
 {
     return {};
 }
 
-bool OsNt::driver_list(drivers::on_driver_fn on_driver)
+bool NtOs::driver_list(drivers::on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
@@ -920,7 +920,7 @@ bool OsNt::driver_list(drivers::on_driver_fn on_driver)
     return true;
 }
 
-opt<driver_t> OsNt::driver_find(uint64_t addr)
+opt<driver_t> NtOs::driver_find(uint64_t addr)
 {
     opt<driver_t> found;
     driver_list([&](driver_t drv)
@@ -938,12 +938,12 @@ opt<driver_t> OsNt::driver_find(uint64_t addr)
     return found;
 }
 
-opt<std::string> OsNt::driver_name(driver_t drv)
+opt<std::string> NtOs::driver_name(driver_t drv)
 {
     return nt::read_unicode_string(reader_, drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
-opt<span_t> OsNt::driver_span(driver_t drv)
+opt<span_t> NtOs::driver_span(driver_t drv)
 {
     const auto base = reader_.read(drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, DllBase));
     if(!base)
@@ -956,7 +956,7 @@ opt<span_t> OsNt::driver_span(driver_t drv)
     return span_t{*base, *size};
 }
 
-bool OsNt::thread_list(proc_t proc, threads::on_thread_fn on_thread)
+bool NtOs::thread_list(proc_t proc, threads::on_thread_fn on_thread)
 {
     const auto head = proc.id + offsets_[EPROCESS_ThreadListHead];
     for(auto link = reader_.read(head); link && link != head; link = reader_.read(*link))
@@ -966,7 +966,7 @@ bool OsNt::thread_list(proc_t proc, threads::on_thread_fn on_thread)
     return true;
 }
 
-opt<thread_t> OsNt::thread_current()
+opt<thread_t> NtOs::thread_current()
 {
     const auto thread = reader_.read(kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_CurrentThread]);
     if(!thread)
@@ -975,7 +975,7 @@ opt<thread_t> OsNt::thread_current()
     return thread_t{*thread};
 }
 
-opt<proc_t> OsNt::thread_proc(thread_t thread)
+opt<proc_t> NtOs::thread_proc(thread_t thread)
 {
     const auto kproc = reader_.read(thread.id + offsets_[KTHREAD_Process]);
     if(!kproc)
@@ -989,7 +989,7 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
     return proc_t{eproc, *dtb};
 }
 
-opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
+opt<uint64_t> NtOs::thread_pc(proc_t /*proc*/, thread_t thread)
 {
     const auto ktrap_frame = reader_.read(thread.id + offsets_[ETHREAD_Tcb] + offsets_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
@@ -1005,7 +1005,7 @@ opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
     return *rip; // rip can be null
 }
 
-uint64_t OsNt::thread_id(proc_t /*proc*/, thread_t thread)
+uint64_t NtOs::thread_id(proc_t /*proc*/, thread_t thread)
 {
     const auto tid = reader_.read(thread.id + offsets_[ETHREAD_Cid] + offsets_[CLIENT_ID_UniqueThread]);
     if(!tid)
@@ -1016,12 +1016,12 @@ uint64_t OsNt::thread_id(proc_t /*proc*/, thread_t thread)
 
 namespace
 {
-    static void proc_join_kernel(OsNt& os, proc_t proc)
+    static void proc_join_kernel(NtOs& os, proc_t proc)
     {
         state::run_to_proc(os.core_, "proc_join_kernel", proc);
     }
 
-    static void proc_join_user(OsNt& os, proc_t proc)
+    static void proc_join_user(NtOs& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
@@ -1036,7 +1036,7 @@ namespace
     }
 }
 
-void OsNt::proc_join(proc_t proc, mode_e mode)
+void NtOs::proc_join(proc_t proc, mode_e mode)
 {
     const auto current   = proc_current();
     const auto same_proc = current && current->id == proc.id;
@@ -1053,7 +1053,7 @@ void OsNt::proc_join(proc_t proc, mode_e mode)
     return proc_join_user(*this, proc);
 }
 
-opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
+opt<phy_t> NtOs::proc_resolve(proc_t proc, uint64_t ptr)
 {
     const auto phy = memory::virtual_to_physical(core_, ptr, proc.dtb);
     if(phy)
@@ -1062,12 +1062,12 @@ opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
     return memory::virtual_to_physical(core_, ptr, reader_.kdtb_);
 }
 
-bool OsNt::is_kernel_address(uint64_t ptr)
+bool NtOs::is_kernel_address(uint64_t ptr)
 {
     return is_kernel(ptr);
 }
 
-bool OsNt::can_inject_fault(uint64_t ptr)
+bool NtOs::can_inject_fault(uint64_t ptr)
 {
     if(is_kernel_address(ptr))
         return false;
@@ -1075,7 +1075,7 @@ bool OsNt::can_inject_fault(uint64_t ptr)
     return is_user_mode(registers::read(core_, reg_e::cs));
 }
 
-opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
+opt<proc_t> NtOs::proc_select(proc_t proc, uint64_t ptr)
 {
     if(!is_kernel_address(ptr))
         return proc;
@@ -1087,7 +1087,7 @@ opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
     return proc_t{proc.id, dtb_t{*kdtb}};
 }
 
-opt<proc_t> OsNt::proc_parent(proc_t proc)
+opt<proc_t> NtOs::proc_parent(proc_t proc)
 {
     const auto reader     = reader::make(core_, proc);
     const auto parent_pid = reader.read(proc.id + offsets_[EPROCESS_InheritedFromUniqueProcessId]);
@@ -1097,7 +1097,7 @@ opt<proc_t> OsNt::proc_parent(proc_t proc)
     return proc_find(*parent_pid);
 }
 
-bool OsNt::reader_setup(reader::Reader& reader, opt<proc_t> proc)
+bool NtOs::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
     if(!proc)
     {
@@ -1185,7 +1185,7 @@ namespace
     }
 }
 
-opt<arg_t> OsNt::read_stack(size_t index)
+opt<arg_t> NtOs::read_stack(size_t index)
 {
     const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
@@ -1197,7 +1197,7 @@ opt<arg_t> OsNt::read_stack(size_t index)
     return read_stack64(reader, sp, index);
 }
 
-opt<arg_t> OsNt::read_arg(size_t index)
+opt<arg_t> NtOs::read_arg(size_t index)
 {
     const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
@@ -1209,7 +1209,7 @@ opt<arg_t> OsNt::read_arg(size_t index)
     return read_arg64(core_, reader, sp, index);
 }
 
-bool OsNt::write_arg(size_t index, arg_t arg)
+bool NtOs::write_arg(size_t index, arg_t arg)
 {
     const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
@@ -1239,7 +1239,7 @@ namespace
     }
 }
 
-void OsNt::debug_print()
+void NtOs::debug_print()
 {
     if(true)
         return;

@@ -1,6 +1,6 @@
 #include "nt_objects.hpp"
 
-#define FDP_MODULE "objects_nt"
+#define FDP_MODULE "nt_objects"
 #include "core.hpp"
 #include "endian.hpp"
 #include "log.hpp"
