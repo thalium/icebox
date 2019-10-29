@@ -12,6 +12,13 @@
 
 #include <array>
 
+#ifdef _MSC_VER
+#    include <string.h>
+#    define strncasecmp _strnicmp
+#else
+#    include <strings.h>
+#endif
+
 namespace
 {
     enum member_offset_e
@@ -20,6 +27,7 @@ namespace
         HANDLE_TABLE_TableCode,
         KPCR_Prcb,
         OBJECT_HEADER_Body,
+        OBJECT_HEADER_InfoMask,
         OBJECT_HEADER_TypeIndex,
         OBJECT_TYPE_Name,
         OBJECT_ATTRIBUTES_ObjectName,
@@ -43,6 +51,7 @@ namespace
         {HANDLE_TABLE_TableCode,                       "nt", "_HANDLE_TABLE",                      "TableCode"},
         {KPCR_Prcb,                                    "nt", "_KPCR",                              "Prcb"},
         {OBJECT_HEADER_Body,                           "nt", "_OBJECT_HEADER",                     "Body"},
+        {OBJECT_HEADER_InfoMask,                       "nt", "_OBJECT_HEADER",                     "InfoMask"},
         {OBJECT_HEADER_TypeIndex,                      "nt", "_OBJECT_HEADER",                     "TypeIndex"},
         {OBJECT_TYPE_Name,                             "nt", "_OBJECT_TYPE",                       "Name"},
         {OBJECT_ATTRIBUTES_ObjectName,                 "nt", "_OBJECT_ATTRIBUTES",                 "ObjectName"},
@@ -56,7 +65,9 @@ namespace
 
     enum symbol_offset_e
     {
+        ObpInfoMaskToOffset,
         ObpKernelHandleTable,
+        ObpRootDirectoryObject,
         ObTypeIndexTable,
         ObHeaderCookie,
         SYMBOL_OFFSET_COUNT,
@@ -71,7 +82,9 @@ namespace
     // clang-format off
     const SymbolOffset g_symbol_offsets[] =
     {
+        {ObpInfoMaskToOffset,             "nt", "ObpInfoMaskToOffset"},
         {ObpKernelHandleTable,            "nt", "ObpKernelHandleTable"},
+        {ObpRootDirectoryObject,          "nt", "ObpRootDirectoryObject"},
         {ObTypeIndexTable,                "nt", "ObTypeIndexTable"},
         {ObHeaderCookie,                  "nt", "ObHeaderCookie"},
     };
@@ -96,38 +109,58 @@ struct objects::Data
     reader::Reader reader;
     MemberOffsets  members;
     SymbolOffsets  symbols;
+    obj_t          root;
+    uint8_t        masks[16];
 };
+
+namespace
+{
+    using Data = objects::Data;
+
+    bool setup(Data& d)
+    {
+        bool fail = false;
+        for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
+        {
+            const auto& sym = g_symbol_offsets[i];
+            const auto addr = symbols::symbol(d.core, symbols::kernel, sym.module, sym.name);
+            if(!addr)
+            {
+                fail = true;
+                LOG(INFO, "unable to read %s!%s symbol offset", sym.module, sym.name);
+                continue;
+            }
+
+            d.symbols[i] = *addr;
+        }
+        for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
+        {
+            const auto& mb    = g_member_offsets[i];
+            const auto offset = symbols::struc_offset(d.core, symbols::kernel, mb.module, mb.struc, mb.member);
+            if(!offset)
+            {
+                fail = true;
+                LOG(INFO, "unable to read %s!%s.%s member offset", mb.module, mb.struc, mb.member);
+                continue;
+            }
+            d.members[i] = *offset;
+        }
+        if(fail)
+            return false;
+
+        auto ok = d.reader.read_all(&d.root.id, d.symbols[ObpRootDirectoryObject], sizeof d.root.id);
+        if(!ok)
+            return false;
+
+        return d.reader.read_all(&d.masks, d.symbols[ObpInfoMaskToOffset], sizeof d.masks);
+    }
+}
 
 std::shared_ptr<objects::Data> objects::make(core::Core& core, proc_t proc)
 {
     const auto ptr = std::make_shared<Data>(core, proc);
-    bool fail      = false;
-    for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
-    {
-        const auto& sym = g_symbol_offsets[i];
-        const auto addr = symbols::symbol(core, symbols::kernel, sym.module, sym.name);
-        if(!addr)
-        {
-            fail = true;
-            LOG(INFO, "unable to read %s!%s symbol offset", sym.module, sym.name);
-            continue;
-        }
-
-        ptr->symbols[i] = *addr;
-    }
-    for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
-    {
-        const auto& mb    = g_member_offsets[i];
-        const auto offset = symbols::struc_offset(core, symbols::kernel, mb.module, mb.struc, mb.member);
-        if(!offset)
-        {
-            fail = true;
-            LOG(INFO, "unable to read %s!%s.%s member offset", mb.module, mb.struc, mb.member);
-            continue;
-        }
-        ptr->members[i] = *offset;
-    }
-    if(fail)
+    const auto ok  = setup(*ptr);
+    if(!ok)
         return {};
 
     return ptr;
@@ -135,8 +168,6 @@ std::shared_ptr<objects::Data> objects::make(core::Core& core, proc_t proc)
 
 namespace
 {
-    using Data = objects::Data;
-
     static opt<objects::obj_t> object_read(const Data& d, nt::HANDLE handle)
     {
         // Is kernel handle
@@ -226,7 +257,7 @@ namespace
             return FAIL(ext::nullopt, "unable to read ObHeaderCookie");
 
         const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
-        const auto type_idx           = *encoded_type_idx ^ *header_cookie ^ obj_addr_cookie;
+        const auto type_idx           = static_cast<size_t>(*encoded_type_idx ^ *header_cookie ^ obj_addr_cookie);
         const auto obj_type           = d.reader.read(d.symbols[ObTypeIndexTable] + type_idx * POINTER_SIZE);
         if(!obj_type)
             return FAIL(ext::nullopt, "unable to read object type");
@@ -238,6 +269,30 @@ namespace
 opt<std::string> objects::type(Data& d, obj_t obj)
 {
     return object_type(d, obj);
+}
+
+namespace
+{
+    opt<std::string> object_name(Data& d, objects::obj_t obj)
+    {
+        auto info_mask    = uint8_t{};
+        const auto header = obj.id - d.members[OBJECT_HEADER_Body];
+        auto ok           = d.reader.read_all(&info_mask, header + d.members[OBJECT_HEADER_InfoMask], sizeof info_mask);
+        if(!ok)
+            return {};
+
+        auto info = nt::_OBJECT_HEADER_NAME_INFO{};
+        ok        = d.reader.read_all(&info, header - d.masks[info_mask & 3], sizeof info);
+        if(!ok)
+            return {};
+
+        return nt::read_unicode_string(d.reader, header - d.masks[info_mask & 3] + offsetof(nt::_OBJECT_HEADER_NAME_INFO, Name));
+    }
+}
+
+opt<std::string> objects::name(Data& data, obj_t obj)
+{
+    return object_name(data, obj);
 }
 
 opt<objects::file_t> objects::file_read(Data& d, nt::HANDLE handle)
@@ -279,4 +334,158 @@ opt<objects::driver_t> objects::device_driver(Data& d, device_t device)
 opt<std::string> objects::driver_name(Data& d, driver_t driver)
 {
     return nt::read_unicode_string(d.reader, driver.id + d.members[DRIVER_OBJECT_DriverName]);
+}
+
+namespace
+{
+    std::vector<std::string_view> split(std::string_view arg, std::string_view delimiter)
+    {
+        auto reply = std::vector<std::string_view>{};
+        auto prev  = size_t{0};
+        while(prev < arg.size())
+        {
+            auto end = arg.find(delimiter, prev);
+            if(end == std::string::npos)
+                end = arg.size();
+
+            const auto token = arg.substr(prev, end - prev);
+            if(!token.empty())
+                reply.emplace_back(token);
+
+            prev = end + delimiter.size();
+        }
+        return reply;
+    }
+
+    static uint32_t hash_name(std::string_view src)
+    {
+        const auto wname = utf8::to_utf16(src);
+        auto hash        = uint32_t{0};
+        auto ptr         = wname.data();
+        auto size        = wname.size();
+        auto chunk_hash  = uint64_t{0};
+        auto chunk_idx   = size_t{0};
+        for(/**/; chunk_idx + 4 <= size; chunk_idx += 4)
+        {
+            auto chunk = read_le64(&ptr[chunk_idx]);
+            // broken on non-ascii
+            chunk &= ~0x0020002000200020;
+            chunk_hash += (chunk_hash << 1) + (chunk_hash >> 1);
+            chunk_hash += chunk;
+        }
+        hash = static_cast<uint32_t>(chunk_hash + (chunk_hash >> 32));
+        for(auto i = chunk_idx; i < size; ++i)
+        {
+            const auto wchar = ptr[i];
+            hash += (hash << 1) + (hash >> 1);
+            if(wchar < 'a')
+                hash += wchar;
+            else if(wchar > 'z')
+                hash += towupper(wchar);
+            else
+                hash += wchar - ('a' - 'A');
+        }
+        return hash;
+    }
+
+    opt<nt::_OBJECT_DIRECTORY_ENTRY> find_object_in(Data& d, const nt::_OBJECT_DIRECTORY& root, std::string_view name)
+    {
+        const auto hash   = hash_name(name);
+        const auto bucket = hash % std::size(root.HashBuckets);
+        auto entry        = nt::_OBJECT_DIRECTORY_ENTRY{};
+        entry.ChainLink   = root.HashBuckets[bucket];
+        while(entry.ChainLink)
+        {
+            const auto ok = d.reader.read_all(&entry, entry.ChainLink, sizeof entry);
+            if(!ok)
+                return {};
+
+            if(entry.HashValue != hash)
+                continue;
+
+            const auto obj_name = object_name(d, objects::obj_t{entry.Object});
+            if(!obj_name)
+                continue;
+
+            if(obj_name->size() != name.size())
+                continue;
+
+            if(strncasecmp(obj_name->data(), name.data(), name.size()) != 0)
+                continue;
+
+            return entry;
+        }
+        return {};
+    }
+}
+
+opt<objects::obj_t> objects::find(Data& d, nt::ptr_t root, std::string_view path)
+{
+    const auto components = split(path, "\\");
+    if(!root)
+        root = d.root.id;
+
+    auto entry = nt::_OBJECT_DIRECTORY_ENTRY{};
+    for(const auto& token : components)
+    {
+        auto directory = nt::_OBJECT_DIRECTORY{};
+        const auto ok  = d.reader.read_all(&directory, root, sizeof directory);
+        if(!ok)
+            return {};
+
+        const auto opt_entry = find_object_in(d, directory, token);
+        if(!opt_entry)
+            return {};
+
+        entry = *opt_entry;
+        root  = entry.Object;
+    }
+    return obj_t{entry.Object};
+}
+
+opt<objects::section_t> objects::as_section(obj_t obj)
+{
+    // TODO check object type?
+    return section_t{obj.id};
+}
+
+namespace
+{
+    template <typename T>
+    opt<T> read_as(Data& d, uint64_t id)
+    {
+        auto struc    = T{};
+        const auto ok = d.reader.read_all(&struc, id, sizeof struc);
+        if(!ok)
+            return {};
+
+        return struc;
+    }
+}
+
+opt<objects::control_area_t> objects::section_control_area(Data& d, section_t obj)
+{
+    const auto section = read_as<nt::_SECTION>(d, obj.id);
+    if(!section)
+        return {};
+
+    return control_area_t{section->u.ControlArea};
+}
+
+opt<objects::segment_t> objects::control_area_segment(Data& d, control_area_t obj)
+{
+    const auto control_area = read_as<nt::_CONTROL_AREA>(d, obj.id);
+    if(!control_area)
+        return {};
+
+    return segment_t{control_area->Segment};
+}
+
+opt<span_t> objects::segment_span(Data& d, segment_t obj)
+{
+    const auto segment = read_as<nt::_SEGMENT>(d, obj.id);
+    if(!segment)
+        return {};
+
+    return span_t{segment->u.BasedAddress, segment->SizeOfSegment};
 }
