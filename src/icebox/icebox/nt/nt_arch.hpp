@@ -216,6 +216,65 @@ namespace nt_namespace
     };
 
     opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr);
+
+    struct _OBJECT_DIRECTORY_ENTRY
+    {
+        ptr_t    ChainLink;
+        ptr_t    Object;
+        uint32_t HashValue;
+    };
+
+    struct _OBJECT_DIRECTORY
+    {
+        ptr_t HashBuckets[37];
+    };
+
+    struct _OBJECT_HEADER_NAME_INFO
+    {
+        ptr_t           Directory;
+        _UNICODE_STRING Name;
+        uint32_t        QueryReferences;
+    };
+
+    struct _RTL_BALANCED_NODE
+    {
+        _RTL_BALANCED_NODE* Children[2];
+        uint64_t            ParentValue;
+    };
+
+    struct _SEGMENT
+    {
+        ptr_t    ControlArea;
+        uint32_t TotalNumberOfPtes;
+        uint32_t SegmentFlags;
+        uint64_t NumberOfCommittedPages;
+        uint64_t SizeOfSegment;
+        union
+        {
+            ptr_t ExtendInfo;
+            ptr_t BasedAddress;
+        } u;
+        // truncated...
+    };
+
+    struct _CONTROL_AREA
+    {
+        ptr_t Segment;
+        // truncated...
+    };
+
+    struct _SECTION
+    {
+        _RTL_BALANCED_NODE SectionNode;
+        uint64_t           StartingVpn;
+        uint64_t           EndingVpn;
+        union
+        {
+            ptr_t ControlArea;
+            ptr_t FileObject;
+        } u;
+        // truncated...
+    };
 } // namespace nt_namespace
 #undef nt_namespace
 #undef WOW64
