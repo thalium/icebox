@@ -8,6 +8,7 @@
 #include "interfaces/if_symbols.hpp"
 #include "log.hpp"
 #include "nt.hpp"
+#include "nt_objects.hpp"
 #include "reader.hpp"
 #include "utils/hex.hpp"
 #include "utils/path.hpp"
@@ -110,11 +111,8 @@ namespace
     enum symbol_e
     {
         KiKernelSysretExit,
-        KiSystemCall64,
         PsActiveProcessHead,
-        PsInitialSystemProcess,
         PsLoadedModuleList,
-        PsCallImageNotifyRoutines,
         PspInsertThread,
         PspExitProcess,
         PspExitThread,
@@ -133,11 +131,8 @@ namespace
     const NtSymbol g_symbols[] =
     {
         {cat_e::OPTIONAL, KiKernelSysretExit,                  "nt", "KiKernelSysretExit"},
-        {cat_e::REQUIRED, KiSystemCall64,                      "nt", "KiSystemCall64"},
         {cat_e::REQUIRED, PsActiveProcessHead,                 "nt", "PsActiveProcessHead"},
-        {cat_e::REQUIRED, PsInitialSystemProcess,              "nt", "PsInitialSystemProcess"},
         {cat_e::REQUIRED, PsLoadedModuleList,                  "nt", "PsLoadedModuleList"},
-        {cat_e::REQUIRED, PsCallImageNotifyRoutines,           "nt", "PsCallImageNotifyRoutines"},
         {cat_e::REQUIRED, PspInsertThread,                     "nt", "PspInsertThread"},
         {cat_e::REQUIRED, PspExitProcess,                      "nt", "PspExitProcess"},
         {cat_e::REQUIRED, PspExitThread,                       "nt", "PspExitThread"},
@@ -615,46 +610,6 @@ opt<bpid_t> OsNt::listen_thread_delete(const threads::on_event_fn& on_delete)
 
 namespace
 {
-    static opt<span_t> try_get_ntdll_span(OsNt& os, proc_t proc)
-    {
-        struct _IMAGE_INFO
-        {
-            uint64_t Properties;
-            uint64_t ImageAddressingMode;
-            uint64_t ImageBase;
-            uint64_t ImageSelector;
-            uint64_t ImageSize;
-            uint64_t ImageSectionNumber;
-        };
-
-        const auto name_addr = registers::read(os.core_, reg_e::rcx);
-        const auto reader    = reader::make(os.core_, proc);
-        const auto mod_name  = nt::read_unicode_string(reader, name_addr);
-        if(!mod_name)
-            return {};
-
-        const auto filename = path::filename(*mod_name);
-        if(filename != "ntdll.dll")
-            return {};
-
-        const auto image_info_addr = registers::read(os.core_, reg_e::r8);
-        const auto base            = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageBase));
-        if(!base)
-            return {};
-
-        // ntdll32 is always mapped at an address under the maximum 32 bit address
-        const auto max_32bit_addr = 0xffffffff;
-        const auto is_wow64       = *base <= max_32bit_addr;
-        if(!is_wow64)
-            return {};
-
-        const auto size = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageSize));
-        if(!size)
-            return {};
-
-        return span_t{*base, *size};
-    }
-
     constexpr auto x86_cs = 0x23;
 
     static void on_LdrpInsertDataTableEntry(OsNt& os, bpid_t, const modules::on_event_fn& on_mod)
@@ -693,51 +648,58 @@ namespace
         return replace_bp(os, bpid, bp);
     }
 
-    static void on_LdrpInsertDataTableEntry_wow64(OsNt& os, proc_t proc, bpid_t bpid, span_t ntdll, const modules::on_event_fn& on_mod)
+    static void on_LdrpInsertDataTableEntry_wow64(OsNt& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
-        const auto inserted = symbols::load_module_at(os.core_, symbols::kernel, "wntdll", ntdll);
+        const auto objects = objects::make(os.core_, proc);
+        if(!objects)
+            return;
+
+        const auto entry = objects::find(*objects, 0, "\\KnownDlls32\\ntdll.dll");
+        if(!entry)
+            return;
+
+        const auto section = objects::as_section(*entry);
+        if(!section)
+            return;
+
+        const auto control_area = objects::section_control_area(*objects, *section);
+        if(!control_area)
+            return;
+
+        const auto segment = objects::control_area_segment(*objects, *control_area);
+        if(!segment)
+            return;
+
+        const auto span = objects::segment_span(*objects, *segment);
+        if(!span)
+            return;
+
+        const auto inserted = symbols::load_module_at(os.core_, symbols::kernel, "wntdll", *span);
         if(!inserted)
             return;
 
         try_on_LdrpProcessMappedModule(os, proc, bpid, on_mod);
-    }
-
-    static void on_PsCallImageNotifyRoutines(OsNt& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
-    {
-        // try to find ntdll x86 boundaries
-        const auto ntdll = try_get_ntdll_span(os, proc);
-        if(!ntdll)
-            return;
-
-        // break in load module native which is user-land & will allow us to read wntdll
-        const auto ptr  = &os;
-        const auto name = "ntdll!LdrpProcessMappedModule";
-        const auto bp   = state::break_on_physical_process(os.core_, name, proc, os.LdrpProcessMappedModule_, [=]
-        {
-            on_LdrpInsertDataTableEntry_wow64(*ptr, proc, bpid, *ntdll, on_mod);
-        });
-        replace_bp(os, bpid, bp);
     }
 }
 
 opt<bpid_t> OsNt::listen_mod_create(proc_t proc, flags_e flags, const modules::on_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
+    const auto name = "ntdll!LdrpProcessMappedModule";
     if(flags == FLAGS_32BIT)
     {
         const auto opt_bpid = try_on_LdrpProcessMappedModule(*this, proc, bpid, on_mod);
         if(opt_bpid)
             return opt_bpid;
 
-        const auto bp = state::break_on_process(core_, "PsCallImageNotifyRoutines", proc, symbols_[PsCallImageNotifyRoutines], [=]
+        const auto bp = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
         {
-            on_PsCallImageNotifyRoutines(*this, proc, bpid, on_mod);
+            on_LdrpInsertDataTableEntry_wow64(*this, proc, bpid, on_mod);
         });
         return replace_bp(*this, bpid, bp);
     }
 
-    const auto name = "ntdll!LdrpProcessMappedModule";
-    const auto bp   = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
+    const auto bp = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
     {
         on_LdrpInsertDataTableEntry(*this, bpid, on_mod);
     });
