@@ -51,12 +51,6 @@ enum constants_e
     PAGE_FAULT = 0xE,
 };
 
-enum flags_e
-{
-    FLAGS_NONE  = 0,
-    FLAGS_32BIT = 1 << 0,
-};
-
 enum vma_access_e
 {
     VMA_ACCESS_NONE   = 0,

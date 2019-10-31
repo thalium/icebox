@@ -45,7 +45,7 @@ void display_proc(core::Core& core, const proc_t& proc)
 {
     const auto proc_pid      = process::pid(core, proc);
     auto proc_name           = process::name(core, proc);
-    const bool proc_32bits   = (process::flags(core, proc) & FLAGS_32BIT);
+    const bool proc_32bits   = !!process::flags(core, proc).is_x86;
     const auto proc_parent   = process::parent(core, proc);
     uint64_t proc_parent_pid = 0xffffffffffffffff;
     if(proc_parent)
@@ -97,7 +97,7 @@ void display_mod(core::Core& core, const proc_t& proc)
         LOG(INFO, "module: 0x%" PRIx64 " %s %s %zd bytes",
             span->addr,
             name->append(32 - name->length(), ' ').data(),
-            mod.flags & FLAGS_32BIT ? "x86" : "x64",
+            mod.flags.is_x86 ? "x86" : "x64",
             span->size);
 
         return walk_e::next;

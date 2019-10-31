@@ -160,11 +160,11 @@ namespace
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
-        opt<proc_t>         proc_find       (std::string_view name, flags_e flags) override;
+        opt<proc_t>         proc_find       (std::string_view name, flags_t flags) override;
         opt<proc_t>         proc_find       (uint64_t pid) override;
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
-        flags_e             proc_flags      (proc_t proc) override;
+        flags_t             proc_flags      (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         void                proc_join       (proc_t proc, mode_e mode) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
@@ -198,7 +198,7 @@ namespace
         opt<bpid_t> listen_proc_delete  (const process::on_event_fn& on_proc_event) override;
         opt<bpid_t> listen_thread_create(const threads::on_event_fn& on_thread_event) override;
         opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_thread_event) override;
-        opt<bpid_t> listen_mod_create   (proc_t proc, flags_e flags, const modules::on_event_fn& on_load) override;
+        opt<bpid_t> listen_mod_create   (proc_t proc, flags_t flags, const modules::on_event_fn& on_load) override;
         opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_drv) override;
         size_t      unlisten            (bpid_t bpid) override;
 
@@ -273,7 +273,7 @@ namespace
         if(!proc)
             return false;
 
-        const auto ntdll = modules::find_name(core, *proc, "ntdll.dll", FLAGS_NONE);
+        const auto ntdll = modules::find_name(core, *proc, "ntdll.dll", flags::x64);
         if(!ntdll)
             return false;
 
@@ -439,7 +439,7 @@ opt<proc_t> NtOs::proc_current()
     return thread_proc(*current);
 }
 
-opt<proc_t> NtOs::proc_find(std::string_view name, flags_e flags)
+opt<proc_t> NtOs::proc_find(std::string_view name, flags_t flags)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
@@ -449,7 +449,7 @@ opt<proc_t> NtOs::proc_find(std::string_view name, flags_e flags)
             return walk_e::next;
 
         const auto f = proc_flags(proc);
-        if(flags && !(f & flags))
+        if(!os::check_flags(f, flags))
             return walk_e::next;
 
         found = proc;
@@ -620,7 +620,7 @@ namespace
         // LdrpInsertDataTableEntry has a fastcall calling convention whether it's in ntdll or ntdll32
         const auto rcx      = registers::read(os.core_, reg_e::rcx);
         const auto mod_addr = is_32bit ? static_cast<uint32_t>(rcx) : rcx;
-        const auto flags    = is_32bit ? FLAGS_32BIT : FLAGS_NONE;
+        const auto flags    = is_32bit ? flags::x86 : flags::x64;
         on_mod({mod_addr, flags});
     }
 
@@ -682,11 +682,11 @@ namespace
     }
 }
 
-opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_e flags, const modules::on_event_fn& on_mod)
+opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_t flags, const modules::on_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
     const auto name = "ntdll!LdrpProcessMappedModule";
-    if(flags == FLAGS_32BIT)
+    if(flags.is_x86)
     {
         const auto opt_bpid = try_on_LdrpProcessMappedModule(*this, proc, bpid, on_mod);
         if(opt_bpid)
@@ -749,7 +749,7 @@ namespace
         const auto head = *ldr + offsetof(nt::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
         {
-            const auto ret = on_mod({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_NONE});
+            const auto ret = on_mod({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x64});
             if(ret == walk_e::stop)
                 return ret;
         }
@@ -778,7 +778,7 @@ namespace
         const auto head = *ldr32 + offsetof32(wow64::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
         {
-            const auto ret = on_mod({*link - offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_32BIT});
+            const auto ret = on_mod({*link - offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x86});
             if(ret == walk_e::stop)
                 return ret;
         }
@@ -803,7 +803,7 @@ bool NtOs::mod_list(proc_t proc, modules::on_mod_fn on_mod)
 opt<std::string> NtOs::mod_name(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    if(mod.flags & FLAGS_32BIT)
+    if(mod.flags.is_x86)
         return wow64::read_unicode_string(reader, mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, FullDllName));
 
     return nt::read_unicode_string(reader, mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
@@ -833,14 +833,16 @@ bool NtOs::proc_is_valid(proc_t proc)
     return vad_root && *vad_root;
 }
 
-flags_e NtOs::proc_flags(proc_t proc)
+flags_t NtOs::proc_flags(proc_t proc)
 {
     const auto reader = reader::make(core_, proc);
-    int flags         = FLAGS_NONE;
+    auto flags        = flags_t{};
     const auto wow64  = reader.read(proc.id + offsets_[EPROCESS_Wow64Process]);
     if(*wow64)
-        flags |= FLAGS_32BIT;
-    return static_cast<flags_e>(flags);
+        flags.is_x86 = true;
+    else
+        flags.is_x64 = true;
+    return flags;
 }
 
 namespace
@@ -875,7 +877,7 @@ namespace
 opt<span_t> NtOs::mod_span(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    if(mod.flags & FLAGS_32BIT)
+    if(mod.flags.is_x86)
         return mod_span_32(reader, mod);
 
     return mod_span_64(reader, mod);

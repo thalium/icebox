@@ -101,7 +101,7 @@ TEST_F(LinuxTest, processes)
 
         if(name && *name == UTILITY_NAME)
         {
-            EXPECT_EQ(process::flags(core, proc), FLAGS_32BIT);
+            EXPECT_TRUE(process::flags(core, proc).is_x86);
         }
 
         const auto pid = process::pid(core, proc);
@@ -109,7 +109,7 @@ TEST_F(LinuxTest, processes)
 
         if(pid <= 1) // swapper and systemd/initrd
         {
-            EXPECT_EQ(process::flags(core, proc), FLAGS_NONE);
+            EXPECT_TRUE(process::flags(core, proc).is_x64);
         }
 
         opt<proc_t> children = proc;
@@ -136,7 +136,7 @@ TEST_F(LinuxTest, processes)
     EXPECT_EQ(child->id, child_find_by_pid->id);
     EXPECT_EQ(child->dtb.val, child_find_by_pid->dtb.val);
 
-    const auto utility_find_by_name = process::find_name(core, UTILITY_NAME, FLAGS_NONE);
+    const auto utility_find_by_name = process::find_name(core, UTILITY_NAME, {});
     EXPECT_TRUE(utility_find_by_name && utility_find_by_name->id && utility_find_by_name->dtb.val);
     if(utility_find_by_name)
     {

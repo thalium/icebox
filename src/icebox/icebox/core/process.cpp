@@ -17,7 +17,7 @@ opt<proc_t> process::current(core::Core& core)
     return core.os_->proc_current();
 }
 
-opt<proc_t> process::find_name(core::Core& core, std::string_view name, flags_e flags)
+opt<proc_t> process::find_name(core::Core& core, std::string_view name, flags_t flags)
 {
     return core.os_->proc_find(name, flags);
 }
@@ -42,7 +42,7 @@ uint64_t process::pid(core::Core& core, proc_t proc)
     return core.os_->proc_id(proc);
 }
 
-flags_e process::flags(core::Core& core, proc_t proc)
+flags_t process::flags(core::Core& core, proc_t proc)
 {
     return core.os_->proc_flags(proc);
 }
@@ -67,7 +67,7 @@ opt<os::bpid_t> process::listen_delete(core::Core& core, const on_event_fn& on_p
     return core.os_->listen_proc_delete(on_proc_event);
 }
 
-opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_e flags)
+opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_t flags)
 {
     const auto proc = process::find_name(core, proc_name, flags);
     if(proc)
@@ -77,7 +77,7 @@ opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_e 
     const auto bpid = process::listen_create(core, [&](proc_t proc)
     {
         const auto new_flags = process::flags(core, proc);
-        if(flags && !(new_flags & flags))
+        if(!os::check_flags(new_flags, flags))
             return;
 
         const auto name = process::name(core, proc);

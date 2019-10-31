@@ -75,7 +75,7 @@ TEST_F(Win10Test, drivers)
 
 TEST_F(Win10Test, processes)
 {
-    using Process   = std::tuple<uint64_t, uint64_t, uint64_t, flags_e>;
+    using Process   = std::tuple<uint64_t, uint64_t, uint64_t, flags_t>;
     using Processes = std::multimap<std::string, Process>;
 
     Processes processes;
@@ -137,7 +137,7 @@ TEST_F(Win10Test, threads)
     using Threads = std::set<uint64_t>;
 
     auto& core          = *ptr_core;
-    const auto explorer = process::find_name(core, "explorer.exe", flags_e::FLAGS_NONE);
+    const auto explorer = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!explorer);
 
     Threads threads;
@@ -164,11 +164,11 @@ TEST_F(Win10Test, threads)
 
 TEST_F(Win10Test, modules)
 {
-    using Module  = std::tuple<uint64_t, uint64_t, size_t, flags_e>;
+    using Module  = std::tuple<uint64_t, uint64_t, size_t, flags_t>;
     using Modules = std::multimap<std::string, Module>;
 
     auto& core      = *ptr_core;
-    const auto proc = process::find_name(core, "explorer.exe", flags_e::FLAGS_NONE);
+    const auto proc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
 
     Modules modules;
@@ -219,10 +219,10 @@ namespace
 TEST_F(Win10Test, unable_to_single_step_query_information_process)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "ProcessHacker.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", flags::x86);
     EXPECT_TRUE(!!ntdll);
 
     process::join(core, *proc, mode_e::user);
@@ -244,10 +244,10 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
 TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "ProcessHacker.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", flags::x86);
     EXPECT_TRUE(!!ntdll);
 
     process::join(core, *proc, mode_e::user);
@@ -295,7 +295,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
 TEST_F(Win10Test, memory)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::find_name(core, "explorer.exe", flags_e::FLAGS_NONE);
+    const auto proc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
     LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
 
@@ -328,7 +328,7 @@ TEST_F(Win10Test, memory)
 TEST_F(Win10Test, loader)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "dwm.exe", {});
     ASSERT_TRUE(!!proc);
 
     process::join(core, *proc, mode_e::kernel);
@@ -337,18 +337,18 @@ TEST_F(Win10Test, loader)
     process::join(core, *proc, mode_e::user);
     symbols::listen_and_load(core, *proc, {});
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
     ASSERT_TRUE(ntdll);
 }
 
 TEST_F(Win10Test, tracer)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "dwm.exe", {});
     ASSERT_TRUE(!!proc);
 
     process::join(core, *proc, mode_e::user);
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
     ASSERT_TRUE(ntdll);
 
     process::join(core, *proc, mode_e::user);
@@ -381,10 +381,10 @@ namespace
 TEST_F(Win10Test, callstacks)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "dwm.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "dwm.exe", {});
     ASSERT_TRUE(!!proc);
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
     ASSERT_TRUE(ntdll);
 
     symbols::listen_and_load(core, *proc, {});
@@ -409,30 +409,38 @@ TEST_F(Win10Test, callstacks)
 TEST_F(Win10Test, listen_module_wow64)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "ProcessHacker.exe", FLAGS_NONE);
+    const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
-    modules::listen_create(core, *proc, FLAGS_NONE, [&](mod_t mod)
+    modules::listen_create(core, *proc, flags::x64, [&](mod_t mod)
     {
         const auto name = modules::name(core, *proc, mod);
         if(!name)
             return;
 
-        LOG(INFO, "listen_create: 64-bit: %s", name->data());
+        const auto span = modules::span(core, *proc, mod);
+        if(!span)
+            return;
+
+        LOG(INFO, "module loaded: 64-bit: %s 0x%" PRIx64 "-0x%" PRIx64, name->data(), span->addr, span->addr + span->size);
     });
 
-    modules::listen_create(core, *proc, FLAGS_32BIT, [&](mod_t mod)
+    modules::listen_create(core, *proc, flags::x86, [&](mod_t mod)
     {
         const auto name = modules::name(core, *proc, mod);
         if(!name)
             return;
 
-        LOG(INFO, "listen_create: 32-bit: %s", name->data());
+        const auto span = modules::span(core, *proc, mod);
+        if(!span)
+            return;
+
+        LOG(INFO, "module loaded: 32-bit: %s 0x%" PRIx64 "-0x%" PRIx64, name->data(), span->addr, span->addr + span->size);
     });
 
-    const auto nt64 = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+    const auto nt64 = modules::wait(core, *proc, "ntdll.dll", flags::x64);
     EXPECT_TRUE(!!nt64);
 
-    const auto ntwow64 = modules::wait(core, *proc, "ntdll.dll", FLAGS_32BIT);
+    const auto ntwow64 = modules::wait(core, *proc, "ntdll.dll", flags::x86);
     EXPECT_TRUE(!!ntwow64);
 }

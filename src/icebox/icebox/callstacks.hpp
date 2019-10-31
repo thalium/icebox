@@ -12,7 +12,7 @@ namespace callstacks
         uint64_t sp;    // stack pointer
         uint64_t bp;    // base pointer
         uint64_t cs;    // code segment
-        flags_e  flags; // process flags
+        flags_t  flags; // process flags
     };
 
     struct caller_t

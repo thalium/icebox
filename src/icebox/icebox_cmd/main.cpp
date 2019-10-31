@@ -32,12 +32,12 @@ namespace
     void test_wait_and_trace(core::Core& core, const std::string& proc_target)
     {
         LOG(INFO, "searching for 32 bits %s process", proc_target.data());
-        const auto target = process::wait(core, proc_target, FLAGS_32BIT);
+        const auto target = process::wait(core, proc_target, flags::x86);
         if(!target)
             return;
 
         process::join(core, *target, mode_e::user);
-        const auto mod = modules::wait(core, *target, "ntdll.dll", FLAGS_32BIT);
+        const auto mod = modules::wait(core, *target, "ntdll.dll", flags::x86);
         if(!mod)
             return;
 
@@ -92,7 +92,7 @@ namespace
 
         const char proc_target[] = "notepad.exe";
         LOG(INFO, "searching for %s", proc_target);
-        const auto target = process::wait(core, proc_target, FLAGS_NONE);
+        const auto target = process::wait(core, proc_target, {});
         if(!target)
             return false;
 
@@ -100,7 +100,7 @@ namespace
         process::join(core, *target, mode_e::kernel);
         process::join(core, *target, mode_e::user);
 
-        const auto is_32bit = process::flags(core, *target) & FLAGS_32BIT;
+        const auto is_32bit = process::flags(core, *target).is_x86;
 
         std::vector<uint8_t> buffer;
         size_t modcount = 0;
@@ -118,7 +118,7 @@ namespace
                 return walk_e::next;
 
             LOG(INFO, "module[%2zd/%-2zd] %s: 0x%" PRIx64 " 0x%" PRIx64 "%s", modi, modcount, name->data(), span->addr, span->size,
-                mod.flags & FLAGS_32BIT ? " wow64" : "");
+                mod.flags.is_x86 ? " wow64" : "");
             ++modi;
 
             const auto inserted = symbols::load_module(core, *target, mod);

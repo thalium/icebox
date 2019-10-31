@@ -36,3 +36,14 @@ void os::debug_print(core::Core& core)
 {
     return core.os_->debug_print();
 }
+
+bool os::check_flags(flags_t got, flags_t want)
+{
+    if(want.is_x86 && !got.is_x86)
+        return false;
+
+    if(want.is_x64 && !got.is_x64)
+        return false;
+
+    return true;
+}

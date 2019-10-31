@@ -468,7 +468,7 @@ namespace
             if(filename != "ntdll.dll")
                 return walk_e::next;
 
-            const auto is_wow64 = !!(mod.flags & FLAGS_32BIT);
+            const auto is_wow64 = !!mod.flags.is_x86;
             if(is_32bit ^ is_wow64)
                 return walk_e::next;
 
@@ -711,7 +711,7 @@ namespace
 size_t NtCallstacks::read_from(caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
 {
     memset(callers, 0, num_callers * sizeof *callers);
-    if(first.flags & FLAGS_32BIT)
+    if(first.flags.is_x86)
         return read_callers_x86(*this, callers, num_callers, proc, first);
 
     return read_callers_x64(*this, callers, num_callers, proc, first);
@@ -724,7 +724,7 @@ size_t NtCallstacks::read(caller_t* callers, size_t num_callers, proc_t proc)
     const auto bp         = registers::read(core_, reg_e::rbp);
     const auto cs         = registers::read(core_, reg_e::cs);
     constexpr auto x86_cs = 0x23;
-    const auto flags      = cs == x86_cs ? FLAGS_32BIT : FLAGS_NONE;
+    const auto flags      = cs == x86_cs ? flags::x86 : flags::x64;
     const auto ctx        = context_t{ip, sp, bp, cs, flags};
     return read_from(callers, num_callers, proc, ctx);
 }

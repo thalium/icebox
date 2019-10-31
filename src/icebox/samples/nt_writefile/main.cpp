@@ -40,12 +40,12 @@ namespace
     static int listen_writefile(core::Core& core, const std::string& target)
     {
         LOG(INFO, "waiting for %s...", target.data());
-        const auto proc = process::wait(core, target, FLAGS_NONE);
+        const auto proc = process::wait(core, target, flags::x64);
         if(!proc)
             return FAIL(-1, "unable to wait for %s", target.data());
 
         LOG(INFO, "process %s active", target.data());
-        const auto ntdll = modules::wait(core, *proc, "ntdll.dll", FLAGS_NONE);
+        const auto ntdll = modules::wait(core, *proc, "ntdll.dll", flags::x64);
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 

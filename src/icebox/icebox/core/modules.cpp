@@ -34,26 +34,35 @@ opt<mod_t> modules::find(core::Core& core, proc_t proc, uint64_t addr)
     return core.os_->mod_find(proc, addr);
 }
 
-opt<os::bpid_t> modules::listen_create(core::Core& core, proc_t proc, flags_e flags, const on_event_fn& on_load)
+opt<os::bpid_t> modules::listen_create(core::Core& core, proc_t proc, flags_t flags, const on_event_fn& on_load)
 {
     return core.os_->listen_mod_create(proc, flags, on_load);
 }
 
+bool modules::is_equal(core::Core& core, proc_t proc, mod_t mod, flags_t flags, std::string_view name)
+{
+    const auto mod_name = modules::name(core, proc, mod);
+    if(!mod_name)
+        return false;
+
+    if(!os::check_flags(mod.flags, flags))
+        return false;
+
+    if(stricmp(path::filename(*mod_name).generic_string().data(), name.data()))
+        return false;
+
+    return true;
+}
+
 namespace
 {
-    static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
+    static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_t flags)
     {
         opt<mod_t> found;
         modules::list(core, proc, [&](mod_t mod)
         {
-            const auto name = modules::name(core, proc, mod);
-            if(!name)
-                return walk_e::next;
-
-            if(flags && !(mod.flags & flags))
-                return walk_e::next;
-
-            if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
+            const auto ok = modules::is_equal(core, proc, mod, flags, mod_name);
+            if(!ok)
                 return walk_e::next;
 
             found = mod;
@@ -64,12 +73,12 @@ namespace
     }
 }
 
-opt<mod_t> modules::find_name(core::Core& core, proc_t proc, std::string_view name, flags_e flags)
+opt<mod_t> modules::find_name(core::Core& core, proc_t proc, std::string_view name, flags_t flags)
 {
     return search_mod(core, proc, name, flags);
 }
 
-opt<mod_t> modules::wait(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
+opt<mod_t> modules::wait(core::Core& core, proc_t proc, std::string_view mod_name, flags_t flags)
 {
     const auto mod = search_mod(core, proc, mod_name, flags);
     if(mod)
@@ -78,7 +87,7 @@ opt<mod_t> modules::wait(core::Core& core, proc_t proc, std::string_view mod_nam
     opt<mod_t> found;
     const auto bpid = modules::listen_create(core, proc, flags, [&](mod_t mod)
     {
-        if(flags && !(mod.flags & flags))
+        if(!os::check_flags(mod.flags, flags))
             return;
 
         const auto name = modules::name(core, proc, mod);

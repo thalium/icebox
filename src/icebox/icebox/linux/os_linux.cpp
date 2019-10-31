@@ -230,12 +230,12 @@ namespace
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
-        opt<proc_t>         proc_find       (std::string_view name, flags_e flags) override;
+        opt<proc_t>         proc_find       (std::string_view name, flags_t flags) override;
         opt<proc_t>         proc_find       (uint64_t pid) override;
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
-        flags_e             proc_flags      (proc_t proc) override;
+        flags_t             proc_flags      (proc_t proc) override;
         void                proc_join       (proc_t proc, mode_e mode) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
@@ -268,7 +268,7 @@ namespace
         opt<os::bpid_t> listen_proc_delete  (const process::on_event_fn& on_delete) override;
         opt<os::bpid_t> listen_thread_create(const threads::on_event_fn& on_create) override;
         opt<os::bpid_t> listen_thread_delete(const threads::on_event_fn& on_delete) override;
-        opt<os::bpid_t> listen_mod_create   (proc_t proc, flags_e flags, const modules::on_event_fn& on_create) override;
+        opt<os::bpid_t> listen_mod_create   (proc_t proc, flags_t flags, const modules::on_event_fn& on_create) override;
         opt<os::bpid_t> listen_drv_create   (const drivers::on_event_fn& on_drv) override;
         size_t          unlisten            (os::bpid_t bpid) override;
 
@@ -620,7 +620,7 @@ opt<proc_t> OsLinux::proc_current()
     return thread_proc(*thread);
 }
 
-opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e)
+opt<proc_t> OsLinux::proc_find(std::string_view name, flags_t)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
@@ -683,7 +683,7 @@ bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
     return false;
 }
 
-flags_e OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5 (06/2019)
+flags_t OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5 (06/2019)
 {
     unsigned char TIF_IA32 = 17, TIF_ADDR32 = 29, TIF_X32 = 30; // see /arch/x86/include/asm/thread_info.h
 
@@ -693,16 +693,16 @@ flags_e OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5
 
     const auto thread_info = (offsets_[TASKSTRUCT_THREADINFO]) ? proc.id + *offsets_[TASKSTRUCT_THREADINFO] : reader_.read(proc.id + *offsets_[TASKSTRUCT_STACK]);
     if(!thread_info)
-        return FAIL(FLAGS_NONE, "unable to find thread_info address of process 0x%" PRIx64, proc.id);
+        return FAIL(flags_t{}, "unable to find thread_info address of process 0x%" PRIx64, proc.id);
 
     const auto flags = reader_.le32(*thread_info + *offsets_[THREADINFO_FLAGS]);
     if(!flags)
-        return FAIL(FLAGS_NONE, "unable to read thread_info flags of process 0x%" PRIx64, proc.id);
+        return FAIL(flags_t{}, "unable to read thread_info flags of process 0x%" PRIx64, proc.id);
 
     if(!(*flags & mask))
-        return FLAGS_NONE;
+        return flags::x64;
 
-    return FLAGS_32BIT;
+    return flags::x86;
 }
 
 namespace
@@ -1022,7 +1022,7 @@ namespace
 
 bool OsLinux::mod_list(proc_t proc, modules::on_mod_fn on_module)
 {
-    flags_e flag = proc_flags(proc);
+    flags_t flag = proc_flags(proc);
 
     bool loader_found_or_stopped_before = true;
     uint64_t last_file                  = 0;
@@ -1395,7 +1395,7 @@ opt<os::bpid_t> OsLinux::listen_thread_delete(const threads::on_event_fn& /*on_r
     return {};
 }
 
-opt<os::bpid_t> OsLinux::listen_mod_create(proc_t /*proc*/, flags_e /*flags*/, const modules::on_event_fn& /*on_create*/)
+opt<os::bpid_t> OsLinux::listen_mod_create(proc_t /*proc*/, flags_t /*flags*/, const modules::on_event_fn& /*on_create*/)
 {
     return {};
 }

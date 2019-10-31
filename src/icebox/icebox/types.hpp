@@ -42,10 +42,22 @@ struct thread_t
     uint64_t id;
 };
 
+struct flags_t
+{
+    uint8_t is_x64  : 1;
+    uint8_t is_x86  : 1;
+};
+
+namespace flags
+{
+    constexpr auto x64 = flags_t{1, 0};
+    constexpr auto x86 = flags_t{0, 1};
+} // namespace flags
+
 struct mod_t
 {
     uint64_t id;
-    flags_e  flags;
+    flags_t  flags;
 };
 
 struct driver_t

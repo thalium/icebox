@@ -15,9 +15,10 @@ namespace modules
 
     bool                list            (core::Core&, proc_t proc, on_mod_fn on_mod);
     opt<std::string>    name            (core::Core&, proc_t proc, mod_t mod);
+    bool                is_equal        (core::Core&, proc_t proc, mod_t mod, flags_t flags, std::string_view name);
     opt<span_t>         span            (core::Core&, proc_t proc, mod_t mod);
     opt<mod_t>          find            (core::Core&, proc_t proc, uint64_t addr);
-    opt<mod_t>          find_name       (core::Core& core, proc_t proc, std::string_view name, flags_e flags);
-    opt<mod_t>          wait            (core::Core& core, proc_t proc, std::string_view name, flags_e flags);
-    opt<bpid_t>         listen_create   (core::Core& core, proc_t proc, flags_e flags, const on_event_fn& on_load);
+    opt<mod_t>          find_name       (core::Core& core, proc_t proc, std::string_view name, flags_t flags);
+    opt<mod_t>          wait            (core::Core& core, proc_t proc, std::string_view name, flags_t flags);
+    opt<bpid_t>         listen_create   (core::Core& core, proc_t proc, flags_t flags, const on_event_fn& on_load);
 } // namespace modules

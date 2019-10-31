@@ -147,14 +147,14 @@ namespace
         const auto eip   = static_cast<uint64_t>(wow64ctx.Eip);
         const auto esp   = static_cast<uint64_t>(wow64ctx.Esp);
         const auto segcs = static_cast<uint64_t>(wow64ctx.SegCs);
-        return callstacks::context_t{eip, esp, ebp, segcs, FLAGS_32BIT};
+        return callstacks::context_t{eip, esp, ebp, segcs, flags::x86};
     }
 
-    static void load_proc_symbols(core::Core& core, proc_t proc, flags_e flag)
+    static void load_proc_symbols(core::Core& core, proc_t proc, flags_t flags)
     {
         modules::list(core, proc, [&](mod_t mod)
         {
-            if(flag && mod.flags != flag)
+            if(!os::check_flags(mod.flags, flags))
                 return walk_e::next;
 
             const auto inserted = symbols::load_module(core, proc, mod);
@@ -185,7 +185,7 @@ namespace
 
     static void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
-        load_proc_symbols(core, proc, FLAGS_32BIT);
+        load_proc_symbols(core, proc, flags::x86);
 
         const auto ctx = get_saved_wow64_ctx(core, proc);
         if(!ctx)
@@ -199,7 +199,7 @@ namespace
 
     static void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
-        load_proc_symbols(core, proc, FLAGS_NONE);
+        load_proc_symbols(core, proc, flags::x64);
 
         auto callers = std::vector<callstacks::caller_t>(128);
         const auto n = callstacks::read(core, &callers[0], callers.size(), proc);
