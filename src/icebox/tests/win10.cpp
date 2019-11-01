@@ -16,7 +16,7 @@
 
 namespace
 {
-    struct Win10Test
+    struct win10
         : public ::testing::Test
     {
       protected:
@@ -38,11 +38,11 @@ namespace
     };
 }
 
-TEST_F(Win10Test, attach)
+TEST_F(win10, attach)
 {
 }
 
-TEST_F(Win10Test, drivers)
+TEST_F(win10, drivers)
 {
     using Driver  = std::tuple<uint64_t, uint64_t, size_t>;
     using Drivers = std::map<std::string, Driver>;
@@ -73,7 +73,7 @@ TEST_F(Win10Test, drivers)
     EXPECT_EQ(id, drv->id);
 }
 
-TEST_F(Win10Test, processes)
+TEST_F(win10, processes)
 {
     using Process   = std::tuple<uint64_t, uint64_t, uint64_t, flags_t>;
     using Processes = std::multimap<std::string, Process>;
@@ -132,7 +132,7 @@ TEST_F(Win10Test, processes)
     EXPECT_EQ(dtb, cur->dtb.val);
 }
 
-TEST_F(Win10Test, threads)
+TEST_F(win10, threads)
 {
     using Threads = std::set<uint64_t>;
 
@@ -162,7 +162,7 @@ TEST_F(Win10Test, threads)
     EXPECT_NE(it, threads.end());
 }
 
-TEST_F(Win10Test, modules)
+TEST_F(win10, modules)
 {
     using Module  = std::tuple<uint64_t, uint64_t, size_t, flags_t>;
     using Modules = std::multimap<std::string, Module>;
@@ -216,7 +216,7 @@ namespace
     }
 }
 
-TEST_F(Win10Test, unable_to_single_step_query_information_process)
+TEST_F(win10, unable_to_single_step_query_information_process)
 {
     auto& core      = *ptr_core;
     const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
@@ -241,7 +241,7 @@ TEST_F(Win10Test, unable_to_single_step_query_information_process)
     run_until(core, [&] { return found; });
 }
 
-TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
+TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
 {
     auto& core      = *ptr_core;
     const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
@@ -292,7 +292,7 @@ TEST_F(Win10Test, unset_bp_when_two_bps_share_phy_page)
     run_until(core, [&] { return func_start > 4; });
 }
 
-TEST_F(Win10Test, memory)
+TEST_F(win10, memory)
 {
     auto& core      = *ptr_core;
     const auto proc = process::find_name(core, "explorer.exe", {});
@@ -325,7 +325,7 @@ TEST_F(Win10Test, memory)
     });
 }
 
-TEST_F(Win10Test, loader)
+TEST_F(win10, loader)
 {
     auto& core      = *ptr_core;
     const auto proc = process::wait(core, "dwm.exe", {});
@@ -341,7 +341,7 @@ TEST_F(Win10Test, loader)
     ASSERT_TRUE(ntdll);
 }
 
-TEST_F(Win10Test, tracer)
+TEST_F(win10, tracer)
 {
     auto& core      = *ptr_core;
     const auto proc = process::wait(core, "dwm.exe", {});
@@ -378,7 +378,7 @@ namespace
     }
 }
 
-TEST_F(Win10Test, callstacks)
+TEST_F(win10, callstacks)
 {
     auto& core      = *ptr_core;
     const auto proc = process::wait(core, "dwm.exe", {});
@@ -406,7 +406,7 @@ TEST_F(Win10Test, callstacks)
     EXPECT_NE(num_callers, 0u);
 }
 
-TEST_F(Win10Test, listen_module_wow64)
+TEST_F(win10, listen_module_wow64)
 {
     auto& core      = *ptr_core;
     const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
