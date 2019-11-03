@@ -9,3 +9,6 @@
 *.pyc
 /third_party/virtualbox/include/FDP
 /third_party/virtualbox/linux.amd64.bin
+*.tmp_out
+*.tmp_src.cc
+*.test_execute.log
