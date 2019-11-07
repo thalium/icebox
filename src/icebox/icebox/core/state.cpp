@@ -295,6 +295,17 @@ bool state::wait(core::Core& core)
     return try_wait(core, CHECK_BREAKPOINTS);
 }
 
+void state::wait_for(core::Core& core, int timeout_ms)
+{
+    const auto now      = std::chrono::steady_clock::now();
+    const auto deadline = now + std::chrono::milliseconds(timeout_ms);
+    while(std::chrono::steady_clock::now() < deadline)
+    {
+        state::resume(core);
+        state::wait(core);
+    }
+}
+
 namespace
 {
     static opt<dtb_t> get_dtb_filter(core::Core& core, const BreakpointObserver& bp)
