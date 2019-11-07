@@ -33,6 +33,7 @@ namespace state
     Breakpoint  break_on_thread             (core::Core& core, std::string_view name, thread_t thread, uint64_t ptr, const Task& task);
     Breakpoint  break_on_physical           (core::Core& core, std::string_view name, phy_t phy, const Task& task);
     Breakpoint  break_on_physical_process   (core::Core& core, std::string_view name, proc_t proc, phy_t phy, const Task& task);
+    bool        run_fast_to_cr3_write       (core::Core& core);
     void        run_to_proc                 (core::Core& core, std::string_view name, proc_t proc);
     void        run_to_proc_at              (core::Core& core, std::string_view name, proc_t proc, uint64_t ptr);
     void        run_to_current              (core::Core& core, std::string_view name);

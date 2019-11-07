@@ -224,8 +224,11 @@ namespace
 
 NtOs::NtOs(core::Core& core)
     : core_(core)
+    , kpcr_(0)
     , reader_(reader::make(core))
     , last_bpid_(0)
+    , LdrpInitializeProcess_{0}
+    , LdrpProcessMappedModule_{0}
 {
 }
 
@@ -236,10 +239,10 @@ namespace
         return !!(ptr & 0xFFF0000000000000);
     }
 
-    static opt<span_t> find_kernel(core::Core& core, uint64_t lstar)
+    static opt<span_t> find_kernel_at(core::Core& core, uint64_t needle)
     {
         uint8_t buf[PAGE_SIZE];
-        for(auto ptr = utils::align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
+        for(auto ptr = utils::align<PAGE_SIZE>(needle); ptr < needle; ptr -= PAGE_SIZE)
         {
             auto ok = memory::read_virtual(core, buf, ptr, sizeof buf);
             if(!ok)
@@ -254,10 +257,25 @@ namespace
 
         return {};
     }
-}
 
-namespace
-{
+    static opt<span_t> find_kernel(NtOs& os, core::Core& core)
+    {
+        // try until we get a CR3 able to read kernel base address & size
+        const auto lstar = registers::read_msr(core, msr_e::lstar);
+        for(size_t i = 0; i < 64; ++i)
+        {
+            if(const auto kernel = find_kernel_at(core, lstar))
+                return kernel;
+
+            const auto ok = state::run_fast_to_cr3_write(core);
+            if(!ok)
+                break;
+
+            os.reader_.kdtb_.val = registers::read(core, reg_e::cr3);
+        }
+        return {};
+    }
+
     static bool read_phy_symbol(NtOs& os, phy_t& dst, proc_t proc, const char* module, const char* name)
     {
         const auto where = symbols::symbol(os.core_, symbols::kernel, module, name);
@@ -315,16 +333,35 @@ namespace
 
         return true;
     }
+
+    bool update_kernel_dtb(NtOs& os)
+    {
+        auto gdtb = dtb_t{registers::read(os.core_, reg_e::cr3)};
+        if(os.offsets_[KPRCB_KernelDirectoryTableBase])
+        {
+            const auto ok = memory::read_virtual(os.core_, &gdtb, os.kpcr_ + os.offsets_[KPCR_Prcb] + os.offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
+            if(!ok)
+                return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
+        }
+        os.reader_.kdtb_ = gdtb;
+        return true;
+    }
 }
 
 bool NtOs::setup()
 {
-    const auto lstar  = registers::read_msr(core_, msr_e::lstar);
-    const auto kernel = find_kernel(core_, lstar);
+    kpcr_ = registers::read_msr(core_, msr_e::gs_base);
+    if(!is_kernel(kpcr_))
+        kpcr_ = registers::read_msr(core_, msr_e::kernel_gs_base);
+    if(!is_kernel(kpcr_))
+        return FAIL(false, "unable to read KPCR");
+
+    const auto kernel = find_kernel(*this, core_);
     if(!kernel)
         return FAIL(false, "unable to find kernel");
 
-    LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
+    LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
+        kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
     auto ok = symbols::load_module_at(core_, symbols::kernel, "nt", *kernel);
     if(!ok)
         return FAIL(false, "unable to load symbols from kernel module");
@@ -368,32 +405,29 @@ bool NtOs::setup()
     if(fail)
         return false;
 
-    kpcr_ = registers::read_msr(core_, msr_e::gs_base);
-    if(!is_kernel(kpcr_))
-        kpcr_ = registers::read_msr(core_, msr_e::kernel_gs_base);
-    if(!is_kernel(kpcr_))
-        return FAIL(false, "unable to read KPCR");
+    // cr3 is same in user & kernel mode
+    if(!offsets_[KPROCESS_UserDirectoryTableBase])
+        offsets_[KPROCESS_UserDirectoryTableBase] = offsets_[KPROCESS_DirectoryTableBase];
 
+    // read current kernel dtb, just to have a good one to join system process
+    ok = update_kernel_dtb(*this);
+    if(!ok)
+        return false;
+
+    // join system process kernel side
     constexpr auto system_pid = 4;
     const auto proc           = proc_find(system_pid);
     if(!proc)
         return FAIL(false, "unable to find system process");
 
     proc_join(*proc, mode_e::kernel);
-    auto gdtb = dtb_t{registers::read(core_, reg_e::cr3)};
-    if(offsets_[KPRCB_KernelDirectoryTableBase])
-    {
-        ok = memory::read_virtual(core_, &gdtb, kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
-        if(!ok)
-            return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
-    }
 
-    // cr3 is same in user & kernel mode
-    if(!offsets_[KPROCESS_UserDirectoryTableBase])
-        offsets_[KPROCESS_UserDirectoryTableBase] = offsets_[KPROCESS_DirectoryTableBase];
+    // now update kernel dtb with the one read from system process
+    ok = update_kernel_dtb(*this);
+    if(!ok)
+        return false;
 
-    reader_.kdtb_ = gdtb;
-    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, gdtb.val);
+    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, reader_.kdtb_.val);
     return try_load_ntdll(*this, core_);
 }
 

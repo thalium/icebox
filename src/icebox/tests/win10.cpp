@@ -12,6 +12,7 @@
 #include <gtest/gtest.h>
 
 #include <map>
+#include <thread>
 #include <unordered_set>
 
 namespace
@@ -36,6 +37,17 @@ namespace
 
         std::shared_ptr<core::Core> ptr_core;
     };
+}
+
+TEST(win10_, attach_detach)
+{
+    for(size_t i = 0; i < 16; ++i)
+    {
+        const auto core = core::attach("win10");
+        EXPECT_TRUE(!!core);
+        state::resume(*core);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 }
 
 TEST_F(win10, attach)

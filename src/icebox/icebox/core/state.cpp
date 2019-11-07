@@ -267,13 +267,19 @@ namespace
             it->task();
     }
 
-    enum check_e
+    enum class breakpoints_e
     {
-        CHECK_BREAKPOINTS,
-        SKIP_BREAKPOINTS
+        update,
+        skip,
     };
 
-    static bool try_wait(core::Core& core, check_e check)
+    enum class state_e
+    {
+        update,
+        skip,
+    };
+
+    static bool try_wait(core::Core& core, state_e state, breakpoints_e check)
     {
         while(true)
         {
@@ -282,8 +288,9 @@ namespace
             if(!ok)
                 continue;
 
-            update_break_state(core);
-            if(check == CHECK_BREAKPOINTS)
+            if(state == state_e::update)
+                update_break_state(core);
+            if(check == breakpoints_e::update)
                 check_breakpoints(core);
             return true;
         }
@@ -292,7 +299,7 @@ namespace
 
 bool state::wait(core::Core& core)
 {
-    return try_wait(core, CHECK_BREAKPOINTS);
+    return try_wait(core, state_e::update, breakpoints_e::update);
 }
 
 void state::wait_for(core::Core& core, int timeout_ms)
@@ -436,7 +443,7 @@ namespace
         while(!is_end)
         {
             try_resume(core);
-            try_wait(core, SKIP_BREAKPOINTS);
+            try_wait(core, state_e::update, breakpoints_e::skip);
 
             // check & remove every ended predicates
             auto any_end = false;
@@ -457,6 +464,18 @@ namespace
             check_breakpoints(core);
         }
     }
+}
+
+bool state::run_fast_to_cr3_write(core::Core& core)
+{
+    const auto bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+    if(bpid < 0)
+        return false;
+
+    try_resume(core);
+    try_wait(core, state_e::skip, breakpoints_e::skip);
+    fdp::unset_breakpoint(core, bpid);
+    return true;
 }
 
 void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc)
