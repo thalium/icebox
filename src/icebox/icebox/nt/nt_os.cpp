@@ -374,6 +374,12 @@ bool NtOs::setup()
     if(!is_kernel(kpcr_))
         return FAIL(false, "unable to read KPCR");
 
+    constexpr auto system_pid = 4;
+    const auto proc           = proc_find(system_pid);
+    if(!proc)
+        return FAIL(false, "unable to find system process");
+
+    proc_join(*proc, mode_e::kernel);
     auto gdtb = dtb_t{registers::read(core_, reg_e::cr3)};
     if(offsets_[KPRCB_KernelDirectoryTableBase])
     {
