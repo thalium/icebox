@@ -902,7 +902,7 @@ namespace
         if(!base)
             return {};
 
-        const auto size = reader.read(mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+        const auto size = reader.le32(mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
         if(!size)
             return {};
 
@@ -1000,7 +1000,7 @@ opt<span_t> NtOs::driver_span(driver_t drv)
     if(!base)
         return {};
 
-    const auto size = reader_.read(drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+    const auto size = reader_.le32(drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
     if(!size)
         return {};
 
