@@ -528,11 +528,16 @@ namespace
 
         const auto teb    = registers::read_msr(c.core_, is_32bit ? msr_e::fs_base : msr_e::gs_base);
         const auto nt_tib = teb + offset(c, is_32bit, TEB_NtTib);
-        const auto base   = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackBase));
-        const auto limit  = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackLimit));
+        auto base         = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackBase));
+        auto limit        = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackLimit));
         if(!base || !limit)
             return FAIL(ext::nullopt, "unable to find stack boundaries");
 
+        if(is_32bit)
+        {
+            *base  = static_cast<uint32_t>(*base);
+            *limit = static_cast<uint32_t>(*limit);
+        }
         return span_t{*limit, *base - *limit};
     }
 
