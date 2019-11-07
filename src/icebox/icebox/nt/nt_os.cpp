@@ -217,6 +217,7 @@ namespace
         reader::Reader reader_;
         bpid_t         last_bpid_;
         Breakpoints    breakpoints_;
+        phy_t          LdrpInitializeProcess_;
         phy_t          LdrpProcessMappedModule_;
     };
 }
@@ -257,6 +258,20 @@ namespace
 
 namespace
 {
+    static bool read_phy_symbol(NtOs& os, phy_t& dst, proc_t proc, const char* module, const char* name)
+    {
+        const auto where = symbols::symbol(os.core_, symbols::kernel, module, name);
+        if(!where)
+            return false;
+
+        const auto phy = memory::virtual_to_physical(os.core_, *where, proc.dtb);
+        if(!phy)
+            return false;
+
+        dst = *phy;
+        return true;
+    }
+
     static bool try_load_ntdll(NtOs& os, core::Core& core)
     {
         const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
@@ -290,15 +305,14 @@ namespace
         if(!ok)
             return false;
 
-        const auto where = symbols::symbol(core, symbols::kernel, "ntdll", "LdrpProcessMappedModule");
-        if(!where)
+        ok = read_phy_symbol(os, os.LdrpInitializeProcess_, *proc, "ntdll", "LdrpInitializeProcess");
+        if(!ok)
             return false;
 
-        const auto phy = memory::virtual_to_physical(core, *where, proc->dtb);
-        if(!phy)
+        ok = read_phy_symbol(os, os.LdrpProcessMappedModule_, *proc, "ntdll", "LdrpProcessMappedModule");
+        if(!ok)
             return false;
 
-        os.LdrpProcessMappedModule_ = *phy;
         return true;
     }
 }
@@ -553,21 +567,6 @@ namespace
         return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
     }
 
-    static void on_PspInsertThread(NtOs& os, bpid_t, const process::on_event_fn& on_proc)
-    {
-        // check if it is a CreateProcess if ActiveThreads = 0
-        const auto eproc          = registers::read(os.core_, reg_e::rdx);
-        const auto active_threads = os.reader_.le32(eproc + os.offsets_[EPROCESS_ActiveThreads]);
-        if(!active_threads)
-            return;
-
-        if(*active_threads)
-            return;
-
-        if(const auto proc = make_proc(os, eproc))
-            on_proc(*proc);
-    }
-
     static void on_PspInsertThread(NtOs& os, bpid_t, const threads::on_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, reg_e::rcx);
@@ -590,7 +589,17 @@ namespace
 
 opt<bpid_t> NtOs::listen_proc_create(const process::on_event_fn& on_create)
 {
-    return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
+    const auto bpid = ++last_bpid_;
+    const auto bp   = state::break_on_physical(core_, "LdrpInitializeProcess", LdrpInitializeProcess_, [=]
+    {
+        const auto proc = process::current(core_);
+        if(!proc)
+            return;
+
+        on_create(*proc);
+    });
+    breakpoints_.emplace(bpid, bp);
+    return bpid;
 }
 
 opt<bpid_t> NtOs::listen_proc_delete(const process::on_event_fn& on_delete)
