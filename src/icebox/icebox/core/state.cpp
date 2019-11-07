@@ -76,6 +76,9 @@ namespace
         dtb_t    dtb;
         phy_t    phy;
     };
+
+    using check_fn = std::function<bool()>;
+    using Waiters  = std::vector<check_fn>;
 }
 
 struct state::State
@@ -83,6 +86,7 @@ struct state::State
     Breakers   targets;
     Observers  observers;
     BreakState breakstate;
+    Waiters    waiters;
 };
 
 std::shared_ptr<state::State> state::setup()
@@ -402,16 +406,42 @@ state::Breakpoint state::break_on_physical_process(core::Core& core, std::string
 
 namespace
 {
+    template <typename T, typename U>
+    void erase_if(T& data, U predicate)
+    {
+        data.erase(std::remove_if(std::begin(data), std::end(data), predicate), std::end(data));
+    }
+
     template <typename T>
     static void run_until(core::Core& core, const T& predicate)
     {
-        while(true)
+        auto& d     = *core.state_;
+        auto is_end = false;
+        d.waiters.emplace_back([&]
+        {
+            is_end = is_end || predicate();
+            return is_end;
+        });
+        while(!is_end)
         {
             try_resume(core);
             try_wait(core, SKIP_BREAKPOINTS);
 
-            if(predicate())
+            // check & remove every ended predicates
+            auto any_end = false;
+            erase_if(d.waiters, [&](const auto& check)
+            {
+                const auto ended = check();
+                any_end          = any_end || ended;
+                return ended;
+            });
+            // we can return directly if our predicate has ended
+            if(is_end)
                 return;
+
+            // on other predicates, ignore spurious breakpoints & continue
+            if(any_end)
+                continue;
 
             check_breakpoints(core);
         }
