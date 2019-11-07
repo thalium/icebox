@@ -489,7 +489,7 @@ namespace
         if(opt_offsets)
             return true;
 
-        const auto ok = load_ntdll(c.core_, proc, name, is_32bit);
+        const auto ok = !is_32bit || load_ntdll(c.core_, proc, name, is_32bit);
         if(!ok)
             return FAIL(false, "unable to load ntdll");
 
