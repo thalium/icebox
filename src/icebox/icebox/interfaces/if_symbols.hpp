@@ -28,10 +28,10 @@ namespace symbols
         virtual bool            sym_list    (on_symbol_fn on_symbol) = 0;
     };
 
-    std::unique_ptr<Module> make_pdb    (span_t span, const std::string& module, const std::string& guid);
-    std::unique_ptr<Module> make_pdb    (span_t span, const reader::Reader& reader);
-    std::unique_ptr<Module> make_dwarf  (span_t span, const std::string& module, const std::string& guid);
-    std::unique_ptr<Module> make_dwarf  (span_t span, const reader::Reader& reader);
+    std::shared_ptr<Module> make_pdb    (span_t span, const std::string& module, const std::string& guid);
+    std::shared_ptr<Module> make_pdb    (span_t span, const reader::Reader& reader);
+    std::shared_ptr<Module> make_dwarf  (span_t span, const std::string& module, const std::string& guid);
+    std::shared_ptr<Module> make_dwarf  (span_t span, const reader::Reader& reader);
 
     struct Modules
     {
@@ -40,7 +40,7 @@ namespace symbols
 
         using on_module_fn = std::function<walk_e(const Module& module)>;
 
-        bool    insert  (proc_t proc, const std::string& module, std::unique_ptr<Module> symbols);
+        bool    insert  (proc_t proc, const std::string& module, const std::shared_ptr<Module>& symbols);
         bool    insert  (proc_t proc, const std::string& module, span_t span);
         bool    remove  (proc_t proc, const std::string& module);
 

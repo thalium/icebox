@@ -94,13 +94,13 @@ opt<uint64_t> symbols::Map::get_aslr()
     return aslr;
 }
 
-std::unique_ptr<symbols::Map> symbols::make_map(span_t, const std::string& module, const std::string& guid)
+std::shared_ptr<symbols::Map> symbols::make_map(span_t, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
         return nullptr;
 
-    auto ptr = std::make_unique<Map>(fs::path(path) / module / guid / "System.map");
+    const auto ptr = std::make_shared<Map>(fs::path(path) / module / guid / "System.map");
     if(!ptr->setup())
         return nullptr;
 

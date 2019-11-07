@@ -465,17 +465,17 @@ namespace
         symbols::unload(core, symbols::kernel, "kernel");
         symbols::unload(core, symbols::kernel, "kernel_sym");
 
-        auto& symbols = symbols::Modules::modules(core);
-        auto dwarf    = symbols::make_dwarf({}, "kernel", guid);
-        if(!dwarf || !symbols.insert(symbols::kernel, "kernel", std::move(dwarf)))
+        auto& symbols    = symbols::Modules::modules(core);
+        const auto dwarf = symbols::make_dwarf({}, "kernel", guid);
+        if(!dwarf || !symbols.insert(symbols::kernel, "kernel", dwarf))
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/elf", guid.data());
 
-        auto sysmap = symbols::make_map({}, "kernel", guid);
+        const auto sysmap = symbols::make_map({}, "kernel", guid);
         if(!sysmap || !sysmap->set_aslr(strSymbol, addrSymbol))
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/System.map file", guid.data());
 
         const auto kaslr = sysmap->get_aslr();
-        if(!symbols.insert(symbols::kernel, "kernel_sym", std::move(sysmap)))
+        if(!symbols.insert(symbols::kernel, "kernel_sym", sysmap))
             return FAIL(ext::nullopt, "unable to read System.map file");
 
         return kaslr;

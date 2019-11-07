@@ -297,11 +297,11 @@ namespace
             return false;
 
         const auto reader = reader::make(core, *proc);
-        auto pdb          = symbols::make_pdb(*span, reader);
+        const auto pdb    = symbols::make_pdb(*span, reader);
         if(!pdb)
             return false;
 
-        auto ok = core.symbols_->insert(symbols::kernel, "ntdll", std::move(pdb));
+        auto ok = core.symbols_->insert(symbols::kernel, "ntdll", pdb);
         if(!ok)
             return false;
 

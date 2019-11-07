@@ -314,7 +314,7 @@ Dwarf::~Dwarf()
     dwarf_finish(dbg, &err);
 }
 
-std::unique_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const std::string& module, const std::string& guid)
+std::shared_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
@@ -327,7 +327,7 @@ std::unique_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const std:
     return ptr;
 }
 
-std::unique_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const reader::Reader& /*reader*/)
+std::shared_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const reader::Reader& /*reader*/)
 {
     return {};
 }

@@ -23,6 +23,6 @@ namespace symbols
         bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
     };
 
-    std::unique_ptr<symbols::Map> make_map(span_t span, const std::string& module, const std::string& guid);
+    std::shared_ptr<symbols::Map> make_map(span_t span, const std::string& module, const std::string& guid);
 
 } // namespace symbols

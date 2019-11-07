@@ -54,7 +54,7 @@ namespace std
 
 namespace
 {
-    using Mod         = std::unique_ptr<symbols::Module>;
+    using Mod         = std::shared_ptr<symbols::Module>;
     using Mods        = std::unordered_map<ModKey, Mod>;
     using Data        = symbols::Modules::Data;
     using Buffer      = std::vector<uint8_t>;
@@ -104,9 +104,9 @@ symbols::Modules& symbols::Modules::modules(core::Core& core)
     return *core.symbols_;
 }
 
-bool symbols::Modules::insert(proc_t proc, const std::string& module, Mod symbols)
+bool symbols::Modules::insert(proc_t proc, const std::string& module, const Mod& symbols)
 {
-    const auto ret = d_->mods.emplace(ModKey{module, proc}, std::move(symbols));
+    const auto ret = d_->mods.emplace(ModKey{module, proc}, symbols);
     return ret.second;
 }
 
@@ -142,7 +142,7 @@ bool symbols::Modules::insert(proc_t proc, const std::string& name, span_t modul
         if(!mod)
             continue;
 
-        return insert(proc, name, std::move(mod));
+        return insert(proc, name, mod);
     }
     return false;
 }
@@ -164,18 +164,18 @@ bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module)
 
 namespace
 {
-    symbols::Module* find_module(Data& d, proc_t proc, const std::string& name)
+    Mod find_module(Data& d, proc_t proc, const std::string& name)
     {
         const auto it = d.mods.find({name, proc});
         if(it != d.mods.end())
-            return it->second.get();
+            return it->second;
 
         if(is_kernel_proc(proc))
-            return nullptr;
+            return {};
 
         const auto ju = d.mods.find({name, symbols::kernel});
         if(ju != d.mods.end())
-            return ju->second.get();
+            return ju->second;
 
         return nullptr;
     }
@@ -183,7 +183,8 @@ namespace
 
 symbols::Module* symbols::Modules::find(proc_t proc, const std::string& name)
 {
-    return find_module(*d_, proc, name);
+    const auto it = find_module(*d_, proc, name);
+    return it ? it.get() : nullptr;
 }
 
 opt<uint64_t> symbols::Modules::symbol(proc_t proc, const std::string& module, const std::string& symbol)

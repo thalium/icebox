@@ -70,7 +70,7 @@ Pdb::Pdb(fs::path filename, span_t span)
 {
 }
 
-std::unique_ptr<symbols::Module> symbols::make_pdb(span_t span, const std::string& module, const std::string& guid)
+std::shared_ptr<symbols::Module> symbols::make_pdb(span_t span, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_NT_SYMBOL_PATH");
     if(!path)
@@ -268,7 +268,7 @@ namespace
     }
 }
 
-std::unique_ptr<symbols::Module> symbols::make_pdb(span_t span, const reader::Reader& reader)
+std::shared_ptr<symbols::Module> symbols::make_pdb(span_t span, const reader::Reader& reader)
 {
     // try to find pe debug section
     const auto debug     = pe::find_debug_codeview(reader, span);
