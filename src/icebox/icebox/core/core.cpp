@@ -75,6 +75,7 @@ namespace
 
         if(interfaces->make_callstacks)
             core.callstacks_ = interfaces->make_callstacks(core);
+
         return true;
     }
 }
@@ -85,18 +86,8 @@ std::shared_ptr<core::Core> core::attach(const std::string& name)
     if(!ptr)
         return {};
 
-    // try to connect multiple times
-    const auto now = std::chrono::high_resolution_clock::now();
-    const auto end = now + std::chrono::seconds(2);
-    int n_ms       = 10;
-    while(std::chrono::high_resolution_clock::now() < end)
-    {
-        if(::setup(*ptr, name))
-            return ptr;
+    if(!::setup(*ptr, name))
+        return {};
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(n_ms));
-        n_ms = std::min(n_ms * 2, 400);
-    }
-
-    return {};
+    return ptr;
 }
