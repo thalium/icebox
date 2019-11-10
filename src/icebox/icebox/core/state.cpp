@@ -330,7 +330,7 @@ namespace
         return proc->dtb;
     }
 
-    static int try_add_breakpoint(core::Core& core, phy_t phy, const BreakpointObserver& bp)
+    static opt<int> try_add_breakpoint(core::Core& core, std::string_view name, phy_t phy, const BreakpointObserver& bp)
     {
         auto& d       = *core.state_;
         auto& targets = d.targets;
@@ -347,15 +347,16 @@ namespace
             const auto ok = fdp::unset_breakpoint(core, it->second.id);
             targets.erase(it);
             if(!ok)
-                return -1;
+                return {};
 
             // add new breakpoint without filtering
             dtb = {};
         }
 
-        const auto bpid = fdp::set_breakpoint(core, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb ? dtb->val : 0);
+        const auto dtb_val = dtb ? dtb->val : 0;
+        const auto bpid    = fdp::set_breakpoint(core, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb_val);
         if(bpid < 0)
-            return -1;
+            return FAIL(ext::nullopt, "unable to set breakpoint %s phy:0x%" PRIx64 " dtb:0x%" PRIx64, std::string{name}.data(), phy.val, dtb_val);
 
         targets.emplace(phy, Breakpoint{dtb, bpid});
         return bpid;
@@ -366,12 +367,14 @@ namespace
         auto& d       = *core.state_;
         const auto bp = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
         d.observers.emplace(phy, bp);
-        const auto bpid = try_add_breakpoint(core, phy, *bp);
+        const auto bpid = try_add_breakpoint(core, std::string{name}, phy, *bp);
+        if(!bpid)
+            return {};
 
         // update all observers breakpoint id
         lookup_observers(d.observers, phy, [&](auto it)
         {
-            it->second->bpid = bpid;
+            it->second->bpid = *bpid;
             return walk_e::next;
         });
         return std::make_shared<state::BreakpointPrivate>(core, bp);
