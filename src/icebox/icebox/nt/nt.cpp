@@ -17,12 +17,12 @@ namespace
         if(!ok)
             return {};
 
-        str.Length = std::min(str.Length, str.MaximumLength);
+        str.Length = std::min(str.Length, str.MaximumLength) & ~1;
         if(!str.Length)
             return {};
 
-        std::vector<uint8_t> buffer(str.Length);
-        ok = reader.read_all(&buffer[0], str.Buffer, str.Length);
+        auto buffer = std::vector<uint8_t>(str.Length);
+        ok          = reader.read_all(&buffer[0], str.Buffer, str.Length);
         if(!ok)
             return {};
 
