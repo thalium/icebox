@@ -34,8 +34,6 @@ namespace pdb = retdec::pdbparser;
 
 namespace
 {
-    static const int BASE_ADDRESS = 0x80000000;
-
     using Symbols         = std::unordered_map<std::string, pdb::PDBGlobalVariable>;
     using SymbolsByOffset = std::map<uint64_t, pdb::PDBGlobalVariable>;
 
@@ -101,7 +99,7 @@ namespace
 
     static uint64_t get_offset(Pdb& pdb, const pdb::PDBGlobalVariable& var)
     {
-        return pdb.span_.addr + var.address - BASE_ADDRESS;
+        return pdb.span_.addr + var.address;
     }
 }
 
@@ -111,7 +109,7 @@ bool Pdb::setup()
     if(err != pdb::PDB_STATE_OK)
         return FAIL(false, "unable to open pdb %s: %s", filename_.generic_string().data(), to_string(err));
 
-    pdb_.initialize(BASE_ADDRESS);
+    pdb_.initialize();
     const auto globals = pdb_.get_global_variables();
     symbols_.reserve(globals->size());
     for(const auto& it : *globals)

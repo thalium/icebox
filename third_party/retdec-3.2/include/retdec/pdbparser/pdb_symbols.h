@@ -125,12 +125,12 @@ class PDBSymbols
 	public:
 		// Constructor and destructor
 		PDBSymbols(PDBStream *gsi, PDBStream *psi, PDBStream *sym, PDBModulesVec & m, PDBSectionsVec & s,
-		        PDBTypes * tps) :
+		        PDBSectionsVec & os, PDBOmapFroms & omaps, PDBTypes * tps) :
 //		pdb_gsi_size(gsi->size),
 //		pdb_gsi_data(gsi->data),
 //		pdb_psi_size(psi->size),
 //		pdb_psi_data(psi->data),
-				pdb_sym_size(sym->size), pdb_sym_data(sym->data), modules(m), sections(s), types(tps), parsed(false)
+				pdb_sym_size(sym->size), pdb_sym_data(sym->data), modules(m), sections(s), original_sections(os), omaps(omaps), types(tps), parsed(false)
 		{
 		}
 		;
@@ -154,14 +154,7 @@ class PDBSymbols
 		/**
 		 * Get virtual address from section index and offset of symbol
 		 */
-		int get_virtual_address(unsigned int section, unsigned int offset)
-		{
-			if (sections.size() > section)
-				return sections[section].virtual_address + offset;
-			else
-				return -1;
-		}
-		;
+		int get_virtual_address(unsigned int section, unsigned int offset);
 
 		/**
 		 *
@@ -195,6 +188,8 @@ class PDBSymbols
 		char * pdb_sym_data;  // data from SYM stream
 		PDBModulesVec & modules;  // modules
 		PDBSectionsVec & sections;  // sections
+		PDBSectionsVec & original_sections; // original sections
+		PDBOmapFroms & omaps; // omap from
 		PDBTypes * types;  // types
 		bool parsed;  // modules are parsed
 

@@ -10,6 +10,7 @@
 
 #include "retdec/pdbparser/pdb_file.h"
 
+
 using namespace std;
 
 namespace retdec {
@@ -88,7 +89,7 @@ PDBFileState PDBFile::load_pdb_file(const char *filename)
  * Can be called only once.
  * @param image_base Base address of program's virtual memory.
  */
-void PDBFile::initialize(int image_base)
+void PDBFile::initialize()
 {
 	if (!pdb_loaded || streams.size() <= PDB_STREAM_TPI || pdb_initialized || streams.size() <= PDB_STREAM_DBI)
 	{
@@ -114,22 +115,24 @@ void PDBFile::initialize(int image_base)
 		// Get debug stream numbers
 		PDB_SHORT *dbg_numbers = reinterpret_cast<PDB_SHORT *>(pdb_dbi_data + pdb_dbi_size - dbi_header_v700->cbDbgHdr);
 		pdb_fpo_num = dbg_numbers[0];
+		pdb_omap_from_num = dbg_numbers[4];
 		pdb_sec_num = dbg_numbers[5];
 		pdb_newfpo_num = dbg_numbers[9];
+		pdb_ori_sec_num = dbg_numbers[10];
 
 		// Initialize modules
 		parse_modules();
 
 		// Intialize sections
-		if (image_base == 0)
-			image_base = 0x400000; // Default image base
-		parse_sections(image_base);
+		parse_omap();
+		parse_sections();
+		parse_original_sections();
 
 		// Initialize symbols
 		int pdb_gsi_num = dbi_header_v700->snGSSyms;
 		int pdb_psi_num = dbi_header_v700->snPSSyms;
 		int pdb_sym_num = dbi_header_v700->snSymRecs;
-		pdb_symbols = new PDBSymbols(&streams[pdb_gsi_num],&streams[pdb_psi_num],&streams[pdb_sym_num],modules,sections,pdb_types);
+		pdb_symbols = new PDBSymbols(&streams[pdb_gsi_num],&streams[pdb_psi_num],&streams[pdb_sym_num],modules,sections,original_sections,omaps,pdb_types);
 		pdb_symbols->parse_symbols();
 	}
 	pdb_initialized = true;
@@ -487,11 +490,64 @@ void PDBFile::parse_modules(void)
 	}
 }
 
+void PDBFile::parse_omap()
+{
+	if (pdb_omap_from_num <= 0)  // omap from stream not present
+		return;
+
+	// Get stream with omap from info
+	PDBStream * pdb_omap_stream = &streams[pdb_omap_from_num];
+	unsigned int pdb_omap_size = pdb_omap_stream->size;
+	char * pdb_omap_data = pdb_omap_stream->data;
+
+	// Get number of omaps and array of omap headers
+	int num_omaps = pdb_omap_size / sizeof(PDB_OMAP);
+	PDB_OMAP * ptr_omaps = reinterpret_cast<PDB_OMAP *>(pdb_omap_data);
+
+	// Parse all omaps
+	omaps.resize(num_omaps);
+	if(omaps.empty())
+		return;
+
+	memcpy(&omaps[0], ptr_omaps, num_omaps * sizeof *ptr_omaps);
+}
+
+void PDBFile::parse_original_sections()
+{
+	if (pdb_ori_sec_num <= 0)  // Sections stream not present
+		return;
+
+	// Get stream with section info
+	PDBStream * pdb_sect_stream = &streams[pdb_ori_sec_num];
+	unsigned int pdb_sect_size = pdb_sect_stream->size;
+	char * pdb_sect_data = pdb_sect_stream->data;
+
+	// Get number of sections and array of section headers
+	int num_sects = pdb_sect_size / sizeof(PDB_IMAGE_SECTION_HEADER);
+	PDB_IMAGE_SECTION_HEADER * sects = reinterpret_cast<PDB_IMAGE_SECTION_HEADER *>(pdb_sect_data);
+
+	// Create dummy zero-number section
+	PDBPESection zero_sect = {"",0,0};
+	original_sections.push_back(zero_sect);
+
+	// Parse all sections
+	for(int i = 0; i < num_sects;i++)
+	{
+		PDBPESection new_sect =
+		{
+			reinterpret_cast<char *>(sects[i].Name),  // name
+			sects[i].VirtualAddress,  // virtual_address
+			sects[i].PointerToRawData  // file_address
+		};
+		original_sections.push_back(new_sect);
+	}
+}
+
 /**
  * Parses PE Sections stream and gets section name, virtual address and file address
  * Vector "sections" is filled here.
  */
-void PDBFile::parse_sections(int image_base)
+void PDBFile::parse_sections()
 {
 	if (pdb_sec_num <= 0)  // Sections stream not present
 		return;
@@ -516,7 +572,7 @@ void PDBFile::parse_sections(int image_base)
 		PDBPESection new_sect =
 		{
 			reinterpret_cast<char *>(sects[i].Name),  // name
-			sects[i].VirtualAddress + image_base,  // virtual_address
+			sects[i].VirtualAddress,  // virtual_address
 			sects[i].PointerToRawData  // file_address
 		};
 		sections.push_back(new_sect);

@@ -82,6 +82,11 @@ typedef struct PDB__IMAGE_SECTION_HEADER
 		PDB_DWORD Characteristics;
 } PDB_IMAGE_SECTION_HEADER, *PDB_PIMAGE_SECTION_HEADER;
 
+typedef struct PDB__OMAP {
+    PDB_DWORD rva;
+    PDB_DWORD rvaTo;
+} PDB_OMAP, *PDB_POMAP;
+
 #ifndef MAX_PATH
 #define MAX_PATH 260
 #endif
@@ -123,6 +128,8 @@ typedef struct _PDBPESection
 
 // PDB PE sections vector
 typedef std::vector<PDBPESection> PDBSectionsVec;
+
+typedef std::vector<PDB_OMAP> PDBOmapFroms;
 
 // General PDB symbol structure
 typedef struct _PDBGeneralSymbol

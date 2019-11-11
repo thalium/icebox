@@ -11,6 +11,8 @@
 
 #include "retdec/pdbparser/pdb_symbols.h"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace retdec {
@@ -260,6 +262,29 @@ std::string PDBFunction::getNameWithOverloadIndex() const
 // =================================================================
 // PUBLIC METHODS
 // =================================================================
+
+int PDBSymbols::get_virtual_address(unsigned int section, unsigned int offset)
+{
+	if(original_sections.size() > section)
+	{
+		const auto  addr   = original_sections[section].virtual_address + offset;
+		const auto  target = PDB_OMAP{addr, 0};
+		auto        it     = std::upper_bound(omaps.begin(), omaps.end(), target, [](const auto& a, const auto& b)
+		{
+			return a.rva < b.rva;
+		});
+		if(it == omaps.begin())
+			return addr;
+
+		--it;
+		return addr + it->rvaTo - it->rva;
+	}
+	if (sections.size() > section)
+	{
+		return sections[section].virtual_address + offset;
+	}
+	return -1;
+}
 
 void PDBSymbols::parse_symbols(void)
 {

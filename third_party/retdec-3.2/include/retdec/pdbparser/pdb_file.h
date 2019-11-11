@@ -135,7 +135,7 @@ class PDBFile
 		PDBFile(void) :
 				pdb_loaded(false), pdb_initialized(false), pdb_filename(nullptr), pdb_version(0), page_size(0), pdb_file_size(
 				        0), pdb_file_data(
-				nullptr), num_streams(0), pdb_fpo_num(0), pdb_newfpo_num(0), pdb_sec_num(0), pdb_header(nullptr), pdb_root_dir(
+				nullptr), num_streams(0), pdb_fpo_num(0), pdb_newfpo_num(0), pdb_omap_from_num(0), pdb_ori_sec_num(0), pdb_sec_num(0), pdb_header(nullptr), pdb_root_dir(
 				nullptr), pdb_info_v700(nullptr), dbi_header_v700(nullptr), pdb_types(nullptr), pdb_symbols(nullptr)
 		{
 		}
@@ -144,7 +144,7 @@ class PDBFile
 
 		// Action methods
 		PDBFileState load_pdb_file(const char *filename);
-		void initialize(int image_base = 0);
+		void initialize();
 		bool save_streams_to_files(void);
 
 		// Getting methods
@@ -202,7 +202,9 @@ class PDBFile
 		PDBFileState load_pdb_v200(void);
 		PDBFileState load_pdb_v700(void);
 		void parse_modules(void);
-		void parse_sections(int image_base);
+		void parse_omap();
+		void parse_original_sections();
+		void parse_sections();
 
 		// Variables
 		bool pdb_loaded;
@@ -215,7 +217,9 @@ class PDBFile
 		unsigned int num_streams;
 		int pdb_fpo_num;
 		int pdb_newfpo_num;
+		int pdb_omap_from_num;
 		int pdb_sec_num;
+		int pdb_ori_sec_num;
 
 		// Data structure pointers
 		PDB_HEADER * pdb_header;
@@ -231,7 +235,8 @@ class PDBFile
 		PDBStreamsVec streams;
 		PDBModulesVec modules;
 		PDBSectionsVec sections;
-
+		PDBSectionsVec original_sections;
+		PDBOmapFroms omaps;
 };
 
 } // namespace pdbparser
