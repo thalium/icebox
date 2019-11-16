@@ -4,10 +4,22 @@ PATH="$PATH:$(pwd)/../../third_party/virtualbox/out/linux.amd64/release/bin"
 
 if [ ! -z "$(which VirtualBox)" ]; then
 	echo "----- START TESTS -----"
-	curl -L https://github.com/ihebski/pafish/raw/master/pafish.exe > pafish.exe
-	vagrant upload ./pafish.exe "c:/pafish.exe"
-	echo "----- EXECUTE TESTS -----"
-	vagrant winrm --shell powershell -c "C:\pafish.exe"
+	vagrant upload ./resources "c:/resources"
+	echo "1) ----pafish.exe ---"
+	echo "----- EXECUTE TESTS : PAFISH -----"
+	vagrant winrm --shell powershell -c "C:\resources\pafish.exe"
+
+	echo "2) ---anti-analysis.exe ---"
+	echo "----- EXECUTE TESTS : ANTI-ANALYSIS -----"
+	vagrant winrm --shell powershell -c "C:\resources\Anti-Analysis.exe"
+
+	echo "3) ---al-khaser.exe ---"
+	echo "----- EXECUTE TESTS : AL-KHASER -----"
+	vagrant winrm --shell powershell -c "C:\resources\al-khaser.exe"
+
+	echo "4) ---sems.exe ---"
+	echo "----- EXECUTE TESTS : SEMS -----"
+	vagrant winrm --shell powershell -c "C:\resources\sems\sems.exe"
 else
 	echo "error VirtualBox exe not found !"
 	return 2

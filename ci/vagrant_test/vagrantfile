@@ -2,7 +2,6 @@ Vagrant.configure("2") do |config|
 	config.vm.box = "inclusivedesign/windows10-eval"
 	config.vm.provider "virtualbox"
 	config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
-	config.vm.boot_timeout = 4800
 	config.vm.provider "virtualbox" do |v|
 		v.gui = true
 		v.name = "win10_vbox_test"
@@ -16,8 +15,4 @@ Vagrant.configure("2") do |config|
 		v.memory = 4096
 		v.cpus = 2
 	end
-	config.vm.provision "shell", privileged: "true", powershell_elevated_interactive: "true", inline: <<-SHELL
-			echo "test"
-	SHELL
-	
 end
