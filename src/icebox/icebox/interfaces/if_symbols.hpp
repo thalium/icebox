@@ -14,7 +14,7 @@ namespace symbols
         uint64_t    offset;
     };
 
-    using on_symbol_fn = std::function<walk_e(std::string, uint64_t)>;
+    using on_symbol_fn = std::function<walk_e(const std::string&, uint64_t)>;
 
     struct Module
     {
