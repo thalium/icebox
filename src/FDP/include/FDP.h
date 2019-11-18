@@ -76,7 +76,7 @@ extern "C"
         uint8_t    Reserved4[96];
     } FDP_XSAVE_FORMAT64_T;
 
-#define FDP_MAX_BREAKPOINT 255
+#define FDP_MAX_BREAKPOINT 1024
 
     typedef struct FDP_SHM_ FDP_SHM;
 

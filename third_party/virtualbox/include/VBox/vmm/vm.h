@@ -99,7 +99,7 @@ typedef struct BreakpointEntrie_t{
             uint64_t    breakpointCr3;
 }BreakpointEntrie_t;
 
-#define MAX_BREAKPOINT_ID 255
+#define MAX_BREAKPOINT_ID 1024
 #define MEMORY_SIZE 0x200000000
 #define MAX_PAGE ((MEMORY_SIZE)/4096)
 /*ENDMYCODE*/

@@ -59,7 +59,7 @@ class FDP(object):
     Send requests to a FDP server located in an instrumented VirtualBox implementation.
     """
 
-    FDP_MAX_BREAKPOINT = 256
+    FDP_MAX_BREAKPOINT = 1024
 
     FDP_NO_CR3      = 0x0
 
