@@ -399,6 +399,8 @@ TEST_F(win10, callstacks)
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
     ASSERT_TRUE(ntdll);
 
+    process::join(core, *proc, mode_e::user);
+
     symbols::listen_and_load(core, *proc, {});
     auto tracer      = nt::syscalls{core, "ntdll"};
     auto count       = size_t{0};
