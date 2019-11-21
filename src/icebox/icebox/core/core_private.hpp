@@ -19,7 +19,7 @@ namespace memory
 namespace state
 {
     struct State;
-    std::shared_ptr<State> setup();
+    std::shared_ptr<State> setup(core::Core& core);
 } // namespace state
 
 namespace functions

@@ -48,7 +48,7 @@ namespace
 
         fdp::reset(core);
         core.mem_     = memory::setup();
-        core.state_   = state::setup();
+        core.state_   = state::setup(core);
         core.func_    = functions::setup();
         core.symbols_ = std::make_unique<symbols::Modules>(core);
 

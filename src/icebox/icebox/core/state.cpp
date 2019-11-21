@@ -83,34 +83,41 @@ namespace
 
 struct state::State
 {
-    Breakers   targets;
-    Observers  observers;
-    BreakState breakstate;
-    Waiters    waiters;
+    State(core::Core& core)
+        : core(core)
+    {
+    }
+
+    core::Core& core;
+    Breakers    targets;
+    Observers   observers;
+    BreakState  breakstate;
+    Waiters     waiters;
 };
 
-std::shared_ptr<state::State> state::setup()
+std::shared_ptr<state::State> state::setup(core::Core& core)
 {
-    return std::make_shared<state::State>();
+    return std::make_shared<state::State>(core);
 }
 
 namespace
 {
-    static bool update_break_state(core::Core& core)
+    using Data = state::State;
+
+    static bool update_break_state(Data& d)
     {
-        auto& d = *core.state_;
         memset(&d.breakstate, 0, sizeof d.breakstate);
-        const auto thread = threads::current(core);
+        const auto thread = threads::current(d.core);
         if(!thread)
             return FAIL(false, "unable to get current thread");
 
-        const auto proc = threads::process(core, *thread);
+        const auto proc = threads::process(d.core, *thread);
         if(!proc)
             return FAIL(false, "unable to get current proc");
 
-        const auto rip = registers::read(core, reg_e::rip);
-        const auto dtb = dtb_t{registers::read(core, reg_e::cr3)};
-        const auto phy = memory::virtual_to_physical(core, rip, dtb);
+        const auto rip = registers::read(d.core, reg_e::rip);
+        const auto dtb = dtb_t{registers::read(d.core, reg_e::cr3)};
+        const auto phy = memory::virtual_to_physical(d.core, rip, dtb);
         if(!phy)
             return FAIL(false, "unable to get current physical address");
 
@@ -119,24 +126,24 @@ namespace
         d.breakstate.rip    = rip;
         d.breakstate.dtb    = dtb;
         d.breakstate.phy    = *phy;
-        os::debug_print(core);
+        os::debug_print(d.core);
         return true;
     }
 
-    static bool try_pause(core::Core& core)
+    static bool try_pause(Data& d)
     {
-        const auto state = fdp::state(core);
+        const auto state = fdp::state(d.core);
         if(!state)
             return false;
 
         if(*state & FDP_STATE_PAUSED)
             return true;
 
-        const auto ok = fdp::pause(core);
+        const auto ok = fdp::pause(d.core);
         if(!ok)
             return FAIL(false, "unable to pause");
 
-        const auto updated = update_break_state(core);
+        const auto updated = update_break_state(d);
         return updated;
     }
 
@@ -145,9 +152,9 @@ namespace
         return fdp::step_once(core);
     }
 
-    static bool try_resume(core::Core& core)
+    static bool try_resume(Data& d)
     {
-        const auto state = fdp::state(core);
+        const auto state = fdp::state(d.core);
         if(!state)
             return false;
 
@@ -155,10 +162,10 @@ namespace
             return true;
 
         if(*state & (FDP_STATE_BREAKPOINT_HIT | FDP_STATE_HARD_BREAKPOINT_HIT))
-            if(!try_single_step(core))
+            if(!try_single_step(d.core))
                 return false;
 
-        const auto resumed = fdp::resume(core);
+        const auto resumed = fdp::resume(d.core);
         if(!resumed)
             return FAIL(false, "unable to resume");
 
@@ -168,12 +175,12 @@ namespace
 
 bool state::pause(core::Core& core)
 {
-    return try_pause(core);
+    return try_pause(*core.state_);
 }
 
 bool state::resume(core::Core& core)
 {
-    return try_resume(core);
+    return try_resume(*core.state_);
 }
 
 bool state::single_step(core::Core& core)
@@ -238,17 +245,16 @@ struct state::BreakpointPrivate
 
 namespace
 {
-    static void check_breakpoints(core::Core& core)
+    static void check_breakpoints(Data& d)
     {
-        const auto state = fdp::state(core);
+        const auto state = fdp::state(d.core);
         if(!state)
             return;
 
         if(!(*state & FDP_STATE_BREAKPOINT_HIT))
             return;
 
-        auto& d = *core.state_;
-        std::vector<Observer> observers;
+        auto observers = std::vector<Observer>{};
         lookup_observers(d.observers, d.breakstate.phy, [&](auto it)
         {
             const auto& bp = *it->second;
@@ -279,19 +285,19 @@ namespace
         skip,
     };
 
-    static bool try_wait(core::Core& core, state_e state, breakpoints_e check)
+    static bool try_wait(Data& d, state_e state, breakpoints_e check)
     {
         while(true)
         {
             std::this_thread::yield();
-            const auto ok = fdp::state_changed(core);
+            const auto ok = fdp::state_changed(d.core);
             if(!ok)
                 continue;
 
             if(state == state_e::update)
-                update_break_state(core);
+                update_break_state(d);
             if(check == breakpoints_e::update)
-                check_breakpoints(core);
+                check_breakpoints(d);
             return true;
         }
     }
@@ -299,7 +305,8 @@ namespace
 
 bool state::wait(core::Core& core)
 {
-    return try_wait(core, state_e::update, breakpoints_e::update);
+    auto& d = *core.state_;
+    return try_wait(d, state_e::update, breakpoints_e::update);
 }
 
 void state::wait_for(core::Core& core, int timeout_ms)
@@ -434,9 +441,8 @@ namespace
     }
 
     template <typename T>
-    static void run_until(core::Core& core, const T& predicate)
+    static void run_until(Data& d, const T& predicate)
     {
-        auto& d     = *core.state_;
         auto is_end = false;
         d.waiters.emplace_back([&]
         {
@@ -445,8 +451,8 @@ namespace
         });
         while(!is_end)
         {
-            try_resume(core);
-            try_wait(core, state_e::update, breakpoints_e::skip);
+            try_resume(d);
+            try_wait(d, state_e::update, breakpoints_e::skip);
 
             // check & remove every ended predicates
             auto any_end = false;
@@ -464,7 +470,7 @@ namespace
             if(any_end)
                 continue;
 
-            check_breakpoints(core);
+            check_breakpoints(d);
         }
     }
 }
@@ -475,8 +481,9 @@ bool state::run_fast_to_cr3_write(core::Core& core)
     if(bpid < 0)
         return false;
 
-    try_resume(core);
-    try_wait(core, state_e::skip, breakpoints_e::skip);
+    auto& d = *core.state_;
+    try_resume(d);
+    try_wait(d, state_e::skip, breakpoints_e::skip);
     fdp::unset_breakpoint(core, bpid);
     return true;
 }
@@ -488,7 +495,7 @@ void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc
         return;
 
     auto& d = *core.state_;
-    run_until(core, [&]
+    run_until(d, [&]
     {
         return d.breakstate.proc == proc;
     });
@@ -499,7 +506,7 @@ void state::run_to_proc_at(core::Core& core, std::string_view name, proc_t proc,
 {
     auto& d       = *core.state_;
     const auto bp = set_virtual_breakpoint(core, name, ptr, proc, {}, {});
-    run_until(core, [&]
+    run_until(d, [&]
     {
         return d.breakstate.rip == ptr;
     });
@@ -512,7 +519,7 @@ void state::run_to_current(core::Core& core, std::string_view name)
     const auto rsp    = registers::read(core, reg_e::rsp);
     const auto rip    = registers::read(core, reg_e::rip);
     const auto bp     = set_virtual_breakpoint(core, name, rip, {}, *thread, {});
-    run_until(core, [&]
+    run_until(d, [&]
     {
         const auto got_rsp = registers::read(core, reg_e::rsp);
         return d.breakstate.rip == rip
@@ -545,7 +552,7 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     }
 
     auto& d = *core.state_;
-    run_until(core, [&]
+    run_until(d, [&]
     {
         uint64_t new_cr3 = registers::read(core, reg_e::cr3);
 
