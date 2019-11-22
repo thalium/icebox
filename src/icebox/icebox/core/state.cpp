@@ -7,14 +7,12 @@
 #include "fdp.hpp"
 #include "interfaces/if_os.hpp"
 #include "log.hpp"
-#include "reader.hpp"
-#include "utils/utils.hpp"
 
-#include <cstring>
+#include <libco.h>
+
+#include <deque>
 #include <map>
 #include <thread>
-#include <unordered_map>
-#include <unordered_set>
 
 namespace std
 {
@@ -79,12 +77,73 @@ namespace
 
     using check_fn = std::function<bool()>;
     using Waiters  = std::vector<check_fn>;
+
+    using BufferType = std::vector<uint8_t>;
+
+    template <typename T>
+    struct Pool
+    {
+        using allocate_fn = std::function<T()>;
+        using buffers_t   = std::vector<T>;
+
+        Pool(size_t max, const allocate_fn& allocate)
+            : max(max)
+            , allocate(allocate)
+        {
+        }
+
+        T acquire()
+        {
+            if(buffers.empty())
+                return allocate();
+
+            auto ret = std::move(buffers.back());
+            buffers.pop_back();
+            return ret;
+        }
+
+        void release(T arg)
+        {
+            if(buffers.size() < max)
+                buffers.emplace_back(std::move(arg));
+        }
+
+        size_t      max;
+        allocate_fn allocate;
+        buffers_t   buffers;
+    };
+
+    using Buffer = std::unique_ptr<BufferType>;
+
+    struct Worker
+    {
+         Worker(state::State& state, const state::Task& task);
+        ~Worker();
+
+        state::State& state;
+        state::Task   task;
+        Buffer        buffer;
+        cothread_t co_thread = nullptr;
+        uint64_t seq_id      = 0;     // current sequence id
+        bool finished        = false; // worker thread is dead
+    };
+
+    using Workers    = std::vector<std::shared_ptr<Worker>>;
+    using BufferPool = Pool<Buffer>;
+
+    constexpr auto g_stack_size = 0x400000; // 4mb stack size
 }
 
 struct state::State
 {
     State(core::Core& core)
         : core(core)
+        , breakstate{}
+        , co_main(co_active())
+        , stacks(16, []
+        {
+            return std::make_unique<BufferType>(g_stack_size);
+        })
     {
     }
 
@@ -93,6 +152,9 @@ struct state::State
     Observers   observers;
     BreakState  breakstate;
     Waiters     waiters;
+    cothread_t  co_main;
+    Workers     workers;
+    BufferPool  stacks;
 };
 
 std::shared_ptr<state::State> state::setup(core::Core& core)
@@ -103,6 +165,106 @@ std::shared_ptr<state::State> state::setup(core::Core& core)
 namespace
 {
     using Data = state::State;
+
+    Worker::Worker(Data& d, const state::Task& task)
+        : state(d)
+        , task(task)
+        , buffer(d.stacks.acquire())
+    {
+    }
+
+    Worker::~Worker()
+    {
+        state.stacks.release(std::move(buffer));
+    }
+
+    bool run_workers(Data& d)
+    {
+        auto resumed = false;
+        for(const auto& h : d.workers)
+        {
+            const auto seq_id = h->seq_id;
+            co_switch(h->co_thread);
+            resumed = resumed || seq_id != h->seq_id;
+        }
+        return resumed;
+    }
+
+    // must have global scope...
+    Data* g_data = nullptr;
+
+    void start_worker(Data& d, const state::Task& task)
+    {
+        d.workers.emplace_back(std::make_shared<Worker>(d, task));
+        const auto& w          = d.workers.back();
+        g_data                 = &d;
+        const auto next_thread = co_derive(w->buffer->data(), g_stack_size, []
+        {
+            {
+                // save a reference from shared_ptr
+                // which is guaranteed to be alive
+                // until this task is finished
+                auto& w     = *g_data->workers.back();
+                w.co_thread = co_active();
+                w.task();
+                w.finished = true;
+            }
+            // we must unwind everything before last switch
+            co_switch(g_data->co_main);
+        });
+        co_switch(next_thread);
+    }
+
+    template <typename T, typename U>
+    void remove_erase_if(T& vec, U predicate)
+    {
+        vec.erase(std::remove_if(vec.begin(), vec.end(), predicate), vec.end());
+    }
+
+    void discard_dead_workers(Data& d)
+    {
+        remove_erase_if(d.workers, [](const auto& h)
+        {
+            return h->finished;
+        });
+    }
+
+    void exec_breakpoints(Data& d, const std::vector<Observer>& observers)
+    {
+        const auto resumed = run_workers(d);
+        if(!resumed)
+            for(const auto& it : observers)
+                start_worker(d, it->task);
+        discard_dead_workers(d);
+    }
+
+    Worker* current_worker(Data& d, cothread_t thread)
+    {
+        for(const auto& w : d.workers)
+            if(w->co_thread == thread)
+                return &*w;
+
+        return nullptr;
+    }
+
+    template <typename T>
+    bool yield_until(Data& d, const T& predicate)
+    {
+        const auto current = co_active();
+        const auto pw      = current_worker(d, current);
+        if(!pw)
+            return false;
+
+        // predicate must run *after* pausing first
+        // ex: after page fault injection
+        do
+        {
+            co_switch(d.co_main);
+        } while(!predicate());
+
+        pw->seq_id++;
+        return true;
+    }
 
     static bool update_break_state(Data& d)
     {
@@ -269,8 +431,7 @@ namespace
 
             return walk_e::next;
         });
-        for(const auto& it : observers)
-            it->task();
+        exec_breakpoints(d, observers);
     }
 
     enum class breakpoints_e
@@ -434,15 +595,13 @@ state::Breakpoint state::break_on_physical_process(core::Core& core, std::string
 
 namespace
 {
-    template <typename T, typename U>
-    void erase_if(T& data, U predicate)
-    {
-        data.erase(std::remove_if(std::begin(data), std::end(data), predicate), std::end(data));
-    }
-
     template <typename T>
     static void run_until(Data& d, const T& predicate)
     {
+        const auto ok = yield_until(d, predicate);
+        if(ok)
+            return;
+
         auto is_end = false;
         d.waiters.emplace_back([&]
         {
@@ -456,7 +615,7 @@ namespace
 
             // check & remove every ended predicates
             auto any_end = false;
-            erase_if(d.waiters, [&](const auto& check)
+            remove_erase_if(d.waiters, [&](const auto& check)
             {
                 const auto ended = check();
                 any_end          = any_end || ended;
