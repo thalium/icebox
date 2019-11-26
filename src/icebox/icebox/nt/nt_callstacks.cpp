@@ -115,7 +115,7 @@ namespace
 
     const auto UNWIND_CHAINED_FLAG_MASK = 0b00100000;
 
-    using UnwindInfo = uint8_t[4];
+    using UnwindInfo = std::array<uint8_t, 4>;
 
     struct RuntimeFunction
     {
@@ -129,6 +129,7 @@ namespace
     using AllModules    = std::unordered_map<proc_t, Modules>;
     using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
     using Offsets       = std::array<uint64_t, OFFSET_COUNT>;
+    using Buffer        = std::vector<uint8_t>;
     using caller_t      = callstacks::caller_t;
     using context_t     = callstacks::context_t;
 
@@ -149,6 +150,7 @@ namespace
         ExceptionDirs exception_dirs_;
         opt<Offsets>  offsets64_;
         opt<Offsets>  offsets32_;
+        Buffer        buffer_;
     };
 }
 
@@ -261,7 +263,7 @@ namespace
         return drv;
     }
 
-    static void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, size_t unwind_codes_size, size_t chained_info_size)
+    static void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const uint8_t* buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
         static const auto reg_size = 0x08; // TODO Defined this somewhere else
         size_t idx                 = 0;
@@ -338,26 +340,28 @@ namespace
         return {};
     }
 
-    static opt<FunctionTable> parse_exception_dir(NtCallstacks& c, proc_t proc, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
+    static opt<FunctionTable> parse_exception_dir(NtCallstacks& c, proc_t proc, uint64_t mod_base_addr, span_t exception_dir)
     {
-        const auto src = reinterpret_cast<const uint8_t*>(vsrc);
-
-        FunctionTable   function_table;
-        FunctionEntries orphan_function_entries;
-
+        auto& buf = c.buffer_;
+        buf.resize(exception_dir.size);
         const auto reader = reader::make(c.core_, proc);
+        auto ok           = reader.read_all(&buf[0], exception_dir.addr, exception_dir.size);
+        if(!ok)
+            return {};
+
+        auto function_table          = FunctionTable{};
+        auto orphan_function_entries = FunctionEntries{};
+        const auto buf_offset        = buf.size();
         for(size_t i = 0; i < exception_dir.size; i = i + sizeof(RuntimeFunction))
         {
+            auto function_entry          = function_entry_t{};
+            function_entry.start_address = read_le32(&buf[i + offsetof(RuntimeFunction, start_address)]);
+            function_entry.end_address   = read_le32(&buf[i + offsetof(RuntimeFunction, end_address)]);
+            const auto unwind_info_ptr   = read_le32(&buf[i + offsetof(RuntimeFunction, unwind_info)]);
 
-            function_entry_t function_entry;
-            memset(&function_entry, 0, sizeof function_entry);
-            function_entry.start_address = read_le32(&src[i + offsetof(RuntimeFunction, start_address)]);
-            function_entry.end_address   = read_le32(&src[i + offsetof(RuntimeFunction, end_address)]);
-            const auto unwind_info_ptr   = read_le32(&src[i + offsetof(RuntimeFunction, unwind_info)]);
-
-            UnwindInfo unwind_info;
+            auto unwind_info   = UnwindInfo{};
             const auto to_read = mod_base_addr + unwind_info_ptr;
-            auto ok            = reader.read_all(unwind_info, to_read, sizeof unwind_info);
+            ok                 = reader.read_all(&unwind_info[0], to_read, sizeof unwind_info);
             if(!ok)
                 return FAIL(ext::nullopt, "unable to read unwind info");
 
@@ -371,7 +375,7 @@ namespace
             if(function_entry.frame_reg_offset != 0 && frame_register != UWINFO_RBP)
                 LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
 
-            const auto SIZE_UC           = 2;
+            const auto SIZE_UC           = size_t{2};
             const auto chained_info_size = chained_flag ? sizeof(RuntimeFunction) : 0;
             const auto unwind_codes_size = function_entry.unwind_codes_nb * SIZE_UC + chained_info_size;
             if(!unwind_codes_size)
@@ -381,20 +385,20 @@ namespace
                 continue;
             }
 
-            std::vector<uint8_t> buffer(unwind_codes_size);
-            ok = reader.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
+            buf.resize(buf_offset + unwind_codes_size);
+            auto buffer = &buf[buf_offset];
+            ok          = reader.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
             if(!ok)
                 return FAIL(ext::nullopt, "unable to read unwind codes");
 
             function_entry.unwind_codes_idx = function_table.unwinds.size();
-            get_unwind_codes(function_table.unwinds, function_entry, buffer, unwind_codes_size, chained_info_size);
+            get_unwind_codes(function_table.unwinds, function_entry, &buffer[0], unwind_codes_size, chained_info_size);
 
             // Deal with the runtime func at the end
             uint32_t mother_start_addr = 0;
             if(chained_flag)
             {
-                mother_start_addr = read_le32(&buffer[unwind_codes_size - chained_info_size + offsetof(RuntimeFunction, start_address)]);
-
+                mother_start_addr                = read_le32(&buffer[unwind_codes_size - chained_info_size + offsetof(RuntimeFunction, start_address)]);
                 const auto mother_function_entry = lookup_mother_function_entry(mother_start_addr, function_table.function_entries);
                 if(!mother_function_entry)
                 {
@@ -402,6 +406,7 @@ namespace
                     orphan_function_entries.push_back(function_entry);
                     continue;
                 }
+
                 function_entry.stack_frame_size += mother_function_entry->stack_frame_size;
             }
 
@@ -423,64 +428,49 @@ namespace
             function_table.function_entries.push_back(orphan_fe);
         }
 
-        std::sort(function_table.function_entries.begin(), function_table.function_entries.end(), compare_function_entries);
+        std::sort(function_table.function_entries.begin(), function_table.function_entries.end(), &compare_function_entries);
         return function_table;
     }
 
-    static opt<FunctionTable> insert(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
+    static opt<FunctionTable> parse_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
     {
         const auto reader        = reader::make(c.core_, proc);
         const auto exception_dir = pe::find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
         if(!exception_dir)
             return FAIL(ext::nullopt, "unable to get span of exception_dir");
 
-        std::vector<uint8_t> buffer(exception_dir->size);
-        auto ok = reader.read_all(&buffer[0], exception_dir->addr, exception_dir->size);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read exception dir of %s", name.data());
+        const auto function_table = parse_exception_dir(c, proc, span.addr, *exception_dir);
+        if(!function_table)
+            return FAIL(ext::nullopt, "unable to parse exception dir from %s", name.data());
 
-        const auto function_table = parse_exception_dir(c, proc, &buffer[0], span.addr, *exception_dir);
-        const auto ret            = c.exception_dirs_.emplace(name, *function_table);
+        const auto ret = c.exception_dirs_.emplace(name, *function_table);
         if(!ret.second)
             return {};
 
         return function_table;
     }
 
-    static opt<FunctionTable> get_mod_functiontable(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
+    static opt<FunctionTable> get_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
     {
         const auto it = c.exception_dirs_.find(name);
         if(it != c.exception_dirs_.end())
             return it->second;
 
-        return insert(c, proc, name, span);
+        return parse_module_unwind(c, proc, name, span);
     }
 
     static bool load_ntdll(core::Core& core, proc_t proc, const char* want_name, bool is_32bit)
     {
-        auto inserted = false;
-        modules::list(core, proc, [&](mod_t mod)
-        {
-            const auto name = modules::name(core, proc, mod);
-            if(!name)
-                return walk_e::next;
+        const auto flags   = is_32bit ? flags::x86 : flags::x64;
+        const auto opt_mod = modules::find_name(core, proc, "ntdll.dll", flags);
+        if(!opt_mod)
+            return false;
 
-            const auto filename = path::filename(*name);
-            if(filename != "ntdll.dll")
-                return walk_e::next;
+        const auto opt_span = modules::span(core, proc, *opt_mod);
+        if(!opt_span)
+            return false;
 
-            const auto is_wow64 = !!mod.flags.is_x86;
-            if(is_32bit ^ is_wow64)
-                return walk_e::next;
-
-            const auto span = modules::span(core, proc, mod);
-            if(!span)
-                return walk_e::next;
-
-            inserted = symbols::load_module_at(core, proc, want_name, *span);
-            return inserted ? walk_e::stop : walk_e::next;
-        });
-        return inserted;
+        return symbols::load_module_at(core, proc, want_name, *opt_span);
     }
 
     static bool read_offsets(NtCallstacks& c, proc_t proc, bool is_32bit)
@@ -494,9 +484,8 @@ namespace
         if(!ok)
             return FAIL(false, "unable to load ntdll");
 
-        bool fail = false;
-        Offsets offsets;
-        memset(&offsets[0], 0, sizeof offsets);
+        bool fail    = false;
+        auto offsets = Offsets{};
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_nt_offsets[i].e_id != i;
@@ -599,10 +588,9 @@ namespace
     const function_entry_t* lookup_function_entry(uint32_t offset_in_mod, const FunctionEntries& function_entries)
     {
         // lower bound returns first item greater or equal
-        function_entry_t entry;
-        memset(&entry, 0, sizeof entry);
+        auto entry          = function_entry_t{};
         entry.start_address = offset_in_mod;
-        auto it             = lower_bound(function_entries.begin(), function_entries.end(), entry, compare_function_entries);
+        auto it             = std::lower_bound(function_entries.begin(), function_entries.end(), entry, compare_function_entries);
         const auto end      = function_entries.end();
         if(it == end)
             return check_previous_exist(function_entries.rbegin(), function_entries.rend(), offset_in_mod);
@@ -636,7 +624,7 @@ namespace
 
             auto [name, span] = *tuple;
             // Get function table of the module
-            const auto function_table = get_mod_functiontable(c, proc, name, span);
+            const auto function_table = get_module_unwind(c, proc, name, span);
             if(!function_table)
             {
                 callers[i].addr = ctx.ip;
@@ -740,6 +728,6 @@ size_t NtCallstacks::read(caller_t* callers, size_t num_callers, proc_t proc)
 
 bool NtCallstacks::preload(proc_t proc, const std::string& name, const span_t span)
 {
-    const auto opt_entries = get_mod_functiontable(*this, proc, name, span);
+    const auto opt_entries = get_module_unwind(*this, proc, name, span);
     return !!opt_entries;
 }

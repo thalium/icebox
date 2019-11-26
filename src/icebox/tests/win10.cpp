@@ -218,7 +218,7 @@ namespace
     static void run_until(core::Core& core, T predicate)
     {
         const auto now = std::chrono::high_resolution_clock::now();
-        const auto end = now + std::chrono::seconds(8);
+        const auto end = now + std::chrono::minutes(8);
         while(!predicate() && std::chrono::high_resolution_clock::now() < end)
         {
             state::resume(core);
