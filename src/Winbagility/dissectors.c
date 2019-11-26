@@ -393,7 +393,10 @@ WINDOWS_PROFIL_T* CreateWindowsProfileFromPdbFile(char *pPdbFilePath)
         PdbGetSymbolsRVA(&PdbParserHandle, "KdpDataBlockEncoded", &off_KdpDataBlockEncoded);
         PdbGetSymbolsRVA(&PdbParserHandle, "KdDebuggerDataBlock", &off_KdDebuggerDataBlock);
         PdbGetSymbolsRVA(&PdbParserHandle, "KdVersionBlock", &off_KdVersionBlock);
-        PdbGetSymbolsRVA(&PdbParserHandle, "KiDivideErrorFault", &off_KiDivideErrorFault);
+        if(!PdbGetSymbolsRVA(&PdbParserHandle, "KiDivideErrorFaultShadow", &off_KiDivideErrorFault))
+        {
+            PdbGetSymbolsRVA(&PdbParserHandle, "KiDivideErrorFault", &off_KiDivideErrorFault);
+        }
         PdbGetSymbolsRVA(&PdbParserHandle, "KiTrap00", &off_KiTrap00);
         PdbGetSymbolsRVA(&PdbParserHandle, "KdpDebuggerDataListHead", &off_KdpDebuggerDataListHead);
 
