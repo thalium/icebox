@@ -9,17 +9,17 @@
 
 namespace
 {
-	constexpr bool g_debug = false;
+    constexpr bool g_debug = false;
 
-	static const tracer::callcfg_t g_callcfgs[] =
-	{
-        {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"SIZE_T", "Size", sizeof(nt::SIZE_T)}}},
-        {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
-        {"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"ULONG", "Size", sizeof(nt::ULONG)}}},
-        {"RtlSizeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
-        {"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}}},
-        {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}, {"PULONG", "UserFlags", sizeof(nt::PULONG)}}},
-	};
+    static const nt::heaps::callcfgs_t g_callcfgs =
+    {
+        tracer::callcfg_t{"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"SIZE_T", "Size", sizeof(nt::SIZE_T)}}},
+        tracer::callcfg_t{"RtlFreeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
+        tracer::callcfg_t{"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"ULONG", "Size", sizeof(nt::ULONG)}}},
+        tracer::callcfg_t{"RtlSizeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
+        tracer::callcfg_t{"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}}},
+        tracer::callcfg_t{"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}, {"PULONG", "UserFlags", sizeof(nt::PULONG)}}},
+    };
 
     using bpid_t    = nt::heaps::bpid_t;
     using Listeners = std::multimap<bpid_t, state::Breakpoint>;
@@ -48,6 +48,11 @@ nt::heaps::heaps(core::Core& core, std::string_view module)
 }
 
 nt::heaps::~heaps() = default;
+
+const nt::heaps::callcfgs_t& nt::heaps::callcfgs()
+{
+    return g_callcfgs;
+}
 
 namespace
 {

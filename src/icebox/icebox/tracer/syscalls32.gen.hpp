@@ -4,6 +4,7 @@
 #include "icebox/types.hpp"
 #include "tracer.hpp"
 
+#include <array>
 #include <functional>
 
 namespace core { struct Core; }
@@ -417,9 +418,11 @@ namespace wow64
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         using bpid_t     = uint64_t;
+        using callcfgs_t = std::array<tracer::callcfg_t, 399>;
 
-        opt<bpid_t> register_all(proc_t proc, const on_call_fn& on_call);
-        bool        unregister  (bpid_t id);
+        opt<bpid_t>         register_all(proc_t proc, const on_call_fn& on_call);
+        bool                unregister  (bpid_t id);
+        const callcfgs_t&   callcfgs    ();
 
         opt<bpid_t> register_NtAcceptConnectPort                               (proc_t proc, const on_NtAcceptConnectPort_fn& on_func);
         opt<bpid_t> register_ZwAccessCheckAndAuditAlarm                        (proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func);

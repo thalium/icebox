@@ -32,6 +32,7 @@ def generate_header(json_data, filename, namespace, pad, wow64):
 #include "icebox/types.hpp"
 #include "tracer.hpp"
 
+#include <array>
 #include <functional>
 
 namespace core {{ struct Core; }}
@@ -47,9 +48,11 @@ namespace {namespace}
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         using bpid_t     = uint64_t;
+        using callcfgs_t = std::array<tracer::callcfg_t, {size}>;
 
-        opt<bpid_t> register_all(proc_t proc, const on_call_fn& on_call);
-        bool        unregister  (bpid_t id);
+        opt<bpid_t>         register_all(proc_t proc, const on_call_fn& on_call);
+        bool                unregister  (bpid_t id);
+        const callcfgs_t&   callcfgs    ();
 
 {listens}
 
@@ -58,6 +61,7 @@ namespace {namespace}
     }};
 }} // namespace {namespace}
 """.format(filename=filename, namespace=namespace,
+        size=len(json_data.items()),
         usings=generate_usings(json_data, pad),
         listens=generate_registers(json_data, pad))
 
@@ -104,7 +108,7 @@ def generate_callers(json_data, namespace, wow64):
     for target, (_, (args)) in json_data.items():
         name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args) * 4)
         args = ['{{"{type}", "{name}", sizeof({namespace}::{type})}}'.format(type=typeof, name=name, namespace=namespace) for name, typeof in args]
-        elem = '        {{"{name}", {argc}, {{{keys}}}}},'.format(name=name, argc=len(args), keys=", ".join(args))
+        elem = '        tracer::callcfg_t{{"{name}", {argc}, {{{keys}}}}},'.format(name=name, argc=len(args), keys=", ".join(args))
         lines.append(elem)
     return data + "\n".join(lines)
 
@@ -120,12 +124,12 @@ def generate_impl(json_data, filename, namespace, pad, wow64):
 
 namespace
 {{
-	constexpr bool g_debug = false;
+    constexpr bool g_debug = false;
 
-	static const tracer::callcfg_t g_callcfgs[] =
-	{{
+    static const {namespace}::{filename}::callcfgs_t g_callcfgs =
+    {{
 {callers}
-	}};
+    }};
 
     using bpid_t    = {namespace}::{filename}::bpid_t;
     using Listeners = std::multimap<bpid_t, state::Breakpoint>;
@@ -154,6 +158,11 @@ struct {namespace}::{filename}::Data
 }}
 
 {namespace}::{filename}::~{filename}() = default;
+
+const {namespace}::{filename}::callcfgs_t& {namespace}::{filename}::callcfgs()
+{{
+    return g_callcfgs;
+}}
 
 namespace
 {{
