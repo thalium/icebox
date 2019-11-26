@@ -1181,7 +1181,7 @@ bool testUnsetBreakpoint(FDP_SHM* pFDP)
         return false;
     }
 
-    for (uint8_t b = 0; b < FDP_MAX_BREAKPOINT; b++){
+    for (int b = 0; b < FDP_MAX_BREAKPOINT; b++){
         FDP_UnsetBreakpoint(pFDP, b);
     }
 
