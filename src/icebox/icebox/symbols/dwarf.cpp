@@ -329,11 +329,6 @@ std::shared_ptr<symbols::Module> symbols::make_dwarf(const std::string& module, 
     return ptr;
 }
 
-std::shared_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const reader::Reader& /*reader*/)
-{
-    return {};
-}
-
 bool Dwarf::setup()
 {
     if(!open_file(*this))

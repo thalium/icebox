@@ -368,7 +368,7 @@ namespace
     }
 }
 
-std::shared_ptr<symbols::Module> symbols::make_pdb(span_t span, const reader::Reader& reader)
+opt<symbols::Identity> symbols::identify_pdb(span_t span, const reader::Reader& reader)
 {
     // try to find pe debug section
     const auto debug     = pe::find_debug_codeview(reader, span);
@@ -383,6 +383,5 @@ std::shared_ptr<symbols::Module> symbols::make_pdb(span_t span, const reader::Re
     if(!pdb)
         return {};
 
-    LOG(INFO, "%s %s", pdb->guid.data(), pdb->name.data());
-    return make_pdb(pdb->name.data(), pdb->guid.data());
+    return symbols::Identity{pdb->name, pdb->guid};
 }

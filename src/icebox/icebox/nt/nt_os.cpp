@@ -315,7 +315,11 @@ namespace
             return false;
 
         const auto reader = reader::make(core, *proc);
-        const auto pdb    = symbols::make_pdb(*span, reader);
+        const auto opt_id = symbols::identify_pdb(*span, reader);
+        if(!opt_id)
+            return false;
+
+        const auto pdb = symbols::make_pdb(opt_id->name, opt_id->id);
         if(!pdb)
             return false;
 

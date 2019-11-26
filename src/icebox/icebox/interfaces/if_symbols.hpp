@@ -28,10 +28,15 @@ namespace symbols
         virtual bool                sym_list    (on_symbol_fn on_symbol) = 0;
     };
 
+    struct Identity
+    {
+        std::string name;
+        std::string id;
+    };
+    opt<Identity> identify_pdb(span_t span, const reader::Reader& reader);
+
     std::shared_ptr<Module> make_pdb    (const std::string& module, const std::string& guid);
-    std::shared_ptr<Module> make_pdb    (span_t span, const reader::Reader& reader);
     std::shared_ptr<Module> make_dwarf  (const std::string& module, const std::string& guid);
-    std::shared_ptr<Module> make_dwarf  (span_t span, const reader::Reader& reader);
 
     struct Modules
     {

@@ -1,10 +1,11 @@
 #include "symbols.hpp"
 
 #define PRIVATE_CORE__
-#define FDP_MODULE "symbols"
+#define FDP_MODULE "sym"
 #include "core.hpp"
 #include "core_private.hpp"
 #include "interfaces/if_symbols.hpp"
+#include "log.hpp"
 #include "reader.hpp"
 
 #include "utils/hash.hpp"
@@ -62,6 +63,7 @@ namespace
     };
 
     using Mods        = std::unordered_map<ModKey, Mod>;
+    using ModByIds    = std::unordered_map<std::string_view, ModulePtr>;
     using Data        = symbols::Modules::Data;
     using Buffer      = std::vector<uint8_t>;
     using Breakpoints = std::vector<os::bpid_t>;
@@ -76,6 +78,7 @@ struct symbols::Modules::Data
 
     core::Core& core;
     Mods        mods;
+    ModByIds    mod_by_ids;
     Breakpoints breakpoints;
     Buffer      buffer;
 };
@@ -92,11 +95,11 @@ namespace
     static const struct
     {
         const char name[32];
-        ModulePtr (*make)(span_t, const reader::Reader&);
+        opt<symbols::Identity>  (*identify) (span_t, const reader::Reader&);
+        ModulePtr               (*make)     (const std::string& name, const std::string& guid);
     } g_helpers[] =
     {
-            {"pdb", &symbols::make_pdb},
-            {"dwarf", &symbols::make_dwarf},
+            {"pdb", &symbols::identify_pdb, &symbols::make_pdb},
     };
 
     bool is_kernel_proc(proc_t proc)
@@ -112,7 +115,9 @@ symbols::Modules& symbols::Modules::modules(core::Core& core)
 
 bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span, const ModulePtr& symbols)
 {
-    const auto ret = d_->mods.emplace(ModKey{module, proc}, Mod{symbols, span});
+    auto& d        = *d_;
+    const auto ret = d.mods.emplace(ModKey{module, proc}, Mod{symbols, span});
+    d.mod_by_ids.emplace(symbols->id(), symbols);
     return ret.second;
 }
 
@@ -144,19 +149,50 @@ bool symbols::Modules::insert(proc_t proc, const std::string& name, span_t modul
     const auto reader = is_kernel_proc(proc) ? reader::make(d.core) : reader::make(d.core, proc);
     for(const auto& h : g_helpers)
     {
-        auto mod = h.make(module, reader);
+        const auto opt_id = h.identify(module, reader);
+        if(!opt_id)
+            continue;
+
+        const auto it        = d.mod_by_ids.find(opt_id->id);
+        auto mod             = ModulePtr{};
+        const auto is_cached = it != d.mod_by_ids.end();
+        if(is_cached)
+            mod = it->second;
+        else
+            mod = h.make(opt_id->name, opt_id->id);
         if(!mod)
             continue;
 
+        LOG(INFO, "%s %s %s %s", is_cached ? "cached" : "loaded", h.name, opt_id->id.data(), opt_id->name.data());
         return insert(proc, name, module, mod);
     }
     return false;
 }
 
+namespace
+{
+    bool has_id(Data& d, std::string_view id)
+    {
+        for(const auto& it : d.mods)
+            if(it.second.module->id() == id)
+                return true;
+        return false;
+    }
+}
+
 bool symbols::Modules::remove(proc_t proc, const std::string& name)
 {
-    const auto ret = d_->mods.erase({name, proc});
-    return !!ret;
+    auto& d       = *d_;
+    const auto it = d.mods.find({name, proc});
+    if(it == d.mods.end())
+        return false;
+
+    const auto id = it->second.module->id();
+    if(!has_id(d, id))
+        d.mod_by_ids.erase(id);
+
+    d.mods.erase(it);
+    return true;
 }
 
 bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module)
