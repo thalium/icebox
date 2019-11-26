@@ -210,9 +210,18 @@ def read_file(filename):
     with open(filename, "rb") as fh:
         return fh.read()
 
+def read_file(filename):
+    try:
+        with open(filename, "rb") as fh:
+            return fh.read().decode()
+    except:
+        return ""
+
 def write_file(filename, data):
-    with open(filename, "wb") as fh:
-        fh.write(data.encode("utf-8"))
+    current = read_file(filename)
+    if current != data:
+        with open(filename, "wb") as fh:
+            fh.write(data.encode("utf-8"))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='auto-generate tracer code')
