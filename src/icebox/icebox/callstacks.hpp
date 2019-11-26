@@ -22,7 +22,7 @@ namespace callstacks
         uint64_t addr;
     };
 
-    size_t      read        (core::Core& core, caller_t* callers, size_t num_callers, proc_t proc);
-    size_t      read_from   (core::Core& core, caller_t* callers, size_t num_callers, proc_t proc, const context_t& where);
-    opt<bpid_t> autoload    (core::Core& core, proc_t proc);
+    size_t      read            (core::Core& core, caller_t* callers, size_t num_callers, proc_t proc);
+    size_t      read_from       (core::Core& core, caller_t* callers, size_t num_callers, proc_t proc, const context_t& where);
+    opt<bpid_t> autoload_modules(core::Core& core, proc_t proc);
 } // namespace callstacks

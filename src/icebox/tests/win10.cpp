@@ -347,7 +347,7 @@ TEST_F(win10, loader)
     symbols::load_drivers(core);
 
     process::join(core, *proc, mode_e::user);
-    symbols::listen_and_load(core, *proc, {});
+    symbols::autoload_modules(core, *proc);
 
     const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
     ASSERT_TRUE(ntdll);
@@ -401,8 +401,8 @@ TEST_F(win10, callstacks)
 
     process::join(core, *proc, mode_e::user);
 
-    symbols::listen_and_load(core, *proc, {});
-    callstacks::autoload(core, *proc);
+    symbols::autoload_modules(core, *proc);
+    callstacks::autoload_modules(core, *proc);
     auto tracer      = nt::syscalls{core, "ntdll"};
     auto count       = size_t{0};
     auto num_callers = size_t{0};

@@ -2,14 +2,11 @@
 
 #include "types.hpp"
 
-#include <functional>
-
 namespace core { struct Core; }
 
 namespace symbols
 {
-    using bpid_t              = uint64_t;
-    using module_predicate_fn = std::function<bool(mod_t, const std::string&)>;
+    using bpid_t = uint64_t;
 
     struct Symbol
     {
@@ -23,8 +20,7 @@ namespace symbols
     bool        load_module_at  (core::Core& core, proc_t proc, const std::string& module, span_t span);
     bool        load_module     (core::Core& core, proc_t proc, mod_t mod);
     bool        load_modules    (core::Core& core, proc_t proc);
-    opt<bpid_t> listen_and_load (core::Core& core, proc_t proc, const module_predicate_fn& predicate);
-    void        unlisten        (core::Core& core, bpid_t bpid);
+    opt<bpid_t> autoload_modules(core::Core& core, proc_t proc);
     bool        load_driver_at  (core::Core& core, const std::string& driver, span_t span);
     bool        load_driver     (core::Core& core, driver_t driver);
     bool        load_drivers    (core::Core& core);

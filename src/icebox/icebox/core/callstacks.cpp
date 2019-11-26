@@ -35,7 +35,7 @@ namespace
     }
 }
 
-opt<callstacks::bpid_t> callstacks::autoload(core::Core& core, proc_t proc)
+opt<callstacks::bpid_t> callstacks::autoload_modules(core::Core& core, proc_t proc)
 {
     modules::list(core, proc, [&](mod_t mod)
     {

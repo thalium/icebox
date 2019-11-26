@@ -62,11 +62,10 @@ namespace
         span_t    span;
     };
 
-    using Mods        = std::unordered_map<ModKey, Mod>;
-    using ModByIds    = std::unordered_map<std::string_view, ModulePtr>;
-    using Data        = symbols::Modules::Data;
-    using Buffer      = std::vector<uint8_t>;
-    using Breakpoints = std::vector<os::bpid_t>;
+    using Mods     = std::unordered_map<ModKey, Mod>;
+    using ModByIds = std::unordered_map<std::string_view, ModulePtr>;
+    using Data     = symbols::Modules::Data;
+    using Buffer   = std::vector<uint8_t>;
 }
 
 struct symbols::Modules::Data
@@ -79,7 +78,6 @@ struct symbols::Modules::Data
     core::Core& core;
     Mods        mods;
     ModByIds    mod_by_ids;
-    Breakpoints breakpoints;
     Buffer      buffer;
 };
 
@@ -395,43 +393,19 @@ bool symbols::load_modules(core::Core& core, proc_t proc)
     return true;
 }
 
-namespace
-{
-    void load_module_if(core::Core& core, proc_t proc, mod_t mod, const symbols::module_predicate_fn& predicate)
-    {
-        const auto name = modules::name(core, proc, mod);
-        if(!name)
-            return;
-
-        if(predicate && !predicate(mod, *name))
-            return;
-
-        load_module_named_at(core, proc, mod, *name);
-    }
-}
-
-opt<symbols::bpid_t> symbols::listen_and_load(core::Core& core, proc_t proc, const module_predicate_fn& predicate)
+opt<symbols::bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
 {
     modules::list(core, proc, [&](mod_t mod)
     {
-        load_module_if(core, proc, mod, predicate);
+        load_module(core, proc, mod);
         return walk_e::next;
     });
     const auto ptr   = &core;
     const auto flags = process::flags(core, proc);
-    const auto bpid  = modules::listen_create(core, proc, flags, [=](mod_t mod)
+    return modules::listen_create(core, proc, flags, [=](mod_t mod)
     {
-        load_module_if(*ptr, proc, mod, predicate);
+        load_module(*ptr, proc, mod);
     });
-    if(bpid)
-        core.symbols_->d_->breakpoints.emplace_back(*bpid);
-    return bpid;
-}
-
-void symbols::unlisten(core::Core& core, bpid_t bpid)
-{
-    auto& bps = core.symbols_->d_->breakpoints;
-    bps.erase(std::remove(bps.begin(), bps.end(), bpid), bps.end());
 }
 
 bool symbols::load_driver_at(core::Core& core, const std::string& name, span_t driver)
