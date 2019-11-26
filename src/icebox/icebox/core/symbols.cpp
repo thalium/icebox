@@ -113,12 +113,26 @@ symbols::Modules& symbols::Modules::modules(core::Core& core)
     return *core.symbols_;
 }
 
+namespace
+{
+    enum class insert_e
+    {
+        loaded,
+        cached,
+    };
+
+    bool insert_module(Data& d, proc_t proc, const std::string& module, span_t span, const ModulePtr& sym, insert_e einsert)
+    {
+        LOG(INFO, "%s %s %s", einsert == insert_e::loaded ? "loaded" : "cached", sym->id().data(), module.data());
+        const auto ret = d.mods.emplace(ModKey{module, proc}, Mod{sym, span});
+        d.mod_by_ids.emplace(sym->id(), sym);
+        return ret.second;
+    }
+}
+
 bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span, const ModulePtr& symbols)
 {
-    auto& d        = *d_;
-    const auto ret = d.mods.emplace(ModKey{module, proc}, Mod{symbols, span});
-    d.mod_by_ids.emplace(symbols->id(), symbols);
-    return ret.second;
+    return insert_module(*d_, proc, module, span, symbols, insert_e::loaded);
 }
 
 namespace
@@ -163,8 +177,7 @@ bool symbols::Modules::insert(proc_t proc, const std::string& name, span_t modul
         if(!mod)
             continue;
 
-        LOG(INFO, "%s %s %s %s", is_cached ? "cached" : "loaded", h.name, opt_id->id.data(), opt_id->name.data());
-        return insert(proc, name, module, mod);
+        return insert_module(d, proc, name, module, mod, is_cached ? insert_e::cached : insert_e::loaded);
     }
     return false;
 }
