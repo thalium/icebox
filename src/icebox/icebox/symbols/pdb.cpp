@@ -37,19 +37,19 @@ namespace
     struct Sym
     {
         size_t name_idx;
-        int    offset;
+        size_t offset;
     };
 
     struct Struc
     {
         size_t name_idx;
-        int    size;
+        size_t size;
     };
 
     struct Member
     {
         size_t name_idx; // struct name # member name
-        int    offset;
+        size_t offset;
     };
 }
 
@@ -64,22 +64,20 @@ namespace
     struct Pdb
         : public symbols::Module
     {
-        Pdb(fs::path filename, span_t span);
+        Pdb(fs::path filename);
 
         // methods
         bool setup();
 
         // IModule methods
-        span_t                  span        () override;
-        opt<uint64_t>           symbol      (const std::string& symbol) override;
-        opt<uint64_t>           struc_offset(const std::string& struc, const std::string& member) override;
+        opt<size_t>             symbol      (const std::string& symbol) override;
+        opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
         opt<size_t>             struc_size  (const std::string& struc) override;
-        opt<symbols::Offset>    symbol      (uint64_t addr) override;
+        opt<symbols::Offset>    symbol      (size_t offset) override;
         bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
 
         // members
         const fs::path filename_;
-        const span_t   span_;
         StringData     data_strings_;
         Strings        strings_;
         Symbols        symbols_;
@@ -89,19 +87,18 @@ namespace
     };
 }
 
-Pdb::Pdb(fs::path filename, span_t span)
+Pdb::Pdb(fs::path filename)
     : filename_(std::move(filename))
-    , span_(span)
 {
 }
 
-std::shared_ptr<symbols::Module> symbols::make_pdb(span_t span, const std::string& module, const std::string& guid)
+std::shared_ptr<symbols::Module> symbols::make_pdb(const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_NT_SYMBOL_PATH");
     if(!path)
         return nullptr;
 
-    auto ptr      = std::make_unique<Pdb>(fs::path(path) / module / guid / module, span);
+    auto ptr      = std::make_unique<Pdb>(fs::path(path) / module / guid / module);
     const auto ok = ptr->setup();
     if(!ok)
         return nullptr;
@@ -122,11 +119,6 @@ namespace
             case pdb::PDB_STATE_UNSUPPORTED_VERSION:    return "unsupported_version";
         }
         return "<invalid>";
-    }
-
-    static uint64_t get_addr(Pdb& pdb, size_t offset)
-    {
-        return pdb.span_.addr + offset;
     }
 
     static std::string to_member_string(std::string_view struc, std::string_view member)
@@ -186,7 +178,8 @@ bool Pdb::setup()
     for(const auto& it : *globals)
     {
         emplace_string(*this, it.second.name);
-        const auto sym = Sym{idx++, it.second.address};
+        const auto offset = static_cast<size_t>(it.second.address);
+        const auto sym    = Sym{idx++, offset};
         symbols_.emplace_back(sym);
         insert_ordered(offsets_to_symbols_, sym);
     }
@@ -199,11 +192,13 @@ bool Pdb::setup()
 
         const auto& type = reinterpret_cast<const pdb::PDBTypeStruct&>(raw);
         emplace_string(*this, it.first);
-        strucs_.emplace_back(Struc{idx++, type.size_bytes});
+        const auto size_bytes = static_cast<size_t>(type.size_bytes);
+        strucs_.emplace_back(Struc{idx++, size_bytes});
         for(const auto& member : type.struct_members)
         {
             emplace_string(*this, to_member_string(it.first, member->name));
-            members_.emplace_back(Member{idx++, member->offset});
+            const auto offset = static_cast<size_t>(member->offset);
+            members_.emplace_back(Member{idx++, offset});
         }
     }
 
@@ -217,11 +212,6 @@ bool Pdb::setup()
     sort_by_name(members_, strings_);
 
     return true;
-}
-
-span_t Pdb::span()
-{
-    return span_;
 }
 
 namespace
@@ -244,25 +234,25 @@ namespace
     }
 }
 
-opt<uint64_t> Pdb::symbol(const std::string& symbol)
+opt<size_t> Pdb::symbol(const std::string& symbol)
 {
     const auto opt_sym = binary_search(strings_, symbols_, symbol);
     if(!opt_sym)
         return {};
 
-    return get_addr(*this, opt_sym->offset);
+    return opt_sym->offset;
 }
 
 bool Pdb::sym_list(symbols::on_symbol_fn on_sym)
 {
     for(const auto& it : offsets_to_symbols_)
-        if(on_sym(std::string{strings_[it.name_idx]}, get_addr(*this, it.offset)) == walk_e::stop)
+        if(on_sym(std::string{strings_[it.name_idx]}, it.offset) == walk_e::stop)
             break;
 
     return true;
 }
 
-opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& member)
+opt<size_t> Pdb::struc_offset(const std::string& struc, const std::string& member)
 {
     const auto target     = to_member_string(struc, member);
     const auto opt_member = binary_search(strings_, members_, target);
@@ -284,33 +274,32 @@ opt<size_t> Pdb::struc_size(const std::string& struc)
 namespace
 {
     template <typename T>
-    static opt<symbols::Offset> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
+    static opt<symbols::Offset> make_cursor(Pdb& p, const T& it, const T& end, size_t offset)
     {
         if(it == end)
             return {};
 
-        return symbols::Offset{std::string{p.strings_[it->name_idx]}, addr - get_addr(p, it->offset)};
+        return symbols::Offset{std::string{p.strings_[it->name_idx]}, offset - it->offset};
     }
 }
 
-opt<symbols::Offset> Pdb::symbol(uint64_t addr)
+opt<symbols::Offset> Pdb::symbol(size_t offset)
 {
     // lower bound returns first item greater or equal
-    const auto offset = static_cast<int>(addr - span_.addr);
-    auto it           = std::lower_bound(offsets_to_symbols_.begin(), offsets_to_symbols_.end(), offset, [](const auto& a, const auto& b)
+    auto it        = std::lower_bound(offsets_to_symbols_.begin(), offsets_to_symbols_.end(), offset, [](const auto& a, const auto& b)
     {
         return a.offset < b;
     });
-    const auto end    = offsets_to_symbols_.end();
+    const auto end = offsets_to_symbols_.end();
     if(it == end)
-        return make_cursor(*this, offsets_to_symbols_.rbegin(), offsets_to_symbols_.rend(), addr);
+        return make_cursor(*this, offsets_to_symbols_.rbegin(), offsets_to_symbols_.rend(), offset);
 
     // equal
     if(it->offset == offset)
-        return make_cursor(*this, it, end, addr);
+        return make_cursor(*this, it, end, offset);
 
     // stricly greater, go to previous item
-    return make_cursor(*this, --it, end, addr);
+    return make_cursor(*this, --it, end, offset);
 }
 
 namespace
@@ -387,5 +376,5 @@ std::shared_ptr<symbols::Module> symbols::make_pdb(span_t span, const reader::Re
         return {};
 
     LOG(INFO, "%s %s", pdb->guid.data(), pdb->name.data());
-    return make_pdb(span, pdb->name.data(), pdb->guid.data());
+    return make_pdb(pdb->name.data(), pdb->guid.data());
 }

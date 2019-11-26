@@ -319,7 +319,7 @@ namespace
         if(!pdb)
             return false;
 
-        auto ok = core.symbols_->insert(symbols::kernel, "ntdll", pdb);
+        auto ok = core.symbols_->insert(symbols::kernel, "ntdll", *span, pdb);
         if(!ok)
             return false;
 

@@ -20,11 +20,10 @@ namespace
         bool setup();
 
         // IModule methods
-        span_t                  span        () override;
-        opt<uint64_t>           symbol      (const std::string& symbol) override;
-        opt<uint64_t>           struc_offset(const std::string& struc, const std::string& member) override;
+        opt<size_t>             symbol      (const std::string& symbol) override;
+        opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
         opt<size_t>             struc_size  (const std::string& struc) override;
-        opt<symbols::Offset>    symbol      (uint64_t addr) override;
+        opt<symbols::Offset>    symbol      (size_t offset) override;
         bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
 
         // members
@@ -314,7 +313,7 @@ Dwarf::~Dwarf()
     dwarf_finish(dbg, &err);
 }
 
-std::shared_ptr<symbols::Module> symbols::make_dwarf(span_t /*span*/, const std::string& module, const std::string& guid)
+std::shared_ptr<symbols::Module> symbols::make_dwarf(const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
@@ -356,12 +355,7 @@ bool Dwarf::setup()
     return true;
 }
 
-span_t Dwarf::span()
-{
-    return {};
-}
-
-opt<uint64_t> Dwarf::symbol(const std::string& /*symbol*/)
+opt<size_t> Dwarf::symbol(const std::string& /*symbol*/)
 {
     return {};
 }
@@ -371,7 +365,7 @@ bool Dwarf::sym_list(symbols::on_symbol_fn /*on_sym*/)
     return false;
 }
 
-opt<uint64_t> Dwarf::struc_offset(const std::string& struc, const std::string& member)
+opt<size_t> Dwarf::struc_offset(const std::string& struc, const std::string& member)
 {
     opt<Dwarf_Die> child = {};
     get_structure(*this, struc, [&](const Dwarf_Die& structure)
@@ -410,7 +404,7 @@ opt<size_t> Dwarf::struc_size(const std::string& struc)
     return size;
 }
 
-opt<symbols::Offset> Dwarf::symbol(uint64_t /*addr*/)
+opt<symbols::Offset> Dwarf::symbol(size_t /*offset*/)
 {
     return {};
 }

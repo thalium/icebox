@@ -466,17 +466,26 @@ namespace
         symbols::unload(core, symbols::kernel, "kernel_sym");
 
         auto& symbols    = symbols::Modules::modules(core);
-        const auto dwarf = symbols::make_dwarf({}, "kernel", guid);
-        if(!dwarf || !symbols.insert(symbols::kernel, "kernel", dwarf))
+        const auto dwarf = symbols::make_dwarf("kernel", guid);
+        if(!dwarf)
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/elf", guid.data());
 
-        const auto sysmap = symbols::make_map({}, "kernel", guid);
-        if(!sysmap || !sysmap->set_aslr(strSymbol, addrSymbol))
+        auto ok = symbols.insert(symbols::kernel, "kernel", {}, dwarf);
+        if(!ok)
+            return FAIL(ext::nullopt, "unable to store dwarf kernel symbols");
+
+        const auto sysmap = symbols::make_map("kernel", guid);
+        if(!sysmap)
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/System.map file", guid.data());
 
-        const auto kaslr = sysmap->get_aslr();
-        if(!symbols.insert(symbols::kernel, "kernel_sym", sysmap))
-            return FAIL(ext::nullopt, "unable to read System.map file");
+        const auto addr = sysmap->symbol(strSymbol);
+        if(!addr)
+            return FAIL(false, "unable to find symbol %s", strSymbol.data());
+
+        const auto kaslr = addrSymbol - *addr;
+        ok               = symbols.insert(symbols::kernel, "kernel_sym", {kaslr, 0x1000000}, sysmap);
+        if(!ok)
+            return FAIL(ext::nullopt, "unable to store sysmap kernel symbols");
 
         return kaslr;
     }

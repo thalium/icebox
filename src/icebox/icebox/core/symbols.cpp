@@ -54,7 +54,13 @@ namespace std
 
 namespace
 {
-    using Mod         = std::shared_ptr<symbols::Module>;
+    using ModulePtr = std::shared_ptr<symbols::Module>;
+    struct Mod
+    {
+        ModulePtr module;
+        span_t    span;
+    };
+
     using Mods        = std::unordered_map<ModKey, Mod>;
     using Data        = symbols::Modules::Data;
     using Buffer      = std::vector<uint8_t>;
@@ -86,7 +92,7 @@ namespace
     static const struct
     {
         const char name[32];
-        Mod (*make)(span_t, const reader::Reader&);
+        ModulePtr (*make)(span_t, const reader::Reader&);
     } g_helpers[] =
     {
             {"pdb", &symbols::make_pdb},
@@ -104,9 +110,9 @@ symbols::Modules& symbols::Modules::modules(core::Core& core)
     return *core.symbols_;
 }
 
-bool symbols::Modules::insert(proc_t proc, const std::string& module, const Mod& symbols)
+bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span, const ModulePtr& symbols)
 {
-    const auto ret = d_->mods.emplace(ModKey{module, proc}, symbols);
+    const auto ret = d_->mods.emplace(ModKey{module, proc}, Mod{symbols, span});
     return ret.second;
 }
 
@@ -120,7 +126,7 @@ namespace
             if(it == d.mods.end())
                 continue;
 
-            const auto span = it->second->span();
+            const auto span = it->second.span;
             if(span.addr == module.addr && span.size == module.size)
                 return true;
         }
@@ -142,7 +148,7 @@ bool symbols::Modules::insert(proc_t proc, const std::string& name, span_t modul
         if(!mod)
             continue;
 
-        return insert(proc, name, mod);
+        return insert(proc, name, module, mod);
     }
     return false;
 }
@@ -157,14 +163,14 @@ bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module)
 {
     for(const auto& m : d_->mods)
         if(m.first.proc.id == proc.id)
-            if(on_module(*m.second) == walk_e::stop)
+            if(on_module(m.second.span, *m.second.module) == walk_e::stop)
                 break;
     return true;
 }
 
 namespace
 {
-    Mod find_module(Data& d, proc_t proc, const std::string& name)
+    opt<Mod> find_module(Data& d, proc_t proc, const std::string& name)
     {
         const auto it = d.mods.find({name, proc});
         if(it != d.mods.end())
@@ -177,23 +183,27 @@ namespace
         if(ju != d.mods.end())
             return ju->second;
 
-        return nullptr;
+        return {};
     }
 }
 
 symbols::Module* symbols::Modules::find(proc_t proc, const std::string& name)
 {
     const auto it = find_module(*d_, proc, name);
-    return it ? it.get() : nullptr;
+    return it ? it->module.get() : nullptr;
 }
 
 opt<uint64_t> symbols::Modules::symbol(proc_t proc, const std::string& module, const std::string& symbol)
 {
-    const auto mod = find(proc, module);
-    if(!mod)
+    const auto it = find_module(*d_, proc, module);
+    if(!it)
         return {};
 
-    return mod->symbol(symbol);
+    const auto opt_offset = it->module->symbol(symbol);
+    if(!opt_offset)
+        return {};
+
+    return it->span.addr + *opt_offset;
 }
 
 opt<uint64_t> symbols::Modules::struc_offset(proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
@@ -218,8 +228,8 @@ namespace
 {
     struct ModPair
     {
-        std::string      name;
-        symbols::Module& mod;
+        std::string name;
+        Mod         mod;
     };
 
     static opt<ModPair> find(Data& s, proc_t proc, uint64_t addr)
@@ -229,9 +239,9 @@ namespace
             if(m.first.proc.id != proc.id)
                 continue;
 
-            const auto span = m.second->span();
+            const auto span = m.second.span;
             if(span.addr <= addr && addr < span.addr + span.size)
-                return ModPair{m.first.name, *m.second};
+                return ModPair{m.first.name, m.second};
         }
 
         return {};
@@ -279,7 +289,7 @@ symbols::Symbol symbols::Modules::find(proc_t proc, uint64_t addr)
     if(!p)
         return read_empty_symbol(d.core, proc, addr);
 
-    const auto cur = p->mod.symbol(addr);
+    const auto cur = p->mod.module->symbol(addr - p->mod.span.addr);
     if(!cur)
         return {p->name.data(), "", addr};
 

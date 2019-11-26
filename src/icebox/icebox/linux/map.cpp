@@ -15,7 +15,6 @@ namespace
     fs::path                     filename;
     std::vector<symbols::Offset> cursors_by_address;
     std::vector<symbols::Offset> cursors_by_name;
-    opt<uint64_t>                aslr;
 }
 
 symbols::Map::Map(fs::path path)
@@ -40,7 +39,6 @@ bool symbols::Map::setup()
 {
     cursors_by_address.clear();
     cursors_by_name.clear();
-    aslr = {};
 
     std::ifstream filestream;
 
@@ -75,26 +73,7 @@ bool symbols::Map::setup()
     return true;
 }
 
-bool symbols::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
-{
-    aslr                  = 0;
-    const auto addrSymbol = symbol(strSymbol);
-    if(!addrSymbol)
-    {
-        aslr = {};
-        return FAIL(false, "unable to find symbol %s", strSymbol.data());
-    }
-
-    aslr = addr - *addrSymbol;
-    return true;
-}
-
-opt<uint64_t> symbols::Map::get_aslr()
-{
-    return aslr;
-}
-
-std::shared_ptr<symbols::Map> symbols::make_map(span_t, const std::string& module, const std::string& guid)
+std::shared_ptr<symbols::Map> symbols::make_map(const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
@@ -107,11 +86,6 @@ std::shared_ptr<symbols::Map> symbols::make_map(span_t, const std::string& modul
     return ptr;
 }
 
-span_t symbols::Map::span()
-{
-    return {};
-}
-
 namespace
 {
     bool check_setup()
@@ -119,14 +93,11 @@ namespace
         if(cursors_by_address.empty() | cursors_by_name.empty())
             return FAIL(false, "map parser has not been set up");
 
-        if(!aslr)
-            return FAIL(false, "Symbol address is required whereas ASLR was not yet setted");
-
         return true;
     }
 }
 
-opt<uint64_t> symbols::Map::symbol(const std::string& symbol)
+opt<size_t> symbols::Map::symbol(const std::string& symbol)
 {
     if(!check_setup())
         return {};
@@ -142,7 +113,7 @@ opt<uint64_t> symbols::Map::symbol(const std::string& symbol)
     if(itrCursor.first != (itrCursor.second - 1))
         LOG(WARNING, "The symbol %s has been found multiple times", symbol.data());
 
-    return itrCursor.first->offset + *aslr;
+    return itrCursor.first->offset;
 }
 
 bool symbols::Map::sym_list(symbols::on_symbol_fn on_sym)
@@ -151,13 +122,13 @@ bool symbols::Map::sym_list(symbols::on_symbol_fn on_sym)
         return false;
 
     for(const auto& cursor : cursors_by_address)
-        if(on_sym(cursor.symbol, cursor.offset + *aslr) == walk_e::stop)
+        if(on_sym(cursor.symbol, cursor.offset) == walk_e::stop)
             return true;
 
     return true;
 }
 
-opt<uint64_t> symbols::Map::struc_offset(const std::string&, const std::string&)
+opt<size_t> symbols::Map::struc_offset(const std::string&, const std::string&)
 {
     return {};
 }
@@ -167,14 +138,15 @@ opt<size_t> symbols::Map::struc_size(const std::string&)
     return {};
 }
 
-opt<symbols::Offset> symbols::Map::symbol(uint64_t addr)
+opt<symbols::Offset> symbols::Map::symbol(size_t offset)
 {
     if(!check_setup())
         return {};
 
     Offset target;
-    target.offset            = addr - *aslr;
-    const auto first_address = cursors_by_address.begin()->offset, last_address = (cursors_by_address.end() - 1)->offset;
+    target.offset            = offset;
+    const auto first_address = cursors_by_address.front().offset;
+    const auto last_address  = cursors_by_address.back().offset;
 
     if(target.offset < first_address || target.offset > last_address)
         return {};
@@ -188,6 +160,5 @@ opt<symbols::Offset> symbols::Map::symbol(uint64_t addr)
     else
         cursor = *(cursors_by_address.end() - 1);
 
-    cursor.offset += *aslr;
     return cursor;
 }
