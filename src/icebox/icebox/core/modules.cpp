@@ -41,11 +41,11 @@ opt<os::bpid_t> modules::listen_create(core::Core& core, proc_t proc, flags_t fl
 
 bool modules::is_equal(core::Core& core, proc_t proc, mod_t mod, flags_t flags, std::string_view name)
 {
-    const auto mod_name = modules::name(core, proc, mod);
-    if(!mod_name)
+    if(!os::check_flags(mod.flags, flags))
         return false;
 
-    if(!os::check_flags(mod.flags, flags))
+    const auto mod_name = modules::name(core, proc, mod);
+    if(!mod_name)
         return false;
 
     if(stricmp(path::filename(*mod_name).generic_string().data(), name.data()))
