@@ -306,7 +306,10 @@ opt<symbols::Offset> Pdb::symbol(size_t offset)
     if(it->offset == offset)
         return make_cursor(*this, it, end, offset);
 
-    // stricly greater, go to previous item
+    if(it == offsets_to_symbols_.begin())
+        return {};
+
+    // strictly greater, go to previous item
     return make_cursor(*this, --it, end, offset);
 }
 

@@ -205,10 +205,10 @@ namespace
         if(it->first == addr)
             return it->second;
 
-        // stricly greater, go to previous item
         if(it == mods.begin())
             return {};
 
+        // strictly greater, go to previous item
         --it;
         return it->second;
     }
@@ -610,7 +610,10 @@ namespace
         if(it->start_address == offset_in_mod)
             return check_previous_exist(it, end, offset_in_mod);
 
-        // stricly greater, go to previous item
+        if(it == function_entries.begin())
+            return nullptr;
+
+        // strictly greater, go to previous item
         return check_previous_exist(--it, end, offset_in_mod);
     }
 
