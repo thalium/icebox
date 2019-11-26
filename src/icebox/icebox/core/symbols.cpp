@@ -343,17 +343,31 @@ symbols::Symbol symbols::Modules::find(proc_t proc, uint64_t addr)
     return {p->name.data(), cur->symbol, cur->offset};
 }
 
+namespace
+{
+    std::string to_offset(char prefix, uint64_t offset)
+    {
+        if(!offset)
+            return {};
+
+        char dst[2 + 8 * 2 + 1];
+        const auto ptr  = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, offset);
+        const auto size = &dst[sizeof dst - 1] - ptr;
+        auto ret        = std::string(!!prefix + size, prefix);
+        memcpy(&ret[!!prefix], ptr, size);
+        return ret;
+    }
+}
+
 std::string symbols::to_string(const symbols::Symbol& symbol)
 {
-    char dst[2 + 8 * 2 + 1];
-    const char* offset = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, symbol.offset);
     if(!symbol.module.empty() && !symbol.symbol.empty())
-        return symbol.module + '!' + symbol.symbol + '+' + offset;
+        return symbol.module + '!' + symbol.symbol + to_offset('+', symbol.offset);
 
     if(!symbol.module.empty())
-        return symbol.module + '+' + offset;
+        return symbol.module + to_offset('+', symbol.offset);
 
-    return offset;
+    return to_offset(0, symbol.offset);
 }
 
 bool symbols::load_module_at(core::Core& core, proc_t proc, const std::string& name, span_t module)
