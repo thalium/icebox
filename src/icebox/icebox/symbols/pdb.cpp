@@ -64,12 +64,13 @@ namespace
     struct Pdb
         : public symbols::Module
     {
-        Pdb(fs::path filename);
+        Pdb(fs::path filename, std::string guid);
 
         // methods
         bool setup();
 
         // IModule methods
+        std::string_view        id          () override;
         opt<size_t>             symbol      (const std::string& symbol) override;
         opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
         opt<size_t>             struc_size  (const std::string& struc) override;
@@ -77,18 +78,20 @@ namespace
         bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
 
         // members
-        const fs::path filename_;
-        StringData     data_strings_;
-        Strings        strings_;
-        Symbols        symbols_;
-        Symbols        offsets_to_symbols_;
-        Strucs         strucs_;
-        Members        members_;
+        const fs::path    filename_;
+        const std::string guid_;
+        StringData        data_strings_;
+        Strings           strings_;
+        Symbols           symbols_;
+        Symbols           offsets_to_symbols_;
+        Strucs            strucs_;
+        Members           members_;
     };
 }
 
-Pdb::Pdb(fs::path filename)
+Pdb::Pdb(fs::path filename, std::string guid)
     : filename_(std::move(filename))
+    , guid_(std::move(guid))
 {
 }
 
@@ -98,7 +101,7 @@ std::shared_ptr<symbols::Module> symbols::make_pdb(const std::string& module, co
     if(!path)
         return nullptr;
 
-    auto ptr      = std::make_unique<Pdb>(fs::path(path) / module / guid / module);
+    auto ptr      = std::make_unique<Pdb>(fs::path(path) / module / guid / module, guid);
     const auto ok = ptr->setup();
     if(!ok)
         return nullptr;
@@ -212,6 +215,11 @@ bool Pdb::setup()
     sort_by_name(members_, strings_);
 
     return true;
+}
+
+std::string_view Pdb::id()
+{
+    return guid_;
 }
 
 namespace

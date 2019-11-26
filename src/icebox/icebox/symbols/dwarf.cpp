@@ -13,13 +13,14 @@ namespace
     struct Dwarf
         : public symbols::Module
     {
-        Dwarf(fs::path filename);
+        Dwarf(fs::path filename, std::string guid);
         ~Dwarf() override;
 
         // methods
         bool setup();
 
         // IModule methods
+        std::string_view        id          () override;
         opt<size_t>             symbol      (const std::string& symbol) override;
         opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
         opt<size_t>             struc_size  (const std::string& struc) override;
@@ -27,7 +28,8 @@ namespace
         bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
 
         // members
-        const fs::path filename_;
+        const fs::path    filename_;
+        const std::string guid_;
         Dwarf_Debug dbg = nullptr;
         Dwarf_Error err = nullptr;
         std::vector<Dwarf_Die> structures; // buffer of all references of structures
@@ -303,8 +305,9 @@ namespace
     }
 }
 
-Dwarf::Dwarf(fs::path filename)
+Dwarf::Dwarf(fs::path filename, std::string guid)
     : filename_(std::move(filename))
+    , guid_(std::move(guid))
 {
 }
 
@@ -319,7 +322,7 @@ std::shared_ptr<symbols::Module> symbols::make_dwarf(const std::string& module, 
     if(!path)
         return nullptr;
 
-    auto ptr = std::make_unique<Dwarf>(fs::path(path) / module / guid / "elf");
+    auto ptr = std::make_unique<Dwarf>(fs::path(path) / module / guid / "elf", guid);
     if(!ptr->setup())
         return nullptr;
 
@@ -353,6 +356,11 @@ bool Dwarf::setup()
         return FAIL(false, "no structures found in file %s", filename_.generic_string().data());
 
     return true;
+}
+
+std::string_view Dwarf::id()
+{
+    return guid_;
 }
 
 opt<size_t> Dwarf::symbol(const std::string& /*symbol*/)

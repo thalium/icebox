@@ -20,11 +20,12 @@ namespace symbols
     {
         virtual ~Module() = default;
 
-        virtual opt<size_t> symbol      (const std::string& symbol) = 0;
-        virtual opt<size_t> struc_offset(const std::string& struc, const std::string& member) = 0;
-        virtual opt<size_t> struc_size  (const std::string& struc) = 0;
-        virtual opt<Offset> symbol      (size_t offset) = 0;
-        virtual bool        sym_list    (on_symbol_fn on_symbol) = 0;
+        virtual std::string_view    id          () = 0;
+        virtual opt<size_t>         symbol      (const std::string& symbol) = 0;
+        virtual opt<size_t>         struc_offset(const std::string& struc, const std::string& member) = 0;
+        virtual opt<size_t>         struc_size  (const std::string& struc) = 0;
+        virtual opt<Offset>         symbol      (size_t offset) = 0;
+        virtual bool                sym_list    (on_symbol_fn on_symbol) = 0;
     };
 
     std::shared_ptr<Module> make_pdb    (const std::string& module, const std::string& guid);

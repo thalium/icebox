@@ -12,14 +12,34 @@
 
 namespace
 {
-    fs::path                     filename;
-    std::vector<symbols::Offset> cursors_by_address;
-    std::vector<symbols::Offset> cursors_by_name;
+    struct Map
+        : public symbols::Module
+    {
+        Map(fs::path path, std::string guid);
+
+        // methods
+        bool setup();
+
+        // IModule methods
+        std::string_view        id          () override;
+        opt<size_t>             symbol      (const std::string& symbol) override;
+        opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
+        opt<size_t>             struc_size  (const std::string& struc) override;
+        opt<symbols::Offset>    symbol      (size_t offset) override;
+        bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
+
+        const fs::path               filename;
+        const std::string            guid;
+        std::vector<symbols::Offset> cursors_by_address;
+        std::vector<symbols::Offset> cursors_by_name;
+    };
+
 }
 
-symbols::Map::Map(fs::path path)
+Map::Map(fs::path path, std::string guid)
+    : filename(std::move(path))
+    , guid(std::move(guid))
 {
-    filename = std::move(path);
 }
 
 namespace
@@ -35,7 +55,7 @@ namespace
     };
 }
 
-bool symbols::Map::setup()
+bool Map::setup()
 {
     cursors_by_address.clear();
     cursors_by_name.clear();
@@ -73,38 +93,28 @@ bool symbols::Map::setup()
     return true;
 }
 
-std::shared_ptr<symbols::Map> symbols::make_map(const std::string& module, const std::string& guid)
+std::shared_ptr<symbols::Module> symbols::make_map(const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
         return nullptr;
 
-    const auto ptr = std::make_shared<Map>(fs::path(path) / module / guid / "System.map");
+    const auto ptr = std::make_shared<Map>(fs::path(path) / module / guid / "System.map", guid);
     if(!ptr->setup())
         return nullptr;
 
     return ptr;
 }
 
-namespace
+std::string_view Map::id()
 {
-    bool check_setup()
-    {
-        if(cursors_by_address.empty() | cursors_by_name.empty())
-            return FAIL(false, "map parser has not been set up");
-
-        return true;
-    }
+    return guid;
 }
 
-opt<size_t> symbols::Map::symbol(const std::string& symbol)
+opt<size_t> Map::symbol(const std::string& symbol)
 {
-    if(!check_setup())
-        return {};
-
-    Offset target;
-    target.symbol = symbol;
-
+    auto target          = symbols::Offset{};
+    target.symbol        = symbol;
     const auto itrCursor = std::equal_range(cursors_by_name.begin(), cursors_by_name.end(), target, ModCursor_order_name);
 
     if(itrCursor.first == cursors_by_name.end() || itrCursor.first == itrCursor.second)
@@ -116,11 +126,8 @@ opt<size_t> symbols::Map::symbol(const std::string& symbol)
     return itrCursor.first->offset;
 }
 
-bool symbols::Map::sym_list(symbols::on_symbol_fn on_sym)
+bool Map::sym_list(symbols::on_symbol_fn on_sym)
 {
-    if(!check_setup())
-        return false;
-
     for(const auto& cursor : cursors_by_address)
         if(on_sym(cursor.symbol, cursor.offset) == walk_e::stop)
             return true;
@@ -128,22 +135,19 @@ bool symbols::Map::sym_list(symbols::on_symbol_fn on_sym)
     return true;
 }
 
-opt<size_t> symbols::Map::struc_offset(const std::string&, const std::string&)
+opt<size_t> Map::struc_offset(const std::string&, const std::string&)
 {
     return {};
 }
 
-opt<size_t> symbols::Map::struc_size(const std::string&)
+opt<size_t> Map::struc_size(const std::string&)
 {
     return {};
 }
 
-opt<symbols::Offset> symbols::Map::symbol(size_t offset)
+opt<symbols::Offset> Map::symbol(size_t offset)
 {
-    if(!check_setup())
-        return {};
-
-    Offset target;
+    auto target              = symbols::Offset{};
     target.offset            = offset;
     const auto first_address = cursors_by_address.front().offset;
     const auto last_address  = cursors_by_address.back().offset;
@@ -151,7 +155,7 @@ opt<symbols::Offset> symbols::Map::symbol(size_t offset)
     if(target.offset < first_address || target.offset > last_address)
         return {};
 
-    Offset cursor;
+    auto cursor = symbols::Offset{};
     if(target.offset != last_address)
     {
         const auto itrCursor = std::upper_bound(cursors_by_address.begin(), cursors_by_address.end(), target, ModCursor_order_address);
