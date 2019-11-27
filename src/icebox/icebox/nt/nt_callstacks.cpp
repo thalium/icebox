@@ -610,100 +610,102 @@ namespace
         return check_previous_exist(--it, end, offset_in_mod);
     }
 
-    static size_t read_callers_x64(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+    static bool get_next_context_x64(NtCallstacks& c, proc_t proc, const reader::Reader& reader, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 8;
-        const auto reader       = reader::make(c.core_, proc);
-        const auto stack        = get_stack(c, proc, first, false);
-        if(!stack)
+
+        // Get module from address
+        const auto tuple = get_name_span(c, proc, ctx);
+        if(!tuple)
             return false;
 
-        auto ctx = first;
-        for(size_t i = 0; i < num_callers; ++i)
-        {
-            // Get module from address
-            const auto tuple = get_name_span(c, proc, ctx);
-            if(!tuple)
-                return i;
+        auto [name, span] = *tuple;
+        // Get function table of the module
+        const auto function_table = get_module_unwind(c, proc, name, span);
+        if(!function_table)
+            return false;
 
-            auto [name, span] = *tuple;
-            // Get function table of the module
-            const auto function_table = get_module_unwind(c, proc, name, span);
-            if(!function_table)
-            {
-                callers[i].addr = ctx.ip;
-                return i + 1;
-            }
+        const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span.addr);
+        const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
+        if(!function_entry)
+            return FAIL(false, "No matching function entry");
 
-            const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span.addr);
-            const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
-            if(!function_entry)
-                return FAIL(false, "No matching function entry");
+        const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_table, *function_entry);
+        if(!stack_frame_size)
+            return FAIL(false, "Can't calculate stack frame size");
 
-            const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_table, *function_entry);
-            if(!stack_frame_size)
-                return FAIL(false, "Can't calculate stack frame size");
+        if(function_entry->frame_reg_offset != 0)
+            ctx.sp = ctx.bp - function_entry->frame_reg_offset;
 
-            if(function_entry->frame_reg_offset != 0)
-                ctx.sp = ctx.bp - function_entry->frame_reg_offset;
+        if(function_entry->prev_frame_reg != 0)
+            if(const auto bp = reader.read(ctx.sp + function_entry->prev_frame_reg))
+                ctx.bp = *bp;
 
-            if(function_entry->prev_frame_reg != 0)
-                if(const auto bp = reader.read(ctx.sp + function_entry->prev_frame_reg))
-                    ctx.bp = *bp;
+        const auto caller_addr_on_stack = ctx.sp + *stack_frame_size;
 
-            const auto caller_addr_on_stack = ctx.sp + *stack_frame_size;
+        // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
+        if(stack.addr > caller_addr_on_stack || stack.addr + stack.size < caller_addr_on_stack)
+            return false;
 
-            // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
-            if(stack->addr > caller_addr_on_stack || stack->addr + stack->size < caller_addr_on_stack)
-                return i;
-
-            const auto return_addr = reader.read(caller_addr_on_stack);
-            if(!return_addr)
-                return FAIL(false, "unable to read return address at 0x%" PRIx64, caller_addr_on_stack);
+        const auto return_addr = reader.read(caller_addr_on_stack);
+        if(!return_addr)
+            return FAIL(false, "unable to read return address at 0x%" PRIx64, caller_addr_on_stack);
 
 #ifdef USE_DEBUG_PRINT
-            // print stack
-            const auto print_d = 25;
-            for(int k = -3 * reg_size; k < print_d * reg_size; k += reg_size)
-            {
-                LOG(INFO, "0x%" PRIx64 " - 0x%" PRIx64, ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
-            }
-            LOG(INFO, "Chosen chosen 0x%" PRIx64 " start address 0x%" PRIx64 " end 0x%" PRIx64, off_in_mod, function_entry->start_address, function_entry->end_address);
-            LOG(INFO, "Offset of current func 0x%" PRIx64 ", Caller address on stack 0x%" PRIx64 " so 0x%" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
-#endif
-
-            callers[i].addr = ctx.ip;
-            ctx.ip          = *return_addr;
-            ctx.sp          = caller_addr_on_stack + reg_size;
+        // print stack
+        const auto print_d = 25;
+        for(int k = -3 * reg_size; k < print_d * reg_size; k += reg_size)
+        {
+            LOG(INFO, "0x%" PRIx64 " - 0x%" PRIx64, ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
         }
-        return num_callers;
+        LOG(INFO, "Chosen chosen 0x%" PRIx64 " start address 0x%" PRIx64 " end 0x%" PRIx64, off_in_mod, function_entry->start_address, function_entry->end_address);
+        LOG(INFO, "Offset of current func 0x%" PRIx64 ", Caller address on stack 0x%" PRIx64 " so 0x%" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
+#endif
+        ctx.ip = *return_addr;
+        ctx.sp = caller_addr_on_stack + reg_size;
+        return true;
     }
 
-    static size_t read_callers_x86(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+    static bool get_next_context_x86(const reader::Reader& reader, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 4;
-        const auto reader       = reader::make(c.core_, proc);
-        const auto stack        = get_stack(c, proc, first, true);
+        if(stack.addr > ctx.bp || stack.addr + stack.size < ctx.bp)
+            return FAIL(false, "ebp out of stack bounds, ebp: 0x%" PRIx64 " stack bounds: 0x%" PRIx64 "-0x%" PRIx64, ctx.bp, stack.addr, stack.addr + stack.size);
+
+        const auto caller_addr_on_stack = reader.le32(ctx.bp);
+        if(!caller_addr_on_stack)
+            return FAIL(false, "unable to read caller address on stack at 0x%" PRIx64, ctx.bp);
+
+        const auto return_addr = reader.le32(ctx.bp + reg_size);
+        if(!return_addr)
+            return FAIL(false, "unable to read return address at 0x%" PRIx64, ctx.bp + reg_size);
+
+        ctx.ip = *return_addr;
+        ctx.bp = *caller_addr_on_stack;
+        return true;
+    }
+
+    static size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+    {
+        const auto reader = reader::make(c.core_, proc);
+        const auto stack  = get_stack(c, proc, first, true);
         if(!stack)
             return 0;
 
-        auto ctx = first;
-        for(size_t i = 0; i < num_callers; ++i)
+        auto ctx        = first;
+        callers[0].addr = ctx.ip;
+        for(size_t i = 1; i < num_callers; ++i)
         {
-            if(stack->addr > ctx.bp || stack->addr + stack->size < ctx.bp)
+            bool ok = false;
+            if(first.flags.is_x86)
+                ok = get_next_context_x86(reader, *stack, ctx);
+            else
+                ok = get_next_context_x64(c, proc, reader, *stack, ctx);
+
+            if(!ok)
                 return i;
 
-            const auto caller_addr_on_stack = reader.le32(ctx.bp);
-            if(!caller_addr_on_stack)
-                return FAIL(false, "unable to read caller address on stack at 0x%" PRIx64, ctx.bp);
-
-            const auto return_addr = reader.le32(ctx.bp + reg_size);
-            if(!return_addr)
-                return FAIL(false, "unable to read return address at 0x%" PRIx64, ctx.bp + reg_size);
-
             callers[i].addr = ctx.ip;
-            ctx.ip          = *return_addr;
-            ctx.bp          = *caller_addr_on_stack;
         }
         return num_callers;
     }
@@ -712,10 +714,7 @@ namespace
 size_t NtCallstacks::read_from(caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
 {
     memset(callers, 0, num_callers * sizeof *callers);
-    if(first.flags.is_x86)
-        return read_callers_x86(*this, callers, num_callers, proc, first);
-
-    return read_callers_x64(*this, callers, num_callers, proc, first);
+    return read_callers(*this, callers, num_callers, proc, first);
 }
 
 size_t NtCallstacks::read(caller_t* callers, size_t num_callers, proc_t proc)
