@@ -83,34 +83,32 @@ namespace
     template <typename T>
     struct Pool
     {
-        using allocate_fn = std::function<T()>;
-        using buffers_t   = std::vector<T>;
+        using pointer_t = std::unique_ptr<T>;
+        using buffers_t = std::vector<pointer_t>;
 
-        Pool(size_t max, const allocate_fn& allocate)
+        Pool(size_t max)
             : max(max)
-            , allocate(allocate)
         {
         }
 
-        T acquire()
+        pointer_t acquire()
         {
             if(buffers.empty())
-                return allocate();
+                return std::make_unique<T>();
 
             auto ret = std::move(buffers.back());
             buffers.pop_back();
             return ret;
         }
 
-        void release(T arg)
+        void release(pointer_t arg)
         {
             if(buffers.size() < max)
                 buffers.emplace_back(std::move(arg));
         }
 
-        size_t      max;
-        allocate_fn allocate;
-        buffers_t   buffers;
+        size_t    max;
+        buffers_t buffers;
     };
 
     constexpr auto g_stack_size = 0x400000; // 4mb stack size
@@ -123,7 +121,7 @@ namespace
         bool finished        = false; // worker thread is dead
     };
 
-    using WorkerPool = Pool<std::unique_ptr<Worker>>;
+    using WorkerPool = Pool<Worker>;
     using Workers    = std::vector<std::unique_ptr<Worker>>;
 }
 
@@ -133,10 +131,7 @@ struct state::State
         : core(core)
         , breakstate{}
         , co_main(co_active())
-        , pool(16, []
-        {
-            return std::make_unique<Worker>();
-        })
+        , pool(16)
     {
     }
 
