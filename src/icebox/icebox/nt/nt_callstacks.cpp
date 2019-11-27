@@ -342,6 +342,9 @@ namespace
 
     static opt<FunctionTable> parse_exception_dir(NtCallstacks& c, proc_t proc, uint64_t mod_base_addr, span_t exception_dir)
     {
+        if(!exception_dir.size)
+            return {};
+
         auto& buf = c.buffer_;
         buf.resize(exception_dir.size);
         const auto reader = reader::make(c.core_, proc);
