@@ -10,6 +10,7 @@
 
 #include <libco.h>
 
+#include <cstring>
 #include <deque>
 #include <map>
 #include <thread>
@@ -77,8 +78,7 @@ namespace
 
     using check_fn = std::function<bool()>;
     using Waiters  = std::vector<check_fn>;
-
-    using BufferType = std::vector<uint8_t>;
+    using Buffer   = std::vector<uint8_t>;
 
     template <typename T>
     struct Pool
@@ -113,25 +113,18 @@ namespace
         buffers_t   buffers;
     };
 
-    using Buffer = std::unique_ptr<BufferType>;
+    constexpr auto g_stack_size = 0x400000; // 4mb stack size
 
     struct Worker
     {
-         Worker(state::State& state, const state::Task& task);
-        ~Worker();
-
-        state::State& state;
-        state::Task   task;
-        Buffer        buffer;
+        Buffer buffer        = Buffer(g_stack_size);
         cothread_t co_thread = nullptr;
         uint64_t seq_id      = 0;     // current sequence id
         bool finished        = false; // worker thread is dead
     };
 
-    using Workers    = std::vector<std::shared_ptr<Worker>>;
-    using BufferPool = Pool<Buffer>;
-
-    constexpr auto g_stack_size = 0x400000; // 4mb stack size
+    using WorkerPool = Pool<std::unique_ptr<Worker>>;
+    using Workers    = std::vector<std::unique_ptr<Worker>>;
 }
 
 struct state::State
@@ -140,9 +133,9 @@ struct state::State
         : core(core)
         , breakstate{}
         , co_main(co_active())
-        , stacks(16, []
+        , pool(16, []
         {
-            return std::make_unique<BufferType>(g_stack_size);
+            return std::make_unique<Worker>();
         })
     {
     }
@@ -153,8 +146,8 @@ struct state::State
     BreakState  breakstate;
     Waiters     waiters;
     cothread_t  co_main;
+    WorkerPool  pool;
     Workers     workers;
-    BufferPool  stacks;
 };
 
 std::shared_ptr<state::State> state::setup(core::Core& core)
@@ -165,18 +158,6 @@ std::shared_ptr<state::State> state::setup(core::Core& core)
 namespace
 {
     using Data = state::State;
-
-    Worker::Worker(Data& d, const state::Task& task)
-        : state(d)
-        , task(task)
-        , buffer(d.stacks.acquire())
-    {
-    }
-
-    Worker::~Worker()
-    {
-        state.stacks.release(std::move(buffer));
-    }
 
     bool run_workers(Data& d)
     {
@@ -190,29 +171,40 @@ namespace
         return resumed;
     }
 
-    // must have global scope...
-    Data* g_data = nullptr;
-
-    void start_worker(Data& d, const state::Task& task)
+    struct co_ctx_t
     {
-        d.workers.emplace_back(std::make_shared<Worker>(d, task));
-        const auto& w          = d.workers.back();
-        g_data                 = &d;
-        const auto next_thread = co_derive(w->buffer->data(), g_stack_size, []
+        Data*    pstate;
+        Observer observer;
+    };
+
+    // must have global scope...
+    co_ctx_t g_co_ctx = {nullptr, nullptr};
+
+    void start_worker(Data& d, const Observer& observer)
+    {
+        d.workers.emplace_back(d.pool.acquire());
+        auto& w            = *d.workers.back();
+        g_co_ctx           = {&d, observer};
+        const auto co_next = co_derive(w.buffer.data(), g_stack_size, []
         {
+            const auto co_main = g_co_ctx.pstate->co_main;
             {
+                // save a copy of global context & reset it
+                const auto s = g_co_ctx;
+                g_co_ctx     = {};
                 // save a reference from shared_ptr
                 // which is guaranteed to be alive
                 // until this task is finished
-                auto& w     = *g_data->workers.back();
+                auto& w     = *s.pstate->workers.back();
                 w.co_thread = co_active();
-                w.task();
+                w.finished  = false;
+                s.observer->task();
                 w.finished = true;
             }
             // we must unwind everything before last switch
-            co_switch(g_data->co_main);
+            co_switch(co_main);
         });
-        co_switch(next_thread);
+        co_switch(co_next);
     }
 
     template <typename T, typename U>
@@ -223,9 +215,13 @@ namespace
 
     void discard_dead_workers(Data& d)
     {
-        remove_erase_if(d.workers, [](const auto& h)
+        remove_erase_if(d.workers, [&](auto& h)
         {
-            return h->finished;
+            if(!h->finished)
+                return false;
+
+            d.pool.release(std::move(h));
+            return true;
         });
     }
 
@@ -234,7 +230,7 @@ namespace
         const auto resumed = run_workers(d);
         if(!resumed)
             for(const auto& it : observers)
-                start_worker(d, it->task);
+                start_worker(d, it);
         discard_dead_workers(d);
     }
 
