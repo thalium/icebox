@@ -900,30 +900,15 @@ flags_t NtOs::proc_flags(proc_t proc)
 
 namespace
 {
-    static opt<span_t> mod_span_64(const reader::Reader& reader, mod_t mod)
+    template <typename T>
+    static opt<span_t> read_ldr_span(const reader::Reader& reader, uint64_t ptr)
     {
-        const auto base = reader.read(mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, DllBase));
-        if(!base)
+        auto entry    = T{};
+        const auto ok = reader.read_all(&entry, ptr, sizeof entry);
+        if(!ok)
             return {};
 
-        const auto size = reader.le32(mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
-        if(!size)
-            return {};
-
-        return span_t{*base, *size};
-    }
-
-    static opt<span_t> mod_span_32(const reader::Reader& reader, mod_t mod)
-    {
-        const auto base = reader.le32(mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, DllBase));
-        if(!base)
-            return {};
-
-        const auto size = reader.le32(mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
-        if(!size)
-            return {};
-
-        return span_t{*base, *size};
+        return span_t{entry.DllBase, entry.SizeOfImage};
     }
 }
 
@@ -931,9 +916,9 @@ opt<span_t> NtOs::mod_span(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
     if(mod.flags.is_x86)
-        return mod_span_32(reader, mod);
+        return read_ldr_span<wow64::_LDR_DATA_TABLE_ENTRY>(reader, mod.id);
 
-    return mod_span_64(reader, mod);
+    return read_ldr_span<nt::_LDR_DATA_TABLE_ENTRY>(reader, mod.id);
 }
 
 bool NtOs::vm_area_list(proc_t /*proc*/, vm_area::on_vm_area_fn /*on_vm_area*/)
@@ -1000,15 +985,7 @@ opt<std::string> NtOs::driver_name(driver_t drv)
 
 opt<span_t> NtOs::driver_span(driver_t drv)
 {
-    const auto base = reader_.read(drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, DllBase));
-    if(!base)
-        return {};
-
-    const auto size = reader_.le32(drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
-    if(!size)
-        return {};
-
-    return span_t{*base, *size};
+    return read_ldr_span<nt::_LDR_DATA_TABLE_ENTRY>(reader_, drv.id);
 }
 
 bool NtOs::thread_list(proc_t proc, threads::on_thread_fn on_thread)
