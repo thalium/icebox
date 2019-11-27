@@ -53,11 +53,12 @@ enum constants_e
 
 enum vma_access_e
 {
-    VMA_ACCESS_NONE   = 0,
-    VMA_ACCESS_READ   = 1 << 0,
-    VMA_ACCESS_WRITE  = 1 << 1,
-    VMA_ACCESS_EXEC   = 1 << 2,
-    VMA_ACCESS_SHARED = 1 << 3,
+    VMA_ACCESS_NONE          = 0,
+    VMA_ACCESS_READ          = 1 << 0,
+    VMA_ACCESS_WRITE         = 1 << 1,
+    VMA_ACCESS_EXEC          = 1 << 2,
+    VMA_ACCESS_SHARED        = 1 << 3,
+    VMA_ACCESS_COPY_ON_WRITE = 1 << 4,
 };
 
 enum class vma_type_e

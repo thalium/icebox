@@ -275,6 +275,37 @@ namespace nt_namespace
         } u;
         // truncated...
     };
+
+    struct _MMVAD_FLAGS
+    {
+        uint32_t Lock               : 1;
+        uint32_t LockContended      : 1;
+        uint32_t DeleteInProgress   : 1;
+        uint32_t NoChange           : 1;
+        uint32_t VadType            : 3;
+        uint32_t Protection         : 5;
+        uint32_t PreferredNode      : 6;
+        uint32_t PageSize           : 2;
+        uint32_t PrivateMemory      : 1;
+    };
+
+#pragma pack(1)
+    struct _MMVAD_SHORT
+    {
+        _RTL_BALANCED_NODE VadNode;
+        uint32_t           StartingVpn;
+        uint32_t           EndingVpn;
+        uint8_t            StartingVpnHigh;
+        uint8_t            EndingVpnHigh;
+        uint8_t            CommitChargeHigh;
+        uint8_t            SpareNT64VadUChar;
+        uint32_t           ReferenceCount;
+        uintptr_t          PushLock;
+        _MMVAD_FLAGS       VadFlags;
+        // truncated
+    };
+#pragma pack()
+
 } // namespace nt_namespace
 #undef nt_namespace
 #undef WOW64

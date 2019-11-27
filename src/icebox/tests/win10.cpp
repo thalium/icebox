@@ -337,6 +337,60 @@ TEST_F(win10, memory)
     });
 }
 
+TEST_F(win10, vm_area)
+{
+    auto& core      = *ptr_core;
+    const auto proc = process::find_name(core, "explorer.exe", {});
+    EXPECT_TRUE(!!proc);
+    LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
+
+    process::join(core, *proc, mode_e::kernel);
+    LOG(INFO, "MMVAD               address             size                access      image");
+    vm_area::list(core, *proc, [&](vm_area_t area)
+    {
+        auto span = vm_area::span(core, *proc, area);
+        EXPECT_TRUE(!!span);
+
+        const auto access = vm_area::access(core, *proc, area);
+        const auto name   = vm_area::name(core, *proc, area);
+        EXPECT_TRUE(!!name);
+        LOG(INFO, "0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-8x  %s", area.id, span->addr, span->size, access, name->c_str());
+
+        return walk_e::next;
+    });
+
+    const auto invalid_area = vm_area::find(core, *proc, 0x10);
+    EXPECT_FALSE(!!invalid_area);
+
+    modules::list(core, *proc, [&](mod_t mod)
+    {
+        const auto mod_span = modules::span(core, *proc, mod);
+        EXPECT_TRUE(!!mod_span);
+        const auto mod_name = modules::name(core, *proc, mod);
+        EXPECT_TRUE(!!mod_name);
+
+        const auto area = vm_area::find(core, *proc, mod_span->addr + 1);
+        EXPECT_TRUE(!!area);
+
+        auto area_span = vm_area::span(core, *proc, *area);
+        EXPECT_TRUE(!!area_span);
+
+        EXPECT_TRUE(area_span->addr == mod_span->addr);
+        EXPECT_TRUE(area_span->size == mod_span->size);
+
+        const auto area_name = vm_area::name(core, *proc, *area);
+        EXPECT_TRUE(!!area_name);
+
+        auto access = vm_area::access(core, *proc, *area);
+        EXPECT_TRUE(access & VMA_ACCESS_COPY_ON_WRITE);
+
+        auto pos = area_name->find(*mod_name);
+        EXPECT_TRUE(!!pos);
+
+        return walk_e::next;
+    });
+}
+
 TEST_F(win10, loader)
 {
     auto& core      = *ptr_core;
