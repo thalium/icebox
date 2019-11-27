@@ -1,6 +1,6 @@
 #include "callstacks.hpp"
 
-#define FDP_MODULE "nt_callstacks"
+#define FDP_MODULE "unwind"
 #include "core.hpp"
 #include "endian.hpp"
 #include "interfaces/if_callstacks.hpp"
@@ -437,6 +437,7 @@ namespace
 
     static opt<FunctionTable> parse_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
     {
+        LOG(INFO, "loading %s", name.data());
         const auto reader        = reader::make(c.core_, proc);
         const auto exception_dir = pe::find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
         if(!exception_dir)

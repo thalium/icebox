@@ -401,6 +401,12 @@ TEST_F(win10, callstacks)
 
     process::join(core, *proc, mode_e::user);
 
+    drivers::list(core, [&](driver_t drv)
+    {
+        callstacks::load_driver(core, *proc, drv);
+        return walk_e::next;
+    });
+
     symbols::autoload_modules(core, *proc);
     callstacks::autoload_modules(core, *proc);
     auto tracer      = nt::syscalls{core, "ntdll"};
