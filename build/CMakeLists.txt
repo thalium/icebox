@@ -129,6 +129,26 @@ target_include_directories(mbedtls PUBLIC
     "${mbedtls_dir}/include"
 )
 
+# libco
+set(libco_dir "${root_dir}/third_party/libco")
+get_files(libco_files "${libco_dir}")
+filter_out(libco_files
+    "aarch64[.]c$"
+    "amd64[.]c$"
+    "arm[.]c$"
+    "fiber[.]c$"
+    "ppc[.]c$"
+    "ppc64v2[.]c$"
+    "sjlj[.]c$"
+    "ucontext[.]c$"
+    "x86[.]c$"
+)
+make_target(libco third_party "${libco_files}" OPTIONS external)
+target_compile_definitions(libco PRIVATE LIBCO_MPROTECT)
+target_include_directories(libco PUBLIC
+    "${libco_dir}"
+)
+
 # tracer code generator
 set(icebox_dir "${root_dir}/src/icebox/icebox")
 set(tracer_dir "${icebox_dir}/tracer")
@@ -168,10 +188,11 @@ target_compile_definitions(icebox PRIVATE
 )
 target_link_libraries(icebox
   PRIVATE
-    loguru
-    pdbparser
+    libco
     libdwarf
+    loguru
     mbedtls
+    pdbparser
   PUBLIC
     fdp_static
     fmtlib
