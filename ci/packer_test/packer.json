@@ -1,0 +1,108 @@
+{
+  "builders": [
+  {    
+    "type": "virtualbox-iso",
+    "communicator": "winrm",
+    "floppy_files": [
+      "./scripts/Autounattend.xml",
+      "./scripts/disable-update.ps1",
+      "./scripts/configure-winrm.ps1"
+    ],
+    "guest_os_type": "Windows10_64",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": "{{user `headless`}}",
+    "winrm_username": "vagrant",
+    "winrm_password": "vagrant",
+    "winrm_timeout": "1h",
+    "winrm_insecure": true,
+    "hard_drive_interface": "sata",
+    "iso_interface": "sata",
+    "skip_export": true,
+    "shutdown_command": "shutdown /s /t 0 /f /d p:4:1 /c \"Packer Shutdown\"",
+    "disk_size": "{{user `disk_size`}}",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "{{user `memory_size`}}"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "{{user `cpus`}}"
+        ],
+	[
+	  "modifyvm",
+	  "{{.Name}}",
+	  "--vram", 
+	  "128"
+	],
+        [
+	  "modifyvm",
+	  "{{.Name}}",
+	  "--ioapic", 
+	  "on"
+	],
+        [
+	  "modifyvm",
+	  "{{.Name}}",
+	  "--vrde", 
+	  "off"
+	]
+      ]
+    } 
+  ],
+  "provisioners": [
+  {
+    "type": "powershell",
+    "scripts": [
+      "./provisioners/disable-hibernate.ps1",
+      "./provisioners/enable-autologin.ps1",
+      "./provisioners/enable-rdp.ps1",
+      "./provisioners/disable-uac.ps1",
+      "./provisioners/no-expiration.ps1"
+    ]},
+  {
+    "type": "windows-restart",
+    "restart_command": "powershell \"& {(Get-WmiObject win32_operatingsystem).LastBootUpTime > C:\\ProgramData\\lastboot.txt; Restart-Computer -force}\"",
+    "restart_check_command": "powershell -command \"& {if ((get-content C:\\ProgramData\\lastboot.txt) -eq (Get-WmiObject win32_operatingsystem).LastBootUpTime) {Write-Output 'Sleeping for 600 seconds to wait for reboot'; start-sleep 600} else {Write-Output 'Reboot complete'}}\""
+  },
+{
+  "type": "file",
+  "source": "./resources",
+  "destination": "c:/",
+"generated": "true"
+},
+{
+  "type": "powershell",
+  "inline": ["'n' | cmd /c c:\\resources\\pafish.exe"]
+},
+{
+  "type": "powershell",
+  "inline": ["'n' | cmd /c c:\\resources\\al-khaser.exe"]
+},
+{
+  "type": "powershell",
+  "inline": ["'n' | cmd /c c:\\resources\\Anti-Analysis.exe"]
+},
+{
+  "type": "powershell",
+  "inline": ["'n' | cmd /c c:\\resources\\sems\\sems.exe 2>null"]
+}
+],
+"variables": {
+    "iso_url": "http://download.microsoft.com/download/C/3/9/C399EEA8-135D-4207-92C9-6AAB3259F6EF/10240.16384.150709-1700.TH1_CLIENTENTERPRISEEVAL_OEMRET_X64FRE_EN-US.ISO",
+    "iso_checksum_type": "sha1",
+    "iso_checksum": "56ab095075be28a90bc0b510835280975c6bb2ce",
+    "autounattend": "./answer_files/10/Autounattend.xml",
+    "headless": "false",
+    "cpus": "2",
+    "memory_size": "4096",
+    "switch_name": "Default Switch",
+    "disk_size": "61440"
+  }
+}
