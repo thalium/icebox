@@ -15,6 +15,7 @@ namespace drivers
 
     bool                list            (core::Core&, on_driver_fn on_driver);
     opt<driver_t>       find            (core::Core&, uint64_t addr);
+    opt<driver_t>       find_name       (core::Core&, std::string_view name);
     opt<std::string>    name            (core::Core&, driver_t drv);
     opt<span_t>         span            (core::Core&, driver_t drv);
     opt<bpid_t>         listen_create   (core::Core&, const on_event_fn& on_load);
