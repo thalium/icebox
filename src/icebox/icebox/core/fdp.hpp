@@ -29,4 +29,6 @@ namespace fdp
     opt<uint64_t>   read_msr_register   (core::Core& core, msr_e msr);
     bool            write_register      (core::Core& core, reg_e reg, uint64_t value);
     bool            write_msr_register  (core::Core& core, msr_e msr, uint64_t value);
+    bool            save                (core::Core& core);
+    bool            restore             (core::Core& core);
 } // namespace fdp

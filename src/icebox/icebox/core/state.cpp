@@ -668,3 +668,13 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
         fdp::unset_breakpoint(core, bpid);
 }
+
+bool state::save(core::Core& core)
+{
+    return fdp::save(core);
+}
+
+bool state::restore(core::Core& core)
+{
+    return fdp::restore(core);
+}

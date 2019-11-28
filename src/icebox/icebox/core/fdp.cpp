@@ -236,3 +236,13 @@ bool fdp::write_msr_register(core::Core& core, msr_e msr, uint64_t value)
 {
     return FDP_WriteMsr(cast(core.shm_), 0, cast(msr), value);
 }
+
+bool fdp::save(core::Core& core)
+{
+    return FDP_Save(cast(core.shm_));
+}
+
+bool fdp::restore(core::Core& core)
+{
+    return FDP_Restore(cast(core.shm_));
+}

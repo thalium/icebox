@@ -27,6 +27,8 @@ namespace state
     bool        resume                      (core::Core& core);
     bool        single_step                 (core::Core& core);
     bool        wait                        (core::Core& core);
+    bool        save                        (core::Core& core);
+    bool        restore                     (core::Core& core);
     void        wait_for                    (core::Core& core, int timeout_ms);
     Breakpoint  break_on                    (core::Core& core, std::string_view name, uint64_t ptr, const Task& task);
     Breakpoint  break_on_process            (core::Core& core, std::string_view name, proc_t proc, uint64_t ptr, const Task& task);
