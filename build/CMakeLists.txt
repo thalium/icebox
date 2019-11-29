@@ -214,14 +214,17 @@ target_link_libraries(icebox_cmd PRIVATE icebox)
 # samples/vm_resume
 foreach(sample IN ITEMS
     heapsan
+    linux
     nt_writefile
     vm_resume
     wireshark
-    linux
 )
     add_target(${sample} samples "${root_dir}/src/icebox/samples/${sample}" OPTIONS executable fmt tidy)
     set_target_output_directory(${sample} "")
     target_compile_definitions(${sample} PRIVATE _CRT_SECURE_NO_WARNINGS)
+    target_include_directories(${sample} PUBLIC
+        "${root_dir}/third_party/nlohmann_json/include"
+    )
     target_link_libraries(${sample} PRIVATE icebox)
 endforeach()
 
