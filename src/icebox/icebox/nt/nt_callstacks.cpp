@@ -666,7 +666,7 @@ namespace
         return true;
     }
 
-    static bool get_next_context_x86(const reader::Reader& reader, const span_t& stack, context_t& ctx)
+    static bool get_next_context_x86(NtCallstacks& /*c*/, proc_t /*proc*/, const reader::Reader& reader, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 4;
         if(stack.addr > ctx.bp || stack.addr + stack.size < ctx.bp)
@@ -692,16 +692,12 @@ namespace
         if(!stack)
             return 0;
 
-        auto ctx        = first;
-        callers[0].addr = ctx.ip;
+        auto ctx                = first;
+        callers[0].addr         = ctx.ip;
+        const auto next_context = first.flags.is_x86 ? &get_next_context_x86 : &get_next_context_x64;
         for(size_t i = 1; i < num_callers; ++i)
         {
-            bool ok = false;
-            if(first.flags.is_x86)
-                ok = get_next_context_x86(reader, *stack, ctx);
-            else
-                ok = get_next_context_x64(c, proc, reader, *stack, ctx);
-
+            const auto ok = next_context(c, proc, reader, *stack, ctx);
             if(!ok)
                 return i;
 
