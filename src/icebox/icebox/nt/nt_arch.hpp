@@ -161,6 +161,15 @@ namespace nt_namespace
     const auto access_mask_all = nt_types::access_mask_all;
     const auto page_access_all = nt_types::page_access_all;
 
+    union _LARGE_INTEGER {
+        struct
+        {
+            uint32_t LowPart;
+            uint32_t HighPart;
+        } u;
+        uint64_t QuadPart;
+    };
+
     struct _UNICODE_STRING
     {
         uint16_t Length;
@@ -238,8 +247,9 @@ namespace nt_namespace
 
     struct _RTL_BALANCED_NODE
     {
-        _RTL_BALANCED_NODE* Children[2];
-        uint64_t            ParentValue;
+        ptr_t    Left;
+        ptr_t    Right;
+        uint64_t ParentValue;
     };
 
     struct _SEGMENT
@@ -289,7 +299,6 @@ namespace nt_namespace
         uint32_t PrivateMemory      : 1;
     };
 
-#pragma pack(1)
     struct _MMVAD_SHORT
     {
         _RTL_BALANCED_NODE VadNode;
@@ -300,11 +309,11 @@ namespace nt_namespace
         uint8_t            CommitChargeHigh;
         uint8_t            SpareNT64VadUChar;
         uint32_t           ReferenceCount;
-        uintptr_t          PushLock;
+        ptr_t              PushLock;
         _MMVAD_FLAGS       VadFlags;
+        uint32_t           _;
         // truncated
     };
-#pragma pack()
 
 } // namespace nt_namespace
 #undef nt_namespace

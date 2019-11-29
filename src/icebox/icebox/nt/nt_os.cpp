@@ -929,140 +929,112 @@ opt<span_t> NtOs::mod_span(proc_t proc, mod_t mod)
     return read_ldr_span<nt::_LDR_DATA_TABLE_ENTRY>(reader, mod.id);
 }
 
-union large_integer {
-    struct
-    {
-        uint32_t low;
-        uint32_t high;
-    } u;
-    uint64_t full;
-};
-
 namespace
 {
-    vma_access_e mm_protect_to_vma_access[] = {
-        VMA_ACCESS_NONE,                                                      // PAGE_NOACCESS,
-        VMA_ACCESS_READ,                                                      // PAGE_READONLY,
-        VMA_ACCESS_EXEC,                                                      // PAGE_EXECUTE,
-        (vma_access_e)(VMA_ACCESS_EXEC | VMA_ACCESS_READ),                    // PAGE_EXECUTE_READ,
-        (vma_access_e)(VMA_ACCESS_READ | VMA_ACCESS_WRITE),                   // PAGE_READWRITE,
-        (vma_access_e)(VMA_ACCESS_COPY_ON_WRITE),                             // PAGE_WRITECOPY,
-        (vma_access_e)(VMA_ACCESS_EXEC | VMA_ACCESS_READ | VMA_ACCESS_WRITE), // PAGE_EXECUTE_READWRITE,
-        (vma_access_e)(VMA_ACCESS_EXEC | VMA_ACCESS_COPY_ON_WRITE),           // PAGE_EXECUTE_WRITECOPY,
+    constexpr int mm_protect_to_vma_access[] =
+    {
+            VMA_ACCESS_NONE,                                      // PAGE_NOACCESS
+            VMA_ACCESS_READ,                                      // PAGE_READONLY
+            VMA_ACCESS_EXEC,                                      // PAGE_EXECUTE
+            VMA_ACCESS_EXEC | VMA_ACCESS_READ,                    // PAGE_EXECUTE_READ
+            VMA_ACCESS_READ | VMA_ACCESS_WRITE,                   // PAGE_READWRITE
+            VMA_ACCESS_COPY_ON_WRITE,                             // PAGE_WRITECOPY
+            VMA_ACCESS_EXEC | VMA_ACCESS_READ | VMA_ACCESS_WRITE, // PAGE_EXECUTE_READWRITE
+            VMA_ACCESS_EXEC | VMA_ACCESS_COPY_ON_WRITE,           // PAGE_EXECUTE_WRITECOPY
     };
+
+    static nt::_LARGE_INTEGER vad_starting(const nt::_MMVAD_SHORT& vad)
+    {
+        auto ret       = nt::_LARGE_INTEGER{};
+        ret.u.LowPart  = vad.StartingVpn;
+        ret.u.HighPart = vad.StartingVpnHigh;
+        return ret;
+    }
+
+    static nt::_LARGE_INTEGER vad_ending(const nt::_MMVAD_SHORT& vad)
+    {
+        auto ret       = nt::_LARGE_INTEGER{};
+        ret.u.LowPart  = vad.EndingVpn;
+        ret.u.HighPart = vad.EndingVpnHigh;
+        return ret;
+    }
 
     static uint64_t get_mmvad(const reader::Reader& reader, uint64_t current_vad, uint64_t addr)
     {
-        auto vad = nt::_MMVAD_SHORT{};
-        auto ok  = reader.read_all(&vad, current_vad, sizeof vad);
+        auto vad      = nt::_MMVAD_SHORT{};
+        const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
         if(!ok)
             return FAIL(0, "unable to read _MMVAD_SHORT");
 
-        auto starting_vpn   = large_integer{};
-        starting_vpn.u.low  = vad.StartingVpn;
-        starting_vpn.u.high = vad.StartingVpnHigh;
-
-        auto ending_vpn   = large_integer{};
-        ending_vpn.u.low  = vad.EndingVpn;
-        ending_vpn.u.high = vad.EndingVpnHigh;
-
-        if((starting_vpn.full <= addr) && (addr <= ending_vpn.full))
+        const auto starting_vpn = vad_starting(vad);
+        const auto ending_vpn   = vad_ending(vad);
+        if(starting_vpn.QuadPart <= addr && addr < ending_vpn.QuadPart)
             return current_vad;
 
-        if(addr <= starting_vpn.full)
-        {
-            if(!vad.VadNode.Children[0])
-                return 0;
+        const auto node = addr <= starting_vpn.QuadPart ? vad.VadNode.Left : vad.VadNode.Right;
+        if(!node)
+            return 0;
 
-            return get_mmvad(
-                reader,
-                (uint64_t) vad.VadNode.Children[0],
-                addr);
-        }
-
-        if(addr > ending_vpn.full)
-        {
-            if(!vad.VadNode.Children[1])
-                return 0;
-
-            return get_mmvad(
-                reader,
-                (uint64_t) vad.VadNode.Children[1],
-                addr);
-        }
-        return 0; // shouldn't be reached...
+        return get_mmvad(reader, node, addr);
     }
 
     static opt<span_t> get_vad_span(const reader::Reader& reader, uint64_t current_vad)
     {
-        auto vad = nt::_MMVAD_SHORT{};
-        auto ok  = reader.read_all(&vad, current_vad, sizeof vad);
+        auto vad      = nt::_MMVAD_SHORT{};
+        const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
         if(!ok)
             return {};
 
-        auto starting_vpn   = large_integer{};
-        starting_vpn.u.low  = vad.StartingVpn;
-        starting_vpn.u.high = vad.StartingVpnHigh;
-
-        auto ending_vpn   = large_integer{};
-        ending_vpn.u.low  = vad.EndingVpn;
-        ending_vpn.u.high = vad.EndingVpnHigh;
-
-        return span_t{starting_vpn.full << 12, ((ending_vpn.full - starting_vpn.full) + 1) << 12};
+        const auto starting_vpn = vad_starting(vad);
+        const auto ending_vpn   = vad_ending(vad);
+        return span_t{starting_vpn.QuadPart << 12, ((ending_vpn.QuadPart - starting_vpn.QuadPart) + 1) << 12};
     }
 
-    static bool rec_walk_vad_tree(const reader::Reader& reader, proc_t proc, uint64_t current_vad, uint32_t level, vm_area::on_vm_area_fn on_vm_area)
+    static bool rec_walk_vad_tree(const reader::Reader& reader, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
     {
-        auto vad = nt::_MMVAD_SHORT{};
-        auto ok  = reader.read_all(&vad, current_vad, sizeof vad);
+        auto vad      = nt::_MMVAD_SHORT{};
+        const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
         if(!ok)
             return false;
 
-        if(vad.VadNode.Children[0])
-        {
-            auto area = vm_area_t{(uint64_t) vad.VadNode.Children[0]};
-            ok        = rec_walk_vad_tree(reader, proc, area.id, level + 1, on_vm_area);
-            if(!ok)
+        if(vad.VadNode.Left)
+            if(!rec_walk_vad_tree(reader, proc, vad.VadNode.Left, level + 1, on_vm_area))
                 return false;
-        }
 
-        auto walk = on_vm_area(vm_area_t{current_vad});
+        const auto walk = on_vm_area(vm_area_t{current_vad});
         if(walk == walk_e::stop)
             return false;
 
-        if(vad.VadNode.Children[1])
-        {
-            auto area = vm_area_t{(uint64_t) vad.VadNode.Children[1]};
-            ok        = rec_walk_vad_tree(reader, proc, area.id, level + 1, on_vm_area);
-            if(!ok)
+        if(vad.VadNode.Right)
+            if(!rec_walk_vad_tree(reader, proc, vad.VadNode.Right, level + 1, on_vm_area))
                 return false;
-        }
+
         return true;
     }
 }
 
 bool NtOs::vm_area_list(proc_t proc, vm_area::on_vm_area_fn on_vm_area)
 {
-    const auto reader = reader::make(core_, proc);
-    auto vad_root     = reader.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto reader   = reader::make(core_, proc);
+    const auto vad_root = reader.read(proc.id + offsets_[EPROCESS_VadRoot]);
     if(!vad_root)
         return false;
-    rec_walk_vad_tree(reader, proc, *vad_root, 0, on_vm_area);
-    return true;
+
+    return rec_walk_vad_tree(reader, proc, *vad_root, 0, on_vm_area);
 }
 
 opt<vm_area_t> NtOs::vm_area_find(proc_t proc, uint64_t addr)
 {
-    const auto reader = reader::make(core_, proc);
-    auto vad_root     = reader.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto reader   = reader::make(core_, proc);
+    const auto vad_root = reader.read(proc.id + offsets_[EPROCESS_VadRoot]);
     if(!vad_root)
         return {};
 
-    auto area = vm_area_t{};
-    area.id   = get_mmvad(reader, *vad_root, addr >> 12);
-    if(!area.id)
+    const auto vad = get_mmvad(reader, *vad_root, addr >> 12);
+    if(!vad)
         return {};
-    return area;
+
+    return vm_area_t{vad};
 }
 
 opt<span_t> NtOs::vm_area_span(proc_t proc, vm_area_t vm_area)
@@ -1075,14 +1047,15 @@ vma_access_e NtOs::vm_area_access(proc_t proc, vm_area_t vm_area)
 {
     auto vad          = nt::_MMVAD_SHORT{};
     const auto reader = reader::make(core_, proc);
-    auto ok           = reader.read_all(&vad, vm_area.id, sizeof vad);
+    const auto ok     = reader.read_all(&vad, vm_area.id, sizeof vad);
     if(!ok)
         return FAIL(VMA_ACCESS_NONE, "unable to read _MMVAD_SHORT");
 
-    auto access = mm_protect_to_vma_access[vad.VadFlags.Protection & 0xF];
+    auto access = mm_protect_to_vma_access[vad.VadFlags.Protection & 0x7];
     if(!vad.VadFlags.PrivateMemory)
-        access = (vma_access_e)(access | VMA_ACCESS_SHARED);
-    return access;
+        access |= VMA_ACCESS_SHARED;
+
+    return static_cast<vma_access_e>(access);
 }
 
 vma_type_e NtOs::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
@@ -1109,9 +1082,7 @@ opt<std::string> NtOs::vm_area_name(proc_t proc, vm_area_t vm_area)
 
     // the file_pointer_addr is _EX_FAST_REF
     *file_pointer_addr &= ~0xF;
-
-    const auto name = nt::read_unicode_string(reader, *file_pointer_addr + offsets_[FILE_OBJECT_FileName]);
-    return name;
+    return nt::read_unicode_string(reader, *file_pointer_addr + offsets_[FILE_OBJECT_FileName]);
 }
 
 bool NtOs::driver_list(drivers::on_driver_fn on_driver)
