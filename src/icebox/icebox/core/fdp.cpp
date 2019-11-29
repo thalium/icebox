@@ -155,6 +155,7 @@ namespace
             case reg_e::rip:    return FDP_RIP_REGISTER;
             case reg_e::rbp:    return FDP_RBP_REGISTER;
             case reg_e::cr3:    return FDP_CR3_REGISTER;
+            case reg_e::cr8:    return FDP_CR8_REGISTER;
             case reg_e::rax:    return FDP_RAX_REGISTER;
             case reg_e::rbx:    return FDP_RBX_REGISTER;
             case reg_e::rcx:    return FDP_RCX_REGISTER;

@@ -9,6 +9,7 @@ enum class reg_e
     rip,
     rbp,
     cr3,
+    cr8,
     rax,
     rbx,
     rcx,
