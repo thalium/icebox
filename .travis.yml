@@ -18,7 +18,18 @@ matrix:
           <<: *linux-build
         - name: clang linux with static analysis
           compiler: clang
-          env: USE_STATIC_ANALYZER=1
+          env:
+            - USE_STATIC_ANALYZER=1
+            - CC=/usr/bin/clang-8
+            - CXX=/usr/bin/clang++-8
+            - CLANG_FORMAT=/usr/bin/clang-format-8
+            - CLANG_TIDY=/usr/bin/clang-tidy-8
+          before_install:
+            - sudo apt-get -qq update
+            - sudo apt-get -qq -y install
+              clang-8
+              clang-tidy-8
+              clang-tools-8
           <<: *linux-build
         - name: visual studio 2017 windows
           os: windows
