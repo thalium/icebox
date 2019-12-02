@@ -9,6 +9,8 @@ get_filename_component(root_dir     ${CMAKE_CURRENT_SOURCE_DIR}/.. ABSOLUTE)
 get_filename_component(bin_d_dir    ${root_dir}/bin/d_${ARCH}  ABSOLUTE)
 get_filename_component(bin_dir      ${root_dir}/bin/${ARCH}    ABSOLUTE)
 
+find_package(PythonLibs 3 REQUIRED)
+
 if(NOT MSVC)
     add_compile_options(
         -Wno-unused-local-typedefs
@@ -164,7 +166,7 @@ target_include_directories(libco PUBLIC
 set(icebox_dir "${root_dir}/src/icebox/icebox")
 set(tracer_dir "${icebox_dir}/tracer")
 function(add_tracer namespace input_file)
-    find_package(PythonInterp QUIET REQUIRED)
+    find_package(PythonInterp REQUIRED)
     get_filename_component(directory ${input_file} DIRECTORY)
     get_filename_component(filename ${input_file} NAME_WE)
     add_custom_command(
@@ -183,9 +185,9 @@ add_tracer("nt"     "${tracer_dir}/syscalls.json")
 add_tracer("wow64"  "${tracer_dir}/syscalls32.json" "-w")
 add_tracer("nt"     "${tracer_dir}/heaps.json")
 
-# icebox
-add_target(icebox libs ${icebox_dir} OPTIONS fmt recurse tidy)
-target_include_directories(icebox
+# icebox_lib
+add_target(icebox_lib libs ${icebox_dir} OPTIONS fmt recurse tidy)
+target_include_directories(icebox_lib
     PUBLIC
     "${root_dir}/src/icebox"
     PRIVATE
@@ -193,11 +195,11 @@ target_include_directories(icebox
     "${root_dir}/third_party/expected-lite/include"
     "${root_dir}/third_party/nlohmann_json/include"
 )
-target_compile_definitions(icebox PRIVATE
+target_compile_definitions(icebox_lib PRIVATE
     _CRT_SECURE_NO_WARNINGS
     _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
-target_link_libraries(icebox
+target_link_libraries(icebox_lib
   PRIVATE
     libco
     libdwarf
@@ -209,18 +211,34 @@ target_link_libraries(icebox
     fmtlib
 )
 if(NOT WIN32)
-    target_link_libraries(icebox PRIVATE
+    target_link_libraries(icebox_lib PRIVATE
         rt
         dl
     )
-    target_link_libraries(icebox PUBLIC stdc++fs)
+    target_link_libraries(icebox_lib PUBLIC stdc++fs)
 endif()
-set_property(TARGET icebox PROPERTY CXX_STANDARD 17)
+set_property(TARGET icebox_lib PROPERTY CXX_STANDARD 17)
 
 # icebox_cmd
 add_target(icebox_cmd apps "${root_dir}/src/icebox/icebox_cmd" OPTIONS executable fmt tidy)
 set_target_output_directory(icebox_cmd "")
-target_link_libraries(icebox_cmd PRIVATE icebox)
+target_link_libraries(icebox_cmd PRIVATE icebox_lib)
+
+# icebox_py
+add_target(icebox_py libs "${root_dir}/src/icebox/icebox_py" OPTIONS shared fmt tidy)
+set_target_output_directory(icebox_py "")
+set_target_output_name(icebox_py icebox icebox_d)
+set_target_properties(icebox_py PROPERTIES SUFFIX ".pyd")
+target_include_directories(icebox_py PRIVATE
+    ${PYTHON_INCLUDE_DIRS}
+)
+get_filename_component(python_libdir ${PYTHON_DEBUG_LIBRARY} DIRECTORY)
+target_link_directories(icebox_py PRIVATE
+    ${python_libdir}
+)
+target_link_libraries(icebox_py PRIVATE
+    icebox_lib
+)
 
 # samples/vm_resume
 foreach(sample IN ITEMS
@@ -236,7 +254,7 @@ foreach(sample IN ITEMS
     target_include_directories(${sample} PUBLIC
         "${root_dir}/third_party/nlohmann_json/include"
     )
-    target_link_libraries(${sample} PRIVATE icebox)
+    target_link_libraries(${sample} PRIVATE icebox_lib)
 endforeach()
 
 if(WIN32)
@@ -285,5 +303,5 @@ target_include_directories(gtest
 add_target(icebox_tests tests "${root_dir}/src/icebox/tests" OPTIONS fmt tidy test)
 target_link_libraries(icebox_tests PRIVATE
     gtest
-    icebox
+    icebox_lib
 )
