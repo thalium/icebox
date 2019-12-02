@@ -382,8 +382,8 @@ TEST_F(win10, vm_area)
         EXPECT_TRUE(!!area_name);
 
         const auto access = vm_area::access(core, *proc, *area);
-        if(false)
-            EXPECT_TRUE(access & VMA_ACCESS_COPY_ON_WRITE);
+        (void) access;
+        // EXPECT_TRUE(access & VMA_ACCESS_COPY_ON_WRITE);
 
         const auto pos = area_name->find(*mod_name);
         EXPECT_TRUE(!!pos);
