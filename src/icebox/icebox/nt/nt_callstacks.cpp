@@ -141,7 +141,7 @@ namespace
         // callstacks::Module
         size_t  read        (caller_t* callers, size_t num_callers, proc_t proc) override;
         size_t  read_from   (caller_t* callers, size_t num_callers, proc_t proc, const context_t& where) override;
-        bool    preload     (proc_t proc, const std::string& name, const span_t span) override;
+        bool    preload     (proc_t proc, const std::string& name, span_t span) override;
 
         // members
         core::Core&   core_;
@@ -725,7 +725,7 @@ size_t NtCallstacks::read(caller_t* callers, size_t num_callers, proc_t proc)
     return read_from(callers, num_callers, proc, ctx);
 }
 
-bool NtCallstacks::preload(proc_t proc, const std::string& name, const span_t span)
+bool NtCallstacks::preload(proc_t proc, const std::string& name, span_t span)
 {
     const auto opt_entries = get_module_unwind(*this, proc, name, span);
     return !!opt_entries;
