@@ -45,7 +45,6 @@ if(${USE_STATIC_ANALYZER})
 	"-readability-inconsistent-declaration-parameter-name"
 	"-readability-else-after-return"
 	"-readability-simplify-boolean-expr"
-	"-readability-redundant-string-init"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()

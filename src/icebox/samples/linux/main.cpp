@@ -124,8 +124,8 @@ void display_vm_area(core::Core& core, const proc_t& proc)
         else if(type == vma_type_e::other)
             type_str = "[other] ";
 
-        const auto access      = vm_area::access(core, proc, vm_area);
-        std::string access_str = "";
+        const auto access = vm_area::access(core, proc, vm_area);
+        auto access_str   = std::string{};
         access_str += (access & VMA_ACCESS_READ) ? "r" : "-";
         access_str += (access & VMA_ACCESS_WRITE) ? "w" : "-";
         access_str += (access & VMA_ACCESS_EXEC) ? "x" : "-";
