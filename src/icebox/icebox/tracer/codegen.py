@@ -5,25 +5,25 @@ import json
 import os
 
 def generate_usings(json_data, pad):
-    data = ""
     pad += len("on__fn")
     lines = []
-    for target, (return_type, args) in json_data.items():
+    for target, (_, args) in json_data.items():
         types = [typeof for _, typeof in args]
         if len(types):
             types[0] = types[0]
         name = "on_%s_fn" % target
         args_list = ", "
         lines.append("    using %s = std::function<void(%s)>;" % (name.ljust(pad), args_list.join(types)))
-    return data + "\n".join(lines)
+    lines.sort()
+    return "\n".join(lines)
 
 def generate_registers(json_data, pad):
-    data = ""
     lines = []
     for target, _ in json_data.items():
         name = ("register_%s" % target).ljust(pad + len("register_"))
         lines.append("        opt<bpid_t> %s(proc_t proc, const on_%s_fn& on_func);" % (name, target))
-    return data + "\n".join(lines)
+    lines.sort()
+    return "\n".join(lines)
 
 def generate_header(json_data, filename, namespace, pad, wow64):
     return """#pragma once
@@ -68,7 +68,9 @@ namespace {namespace}
 def generate_definitions(json_data, filename, namespace, wow64):
     definitions = ""
     callcfg_idx = -1
-    for target, (return_type, (args)) in json_data.items():
+    items = [x for x in json_data.items()]
+    items.sort(key=lambda x: x[0])
+    for target, (_, (args)) in items:
         callcfg_idx += 1
         symbol_name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args)*4)
 
@@ -92,7 +94,7 @@ opt<bpid_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{ta
     return register_callback(*d_, ++d_->last_id, proc, "{symbol_name}", [=]
     {{
         auto& core = d_->core;
-        {read_args}
+{read_args}
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[{callcfg_idx}]);
 
@@ -103,14 +105,14 @@ opt<bpid_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{ta
     return definitions
 
 def generate_callers(json_data, namespace, wow64):
-    data = ""
     lines = []
     for target, (_, (args)) in json_data.items():
-        name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args) * 4)
+        fn_name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args) * 4)
         args = ['{{"{type}", "{name}", sizeof({namespace}::{type})}}'.format(type=typeof, name=name, namespace=namespace) for name, typeof in args]
-        elem = '        tracer::callcfg_t{{"{name}", {argc}, {{{keys}}}}},'.format(name=name, argc=len(args), keys=", ".join(args))
+        elem = '        {{"{name}", {argc}, {{{keys}}}}},'.format(name=fn_name, argc=len(args), keys=", ".join(args))
         lines.append(elem)
-    return data + "\n".join(lines)
+    lines.sort()
+    return "\n".join(lines)
 
 def generate_impl(json_data, filename, namespace, pad, wow64):
     return """#include "{filename}.gen.hpp"
@@ -127,9 +129,9 @@ namespace
     constexpr bool g_debug = false;
 
     static const {namespace}::{filename}::callcfgs_t g_callcfgs =
-    {{
+    {{{{
 {callers}
-    }};
+    }}}};
 
     using bpid_t    = {namespace}::{filename}::bpid_t;
     using Listeners = std::multimap<bpid_t, state::Breakpoint>;
@@ -214,10 +216,6 @@ bool {namespace}::{filename}::unregister(bpid_t id)
 """.format(filename=filename, namespace=namespace,
         definitions=generate_definitions(json_data, filename, namespace, wow64),
         callers=generate_callers(json_data, namespace, wow64))
-
-def read_file(filename):
-    with open(filename, "rb") as fh:
-        return fh.read()
 
 def read_file(filename):
     try:

@@ -12,14 +12,14 @@ namespace
     constexpr bool g_debug = false;
 
     static const nt::heaps::callcfgs_t g_callcfgs =
-    {
-        tracer::callcfg_t{"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"SIZE_T", "Size", sizeof(nt::SIZE_T)}}},
-        tracer::callcfg_t{"RtlFreeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
-        tracer::callcfg_t{"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"ULONG", "Size", sizeof(nt::ULONG)}}},
-        tracer::callcfg_t{"RtlSizeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
-        tracer::callcfg_t{"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}}},
-        tracer::callcfg_t{"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}, {"PULONG", "UserFlags", sizeof(nt::PULONG)}}},
-    };
+    {{
+        {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
+        {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}, {"PULONG", "UserFlags", sizeof(nt::PULONG)}}},
+        {"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}}},
+        {"RtlSizeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
+        {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"SIZE_T", "Size", sizeof(nt::SIZE_T)}}},
+        {"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"ULONG", "Size", sizeof(nt::ULONG)}}},
+    }};
 
     using bpid_t    = nt::heaps::bpid_t;
     using Listeners = std::multimap<bpid_t, state::Breakpoint>;
@@ -84,54 +84,57 @@ namespace
     }
 }
 
-opt<bpid_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
-{
-    return register_callback(*d_, ++d_->last_id, proc, "RtlpAllocateHeapInternal", [=]
-    {
-        auto& core = d_->core;
-        
-        const auto HeapHandle = arg<nt::PVOID>(core, 0);
-        const auto Size       = arg<nt::SIZE_T>(core, 1);
-
-        if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[0]);
-
-        on_func(HeapHandle, Size);
-    });
-}
-
 opt<bpid_t> nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
 {
     return register_callback(*d_, ++d_->last_id, proc, "RtlFreeHeap", [=]
     {
         auto& core = d_->core;
-        
+
         const auto HeapHandle  = arg<nt::PVOID>(core, 0);
         const auto Flags       = arg<nt::ULONG>(core, 1);
         const auto BaseAddress = arg<nt::PVOID>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[1]);
+            tracer::log_call(core, g_callcfgs[0]);
 
         on_func(HeapHandle, Flags, BaseAddress);
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "RtlpReAllocateHeapInternal", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "RtlGetUserInfoHeap", [=]
     {
         auto& core = d_->core;
-        
+
         const auto HeapHandle  = arg<nt::PVOID>(core, 0);
         const auto Flags       = arg<nt::ULONG>(core, 1);
         const auto BaseAddress = arg<nt::PVOID>(core, 2);
-        const auto Size        = arg<nt::ULONG>(core, 3);
+        const auto UserValue   = arg<nt::PVOID>(core, 3);
+        const auto UserFlags   = arg<nt::PULONG>(core, 4);
+
+        if constexpr(g_debug)
+            tracer::log_call(core, g_callcfgs[1]);
+
+        on_func(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
+    });
+}
+
+opt<bpid_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
+{
+    return register_callback(*d_, ++d_->last_id, proc, "RtlSetUserValueHeap", [=]
+    {
+        auto& core = d_->core;
+
+        const auto HeapHandle  = arg<nt::PVOID>(core, 0);
+        const auto Flags       = arg<nt::ULONG>(core, 1);
+        const auto BaseAddress = arg<nt::PVOID>(core, 2);
+        const auto UserValue   = arg<nt::PVOID>(core, 3);
 
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[2]);
 
-        on_func(HeapHandle, Flags, BaseAddress, Size);
+        on_func(HeapHandle, Flags, BaseAddress, UserValue);
     });
 }
 
@@ -140,7 +143,7 @@ opt<bpid_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn
     return register_callback(*d_, ++d_->last_id, proc, "RtlSizeHeap", [=]
     {
         auto& core = d_->core;
-        
+
         const auto HeapHandle  = arg<nt::PVOID>(core, 0);
         const auto Flags       = arg<nt::ULONG>(core, 1);
         const auto BaseAddress = arg<nt::PVOID>(core, 2);
@@ -152,40 +155,37 @@ opt<bpid_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "RtlSetUserValueHeap", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "RtlpAllocateHeapInternal", [=]
     {
         auto& core = d_->core;
-        
-        const auto HeapHandle  = arg<nt::PVOID>(core, 0);
-        const auto Flags       = arg<nt::ULONG>(core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(core, 2);
-        const auto UserValue   = arg<nt::PVOID>(core, 3);
+
+        const auto HeapHandle = arg<nt::PVOID>(core, 0);
+        const auto Size       = arg<nt::SIZE_T>(core, 1);
 
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[4]);
 
-        on_func(HeapHandle, Flags, BaseAddress, UserValue);
+        on_func(HeapHandle, Size);
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "RtlGetUserInfoHeap", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "RtlpReAllocateHeapInternal", [=]
     {
         auto& core = d_->core;
-        
+
         const auto HeapHandle  = arg<nt::PVOID>(core, 0);
         const auto Flags       = arg<nt::ULONG>(core, 1);
         const auto BaseAddress = arg<nt::PVOID>(core, 2);
-        const auto UserValue   = arg<nt::PVOID>(core, 3);
-        const auto UserFlags   = arg<nt::PULONG>(core, 4);
+        const auto Size        = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[5]);
 
-        on_func(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
+        on_func(HeapHandle, Flags, BaseAddress, Size);
     });
 }
 
