@@ -47,7 +47,6 @@ if(${USE_STATIC_ANALYZER})
 	"-readability-simplify-boolean-expr"
 	"-readability-avoid-const-params-in-decls"
 	"-readability-redundant-string-init"
-	"-readability-const-return-type"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()

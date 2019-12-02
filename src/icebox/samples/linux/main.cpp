@@ -34,7 +34,7 @@ void display_thread(core::Core& core, const thread_t& thread)
         thread_pc(core, thread).data());
 }
 
-const std::string pad_with(const std::string& arg, int pad)
+std::string pad_with(const std::string& arg, int pad)
 {
     const auto need = std::max(0, pad - static_cast<int>(arg.size()));
     auto reply      = arg;
