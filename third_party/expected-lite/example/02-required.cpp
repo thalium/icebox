@@ -1,6 +1,6 @@
 // Use a non-ignorable value with expected.
 
-#include "expected.hpp"
+#include "nonstd/expected.hpp"
 #include <iostream>
 
 using namespace nonstd;
@@ -11,14 +11,14 @@ class required
 public:
     required( T const & value)
     : content( value ) {}
-    
+
     required( required && other )
     : content( other.content )
     , ignored( other.ignored )
     {
         other.ignored = false;
     }
-    
+
     required( required const & other ) = delete;
 
     ~required() noexcept( false )
@@ -26,10 +26,10 @@ public:
         if ( ignored )
             throw std::runtime_error("required: content unobserved");
     };
-    
+
     T const & operator *() const { ignored = false; return content; }
 
-private:    
+private:
     T content;
     mutable bool ignored = true;
 };
@@ -37,14 +37,14 @@ private:
 template< typename T >
 auto make_required( T value ) -> required<T>
 {
-    return required<T>( value );
+    return required<T>( std::move(value) );
 }
 
 using unused_type = char;
 
 auto produce( int value ) -> expected< required<int>, unused_type >
 {
-    return make_required( value );
+    return make_required( std::move(value) );
 }
 
 int main( int argc, char * argv[] )
@@ -62,7 +62,7 @@ int main( int argc, char * argv[] )
     }
 }
 
-// cl -EHsc -wd4814 -Zc:implicitNoexcept- -I../include/nonstd 02-required.cpp && 02-required.exe
-// g++ -std=c++14 -Wall -I../include/nonstd -o 02-required.exe 02-required.cpp && 02-required.exe
+// cl -EHsc -wd4814 -Zc:implicitNoexcept- -I../include 02-required.cpp && 02-required.exe
+// g++ -std=c++14 -Wall -I../include -o 02-required.exe 02-required.cpp && 02-required.exe
 // value: 42
 // Error: required: content unobserved

@@ -1,8 +1,8 @@
-expected lite - expected objects for C++11 and later
-====================================================
-[![Language](https://img.shields.io/badge/language-C++-blue.svg)](https://isocpp.org/)  [![Standard](https://img.shields.io/badge/c%2B%2B-11-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization) [![License](https://img.shields.io/badge/license-BSL-blue.svg)](https://opensource.org/licenses/BSL-1.0) [![Build Status](https://travis-ci.org/martinmoene/expected-lite.svg?branch=master)](https://travis-ci.org/martinmoene/expected-lite) [![Build status](https://ci.appveyor.com/api/projects/status/sle31w7obrm8lhe1?svg=true)](https://ci.appveyor.com/project/martinmoene/expected-lite) [![Version](https://badge.fury.io/gh/martinmoene%2Fexpected-lite.svg)](https://github.com/martinmoene/expected-lite/releases) [![download](https://img.shields.io/badge/latest%20version%20%20-download-blue.svg)](https://raw.githubusercontent.com/martinmoene/expected-lite/master/include/nonstd/expected.hpp) [![Conan](https://img.shields.io/badge/conan-download-blue.svg)](https://bintray.com/martinmoene/nonstd-lite/expected-lite%3Anonstd-lite/_latestVersion) [![Try it online](https://img.shields.io/badge/try%20it-online-blue.svg)](https://wandbox.org/permlink/bUsuVeJsKRr5Cw10)
+# expected lite: expected objects for C++11 and later
 
-*expected lite* is a single-file header-only library for objects that either represent a valid value or an error that you can pass by value. It is intended for use with C++11 and later. The library is based on the [std:&#58;expected](https://github.com/viboes/std-make/blob/master/doc/proposal/expected/DXXXXR0_expected.pdf) proposal [1] .
+[![Language](https://img.shields.io/badge/C%2B%2B-11-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization) [![License](https://img.shields.io/badge/license-BSL-blue.svg)](https://opensource.org/licenses/BSL-1.0) [![Build Status](https://travis-ci.org/martinmoene/expected-lite.svg?branch=master)](https://travis-ci.org/martinmoene/expected-lite) [![Build status](https://ci.appveyor.com/api/projects/status/sle31w7obrm8lhe1?svg=true)](https://ci.appveyor.com/project/martinmoene/expected-lite) [![Version](https://badge.fury.io/gh/martinmoene%2Fexpected-lite.svg)](https://github.com/martinmoene/expected-lite/releases) [![download](https://img.shields.io/badge/latest-download-blue.svg)](https://raw.githubusercontent.com/martinmoene/expected-lite/master/include/nonstd/expected.hpp) [![Conan](https://img.shields.io/badge/on-conan-blue.svg)](https://bintray.com/conan/conan-center/expected-lite%3A_) [![Try it online](https://img.shields.io/badge/on-wandbox-blue.svg)](https://wandbox.org/permlink/MnnwqOtE8ZQ4rRsv)
+
+*expected lite* is a single-file header-only library for objects that either represent a valid value or an error that you can pass by value. It is intended for use with C++11 and later. The library is based on the [std:&#58;expected](http://wg21.link/p0323) proposal [1] .
 
 **Contents**  
 - [Example usage](#example-usage)
@@ -21,8 +21,8 @@ expected lite - expected objects for C++11 and later
 
 Example usage
 -------------
-```C++
-#include "expected.hpp"
+```Cpp
+#include "nonstd/expected.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -52,7 +52,7 @@ int main( int argc, char * argv[] )
 ```
 ### Compile and run
 ```
-prompt> g++ -std=c++14 -Wall -I../include/nonstd -o 01-basic.exe 01-basic.cpp && 01-basic.exe 123 && 01-basic.exe abc
+prompt> g++ -std=c++14 -Wall -I../include -o 01-basic.exe 01-basic.cpp && 01-basic.exe 123 && 01-basic.exe abc
 '123' is 123, Error: 'abc' isn't a number
 ```
 
@@ -64,7 +64,7 @@ In a nutshell
 
 *expected lite* shares the approach to in-place tags with [any-lite](https://github.com/martinmoene/any-lite), [optional-lite](https://github.com/martinmoene/optional-lite) and with [variant-lite](https://github.com/martinmoene/variant-lite) and these libraries can be used together.
 
-**Not provided** are reference-type expecteds. *expected lite* doesn't handle overloaded *address of* operators.
+**Not provided** are reference-type expecteds. *expected lite* doesn't honour triviality of value and error types. *expected lite* doesn't handle overloaded *address of* operators.
 
 For more examples, see [1].
 
@@ -98,16 +98,37 @@ Synopsis
 
 ### Configuration macros
 
+#### Standard selection macro
+\-D<b>nsel\_CPLUSPLUS</b>=199711L  
+Define this macro to override the auto-detection of the supported C++ standard, or if your compiler does not set the `__cplusplus` macro correctly.
+
+#### Select `std::expected` or `nonstd::expected`
+At default, *expected lite* uses `std::expected` if it is available and lets you use it via namespace `nonstd`. You can however override this default and explicitly request to use `std::expected` or expected lite's `nonstd::expected` as `nonstd::expected` via the following macros.
+
+-D<b>nsel\_CONFIG\_SELECT\_EXPECTED</b>=nsel_EXPECTED_DEFAULT  
+Define this to `nsel_EXPECTED_STD` to select `std::expected` as `nonstd::expected`. Define this to `nsel_EXPECTED_NONSTD` to select `nonstd::expected` as `nonstd::expected`. Default is undefined, which has the same effect as defining to `nsel_EXPECTED_DEFAULT`.
+
+-D<b>nsel\_P0323R</b>=7  *(default)*  
+Define this to the proposal revision number to control the presence and behavior of features (see tables). Default is 7 for the latest revision.   
+
+#### Disable exceptions
+-D<b>nsel\_CONFIG\_NO\_EXCEPTIONS</b>=0
+Define this to 1 if you want to compile without exceptions. If not defined, the header tries and detect if exceptions have been disabled (e.g. via `-fno-exceptions`). Default is undefined.
+
+#### Enable compilation errors
 \-D<b>nsel\_CONFIG\_CONFIRMS\_COMPILATION\_ERRORS</b>=0  
 Define this macro to 1 to experience the by-design compile-time errors of the library in the test suite. Default is 0.
 
 ### Types in namespace nonstd
 
-| Purpose         | Type | Object |
-|-----------------|------|--------|
-| To be, or not   | template< typename T, typename E = std::exception_ptr ><br>class **expected**; |&nbsp;|
-| Error type      | template< typename E ><br>class **unexpected_type**; | &nbsp; |
-| Traits          | template< typename E ><br>struct **is_unexpected**;  | &nbsp; |
+| Purpose         | Type | Note / Object |
+|-----------------|------|---------------|
+| Expected        | template&lt;typename T, typename E = std::exception_ptr><br>class **expected**; | nsel_P0323 <= 2 |
+| Expected        | template&lt;typename T, typename E><br>class **expected**; | nsel_P0323 > 2 |
+| Error type      | template&lt;typename E><br>class **unexpected_type**; | &nbsp; |
+| Error type      | template&lt;><br>class **unexpected_type**&lt;std::exception_ptr>; | nsel_P0323 <= 2 |
+| Error type      | template&lt;typename E><br>class **unexpected**; | >= C++17 |
+| Traits          | template&lt;typename E><br>struct **is_unexpected**;  | nsel_P0323 <= 3 |
 | In-place value construction | struct **in_place_t**;            | in_place_t in_place{}; |
 | In-place error construction | struct **in_place_unexpected_t**; | in_place_unexpected_t<br>unexpect{}; |
 | In-place error construction | struct **in_place_unexpected_t**; | in_place_unexpected_t<br>in_place_unexpected{}; |
@@ -115,8 +136,8 @@ Define this macro to 1 to experience the by-design compile-time errors of the li
 
 ### Interface of expected
 
-| Kind         | Method                                                              | Result |
-|--------------|---------------------------------------------------------------------|--------|
+| Kind         | Method                                                                  | Result |
+|--------------|-------------------------------------------------------------------------|--------|
 | Construction | [constexpr] **expected**() noexcept(...)                                | an object with default value |
 | &nbsp;       | [constexpr] **expected**( expected const & other )                      | initialize to contents of other |
 | &nbsp;       | [constexpr] **expected**( expected && other )                           | move contents from other |
@@ -134,8 +155,8 @@ Define this macro to 1 to experience the by-design compile-time errors of the li
 | &nbsp;       | expected & **operator=**( U && v )                                      | move value from v |
 | &nbsp;       | expected & **operator=**( unexpected_type<E> const & u )                | initialize to unexpected |
 | &nbsp;       | expected & **operator=**( unexpected_type<E> && u )                     | move from unexpected |
-| &nbsp;       | template< typename... Args ><br>void **emplace**( Args &&... args )     | emplace from args |
-| &nbsp;       | template< typename U, typename... Args ><br>void **emplace**( std::initializer_list&lt;U> il, Args &&... args )  | emplace from args |
+| &nbsp;       | template&lt;typename... Args><br>void **emplace**( Args &&... args )     | emplace from args |
+| &nbsp;       | template&lt;typename U, typename... Args><br>void **emplace**( std::initializer_list&lt;U> il, Args &&... args )  | emplace from args |
 | Swap         | void **swap**( expected & other ) noexcept                              | swap with other  |
 | Observers    | constexpr value_type const \* **operator->**() const                    | pointer to current content (const);<br>must contain value |
 | &nbsp;       | value_type \* **operator->**()                                          | pointer to current content (non-const);<br>must contain value |
@@ -150,7 +171,7 @@ Define this macro to 1 to experience the by-design compile-time errors of the li
 | &nbsp;       | error_type & **error**() &                                              | current error (non-const ref);<br>must contain error |
 | &nbsp;       | constexpr error_type && **error**() &&                                  | move from current error;<br>must contain error |
 | &nbsp;       | constexpr unexpected_type<E> **get_unexpected**() const                 | the error as unexpected&lt;>;<br>must contain error |
-| &nbsp;       | template< typename Ex ><br>bool **has_exception**() const               | true of contains exception (as base) |
+| &nbsp;       | template&lt;typename Ex><br>bool **has_exception**() const               | true of contains exception (as base) |
 | &nbsp;       | value_type **value_or**( U && v ) const &                               | value or move from v |
 | &nbsp;       | value_type **value_or**( U && v ) &&                                    | move from value or move from v |
 | &nbsp;       | ... | &nbsp; |
@@ -159,26 +180,34 @@ Define this macro to 1 to experience the by-design compile-time errors of the li
 
 ### Algorithms for expected
 
-| Kind                   | Function |
-|------------------------|----------|
-| Relational operators   | &nbsp;   | 
-| ==&ensp;!=&ensp;<&ensp;>&ensp;<=&ensp;>= | template< typename T, typename E ><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T,E> const & x,<br>&emsp;expected&lt;T,E> const & y ) |
+| Kind                            | Function |
+|---------------------------------|----------|
+| Comparison with expected        | &nbsp;   | 
+| ==&ensp;!=                      | template&lt;typename T1, typename E1, typename T2, typename E2><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T1,E1> const & x,<br>&emsp;expected&lt;T2,E2> const & y ) |
+| Comparison with expected        | nsel_P0323R <= 2 | 
+| <&ensp;>&ensp;<=&ensp;>=        | template&lt;typename T, typename E><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T,E> const & x,<br>&emsp;expected&lt;T,E> const & y ) |
 | Comparison with unexpected_type | &nbsp; | 
-| ==&ensp;!=&ensp;<&ensp;>&ensp;<=&ensp;>= | template< typename T, typename E ><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T,E> const & x,<br>&emsp;unexpected_type&lt;E> const & u ) | 
-| &nbsp;                                   | template< typename T, typename E ><br>constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;E> const & u,<br>&emsp;expected&lt;T,E> const & x ) | 
-| Comparison with T                        | &nbsp;   | 
-| ==&ensp;!=&ensp;<&ensp;>&ensp;<=&ensp;>= | template< typename T, typename E ><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T,E> const & x,<br>&emsp;T const & v ) | 
-| &nbsp;                                   | template< typename T, typename E ><br>constexpr bool operator ***op***(<br>&emsp;T const & v,<br>&emsp;expected&lt;T,E> const & x ) | 
-| Specialized algorithms | &nbsp;   | 
-| Swap                   | template< typename T, typename E ><br>void **swap**(<br>&emsp;expected&lt;T,E> & x,<br>&emsp;expected&lt;T,E> & y )&emsp;noexcept( noexcept( x.swap(y) ) ) | 
-| Make expected from     | &nbsp;   | 
-| &emsp;Value            | template< typename T><br>constexpr auto **make_expected**( T && v ) -><br>&emsp;expected< typename std::decay&lt;T>::type > | 
-| &emsp;Nothing          | auto **make_expected**() -> expected&lt;void> | 
-| &emsp;Current exception| template< typename T><br>constexpr auto **make_expected_from_current_exception**() -> expected&lt;T> | 
-| &emsp;Exception        | template< typename T><br>auto **make_expected_from_exception**( std::exception_ptr v ) -> expected&lt;T>| 
-| &emsp;Error            | template< typename T, typename E ><br>constexpr auto **make_expected_from_error**( E e ) -><br>&emsp;expected&lt;T, typename std::decay&lt;E>::type> | 
-| &emsp;Call             | template< typename F ><br>auto **make_expected_from_call**( F f ) -><br>&emsp;expected< typename std::result_of&lt;F()>::type >| 
-| &emsp;Call, void specialization | template< typename F ><br>auto **make_expected_from_call**( F f ) -> expected&lt;void> | 
+| ==&ensp;!=                      | template&lt;typename T1, typename E1, typename E2><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T1,E1> const & x,<br>&emsp;unexpected_type&lt;E2> const & u ) | 
+| &nbsp;                          | template&lt;typename T1, typename E1, typename E2><br>constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;E2> const & u,<br>&emsp;expected&lt;T1,E1> const & x ) | 
+| Comparison with unexpected_type | nsel_P0323R <= 2 | 
+| <&ensp;>&ensp;<=&ensp;>=        | template&lt;typename T, typename E><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T,E> const & x,<br>&emsp;unexpected_type&lt;E> const & u ) | 
+| &nbsp;                          | template&lt;typename T, typename E><br>constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;E> const & u,<br>&emsp;expected&lt;T,E> const & x ) | 
+| Comparison with T               | &nbsp;   | 
+| ==&ensp;!=                      | template&lt;typename T, typename E><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T,E> const & x,<br>&emsp;T const & v ) | 
+| &nbsp;                          | template&lt;typename T, typename E><br>constexpr bool operator ***op***(<br>&emsp;T const & v,<br>&emsp;expected&lt;T,E> const & x ) | 
+| Comparison with T               | nsel_P0323R <= 2 | 
+| <&ensp;>&ensp;<=&ensp;>=        | template&lt;typename T, typename E><br>constexpr bool operator ***op***(<br>&emsp;expected&lt;T,E> const & x,<br>&emsp;T const & v ) | 
+| &nbsp;                          | template&lt;typename T, typename E><br>constexpr bool operator ***op***(<br>&emsp;T const & v,<br>&emsp;expected&lt;T,E> const & x ) | 
+| Specialized algorithms          | &nbsp;   | 
+| Swap                            | template&lt;typename T, typename E><br>void **swap**(<br>&emsp;expected&lt;T,E> & x,<br>&emsp;expected&lt;T,E> & y )&emsp;noexcept( noexcept( x.swap(y) ) ) | 
+| Make expected from              | nsel_P0323R <= 3 | 
+| &emsp;Value                     | template&lt;typename T><br>constexpr auto **make_expected**( T && v ) -><br>&emsp;expected< typename std::decay&lt;T>::type> | 
+| &emsp;Nothing                   | auto **make_expected**() -> expected&lt;void> | 
+| &emsp;Current exception         | template&lt;typename T><br>constexpr auto **make_expected_from_current_exception**() -> expected&lt;T> | 
+| &emsp;Exception                 | template&lt;typename T><br>auto **make_expected_from_exception**( std::exception_ptr v ) -> expected&lt;T>| 
+| &emsp;Error                     | template&lt;typename T, typename E><br>constexpr auto **make_expected_from_error**( E e ) -><br>&emsp;expected&lt;T, typename std::decay&lt;E>::type> | 
+| &emsp;Call                      | template&lt;typename F><br>auto **make_expected_from_call**( F f ) -><br>&emsp;expected< typename std::result_of&lt;F()>::type>| 
+| &emsp;Call, void specialization | template&lt;typename F><br>auto **make_expected_from_call**( F f ) -> expected&lt;void> | 
 
 ### Interface of unexpected_type
 
@@ -192,15 +221,21 @@ Define this macro to 1 to experience the by-design compile-time errors of the li
 
 ### Algorithms for unexpected_type
 
-| Kind                   | Function |
-|------------------------|----------|
-| Relational operators   | &nbsp;   | 
-| ==&ensp;!=&ensp;<&ensp;>&ensp;<=&ensp;>= | template< typename E ><br>constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;E> const & x,<br>&emsp;unexpected_type&lt;E> const & y ) |
-| ==&ensp;!=&ensp;<&ensp;>&ensp;<=&ensp;>= | constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;std::exception_ptr> const & x,<br>&emsp;unexpected_type&lt;std::exception_ptr> const & y ) |
-| Specialized algorithms | &nbsp;   | 
-| Make unexpected from   | &nbsp;   | 
-| &emsp;Current exception| [constexpr] auto **make_unexpected_from_current_exception**() -><br>&emsp;unexpected_type< std::exception_ptr >| 
-| &emsp;Error            | template< typename E><br>[constexpr] auto **make_unexpected**( E && v) -><br>&emsp;unexpected_type< typename std::decay&lt;E>::type >| 
+| Kind                          | Function |
+|-------------------------------|----------|
+| Comparison with unexpected    | &nbsp;   | 
+| ==&ensp;!=                    | template&lt;typename E><br>constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;E> const & x,<br>&emsp;unexpected_type&lt;E> const & y ) |
+| Comparison with unexpected    | nsel_P0323R <= 2 | 
+| <&ensp;>&ensp;<=&ensp;>=      | template&lt;typename E><br>constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;E> const & x,<br>&emsp;unexpected_type&lt;E> const & y ) |
+| Comparison with exception_ptr | &nbsp;   | 
+| ==&ensp;!=                    | constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;std::exception_ptr> const & x,<br>&emsp;unexpected_type&lt;std::exception_ptr> const & y ) |
+| Comparison with exception_ptr | nsel_P0323R <= 2 | 
+| <&ensp;>&ensp;<=&ensp;>=      | constexpr bool operator ***op***(<br>&emsp;unexpected_type&lt;std::exception_ptr> const & x,<br>&emsp;unexpected_type&lt;std::exception_ptr> const & y ) |
+| Specialized algorithms        | &nbsp;   | 
+| Make unexpected from          | &nbsp;   | 
+| &emsp;Error                   | template&lt;typename E><br>[constexpr] auto **make_unexpected**( E && v) -><br>&emsp;unexpected_type< typename std::decay&lt;E>::type>| 
+| Make unexpected from          | nsel_P0323R <= 3 | 
+| &emsp;Current exception       | [constexpr] auto **make_unexpected_from_current_exception**() -><br>&emsp;unexpected_type< std::exception_ptr>| 
 
 
 <a id="comparison"></a>
@@ -252,7 +287,7 @@ Other implementations of expected
 
 Notes and references
 --------------------
-[1] Vicente J. Botet Escriba. [p0323 - A proposal to add a utility class to represent expected object (latest)](http://wg21.link/p0323) (HTML). ([r6](http://wg21.link/p0323r6), [r5](http://wg21.link/p0323r5), [r4](http://wg21.link/p0323r4), [r3](http://wg21.link/p0323r3), [r2](http://wg21.link/p0323r2), [r1](http://wg21.link/n4109), [r0](http://wg21.link/n4015), [draft](https://github.com/viboes/std-make/blob/master/doc/proposal/expected/DXXXXR0_expected.pdf)).
+[1] Vicente J. Botet Escriba. [p0323 - A proposal to add a utility class to represent expected object (latest)](http://wg21.link/p0323) (HTML). ([r9](http://wg21.link/p0323r9), [r8](http://wg21.link/p0323r8), [r7](http://wg21.link/p0323r7), [r6](http://wg21.link/p0323r6), [r5](http://wg21.link/p0323r5), [r4](http://wg21.link/p0323r4), [r3](http://wg21.link/p0323r3), [r2](http://wg21.link/p0323r2), [r1](http://wg21.link/n4109), [r0](http://wg21.link/n4015), [draft](https://github.com/viboes/std-make/blob/master/doc/proposal/expected/DXXXXR0_expected.pdf)).
 
 [2] Vicente J. Botet Escriba. [JASEL: Just a simple experimental library for C++](https://github.com/viboes/std-make). Reference implementation of [expected](https://github.com/viboes/std-make/tree/master/include/experimental/fundamental/v3/expected).
 
@@ -282,74 +317,132 @@ Notes and references
 
 [15] Niall Douglas. [Outcome](https://ned14.github.io/outcome/). Very lightweight outcome&lt;T> and result&lt;T> (non-Boost edition). 
 
+[16] Niall Douglas. [p0762 - Concerns about expected&lt;T, E> from the Boost.Outcome peer review](http://wg21.link/p0762). 15 October 2017.
+
+
 Appendix
 --------
-### A.1 expected lite test specification
+
+### A.1 Compile-time information
+
+The version of *expected lite* is available via tag `[.version]`. The following tags are available for information on the compiler and on the C++ standard library used: `[.compiler]`, `[.stdc++]`, `[.stdlanguage]` and `[.stdlibrary]`.
+
+### A.2 Expected lite test specification
 
 ```
-unexpected_type<>: Disallows default construction
-unexpected_type<>: Disallows default construction, std::exception_ptr specialization
-unexpected_type<>: Allows to copy-construct from error_type
-unexpected_type<>: Allows to copy-construct from error_type, std::exception_ptr specialization
-unexpected_type<>: Allows to move-construct from error_type
-unexpected_type<>: Allows to move-construct from error_type, std::exception_ptr specialization
-unexpected_type<>: Allows to copy-construct from an exception, std::exception_ptr specialization
-unexpected_type<>: Allows to observe its value
-unexpected_type<>: Allows to observe its value, std::exception_ptr specialization
-unexpected_type<>: Allows to modify its value
-unexpected_type<>: Allows to modify its value, std::exception_ptr specialization
-unexpected_type<>: Provides relational operators
-unexpected_type<>: Provides relational operators, std::exception_ptr specialization
+unexpected_type: Disallows default construction
+unexpected_type: Allows to copy-construct from unexpected_type, default
+unexpected_type: Allows to move-construct from unexpected_type, default
+unexpected_type: Allows to in-place-construct
+unexpected_type: Allows to in-place-construct from initializer_list
+unexpected_type: Allows to copy-construct from error_type
+unexpected_type: Allows to move-construct from error_type
+unexpected_type: Allows to copy-construct from unexpected_type, explicit converting
+unexpected_type: Allows to copy-construct from unexpected_type, non-explicit converting
+unexpected_type: Allows to move-construct from unexpected_type, explicit converting
+unexpected_type: Allows to move-construct from unexpected_type, non-explicit converting
+unexpected_type: Allows to copy-assign from unexpected_type, default
+unexpected_type: Allows to move-assign from unexpected_type, default
+unexpected_type: Allows to copy-assign from unexpected_type, converting
+unexpected_type: Allows to move-assign from unexpected, converting
+unexpected_type: Allows to observe its value via a l-value reference
+unexpected_type: Allows to observe its value via a r-value reference
+unexpected_type: Allows to modify its value via a l-value reference
+unexpected_type: Allows to be swapped
+unexpected_type<std::exception_ptr>: Disallows default construction
+unexpected_type<std::exception_ptr>: Allows to copy-construct from error_type
+unexpected_type<std::exception_ptr>: Allows to move-construct from error_type
+unexpected_type<std::exception_ptr>: Allows to copy-construct from an exception
+unexpected_type<std::exception_ptr>: Allows to observe its value
+unexpected_type<std::exception_ptr>: Allows to modify its value
+unexpected_type: Provides relational operators
+unexpected_type: Provides relational operators, std::exception_ptr specialization
 make_unexpected(): Allows to create an unexpected_type<E> from an E
-unexpected<>: C++17 and later provide unexpected_type as unexpected
-bad_expected_access<>: Disallows default construction
-bad_expected_access<>: Allows construction from error_type
-bad_expected_access<>: Allows to observe its error
-bad_expected_access<>: Allows to change its error
-expected<>: Allows default construction
-expected<>: Allows to copy-construct from value_type
-expected<>: Allows to move-construct from value_type
-expected<>: Allows to copy-construct from expected<>
-expected<>: Allows to move-construct from expected<>
-expected<>: Allows to in-place-construct value_type
-expected<>: Allows to copy-construct from unexpected_type<>
-expected<>: Allows to move-construct from unexpected_type<>
-expected<>: Allows to in-place-construct unexpected_type<>
-expected<>: Allows to copy-assign from expected<>
-expected<>: Allows to move-assign from expected<>
-expected<>: Allows to copy-assign from type convertible to value_type
-expected<>: Allows to move-assign from type convertible to value_type
-expected<>: Allows to be swapped
-expected<>: Allows to observe its value via a pointer
-expected<>: Allows to observe its value via a pointer to constant
-expected<>: Allows to modify its value via a pointer
-expected<>: Allows to observe its value via a reference
-expected<>: Allows to observe its value via a r-value reference
-expected<>: Allows to modify its value via a reference
-expected<>: Allows to observe if it contains a value (or error)
-expected<>: Allows to observe its value
-expected<>: Allows to modify its value
-expected<>: Allows to move its value
-expected<>: Allows to observe its error
-expected<>: Allows to modify its error
-expected<>: Allows to move its error
-expected<>: Allows to observe its error as unexpected<>
-expected<>: Allows to observe its value if available, or obtain a specified value otherwise
-expected<>: Allows to move its value if available, or obtain a specified value otherwise
+unexpected: C++17 and later provide unexpected_type as unexpected
+bad_expected_access: Disallows default construction
+bad_expected_access: Allows construction from error_type
+bad_expected_access: Allows to observe its error
+bad_expected_access: Allows to change its error
+bad_expected_access: Provides non-empty what()
+expected: Allows to default construct
+expected: Allows to copy-construct from expected: value
+expected: Allows to copy-construct from expected: error
+expected: Allows to move-construct from expected: value
+expected: Allows to move-construct from expected: error
+expected: Allows to copy-construct from expected; value, explicit converting
+expected: Allows to copy-construct from expected; error, explicit converting
+expected: Allows to copy-construct from expected; value, non-explicit converting
+expected: Allows to copy-construct from expected; error, non-explicit converting
+expected: Allows to move-construct from expected; value, explicit converting
+expected: Allows to move-construct from expected; error, explicit converting
+expected: Allows to move-construct from expected; value, non-explicit converting
+expected: Allows to move-construct from expected; error, non-explicit converting
+expected: Allows to forward-construct from value, explicit converting
+expected: Allows to forward-construct from value, non-explicit converting
+expected: Allows to in-place-construct value
+expected: Allows to in-place-construct value from initializer_list
+expected: Allows to copy-construct from unexpected, explicit converting
+expected: Allows to copy-construct from unexpected, non-explicit converting
+expected: Allows to move-construct from unexpected, explicit converting
+expected: Allows to move-construct from unexpected, non-explicit converting
+expected: Allows to in-place-construct error
+expected: Allows to in-place-construct error from initializer_list
+expected: Allows to copy-assign from expected, value
+expected: Allows to copy-assign from expected, error
+expected: Allows to move-assign from expected, value
+expected: Allows to move-assign from expected, error
+expected: Allows to forward-assign from value
+expected: Allows to copy-assign from unexpected
+expected: Allows to move-assign from unexpected
+expected: Allows to emplace value
+expected: Allows to emplace value from initializer_list
+expected: Allows to be swapped
+expected: Allows to observe its value via a pointer
+expected: Allows to observe its value via a pointer to constant
+expected: Allows to modify its value via a pointer
+expected: Allows to observe its value via a l-value reference
+expected: Allows to observe its value via a r-value reference
+expected: Allows to modify its value via a l-value reference
+expected: Allows to modify its value via a r-value reference
+expected: Allows to observe if it contains a value (or error)
+expected: Allows to observe its value
+expected: Allows to modify its value
+expected: Allows to move its value
+expected: Allows to observe its error
+expected: Allows to modify its error
+expected: Allows to move its error
+expected: Allows to observe its error as unexpected
+expected: Allows to query if it contains an exception of a specific base type
+expected: Allows to observe its value if available, or obtain a specified value otherwise
+expected: Allows to move its value if available, or obtain a specified value otherwise
+expected: Throws bad_expected_access on value access when disengaged
 expected<void>: Allows to default-construct
-expected<void>: Allows to copy-construct from expected<void>
-expected<void>: Allows to move-construct from expected<void>
+expected<void>: Allows to copy-construct from expected<void>: value
+expected<void>: Allows to copy-construct from expected<void>: error
+expected<void>: Allows to move-construct from expected<void>: value
+expected<void>: Allows to move-construct from expected<void>: error
 expected<void>: Allows to in-place-construct
-expected<void>: Allows to copy-construct from unexpected_type<>
-expected<void>: Allows to move-construct from unexpected_type<>
-expected<void>: Allows to in-place-construct unexpected_type<>
-expected<void>: Allows to copy-assign from expected<>
-expected<void>: Allows to move-assign from expected<>
+expected<void>: Allows to copy-construct from unexpected, explicit converting
+expected<void>: Allows to copy-construct from unexpected, non-explicit converting
+expected<void>: Allows to move-construct from unexpected, explicit converting
+expected<void>: Allows to move-construct from unexpected, non-explicit converting
+expected<void>: Allows to in-place-construct unexpected_type
+expected<void>: Allows to in-place-construct error from initializer_list
+expected<void>: Allows to copy-assign from expected, value
+expected<void>: Allows to copy-assign from expected, error
+expected<void>: Allows to move-assign from expected, value
+expected<void>: Allows to move-assign from expected, error
+expected<void>: Allows to emplace value
 expected<void>: Allows to be swapped
 expected<void>: Allows to observe if it contains a value (or error)
+expected<void>: Allows to observe its value
 expected<void>: Allows to observe its error
 expected<void>: Allows to modify its error
 expected<void>: Allows to move its error
-expected<void>: Allows to observe its error as unexpected<>
-operator op: Provides relational operators
+expected<void>: Allows to observe its error as unexpected
+expected<void>: Allows to query if it contains an exception of a specific base type
+expected<void>: Throws bad_expected_access on value access when disengaged
+operators: Provides expected relational operators
+swap: Allows expected to be swapped
+std::hash: Allows to compute hash value for expected
 ```

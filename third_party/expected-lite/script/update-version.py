@@ -20,6 +20,10 @@ import sys
 table = (
     # path, substitute find, substitute format
     ( 'CMakeLists.txt'
+        , r'\W{2,4}VERSION\W+([0-9]+\.[0-9]+\.[0-9]+)\W*$'
+        , '    VERSION {major}.{minor}.{patch}' )
+
+    , ( 'CMakeLists.txt'
         , r'set\W+expected_lite_version\W+"([0-9]+\.[0-9]+\.[0-9]+)"\W+$'
         , 'set( expected_lite_version "{major}.{minor}.{patch}" )\n' )
 

@@ -1,4 +1,6 @@
-version: '1.0.{build}'
+version: "{branch} #{build}"
+
+shallow_clone: true
 
 image:
     - Visual Studio 2017
@@ -36,8 +38,10 @@ matrix:
 
 before_build:
     - mkdir build && cd build
-    - cmake -A %platform% -G "%generator%" -DEXPECTED_LITE_OPT_BUILD_TESTS=ON -DEXPECTED_LITE_OPT_BUILD_EXAMPLES=OFF ..
+    - cmake -A %platform% -G "%generator%" -DEXPECTED_LITE_OPT_SELECT_NONSTD=ON -DEXPECTED_LITE_OPT_BUILD_TESTS=ON -DEXPECTED_LITE_OPT_BUILD_EXAMPLES=OFF ..
 
 build_script:
     - cmake --build . --config %configuration%
-    - ctest -C %configuration%
+
+test_script:
+    - ctest --output-on-failure -C %configuration%

@@ -1,3 +1,0 @@
-#include "expected.hpp"
-
-MAIN
