@@ -451,7 +451,7 @@ namespace
 {
     static opt<bpid_t> register_callback(nt::syscalls::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
     {
-        const auto addr = symbols::symbol(d.core, proc, d.module, name);
+        const auto addr = symbols::address(d.core, proc, d.module, name);
         if(!addr)
             return FAIL(ext::nullopt, "unable to find symbole %s!%s", d.module.data(), name);
 

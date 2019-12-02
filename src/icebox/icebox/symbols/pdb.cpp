@@ -70,12 +70,12 @@ namespace
         bool setup();
 
         // IModule methods
-        std::string_view        id          () override;
-        opt<size_t>             symbol      (const std::string& symbol) override;
-        opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
-        opt<size_t>             struc_size  (const std::string& struc) override;
-        opt<symbols::Offset>    symbol      (size_t offset) override;
-        bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
+        std::string_view        id              () override;
+        opt<size_t>             symbol_offset   (const std::string& symbol) override;
+        opt<size_t>             struc_offset    (const std::string& struc, const std::string& member) override;
+        opt<size_t>             struc_size      (const std::string& struc) override;
+        opt<symbols::Offset>    find_symbol     (size_t offset) override;
+        bool                    list_symbols    (symbols::on_symbol_fn on_sym) override;
 
         // members
         const fs::path    filename_;
@@ -242,7 +242,7 @@ namespace
     }
 }
 
-opt<size_t> Pdb::symbol(const std::string& symbol)
+opt<size_t> Pdb::symbol_offset(const std::string& symbol)
 {
     const auto opt_sym = binary_search(strings_, symbols_, symbol);
     if(!opt_sym)
@@ -251,7 +251,7 @@ opt<size_t> Pdb::symbol(const std::string& symbol)
     return opt_sym->offset;
 }
 
-bool Pdb::sym_list(symbols::on_symbol_fn on_sym)
+bool Pdb::list_symbols(symbols::on_symbol_fn on_sym)
 {
     for(const auto& it : offsets_to_symbols_)
         if(on_sym(std::string{strings_[it.name_idx]}, it.offset) == walk_e::stop)
@@ -291,7 +291,7 @@ namespace
     }
 }
 
-opt<symbols::Offset> Pdb::symbol(size_t offset)
+opt<symbols::Offset> Pdb::find_symbol(size_t offset)
 {
     // lower bound returns first item greater or equal
     auto it        = std::lower_bound(offsets_to_symbols_.begin(), offsets_to_symbols_.end(), offset, [](const auto& a, const auto& b)

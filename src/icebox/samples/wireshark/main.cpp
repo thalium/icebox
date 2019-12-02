@@ -238,7 +238,7 @@ namespace
 
         symbols::load_drivers(core);
         // ndis!NdisSendNetBufferLists
-        const auto NdisSendNetBufferLists = symbols::symbol(core, symbols::kernel, "ndis", "NdisSendNetBufferLists");
+        const auto NdisSendNetBufferLists = symbols::address(core, symbols::kernel, "ndis", "NdisSendNetBufferLists");
         if(!NdisSendNetBufferLists)
             return FAIL(-1, "unable to set a BP on ndis!NdisSendNetBufferLists");
 
@@ -289,7 +289,7 @@ namespace
         });
 
         // ndis!NdisReturnNetBufferLists
-        const auto NdisReturnNetBufferLists = symbols::symbol(core, symbols::kernel, "ndis", "NdisMIndicateReceiveNetBufferLists");
+        const auto NdisReturnNetBufferLists = symbols::address(core, symbols::kernel, "ndis", "NdisMIndicateReceiveNetBufferLists");
         if(!NdisReturnNetBufferLists)
             return FAIL(-1, "unable to et a BP on ndis!NdisMIndicateReceiveNetBufferLists");
 

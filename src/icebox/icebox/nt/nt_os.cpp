@@ -285,7 +285,7 @@ namespace
 
     static bool read_phy_symbol(NtOs& os, phy_t& dst, proc_t proc, const char* module, const char* name)
     {
-        const auto where = symbols::symbol(os.core_, symbols::kernel, module, name);
+        const auto where = symbols::address(os.core_, symbols::kernel, module, name);
         if(!where)
             return false;
 
@@ -383,7 +383,7 @@ bool NtOs::setup()
     for(const auto& sym : g_symbols)
     {
         fail |= sym.e_id != ++i;
-        const auto addr = symbols::symbol(core_, symbols::kernel, sym.module, sym.name);
+        const auto addr = symbols::address(core_, symbols::kernel, sym.module, sym.name);
         if(!addr)
         {
             fail |= sym.e_cat == cat_e::REQUIRED;
@@ -696,7 +696,7 @@ namespace
 
     static opt<bpid_t> try_on_LdrpProcessMappedModule(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
-        const auto where = symbols::symbol(os.core_, proc, "wntdll", "_LdrpProcessMappedModule@16");
+        const auto where = symbols::address(os.core_, proc, "wntdll", "_LdrpProcessMappedModule@16");
         if(!where)
             return {};
 

@@ -123,7 +123,7 @@ namespace
         for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
         {
             const auto& sym = g_symbol_offsets[i];
-            const auto addr = symbols::symbol(d.core, symbols::kernel, sym.module, sym.name);
+            const auto addr = symbols::address(d.core, symbols::kernel, sym.module, sym.name);
             if(!addr)
             {
                 fail = true;

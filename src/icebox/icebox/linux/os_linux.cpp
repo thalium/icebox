@@ -477,7 +477,7 @@ namespace
         if(!sysmap)
             return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/System.map file", guid.data());
 
-        const auto addr = sysmap->symbol(strSymbol);
+        const auto addr = sysmap->symbol_offset(strSymbol);
         if(!addr)
             return FAIL(false, "unable to find symbol %s", strSymbol.data());
 
@@ -514,7 +514,7 @@ namespace
         for(const auto& sym : g_symbols)
         {
             fail |= sym.e_id != ++i;
-            symbols[i] = symbols::symbol(core, symbols::kernel, sym.module, sym.name);
+            symbols[i] = symbols::address(core, symbols::kernel, sym.module, sym.name);
             if(symbols[i])
                 continue;
 

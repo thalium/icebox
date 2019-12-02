@@ -240,13 +240,13 @@ symbols::Module* symbols::Modules::find(proc_t proc, const std::string& name)
     return it ? it->module.get() : nullptr;
 }
 
-opt<uint64_t> symbols::Modules::symbol(proc_t proc, const std::string& module, const std::string& symbol)
+opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, const std::string& symbol)
 {
     const auto it = find_module(*d_, proc, module);
     if(!it)
         return {};
 
-    const auto opt_offset = it->module->symbol(symbol);
+    const auto opt_offset = it->module->symbol_offset(symbol);
     if(!opt_offset)
         return {};
 
@@ -336,7 +336,7 @@ symbols::Symbol symbols::Modules::find(proc_t proc, uint64_t addr)
     if(!p)
         return read_empty_symbol(d.core, proc, addr);
 
-    const auto cur = p->mod.module->symbol(addr - p->mod.span.addr);
+    const auto cur = p->mod.module->find_symbol(addr - p->mod.span.addr);
     if(!cur)
         return {p->name.data(), "", addr};
 
@@ -456,9 +456,9 @@ bool symbols::unload(core::Core& core, proc_t proc, const std::string& name)
     return core.symbols_->remove(proc, name);
 }
 
-opt<uint64_t> symbols::symbol(core::Core& core, proc_t proc, const std::string& module, const std::string& symbol)
+opt<uint64_t> symbols::address(core::Core& core, proc_t proc, const std::string& module, const std::string& symbol)
 {
-    return core.symbols_->symbol(proc, module, symbol);
+    return core.symbols_->address(proc, module, symbol);
 }
 
 opt<uint64_t> symbols::struc_offset(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member)

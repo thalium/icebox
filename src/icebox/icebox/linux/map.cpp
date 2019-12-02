@@ -21,12 +21,12 @@ namespace
         bool setup();
 
         // IModule methods
-        std::string_view        id          () override;
-        opt<size_t>             symbol      (const std::string& symbol) override;
-        opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
-        opt<size_t>             struc_size  (const std::string& struc) override;
-        opt<symbols::Offset>    symbol      (size_t offset) override;
-        bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
+        std::string_view        id              () override;
+        opt<size_t>             symbol_offset   (const std::string& symbol) override;
+        opt<size_t>             struc_offset    (const std::string& struc, const std::string& member) override;
+        opt<size_t>             struc_size      (const std::string& struc) override;
+        opt<symbols::Offset>    find_symbol     (size_t offset) override;
+        bool                    list_symbols    (symbols::on_symbol_fn on_sym) override;
 
         const fs::path               filename;
         const std::string            guid;
@@ -111,7 +111,7 @@ std::string_view Map::id()
     return guid;
 }
 
-opt<size_t> Map::symbol(const std::string& symbol)
+opt<size_t> Map::symbol_offset(const std::string& symbol)
 {
     auto target          = symbols::Offset{};
     target.symbol        = symbol;
@@ -126,7 +126,7 @@ opt<size_t> Map::symbol(const std::string& symbol)
     return itrCursor.first->offset;
 }
 
-bool Map::sym_list(symbols::on_symbol_fn on_sym)
+bool Map::list_symbols(symbols::on_symbol_fn on_sym)
 {
     for(const auto& cursor : cursors_by_address)
         if(on_sym(cursor.symbol, cursor.offset) == walk_e::stop)
@@ -145,7 +145,7 @@ opt<size_t> Map::struc_size(const std::string&)
     return {};
 }
 
-opt<symbols::Offset> Map::symbol(size_t offset)
+opt<symbols::Offset> Map::find_symbol(size_t offset)
 {
     auto target              = symbols::Offset{};
     target.offset            = offset;

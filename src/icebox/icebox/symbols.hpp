@@ -26,7 +26,7 @@ namespace symbols
     bool        load_drivers    (core::Core& core);
     bool        unload          (core::Core& core, proc_t proc, const std::string& module);
 
-    opt<uint64_t>   symbol      (core::Core& core, proc_t proc, const std::string& module, const std::string& symbol);
+    opt<uint64_t>   address     (core::Core& core, proc_t proc, const std::string& module, const std::string& symbol);
     opt<uint64_t>   struc_offset(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
     opt<size_t>     struc_size  (core::Core& core, proc_t proc, const std::string& module, const std::string& struc);
     Symbol          find        (core::Core& core, proc_t proc, uint64_t addr);

@@ -20,12 +20,12 @@ namespace symbols
     {
         virtual ~Module() = default;
 
-        virtual std::string_view    id          () = 0;
-        virtual opt<size_t>         symbol      (const std::string& symbol) = 0;
-        virtual opt<size_t>         struc_offset(const std::string& struc, const std::string& member) = 0;
-        virtual opt<size_t>         struc_size  (const std::string& struc) = 0;
-        virtual opt<Offset>         symbol      (size_t offset) = 0;
-        virtual bool                sym_list    (on_symbol_fn on_symbol) = 0;
+        virtual std::string_view    id              () = 0;
+        virtual opt<size_t>         symbol_offset   (const std::string& symbol) = 0;
+        virtual opt<size_t>         struc_offset    (const std::string& struc, const std::string& member) = 0;
+        virtual opt<size_t>         struc_size      (const std::string& struc) = 0;
+        virtual opt<Offset>         find_symbol     (size_t offset) = 0;
+        virtual bool                list_symbols    (on_symbol_fn on_symbol) = 0;
     };
 
     struct Identity
@@ -51,7 +51,7 @@ namespace symbols
 
         bool            list        (proc_t proc, const on_module_fn& on_module);
         Module*         find        (proc_t proc, const std::string& name);
-        opt<uint64_t>   symbol      (proc_t proc, const std::string& module, const std::string& symbol);
+        opt<uint64_t>   address     (proc_t proc, const std::string& module, const std::string& symbol);
         opt<size_t>     struc_offset(proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
         opt<size_t>     struc_size  (proc_t proc, const std::string& module, const std::string& struc);
         Symbol          find        (proc_t proc, uint64_t addr);

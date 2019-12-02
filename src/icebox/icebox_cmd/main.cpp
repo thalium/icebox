@@ -141,7 +141,7 @@ namespace
 
         // check breakpoints
         {
-            const auto ptr = symbols::symbol(core, symbols::kernel, "nt", "SwapContext");
+            const auto ptr = symbols::address(core, symbols::kernel, "nt", "SwapContext");
             const auto bp  = state::break_on(core, "SwapContext", *ptr, [&]
             {
                 const auto rip = registers::read(core, reg_e::rip);
@@ -168,7 +168,7 @@ namespace
         {
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
-            const auto func_addr = symbols::symbol(core, *target, pdb_name, func_name);
+            const auto func_addr = symbols::address(core, *target, pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
             auto callers  = std::vector<callstacks::caller_t>(128);

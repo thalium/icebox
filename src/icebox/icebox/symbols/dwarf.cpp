@@ -20,12 +20,12 @@ namespace
         bool setup();
 
         // IModule methods
-        std::string_view        id          () override;
-        opt<size_t>             symbol      (const std::string& symbol) override;
-        opt<size_t>             struc_offset(const std::string& struc, const std::string& member) override;
-        opt<size_t>             struc_size  (const std::string& struc) override;
-        opt<symbols::Offset>    symbol      (size_t offset) override;
-        bool                    sym_list    (symbols::on_symbol_fn on_sym) override;
+        std::string_view        id              () override;
+        opt<size_t>             symbol_offset   (const std::string& symbol) override;
+        opt<size_t>             struc_offset    (const std::string& struc, const std::string& member) override;
+        opt<size_t>             struc_size      (const std::string& struc) override;
+        opt<symbols::Offset>    find_symbol     (size_t offset) override;
+        bool                    list_symbols    (symbols::on_symbol_fn on_sym) override;
 
         // members
         const fs::path    filename_;
@@ -358,12 +358,12 @@ std::string_view Dwarf::id()
     return guid_;
 }
 
-opt<size_t> Dwarf::symbol(const std::string& /*symbol*/)
+opt<size_t> Dwarf::symbol_offset(const std::string& /*symbol*/)
 {
     return {};
 }
 
-bool Dwarf::sym_list(symbols::on_symbol_fn /*on_sym*/)
+bool Dwarf::list_symbols(symbols::on_symbol_fn /*on_sym*/)
 {
     return false;
 }
@@ -407,7 +407,7 @@ opt<size_t> Dwarf::struc_size(const std::string& struc)
     return size;
 }
 
-opt<symbols::Offset> Dwarf::symbol(size_t /*offset*/)
+opt<symbols::Offset> Dwarf::find_symbol(size_t /*offset*/)
 {
     return {};
 }
