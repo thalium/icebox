@@ -36,14 +36,18 @@ extern "C"
 #endif
 
 #ifdef _MSC_VER
-#    define FDP_EXPORTED    __declspec(dllexport)
-#    define ALIGNED_(X)     _declspec(align(X))
+#    define ALIGNED_(X) _declspec(align(X))
 #else
-#    define FDP_EXPORTED    __attribute__((visibility("default")))
-#    define ALIGNED_(X)     __attribute__((aligned(X)))
+#    define ALIGNED_(X) __attribute__((aligned(X)))
 #endif
 
-#ifndef FDP_EXPORTED
+#ifdef FDP_EXPORT
+#    ifdef _MSC_VER
+#        define FDP_EXPORTED __declspec(dllexport)
+#    else
+#        define FDP_EXPORTED __attribute__((visibility("default")))
+#    endif
+#else
 #    define FDP_EXPORTED
 #endif
 

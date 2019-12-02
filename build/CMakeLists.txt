@@ -61,6 +61,7 @@ function(add_fdp target options)
 endfunction()
 add_fdp(fdp_static "")
 add_fdp(fdp shared)
+target_compile_definitions(fdp PRIVATE FDP_EXPORT)
 
 # fix fmt dependencies
 if(NOT "$ENV{DISABLE_CLANG_FORMAT}" STREQUAL "true")
