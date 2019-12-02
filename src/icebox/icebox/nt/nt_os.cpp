@@ -198,7 +198,6 @@ namespace
         opt<std::string>    vm_area_name    (proc_t proc, vm_area_t vm_area) override;
 
         bool                driver_list (drivers::on_driver_fn on_driver) override;
-        opt<driver_t>       driver_find (uint64_t addr) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
@@ -1090,24 +1089,6 @@ bool NtOs::driver_list(drivers::on_driver_fn on_driver)
         if(on_driver({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == walk_e::stop)
             break;
     return true;
-}
-
-opt<driver_t> NtOs::driver_find(uint64_t addr)
-{
-    opt<driver_t> found;
-    driver_list([&](driver_t drv)
-    {
-        const auto span = driver_span(drv);
-        if(!span)
-            return walk_e::next;
-
-        if(!(span->addr <= addr && addr < span->addr + span->size))
-            return walk_e::next;
-
-        found = drv;
-        return walk_e::stop;
-    });
-    return found;
 }
 
 opt<std::string> NtOs::driver_name(driver_t drv)

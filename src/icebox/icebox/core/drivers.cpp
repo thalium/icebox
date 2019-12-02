@@ -21,7 +21,19 @@ bool drivers::list(core::Core& core, on_driver_fn on_driver)
 
 opt<driver_t> drivers::find(core::Core& core, uint64_t addr)
 {
-    return core.os_->driver_find(addr);
+    auto found = opt<driver_t>{};
+    drivers::list(core, [&](driver_t drv)
+    {
+        const auto span = drivers::span(core, drv);
+        if(!span)
+            return walk_e::next;
+
+        if(span->addr <= addr && addr < span->addr + span->size)
+            found = drv;
+
+        return found ? walk_e::stop : walk_e::next;
+    });
+    return found;
 }
 
 opt<driver_t> drivers::find_name(core::Core& core, std::string_view name)

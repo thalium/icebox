@@ -86,9 +86,16 @@ TEST_F(win10, drivers)
 
     const auto kernel = drivers::find_name(core, "ntoskrnl.exe");
     EXPECT_TRUE(!!kernel);
+    const auto kernel_name = drivers::name(core, *kernel);
+    EXPECT_TRUE(!!kernel_name);
+    EXPECT_STRCASEEQ(fs::path(*kernel_name).filename().generic_string().data(), "ntoskrnl.exe");
+
     LOG(INFO, "kernel %" PRIx64, kernel->id);
     const auto hal = drivers::find_name(core, "HaL.dll");
     EXPECT_TRUE(!!hal);
+    const auto hal_name = drivers::name(core, *hal);
+    EXPECT_TRUE(!!hal_name);
+    EXPECT_STRCASEEQ(fs::path(*hal_name).filename().generic_string().data(), "hal.dll");
     LOG(INFO, "hal %" PRIx64, hal->id);
 }
 
