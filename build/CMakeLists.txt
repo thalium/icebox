@@ -43,7 +43,6 @@ if(${USE_STATIC_ANALYZER})
 	"-readability-isolate-declaration"
 	"-readability-uppercase-literal-suffix"
 	"-readability-inconsistent-declaration-parameter-name"
-	"-readability-else-after-return"
 	"-readability-simplify-boolean-expr"
     )
         set(enable_checks "${enable_checks},${check}")

@@ -74,10 +74,8 @@ opt<uint64_t> reader::Reader::be64(uint64_t ptr) const
 
 opt<uint64_t> reader::Reader::read(uint64_t ptr) const
 {
-    if constexpr(is_little_endian)
-        return read_mem<uint64_t, ::read_le64>(*this, ptr);
-    else
-        return read_mem<uint64_t, ::read_be64>(*this, ptr);
+    constexpr auto rfunc = is_little_endian ? ::read_le64 : ::read_be64;
+    return read_mem<uint64_t, rfunc>(*this, ptr);
 }
 
 bool reader::Reader::read_all(void* dst, uint64_t ptr, size_t size) const

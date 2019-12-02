@@ -257,7 +257,8 @@ namespace
 
             return (uint64_t) offset;
         }
-        else if(form == DW_FORM_sdata)
+
+        if(form == DW_FORM_sdata)
         {
             Dwarf_Signed soffset;
             if(dwarf_formsdata(attr, &soffset, &p.err) != DW_DLV_OK)
@@ -268,26 +269,24 @@ namespace
 
             return (uint64_t) soffset;
         }
-        else
+
+        Dwarf_Locdesc** llbuf = nullptr;
+        Dwarf_Signed listlen;
+        if(dwarf_loclist_n(attr, &llbuf, &listlen, &p.err) != DW_DLV_OK)
         {
-            Dwarf_Locdesc** llbuf = nullptr;
-            Dwarf_Signed listlen;
-            if(dwarf_loclist_n(attr, &llbuf, &listlen, &p.err) != DW_DLV_OK)
-            {
-                dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
-                return FAIL(ext::nullopt, "unsupported member offset in DW_AT_data_member_location attribute");
-            }
-
-            if(listlen != 1 || llbuf[0]->ld_cents != 1 || (llbuf[0]->ld_s[0]).lr_atom != DW_OP_plus_uconst)
-            {
-                dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
-                return FAIL(ext::nullopt, "unsupported location expression in DW_AT_data_member_location attribute");
-            }
-
-            const auto offset = llbuf[0]->ld_s[0].lr_number;
             dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
-            return (uint64_t) offset;
+            return FAIL(ext::nullopt, "unsupported member offset in DW_AT_data_member_location attribute");
         }
+
+        if(listlen != 1 || llbuf[0]->ld_cents != 1 || (llbuf[0]->ld_s[0]).lr_atom != DW_OP_plus_uconst)
+        {
+            dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
+            return FAIL(ext::nullopt, "unsupported location expression in DW_AT_data_member_location attribute");
+        }
+
+        const auto offset = llbuf[0]->ld_s[0].lr_number;
+        dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
+        return (uint64_t) offset;
     }
 
     static opt<size_t> struc_size_internal(Dwarf& p, const Dwarf_Die& struc)
