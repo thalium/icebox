@@ -23,7 +23,7 @@ def generate_variables(job):
         return ""
 
     return """
-Varbiables:
+Variables:
 ```bash
 {variables}```""".format(variables=job["variables"])
 

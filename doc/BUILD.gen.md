@@ -10,34 +10,27 @@ USER = user
 ```
 # Stage: build
 
-## Job: gcc
+## Job: vbox_vmm msvc
 Tags:
-* ubuntu
-* docker
+* msvc2017
 
 
-Commands:
+Variables:
 ```bash
-$APT_UPDATE && $APT_INSTALL cmake python3 gcc-8 g++-8 ninja-build > /dev/null
-cd build
-CC=/usr/bin/gcc-8 CXX=/usr/bin/g++-8 TARGET=Ninja ./configure.sh
-cd ../out/x64
-ninja
+QT_DIR = c:/qt-5.6.3
+CURL_DIR = c:/curl-7.64.0
+OPENSSL_DIR = c:/OpenSSL-Win64
 ```
-
-## Job: clang
-Tags:
-* ubuntu
-* docker
-
-
 Commands:
 ```bash
-$APT_UPDATE && $APT_INSTALL cmake python3 clang-7 clang-tidy-7 ninja-build > /dev/null
-cd build
-CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja USE_STATIC_ANALYZER=1 ./configure.sh
-cd ../out/x64
-ninja
+set PATH=%PATH%;c:/Windows/System32
+cmd /C ""c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd" /x64 /Release"
+cd third_party/virtualbox/include
+mklink /J FDP ..\..\..\src\FDP
+cd ..
+cscript configure.vbs --with-MinGW-w64=c:/mingw64 --with-libSDL=c:/SDL-1.2.15 --with-openssl=%OPENSSL_DIR% --with-openssl32=c:/OpenSSL-Win32 --with-qt5=%QT_DIR%/qtbase --with-python=c:/Python37-32 --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
+call env.bat
+kmk VBoxVMM VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
 ```
 
 ## Job: msvc
@@ -51,6 +44,21 @@ mkdir out\x64
 cd out/x64
 cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
 cmake --build . --config RelWithDebInfo -- -verbosity:minimal
+```
+
+## Job: gcc
+Tags:
+* ubuntu
+* docker
+
+
+Commands:
+```bash
+$APT_UPDATE && $APT_INSTALL cmake python3 gcc-8 g++-8 ninja-build > /dev/null
+cd build
+CC=/usr/bin/gcc-8 CXX=/usr/bin/g++-8 TARGET=Ninja ./configure.sh
+cd ../out/x64
+ninja
 ```
 
 ## Job: vbox_vmm gcc
@@ -70,16 +78,34 @@ source env.sh
 kmk VBoxVMM VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
 ```
 
-## Job: vbox_vmm msvc
+## Job: clang
+Tags:
+* ubuntu
+* docker
+
+
+Commands:
+```bash
+$APT_UPDATE && $APT_INSTALL cmake python3 clang-7 clang-tidy-7 ninja-build > /dev/null
+cd build
+CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja USE_STATIC_ANALYZER=1 ./configure.sh
+cd ../out/x64
+ninja
+```
+
+
+# Stage: virtualbox
+
+## Job: msvc
 Tags:
 * msvc2017
 
 
-Varbiables:
+Variables:
 ```bash
 QT_DIR = c:/qt-5.6.3
-OPENSSL_DIR = c:/OpenSSL-Win64
 CURL_DIR = c:/curl-7.64.0
+OPENSSL_DIR = c:/OpenSSL-Win64
 ```
 Commands:
 ```bash
@@ -90,11 +116,22 @@ mklink /J FDP ..\..\..\src\FDP
 cd ..
 cscript configure.vbs --with-MinGW-w64=c:/mingw64 --with-libSDL=c:/SDL-1.2.15 --with-openssl=%OPENSSL_DIR% --with-openssl32=c:/OpenSSL-Win32 --with-qt5=%QT_DIR%/qtbase --with-python=c:/Python37-32 --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
 call env.bat
-kmk VBoxVMM VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
+kmk VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
+cd out/win.amd64/release/bin
+rm -r testcase
+cp %QT_DIR%/qtbase/bin/Qt5Core.dll .
+cp %QT_DIR%/qtbase/bin/Qt5Gui.dll .
+cp %QT_DIR%/qtbase/bin/Qt5Widgets.dll .
+cp %QT_DIR%/qtbase/bin/Qt5OpenGL.dll .
+cp %QT_DIR%/qtbase/bin/Qt5PrintSupport.dll .
+mkdir platforms
+cp -r %QT_DIR%/qtbase/plugins/platforms/*.dll platforms
+cp %OPENSSL_DIR%/bin/libcrypto-1_1-x64.dll .
+cp %OPENSSL_DIR%/bin/libssl-1_1-x64.dll .
+cp %CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl/libcurl.dll .
+cp -r %CI_PROJECT_DIR%/third_party/virtualbox/kBuild/bin/win.amd64 kmk
+cp -r %CI_PROJECT_DIR%/build/install.cmd .
 ```
-
-
-# Stage: virtualbox
 
 ## Job: gcc
 Tags:
@@ -122,43 +159,6 @@ mkdir linux.amd64.bin
 7za -y e out/linux.amd64/release/bin/*.run -otmp
 tar -xjf tmp/VirtualBox.tar.bz2 -C linux.amd64.bin
 rm -r tmp
-```
-
-## Job: msvc
-Tags:
-* msvc2017
-
-
-Varbiables:
-```bash
-QT_DIR = c:/qt-5.6.3
-OPENSSL_DIR = c:/OpenSSL-Win64
-CURL_DIR = c:/curl-7.64.0
-```
-Commands:
-```bash
-set PATH=%PATH%;c:/Windows/System32
-cmd /C ""c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd" /x64 /Release"
-cd third_party/virtualbox/include
-mklink /J FDP ..\..\..\src\FDP
-cd ..
-cscript configure.vbs --with-MinGW-w64=c:/mingw64 --with-libSDL=c:/SDL-1.2.15 --with-openssl=%OPENSSL_DIR% --with-openssl32=c:/OpenSSL-Win32 --with-qt5=%QT_DIR%/qtbase --with-python=c:/Python37-32 --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
-call env.bat
-kmk VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
-cd out/win.amd64/release/bin
-rm -r testcase
-cp %QT_DIR%/qtbase/bin/Qt5Core.dll .
-cp %QT_DIR%/qtbase/bin/Qt5Gui.dll .
-cp %QT_DIR%/qtbase/bin/Qt5Widgets.dll .
-cp %QT_DIR%/qtbase/bin/Qt5OpenGL.dll .
-cp %QT_DIR%/qtbase/bin/Qt5PrintSupport.dll .
-mkdir platforms
-cp -r %QT_DIR%/qtbase/plugins/platforms/*.dll platforms
-cp %OPENSSL_DIR%/bin/libcrypto-1_1-x64.dll .
-cp %OPENSSL_DIR%/bin/libssl-1_1-x64.dll .
-cp %CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl/libcurl.dll .
-cp -r %CI_PROJECT_DIR%/third_party/virtualbox/kBuild/bin/win.amd64 kmk
-cp -r %CI_PROJECT_DIR%/build/install.cmd .
 ```
 
 
