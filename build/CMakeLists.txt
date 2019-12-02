@@ -17,7 +17,7 @@ endif()
 
 if(${USE_STATIC_ANALYZER})
     message("-- clang static analyzer: enabled")
-    find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy clang-tidy-7)
+    find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy $ENV{CLANG_TIDY})
     if(NOT CLANG_TIDY_EXECUTABLE)
         message(FATAL_ERROR "missing clang-tidy")
     endif()
