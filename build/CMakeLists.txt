@@ -30,12 +30,30 @@ if(${USE_STATIC_ANALYZER})
         "performance-*"
         "portability-*"
         "readability-*"
+	# those rules are too extreme
+	"-misc-non-private-member-variables-in-classes"
+	"-readability-braces-around-statements"
+	"-readability-implicit-bool-conversion"
+	"-readability-magic-numbers"
+	# enable those in separate commits
+	"-readability-static-definition-in-anonymous-namespace"
+	"-readability-named-parameter"
+	"-readability-redundant-string-cstr"
+	"-modernize-avoid-c-arrays"
+	"-readability-isolate-declaration"
+	"-readability-uppercase-literal-suffix"
+	"-readability-inconsistent-declaration-parameter-name"
+	"-readability-else-after-return"
+	"-readability-simplify-boolean-expr"
+	"-readability-avoid-const-params-in-decls"
+	"-readability-redundant-string-init"
+	"-readability-const-return-type"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()
     set(CLANG_TIDY_ARGS "${CLANG_TIDY_EXECUTABLE}"
         "--warnings-as-errors=*"
-        "--checks=\"${enable_checks}\""
+        "--checks=${enable_checks}"
     )
 endif()
 

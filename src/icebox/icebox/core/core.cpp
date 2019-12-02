@@ -54,6 +54,7 @@ namespace
 
         // register os helpers
         auto interfaces = static_cast<const interfaces_t*>(nullptr);
+        core.os_.reset();
         for(const auto& h : g_interfaces)
         {
             core.os_ = h.make(core);
