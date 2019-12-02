@@ -1065,9 +1065,7 @@ vma_type_e NtOs::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
 
 opt<std::string> NtOs::vm_area_name(proc_t proc, vm_area_t vm_area)
 {
-    auto vad          = nt::_MMVAD_SHORT{};
-    const auto reader = reader::make(core_, proc);
-
+    const auto reader          = reader::make(core_, proc);
     const auto subsection_addr = reader.read(vm_area.id + offsets_[MMVAD_SubSection]);
     if(!subsection_addr)
         return "";
