@@ -5,6 +5,8 @@
 // must be included first
 #include <python.h>
 
+#include "defer.hpp"
+
 #define FDP_MODULE "py"
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
@@ -101,35 +103,6 @@ namespace
 
         Py_RETURN_NONE;
     }
-
-    template <typename T>
-    struct defer_t
-    {
-        defer_t(T op)
-            : op(op)
-        {
-        }
-
-        ~defer_t()
-        {
-            op();
-        }
-
-        T op;
-    };
-
-    template <typename T>
-    defer_t<T> make_defer(T op)
-    {
-        return defer_t<T>{op};
-    }
-
-#define CONCAT__(X, Y)  Y
-#define CONCAT_(X, Y)   CONCAT__(~, X##Y)
-#define CONCAT(X, Y)    CONCAT_(X, Y)
-
-#define DEFER(X)    const auto CONCAT(defer_, __COUNTER__) = make_defer(X)
-#define PYREF(X)    DEFER([=] { Py_DECREF(X); })
 
     PyObject* register_list(PyObject* /*self*/, PyObject* /*args*/)
     {
