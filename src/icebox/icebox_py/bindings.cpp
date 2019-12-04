@@ -171,11 +171,69 @@ namespace
         Py_INCREF(list);
         return list;
     }
+
+    template <typename T, uint64_t (*Op)(core::Core&, T)>
+    PyObject* reg_read(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto reg_id   = int{};
+        const auto ok = PyArg_ParseTuple(args, "i", &reg_id);
+        if(!ok)
+            return nullptr;
+
+        const auto reg = static_cast<T>(reg_id);
+        const auto ret = Op(*core, reg);
+        return PyLong_FromUnsignedLongLong(ret);
+    }
+
+    template <typename T, bool (*Op)(core::Core&, T, uint64_t)>
+    PyObject* reg_write(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto reg_id = int{};
+        auto value  = uint64_t{};
+        auto ok     = PyArg_ParseTuple(args, "iK", &reg_id, &value);
+        if(!ok)
+            return nullptr;
+
+        const auto reg = static_cast<T>(reg_id);
+        ok             = Op(*core, reg, value);
+        if(!ok)
+            return fail_with(nullptr, PyExc_RuntimeError, "unable to write register");
+
+        Py_RETURN_NONE;
+    }
+
+    PyObject* register_read(PyObject* self, PyObject* args)
+    {
+        return reg_read<reg_e, &registers::read>(self, args);
+    }
+
+    PyObject* register_write(PyObject* self, PyObject* args)
+    {
+        return reg_write<reg_e, &registers::write>(self, args);
+    }
+
+    PyObject* msr_read(PyObject* self, PyObject* args)
+    {
+        return reg_read<msr_e, &registers::read_msr>(self, args);
+    }
+
+    PyObject* msr_write(PyObject* self, PyObject* args)
+    {
+        return reg_write<msr_e, &registers::write_msr>(self, args);
+    }
 }
 
-PyMODINIT_FUNC PyInit_icebox()
+PyMODINIT_FUNC PyInit__icebox()
 {
-    auto args       = std::array<char*, 2>{"icebox", nullptr};
+    auto args       = std::array<char*, 2>{"_icebox", nullptr};
     const auto argc = static_cast<int>(args.size());
     logg::init(argc - 1, &args[0]);
 
@@ -187,12 +245,16 @@ PyMODINIT_FUNC PyInit_icebox()
         {"single_step", &core_exec<&state::single_step>, METH_NOARGS, "execute a single instruction"},
         {"wait", &core_exec<&state::wait>, METH_NOARGS, "wait vm"},
         {"register_list", &register_list, METH_NOARGS, "list available registers"},
+        {"register_read", &register_read, METH_VARARGS, "read register"},
+        {"register_write", &register_write, METH_VARARGS, "write register"},
+        {"msr_read", &msr_read, METH_VARARGS, "read msr register"},
+        {"msr_write", &msr_write, METH_VARARGS, "write msr register"},
         {"msr_list", &msr_list, METH_NOARGS, "list available msr registers"},
         {nullptr, nullptr, 0, nullptr},
     }};
     static auto ice_module  = PyModuleDef{
         PyModuleDef_HEAD_INIT,                     // m_base
-        "icebox",                                  // m_name
+        "_icebox",                                 // m_name
         "Python interface for the icebox library", // m_doc
         sizeof(Handle),                            // m_size
         &ice_methods[0],                           // m_methods

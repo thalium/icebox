@@ -1,5 +1,7 @@
 #pragma once
 
+namespace defer
+{
     template <typename T>
     struct defer_t
     {
@@ -17,14 +19,15 @@
     };
 
     template <typename T>
-    defer_t<T> make_defer(T op)
+    defer_t<T> make(T op)
     {
         return defer_t<T>{op};
     }
+} // namespace defer
 
 #define CONCAT__(X, Y)  Y
 #define CONCAT_(X, Y)   CONCAT__(~, X##Y)
 #define CONCAT(X, Y)    CONCAT_(X, Y)
 
-#define DEFER(X)    const auto CONCAT(defer_, __COUNTER__) = make_defer(X)
+#define DEFER(X)    const auto CONCAT(defer_, __COUNTER__) = defer::make(X)
 #define PYREF(X)    DEFER([=] { Py_DECREF(X); })
