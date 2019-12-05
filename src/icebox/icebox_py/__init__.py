@@ -18,6 +18,14 @@ class Registers:
                 return property(fget, fset)
             _attach_dynamic_property(self, name, get_property(idx))
 
+class Flags:
+    def __init__(self, dict):
+        for k, v in dict.items():
+            setattr(self, k, v)
+
+kFlags_x86 = Flags({"is_x86": True,  "is_x64": False})
+kFlags_x64 = Flags({"is_x86": False, "is_x64": True})
+
 class Process:
     def __init__(self, proc):
         self.proc = proc
@@ -32,7 +40,7 @@ class Process:
         return _icebox.process_pid(self.proc)
 
     def flags(self):
-        return _icebox.process_flags(self.proc)
+        return Flags(_icebox.process_flags(self.proc))
 
     def join(self, mode):
         if mode != "kernel" and mode != "user":
@@ -58,8 +66,17 @@ class Processes:
     def find_name(self, name, flags):
         for p in self.list_all():
             got_name = os.path.basename(p.name())
-            if got_name == name:
-                return p
+            if got_name != name:
+                continue
+
+            got_flags = p.flags()
+            if flags.is_x64 and not got_flags.is_x64:
+                continue
+
+            if flags.is_x86 and not got_flags.is_x86:
+                continue
+
+            return p
         return None
 
     def find_pid(self, pid):
@@ -69,7 +86,7 @@ class Processes:
         return None
 
     def wait(self, name, flags):
-        pass
+        return Process(_icebox.process_wait(name, flags))
 
     def break_on_create(self, callback):
         pass

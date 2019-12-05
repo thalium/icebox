@@ -428,6 +428,43 @@ namespace
         Py_INCREF(list);
         return list;
     }
+
+    opt<flags_t> to_flags(PyObject* arg)
+    {
+        auto flags = flags_t{};
+        auto attr  = PyObject_GetAttrString(arg, "is_x64");
+        if(!attr || !PyBool_Check(attr))
+            return fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x64 attribute");
+
+        flags.is_x64 = PyLong_AsLong(attr);
+        attr         = PyObject_GetAttrString(arg, "is_x86");
+        if(!attr || !PyBool_Check(attr))
+            return fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x86 attribute");
+
+        flags.is_x86 = PyLong_AsLong(attr);
+        return flags;
+    }
+
+    PyObject* process_wait(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto name     = static_cast<const char*>(nullptr);
+        auto py_flags = static_cast<PyObject*>(nullptr);
+        const auto ok = PyArg_ParseTuple(args, "sO", &name, &py_flags);
+        if(!ok)
+            return nullptr;
+
+        name                 = name ? name : "";
+        const auto opt_flags = to_flags(py_flags);
+        const auto opt_proc  = process::wait(*core, name, *opt_flags);
+        if(!opt_proc)
+            return fail_with(nullptr, PyExc_RuntimeError, "unable to wait for process");
+
+        return to_bytes(*opt_proc);
+    }
 }
 
 PyMODINIT_FUNC PyInit__icebox()
@@ -457,6 +494,7 @@ PyMODINIT_FUNC PyInit__icebox()
         {"process_join", &process_join, METH_VARARGS, "join process"},
         {"process_parent", &process_parent, METH_VARARGS, "read process parent, if any"},
         {"process_list", &process_list, METH_NOARGS, "list available processes"},
+        {"process_wait", &process_wait, METH_VARARGS, "wait for process"},
         {nullptr, nullptr, 0, nullptr},
     }};
     static auto ice_module  = PyModuleDef{
