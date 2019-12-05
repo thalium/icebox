@@ -92,7 +92,7 @@ namespace
 {
     static const struct
     {
-        const char name[32];
+        const char* name;
         opt<symbols::Identity>  (*identify) (span_t, const reader::Reader&);
         ModulePtr               (*make)     (const std::string& name, const std::string& guid);
     } g_helpers[] =

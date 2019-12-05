@@ -40,9 +40,9 @@ namespace
     struct MemberOffset
     {
         member_offset_e e_id;
-        const char      module[16];
-        const char      struc[32];
-        const char      member[32];
+        const char*     module;
+        const char*     struc;
+        const char*     member;
     };
     // clang-format off
     const MemberOffset g_member_offsets[] =
@@ -76,8 +76,8 @@ namespace
     struct SymbolOffset
     {
         symbol_offset_e e_id;
-        const char      module[16];
-        const char      name[32];
+        const char*     module;
+        const char*     name;
     };
     // clang-format off
     const SymbolOffset g_symbol_offsets[] =

@@ -69,11 +69,11 @@ namespace
 
     struct NtOffset
     {
-        cat_e      e_cat;
-        offset_e   e_id;
-        const char module[16];
-        const char struc[32];
-        const char member[32];
+        cat_e       e_cat;
+        offset_e    e_id;
+        const char* module;
+        const char* struc;
+        const char* member;
     };
     // clang-format off
     const NtOffset g_offsets[] =
@@ -130,10 +130,10 @@ namespace
 
     struct NtSymbol
     {
-        cat_e      e_cat;
-        symbol_e   e_id;
-        const char module[16];
-        const char name[32];
+        cat_e       e_cat;
+        symbol_e    e_id;
+        const char* module;
+        const char* name;
     };
     // clang-format off
     const NtSymbol g_symbols[] =

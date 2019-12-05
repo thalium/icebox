@@ -142,11 +142,11 @@ namespace
 
     struct LinuxOffset
     {
-        cat_e      e_cat;
-        offset_e   e_id;
-        const char module[16];
-        const char struc[32];
-        const char member[32];
+        cat_e       e_cat;
+        offset_e    e_id;
+        const char* module;
+        const char* struc;
+        const char* member;
     };
     // clang-format off
     const LinuxOffset g_offsets[] =
@@ -199,10 +199,10 @@ namespace
 
     struct LinuxSymbol
     {
-        cat_e      e_cat;
-        symbol_e   e_id;
-        const char module[16];
-        const char name[32];
+        cat_e       e_cat;
+        symbol_e    e_id;
+        const char* module;
+        const char* name;
     };
     // clang-format off
     const LinuxSymbol g_symbols[] =

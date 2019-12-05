@@ -22,7 +22,7 @@ namespace
 {
     struct interfaces_t
     {
-        const char name[32];
+        const char* name;
         std::unique_ptr<os::Module>         (*make)             (core::Core& core);
         std::unique_ptr<callstacks::Module> (*make_callstacks)  (core::Core& core);
     };

@@ -99,9 +99,9 @@ namespace
 
     struct NtOffset
     {
-        offsets_e  e_id;
-        const char struc[32];
-        const char member[32];
+        offsets_e   e_id;
+        const char* struc;
+        const char* member;
     };
     // clang-format off
     const NtOffset g_nt_offsets[] =
