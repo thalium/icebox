@@ -104,7 +104,7 @@ namespace
 
         std::vector<uint8_t> buffer;
         size_t modcount = 0;
-        modules::list(core, *target, [&](mod_t)
+        modules::list(core, *target, [&](mod_t /*mod*/)
         {
             ++modcount;
             return walk_e::next;

@@ -26,16 +26,16 @@ namespace
         std::vector<int> nums;
 
       public:
-        version(const std::string&);
+        version(const std::string& /*vers*/);
         std::string get();
 
-        bool operator==(const version&);
-        bool operator<(const version&);
+        bool operator==(const version& /*other*/);
+        bool operator<(const version& /*other*/);
 
-        [[maybe_unused]] bool operator<=(const version&);
-        [[maybe_unused]] bool operator>(const version&);
-        [[maybe_unused]] bool operator>=(const version&);
-        [[maybe_unused]] bool operator!=(const version&);
+        [[maybe_unused]] bool operator<=(const version& /*other*/);
+        [[maybe_unused]] bool operator>(const version& /*other*/);
+        [[maybe_unused]] bool operator>=(const version& /*other*/);
+        [[maybe_unused]] bool operator!=(const version& /*other*/);
     };
 
     version::version(const std::string& vers)
@@ -630,7 +630,7 @@ opt<proc_t> OsLinux::proc_current()
     return thread_proc(*thread);
 }
 
-opt<proc_t> OsLinux::proc_find(std::string_view name, flags_t)
+opt<proc_t> OsLinux::proc_find(std::string_view name, flags_t /*flags*/)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
@@ -781,7 +781,7 @@ namespace
             LOG(ERROR, "unable to proc_join_any on process 0x%" PRIx64, proc.id);
         else
         {
-            state::run_to(p.core_, std::string_view("proc_join_any"), ptrs, state::BP_CR3_NONE, [&](proc_t bp_proc, thread_t)
+            state::run_to(p.core_, std::string_view("proc_join_any"), ptrs, state::BP_CR3_NONE, [&](proc_t bp_proc, thread_t /*thread*/)
             {
                 return bp_proc.id == proc.id ? walk_e::stop : walk_e::next;
             });
@@ -790,7 +790,7 @@ namespace
 
     void run_until_next_cr3(OsLinux& p)
     {
-        state::run_to(p.core_, std::string_view("next_cr3"), std::unordered_set<uint64_t>(), state::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t)
+        state::run_to(p.core_, std::string_view("next_cr3"), std::unordered_set<uint64_t>(), state::BP_CR3_ON_WRITINGS, [&](proc_t /*proc*/, thread_t /*thread*/)
         {
             return walk_e::stop;
         });
@@ -842,7 +842,7 @@ void OsLinux::proc_join(proc_t proc, mode_e mode)
             continue;
         }
 
-        state::run_to(core_, "proc_join_user", std::unordered_set<uint64_t>{*user_rip}, state::BP_CR3_ON_WRITINGS, [&](proc_t, thread_t bp_thread)
+        state::run_to(core_, "proc_join_user", std::unordered_set<uint64_t>{*user_rip}, state::BP_CR3_ON_WRITINGS, [&](proc_t /*proc*/, thread_t bp_thread)
         {
             if((cpu_ring(*this) == 3) | (bp_thread.id != current_thread->id))
                 return walk_e::stop;
@@ -963,7 +963,7 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
     return proc_t{*proc_id, dtb_t{*pgd}};
 }
 
-opt<uint64_t> OsLinux::thread_pc(proc_t, thread_t thread)
+opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
 {
     const auto current = thread_current();
     if(!current)
@@ -979,7 +979,7 @@ opt<uint64_t> OsLinux::thread_pc(proc_t, thread_t thread)
     return reader_.read(*pt_regs_ptr - 8);
 }
 
-uint64_t OsLinux::thread_id(proc_t, thread_t thread) // return opt ?, remove proc ?
+uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, remove proc ?
 {
     const auto pid = reader_.le32(thread.id + *offsets_[TASKSTRUCT_PID]);
     if(!pid)
@@ -1084,7 +1084,7 @@ bool OsLinux::mod_list(proc_t proc, modules::on_mod_fn on_module)
     return ok;
 }
 
-opt<std::string> OsLinux::mod_name(proc_t, mod_t mod)
+opt<std::string> OsLinux::mod_name(proc_t /*proc*/, mod_t mod)
 {
     return vm_area_file_mapped(*this, vm_area_t{mod.id});
 }
@@ -1214,7 +1214,7 @@ opt<vm_area_t> OsLinux::vm_area_find(proc_t proc, uint64_t addr)
     return found;
 }
 
-opt<span_t> OsLinux::vm_area_span(proc_t, vm_area_t vm_area)
+opt<span_t> OsLinux::vm_area_span(proc_t /*proc*/, vm_area_t vm_area)
 {
     const auto start = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
     const auto end   = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
@@ -1224,7 +1224,7 @@ opt<span_t> OsLinux::vm_area_span(proc_t, vm_area_t vm_area)
     return span_t{*start, *end - *start};
 }
 
-vma_access_e OsLinux::vm_area_access(proc_t, vm_area_t vm_area)
+vma_access_e OsLinux::vm_area_access(proc_t /*proc*/, vm_area_t vm_area)
 {
     // defined in include/linux/mm.h
     const uint8_t VM_READ   = 1;
@@ -1400,7 +1400,7 @@ opt<os::bpid_t> OsLinux::listen_mod_create(proc_t /*proc*/, flags_t /*flags*/, c
     return {};
 }
 
-opt<os::bpid_t> OsLinux::listen_drv_create(const drivers::on_event_fn&)
+opt<os::bpid_t> OsLinux::listen_drv_create(const drivers::on_event_fn& /*on_load*/)
 {
     return {};
 }

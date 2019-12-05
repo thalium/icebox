@@ -260,7 +260,11 @@ TEST_F(win10, unable_to_single_step_query_information_process)
     // ZwQueryInformationProcess in 32-bit has code reading itself
     // we need to ensure we can break this function & resume properly
     // FDP had a bug where this was not possible
-    tracer.register_ZwQueryInformationProcess(*proc, [&](wow64::HANDLE, wow64::PROCESSINFOCLASS, wow64::PVOID, wow64::ULONG, wow64::PULONG)
+    tracer.register_ZwQueryInformationProcess(*proc, [&](wow64::HANDLE /*ProcessHandle*/,
+                                                         wow64::PROCESSINFOCLASS /*ProcessInformationClass*/,
+                                                         wow64::PVOID /*ProcessInformation*/,
+                                                         wow64::ULONG /*ProcessInformationLength*/,
+                                                         wow64::PULONG /*ReturnLength*/)
     {
         found = true;
     });
@@ -283,7 +287,9 @@ TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
     // break on a single function once
     wow64::syscalls32 tracer{core, "ntdll"};
     int func_start = 0;
-    tracer.register_ZwWaitForSingleObject(*proc, [&](wow64::HANDLE, wow64::BOOLEAN, wow64::PLARGE_INTEGER)
+    tracer.register_ZwWaitForSingleObject(*proc, [&](wow64::HANDLE /*Handle*/,
+                                                     wow64::BOOLEAN /*Alertable*/,
+                                                     wow64::PLARGE_INTEGER /*Timeout*/)
     {
         ++func_start;
     });

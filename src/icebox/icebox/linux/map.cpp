@@ -135,12 +135,12 @@ bool Map::list_symbols(symbols::on_symbol_fn on_sym)
     return true;
 }
 
-opt<size_t> Map::struc_offset(const std::string&, const std::string&)
+opt<size_t> Map::struc_offset(const std::string& /*struc*/, const std::string& /*member*/)
 {
     return {};
 }
 
-opt<size_t> Map::struc_size(const std::string&)
+opt<size_t> Map::struc_size(const std::string& /*struc*/)
 {
     return {};
 }

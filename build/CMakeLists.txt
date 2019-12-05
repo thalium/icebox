@@ -39,7 +39,6 @@ if(${USE_STATIC_ANALYZER})
 	"-readability-simplify-boolean-expr"
 	# enable those in separate commits
 	"-readability-static-definition-in-anonymous-namespace"
-	"-readability-named-parameter"
 	"-readability-redundant-string-cstr"
 	"-modernize-avoid-c-arrays"
     )

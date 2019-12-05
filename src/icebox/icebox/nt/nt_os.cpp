@@ -618,20 +618,20 @@ namespace
         return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
     }
 
-    static void on_PspInsertThread(NtOs& os, bpid_t, const threads::on_event_fn& on_thread)
+    static void on_PspInsertThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, reg_e::rcx);
         on_thread({thread});
     }
 
-    static void on_PspExitProcess(NtOs& os, bpid_t, const process::on_event_fn& on_proc)
+    static void on_PspExitProcess(NtOs& os, bpid_t /*bpid*/, const process::on_event_fn& on_proc)
     {
         const auto eproc = registers::read(os.core_, reg_e::rdx);
         if(const auto proc = make_proc(os, eproc))
             on_proc(*proc);
     }
 
-    static void on_PspExitThread(NtOs& os, bpid_t, const threads::on_event_fn& on_thread)
+    static void on_PspExitThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
     {
         if(const auto thread = os.thread_current())
             on_thread(*thread);
@@ -672,7 +672,7 @@ namespace
 {
     constexpr auto x86_cs = 0x23;
 
-    static void on_LdrpInsertDataTableEntry(NtOs& os, bpid_t, const modules::on_event_fn& on_mod)
+    static void on_LdrpInsertDataTableEntry(NtOs& os, bpid_t /*bpid*/, const modules::on_event_fn& on_mod)
     {
         const auto cs       = registers::read(os.core_, reg_e::cs);
         const auto is_32bit = cs == x86_cs;

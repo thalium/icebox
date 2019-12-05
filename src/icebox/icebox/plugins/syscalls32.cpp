@@ -135,7 +135,11 @@ bool Data::setup()
     // Horrible workaround : Windows's 32 bit version on ntdll patches 4 bits of this function. Setting a breakpoint on this page with FDP
     // creates a glitch on the instruction that reads the patched bytes. Single stepping this instruction "simplify" the page resolution
     // and does not trigger the bug...
-    syscalls_.register_ZwQueryInformationProcess(proc_, [=](wow64::HANDLE, wow64::PROCESSINFOCLASS, wow64::PVOID, wow64::ULONG, wow64::PULONG)
+    syscalls_.register_ZwQueryInformationProcess(proc_, [=](wow64::HANDLE /*ProcessHandle*/,
+                                                            wow64::PROCESSINFOCLASS /*ProcessInformationClass*/,
+                                                            wow64::PVOID /*ProcessInformation*/,
+                                                            wow64::ULONG /*ProcessInformationLength*/,
+                                                            wow64::PULONG /*ReturnLength*/)
     {
         const auto nbr = 4;
         for(auto i = 0; i < nbr; i++)
