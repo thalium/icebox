@@ -41,7 +41,8 @@ namespace
     version::version(const std::string& vers)
     {
         nums.clear();
-        size_t start = 0, end;
+        auto start = size_t{};
+        auto end   = size_t{};
         while((end = vers.find('.', start)) != std::string::npos)
         {
             nums.push_back(std::stoi(vers.substr(start, end - start)));
@@ -365,7 +366,8 @@ namespace
 
         std::vector<char> buffer(PAGE_SIZE + sizeof target);
 
-        const uint64_t START_KERNEL = 0xffffffff80000000, END_KERNEL = 0xfffffffffff00000;
+        const uint64_t START_KERNEL = 0xffffffff80000000;
+        const uint64_t END_KERNEL   = 0xfffffffffff00000;
         // compability was checked for kernel from 2.6.27 (2008) to 5.1.2 (2019)
 
         const auto buffer_begin    = &buffer[0];
@@ -693,7 +695,10 @@ bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
 
 flags_t OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5 (06/2019)
 {
-    unsigned char TIF_IA32 = 17, TIF_ADDR32 = 29, TIF_X32 = 30; // see /arch/x86/include/asm/thread_info.h
+    // see /arch/x86/include/asm/thread_info.h
+    const uint8_t TIF_IA32   = 17;
+    const uint8_t TIF_ADDR32 = 29;
+    const uint8_t TIF_X32    = 30;
 
     uint32_t mask = 1UL << TIF_IA32;
     if(kversion >= version("3.4"))
@@ -1221,7 +1226,11 @@ opt<span_t> OsLinux::vm_area_span(proc_t, vm_area_t vm_area)
 
 vma_access_e OsLinux::vm_area_access(proc_t, vm_area_t vm_area)
 {
-    const uint8_t VM_READ = 1, VM_WRITE = 2, VM_EXEC = 4, VM_SHARED = 8; // defined in include/linux/mm.h
+    // defined in include/linux/mm.h
+    const uint8_t VM_READ   = 1;
+    const uint8_t VM_WRITE  = 2;
+    const uint8_t VM_EXEC   = 4;
+    const uint8_t VM_SHARED = 8;
 
     const auto flags = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFLAGS]);
     if(!flags)
@@ -1324,7 +1333,8 @@ opt<std::string> OsLinux::driver_name(driver_t drv)
 
 opt<span_t> OsLinux::driver_span(driver_t drv)
 {
-    uint64_t addr_offset, size_offet;
+    auto addr_offset = uint64_t{};
+    auto size_offet  = uint64_t{};
     if(offsets_[MODULE_CORELAYOUT] && offsets_[MODULELAYOUT_BASE] && offsets_[MODULELAYOUT_SIZE])
     {
         addr_offset = *offsets_[MODULE_CORELAYOUT] + *offsets_[MODULELAYOUT_BASE];

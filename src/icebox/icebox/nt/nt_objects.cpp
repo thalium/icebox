@@ -191,7 +191,9 @@ namespace
         constexpr auto PAGE_SIZE               = 4096;
         constexpr auto POINTER_SIZE            = 8;
 
-        uint64_t i, j, k;
+        auto i = uint64_t{};
+        auto j = uint64_t{};
+        auto k = uint64_t{};
         switch(handle_table_level)
         {
             case 0:

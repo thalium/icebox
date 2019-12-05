@@ -42,7 +42,6 @@ if(${USE_STATIC_ANALYZER})
 	"-readability-named-parameter"
 	"-readability-redundant-string-cstr"
 	"-modernize-avoid-c-arrays"
-	"-readability-isolate-declaration"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()
