@@ -52,6 +52,11 @@ class Process:
         ret = _icebox.process_parent(self.proc)
         return Process(ret) if ret else None
 
+class Callback:
+    def __init__(self, bpid, callback):
+        self.bpid = bpid
+        self.callback = callback
+
 class Processes:
     def __init__(self, vm):
         self.vm = vm
@@ -89,10 +94,14 @@ class Processes:
         return Process(_icebox.process_wait(name, flags))
 
     def break_on_create(self, callback):
-        pass
+        fproc = lambda proc: callback(Process(proc))
+        bpid = _icebox.process_listen_create(fproc)
+        return Callback(bpid, fproc)
 
     def break_on_delete(self, callback):
-        pass
+        fproc = lambda proc: callback(Process(proc))
+        bpid = _icebox.process_listen_delete(fproc)
+        return Callback(bpid, fproc)
 
 class Thread:
     def __init__(self, vm, thread):

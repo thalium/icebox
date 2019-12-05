@@ -465,6 +465,68 @@ namespace
 
         return to_bytes(*opt_proc);
     }
+
+    PyObject* process_listen_create(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto py_func  = static_cast<PyObject*>(nullptr);
+        const auto ok = PyArg_ParseTuple(args, "O", &py_func);
+        if(!ok)
+            return nullptr;
+
+        if(!PyCallable_Check(py_func))
+            return fail_with(nullptr, PyExc_TypeError, "arg must be callable");
+
+        const auto opt_bpid = process::listen_create(*core, [=](proc_t proc)
+        {
+            const auto py_proc = to_bytes(proc);
+            const auto args    = Py_BuildValue("(O)", py_proc);
+            if(!args)
+                return;
+
+            PYREF(args);
+            const auto ret = PyEval_CallObject(py_func, args);
+            (void) ret;
+        });
+        if(!opt_bpid)
+            return fail_with(nullptr, PyExc_RuntimeError, "unable to process::listen_create");
+
+        return to_bytes(*opt_bpid);
+    }
+
+    PyObject* process_listen_delete(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto py_func  = static_cast<PyObject*>(nullptr);
+        const auto ok = PyArg_ParseTuple(args, "O", &py_func);
+        if(!ok)
+            return nullptr;
+
+        if(!PyCallable_Check(py_func))
+            return fail_with(nullptr, PyExc_TypeError, "arg must be callable");
+
+        const auto opt_bpid = process::listen_delete(*core, [=](proc_t proc)
+        {
+            const auto py_proc = to_bytes(proc);
+            const auto args    = Py_BuildValue("(O)", py_proc);
+            if(!args)
+                return;
+
+            PYREF(args);
+            const auto ret = PyEval_CallObject(py_func, args);
+            (void) ret;
+        });
+        if(!opt_bpid)
+            return fail_with(nullptr, PyExc_RuntimeError, "unable to process::listen_create");
+
+        return to_bytes(*opt_bpid);
+    }
 }
 
 PyMODINIT_FUNC PyInit__icebox()
@@ -495,6 +557,8 @@ PyMODINIT_FUNC PyInit__icebox()
         {"process_parent", &process_parent, METH_VARARGS, "read process parent, if any"},
         {"process_list", &process_list, METH_NOARGS, "list available processes"},
         {"process_wait", &process_wait, METH_VARARGS, "wait for process"},
+        {"process_listen_create", &process_listen_create, METH_VARARGS, "listen on process creation"},
+        {"process_listen_delete", &process_listen_delete, METH_VARARGS, "listen on process deletion"},
         {nullptr, nullptr, 0, nullptr},
     }};
     static auto ice_module  = PyModuleDef{
