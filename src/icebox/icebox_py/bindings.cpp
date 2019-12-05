@@ -229,6 +229,205 @@ namespace
     {
         return reg_write<msr_e, &registers::write_msr>(self, args);
     }
+
+    template <typename T>
+    PyObject* to_bytes(const T& value)
+    {
+        const auto ptr = reinterpret_cast<const char*>(&value);
+        const auto obj = PyBytes_FromStringAndSize(ptr, sizeof value);
+        return obj;
+    }
+
+    template <typename T>
+    opt<T> from_bytes(PyObject* self)
+    {
+        if(!PyBytes_CheckExact(self))
+            return fail_with(ext::nullopt, PyExc_RuntimeError, "invalid argument");
+
+        auto ptr       = static_cast<char*>(nullptr);
+        auto len       = ssize_t{};
+        const auto err = PyBytes_AsStringAndSize(self, &ptr, &len);
+        if(err)
+            return fail_with(ext::nullopt, PyExc_RuntimeError, "invalid argument");
+
+        if(len != sizeof(T))
+            return fail_with(ext::nullopt, PyExc_RuntimeError, "invalid argument");
+
+        auto ret = T{};
+        memcpy(&ret, ptr, sizeof ret);
+        return ret;
+    }
+
+    PyObject* process_current(PyObject* self, PyObject* /*args*/)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        const auto opt_proc = process::current(*core);
+        if(!opt_proc)
+            return fail_with(nullptr, PyExc_RuntimeError, "unable to read current process");
+
+        return to_bytes(*opt_proc);
+    }
+
+    PyObject* process_name(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto obj = static_cast<PyObject*>(nullptr);
+        auto ok  = PyArg_ParseTuple(args, "S", &obj);
+        if(!ok)
+            return nullptr;
+
+        const auto opt_proc = from_bytes<proc_t>(obj);
+        if(!opt_proc)
+            return nullptr;
+
+        const auto opt_name = process::name(*core, *opt_proc);
+        if(!opt_name)
+            return fail_with(nullptr, PyExc_RuntimeError, "unable to read process name");
+
+        return PyUnicode_FromStringAndSize(opt_name->data(), opt_name->size());
+    }
+
+    PyObject* process_is_valid(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto obj = static_cast<PyObject*>(nullptr);
+        auto ok  = PyArg_ParseTuple(args, "S", &obj);
+        if(!ok)
+            return nullptr;
+
+        const auto opt_proc = from_bytes<proc_t>(obj);
+        if(!opt_proc)
+            return nullptr;
+
+        ok = process::is_valid(*core, *opt_proc);
+        if(!ok)
+            Py_RETURN_FALSE;
+
+        Py_RETURN_TRUE;
+    }
+
+    PyObject* process_pid(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto obj = static_cast<PyObject*>(nullptr);
+        auto ok  = PyArg_ParseTuple(args, "S", &obj);
+        if(!ok)
+            return nullptr;
+
+        const auto opt_proc = from_bytes<proc_t>(obj);
+        if(!opt_proc)
+            return nullptr;
+
+        const auto pid = process::pid(*core, *opt_proc);
+        return PyLong_FromUnsignedLongLong(pid);
+    }
+
+    PyObject* process_flags(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto obj = static_cast<PyObject*>(nullptr);
+        auto ok  = PyArg_ParseTuple(args, "S", &obj);
+        if(!ok)
+            return nullptr;
+
+        const auto opt_proc = from_bytes<proc_t>(obj);
+        if(!opt_proc)
+            return nullptr;
+
+        const auto flags = process::flags(*core, *opt_proc);
+        return Py_BuildValue("{s:O,s:O}",
+                             "is_x86", flags.is_x86 ? Py_True : Py_False,
+                             "is_x64", flags.is_x64 ? Py_True : Py_False);
+    }
+
+    PyObject* process_join(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto obj     = static_cast<PyObject*>(nullptr);
+        auto strmode = static_cast<const char*>(nullptr);
+        auto ok      = PyArg_ParseTuple(args, "Ss", &obj, &strmode);
+        if(!ok)
+            return nullptr;
+
+        const auto opt_proc = from_bytes<proc_t>(obj);
+        if(!opt_proc)
+            return nullptr;
+
+        const auto mode = strmode && strmode == std::string_view{"kernel"} ? mode_e::kernel : mode_e::user;
+        process::join(*core, *opt_proc, mode);
+        Py_RETURN_NONE;
+    }
+
+    PyObject* process_parent(PyObject* self, PyObject* args)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto obj = static_cast<PyObject*>(nullptr);
+        auto ok  = PyArg_ParseTuple(args, "S", &obj);
+        if(!ok)
+            return nullptr;
+
+        const auto opt_proc = from_bytes<proc_t>(obj);
+        if(!opt_proc)
+            return nullptr;
+
+        const auto opt_parent = process::parent(*core, *opt_proc);
+        if(!opt_parent)
+            Py_RETURN_NONE;
+
+        return to_bytes(*opt_parent);
+    }
+
+    PyObject* process_list(PyObject* self, PyObject* /*args*/)
+    {
+        auto core = core_from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto list = PyList_New(0);
+        if(!list)
+            return nullptr;
+
+        PYREF(list);
+        const auto ok = process::list(*core, [&](proc_t proc)
+        {
+            auto item = to_bytes(proc);
+            if(!item)
+                return walk_e::stop;
+
+            PYREF(item);
+            const auto err = PyList_Append(list, item);
+            if(err)
+                return walk_e::stop;
+
+            return walk_e::next;
+        });
+        if(!ok)
+            return fail_with(nullptr, PyExc_RuntimeError, "unable to list processes");
+
+        Py_INCREF(list);
+        return list;
+    }
 }
 
 PyMODINIT_FUNC PyInit__icebox()
@@ -237,7 +436,7 @@ PyMODINIT_FUNC PyInit__icebox()
     const auto argc = static_cast<int>(args.size());
     logg::init(argc - 1, &args[0]);
 
-    static auto ice_methods = std::array<PyMethodDef, 16>{{
+    static auto ice_methods = std::array<PyMethodDef, 32>{{
         {"attach", &core_attach, METH_VARARGS, "attach vm <name>"},
         {"detach", &core_detach, METH_NOARGS, "detach from vm"},
         {"pause", &core_exec<&state::pause>, METH_NOARGS, "pause vm"},
@@ -250,6 +449,14 @@ PyMODINIT_FUNC PyInit__icebox()
         {"msr_read", &msr_read, METH_VARARGS, "read msr register"},
         {"msr_write", &msr_write, METH_VARARGS, "write msr register"},
         {"msr_list", &msr_list, METH_NOARGS, "list available msr registers"},
+        {"process_current", &process_current, METH_NOARGS, "read current process"},
+        {"process_name", &process_name, METH_VARARGS, "read process name"},
+        {"process_is_valid", &process_is_valid, METH_VARARGS, "check if process is valid"},
+        {"process_pid", &process_pid, METH_VARARGS, "read process pid"},
+        {"process_flags", &process_flags, METH_VARARGS, "read process flags"},
+        {"process_join", &process_join, METH_VARARGS, "join process"},
+        {"process_parent", &process_parent, METH_VARARGS, "read process parent, if any"},
+        {"process_list", &process_list, METH_NOARGS, "list available processes"},
         {nullptr, nullptr, 0, nullptr},
     }};
     static auto ice_module  = PyModuleDef{
