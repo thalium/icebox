@@ -338,9 +338,9 @@ symbols::Symbol symbols::Modules::find(proc_t proc, uint64_t addr)
 
     const auto cur = p->mod.module->find_symbol(addr - p->mod.span.addr);
     if(!cur)
-        return {p->name.data(), "", addr};
+        return {p->name, "", addr};
 
-    return {p->name.data(), cur->symbol, cur->offset};
+    return {p->name, cur->symbol, cur->offset};
 }
 
 namespace

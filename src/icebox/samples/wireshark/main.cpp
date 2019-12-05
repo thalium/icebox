@@ -314,7 +314,7 @@ namespace
             state::resume(core);
             state::wait(core);
         }
-        pcap.write(capture_path.data());
+        pcap.write(capture_path);
 
         return 0;
     }
