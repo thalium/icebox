@@ -50,7 +50,7 @@ namespace symbols
         bool    remove  (proc_t proc, const std::string& module);
 
         bool            list        (proc_t proc, const on_module_fn& on_module);
-        Module*         find        (proc_t proc, const std::string& name);
+        Module*         find        (proc_t proc, const std::string& module);
         opt<uint64_t>   address     (proc_t proc, const std::string& module, const std::string& symbol);
         opt<size_t>     struc_offset(proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
         opt<size_t>     struc_size  (proc_t proc, const std::string& module, const std::string& struc);

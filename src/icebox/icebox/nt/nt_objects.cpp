@@ -463,29 +463,29 @@ namespace
     }
 }
 
-opt<objects::control_area_t> objects::section_control_area(Data& d, section_t obj)
+opt<objects::control_area_t> objects::section_control_area(Data& d, section_t section)
 {
-    const auto section = read_as<nt::_SECTION>(d, obj.id);
-    if(!section)
+    const auto sec = read_as<nt::_SECTION>(d, section.id);
+    if(!sec)
         return {};
 
-    return control_area_t{section->u.ControlArea};
+    return control_area_t{sec->u.ControlArea};
 }
 
-opt<objects::segment_t> objects::control_area_segment(Data& d, control_area_t obj)
+opt<objects::segment_t> objects::control_area_segment(Data& d, control_area_t control_area)
 {
-    const auto control_area = read_as<nt::_CONTROL_AREA>(d, obj.id);
-    if(!control_area)
+    const auto ctl_area = read_as<nt::_CONTROL_AREA>(d, control_area.id);
+    if(!ctl_area)
         return {};
 
-    return segment_t{control_area->Segment};
+    return segment_t{ctl_area->Segment};
 }
 
-opt<span_t> objects::segment_span(Data& d, segment_t obj)
+opt<span_t> objects::segment_span(Data& d, segment_t segment)
 {
-    const auto segment = read_as<nt::_SEGMENT>(d, obj.id);
-    if(!segment)
+    const auto seg = read_as<nt::_SEGMENT>(d, segment.id);
+    if(!seg)
         return {};
 
-    return span_t{segment->u.BasedAddress, segment->SizeOfSegment};
+    return span_t{seg->u.BasedAddress, seg->SizeOfSegment};
 }

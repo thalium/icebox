@@ -201,12 +201,12 @@ namespace
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
-        opt<bpid_t> listen_proc_create  (const process::on_event_fn& on_proc_event) override;
-        opt<bpid_t> listen_proc_delete  (const process::on_event_fn& on_proc_event) override;
-        opt<bpid_t> listen_thread_create(const threads::on_event_fn& on_thread_event) override;
-        opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_thread_event) override;
+        opt<bpid_t> listen_proc_create  (const process::on_event_fn& on_create) override;
+        opt<bpid_t> listen_proc_delete  (const process::on_event_fn& on_delete) override;
+        opt<bpid_t> listen_thread_create(const threads::on_event_fn& on_create) override;
+        opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_delete) override;
         opt<bpid_t> listen_mod_create   (proc_t proc, flags_t flags, const modules::on_event_fn& on_load) override;
-        opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_drv) override;
+        opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_load) override;
         size_t      unlisten            (bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
@@ -742,38 +742,38 @@ namespace
     }
 }
 
-opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_t flags, const modules::on_event_fn& on_mod)
+opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_t flags, const modules::on_event_fn& on_load)
 {
     const auto bpid = ++last_bpid_;
     const auto name = "ntdll!LdrpProcessMappedModule";
     if(flags.is_x86)
     {
-        const auto opt_bpid = try_on_LdrpProcessMappedModule(*this, proc, bpid, on_mod);
+        const auto opt_bpid = try_on_LdrpProcessMappedModule(*this, proc, bpid, on_load);
         if(opt_bpid)
             return opt_bpid;
 
         const auto bp = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
         {
-            on_LdrpInsertDataTableEntry_wow64(*this, proc, bpid, on_mod);
+            on_LdrpInsertDataTableEntry_wow64(*this, proc, bpid, on_load);
         });
         return replace_bp(*this, bpid, bp);
     }
 
     const auto bp = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
     {
-        on_LdrpInsertDataTableEntry(*this, bpid, on_mod);
+        on_LdrpInsertDataTableEntry(*this, bpid, on_load);
     });
     return replace_bp(*this, bpid, bp);
 }
 
-opt<bpid_t> NtOs::listen_drv_create(const drivers::on_event_fn& on_drv)
+opt<bpid_t> NtOs::listen_drv_create(const drivers::on_event_fn& on_load)
 {
     const auto bpid = ++last_bpid_;
-    const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_drv, [](NtOs& os, bpid_t /*bpid*/, const auto& on_drv)
+    const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_load, [](NtOs& os, bpid_t /*bpid*/, const auto& on_load)
     {
         const auto drv_addr   = registers::read(os.core_, reg_e::rcx);
         const auto drv_loaded = registers::read(os.core_, reg_e::rdx);
-        on_drv({drv_addr}, drv_loaded);
+        on_load({drv_addr}, drv_loaded);
     });
     if(!ok)
         return {};

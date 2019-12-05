@@ -35,6 +35,8 @@ if(${USE_STATIC_ANALYZER})
 	"-readability-braces-around-statements"
 	"-readability-implicit-bool-conversion"
 	"-readability-magic-numbers"
+	# buggy in clang-tidy-8
+	"-readability-simplify-boolean-expr"
 	# enable those in separate commits
 	"-readability-static-definition-in-anonymous-namespace"
 	"-readability-named-parameter"
@@ -42,8 +44,6 @@ if(${USE_STATIC_ANALYZER})
 	"-modernize-avoid-c-arrays"
 	"-readability-isolate-declaration"
 	"-readability-uppercase-literal-suffix"
-	"-readability-inconsistent-declaration-parameter-name"
-	"-readability-simplify-boolean-expr"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()

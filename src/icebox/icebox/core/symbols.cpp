@@ -151,17 +151,17 @@ namespace
     }
 }
 
-bool symbols::Modules::insert(proc_t proc, const std::string& name, span_t module)
+bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span)
 {
     // do not reload known modules
     auto& d = *d_;
-    if(has_module(d, name, {proc, symbols::kernel}, module))
+    if(has_module(d, module, {proc, symbols::kernel}, span))
         return true;
 
     const auto reader = is_kernel_proc(proc) ? reader::make(d.core) : reader::make(d.core, proc);
     for(const auto& h : g_helpers)
     {
-        const auto opt_id = h.identify(module, reader);
+        const auto opt_id = h.identify(span, reader);
         if(!opt_id)
             continue;
 
@@ -175,7 +175,7 @@ bool symbols::Modules::insert(proc_t proc, const std::string& name, span_t modul
         if(!mod)
             continue;
 
-        return insert_module(d, proc, name, module, mod, is_cached ? insert_e::cached : insert_e::loaded);
+        return insert_module(d, proc, module, span, mod, is_cached ? insert_e::cached : insert_e::loaded);
     }
     return false;
 }
@@ -191,10 +191,10 @@ namespace
     }
 }
 
-bool symbols::Modules::remove(proc_t proc, const std::string& name)
+bool symbols::Modules::remove(proc_t proc, const std::string& module)
 {
     auto& d       = *d_;
-    const auto it = d.mods.find({name, proc});
+    const auto it = d.mods.find({module, proc});
     if(it == d.mods.end())
         return false;
 
@@ -234,9 +234,9 @@ namespace
     }
 }
 
-symbols::Module* symbols::Modules::find(proc_t proc, const std::string& name)
+symbols::Module* symbols::Modules::find(proc_t proc, const std::string& module)
 {
-    const auto it = find_module(*d_, proc, name);
+    const auto it = find_module(*d_, proc, module);
     return it ? it->module.get() : nullptr;
 }
 
@@ -370,9 +370,9 @@ std::string symbols::to_string(const symbols::Symbol& symbol)
     return to_offset(0, symbol.offset);
 }
 
-bool symbols::load_module_at(core::Core& core, proc_t proc, const std::string& name, span_t module)
+bool symbols::load_module_at(core::Core& core, proc_t proc, const std::string& module, span_t span)
 {
-    return core.symbols_->insert(proc, name, module);
+    return core.symbols_->insert(proc, module, span);
 }
 
 namespace
@@ -422,9 +422,9 @@ opt<symbols::bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
     });
 }
 
-bool symbols::load_driver_at(core::Core& core, const std::string& name, span_t driver)
+bool symbols::load_driver_at(core::Core& core, const std::string& driver, span_t span)
 {
-    return core.symbols_->insert(symbols::kernel, name, driver);
+    return core.symbols_->insert(symbols::kernel, driver, span);
 }
 
 bool symbols::load_driver(core::Core& core, driver_t driver)
@@ -451,9 +451,9 @@ bool symbols::load_drivers(core::Core& core)
     return true;
 }
 
-bool symbols::unload(core::Core& core, proc_t proc, const std::string& name)
+bool symbols::unload(core::Core& core, proc_t proc, const std::string& module)
 {
-    return core.symbols_->remove(proc, name);
+    return core.symbols_->remove(proc, module);
 }
 
 opt<uint64_t> symbols::address(core::Core& core, proc_t proc, const std::string& module, const std::string& symbol)

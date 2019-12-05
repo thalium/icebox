@@ -707,10 +707,10 @@ namespace
     }
 }
 
-size_t NtCallstacks::read_from(caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+size_t NtCallstacks::read_from(caller_t* callers, size_t num_callers, proc_t proc, const context_t& where)
 {
     memset(callers, 0, num_callers * sizeof *callers);
-    return read_callers(*this, callers, num_callers, proc, first);
+    return read_callers(*this, callers, num_callers, proc, where);
 }
 
 size_t NtCallstacks::read(caller_t* callers, size_t num_callers, proc_t proc)

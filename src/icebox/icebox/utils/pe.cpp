@@ -209,9 +209,9 @@ opt<span_t> pe::find_image_directory(const reader::Reader& reader, const span_t 
     return span_t{span.addr + *virtual_address, *size};
 }
 
-opt<span_t> pe::find_debug_codeview(const reader::Reader& reader, span_t module)
+opt<span_t> pe::find_debug_codeview(const reader::Reader& reader, span_t span)
 {
-    const auto directory = find_image_directory(reader, module, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
+    const auto directory = find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
     if(!directory)
         return {};
 
@@ -227,7 +227,7 @@ opt<span_t> pe::find_debug_codeview(const reader::Reader& reader, span_t module)
     if(!addr || !size)
         return {};
 
-    return span_t{module.addr + *addr, *size};
+    return span_t{span.addr + *addr, *size};
 }
 
 opt<size_t> pe::read_image_size(const void* vsrc, size_t size)

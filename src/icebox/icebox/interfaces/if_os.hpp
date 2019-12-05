@@ -54,10 +54,10 @@ namespace os
         virtual opt<std::string>    driver_name (driver_t drv) = 0;
         virtual opt<span_t>         driver_span (driver_t drv) = 0;
 
-        virtual opt<bpid_t> listen_proc_create  (const process::on_event_fn& on_proc_event) = 0;
-        virtual opt<bpid_t> listen_proc_delete  (const process::on_event_fn& on_proc_event) = 0;
-        virtual opt<bpid_t> listen_thread_create(const threads::on_event_fn& on_thread_event) = 0;
-        virtual opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_thread_event) = 0;
+        virtual opt<bpid_t> listen_proc_create  (const process::on_event_fn& on_create) = 0;
+        virtual opt<bpid_t> listen_proc_delete  (const process::on_event_fn& on_delete) = 0;
+        virtual opt<bpid_t> listen_thread_create(const threads::on_event_fn& on_create) = 0;
+        virtual opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_delete) = 0;
         virtual opt<bpid_t> listen_mod_create   (proc_t proc, flags_t flags, const modules::on_event_fn& on_load) = 0;
         virtual opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_load) = 0;
         virtual size_t      unlisten            (bpid_t bpid) = 0;
