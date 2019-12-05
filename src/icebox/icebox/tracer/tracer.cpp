@@ -12,7 +12,7 @@
 
 namespace
 {
-    static uint64_t read_arg(core::Core& core, size_t i, size_t size)
+    uint64_t read_arg(core::Core& core, size_t i, size_t size)
     {
         const auto arg = functions::read_arg(core, i);
         if(!arg)
@@ -21,7 +21,7 @@ namespace
         return arg->val & (~uint64_t(0) >> (64 - size * 8));
     }
 
-    static std::string join(const std::vector<std::string>& args, const std::string& sep)
+    std::string join(const std::vector<std::string>& args, const std::string& sep)
     {
         std::string reply;
         if(args.empty())

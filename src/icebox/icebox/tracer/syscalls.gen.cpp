@@ -11,7 +11,7 @@ namespace
 {
     constexpr bool g_debug = false;
 
-    static const nt::syscalls::callcfgs_t g_callcfgs =
+    constexpr nt::syscalls::callcfgs_t g_callcfgs =
     {{
         {"NtAcceptConnectPort", 6, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"PVOID", "PortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ConnectionRequest", sizeof(nt::PPORT_MESSAGE)}, {"BOOLEAN", "AcceptConnection", sizeof(nt::BOOLEAN)}, {"PPORT_VIEW", "ServerView", sizeof(nt::PPORT_VIEW)}, {"PREMOTE_PORT_VIEW", "ClientView", sizeof(nt::PREMOTE_PORT_VIEW)}}},
         {"NtAddDriverEntry", 2, {{"PEFI_DRIVER_ENTRY", "DriverEntry", sizeof(nt::PEFI_DRIVER_ENTRY)}, {"PULONG", "Id", sizeof(nt::PULONG)}}},
@@ -449,7 +449,7 @@ const nt::syscalls::callcfgs_t& nt::syscalls::callcfgs()
 
 namespace
 {
-    static opt<bpid_t> register_callback(nt::syscalls::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
+    opt<bpid_t> register_callback(nt::syscalls::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
     {
         const auto addr = symbols::address(d.core, proc, d.module, name);
         if(!addr)
@@ -464,7 +464,7 @@ namespace
     }
 
     template <typename T>
-    static T arg(core::Core& core, size_t i)
+    T arg(core::Core& core, size_t i)
     {
         const auto arg = functions::read_arg(core, i);
         if(!arg)

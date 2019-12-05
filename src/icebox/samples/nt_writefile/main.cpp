@@ -11,7 +11,7 @@
 
 namespace
 {
-    static bool read_file(std::vector<uint8_t>& dst, const reader::Reader& reader, nt::PVOID Buffer, nt::ULONG Length)
+    bool read_file(std::vector<uint8_t>& dst, const reader::Reader& reader, nt::PVOID Buffer, nt::ULONG Length)
     {
         if(Length > 64 * 1024 * 1024)
             return FAIL(false, "buffer too big size:%d", Length);
@@ -24,7 +24,7 @@ namespace
         return true;
     }
 
-    static opt<std::string> read_filename(objects::Data& d, nt::HANDLE FileHandle)
+    opt<std::string> read_filename(objects::Data& d, nt::HANDLE FileHandle)
     {
         const auto file = objects::file_read(d, FileHandle);
         if(!file)
@@ -37,7 +37,7 @@ namespace
         return *filename;
     }
 
-    static int listen_writefile(core::Core& core, const std::string& target)
+    int listen_writefile(core::Core& core, const std::string& target)
     {
         LOG(INFO, "waiting for %s...", target.data());
         const auto proc = process::wait(core, target, flags::x64);

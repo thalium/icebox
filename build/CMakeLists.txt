@@ -39,8 +39,6 @@ if(${USE_STATIC_ANALYZER})
         "-readability-implicit-bool-conversion"
         # buggy in clang-tidy-8
         "-readability-simplify-boolean-expr"
-        # enable those in separate commits
-        "-readability-static-definition-in-anonymous-namespace"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()

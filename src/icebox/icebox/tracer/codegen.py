@@ -128,7 +128,7 @@ namespace
 {{
     constexpr bool g_debug = false;
 
-    static const {namespace}::{filename}::callcfgs_t g_callcfgs =
+    constexpr {namespace}::{filename}::callcfgs_t g_callcfgs =
     {{{{
 {callers}
     }}}};
@@ -168,7 +168,7 @@ const {namespace}::{filename}::callcfgs_t& {namespace}::{filename}::callcfgs()
 
 namespace
 {{
-    static opt<bpid_t> register_callback({namespace}::{filename}::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
+    opt<bpid_t> register_callback({namespace}::{filename}::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
     {{
         const auto addr = symbols::address(d.core, proc, d.module, name);
         if(!addr)
@@ -183,7 +183,7 @@ namespace
     }}
 
     template <typename T>
-    static T arg(core::Core& core, size_t i)
+    T arg(core::Core& core, size_t i)
     {{
         const auto arg = functions::read_arg(core, i);
         if(!arg)

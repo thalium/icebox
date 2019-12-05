@@ -11,7 +11,7 @@ namespace
 {
     constexpr bool g_debug = false;
 
-    static const nt::heaps::callcfgs_t g_callcfgs =
+    constexpr nt::heaps::callcfgs_t g_callcfgs =
     {{
         {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
         {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}, {"PULONG", "UserFlags", sizeof(nt::PULONG)}}},
@@ -56,7 +56,7 @@ const nt::heaps::callcfgs_t& nt::heaps::callcfgs()
 
 namespace
 {
-    static opt<bpid_t> register_callback(nt::heaps::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
+    opt<bpid_t> register_callback(nt::heaps::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
     {
         const auto addr = symbols::address(d.core, proc, d.module, name);
         if(!addr)
@@ -71,7 +71,7 @@ namespace
     }
 
     template <typename T>
-    static T arg(core::Core& core, size_t i)
+    T arg(core::Core& core, size_t i)
     {
         const auto arg = functions::read_arg(core, i);
         if(!arg)

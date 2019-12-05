@@ -27,7 +27,7 @@ namespace
         return ~(~uint64_t(0) << bits);
     }
 
-    static opt<phy_t> slow_virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb)
+    opt<phy_t> slow_virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb)
     {
         const virt_t virt     = {read_le64(&ptr)};
         const auto pml4e_base = dtb.val & (mask(40) << 12);
@@ -87,7 +87,7 @@ namespace
         return phy_t{phy};
     }
 
-    static bool inject_page_fault(core::Core& core, dtb_t /*dtb*/, uint64_t src, bool user_mode)
+    bool inject_page_fault(core::Core& core, dtb_t /*dtb*/, uint64_t src, bool user_mode)
     {
         const auto code     = user_mode ? 1 << 2 : 0;
         const auto injected = fdp::inject_interrupt(core, PAGE_FAULT, code, src);
@@ -98,7 +98,7 @@ namespace
         return true;
     }
 
-    static opt<phy_t> try_virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb)
+    opt<phy_t> try_virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb)
     {
         const auto ret = fdp::virtual_to_physical(core, dtb, ptr);
         if(ret && ret->val)
@@ -133,7 +133,7 @@ opt<phy_t> memory::virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb
 namespace
 {
     template <typename T>
-    static bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
+    bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
     {
         uint8_t buffer[PAGE_SIZE];
         size_t fill = 0;
@@ -154,7 +154,7 @@ namespace
         return true;
     }
 
-    static bool read_virtual(core::Core& core, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
+    bool read_virtual(core::Core& core, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
     {
         const auto full = fdp::read_virtual(core, dst, size, dtb, src);
         if(full)
@@ -177,7 +177,7 @@ namespace
         });
     }
 
-    static bool read_physical(core::Core& core, uint8_t* dst, uint64_t src, size_t size)
+    bool read_physical(core::Core& core, uint8_t* dst, uint64_t src, size_t size)
     {
         return read_pages("physical", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {

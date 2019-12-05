@@ -229,7 +229,7 @@ TEST_F(win10, modules)
 namespace
 {
     template <typename T>
-    static void run_until(core::Core& core, T predicate)
+    void run_until(core::Core& core, T predicate)
     {
         const auto now = std::chrono::high_resolution_clock::now();
         const auto end = now + std::chrono::minutes(8);
@@ -458,7 +458,7 @@ TEST_F(win10, tracer)
 
 namespace
 {
-    static std::string dump_address(core::Core& core, proc_t proc, uint64_t addr)
+    std::string dump_address(core::Core& core, proc_t proc, uint64_t addr)
     {
         const auto symbol = symbols::find(core, proc, addr);
         return symbols::to_string(symbol);

@@ -56,7 +56,7 @@ bool modules::is_equal(core::Core& core, proc_t proc, mod_t mod, flags_t flags, 
 
 namespace
 {
-    static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_t flags)
+    opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_t flags)
     {
         opt<mod_t> found;
         modules::list(core, proc, [&](mod_t mod)

@@ -241,12 +241,12 @@ NtOs::NtOs(core::Core& core)
 
 namespace
 {
-    static bool is_kernel(uint64_t ptr)
+    bool is_kernel(uint64_t ptr)
     {
         return !!(ptr & 0xFFF0000000000000);
     }
 
-    static opt<span_t> find_kernel_at(core::Core& core, uint64_t needle)
+    opt<span_t> find_kernel_at(core::Core& core, uint64_t needle)
     {
         uint8_t buf[PAGE_SIZE];
         for(auto ptr = utils::align<PAGE_SIZE>(needle); ptr < needle; ptr -= PAGE_SIZE)
@@ -265,7 +265,7 @@ namespace
         return {};
     }
 
-    static opt<span_t> find_kernel(NtOs& os, core::Core& core)
+    opt<span_t> find_kernel(NtOs& os, core::Core& core)
     {
         // try until we get a CR3 able to read kernel base address & size
         const auto lstar = registers::read_msr(core, msr_e::lstar);
@@ -283,7 +283,7 @@ namespace
         return {};
     }
 
-    static bool read_phy_symbol(NtOs& os, phy_t& dst, proc_t proc, const char* module, const char* name)
+    bool read_phy_symbol(NtOs& os, phy_t& dst, proc_t proc, const char* module, const char* name)
     {
         const auto where = symbols::address(os.core_, symbols::kernel, module, name);
         if(!where)
@@ -297,7 +297,7 @@ namespace
         return true;
     }
 
-    static bool try_load_ntdll(NtOs& os, core::Core& core)
+    bool try_load_ntdll(NtOs& os, core::Core& core)
     {
         const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
         auto bp                = state::break_on(core, "KiKernelSysretExit", sysret_exit, {});
@@ -449,7 +449,7 @@ std::unique_ptr<os::Module> os::make_nt(core::Core& core)
 
 namespace
 {
-    static opt<dtb_t> get_user_dtb(NtOs& os, uint64_t kprocess)
+    opt<dtb_t> get_user_dtb(NtOs& os, uint64_t kprocess)
     {
         const auto dtb = os.reader_.read(kprocess + os.offsets_[KPROCESS_UserDirectoryTableBase]);
         if(dtb && *dtb != 0 && *dtb != 1)
@@ -465,7 +465,7 @@ namespace
         return dtb_t{*kdtb};
     }
 
-    static opt<proc_t> make_proc(NtOs& os, uint64_t eproc)
+    opt<proc_t> make_proc(NtOs& os, uint64_t eproc)
     {
         const auto dtb = get_user_dtb(os, eproc + os.offsets_[EPROCESS_Pcb]);
         if(!dtb)
@@ -540,7 +540,7 @@ opt<proc_t> NtOs::proc_find(uint64_t pid)
 
 namespace
 {
-    static opt<uint64_t> read_wow64_peb(const NtOs& os, const reader::Reader& reader, proc_t proc)
+    opt<uint64_t> read_wow64_peb(const NtOs& os, const reader::Reader& reader, proc_t proc)
     {
         const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
@@ -598,7 +598,7 @@ uint64_t NtOs::proc_id(proc_t proc)
 namespace
 {
     template <typename T, typename U, typename V>
-    static opt<bpid_t> listen_to(NtOs& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
+    opt<bpid_t> listen_to(NtOs& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
     {
         const auto osptr = &os;
         const auto bp    = state::break_on(os.core_, name, addr, [=]
@@ -613,25 +613,25 @@ namespace
     }
 
     template <typename T>
-    static opt<bpid_t> register_listener(NtOs& os, std::string_view name, uint64_t addr, const T& on_value, void (*callback)(NtOs&, bpid_t, const T&))
+    opt<bpid_t> register_listener(NtOs& os, std::string_view name, uint64_t addr, const T& on_value, void (*callback)(NtOs&, bpid_t, const T&))
     {
         return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
     }
 
-    static void on_PspInsertThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
+    void on_PspInsertThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, reg_e::rcx);
         on_thread({thread});
     }
 
-    static void on_PspExitProcess(NtOs& os, bpid_t /*bpid*/, const process::on_event_fn& on_proc)
+    void on_PspExitProcess(NtOs& os, bpid_t /*bpid*/, const process::on_event_fn& on_proc)
     {
         const auto eproc = registers::read(os.core_, reg_e::rdx);
         if(const auto proc = make_proc(os, eproc))
             on_proc(*proc);
     }
 
-    static void on_PspExitThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
+    void on_PspExitThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
     {
         if(const auto thread = os.thread_current())
             on_thread(*thread);
@@ -672,7 +672,7 @@ namespace
 {
     constexpr auto x86_cs = 0x23;
 
-    static void on_LdrpInsertDataTableEntry(NtOs& os, bpid_t /*bpid*/, const modules::on_event_fn& on_mod)
+    void on_LdrpInsertDataTableEntry(NtOs& os, bpid_t /*bpid*/, const modules::on_event_fn& on_mod)
     {
         const auto cs       = registers::read(os.core_, reg_e::cs);
         const auto is_32bit = cs == x86_cs;
@@ -684,7 +684,7 @@ namespace
         on_mod({mod_addr, flags});
     }
 
-    static opt<bpid_t> replace_bp(NtOs& os, bpid_t bpid, const state::Breakpoint& bp)
+    opt<bpid_t> replace_bp(NtOs& os, bpid_t bpid, const state::Breakpoint& bp)
     {
         os.breakpoints_.erase(bpid);
         if(!bp)
@@ -694,7 +694,7 @@ namespace
         return bpid;
     }
 
-    static opt<bpid_t> try_on_LdrpProcessMappedModule(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
+    opt<bpid_t> try_on_LdrpProcessMappedModule(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
         const auto where = symbols::address(os.core_, proc, "wntdll", "_LdrpProcessMappedModule@16");
         if(!where)
@@ -708,7 +708,7 @@ namespace
         return replace_bp(os, bpid, bp);
     }
 
-    static void on_LdrpInsertDataTableEntry_wow64(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
+    void on_LdrpInsertDataTableEntry_wow64(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
     {
         const auto objects = objects::make(os.core_, proc);
         if(!objects)
@@ -788,7 +788,7 @@ size_t NtOs::unlisten(bpid_t bpid)
 
 namespace
 {
-    static opt<walk_e> mod_list_64(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
+    opt<walk_e> mod_list_64(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
     {
         const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
@@ -817,7 +817,7 @@ namespace
         return walk_e::next;
     }
 
-    static opt<walk_e> mod_list_32(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
+    opt<walk_e> mod_list_32(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
     {
         const auto peb32 = read_wow64_peb(os, reader, proc);
         if(!peb32)
@@ -908,7 +908,7 @@ flags_t NtOs::proc_flags(proc_t proc)
 namespace
 {
     template <typename T>
-    static opt<span_t> read_ldr_span(const reader::Reader& reader, uint64_t ptr)
+    opt<span_t> read_ldr_span(const reader::Reader& reader, uint64_t ptr)
     {
         auto entry    = T{};
         const auto ok = reader.read_all(&entry, ptr, sizeof entry);
@@ -942,7 +942,7 @@ namespace
             VMA_ACCESS_EXEC | VMA_ACCESS_COPY_ON_WRITE,           // PAGE_EXECUTE_WRITECOPY
     };
 
-    static nt::_LARGE_INTEGER vad_starting(const nt::_MMVAD_SHORT& vad)
+    nt::_LARGE_INTEGER vad_starting(const nt::_MMVAD_SHORT& vad)
     {
         auto ret       = nt::_LARGE_INTEGER{};
         ret.u.LowPart  = vad.StartingVpn;
@@ -950,7 +950,7 @@ namespace
         return ret;
     }
 
-    static nt::_LARGE_INTEGER vad_ending(const nt::_MMVAD_SHORT& vad)
+    nt::_LARGE_INTEGER vad_ending(const nt::_MMVAD_SHORT& vad)
     {
         auto ret       = nt::_LARGE_INTEGER{};
         ret.u.LowPart  = vad.EndingVpn;
@@ -958,7 +958,7 @@ namespace
         return ret;
     }
 
-    static uint64_t get_mmvad(const reader::Reader& reader, uint64_t current_vad, uint64_t addr)
+    uint64_t get_mmvad(const reader::Reader& reader, uint64_t current_vad, uint64_t addr)
     {
         auto vad      = nt::_MMVAD_SHORT{};
         const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
@@ -977,7 +977,7 @@ namespace
         return get_mmvad(reader, node, addr);
     }
 
-    static opt<span_t> get_vad_span(const reader::Reader& reader, uint64_t current_vad)
+    opt<span_t> get_vad_span(const reader::Reader& reader, uint64_t current_vad)
     {
         auto vad      = nt::_MMVAD_SHORT{};
         const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
@@ -989,7 +989,7 @@ namespace
         return span_t{starting_vpn.QuadPart << 12, ((ending_vpn.QuadPart - starting_vpn.QuadPart) + 1) << 12};
     }
 
-    static bool rec_walk_vad_tree(const reader::Reader& reader, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
+    bool rec_walk_vad_tree(const reader::Reader& reader, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
     {
         auto vad      = nt::_MMVAD_SHORT{};
         const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
@@ -1161,12 +1161,12 @@ uint64_t NtOs::thread_id(proc_t /*proc*/, thread_t thread)
 
 namespace
 {
-    static void proc_join_kernel(NtOs& os, proc_t proc)
+    void proc_join_kernel(NtOs& os, proc_t proc)
     {
         state::run_to_proc(os.core_, "proc_join_kernel", proc);
     }
 
-    static void proc_join_user(NtOs& os, proc_t proc)
+    void proc_join_user(NtOs& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
@@ -1175,7 +1175,7 @@ namespace
         state::run_to_proc_at(os.core_, "return KiKernelSysretExit", proc, rip);
     }
 
-    static bool is_user_mode(uint64_t cs)
+    bool is_user_mode(uint64_t cs)
     {
         return !!(cs & 3);
     }
@@ -1265,7 +1265,7 @@ bool NtOs::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 
 namespace
 {
-    static opt<arg_t> to_arg(opt<uint64_t> arg)
+    opt<arg_t> to_arg(opt<uint64_t> arg)
     {
         if(!arg)
             return {};
@@ -1273,39 +1273,39 @@ namespace
         return arg_t{*arg};
     }
 
-    static opt<arg_t> read_stack32(const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_stack32(const reader::Reader& reader, uint64_t sp, size_t index)
     {
         return to_arg(reader.le32(sp + index * sizeof(uint32_t)));
     }
 
-    static bool write_stack32(core::Core& /*core*/, size_t /*index*/, uint32_t /*arg*/)
+    bool write_stack32(core::Core& /*core*/, size_t /*index*/, uint32_t /*arg*/)
     {
         LOG(ERROR, "not implemented");
         return false;
     }
 
-    static opt<arg_t> read_stack64(const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_stack64(const reader::Reader& reader, uint64_t sp, size_t index)
     {
         return to_arg(reader.le64(sp + index * sizeof(uint64_t)));
     }
 
-    static bool write_stack64(core::Core& /*core*/, size_t /*index*/, uint64_t /*arg*/)
+    bool write_stack64(core::Core& /*core*/, size_t /*index*/, uint64_t /*arg*/)
     {
         LOG(ERROR, "not implemented");
         return false;
     }
 
-    static opt<arg_t> read_arg32(const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_arg32(const reader::Reader& reader, uint64_t sp, size_t index)
     {
         return read_stack32(reader, sp, index + 1);
     }
 
-    static bool write_arg32(core::Core& core, size_t index, arg_t arg)
+    bool write_arg32(core::Core& core, size_t index, arg_t arg)
     {
         return write_stack32(core, index + 1, static_cast<uint32_t>(arg.val));
     }
 
-    static opt<arg_t> read_arg64(core::Core& core, const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_arg64(core::Core& core, const reader::Reader& reader, uint64_t sp, size_t index)
     {
         switch(index)
         {
@@ -1317,7 +1317,7 @@ namespace
         }
     }
 
-    static bool write_arg64(core::Core& core, size_t index, arg_t arg)
+    bool write_arg64(core::Core& core, size_t index, arg_t arg)
     {
         switch(index)
         {
@@ -1366,7 +1366,7 @@ bool NtOs::write_arg(size_t index, arg_t arg)
 
 namespace
 {
-    static const char* irql_to_text(uint8_t value)
+    const char* irql_to_text(uint8_t value)
     {
         switch(value)
         {
@@ -1377,7 +1377,7 @@ namespace
         return "?";
     }
 
-    static std::string to_hex(uint64_t x)
+    std::string to_hex(uint64_t x)
     {
         char buf[sizeof x * 2 + 1];
         return hex::convert<hex::LowerCase | hex::RemovePadding>(buf, x);

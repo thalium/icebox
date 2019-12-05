@@ -13,12 +13,12 @@ extern "C"
 
 namespace
 {
-    static fdp::shm* cast(FDP_SHM* shm)
+    fdp::shm* cast(FDP_SHM* shm)
     {
         return reinterpret_cast<fdp::shm*>(shm);
     }
 
-    static FDP_SHM* cast(fdp::shm* shm)
+    FDP_SHM* cast(fdp::shm* shm)
     {
         return reinterpret_cast<FDP_SHM*>(shm);
     }
@@ -103,7 +103,7 @@ bool fdp::read_physical(core::Core& core, void* vdst, size_t size, phy_t phy)
 namespace
 {
     template <typename T>
-    static auto switch_dtb(core::Core& core, dtb_t dtb, T operand)
+    auto switch_dtb(core::Core& core, dtb_t dtb, T operand)
     {
         const auto backup      = fdp::read_register(core, reg_e::cr3);
         const auto need_switch = backup && *backup != dtb.val;
@@ -187,7 +187,7 @@ opt<uint64_t> fdp::read_register(core::Core& core, reg_e reg)
 
 namespace
 {
-    static uint64_t cast(msr_e reg)
+    uint64_t cast(msr_e reg)
     {
         return static_cast<uint64_t>(reg);
     }

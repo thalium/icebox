@@ -26,7 +26,7 @@ namespace
         std::unique_ptr<os::Module>         (*make)             (core::Core& core);
         std::unique_ptr<callstacks::Module> (*make_callstacks)  (core::Core& core);
     };
-    static const interfaces_t g_interfaces[] =
+    const interfaces_t g_interfaces[] =
     {
             {
                 "nt",
@@ -40,7 +40,7 @@ namespace
             },
     };
 
-    static auto setup(core::Core& core, const std::string& name)
+    auto setup(core::Core& core, const std::string& name)
     {
         core.shm_ = fdp::setup(name);
         if(!core.shm_)

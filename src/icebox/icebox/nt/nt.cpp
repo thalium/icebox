@@ -10,7 +10,7 @@
 namespace
 {
     template <typename T>
-    static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr)
+    opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr)
     {
         T str;
         auto ok = reader.read_all(&str, addr, sizeof str);

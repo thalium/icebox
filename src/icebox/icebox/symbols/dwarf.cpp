@@ -38,7 +38,7 @@ namespace
 
 namespace
 {
-    static bool open_file(Dwarf& p)
+    bool open_file(Dwarf& p)
     {
         const auto ok = dwarf_init_path(
             p.filename_.generic_string().data(), // path
@@ -64,7 +64,7 @@ namespace
         return true;
     }
 
-    static opt<std::vector<Dwarf_Die>> read_cu(Dwarf& p)
+    opt<std::vector<Dwarf_Die>> read_cu(Dwarf& p)
     {
         auto cu = std::vector<Dwarf_Die>();
         Dwarf_Unsigned cu_offset;
@@ -113,7 +113,7 @@ namespace
     }
 
     template <typename T>
-    static bool read_children(Dwarf& p, const Dwarf_Die& parent, T on_child)
+    bool read_children(Dwarf& p, const Dwarf_Die& parent, T on_child)
     {
         Dwarf_Die child = nullptr;
         auto ok         = dwarf_child(parent, &child, &p.err);
@@ -131,7 +131,7 @@ namespace
         return true;
     }
 
-    static opt<Dwarf_Die> get_member(Dwarf& p, const std::string& name, const Dwarf_Die& structure)
+    opt<Dwarf_Die> get_member(Dwarf& p, const std::string& name, const Dwarf_Die& structure)
     {
         opt<Dwarf_Die> result_member = {};
         read_children(p, structure, [&](const Dwarf_Die& member)
@@ -185,7 +185,7 @@ namespace
     }
 
     template <typename T>
-    static bool get_structure(Dwarf& p, const std::string& name, T on_structure)
+    bool get_structure(Dwarf& p, const std::string& name, T on_structure)
     {
         if(name.empty())
             return false;
@@ -234,7 +234,7 @@ namespace
         return false;
     }
 
-    static opt<uint64_t> get_attr_member_location(Dwarf& p, const Dwarf_Die& die)
+    opt<uint64_t> get_attr_member_location(Dwarf& p, const Dwarf_Die& die)
     {
         Dwarf_Attribute attr = nullptr;
         const auto ok        = dwarf_attr(die, DW_AT_data_member_location, &attr, &p.err);
@@ -289,7 +289,7 @@ namespace
         return (uint64_t) offset;
     }
 
-    static opt<size_t> struc_size_internal(Dwarf& p, const Dwarf_Die& struc)
+    opt<size_t> struc_size_internal(Dwarf& p, const Dwarf_Die& struc)
     {
         Dwarf_Unsigned size;
         const auto ok = dwarf_bytesize(struc, &size, &p.err);

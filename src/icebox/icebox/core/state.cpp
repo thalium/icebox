@@ -257,7 +257,7 @@ namespace
         return true;
     }
 
-    static bool update_break_state(Data& d)
+    bool update_break_state(Data& d)
     {
         memset(&d.breakstate, 0, sizeof d.breakstate);
         const auto thread = threads::current(d.core);
@@ -283,7 +283,7 @@ namespace
         return true;
     }
 
-    static bool try_pause(Data& d)
+    bool try_pause(Data& d)
     {
         const auto state = fdp::state(d.core);
         if(!state)
@@ -300,12 +300,12 @@ namespace
         return updated;
     }
 
-    static bool try_single_step(core::Core& core)
+    bool try_single_step(core::Core& core)
     {
         return fdp::step_once(core);
     }
 
-    static bool try_resume(Data& d)
+    bool try_resume(Data& d)
     {
         const auto state = fdp::state(d.core);
         if(!state)
@@ -344,7 +344,7 @@ bool state::single_step(core::Core& core)
 namespace
 {
     template <typename T>
-    static void lookup_observers(Observers& observers, phy_t phy, T operand)
+    void lookup_observers(Observers& observers, phy_t phy, T operand)
     {
         // fast observer lookup while allowing current iterator deletion
         const auto end = observers.end();
@@ -398,7 +398,7 @@ struct state::BreakpointPrivate
 
 namespace
 {
-    static void check_breakpoints(Data& d)
+    void check_breakpoints(Data& d)
     {
         const auto state = fdp::state(d.core);
         if(!state)
@@ -437,7 +437,7 @@ namespace
         skip,
     };
 
-    static bool try_wait(Data& d, state_e state, breakpoints_e check)
+    bool try_wait(Data& d, state_e state, breakpoints_e check)
     {
         while(true)
         {
@@ -474,7 +474,7 @@ void state::wait_for(core::Core& core, int timeout_ms)
 
 namespace
 {
-    static opt<dtb_t> get_dtb_filter(core::Core& core, const BreakpointObserver& bp)
+    opt<dtb_t> get_dtb_filter(core::Core& core, const BreakpointObserver& bp)
     {
         if(bp.proc)
             return bp.proc->dtb;
@@ -489,7 +489,7 @@ namespace
         return proc->dtb;
     }
 
-    static opt<int> try_add_breakpoint(core::Core& core, std::string_view name, phy_t phy, const BreakpointObserver& bp)
+    opt<int> try_add_breakpoint(core::Core& core, std::string_view name, phy_t phy, const BreakpointObserver& bp)
     {
         auto& d       = *core.state_;
         auto& targets = d.targets;
@@ -521,7 +521,7 @@ namespace
         return bpid;
     }
 
-    static state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
+    state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
         auto& d       = *core.state_;
         const auto bp = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
@@ -539,7 +539,7 @@ namespace
         return std::make_shared<state::BreakpointPrivate>(core, bp);
     }
 
-    static opt<phy_t> to_phy(core::Core& core, uint64_t ptr, const opt<proc_t>& proc)
+    opt<phy_t> to_phy(core::Core& core, uint64_t ptr, const opt<proc_t>& proc)
     {
         const auto current = proc ? proc : process::current(core);
         if(!current)
@@ -548,7 +548,7 @@ namespace
         return core.os_->proc_resolve(*current, ptr);
     }
 
-    static state::Breakpoint set_virtual_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
+    state::Breakpoint set_virtual_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
         const auto target = proc ? core.os_->proc_select(*proc, ptr) : ext::nullopt;
         const auto phy    = to_phy(core, ptr, target);
@@ -587,7 +587,7 @@ state::Breakpoint state::break_on_physical_process(core::Core& core, std::string
 namespace
 {
     template <typename T>
-    static void run_until(Data& d, const T& predicate)
+    void run_until(Data& d, const T& predicate)
     {
         const auto ok = yield_until(d, predicate);
         if(ok)

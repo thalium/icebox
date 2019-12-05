@@ -5,7 +5,7 @@
 
 namespace
 {
-    static int heapsan(core::Core& core, const std::string& target)
+    int heapsan(core::Core& core, const std::string& target)
     {
         LOG(INFO, "waiting for %s...", target.data());
         const auto proc = process::wait(core, target, flags::x64);

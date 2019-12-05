@@ -111,7 +111,7 @@ std::shared_ptr<symbols::Module> symbols::make_pdb(const std::string& module, co
 
 namespace
 {
-    static const char* to_string(pdb::PDBFileState x)
+    const char* to_string(pdb::PDBFileState x)
     {
         switch(x)
         {
@@ -124,7 +124,7 @@ namespace
         return "<invalid>";
     }
 
-    static std::string to_member_string(std::string_view struc, std::string_view member)
+    std::string to_member_string(std::string_view struc, std::string_view member)
     {
         auto ret = std::string{};
         ret.reserve(struc.size() + 1 + member.size());
@@ -136,7 +136,7 @@ namespace
         return ret;
     }
 
-    static void insert_ordered(Symbols& vec, const Sym& item)
+    void insert_ordered(Symbols& vec, const Sym& item)
     {
         const auto predicate = [&](const auto& a, const auto& b)
         {
@@ -145,7 +145,7 @@ namespace
         vec.insert(std::upper_bound(std::begin(vec), std::end(vec), item, predicate), item);
     }
 
-    static void emplace_string(Pdb& pdb, std::string_view item)
+    void emplace_string(Pdb& pdb, std::string_view item)
     {
         auto& dst       = pdb.data_strings_;
         const auto idx  = dst.size();
@@ -156,7 +156,7 @@ namespace
     }
 
     template <typename T>
-    static void sort_by_name(std::vector<T>& vec, const Strings& strings)
+    void sort_by_name(std::vector<T>& vec, const Strings& strings)
     {
         vec.shrink_to_fit();
         std::sort(vec.begin(), vec.end(), [&](const auto& a, const auto& b)
@@ -225,7 +225,7 @@ std::string_view Pdb::id()
 namespace
 {
     template <typename T, typename U>
-    static opt<T> binary_search(const Strings& strings, const std::vector<T>& vec, const U& item)
+    opt<T> binary_search(const Strings& strings, const std::vector<T>& vec, const U& item)
     {
         const auto it = std::lower_bound(std::begin(vec), std::end(vec), item, [&](const auto& a, const auto& b)
         {
@@ -282,7 +282,7 @@ opt<size_t> Pdb::struc_size(const std::string& struc)
 namespace
 {
     template <typename T>
-    static opt<symbols::Offset> make_cursor(Pdb& p, const T& it, const T& end, size_t offset)
+    opt<symbols::Offset> make_cursor(Pdb& p, const T& it, const T& end, size_t offset)
     {
         if(it == end)
             return {};
@@ -321,7 +321,7 @@ namespace
         std::string name;
     };
 
-    static opt<std::string> read_pdb_name(const uint8_t* ptr, const uint8_t* end)
+    opt<std::string> read_pdb_name(const uint8_t* ptr, const uint8_t* end)
     {
         for(auto it = ptr; it != end; ++it)
             if(!std::isprint(*it))
@@ -330,10 +330,10 @@ namespace
         return std::string{ptr, end};
     }
 
-    static const uint8_t rsds_magic[] = {'R', 'S', 'D', 'S'};
-    static const auto rsds_pattern    = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
+    constexpr uint8_t rsds_magic[] = {'R', 'S', 'D', 'S'};
+    const auto rsds_pattern        = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
 
-    static opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
+    opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
         auto src       = reinterpret_cast<const uint8_t*>(vsrc);
         const auto end = &src[src_size];

@@ -299,7 +299,7 @@ OsLinux::OsLinux(core::Core& core)
 namespace
 {
     // dmesg -t | grep -i "Linux version" | sha1sum | cut -c1-40
-    static opt<std::string> read_str(reader::Reader& reader, const uint64_t& addr, const unsigned int& buffer_size)
+    opt<std::string> read_str(reader::Reader& reader, const uint64_t& addr, const unsigned int& buffer_size)
     {
         std::string ret;
         std::vector<char> buffer(buffer_size + 1);
@@ -323,7 +323,7 @@ namespace
 
 namespace
 {
-    static bool set_per_cpu(OsLinux& p)
+    bool set_per_cpu(OsLinux& p)
     {
         auto per_cpu = registers::read_msr(p.core_, msr_e::gs_base);
         if(!p.is_kernel_address(per_cpu))
@@ -338,7 +338,7 @@ namespace
     }
 
     template <typename T>
-    static bool set_kernel_page_dir(OsLinux& p, T check)
+    bool set_kernel_page_dir(OsLinux& p, T check)
     {
         auto kpgd = registers::read(p.core_, reg_e::cr3);
         kpgd &= ~0x1fffULL; // clear 12th bits due to meltdown patch
@@ -355,7 +355,7 @@ namespace
     }
 
     template <typename T>
-    static bool find_linux_banner(OsLinux& p, T on_candidate)
+    bool find_linux_banner(OsLinux& p, T on_candidate)
     {
         if(!p.kpgd)
             return FAIL(false, "finding linux_banner requires a kernel page directory");
@@ -399,7 +399,7 @@ namespace
         return false;
     }
 
-    static opt<std::string> get_linux_banner(reader::Reader reader, uint64_t addr)
+    opt<std::string> get_linux_banner(reader::Reader reader, uint64_t addr)
     {
         auto str = read_str(reader, addr, 256); // for recent ubuntu, linux_banner length is about 180 bytes
         if(!str)
@@ -411,7 +411,7 @@ namespace
         return str;
     }
 
-    static bool check_setup(OsLinux& p)
+    bool check_setup(OsLinux& p)
     {
         if(!p.kpgd | !p.per_cpu)
             return false;
@@ -438,7 +438,7 @@ namespace
 
 namespace
 {
-    static std::string bytesToStr(const std::vector<unsigned char>& in)
+    std::string bytesToStr(const std::vector<unsigned char>& in)
     {
         auto from = in.cbegin();
         auto to   = in.cend();
@@ -448,7 +448,7 @@ namespace
         return oss.str();
     }
 
-    static std::string guid(const std::string& str) // todo - simplify
+    std::string guid(const std::string& str) // todo - simplify
     {
         std::vector<unsigned char> vstr(str.data(), str.data() + str.length());
         unsigned char hash[20]; // sha1 length
@@ -461,7 +461,7 @@ namespace
 
 namespace
 {
-    static opt<uint64_t> make_symbols(core::Core& core, const std::string& guid, const std::string& strSymbol, const uint64_t& addrSymbol)
+    opt<uint64_t> make_symbols(core::Core& core, const std::string& guid, const std::string& strSymbol, const uint64_t& addrSymbol)
     {
         symbols::unload(core, symbols::kernel, "kernel");
         symbols::unload(core, symbols::kernel, "kernel_sym");
@@ -491,7 +491,7 @@ namespace
         return kaslr;
     }
 
-    static bool load_offsets(core::Core& core, LinuxOffsets& offsets)
+    bool load_offsets(core::Core& core, LinuxOffsets& offsets)
     {
         bool fail = false;
         int i     = -1;
@@ -509,7 +509,7 @@ namespace
         return !fail;
     }
 
-    static bool load_symbols(core::Core& core, LinuxSymbols& symbols)
+    bool load_symbols(core::Core& core, LinuxSymbols& symbols)
     {
         bool fail = false;
         int i     = -1;
@@ -756,12 +756,12 @@ namespace
 
 namespace
 {
-    static uint8_t cpu_ring(OsLinux& p)
+    uint8_t cpu_ring(OsLinux& p)
     {
         return registers::read(p.core_, reg_e::cs) & 0b11ULL;
     }
 
-    static void proc_join_any(OsLinux& p, proc_t proc)
+    void proc_join_any(OsLinux& p, proc_t proc)
     {
         std::unordered_set<uint64_t> ptrs;
         p.thread_list(proc, [&](thread_t thread)

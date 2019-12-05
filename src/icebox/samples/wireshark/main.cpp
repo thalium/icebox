@@ -60,7 +60,7 @@ namespace
         };
     };
 
-    static std::vector<uint8_t> read_NetBufferList(core::Core& core, uint64_t netBuffListAddress)
+    std::vector<uint8_t> read_NetBufferList(core::Core& core, uint64_t netBuffListAddress)
     {
         std::vector<uint8_t> invalid;
 
@@ -106,7 +106,7 @@ namespace
         return data;
     }
 
-    static bool is_wow64_emulated(core::Core& core, const proc_t proc, const uint64_t addr)
+    bool is_wow64_emulated(core::Core& core, const proc_t proc, const uint64_t addr)
     {
         const auto mod = modules::find(core, proc, addr);
         if(!mod)
@@ -120,7 +120,7 @@ namespace
         return filename == "wow64cpu.dll";
     }
 
-    static opt<callstacks::context_t> get_saved_wow64_ctx(core::Core& core, proc_t proc)
+    opt<callstacks::context_t> get_saved_wow64_ctx(core::Core& core, proc_t proc)
     {
         const auto reader = reader::make(core, proc);
 
@@ -150,7 +150,7 @@ namespace
         return callstacks::context_t{eip, esp, ebp, segcs, flags::x86};
     }
 
-    static void load_proc_symbols(core::Core& core, proc_t proc, flags_t flags)
+    void load_proc_symbols(core::Core& core, proc_t proc, flags_t flags)
     {
         modules::list(core, proc, [&](mod_t mod)
         {
@@ -177,13 +177,13 @@ namespace
         Breakpoints&     bps;
     };
 
-    static std::string get_callstep_name(core::Core& core, proc_t proc, uint64_t addr)
+    std::string get_callstep_name(core::Core& core, proc_t proc, uint64_t addr)
     {
         const auto symbol = symbols::find(core, proc, addr);
         return symbols::to_string(symbol) + "\n";
     }
 
-    static void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc)
+    void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
         load_proc_symbols(core, proc, flags::x86);
 
@@ -197,7 +197,7 @@ namespace
             meta.comment += get_callstep_name(core, proc, callers[i].addr);
     }
 
-    static void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc)
+    void get_user_callstack64(core::Core& core, pcap::metadata_t& meta, proc_t proc)
     {
         load_proc_symbols(core, proc, flags::x64);
 
@@ -207,7 +207,7 @@ namespace
             meta.comment += get_callstep_name(core, proc, callers[i].addr);
     }
 
-    static bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data)
+    bool break_in_userland(Private& p, proc_t proc, uint64_t addr, const std::vector<uint8_t>& data)
     {
         const auto thread = threads::current(p.core);
         if(!thread)
@@ -230,7 +230,7 @@ namespace
         return true;
     }
 
-    static int capture(core::Core& core, const std::string& capture_path)
+    int capture(core::Core& core, const std::string& capture_path)
     {
         Breakpoints  user_bps;
         pcap::Writer pcap;

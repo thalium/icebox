@@ -21,7 +21,7 @@ namespace
         nt::PVOID HeapHandle;
     };
 
-    static inline bool operator==(const realloc_t& a, const realloc_t& b)
+    inline bool operator==(const realloc_t& a, const realloc_t& b)
     {
         return a.thread.id == b.thread.id
                && a.HeapHandle == b.HeapHandle;
@@ -33,7 +33,7 @@ namespace
         nt::PVOID BaseAddress;
     };
 
-    static inline bool operator==(const heap_t& a, const heap_t& b)
+    inline bool operator==(const heap_t& a, const heap_t& b)
     {
         return a.HeapHandle == b.HeapHandle
                && a.BaseAddress == b.BaseAddress;
@@ -97,7 +97,7 @@ plugins::HeapSan::~HeapSan() = default;
 
 namespace
 {
-    static void on_RtlpAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
+    void on_RtlpAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         const auto thread = threads::current(d.core_);
         if(!thread)
@@ -128,7 +128,7 @@ namespace
         });
     }
 
-    static void on_RtlFreeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    void on_RtlFreeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
         if(it == d.heaps_.end())
@@ -138,7 +138,7 @@ namespace
         d.heaps_.erase(it);
     }
 
-    static void on_RtlSizeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    void on_RtlSizeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
         if(it == d.heaps_.end())
@@ -160,7 +160,7 @@ namespace
         });
     }
 
-    static void on_RtlGetUserInfoHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    void on_RtlGetUserInfoHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
         if(it == d.heaps_.end())
@@ -169,7 +169,7 @@ namespace
         functions::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
-    static void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto it = d.heaps_.find(heap_t{HeapHandle, BaseAddress});
         if(it == d.heaps_.end())
@@ -178,7 +178,7 @@ namespace
         functions::write_arg(d.core_, 2, {BaseAddress - ptr_prolog});
     }
 
-    static void realloc_unknown_pointer(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID /*BaseAddress*/, nt::ULONG /*Size*/)
+    void realloc_unknown_pointer(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID /*BaseAddress*/, nt::ULONG /*Size*/)
     {
         const auto thread = threads::current(d.core_);
         if(!thread)
@@ -194,7 +194,7 @@ namespace
         });
     }
 
-    static void on_RtlpReAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
+    void on_RtlpReAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
     {
         if(!BaseAddress)
             return;
@@ -238,7 +238,7 @@ namespace
         });
     }
 
-    static void get_callstack(Data& d)
+    void get_callstack(Data& d)
     {
         if(true)
             return;

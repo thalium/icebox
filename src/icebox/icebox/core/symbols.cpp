@@ -33,7 +33,7 @@ namespace
         proc_t      proc;
     };
 
-    static inline bool operator==(const ModKey& a, const ModKey& b)
+    inline bool operator==(const ModKey& a, const ModKey& b)
     {
         return a.proc.id == b.proc.id && a.name == b.name;
     }
@@ -90,7 +90,7 @@ symbols::Modules::~Modules() = default;
 
 namespace
 {
-    static const struct
+    const struct
     {
         const char* name;
         opt<symbols::Identity>  (*identify) (span_t, const reader::Reader&);
@@ -279,7 +279,7 @@ namespace
         Mod         mod;
     };
 
-    static opt<ModPair> find(Data& s, proc_t proc, uint64_t addr)
+    opt<ModPair> find(Data& s, proc_t proc, uint64_t addr)
     {
         for(const auto& m : s.mods)
         {
@@ -294,7 +294,7 @@ namespace
         return {};
     }
 
-    static auto find_mod(Data& s, proc_t proc, uint64_t addr)
+    auto find_mod(Data& s, proc_t proc, uint64_t addr)
     {
         const auto p = find(s, proc, addr);
         if(p)
@@ -303,7 +303,7 @@ namespace
         return find(s, symbols::kernel, addr);
     }
 
-    static symbols::Symbol read_name_from_proc(core::Core& core, proc_t proc, uint64_t addr)
+    symbols::Symbol read_name_from_proc(core::Core& core, proc_t proc, uint64_t addr)
     {
         const auto name = process::name(core, proc);
         if(!name)
@@ -313,7 +313,7 @@ namespace
         return {path, "", addr};
     }
 
-    static symbols::Symbol read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
+    symbols::Symbol read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
     {
         const auto mod = modules::find(core, proc, addr);
         if(!mod)

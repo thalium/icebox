@@ -11,7 +11,7 @@ namespace
 {
     constexpr bool g_debug = false;
 
-    static const wow64::syscalls32::callcfgs_t g_callcfgs =
+    constexpr wow64::syscalls32::callcfgs_t g_callcfgs =
     {{
         {"_NtAcceptConnectPort@24", 6, {{"PHANDLE", "PortHandle", sizeof(wow64::PHANDLE)}, {"PVOID", "PortContext", sizeof(wow64::PVOID)}, {"PPORT_MESSAGE", "ConnectionRequest", sizeof(wow64::PPORT_MESSAGE)}, {"BOOLEAN", "AcceptConnection", sizeof(wow64::BOOLEAN)}, {"PPORT_VIEW", "ServerView", sizeof(wow64::PPORT_VIEW)}, {"PREMOTE_PORT_VIEW", "ClientView", sizeof(wow64::PREMOTE_PORT_VIEW)}}},
         {"_NtAccessCheck@32", 8, {{"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(wow64::PSECURITY_DESCRIPTOR)}, {"HANDLE", "ClientToken", sizeof(wow64::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(wow64::ACCESS_MASK)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(wow64::PGENERIC_MAPPING)}, {"PPRIVILEGE_SET", "PrivilegeSet", sizeof(wow64::PPRIVILEGE_SET)}, {"PULONG", "PrivilegeSetLength", sizeof(wow64::PULONG)}, {"PACCESS_MASK", "GrantedAccess", sizeof(wow64::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(wow64::PNTSTATUS)}}},
@@ -449,7 +449,7 @@ const wow64::syscalls32::callcfgs_t& wow64::syscalls32::callcfgs()
 
 namespace
 {
-    static opt<bpid_t> register_callback(wow64::syscalls32::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
+    opt<bpid_t> register_callback(wow64::syscalls32::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
     {
         const auto addr = symbols::address(d.core, proc, d.module, name);
         if(!addr)
@@ -464,7 +464,7 @@ namespace
     }
 
     template <typename T>
-    static T arg(core::Core& core, size_t i)
+    T arg(core::Core& core, size_t i)
     {
         const auto arg = functions::read_arg(core, i);
         if(!arg)

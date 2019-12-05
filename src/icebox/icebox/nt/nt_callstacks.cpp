@@ -26,7 +26,7 @@ namespace std
     };
 } // namespace std
 
-static inline bool operator==(const proc_t& a, const proc_t& b)
+inline bool operator==(const proc_t& a, const proc_t& b)
 {
     return a.id == b.id;
 }
@@ -166,12 +166,12 @@ std::unique_ptr<callstacks::Module> callstacks::make_nt(core::Core& core)
 
 namespace
 {
-    static bool compare_function_entries(const function_entry_t& a, const function_entry_t& b)
+    bool compare_function_entries(const function_entry_t& a, const function_entry_t& b)
     {
         return a.start_address < b.start_address;
     }
 
-    static opt<uint64_t> get_stack_frame_size(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
+    opt<uint64_t> get_stack_frame_size(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
     {
         const auto off_in_prolog = off_in_mod - function_entry.start_address;
         if(off_in_prolog == 0)
@@ -193,7 +193,7 @@ namespace
     }
 
     template <typename T>
-    static opt<T> find_prev(const uint64_t addr, const std::map<uint64_t, T>& mods)
+    opt<T> find_prev(const uint64_t addr, const std::map<uint64_t, T>& mods)
     {
         if(mods.empty())
             return {};
@@ -216,7 +216,7 @@ namespace
         return it->second;
     }
 
-    static Modules& get_modules(AllModules& all, proc_t proc)
+    Modules& get_modules(AllModules& all, proc_t proc)
     {
         auto it = all.find(proc);
         if(it == all.end())
@@ -224,7 +224,7 @@ namespace
         return it->second;
     }
 
-    static opt<mod_t> find_mod(NtCallstacks& c, proc_t proc, uint64_t addr)
+    opt<mod_t> find_mod(NtCallstacks& c, proc_t proc, uint64_t addr)
     {
         auto& modules = get_modules(c.all_modules_, proc);
         auto mod      = find_prev(addr, modules);
@@ -244,7 +244,7 @@ namespace
         return mod;
     }
 
-    static opt<driver_t> find_drv(NtCallstacks& c, uint64_t addr)
+    opt<driver_t> find_drv(NtCallstacks& c, uint64_t addr)
     {
         auto drv = find_prev(addr, c.all_drivers_);
         if(drv)
@@ -263,10 +263,10 @@ namespace
         return drv;
     }
 
-    static void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const uint8_t* buffer, size_t unwind_codes_size, size_t chained_info_size)
+    void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const uint8_t* buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
-        static const auto reg_size = 0x08; // TODO Defined this somewhere else
-        size_t idx                 = 0;
+        constexpr auto reg_size = 0x08; // TODO Defined this somewhere else
+        size_t idx              = 0;
         while(idx < unwind_codes_size - chained_info_size)
         {
             const auto unwind_operation = buffer[idx + 1] & 0xF;
@@ -331,7 +331,7 @@ namespace
         }
     }
 
-    static opt<function_entry_t> lookup_mother_function_entry(uint32_t mother_start_addr, const std::vector<function_entry_t>& function_entries)
+    opt<function_entry_t> lookup_mother_function_entry(uint32_t mother_start_addr, const std::vector<function_entry_t>& function_entries)
     {
         for(const auto& fe : function_entries)
             if(mother_start_addr == fe.start_address)
@@ -340,7 +340,7 @@ namespace
         return {};
     }
 
-    static opt<FunctionTable> parse_exception_dir(NtCallstacks& c, proc_t proc, uint64_t mod_base_addr, span_t exception_dir)
+    opt<FunctionTable> parse_exception_dir(NtCallstacks& c, proc_t proc, uint64_t mod_base_addr, span_t exception_dir)
     {
         if(!exception_dir.size)
             return {};
@@ -435,7 +435,7 @@ namespace
         return function_table;
     }
 
-    static opt<FunctionTable> parse_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
+    opt<FunctionTable> parse_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
     {
         LOG(INFO, "loading %s", name.data());
         const auto reader        = reader::make(c.core_, proc);
@@ -454,7 +454,7 @@ namespace
         return function_table;
     }
 
-    static opt<FunctionTable> get_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
+    opt<FunctionTable> get_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
     {
         const auto it = c.exception_dirs_.find(name);
         if(it != c.exception_dirs_.end())
@@ -463,7 +463,7 @@ namespace
         return parse_module_unwind(c, proc, name, span);
     }
 
-    static bool load_ntdll(core::Core& core, proc_t proc, const char* want_name, bool is_32bit)
+    bool load_ntdll(core::Core& core, proc_t proc, const char* want_name, bool is_32bit)
     {
         const auto flags   = is_32bit ? flags::x86 : flags::x64;
         const auto opt_mod = modules::find_name(core, proc, "ntdll.dll", flags);
@@ -477,7 +477,7 @@ namespace
         return symbols::load_module_at(core, proc, want_name, *opt_span);
     }
 
-    static bool read_offsets(NtCallstacks& c, proc_t proc, bool is_32bit)
+    bool read_offsets(NtCallstacks& c, proc_t proc, bool is_32bit)
     {
         auto& opt_offsets = is_32bit ? c.offsets32_ : c.offsets64_;
         const auto name   = is_32bit ? "wntdll" : "ntdll";
@@ -508,13 +508,13 @@ namespace
         return true;
     }
 
-    static uint64_t offset(const NtCallstacks& c, bool is_32bit, offsets_e off)
+    uint64_t offset(const NtCallstacks& c, bool is_32bit, offsets_e off)
     {
         const auto& offsets = is_32bit ? *c.offsets32_ : *c.offsets64_;
         return offsets[off];
     }
 
-    static opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, bool is_32bit)
+    opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, bool is_32bit)
     {
         const auto reader = reader::make(c.core_, proc);
         if(!read_offsets(c, proc, is_32bit))
@@ -535,13 +535,13 @@ namespace
         return span_t{*limit, *base - *limit};
     }
 
-    static opt<span_t> get_kernel_stack(NtCallstacks& /*c*/)
+    opt<span_t> get_kernel_stack(NtCallstacks& /*c*/)
     {
         // TODO: get kernel stack boundaries
         return span_t{(size_t) 0, (size_t) -1};
     }
 
-    static opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctxt, bool is_32bits)
+    opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctxt, bool is_32bits)
     {
         if(os::is_kernel_address(c.core_, ctxt.ip))
             return get_kernel_stack(c);
@@ -549,7 +549,7 @@ namespace
         return get_user_stack(c, proc, is_32bits);
     }
 
-    static opt<std::tuple<std::string, span_t>> get_name_span(NtCallstacks& c, proc_t proc, const context_t& ctx)
+    opt<std::tuple<std::string, span_t>> get_name_span(NtCallstacks& c, proc_t proc, const context_t& ctx)
     {
         if(os::is_kernel_address(c.core_, ctx.ip))
         {
@@ -578,7 +578,7 @@ namespace
     }
 
     template <typename T>
-    static const function_entry_t* check_previous_exist(const T& it, const T& end, const uint32_t offset_in_mod)
+    const function_entry_t* check_previous_exist(const T& it, const T& end, const uint32_t offset_in_mod)
     {
         if(it == end)
             return nullptr;
@@ -610,7 +610,7 @@ namespace
         return check_previous_exist(--it, end, offset_in_mod);
     }
 
-    static bool get_next_context_x64(NtCallstacks& c, proc_t proc, const reader::Reader& reader, const span_t& stack, context_t& ctx)
+    bool get_next_context_x64(NtCallstacks& c, proc_t proc, const reader::Reader& reader, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 8;
 
@@ -666,7 +666,7 @@ namespace
         return true;
     }
 
-    static bool get_next_context_x86(NtCallstacks& /*c*/, proc_t /*proc*/, const reader::Reader& reader, const span_t& stack, context_t& ctx)
+    bool get_next_context_x86(NtCallstacks& /*c*/, proc_t /*proc*/, const reader::Reader& reader, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 4;
         if(stack.addr > ctx.bp || stack.addr + stack.size < ctx.bp)
@@ -685,7 +685,7 @@ namespace
         return true;
     }
 
-    static size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
+    size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
         const auto reader = reader::make(c.core_, proc);
         const auto stack  = get_stack(c, proc, first, true);

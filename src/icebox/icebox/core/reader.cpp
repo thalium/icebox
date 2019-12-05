@@ -7,7 +7,7 @@
 namespace
 {
     template <typename T, T (*read)(const void*)>
-    static opt<T> read_mem(const reader::Reader& r, uint64_t ptr)
+    opt<T> read_mem(const reader::Reader& r, uint64_t ptr)
     {
         T value;
         const auto dtb = os::is_kernel_address(r.core_, ptr) ? r.kdtb_ : r.udtb_;
@@ -18,7 +18,7 @@ namespace
         return read(&value);
     }
 
-    static reader::Reader make_reader_with(core::Core& core, const opt<proc_t>& proc)
+    reader::Reader make_reader_with(core::Core& core, const opt<proc_t>& proc)
     {
         const auto cr3 = registers::read(core, reg_e::cr3);
         auto reader    = reader::Reader{core, {cr3}, {cr3}};

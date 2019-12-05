@@ -78,7 +78,7 @@ void pcap::Writer::add_packet(const metadata_t& m, const void* data, size_t size
 
 namespace
 {
-    static bool write_hdr(FILE* file, BlockHeader& hdr)
+    bool write_hdr(FILE* file, BlockHeader& hdr)
     {
         SHB shb;
         hdr.type           = typeSHB;
@@ -102,7 +102,8 @@ namespace
 
         return true;
     }
-    static bool write_idb(FILE* file, BlockHeader& hdr)
+
+    bool write_idb(FILE* file, BlockHeader& hdr)
     {
         IDB idb;
         hdr.type      = typeIDB;
@@ -124,7 +125,8 @@ namespace
 
         return true;
     }
-    static bool write_comment(FILE* file, Packet& p, uint32_t padding)
+
+    bool write_comment(FILE* file, Packet& p, uint32_t padding)
     {
         Option option;
         uint32_t paddingBuf = 0;
@@ -156,7 +158,8 @@ namespace
 
         return true;
     }
-    static bool write_packet(FILE* file, Packet& p, BlockHeader& hdr)
+
+    bool write_packet(FILE* file, Packet& p, BlockHeader& hdr)
     {
         auto size             = p.data.size();
         uint32_t optionLength = 0;
@@ -214,7 +217,7 @@ namespace
         return true;
     }
 
-    static bool close_and_exit(FILE* file, bool ret)
+    bool close_and_exit(FILE* file, bool ret)
     {
         fclose(file);
         return ret;

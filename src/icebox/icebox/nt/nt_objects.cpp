@@ -168,7 +168,7 @@ std::shared_ptr<objects::Data> objects::make(core::Core& core, proc_t proc)
 
 namespace
 {
-    static opt<objects::obj_t> object_read(const Data& d, nt::HANDLE handle)
+    opt<objects::obj_t> object_read(const Data& d, nt::HANDLE handle)
     {
         // Is kernel handle
         const auto handle_table_addr = handle & 0x80000000 ? d.symbols[ObpKernelHandleTable] : d.proc.id + d.members[EPROCESS_ObjectTable];
@@ -359,7 +359,7 @@ namespace
         return reply;
     }
 
-    static uint32_t hash_name(std::string_view src)
+    uint32_t hash_name(std::string_view src)
     {
         const auto wname = utf8::to_utf16(src);
         auto hash        = uint32_t{0};
