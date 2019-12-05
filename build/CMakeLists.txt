@@ -30,16 +30,17 @@ if(${USE_STATIC_ANALYZER})
         "performance-*"
         "portability-*"
         "readability-*"
-	# those rules are too extreme
-	"-misc-non-private-member-variables-in-classes"
-	"-readability-braces-around-statements"
-	"-readability-implicit-bool-conversion"
-	"-readability-magic-numbers"
-	# buggy in clang-tidy-8
-	"-readability-simplify-boolean-expr"
-	# enable those in separate commits
-	"-readability-static-definition-in-anonymous-namespace"
-	"-modernize-avoid-c-arrays"
+        # too extreme...
+        "-misc-non-private-member-variables-in-classes"
+        "-readability-magic-numbers"
+        "-modernize-avoid-c-arrays"
+        # style...
+        "-readability-braces-around-statements"
+        "-readability-implicit-bool-conversion"
+        # buggy in clang-tidy-8
+        "-readability-simplify-boolean-expr"
+        # enable those in separate commits
+        "-readability-static-definition-in-anonymous-namespace"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()
