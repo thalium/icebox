@@ -340,10 +340,10 @@ namespace
     static bool set_kernel_page_dir(OsLinux& p, T check)
     {
         auto kpgd = registers::read(p.core_, reg_e::cr3);
-        kpgd &= ~0x1fffull; // clear 12th bits due to meltdown patch
+        kpgd &= ~0x1fffULL; // clear 12th bits due to meltdown patch
         if(!check(kpgd))
         {
-            kpgd |= 0x1000ull; // try with orginal CR3 in case system is not meltdown patched
+            kpgd |= 0x1000ULL; // try with orginal CR3 in case system is not meltdown patched
             if(!check(kpgd))
                 return FAIL(false, "unable to find a valid kernel page directory");
         }
@@ -695,9 +695,9 @@ flags_t OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5
 {
     unsigned char TIF_IA32 = 17, TIF_ADDR32 = 29, TIF_X32 = 30; // see /arch/x86/include/asm/thread_info.h
 
-    uint32_t mask = 1ul << TIF_IA32;
+    uint32_t mask = 1UL << TIF_IA32;
     if(kversion >= version("3.4"))
-        mask |= (1ul << TIF_ADDR32 | 1ul << TIF_X32);
+        mask |= (1UL << TIF_ADDR32 | 1UL << TIF_X32);
 
     const auto thread_info = (offsets_[TASKSTRUCT_THREADINFO]) ? proc.id + *offsets_[TASKSTRUCT_THREADINFO] : reader_.read(proc.id + *offsets_[TASKSTRUCT_STACK]);
     if(!thread_info)
@@ -753,7 +753,7 @@ namespace
 {
     static uint8_t cpu_ring(OsLinux& p)
     {
-        return registers::read(p.core_, reg_e::cs) & 0b11ull;
+        return registers::read(p.core_, reg_e::cs) & 0b11ULL;
     }
 
     static void proc_join_any(OsLinux& p, proc_t proc)

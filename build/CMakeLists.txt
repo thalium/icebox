@@ -43,7 +43,6 @@ if(${USE_STATIC_ANALYZER})
 	"-readability-redundant-string-cstr"
 	"-modernize-avoid-c-arrays"
 	"-readability-isolate-declaration"
-	"-readability-uppercase-literal-suffix"
     )
         set(enable_checks "${enable_checks},${check}")
     endforeach()

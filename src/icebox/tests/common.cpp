@@ -26,7 +26,7 @@ namespace
 {
     uint8_t cpu_ring(core::Core& core)
     {
-        return registers::read(core, reg_e::cs) & 0b11ull;
+        return registers::read(core, reg_e::cs) & 0b11ULL;
     }
 
     bool is_rip_in_kernel(core::Core& core)

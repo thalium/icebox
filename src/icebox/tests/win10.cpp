@@ -70,14 +70,14 @@ TEST_F(win10, drivers)
         drivers.emplace(*name, Driver{drv.id, span->addr, span->size});
         return walk_e::next;
     });
-    EXPECT_NE(drivers.size(), 0u);
+    EXPECT_NE(drivers.size(), 0U);
     const auto it = drivers.find(R"(\SystemRoot\system32\ntoskrnl.exe)");
     EXPECT_NE(it, drivers.end());
 
     const auto [id, addr, size] = it->second;
-    EXPECT_NE(id, 0u);
-    EXPECT_NE(addr, 0u);
-    EXPECT_GT(size, 0u);
+    EXPECT_NE(id, 0U);
+    EXPECT_NE(addr, 0U);
+    EXPECT_GT(size, 0U);
 
     const auto want = addr + (size >> 1);
     const auto drv  = drivers::find(core, want);
@@ -108,24 +108,24 @@ TEST_F(win10, processes)
     auto& core = *ptr_core;
     process::list(core, [&](proc_t proc)
     {
-        EXPECT_NE(proc.dtb.val, 0u);
-        EXPECT_NE(proc.dtb.val, 1u);
+        EXPECT_NE(proc.dtb.val, 0U);
+        EXPECT_NE(proc.dtb.val, 1U);
         const auto name = process::name(core, proc);
         EXPECT_TRUE(!!name);
         const auto pid = process::pid(core, proc);
-        EXPECT_NE(pid, 0u);
+        EXPECT_NE(pid, 0U);
         const auto flags = process::flags(core, proc);
         processes.emplace(*name, Process{proc.id, proc.dtb.val, pid, flags});
         return walk_e::next;
     });
-    EXPECT_NE(processes.size(), 0u);
+    EXPECT_NE(processes.size(), 0U);
     const auto it = processes.find("explorer.exe");
     EXPECT_NE(it, processes.end());
 
     const auto [id, dtb, pid, flags] = it->second;
-    EXPECT_NE(id, 0u);
-    EXPECT_NE(dtb, 0u);
-    EXPECT_NE(pid, 0u);
+    EXPECT_NE(id, 0U);
+    EXPECT_NE(dtb, 0U);
+    EXPECT_NE(pid, 0U);
     UNUSED(flags);
 
     const auto proc = process::find_pid(core, pid);
@@ -173,11 +173,11 @@ TEST_F(win10, threads)
         EXPECT_TRUE(!!proc);
         EXPECT_EQ(proc->id, explorer->id);
         const auto tid = threads::tid(core, *proc, thread);
-        EXPECT_NE(tid, 0u);
+        EXPECT_NE(tid, 0U);
         threads.emplace(tid);
         return walk_e::next;
     });
-    EXPECT_NE(threads.size(), 0u);
+    EXPECT_NE(threads.size(), 0U);
 
     process::join(core, *explorer, mode_e::kernel);
     const auto current = threads::current(core);
@@ -209,15 +209,15 @@ TEST_F(win10, modules)
         modules.emplace(*name, Module{mod.id, span->addr, span->size, mod.flags});
         return walk_e::next;
     });
-    EXPECT_NE(modules.size(), 0u);
+    EXPECT_NE(modules.size(), 0U);
 
     const auto it = modules.find(R"(C:\Windows\SYSTEM32\ntdll.dll)");
     EXPECT_NE(it, modules.end());
 
     const auto [id, addr, size, flags] = it->second;
-    EXPECT_NE(id, 0u);
-    EXPECT_NE(addr, 0u);
-    EXPECT_GT(size, 0u);
+    EXPECT_NE(id, 0U);
+    EXPECT_NE(addr, 0U);
+    EXPECT_GT(size, 0U);
     UNUSED(flags);
 
     const auto want = addr + (size >> 1);
@@ -492,8 +492,8 @@ TEST_F(win10, callstacks)
         num_callers += n;
     });
     run_until(core, [&] { return count > 32; });
-    EXPECT_EQ(count, 33u);
-    EXPECT_NE(num_callers, 0u);
+    EXPECT_EQ(count, 33U);
+    EXPECT_NE(num_callers, 0U);
 }
 
 TEST_F(win10, listen_module_wow64)
