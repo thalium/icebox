@@ -129,6 +129,14 @@ PyMODINIT_FUNC PyInit__icebox()
         {"process_parent", &core_exec<&py::process::parent>, METH_VARARGS, "read process parent, if any"},
         {"process_pid", &core_exec<&py::process::pid>, METH_VARARGS, "read process pid"},
         {"process_wait", &core_exec<&py::process::wait>, METH_VARARGS, "wait for process"},
+        // threads
+        {"thread_list", &core_exec<&py::threads::list>, METH_VARARGS, "list process threads"},
+        {"thread_current", &core_exec<&py::threads::current>, METH_NOARGS, "read current thread"},
+        {"thread_process", &core_exec<&py::threads::process>, METH_VARARGS, "read thread process"},
+        {"thread_program_counter", &core_exec<&py::threads::program_counter>, METH_VARARGS, "read thread program counter"},
+        {"thread_tid", &core_exec<&py::threads::tid>, METH_VARARGS, "read thread tid"},
+        {"thread_listen_create", &core_exec<&py::threads::listen_create>, METH_VARARGS, "listen on thread creation"},
+        {"thread_listen_delete", &core_exec<&py::threads::listen_delete>, METH_VARARGS, "listen on thread deletion"},
         // symbols
         {"symbols_address", &core_exec<&py::symbols::address>, METH_VARARGS, "read symbols address"},
         {"symbols_struc_size", &core_exec<&py::symbols::struc_size>, METH_VARARGS, "read struc size"},

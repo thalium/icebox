@@ -48,6 +48,17 @@ namespace py
         PyObject*   listen_delete   (core::Core& core, PyObject* args);
     } // namespace process
 
+    namespace threads
+    {
+        PyObject*   list            (core::Core& core, PyObject* args);
+        PyObject*   current         (core::Core& core, PyObject* args);
+        PyObject*   process         (core::Core& core, PyObject* args);
+        PyObject*   program_counter (core::Core& core, PyObject* args);
+        PyObject*   tid             (core::Core& core, PyObject* args);
+        PyObject*   listen_create   (core::Core& core, PyObject* args);
+        PyObject*   listen_delete   (core::Core& core, PyObject* args);
+    } // namespace threads
+
     namespace symbols
     {
         PyObject*   address     (core::Core& core, PyObject* args);

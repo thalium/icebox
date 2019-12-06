@@ -104,34 +104,38 @@ class Processes:
         return Callback(bpid, fproc)
 
 class Thread:
-    def __init__(self, vm, thread):
-        self.vm = vm
+    def __init__(self, thread):
         self.thread = thread
 
     def process(self):
-        pass
+        return Process(_icebox.thread_process(self.thread))
 
     def program_counter(self):
-        pass
+        return _icebox.thread_program_counter(self.thread)
 
     def tid(self):
-        pass
+        return _icebox.thread_tid(self.thread)
 
 class Threads:
     def __init__(self, vm):
         self.vm = vm
 
-    def enumerate(self):
-        pass
+    def list_all(self, proc):
+        for x in _icebox.thread_list(proc.proc):
+            yield Thread(x)
 
     def current(self):
-        pass
+        return Thread(_icebox.thread_current())
 
     def break_on_create(self):
-        pass
+        fthread = lambda thread: callback(Thread(thread))
+        bpid = _icebox.thread_listen_create(fthread)
+        return Callback(bpid, fthread)
 
     def break_on_delete(self):
-        pass
+        fthread = lambda thread: callback(Thread(thread))
+        bpid = _icebox.thread_listen_delete(fthread)
+        return Callback(bpid, fthread)
 
 class Symbols:
     def __init__(self, vm):
