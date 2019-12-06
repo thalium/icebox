@@ -133,6 +133,26 @@ class Threads:
     def break_on_delete(self):
         pass
 
+class Symbols:
+    def __init__(self, vm):
+        self.vm = vm
+
+    def address(self, proc, name):
+        module, symbol = name.split("!")
+        return _icebox.symbols_address(proc.proc, module, symbol)
+
+    def struc_size(self, proc, name):
+        module, struc_name = name.split("!")
+        return _icebox.symbols_struc_size(proc.proc, module, struc_name)
+
+    def struc_offset(self, proc, name):
+        module, struc = name.split("!")
+        struc_name, struc_member = struc.split("::")
+        return _icebox.symbols_struc_offset(proc.proc, module, struc_name, struc_member)
+
+    def string(self, proc, ptr):
+        return _icebox.symbols_string(proc.proc, ptr)
+
 class Vm:
     def __init__(self, name):
         curr = inspect.getsourcefile(lambda: 0)
@@ -145,6 +165,7 @@ class Vm:
         self.msr = Registers(_icebox.msr_list, _icebox.msr_read, _icebox.msr_write)
         self.threads = Threads(self)
         self.processes = Processes(self)
+        self.symbols = Symbols(self)
 
     def detach(self):
         _icebox.detach()

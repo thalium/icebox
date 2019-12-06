@@ -101,7 +101,7 @@ PyMODINIT_FUNC PyInit__icebox()
     const auto argc = static_cast<int>(args.size());
     logg::init(argc - 1, &args[0]);
 
-    static auto ice_methods = std::array<PyMethodDef, 32>{{
+    static auto ice_methods = std::array<PyMethodDef, 48>{{
         {"attach", &core_attach, METH_VARARGS, "attach vm <name>"},
         {"detach", &core_detach, METH_NOARGS, "detach from vm"},
         // state
@@ -128,6 +128,12 @@ PyMODINIT_FUNC PyInit__icebox()
         {"process_parent", &py::process::parent, METH_VARARGS, "read process parent, if any"},
         {"process_pid", &py::process::pid, METH_VARARGS, "read process pid"},
         {"process_wait", &py::process::wait, METH_VARARGS, "wait for process"},
+        // symbols
+        {"symbols_address", &py::symbols::address, METH_VARARGS, "read symbols address"},
+        {"symbols_struc_size", &py::symbols::struc_size, METH_VARARGS, "read struc size"},
+        {"symbols_struc_offset", &py::symbols::struc_offset, METH_VARARGS, "read struc member offset"},
+        {"symbols_string", &py::symbols::string, METH_VARARGS, "convert address to symbol string"},
+        // null terminated
         {nullptr, nullptr, 0, nullptr},
     }};
     static auto ice_module  = PyModuleDef{

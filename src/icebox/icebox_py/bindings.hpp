@@ -50,6 +50,14 @@ namespace py
         PyObject*   listen_delete   (PyObject* self, PyObject* args);
     } // namespace process
 
+    namespace symbols
+    {
+        PyObject*   address     (PyObject* self, PyObject* args);
+        PyObject*   struc_offset(PyObject* self, PyObject* args);
+        PyObject*   struc_size  (PyObject* self, PyObject* args);
+        PyObject*   string      (PyObject* self, PyObject* args);
+    } // namespace symbols
+
     template <typename T>
     T fail_with(T ret, PyObject* err, const char* msg)
     {
