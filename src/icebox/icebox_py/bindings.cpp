@@ -59,18 +59,19 @@ namespace
         handle->core.reset();
         Py_RETURN_NONE;
     }
-}
 
-core::Core* py::from_self(PyObject* self)
-{
-    const auto handle = handle_from_self(self);
-    if(!handle)
-        return nullptr;
+    template <PyObject* (*Op)(core::Core&, PyObject*)>
+    PyObject* core_exec(PyObject* self, PyObject* args)
+    {
+        const auto handle = handle_from_self(self);
+        if(!handle)
+            return nullptr;
 
-    if(!handle->core)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "not attached to any vm");
+        if(!handle->core)
+            return py::fail_with(nullptr, PyExc_RuntimeError, "not attached to any vm");
 
-    return handle->core.get();
+        return Op(*handle->core, args);
+    }
 }
 
 PyObject* py::to_bytes(const char* ptr, size_t size)
@@ -102,37 +103,37 @@ PyMODINIT_FUNC PyInit__icebox()
     logg::init(argc - 1, &args[0]);
 
     static auto ice_methods = std::array<PyMethodDef, 48>{{
-        {"attach", &core_attach, METH_VARARGS, "attach vm <name>"},
-        {"detach", &core_detach, METH_NOARGS, "detach from vm"},
+        {"attach", core_attach, METH_VARARGS, "attach vm <name>"},
+        {"detach", core_detach, METH_NOARGS, "detach from vm"},
         // state
-        {"pause", &py::state::pause, METH_NOARGS, "pause vm"},
-        {"resume", &py::state::resume, METH_NOARGS, "resume vm"},
-        {"single_step", &py::state::single_step, METH_NOARGS, "execute a single instruction"},
-        {"wait", &py::state::wait, METH_NOARGS, "wait vm"},
+        {"pause", &core_exec<&py::state::pause>, METH_NOARGS, "pause vm"},
+        {"resume", &core_exec<&py::state::resume>, METH_NOARGS, "resume vm"},
+        {"single_step", &core_exec<&py::state::single_step>, METH_NOARGS, "execute a single instruction"},
+        {"wait", &core_exec<&py::state::wait>, METH_NOARGS, "wait vm"},
         // registers
-        {"msr_list", &py::registers::msr_list, METH_NOARGS, "list available msr registers"},
-        {"msr_read", &py::registers::msr_read, METH_VARARGS, "read msr register"},
-        {"msr_write", &py::registers::msr_write, METH_VARARGS, "write msr register"},
-        {"register_list", &py::registers::list, METH_NOARGS, "list available registers"},
-        {"register_read", &py::registers::read, METH_VARARGS, "read register"},
-        {"register_write", &py::registers::write, METH_VARARGS, "write register"},
+        {"msr_list", &core_exec<&py::registers::msr_list>, METH_NOARGS, "list available msr registers"},
+        {"msr_read", &core_exec<&py::registers::msr_read>, METH_VARARGS, "read msr register"},
+        {"msr_write", &core_exec<&py::registers::msr_write>, METH_VARARGS, "write msr register"},
+        {"register_list", &core_exec<&py::registers::list>, METH_NOARGS, "list available registers"},
+        {"register_read", &core_exec<&py::registers::read>, METH_VARARGS, "read register"},
+        {"register_write", &core_exec<&py::registers::write>, METH_VARARGS, "write register"},
         // process
-        {"process_current", &py::process::current, METH_NOARGS, "read current process"},
-        {"process_flags", &py::process::flags, METH_VARARGS, "read process flags"},
-        {"process_is_valid", &py::process::is_valid, METH_VARARGS, "check if process is valid"},
-        {"process_join", &py::process::join, METH_VARARGS, "join process"},
-        {"process_list", &py::process::list, METH_NOARGS, "list available processes"},
-        {"process_listen_create", &py::process::listen_create, METH_VARARGS, "listen on process creation"},
-        {"process_listen_delete", &py::process::listen_delete, METH_VARARGS, "listen on process deletion"},
-        {"process_name", &py::process::name, METH_VARARGS, "read process name"},
-        {"process_parent", &py::process::parent, METH_VARARGS, "read process parent, if any"},
-        {"process_pid", &py::process::pid, METH_VARARGS, "read process pid"},
-        {"process_wait", &py::process::wait, METH_VARARGS, "wait for process"},
+        {"process_current", &core_exec<&py::process::current>, METH_NOARGS, "read current process"},
+        {"process_flags", &core_exec<&py::process::flags>, METH_VARARGS, "read process flags"},
+        {"process_is_valid", &core_exec<&py::process::is_valid>, METH_VARARGS, "check if process is valid"},
+        {"process_join", &core_exec<&py::process::join>, METH_VARARGS, "join process"},
+        {"process_list", &core_exec<&py::process::list>, METH_NOARGS, "list available processes"},
+        {"process_listen_create", &core_exec<&py::process::listen_create>, METH_VARARGS, "listen on process creation"},
+        {"process_listen_delete", &core_exec<&py::process::listen_delete>, METH_VARARGS, "listen on process deletion"},
+        {"process_name", &core_exec<&py::process::name>, METH_VARARGS, "read process name"},
+        {"process_parent", &core_exec<&py::process::parent>, METH_VARARGS, "read process parent, if any"},
+        {"process_pid", &core_exec<&py::process::pid>, METH_VARARGS, "read process pid"},
+        {"process_wait", &core_exec<&py::process::wait>, METH_VARARGS, "wait for process"},
         // symbols
-        {"symbols_address", &py::symbols::address, METH_VARARGS, "read symbols address"},
-        {"symbols_struc_size", &py::symbols::struc_size, METH_VARARGS, "read struc size"},
-        {"symbols_struc_offset", &py::symbols::struc_offset, METH_VARARGS, "read struc member offset"},
-        {"symbols_string", &py::symbols::string, METH_VARARGS, "convert address to symbol string"},
+        {"symbols_address", &core_exec<&py::symbols::address>, METH_VARARGS, "read symbols address"},
+        {"symbols_struc_size", &core_exec<&py::symbols::struc_size>, METH_VARARGS, "read struc size"},
+        {"symbols_struc_offset", &core_exec<&py::symbols::struc_offset>, METH_VARARGS, "read struc member offset"},
+        {"symbols_string", &core_exec<&py::symbols::string>, METH_VARARGS, "convert address to symbol string"},
         // null terminated
         {nullptr, nullptr, 0, nullptr},
     }};

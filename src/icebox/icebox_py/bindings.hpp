@@ -15,47 +15,45 @@
 
 namespace py
 {
-    core::Core* from_self(PyObject* self);
-
     namespace state
     {
-        PyObject*   pause       (PyObject* self, PyObject* args);
-        PyObject*   resume      (PyObject* self, PyObject* args);
-        PyObject*   single_step (PyObject* self, PyObject* args);
-        PyObject*   wait        (PyObject* self, PyObject* args);
+        PyObject*   pause       (core::Core& core, PyObject* args);
+        PyObject*   resume      (core::Core& core, PyObject* args);
+        PyObject*   single_step (core::Core& core, PyObject* args);
+        PyObject*   wait        (core::Core& core, PyObject* args);
     } // namespace state
 
     namespace registers
     {
-        PyObject*   list        (PyObject* self, PyObject* args);
-        PyObject*   msr_list    (PyObject* self, PyObject* args);
-        PyObject*   read        (PyObject* self, PyObject* args);
-        PyObject*   write       (PyObject* self, PyObject* args);
-        PyObject*   msr_read    (PyObject* self, PyObject* args);
-        PyObject*   msr_write   (PyObject* self, PyObject* args);
+        PyObject*   list        (core::Core& core, PyObject* args);
+        PyObject*   msr_list    (core::Core& core, PyObject* args);
+        PyObject*   read        (core::Core& core, PyObject* args);
+        PyObject*   write       (core::Core& core, PyObject* args);
+        PyObject*   msr_read    (core::Core& core, PyObject* args);
+        PyObject*   msr_write   (core::Core& core, PyObject* args);
     } // namespace registers
 
     namespace process
     {
-        PyObject*   current         (PyObject* self, PyObject* args);
-        PyObject*   name            (PyObject* self, PyObject* args);
-        PyObject*   is_valid        (PyObject* self, PyObject* args);
-        PyObject*   pid             (PyObject* self, PyObject* args);
-        PyObject*   flags           (PyObject* self, PyObject* args);
-        PyObject*   join            (PyObject* self, PyObject* args);
-        PyObject*   parent          (PyObject* self, PyObject* args);
-        PyObject*   list            (PyObject* self, PyObject* args);
-        PyObject*   wait            (PyObject* self, PyObject* args);
-        PyObject*   listen_create   (PyObject* self, PyObject* args);
-        PyObject*   listen_delete   (PyObject* self, PyObject* args);
+        PyObject*   current         (core::Core& core, PyObject* args);
+        PyObject*   name            (core::Core& core, PyObject* args);
+        PyObject*   is_valid        (core::Core& core, PyObject* args);
+        PyObject*   pid             (core::Core& core, PyObject* args);
+        PyObject*   flags           (core::Core& core, PyObject* args);
+        PyObject*   join            (core::Core& core, PyObject* args);
+        PyObject*   parent          (core::Core& core, PyObject* args);
+        PyObject*   list            (core::Core& core, PyObject* args);
+        PyObject*   wait            (core::Core& core, PyObject* args);
+        PyObject*   listen_create   (core::Core& core, PyObject* args);
+        PyObject*   listen_delete   (core::Core& core, PyObject* args);
     } // namespace process
 
     namespace symbols
     {
-        PyObject*   address     (PyObject* self, PyObject* args);
-        PyObject*   struc_offset(PyObject* self, PyObject* args);
-        PyObject*   struc_size  (PyObject* self, PyObject* args);
-        PyObject*   string      (PyObject* self, PyObject* args);
+        PyObject*   address     (core::Core& core, PyObject* args);
+        PyObject*   struc_offset(core::Core& core, PyObject* args);
+        PyObject*   struc_size  (core::Core& core, PyObject* args);
+        PyObject*   string      (core::Core& core, PyObject* args);
     } // namespace symbols
 
     template <typename T>

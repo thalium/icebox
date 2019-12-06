@@ -2,14 +2,8 @@
 
 namespace
 {
-    template <bool (*Op)(core::Core&)>
-    PyObject* core_exec(PyObject* self, PyObject* /*args*/)
+    PyObject* none_or_error(bool ok)
     {
-        auto core = py::from_self(self);
-        if(!core)
-            return nullptr;
-
-        const auto ok = Op(*core);
         if(!ok)
             return py::fail_with(nullptr, PyExc_RuntimeError, "error");
 
@@ -17,22 +11,26 @@ namespace
     }
 }
 
-PyObject* py::state::pause(PyObject* self, PyObject* args)
+PyObject* py::state::pause(core::Core& core, PyObject* /*args*/)
 {
-    return core_exec<&::state::pause>(self, args);
+    const auto ok = ::state::pause(core);
+    return none_or_error(ok);
 }
 
-PyObject* py::state::resume(PyObject* self, PyObject* args)
+PyObject* py::state::resume(core::Core& core, PyObject* /*args*/)
 {
-    return core_exec<&::state::resume>(self, args);
+    const auto ok = ::state::resume(core);
+    return none_or_error(ok);
 }
 
-PyObject* py::state::single_step(PyObject* self, PyObject* args)
+PyObject* py::state::single_step(core::Core& core, PyObject* /*args*/)
 {
-    return core_exec<&::state::single_step>(self, args);
+    const auto ok = ::state::single_step(core);
+    return none_or_error(ok);
 }
 
-PyObject* py::state::wait(PyObject* self, PyObject* args)
+PyObject* py::state::wait(core::Core& core, PyObject* /*args*/)
 {
-    return core_exec<&::state::wait>(self, args);
+    const auto ok = ::state::wait(core);
+    return none_or_error(ok);
 }
