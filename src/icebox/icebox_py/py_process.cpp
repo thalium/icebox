@@ -211,64 +211,47 @@ PyObject* py::process::wait(PyObject* self, PyObject* args)
     return py::to_bytes(*opt_proc);
 }
 
+namespace
+{
+    template <typename T>
+    PyObject* on_listen(PyObject* self, PyObject* args, const T& operand)
+    {
+        auto core = py::from_self(self);
+        if(!core)
+            return nullptr;
+
+        auto py_func  = static_cast<PyObject*>(nullptr);
+        const auto ok = PyArg_ParseTuple(args, "O", &py_func);
+        if(!ok)
+            return nullptr;
+
+        if(!PyCallable_Check(py_func))
+            return py::fail_with(nullptr, PyExc_TypeError, "arg must be callable");
+
+        const auto opt_bpid = operand(*core, [=](proc_t proc)
+        {
+            const auto py_proc = py::to_bytes(proc);
+            const auto args    = Py_BuildValue("(O)", py_proc);
+            if(!args)
+                return;
+
+            PYREF(args);
+            const auto ret = PyEval_CallObject(py_func, args);
+            (void) ret;
+        });
+        if(!opt_bpid)
+            return py::fail_with(nullptr, PyExc_RuntimeError, "unable to listen");
+
+        return py::to_bytes(*opt_bpid);
+    }
+}
+
 PyObject* py::process::listen_create(PyObject* self, PyObject* args)
 {
-    auto core = py::from_self(self);
-    if(!core)
-        return nullptr;
-
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "O", &py_func);
-    if(!ok)
-        return nullptr;
-
-    if(!PyCallable_Check(py_func))
-        return py::fail_with(nullptr, PyExc_TypeError, "arg must be callable");
-
-    const auto opt_bpid = ::process::listen_create(*core, [=](proc_t proc)
-    {
-        const auto py_proc = py::to_bytes(proc);
-        const auto args    = Py_BuildValue("(O)", py_proc);
-        if(!args)
-            return;
-
-        PYREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
-        (void) ret;
-    });
-    if(!opt_bpid)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to process::listen_create");
-
-    return py::to_bytes(*opt_bpid);
+    return on_listen(self, args, &::process::listen_create);
 }
 
 PyObject* py::process::listen_delete(PyObject* self, PyObject* args)
 {
-    auto core = py::from_self(self);
-    if(!core)
-        return nullptr;
-
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "O", &py_func);
-    if(!ok)
-        return nullptr;
-
-    if(!PyCallable_Check(py_func))
-        return py::fail_with(nullptr, PyExc_TypeError, "arg must be callable");
-
-    const auto opt_bpid = ::process::listen_delete(*core, [=](proc_t proc)
-    {
-        const auto py_proc = py::to_bytes(proc);
-        const auto args    = Py_BuildValue("(O)", py_proc);
-        if(!args)
-            return;
-
-        PYREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
-        (void) ret;
-    });
-    if(!opt_bpid)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to process::listen_create");
-
-    return py::to_bytes(*opt_bpid);
+    return on_listen(self, args, &::process::listen_delete);
 }
