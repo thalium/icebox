@@ -117,10 +117,14 @@ target_include_directories(libelf PUBLIC
 
 # libdwarf
 set(libdwarf_dir "${root_dir}/third_party/libdwarf-20190110/libdwarf")
-get_files(libdwarf_files "${libdwarf_dir}")
+set(zlib_dir "${root_dir}/third_party/virtualbox/src/libs/zlib-1.2.8")
+get_files(libdwarf_files "${libdwarf_dir}" ${zlib_dir})
 filter_out(libdwarf_files "dwarf_test_errmsg_list\.c")
 make_target(libdwarf third_party ${libdwarf_files} OPTIONS external)
 target_link_libraries(libdwarf PRIVATE libelf)
+target_compile_definitions(libdwarf PRIVATE
+    HAVE_ZLIB
+)
 if(NOT WIN32)
     target_compile_definitions(libdwarf PRIVATE
         HAVE_SYS_TYPES_H
@@ -130,6 +134,7 @@ if(NOT WIN32)
 endif()
 target_include_directories(libdwarf PUBLIC
     "${libdwarf_dir}"
+    "${zlib_dir}"
 )
 
 # mbedtls
