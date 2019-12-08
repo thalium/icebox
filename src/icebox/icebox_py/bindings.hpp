@@ -61,10 +61,10 @@ namespace py
 
     namespace symbols
     {
-        PyObject*   address     (core::Core& core, PyObject* args);
-        PyObject*   struc_offset(core::Core& core, PyObject* args);
-        PyObject*   struc_size  (core::Core& core, PyObject* args);
-        PyObject*   string      (core::Core& core, PyObject* args);
+        PyObject*   address         (core::Core& core, PyObject* args);
+        PyObject*   struc_size      (core::Core& core, PyObject* args);
+        PyObject*   member_offset   (core::Core& core, PyObject* args);
+        PyObject*   string          (core::Core& core, PyObject* args);
     } // namespace symbols
 
     template <typename T>

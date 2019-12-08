@@ -140,7 +140,7 @@ PyMODINIT_FUNC PyInit__icebox()
         // symbols
         {"symbols_address", &core_exec<&py::symbols::address>, METH_VARARGS, "read symbols address"},
         {"symbols_struc_size", &core_exec<&py::symbols::struc_size>, METH_VARARGS, "read struc size"},
-        {"symbols_struc_offset", &core_exec<&py::symbols::struc_offset>, METH_VARARGS, "read struc member offset"},
+        {"symbols_member_offset", &core_exec<&py::symbols::member_offset>, METH_VARARGS, "read struc member offset"},
         {"symbols_string", &core_exec<&py::symbols::string>, METH_VARARGS, "convert address to symbol string"},
         // null terminated
         {nullptr, nullptr, 0, nullptr},

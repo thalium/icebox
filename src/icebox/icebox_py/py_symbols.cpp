@@ -44,7 +44,7 @@ PyObject* py::symbols::struc_size(core::Core& core, PyObject* args)
     return PyLong_FromUnsignedLongLong(*opt_size);
 }
 
-PyObject* py::symbols::struc_offset(core::Core& core, PyObject* args)
+PyObject* py::symbols::member_offset(core::Core& core, PyObject* args)
 {
     auto obj    = static_cast<PyObject*>(nullptr);
     auto module = static_cast<const char*>(nullptr);
@@ -61,7 +61,7 @@ PyObject* py::symbols::struc_offset(core::Core& core, PyObject* args)
     module                = module ? module : "";
     struc                 = struc ? struc : "";
     member                = member ? member : "";
-    const auto opt_offset = ::symbols::struc_offset(core, *opt_proc, module, struc, member);
+    const auto opt_offset = ::symbols::member_offset(core, *opt_proc, module, struc, member);
     if(!opt_offset)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read struc offset");
 
