@@ -1,6 +1,7 @@
 #include "symbols.hpp"
 
 #define FDP_MODULE "dwarf"
+#include "indexer.hpp"
 #include "interfaces/if_symbols.hpp"
 #include "log.hpp"
 #include "utils/utils.hpp"
@@ -10,311 +11,275 @@
 
 namespace
 {
-    struct Dwarf
-        : public symbols::Module
+    using Handler = std::shared_ptr<Dwarf_Debug_s>;
+
+    void CloseHandler(Dwarf_Debug dbg)
     {
-        Dwarf(fs::path filename, std::string guid);
-        ~Dwarf() override;
+        if(!dbg)
+            return;
 
-        // methods
-        bool setup();
-
-        // IModule methods
-        std::string_view        id              () override;
-        opt<size_t>             symbol_offset   (const std::string& symbol) override;
-        void                    struc_names     (const symbols::on_name_fn& on_struc) override;
-        opt<size_t>             struc_size      (const std::string& struc) override;
-        void                    struc_members   (const std::string& struc, const symbols::on_name_fn& on_member) override;
-        opt<size_t>             member_offset   (const std::string& struc, const std::string& member) override;
-        opt<symbols::Offset>    find_symbol     (size_t offset) override;
-        bool                    list_symbols    (symbols::on_symbol_fn on_sym) override;
-
-        // members
-        const fs::path    filename_;
-        const std::string guid_;
-        Dwarf_Debug dbg = nullptr;
-        Dwarf_Error err = nullptr;
-        std::vector<Dwarf_Die> structures; // buffer of all references of structures
-    };
-}
-
-namespace
-{
-    bool open_file(Dwarf& p)
-    {
-        const auto ok = dwarf_init_path(
-            p.filename_.generic_string().data(), // path
-            nullptr,                             // true_path_out_buffer
-            0,                                   // true_path_bufferlen
-            DW_DLC_READ,                         // access
-            DW_GROUPNUMBER_ANY,                  // groupnumber
-            nullptr,                             // errhand
-            nullptr,                             // errarg
-            &p.dbg,                              // ret_dbg
-            nullptr,                             // reserved1
-            0,                                   // reserved2
-            nullptr,                             // reserved3
-            &p.err                               // error
-        );
-
-        if(ok == DW_DLV_ERROR)
-            return FAIL(false, "libdwarf error %llu when initializing dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-        if(ok == DW_DLV_NO_ENTRY)
-            return FAIL(false, "unfound file or dwarf information in file '%s'", p.filename_.generic_string().data());
-
-        return true;
+        auto err = Dwarf_Error{};
+        dwarf_finish(dbg, &err);
     }
 
-    opt<std::vector<Dwarf_Die>> read_cu(Dwarf& p)
+    Handler open_file(const fs::path& path)
     {
-        auto cu = std::vector<Dwarf_Die>();
-        Dwarf_Unsigned cu_offset;
-        int            ok;
+        auto dbg       = Dwarf_Debug{};
+        auto error     = Dwarf_Error{};
+        const auto err = dwarf_init_path(
+            path.generic_string().data(), // path
+            nullptr,                      // true_path_out_buffer
+            0,                            // true_path_bufferlen
+            DW_DLC_READ,                  // access
+            DW_GROUPNUMBER_ANY,           // groupnumber
+            nullptr,                      // errhand
+            nullptr,                      // errarg
+            &dbg,                         // ret_dbg
+            nullptr,                      // reserved1
+            0,                            // reserved2
+            nullptr,                      // reserved3
+            &error                        // error
+        );
+        if(err == DW_DLV_ERROR)
+            return FAIL(nullptr, "libdwarf error %llu when initializing dwarf file : %s", dwarf_errno(error), dwarf_errmsg(error));
 
-        while(true)
-        {
-            ok = dwarf_next_cu_header_d(
-                p.dbg,      // dbg
-                true,       // is_info
-                nullptr,    // cu_header_length
-                nullptr,    // version_stamp
-                nullptr,    // abbrev_offset
-                nullptr,    // address_size
-                nullptr,    // length_size
-                nullptr,    // extension_size
-                nullptr,    // type signature
-                nullptr,    // typeoffset
-                &cu_offset, // next_cu_header_offset
-                nullptr,    // header_cu_type
-                &p.err      // error
-            );
+        if(err == DW_DLV_NO_ENTRY)
+            return FAIL(nullptr, "unfound file or dwarf information in file '%s'", path.generic_string().data());
 
-            if(ok == DW_DLV_ERROR)
-                return FAIL(ext::nullopt, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-            if(ok == DW_DLV_NO_ENTRY)
-                break;
-
-            Dwarf_Die die = nullptr;
-            ok            = dwarf_siblingof_b(p.dbg, nullptr, true, &die, &p.err);
-
-            if(ok == DW_DLV_NO_ENTRY)
-                continue;
-
-            if(ok == DW_DLV_ERROR)
-                return FAIL(ext::nullopt, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-            cu.push_back(die);
-        }
-
-        if(cu.empty())
-            return FAIL(ext::nullopt, "no compilation unit found in file %s", p.filename_.generic_string().data());
-
-        return cu;
+        return Handler(dbg, &CloseHandler);
     }
 
     template <typename T>
-    bool read_children(Dwarf& p, const Dwarf_Die& parent, T on_child)
+    bool read_cu(Dwarf_Debug_s& dbg, T on_die)
     {
-        Dwarf_Die child = nullptr;
-        auto ok         = dwarf_child(parent, &child, &p.err);
-
-        while(ok != DW_DLV_NO_ENTRY)
+        auto error = Dwarf_Error{};
+        while(true)
         {
-            if(ok == DW_DLV_ERROR)
-                return FAIL(false, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
+            auto offset = Dwarf_Unsigned{};
+            auto err    = dwarf_next_cu_header_d(
+                &dbg,    // dbg
+                true,    // is_info
+                nullptr, // cu_header_length
+                nullptr, // version_stamp
+                nullptr, // abbrev_offset
+                nullptr, // address_size
+                nullptr, // length_size
+                nullptr, // extension_size
+                nullptr, // type signature
+                nullptr, // typeoffset
+                &offset, // next_cu_header_offset
+                nullptr, // header_cu_type
+                &error   // error
+            );
+
+            if(err == DW_DLV_ERROR)
+                return FAIL(false, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(error), dwarf_errmsg(error));
+
+            if(err == DW_DLV_NO_ENTRY)
+                return true;
+
+            auto die = Dwarf_Die{};
+            err      = dwarf_siblingof_b(&dbg, nullptr, true, &die, &error);
+            if(err == DW_DLV_NO_ENTRY)
+                continue;
+
+            if(err == DW_DLV_ERROR)
+                return FAIL(false, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(error), dwarf_errmsg(error));
+
+            on_die(die);
+        }
+    }
+
+    template <typename T>
+    bool read_children(Dwarf_Debug_s& dbg, const Dwarf_Die& parent, T on_child)
+    {
+        auto error = Dwarf_Error{};
+        auto child = Dwarf_Die{};
+        auto err   = dwarf_child(parent, &child, &error);
+        while(err != DW_DLV_NO_ENTRY)
+        {
+            if(err == DW_DLV_ERROR)
+                return FAIL(false, "libdwarf error %llu when reading dwarf file : %s", dwarf_errno(error), dwarf_errmsg(error));
+
             if(on_child(child) == walk_e::stop)
                 break;
 
-            ok = dwarf_siblingof_b(p.dbg, child, true, &child, &p.err);
+            err = dwarf_siblingof_b(&dbg, child, true, &child, &error);
         }
-
         return true;
     }
 
-    opt<Dwarf_Die> get_member(Dwarf& p, const std::string& name, const Dwarf_Die& structure)
+    const char* read_die_name(Dwarf_Die die)
     {
-        opt<Dwarf_Die> result_member = {};
-        read_children(p, structure, [&](const Dwarf_Die& member)
-        {
-            char* name_ptr        = nullptr;
-            const auto ok_diename = dwarf_diename(member, &name_ptr, &p.err);
+        auto error    = Dwarf_Error{};
+        auto name_ptr = static_cast<char*>(nullptr);
+        auto err      = dwarf_diename(die, &name_ptr, &error);
+        if(err == DW_DLV_ERROR)
+            return FAIL(nullptr, "error dwarf_diename: %llu: %s", dwarf_errno(error), dwarf_errmsg(error));
 
-            if(ok_diename == DW_DLV_ERROR)
-                LOG(ERROR, "libdwarf error %llu when reading name of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
+        if(err != DW_DLV_OK)
+            return nullptr;
 
-            if(ok_diename == DW_DLV_NO_ENTRY) // anonymous struct
-            {
-                Dwarf_Off type_offset = 0;
-                auto ok               = dwarf_dietype_offset(member, &type_offset, &p.err);
-
-                if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error %llu when reading type offset of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-                if(ok != DW_DLV_OK)
-                    return walk_e::next;
-
-                Dwarf_Die anonymous_struct = nullptr;
-                ok                         = dwarf_offdie_b(p.dbg, type_offset, true, &anonymous_struct, &p.err);
-
-                if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error %llu when getting DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-                if(ok != DW_DLV_OK)
-                    return FAIL(walk_e::next, "unable to get DIE at offset 0x%llu", type_offset);
-
-                const auto child = get_member(p, name, anonymous_struct);
-                if(child)
-                {
-                    result_member = *child;
-                    return walk_e::stop;
-                }
-            }
-
-            if(ok_diename != DW_DLV_OK)
-                return walk_e::next;
-
-            const std::string structure_name(name_ptr);
-            if(structure_name == name)
-            {
-                result_member = member;
-                return walk_e::stop;
-            }
-            return walk_e::next;
-        });
-        return result_member;
+        return name_ptr;
     }
 
-    template <typename T>
-    bool get_structure(Dwarf& p, const std::string& name, T on_structure)
+    Dwarf_Die read_die_child(Dwarf_Debug_s& dbg, Dwarf_Die die, const char* name)
     {
-        if(name.empty())
-            return false;
+        auto error  = Dwarf_Error{};
+        auto offset = Dwarf_Off{};
+        auto err    = dwarf_dietype_offset(die, &offset, &error);
+        if(err != DW_DLV_OK)
+            return die;
 
-        for(const auto structure : p.structures)
-        {
-            char* name_ptr = nullptr;
-            auto ok        = dwarf_diename(structure, &name_ptr, &p.err);
+        err = dwarf_offdie_b(&dbg, offset, true, &die, &error);
+        if(err != DW_DLV_OK)
+            return FAIL(nullptr, "error dwarf_offdie_b: %llu: %s: name:%s offset:0%llu", dwarf_errno(error), dwarf_errmsg(error), name, offset);
 
-            if(ok == DW_DLV_ERROR)
-                LOG(ERROR, "libdwarf error %llu when reading name of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-            if(ok != DW_DLV_OK)
-                continue;
-
-            const std::string structure_name(name_ptr);
-            if(structure_name == name)
-            {
-                Dwarf_Off type_offset = 0;
-                ok                    = dwarf_dietype_offset(structure, &type_offset, &p.err); // typedef struct if there is an offset
-
-                if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error %llu when reading type offset of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-                if(ok != DW_DLV_OK)
-                {
-                    if(on_structure(structure) == walk_e::stop)
-                        return true;
-                    continue;
-                }
-
-                Dwarf_Die typedef_struct = nullptr;
-                ok                       = dwarf_offdie_b(p.dbg, type_offset, true, &typedef_struct, &p.err);
-
-                if(ok == DW_DLV_ERROR)
-                    LOG(ERROR, "libdwarf error %llu when getting DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-                if(ok != DW_DLV_OK)
-                    return FAIL(false, "unable to get DIE at offset 0x%llu, and so unable to find structure '%s'", type_offset, name.data());
-
-                if(on_structure(typedef_struct) == walk_e::stop)
-                    return true;
-            }
-        }
-
-        return false;
+        return die;
     }
 
-    opt<uint64_t> get_attr_member_location(Dwarf& p, const Dwarf_Die& die)
+    opt<uint64_t> read_member_offset(Dwarf_Debug_s& dbg, Dwarf_Die die)
     {
-        Dwarf_Attribute attr = nullptr;
-        const auto ok        = dwarf_attr(die, DW_AT_data_member_location, &attr, &p.err);
+        auto error = Dwarf_Error{};
+        auto attr  = Dwarf_Attribute{};
+        auto err   = dwarf_attr(die, DW_AT_data_member_location, &attr, &error);
+        if(err == DW_DLV_ERROR)
+            return FAIL(ext::nullopt, "libdwarf error %llu when reading attributes of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
 
-        if(ok == DW_DLV_ERROR)
-            return FAIL(ext::nullopt, "libdwarf error %llu when reading attributes of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-        if(ok == DW_DLV_NO_ENTRY)
+        if(err == DW_DLV_NO_ENTRY)
             return FAIL(ext::nullopt, "die member has not DW_AT_data_member_location attribute");
 
-        Dwarf_Half form;
-        if(dwarf_whatform(attr, &form, &p.err) != DW_DLV_OK)
-            return FAIL(ext::nullopt, "libdwarf error %llu when reading form of DW_AT_data_member_location attribute : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
+        auto form = Dwarf_Half{};
+        err       = dwarf_whatform(attr, &form, &error);
+        if(err != DW_DLV_OK)
+            return FAIL(ext::nullopt, "libdwarf error %llu when reading form of DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
 
         if(form == DW_FORM_data1 || form == DW_FORM_data2 || form == DW_FORM_data4 || form == DW_FORM_data8 || form == DW_FORM_udata)
         {
-            Dwarf_Unsigned offset;
-            if(dwarf_formudata(attr, &offset, &p.err) != DW_DLV_OK)
-                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
+            auto offset = Dwarf_Unsigned{};
+            err         = dwarf_formudata(attr, &offset, &error);
+            if(err != DW_DLV_OK)
+                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
 
-            return (uint64_t) offset;
+            return offset;
         }
 
         if(form == DW_FORM_sdata)
         {
-            Dwarf_Signed soffset;
-            if(dwarf_formsdata(attr, &soffset, &p.err) != DW_DLV_OK)
-                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
+            auto offset = Dwarf_Signed{};
+            err         = dwarf_formsdata(attr, &offset, &error);
+            if(err != DW_DLV_OK)
+                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
 
-            if(soffset < 0)
+            if(offset < 0)
                 return FAIL(ext::nullopt, "unsupported negative offset for DW_AT_data_member_location attribute");
 
-            return (uint64_t) soffset;
+            return offset;
         }
 
-        Dwarf_Locdesc** llbuf = nullptr;
-        Dwarf_Signed listlen;
-        if(dwarf_loclist_n(attr, &llbuf, &listlen, &p.err) != DW_DLV_OK)
+        auto llbuf   = static_cast<Dwarf_Locdesc**>(nullptr);
+        auto listlen = Dwarf_Signed{};
+        err          = dwarf_loclist_n(attr, &llbuf, &listlen, &error);
+        if(err != DW_DLV_OK)
         {
-            dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
+            dwarf_dealloc(&dbg, &llbuf, DW_DLA_LOCDESC);
             return FAIL(ext::nullopt, "unsupported member offset in DW_AT_data_member_location attribute");
         }
 
-        if(listlen != 1 || llbuf[0]->ld_cents != 1 || (llbuf[0]->ld_s[0]).lr_atom != DW_OP_plus_uconst)
+        if(listlen != 1 || llbuf[0]->ld_cents != 1 || llbuf[0]->ld_s->lr_atom != DW_OP_plus_uconst)
         {
-            dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
+            dwarf_dealloc(&dbg, &llbuf, DW_DLA_LOCDESC);
             return FAIL(ext::nullopt, "unsupported location expression in DW_AT_data_member_location attribute");
         }
 
-        const auto offset = llbuf[0]->ld_s[0].lr_number;
-        dwarf_dealloc(p.dbg, &llbuf, DW_DLA_LOCDESC);
-        return (uint64_t) offset;
+        const auto offset = llbuf[0]->ld_s->lr_number;
+        dwarf_dealloc(&dbg, &llbuf, DW_DLA_LOCDESC);
+        return offset;
     }
 
-    opt<size_t> struc_size_internal(Dwarf& p, const Dwarf_Die& struc)
+    opt<size_t> read_struc_size(Dwarf_Die struc)
     {
-        Dwarf_Unsigned size;
-        const auto ok = dwarf_bytesize(struc, &size, &p.err);
+        auto error     = Dwarf_Error{};
+        auto size      = Dwarf_Unsigned{};
+        const auto err = dwarf_bytesize(struc, &size, &error);
+        if(err == DW_DLV_ERROR)
+            return FAIL(ext::nullopt, "libdwarf error %llu when reading size of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
 
-        if(ok == DW_DLV_ERROR)
-            return FAIL(ext::nullopt, "libdwarf error %llu when reading size of a DIE : %s", dwarf_errno(p.err), dwarf_errmsg(p.err));
-
-        if(ok == DW_DLV_NO_ENTRY)
+        if(err == DW_DLV_NO_ENTRY)
             return {};
 
         return size;
     }
-}
 
-Dwarf::Dwarf(fs::path filename, std::string guid)
-    : filename_(std::move(filename))
-    , guid_(std::move(guid))
-{
-}
+    template <typename T>
+    void all_strucs(Dwarf_Debug_s& dbg, const T& on_struc)
+    {
+        read_cu(dbg, [&](Dwarf_Die cu)
+        {
+            read_children(dbg, cu, [&](Dwarf_Die child)
+            {
+                const auto name = read_die_name(child);
+                if(!name)
+                    return walk_e::next;
 
-Dwarf::~Dwarf()
-{
-    dwarf_finish(dbg, &err);
+                const auto ok = on_struc(child, name);
+                return ok ? walk_e::next : walk_e::stop;
+            });
+        });
+    }
+
+    template <typename T>
+    void all_members(Dwarf_Debug_s& dbg, Dwarf_Die struc, const T& on_member)
+    {
+        read_children(dbg, struc, [&](Dwarf_Die child)
+        {
+            auto error     = Dwarf_Error{};
+            auto name_ptr  = static_cast<char*>(nullptr);
+            const auto err = dwarf_diename(child, &name_ptr, &error);
+            if(err == DW_DLV_ERROR)
+                return FAIL(walk_e::next, "error dwarf_diename: %llu: %s", dwarf_errno(error), dwarf_errmsg(error));
+
+            if(err == DW_DLV_OK)
+                return on_member(child);
+
+            if(const auto sub = read_die_child(dbg, child, ""))
+                if(sub != child)
+                    all_members(dbg, sub, on_member);
+
+            return walk_e::next;
+        });
+    }
+
+    bool setup(symbols::Indexer& indexer, const fs::path& path)
+    {
+        const auto dbg = open_file(path);
+        if(!dbg)
+            return false;
+
+        const auto on_member = [&](symbols::Struc& struc, Dwarf_Die member, std::string_view name)
+        {
+            const auto opt_offset = read_member_offset(*dbg, member);
+            const auto offset     = opt_offset ? *opt_offset : (uint32_t) -1;
+            indexer.add_member(struc, name, offset);
+        };
+        all_strucs(*dbg, [&](Dwarf_Die struc, std::string_view name)
+        {
+            struc               = read_die_child(*dbg, struc, name.data());
+            const auto opt_size = read_struc_size(struc);
+            const auto size     = opt_size ? *opt_size : -1;
+            auto& idx           = indexer.add_struc(name, size);
+            all_members(*dbg, struc, [&](Dwarf_Die member)
+            {
+                auto mname = read_die_name(member);
+                if(mname)
+                    on_member(idx, member, mname);
+
+                return walk_e::next;
+            });
+            return true;
+        });
+        return true;
+    }
 }
 
 std::shared_ptr<symbols::Module> symbols::make_dwarf(const std::string& module, const std::string& guid)
@@ -323,100 +288,14 @@ std::shared_ptr<symbols::Module> symbols::make_dwarf(const std::string& module, 
     if(!path)
         return nullptr;
 
-    auto ptr = std::make_unique<Dwarf>(fs::path(path) / module / guid / "elf", guid);
-    if(!ptr->setup())
+    auto indexer = symbols::make_indexer(guid);
+    if(!indexer)
         return nullptr;
 
-    return ptr;
-}
+    const auto ok = setup(*indexer, fs::path(path) / module / guid / "elf");
+    if(!ok)
+        return nullptr;
 
-bool Dwarf::setup()
-{
-    if(!open_file(*this))
-        return false;
-
-    const auto cu = read_cu(*this);
-    if(!cu)
-        return false;
-
-    for(const auto die : *cu)
-    {
-        read_children(*this, die, [&](const Dwarf_Die& child)
-        {
-            structures.push_back(child);
-            return walk_e::next;
-        });
-    }
-
-    if(structures.empty())
-        return FAIL(false, "no structures found in file %s", filename_.generic_string().data());
-
-    return true;
-}
-
-std::string_view Dwarf::id()
-{
-    return guid_;
-}
-
-opt<size_t> Dwarf::symbol_offset(const std::string& /*symbol*/)
-{
-    return {};
-}
-
-bool Dwarf::list_symbols(symbols::on_symbol_fn /*on_sym*/)
-{
-    return false;
-}
-
-void Dwarf::struc_names(const symbols::on_name_fn& /*on_struc*/)
-{
-}
-
-opt<size_t> Dwarf::struc_size(const std::string& struc)
-{
-    opt<size_t> size = {};
-    get_structure(*this, struc, [&](const Dwarf_Die& structure)
-    {
-        size = struc_size_internal(*this, structure);
-        if(!size)
-            return walk_e::next;
-
-        return walk_e::stop;
-    });
-
-    if(!size)
-        LOG(ERROR, "unfound %s structure or die has not DW_AT_byte_size attribute", struc.data());
-
-    return size;
-}
-
-void Dwarf::struc_members(const std::string& /*struc*/, const symbols::on_name_fn& /*on_member*/)
-{
-}
-
-opt<size_t> Dwarf::member_offset(const std::string& struc, const std::string& member)
-{
-    opt<Dwarf_Die> child = {};
-    get_structure(*this, struc, [&](const Dwarf_Die& structure)
-    {
-        child = get_member(*this, member, structure);
-        if(!child)
-            return walk_e::next;
-
-        return walk_e::stop;
-    });
-    if(!child)
-        return {};
-
-    const auto offset = get_attr_member_location(*this, *child);
-    if(!offset)
-        return {};
-
-    return offset;
-}
-
-opt<symbols::Offset> Dwarf::find_symbol(size_t /*offset*/)
-{
-    return {};
+    indexer->finalize();
+    return indexer;
 }
