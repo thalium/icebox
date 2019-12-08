@@ -1,12 +1,14 @@
 #pragma once
 
 #include "types.hpp"
+#include <functional>
 
 namespace core { struct Core; }
 
 namespace symbols
 {
-    using bpid_t = uint64_t;
+    using bpid_t     = uint64_t;
+    using on_name_fn = std::function<void(std::string_view)>;
 
     struct Symbol
     {
@@ -26,9 +28,11 @@ namespace symbols
     bool        load_drivers    (core::Core& core);
     bool        unload          (core::Core& core, proc_t proc, const std::string& module);
 
-    opt<uint64_t>   address     (core::Core& core, proc_t proc, const std::string& module, const std::string& symbol);
-    opt<uint64_t>   struc_offset(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
-    opt<size_t>     struc_size  (core::Core& core, proc_t proc, const std::string& module, const std::string& struc);
-    Symbol          find        (core::Core& core, proc_t proc, uint64_t addr);
-    std::string     to_string   (const Symbol& symbol);
+    opt<uint64_t>   address         (core::Core& core, proc_t proc, const std::string& module, const std::string& symbol);
+    void            struc_names     (core::Core& core, proc_t proc, const std::string& module, const on_name_fn& on_struc);
+    opt<size_t>     struc_size      (core::Core& core, proc_t proc, const std::string& module, const std::string& struc);
+    void            struc_members   (core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const on_name_fn& on_member);
+    opt<uint64_t>   member_offset   (core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
+    Symbol          find            (core::Core& core, proc_t proc, uint64_t addr);
+    std::string     to_string       (const Symbol& symbol);
 } // namespace symbols

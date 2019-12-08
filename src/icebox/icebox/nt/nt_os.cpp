@@ -401,7 +401,7 @@ bool NtOs::setup()
     for(const auto& off : g_offsets)
     {
         fail |= off.e_id != ++i;
-        const auto offset = symbols::struc_offset(core_, symbols::kernel, off.module, off.struc, off.member);
+        const auto offset = symbols::member_offset(core_, symbols::kernel, off.module, off.struc, off.member);
         if(!offset)
         {
             fail |= off.e_cat == cat_e::REQUIRED;

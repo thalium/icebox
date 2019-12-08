@@ -23,8 +23,10 @@ namespace
         // IModule methods
         std::string_view        id              () override;
         opt<size_t>             symbol_offset   (const std::string& symbol) override;
-        opt<size_t>             struc_offset    (const std::string& struc, const std::string& member) override;
+        void                    struc_names     (const symbols::on_name_fn& on_struc) override;
         opt<size_t>             struc_size      (const std::string& struc) override;
+        void                    struc_members   (const std::string& struc, const symbols::on_name_fn& on_member) override;
+        opt<size_t>             member_offset   (const std::string& struc, const std::string& member) override;
         opt<symbols::Offset>    find_symbol     (size_t offset) override;
         bool                    list_symbols    (symbols::on_symbol_fn on_sym) override;
 
@@ -135,12 +137,20 @@ bool Map::list_symbols(symbols::on_symbol_fn on_sym)
     return true;
 }
 
-opt<size_t> Map::struc_offset(const std::string& /*struc*/, const std::string& /*member*/)
+void Map::struc_names(const symbols::on_name_fn& /*on_struc*/)
+{
+}
+
+opt<size_t> Map::struc_size(const std::string& /*struc*/)
 {
     return {};
 }
 
-opt<size_t> Map::struc_size(const std::string& /*struc*/)
+void Map::struc_members(const std::string& /*struc*/, const symbols::on_name_fn& /*on_member*/)
+{
+}
+
+opt<size_t> Map::member_offset(const std::string& /*struc*/, const std::string& /*member*/)
 {
     return {};
 }

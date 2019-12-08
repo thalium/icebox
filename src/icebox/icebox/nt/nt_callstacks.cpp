@@ -492,7 +492,7 @@ namespace
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_nt_offsets[i].e_id != i;
-            const auto offset = symbols::struc_offset(c.core_, proc, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            const auto offset = symbols::member_offset(c.core_, proc, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
             if(!offset)
             {
                 LOG(ERROR, "unable to read %s!%s.%s member offset", name, g_nt_offsets[i].struc, g_nt_offsets[i].member);

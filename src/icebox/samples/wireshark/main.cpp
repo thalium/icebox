@@ -127,7 +127,7 @@ namespace
         const auto cs            = registers::read(core, reg_e::cs);
         const auto is_kernel_ctx = cs && 0x0F == 0x00;
         const auto teb           = registers::read_msr(core, is_kernel_ctx ? msr_e::kernel_gs_base : msr_e::gs_base);
-        const auto TEB_TlsSlots  = symbols::struc_offset(core, symbols::kernel, "nt", "_TEB", "TlsSlots");
+        const auto TEB_TlsSlots  = symbols::member_offset(core, symbols::kernel, "nt", "_TEB", "TlsSlots");
         if(!TEB_TlsSlots)
             return {};
 

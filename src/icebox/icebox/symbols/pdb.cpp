@@ -27,9 +27,9 @@
 namespace pdb = retdec::pdbparser;
 
 #ifdef _MSC_VER
-#    define stricmp _stricmp
+#    define strnicmp _strnicmp
 #else
-#    define stricmp strcasecmp
+#    define strnicmp strncasecmp
 #endif
 
 namespace
@@ -44,6 +44,8 @@ namespace
     {
         size_t name_idx;
         size_t size;
+        size_t member_idx;
+        size_t member_end;
     };
 
     struct Member
@@ -72,8 +74,10 @@ namespace
         // IModule methods
         std::string_view        id              () override;
         opt<size_t>             symbol_offset   (const std::string& symbol) override;
-        opt<size_t>             struc_offset    (const std::string& struc, const std::string& member) override;
+        void                    struc_names     (const symbols::on_name_fn& on_struc) override;
         opt<size_t>             struc_size      (const std::string& struc) override;
+        void                    struc_members   (const std::string& struc, const symbols::on_name_fn& on_member) override;
+        opt<size_t>             member_offset   (const std::string& struc, const std::string& member) override;
         opt<symbols::Offset>    find_symbol     (size_t offset) override;
         bool                    list_symbols    (symbols::on_symbol_fn on_sym) override;
 
@@ -122,18 +126,6 @@ namespace
             case pdb::PDB_STATE_UNSUPPORTED_VERSION:    return "unsupported_version";
         }
         return "<invalid>";
-    }
-
-    std::string to_member_string(std::string_view struc, std::string_view member)
-    {
-        auto ret = std::string{};
-        ret.reserve(struc.size() + 1 + member.size());
-        for(auto c : struc)
-            ret += static_cast<char>(tolower(c));
-        ret += '#';
-        for(auto c : member)
-            ret += static_cast<char>(tolower(c));
-        return ret;
     }
 
     void insert_ordered(Symbols& vec, const Sym& item)
@@ -196,13 +188,16 @@ bool Pdb::setup()
         const auto& type = reinterpret_cast<const pdb::PDBTypeStruct&>(raw);
         emplace_string(*this, it.first);
         const auto size_bytes = static_cast<size_t>(type.size_bytes);
-        strucs_.emplace_back(Struc{idx++, size_bytes});
+        const auto name_idx   = idx++;
+        const auto first_idx  = members_.size();
         for(const auto& member : type.struct_members)
         {
-            emplace_string(*this, to_member_string(it.first, member->name));
+            emplace_string(*this, member->name);
             const auto offset = static_cast<size_t>(member->offset);
             members_.emplace_back(Member{idx++, offset});
         }
+        const auto last_idx = members_.size();
+        strucs_.emplace_back(Struc{name_idx, size_bytes, first_idx, last_idx});
     }
 
     data_strings_.shrink_to_fit();
@@ -212,7 +207,7 @@ bool Pdb::setup()
     offsets_to_symbols_.shrink_to_fit();
     sort_by_name(symbols_, strings_);
     sort_by_name(strucs_, strings_);
-    sort_by_name(members_, strings_);
+    members_.shrink_to_fit();
 
     return true;
 }
@@ -260,14 +255,10 @@ bool Pdb::list_symbols(symbols::on_symbol_fn on_sym)
     return true;
 }
 
-opt<size_t> Pdb::struc_offset(const std::string& struc, const std::string& member)
+void Pdb::struc_names(const symbols::on_name_fn& on_struc)
 {
-    const auto target     = to_member_string(struc, member);
-    const auto opt_member = binary_search(strings_, members_, target);
-    if(!opt_member)
-        return {};
-
-    return opt_member->offset;
+    for(const auto& struc : strucs_)
+        on_struc(strings_[struc.name_idx]);
 }
 
 opt<size_t> Pdb::struc_size(const std::string& struc)
@@ -277,6 +268,45 @@ opt<size_t> Pdb::struc_size(const std::string& struc)
         return {};
 
     return opt_struc->size;
+}
+
+void Pdb::struc_members(const std::string& struc, const symbols::on_name_fn& on_member)
+{
+    const auto opt_struc = binary_search(strings_, strucs_, struc);
+    if(!opt_struc)
+        return;
+
+    for(auto idx = opt_struc->member_idx; idx < opt_struc->member_end; ++idx)
+    {
+        const auto& m = members_[idx];
+        on_member(strings_[m.name_idx]);
+    }
+}
+
+namespace
+{
+    bool is_lowercase_equal(const std::string_view& a, const std::string_view& b)
+    {
+        if(a.size() != b.size())
+            return false;
+
+        return !strnicmp(a.data(), b.data(), a.size());
+    }
+}
+
+opt<size_t> Pdb::member_offset(const std::string& struc, const std::string& member)
+{
+    const auto opt_struc = binary_search(strings_, strucs_, struc);
+    if(!opt_struc)
+        return {};
+
+    for(auto idx = opt_struc->member_idx; idx != opt_struc->member_end; ++idx)
+    {
+        const auto& m = members_[idx];
+        if(is_lowercase_equal(member, strings_[m.name_idx]))
+            return m.offset;
+    }
+    return {};
 }
 
 namespace

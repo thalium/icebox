@@ -498,7 +498,7 @@ namespace
         for(const auto& off : g_offsets)
         {
             fail |= off.e_id != ++i;
-            offsets[i] = symbols::struc_offset(core, symbols::kernel, off.module, off.struc, off.member);
+            offsets[i] = symbols::member_offset(core, symbols::kernel, off.module, off.struc, off.member);
             if(offsets[i])
                 continue;
 

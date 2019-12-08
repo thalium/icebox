@@ -136,7 +136,7 @@ namespace
         for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
         {
             const auto& mb    = g_member_offsets[i];
-            const auto offset = symbols::struc_offset(d.core, symbols::kernel, mb.module, mb.struc, mb.member);
+            const auto offset = symbols::member_offset(d.core, symbols::kernel, mb.module, mb.struc, mb.member);
             if(!offset)
             {
                 fail = true;

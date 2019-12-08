@@ -253,13 +253,11 @@ opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, 
     return it->span.addr + *opt_offset;
 }
 
-opt<uint64_t> symbols::Modules::struc_offset(proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
+void symbols::Modules::struc_names(proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc)
 {
     const auto mod = find(proc, module);
-    if(!mod)
-        return {};
-
-    return mod->struc_offset(struc, member);
+    if(mod)
+        mod->struc_names(on_struc);
 }
 
 opt<size_t> symbols::Modules::struc_size(proc_t proc, const std::string& module, const std::string& struc)
@@ -269,6 +267,22 @@ opt<size_t> symbols::Modules::struc_size(proc_t proc, const std::string& module,
         return {};
 
     return mod->struc_size(struc);
+}
+
+void symbols::Modules::struc_members(proc_t proc, const std::string& module, const std::string& struc, const on_name_fn& on_member)
+{
+    const auto mod = find(proc, module);
+    if(mod)
+        mod->struc_members(struc, on_member);
+}
+
+opt<uint64_t> symbols::Modules::member_offset(proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
+{
+    const auto mod = find(proc, module);
+    if(!mod)
+        return {};
+
+    return mod->member_offset(struc, member);
 }
 
 namespace
@@ -461,14 +475,24 @@ opt<uint64_t> symbols::address(core::Core& core, proc_t proc, const std::string&
     return core.symbols_->address(proc, module, symbol);
 }
 
-opt<uint64_t> symbols::struc_offset(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
+void symbols::struc_names(core::Core& core, proc_t proc, const std::string& module, const on_name_fn& on_struc)
 {
-    return core.symbols_->struc_offset(proc, module, struc, member);
+    core.symbols_->struc_names(proc, module, on_struc);
 }
 
 opt<size_t> symbols::struc_size(core::Core& core, proc_t proc, const std::string& module, const std::string& struc)
 {
     return core.symbols_->struc_size(proc, module, struc);
+}
+
+void symbols::struc_members(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const on_name_fn& on_member)
+{
+    core.symbols_->struc_members(proc, module, struc, on_member);
+}
+
+opt<uint64_t> symbols::member_offset(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
+{
+    return core.symbols_->member_offset(proc, module, struc, member);
 }
 
 symbols::Symbol symbols::find(core::Core& core, proc_t proc, uint64_t addr)

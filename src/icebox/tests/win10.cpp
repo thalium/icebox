@@ -538,3 +538,35 @@ TEST_F(win10, listen_module_wow64)
     const auto ntwow64 = modules::wait(core, *proc, "ntdll.dll", flags::x86);
     EXPECT_TRUE(!!ntwow64);
 }
+
+TEST_F(win10, symbols)
+{
+    auto& core          = *ptr_core;
+    const auto opt_proc = process::find_pid(core, 4);
+    EXPECT_TRUE(!!opt_proc);
+
+    const auto opt_addr = symbols::address(core, *opt_proc, "nt", "PspExitProcess");
+    EXPECT_TRUE(!!opt_addr);
+
+    auto strucs = std::vector<std::string>{};
+    symbols::struc_names(core, *opt_proc, "nt", [&](std::string_view struc)
+    {
+        strucs.emplace_back(struc);
+    });
+    const auto it_struc = std::find(strucs.begin(), strucs.end(), "_KPROCESS");
+    EXPECT_NE(it_struc, strucs.end());
+
+    const auto opt_size = symbols::struc_size(core, *opt_proc, "nt", "_KPROCESS");
+    EXPECT_TRUE(!!opt_size);
+
+    auto members = std::vector<std::string>{};
+    symbols::struc_members(core, *opt_proc, "nt", "_KPROCESS", [&](std::string_view member)
+    {
+        members.emplace_back(member);
+    });
+    const auto it_member = std::find(members.begin(), members.end(), "DirectoryTableBase");
+    EXPECT_NE(it_member, members.end());
+
+    const auto opt_offset = symbols::member_offset(core, *opt_proc, "nt", "_KPROCESS", "DirectoryTableBase");
+    EXPECT_TRUE(!!opt_offset);
+}
