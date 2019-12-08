@@ -548,6 +548,9 @@ TEST_F(win10, symbols)
     const auto opt_addr = symbols::address(core, *opt_proc, "nt", "PspExitProcess");
     EXPECT_TRUE(!!opt_addr);
 
+    const auto strsym = symbols::to_string(symbols::find(core, *opt_proc, *opt_addr));
+    EXPECT_EQ(strsym, "nt!PspExitProcess");
+
     auto strucs = std::vector<std::string>{};
     symbols::struc_names(core, *opt_proc, "nt", [&](std::string_view struc)
     {
