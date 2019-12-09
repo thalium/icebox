@@ -484,22 +484,20 @@ TEST_F(win10, callstacks)
 
     symbols::autoload_modules(core, *proc);
     callstacks::autoload_modules(core, *proc);
-    auto tracer      = nt::syscalls{core, "ntdll"};
-    auto count       = size_t{0};
-    auto num_callers = size_t{0};
+    auto tracer = nt::syscalls{core, "ntdll"};
+    auto count  = size_t{0};
     tracer.register_all(*proc, [&](const auto& /* cfg*/)
     {
         LOG(INFO, " ");
         auto callers = std::vector<callstacks::caller_t>(128);
         const auto n = callstacks::read(core, &callers[0], callers.size(), *proc);
+        EXPECT_GT(n, 0U);
         for(size_t i = 0; i < n; ++i)
             LOG(INFO, "0x%02" PRIx64 ": %s", i, dump_address(core, *proc, callers[i].addr).data());
         count++;
-        num_callers += n;
     });
     run_until(core, [&] { return count > 32; });
     EXPECT_EQ(count, 33U);
-    EXPECT_NE(num_callers, 0U);
 }
 
 TEST_F(win10, listen_module_wow64)

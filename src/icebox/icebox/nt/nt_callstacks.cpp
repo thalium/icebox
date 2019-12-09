@@ -463,9 +463,8 @@ namespace
         return parse_module_unwind(c, proc, name, span);
     }
 
-    bool load_ntdll(core::Core& core, proc_t proc, const char* want_name, bool is_32bit)
+    bool load_ntdll(core::Core& core, proc_t proc, const char* want_name, flags_t flags)
     {
-        const auto flags   = is_32bit ? flags::x86 : flags::x64;
         const auto opt_mod = modules::find_name(core, proc, "ntdll.dll", flags);
         if(!opt_mod)
             return false;
@@ -477,14 +476,14 @@ namespace
         return symbols::load_module_at(core, proc, want_name, *opt_span);
     }
 
-    bool read_offsets(NtCallstacks& c, proc_t proc, bool is_32bit)
+    bool read_offsets(NtCallstacks& c, proc_t proc, flags_t flags)
     {
-        auto& opt_offsets = is_32bit ? c.offsets32_ : c.offsets64_;
-        const auto name   = is_32bit ? "wntdll" : "ntdll";
+        auto& opt_offsets = flags.is_x86 ? c.offsets32_ : c.offsets64_;
+        const auto name   = flags.is_x86 ? "wntdll" : "ntdll";
         if(opt_offsets)
             return true;
 
-        const auto ok = !is_32bit || load_ntdll(c.core_, proc, name, is_32bit);
+        const auto ok = !flags.is_x86 || load_ntdll(c.core_, proc, name, flags);
         if(!ok)
             return FAIL(false, "unable to load ntdll");
 
@@ -508,26 +507,26 @@ namespace
         return true;
     }
 
-    uint64_t offset(const NtCallstacks& c, bool is_32bit, offsets_e off)
+    uint64_t offset(const NtCallstacks& c, flags_t flags, offsets_e off)
     {
-        const auto& offsets = is_32bit ? *c.offsets32_ : *c.offsets64_;
+        const auto& offsets = flags.is_x86 ? *c.offsets32_ : *c.offsets64_;
         return offsets[off];
     }
 
-    opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, bool is_32bit)
+    opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, flags_t flags)
     {
         const auto reader = reader::make(c.core_, proc);
-        if(!read_offsets(c, proc, is_32bit))
+        if(!read_offsets(c, proc, flags))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
-        const auto teb    = registers::read_msr(c.core_, is_32bit ? msr_e::fs_base : msr_e::gs_base);
-        const auto nt_tib = teb + offset(c, is_32bit, TEB_NtTib);
-        auto base         = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackBase));
-        auto limit        = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackLimit));
+        const auto teb    = registers::read_msr(c.core_, flags.is_x86 ? msr_e::fs_base : msr_e::gs_base);
+        const auto nt_tib = teb + offset(c, flags, TEB_NtTib);
+        auto base         = reader.read(nt_tib + offset(c, flags, NT_TIB_StackBase));
+        auto limit        = reader.read(nt_tib + offset(c, flags, NT_TIB_StackLimit));
         if(!base || !limit)
             return FAIL(ext::nullopt, "unable to find stack boundaries");
 
-        if(is_32bit)
+        if(flags.is_x86)
         {
             *base  = static_cast<uint32_t>(*base);
             *limit = static_cast<uint32_t>(*limit);
@@ -541,12 +540,12 @@ namespace
         return span_t{(size_t) 0, (size_t) -1};
     }
 
-    opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctxt, bool is_32bits)
+    opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctxt, flags_t flags)
     {
         if(os::is_kernel_address(c.core_, ctxt.ip))
             return get_kernel_stack(c);
 
-        return get_user_stack(c, proc, is_32bits);
+        return get_user_stack(c, proc, flags);
     }
 
     opt<std::tuple<std::string, span_t>> get_name_span(NtCallstacks& c, proc_t proc, const context_t& ctx)
@@ -688,7 +687,7 @@ namespace
     size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
         const auto reader = reader::make(c.core_, proc);
-        const auto stack  = get_stack(c, proc, first, true);
+        const auto stack  = get_stack(c, proc, first, first.flags);
         if(!stack)
             return 0;
 
