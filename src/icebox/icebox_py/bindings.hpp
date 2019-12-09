@@ -33,6 +33,14 @@ namespace py
         PyObject*   msr_write   (core::Core& core, PyObject* args);
     } // namespace registers
 
+    namespace memory
+    {
+        PyObject*   virtual_to_physical     (core::Core& core, PyObject* args);
+        PyObject*   read_virtual            (core::Core& core, PyObject* args);
+        PyObject*   read_virtual_with_dtb   (core::Core& core, PyObject* args);
+        PyObject*   read_physical           (core::Core& core, PyObject* args);
+    } // namespace memory
+
     namespace process
     {
         PyObject*   current         (core::Core& core, PyObject* args);

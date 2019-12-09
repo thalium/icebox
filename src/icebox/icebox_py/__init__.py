@@ -157,6 +157,22 @@ class Symbols:
     def string(self, proc, ptr):
         return _icebox.symbols_string(proc.proc, ptr)
 
+class Memory:
+    def __init__(self, vm):
+        self.vm = vm
+
+    def virtual_to_physical(self, proc, ptr):
+        return _icebox.memory_virtual_to_physical(proc.proc, ptr)
+
+    def read_virtual(self, buf, ptr):
+        return _icebox.memory_read_virtual(buf, ptr)
+
+    def read_virtual_with_dtb(self, buf, dtb, ptr):
+        return _icebox.memory_read_virtual_with_dtb(buf, dtb, ptr)
+
+    def read_physical(self, buf, ptr):
+        return _icebox.memory_read_physical(buf, ptr)
+
 class Vm:
     def __init__(self, name):
         curr = inspect.getsourcefile(lambda: 0)
@@ -170,6 +186,7 @@ class Vm:
         self.threads = Threads(self)
         self.processes = Processes(self)
         self.symbols = Symbols(self)
+        self.memory = Memory(self)
 
     def detach(self):
         _icebox.detach()
