@@ -384,21 +384,21 @@ std::string symbols::to_string(const symbols::Symbol& symbol)
     return to_offset(0, symbol.offset);
 }
 
-bool symbols::load_module_at(core::Core& core, proc_t proc, const std::string& module, span_t span)
+bool symbols::load_module_memory(core::Core& core, proc_t proc, const std::string& module, span_t span)
 {
     return core.symbols_->insert(proc, module, span);
 }
 
 namespace
 {
-    bool load_module_named_at(core::Core& core, proc_t proc, mod_t mod, const std::string& name)
+    bool load_module_at_path(core::Core& core, proc_t proc, mod_t mod, const std::string& name)
     {
         const auto span = modules::span(core, proc, mod);
         if(!span)
             return false;
 
         const auto path = fs::path(name).filename().replace_extension("").generic_string();
-        return symbols::load_module_at(core, proc, path, *span);
+        return symbols::load_module_memory(core, proc, path, *span);
     }
 }
 
@@ -408,7 +408,7 @@ bool symbols::load_module(core::Core& core, proc_t proc, mod_t mod)
     if(!name)
         return false;
 
-    return load_module_named_at(core, proc, mod, *name);
+    return load_module_at_path(core, proc, mod, *name);
 }
 
 bool symbols::load_modules(core::Core& core, proc_t proc)
@@ -436,7 +436,7 @@ opt<symbols::bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
     });
 }
 
-bool symbols::load_driver_at(core::Core& core, const std::string& driver, span_t span)
+bool symbols::load_driver_memory(core::Core& core, const std::string& driver, span_t span)
 {
     return core.symbols_->insert(symbols::kernel, driver, span);
 }
@@ -452,7 +452,7 @@ bool symbols::load_driver(core::Core& core, driver_t driver)
         return false;
 
     const auto path = fs::path(*name).filename().replace_extension("").generic_string();
-    return load_driver_at(core, path, *span);
+    return load_driver_memory(core, path, *span);
 }
 
 bool symbols::load_drivers(core::Core& core)

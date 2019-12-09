@@ -373,7 +373,7 @@ bool NtOs::setup()
 
     LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
         kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    auto ok = symbols::load_module_at(core_, symbols::kernel, "nt", *kernel);
+    auto ok = symbols::load_module_memory(core_, symbols::kernel, "nt", *kernel);
     if(!ok)
         return FAIL(false, "unable to load symbols from kernel module");
 
@@ -734,7 +734,7 @@ namespace
         if(!span)
             return;
 
-        const auto inserted = symbols::load_module_at(os.core_, symbols::kernel, "wntdll", *span);
+        const auto inserted = symbols::load_module_memory(os.core_, symbols::kernel, "wntdll", *span);
         if(!inserted)
             return;
 

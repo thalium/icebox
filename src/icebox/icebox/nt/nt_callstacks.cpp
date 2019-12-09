@@ -473,7 +473,7 @@ namespace
         if(!opt_span)
             return false;
 
-        return symbols::load_module_at(core, proc, want_name, *opt_span);
+        return symbols::load_module_memory(core, proc, want_name, *opt_span);
     }
 
     bool read_offsets(NtCallstacks& c, proc_t proc, flags_t flags)
