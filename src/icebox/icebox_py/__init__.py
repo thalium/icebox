@@ -26,9 +26,30 @@ class Flags:
 kFlags_x86 = Flags({"is_x86": True,  "is_x64": False})
 kFlags_x64 = Flags({"is_x86": False, "is_x64": True})
 
+class Symbols:
+    def __init__(self, proc):
+        self.proc = proc
+
+    def address(self, name):
+        module, symbol = name.split("!")
+        return _icebox.symbols_address(self.proc, module, symbol)
+
+    def struc_size(self, name):
+        module, struc_name = name.split("!")
+        return _icebox.symbols_struc_size(self.proc, module, struc_name)
+
+    def struc_offset(self, name):
+        module, struc = name.split("!")
+        struc_name, struc_member = struc.split("::")
+        return _icebox.symbols_struc_offset(self.proc, module, struc_name, struc_member)
+
+    def string(self, ptr):
+        return _icebox.symbols_string(self.proc, ptr)
+
 class Process:
     def __init__(self, proc):
         self.proc = proc
+        self.symbols = Symbols(proc)
 
     def name(self):
         return _icebox.process_name(self.proc)
@@ -58,8 +79,8 @@ class Callback:
         self.callback = callback
 
 class Processes:
-    def __init__(self, vm):
-        self.vm = vm
+    def __init__(self):
+        pass
 
     def list_all(self):
         for x in _icebox.process_list():
@@ -117,8 +138,8 @@ class Thread:
         return _icebox.thread_tid(self.thread)
 
 class Threads:
-    def __init__(self, vm):
-        self.vm = vm
+    def __init__(self):
+        pass
 
     def list_all(self, proc):
         for x in _icebox.thread_list(proc.proc):
@@ -137,29 +158,9 @@ class Threads:
         bpid = _icebox.thread_listen_delete(fthread)
         return Callback(bpid, fthread)
 
-class Symbols:
-    def __init__(self, vm):
-        self.vm = vm
-
-    def address(self, proc, name):
-        module, symbol = name.split("!")
-        return _icebox.symbols_address(proc.proc, module, symbol)
-
-    def struc_size(self, proc, name):
-        module, struc_name = name.split("!")
-        return _icebox.symbols_struc_size(proc.proc, module, struc_name)
-
-    def struc_offset(self, proc, name):
-        module, struc = name.split("!")
-        struc_name, struc_member = struc.split("::")
-        return _icebox.symbols_struc_offset(proc.proc, module, struc_name, struc_member)
-
-    def string(self, proc, ptr):
-        return _icebox.symbols_string(proc.proc, ptr)
-
 class Memory:
-    def __init__(self, vm):
-        self.vm = vm
+    def __init__(self):
+        pass
 
     def virtual_to_physical(self, proc, ptr):
         return _icebox.memory_virtual_to_physical(proc.proc, ptr)
@@ -183,10 +184,9 @@ class Vm:
         _icebox.attach(name)
         self.registers = Registers(_icebox.register_list, _icebox.register_read, _icebox.register_write)
         self.msr = Registers(_icebox.msr_list, _icebox.msr_read, _icebox.msr_write)
-        self.threads = Threads(self)
-        self.processes = Processes(self)
-        self.symbols = Symbols(self)
-        self.memory = Memory(self)
+        self.threads = Threads()
+        self.processes = Processes()
+        self.memory = Memory()
 
     def detach(self):
         _icebox.detach()
