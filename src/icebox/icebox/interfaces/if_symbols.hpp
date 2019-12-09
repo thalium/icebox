@@ -39,6 +39,7 @@ namespace symbols
 
     std::shared_ptr<Module> make_pdb    (const std::string& module, const std::string& guid);
     std::shared_ptr<Module> make_dwarf  (const std::string& module, const std::string& guid);
+    std::shared_ptr<Module> make_map    (const std::string& module, const std::string& guid);
 
     struct Modules
     {
