@@ -45,13 +45,9 @@ namespace
             return FAIL(-1, "unable to wait for %s", target.data());
 
         LOG(INFO, "process %s active", target.data());
-        const auto ntdll = modules::wait(core, *proc, "ntdll.dll", flags::x64);
-        if(!ntdll)
-            return FAIL(-1, "unable to load ntdll.dll");
-
-        process::join(core, *proc, mode_e::user);
-        symbols::load_module(core, *proc, *ntdll);
-        LOG(INFO, "ntdll module loaded");
+        const auto ok = symbols::load_module(core, *proc, "ntdll");
+        if(!ok)
+            return FAIL(-1, "unable to load ntdll symbols");
 
         int idx           = -1;
         auto objects      = objects::make(core, *proc);

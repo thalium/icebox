@@ -54,59 +54,17 @@ bool modules::is_equal(core::Core& core, proc_t proc, mod_t mod, flags_t flags, 
     return true;
 }
 
-namespace
-{
-    opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_t flags)
-    {
-        opt<mod_t> found;
-        modules::list(core, proc, [&](mod_t mod)
-        {
-            const auto ok = modules::is_equal(core, proc, mod, flags, mod_name);
-            if(!ok)
-                return walk_e::next;
-
-            found = mod;
-            return walk_e::stop;
-        });
-
-        return found;
-    }
-}
-
 opt<mod_t> modules::find_name(core::Core& core, proc_t proc, std::string_view name, flags_t flags)
 {
-    return search_mod(core, proc, name, flags);
-}
-
-opt<mod_t> modules::wait(core::Core& core, proc_t proc, std::string_view mod_name, flags_t flags)
-{
-    const auto mod = search_mod(core, proc, mod_name, flags);
-    if(mod)
-        return *mod;
-
-    opt<mod_t> found;
-    const auto bpid = modules::listen_create(core, proc, flags, [&](mod_t mod)
+    auto found = opt<mod_t>{};
+    modules::list(core, proc, [&](mod_t mod)
     {
-        if(!os::check_flags(mod.flags, flags))
-            return;
-
-        const auto name = modules::name(core, proc, mod);
-        if(!name)
-            return;
-
-        if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
-            return;
+        const auto ok = modules::is_equal(core, proc, mod, flags, name);
+        if(!ok)
+            return walk_e::next;
 
         found = mod;
+        return walk_e::stop;
     });
-    if(!bpid)
-        return {};
-
-    while(!found)
-    {
-        state::resume(core);
-        state::wait(core);
-    }
-    os::unlisten(core, *bpid);
     return found;
 }

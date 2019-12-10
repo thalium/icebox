@@ -219,11 +219,20 @@ bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module)
 
 namespace
 {
-    opt<Mod> find_module(Data& d, proc_t proc, const std::string& name)
+    enum find_e
+    {
+        all,
+        proc_only,
+    };
+
+    opt<Mod> find_module(Data& d, proc_t proc, const std::string& name, find_e efind)
     {
         const auto it = d.mods.find({name, proc});
         if(it != d.mods.end())
             return it->second;
+
+        if(efind == find_e::proc_only)
+            return {};
 
         if(is_kernel_proc(proc))
             return {};
@@ -238,13 +247,13 @@ namespace
 
 symbols::Module* symbols::Modules::find(proc_t proc, const std::string& module)
 {
-    const auto it = find_module(*d_, proc, module);
+    const auto it = find_module(*d_, proc, module, find_e::all);
     return it ? it->module.get() : nullptr;
 }
 
 opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, const std::string& symbol)
 {
-    const auto it = find_module(*d_, proc, module);
+    const auto it = find_module(*d_, proc, module, find_e::all);
     if(!it)
         return {};
 
@@ -390,20 +399,105 @@ bool symbols::load_module_memory(core::Core& core, proc_t proc, span_t span)
     return core.symbols_->insert(proc, span);
 }
 
-bool symbols::load_module(core::Core& core, proc_t proc, mod_t mod)
+namespace
 {
-    const auto span = modules::span(core, proc, mod);
-    if(!span)
+    bool load_module_from(core::Core& core, proc_t proc, mod_t mod)
+    {
+        const auto opt_span = modules::span(core, proc, mod);
+        if(!opt_span)
+            return false;
+
+        return symbols::load_module_memory(core, proc, *opt_span);
+    }
+
+    bool copy_module(Data& d, proc_t proc, const std::string& module)
+    {
+        const auto opt_mod = find_module(d, symbols::kernel, module, find_e::proc_only);
+        if(!opt_mod)
+            return false;
+
+        return insert_module(d, proc, module, opt_mod->span, opt_mod->module, insert_e::cached);
+    }
+
+    bool is_target_module(core::Core& core, proc_t proc, mod_t mod, const reader::Reader& reader, const std::string& name)
+    {
+        const auto opt_span = modules::span(core, proc, mod);
+        if(!opt_span)
+            return false;
+
+        for(const auto& h : g_helpers)
+        {
+            const auto opt_id = h.identify(*opt_span, reader);
+            if(!opt_id)
+                continue;
+
+            const auto fix_name = fix_module_name(opt_id->name);
+            if(fix_name == name)
+                return true;
+        }
+        return false;
+    }
+
+    opt<mod_t> wait_for_module(core::Core& core, proc_t proc, const std::string& name)
+    {
+        auto found = opt<mod_t>{};
+        process::join(core, proc, mode_e::user);
+        const auto reader    = reader::make(core, proc);
+        const auto check_mod = [&](mod_t mod)
+        {
+            if(is_target_module(core, proc, mod, reader, name))
+                found = mod;
+            return found ? walk_e::stop : walk_e::next;
+        };
+        modules::list(core, proc, check_mod);
+        if(found)
+            return found;
+
+        // module not found yet, wait for it...
+        const auto bpx64 = modules::listen_create(core, proc, flags::x64, check_mod);
+        if(!bpx64)
+            return {};
+
+        const auto bpx86 = modules::listen_create(core, proc, flags::x86, check_mod);
+        if(!bpx86)
+        {
+            os::unlisten(core, *bpx64);
+            return {};
+        }
+
+        while(!found)
+        {
+            state::resume(core);
+            state::wait(core);
+        }
+        os::unlisten(core, *bpx64);
+        os::unlisten(core, *bpx86);
+        return found;
+    }
+}
+
+bool symbols::load_module(core::Core& core, proc_t proc, const std::string& name)
+{
+    auto& d = *core.symbols_->d_;
+    if(find_module(d, proc, name, find_e::proc_only))
+        return true;
+
+    const auto ok = copy_module(d, proc, name);
+    if(ok)
+        return true;
+
+    const auto opt_mod = wait_for_module(core, proc, name);
+    if(!opt_mod)
         return false;
 
-    return symbols::load_module_memory(core, proc, *span);
+    return load_module_from(core, proc, *opt_mod);
 }
 
 bool symbols::load_modules(core::Core& core, proc_t proc)
 {
     modules::list(core, proc, [&](mod_t mod)
     {
-        load_module(core, proc, mod);
+        load_module_from(core, proc, mod);
         return walk_e::next;
     });
     return true;
@@ -411,16 +505,12 @@ bool symbols::load_modules(core::Core& core, proc_t proc)
 
 opt<symbols::bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
 {
-    modules::list(core, proc, [&](mod_t mod)
-    {
-        load_module(core, proc, mod);
-        return walk_e::next;
-    });
+    load_modules(core, proc);
     const auto ptr   = &core;
     const auto flags = process::flags(core, proc);
     return modules::listen_create(core, proc, flags, [=](mod_t mod)
     {
-        load_module(*ptr, proc, mod);
+        load_module_from(*ptr, proc, mod);
     });
 }
 

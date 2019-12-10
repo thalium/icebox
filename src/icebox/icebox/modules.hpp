@@ -19,6 +19,5 @@ namespace modules
     opt<span_t>         span            (core::Core&, proc_t proc, mod_t mod);
     opt<mod_t>          find            (core::Core&, proc_t proc, uint64_t addr);
     opt<mod_t>          find_name       (core::Core& core, proc_t proc, std::string_view name, flags_t flags);
-    opt<mod_t>          wait            (core::Core& core, proc_t proc, std::string_view name, flags_t flags);
     opt<bpid_t>         listen_create   (core::Core& core, proc_t proc, flags_t flags, const on_event_fn& on_load);
 } // namespace modules

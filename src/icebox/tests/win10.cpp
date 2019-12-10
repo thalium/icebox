@@ -248,15 +248,11 @@ TEST_F(win10, unable_to_single_step_query_information_process)
     const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", flags::x86);
-    EXPECT_TRUE(!!ntdll);
+    const auto ok = symbols::load_module(core, *proc, "wntdll");
+    EXPECT_TRUE(!!ok);
 
-    process::join(core, *proc, mode_e::user);
-    const auto ok = symbols::load_module(core, *proc, *ntdll);
-    EXPECT_TRUE(ok);
-
-    wow64::syscalls32 tracer{core, "ntdll"};
-    bool found = false;
+    wow64::syscalls32 tracer{core, "wntdll"};
+    auto count = size_t{0};
     // ZwQueryInformationProcess in 32-bit has code reading itself
     // we need to ensure we can break this function & resume properly
     // FDP had a bug where this was not possible
@@ -266,9 +262,9 @@ TEST_F(win10, unable_to_single_step_query_information_process)
                                                          wow64::ULONG /*ProcessInformationLength*/,
                                                          wow64::PULONG /*ReturnLength*/)
     {
-        found = true;
+        ++count;
     });
-    run_until(core, [&] { return found; });
+    run_until(core, [&] { return count > 1; });
 }
 
 TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
@@ -277,15 +273,11 @@ TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
     const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", flags::x86);
-    EXPECT_TRUE(!!ntdll);
-
-    process::join(core, *proc, mode_e::user);
-    const auto ok = symbols::load_module(core, *proc, *ntdll);
-    EXPECT_TRUE(ok);
+    const auto ok = symbols::load_module(core, *proc, "wntdll");
+    EXPECT_TRUE(!!ok);
 
     // break on a single function once
-    wow64::syscalls32 tracer{core, "ntdll"};
+    wow64::syscalls32 tracer{core, "wntdll"};
     int func_start = 0;
     tracer.register_ZwWaitForSingleObject(*proc, [&](wow64::HANDLE /*Handle*/,
                                                      wow64::BOOLEAN /*Alertable*/,
@@ -415,7 +407,7 @@ TEST_F(win10, vm_area)
 TEST_F(win10, loader)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "dwm.exe", {});
+    const auto proc = process::wait(core, "dwm.exe", flags::x64);
     ASSERT_TRUE(!!proc);
 
     process::join(core, *proc, mode_e::kernel);
@@ -424,8 +416,8 @@ TEST_F(win10, loader)
     process::join(core, *proc, mode_e::user);
     symbols::autoload_modules(core, *proc);
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
-    ASSERT_TRUE(ntdll);
+    const auto ok = symbols::load_module(core, *proc, "ntdll");
+    EXPECT_TRUE(!!ok);
 }
 
 TEST_F(win10, tracer)
@@ -434,13 +426,8 @@ TEST_F(win10, tracer)
     const auto proc = process::wait(core, "dwm.exe", {});
     ASSERT_TRUE(!!proc);
 
-    process::join(core, *proc, mode_e::user);
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
-    ASSERT_TRUE(ntdll);
-
-    process::join(core, *proc, mode_e::user);
-    const auto ok = symbols::load_module(core, *proc, *ntdll);
-    ASSERT_TRUE(ok);
+    const auto ok = symbols::load_module(core, *proc, "ntdll");
+    EXPECT_TRUE(!!ok);
 
     using Calls = std::unordered_set<std::string>;
     auto calls  = Calls{};
@@ -479,10 +466,8 @@ TEST_F(win10, callstacks)
     const auto proc = process::wait(core, "dwm.exe", {});
     ASSERT_TRUE(!!proc);
 
-    const auto ntdll = modules::wait(core, *proc, "ntdll.dll", {});
-    ASSERT_TRUE(ntdll);
-
-    process::join(core, *proc, mode_e::user);
+    const auto ok = symbols::load_module(core, *proc, "ntdll");
+    EXPECT_TRUE(!!ok);
 
     drivers::list(core, [&](driver_t drv)
     {
@@ -490,6 +475,7 @@ TEST_F(win10, callstacks)
         return walk_e::next;
     });
 
+    process::join(core, *proc, mode_e::user);
     symbols::autoload_modules(core, *proc);
     callstacks::autoload_modules(core, *proc);
 
@@ -543,36 +529,10 @@ TEST_F(win10, listen_module_wow64)
     const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
-    modules::listen_create(core, *proc, flags::x64, [&](mod_t mod)
-    {
-        const auto name = modules::name(core, *proc, mod);
-        if(!name)
-            return;
-
-        const auto span = modules::span(core, *proc, mod);
-        if(!span)
-            return;
-
-        LOG(INFO, "module loaded: 64-bit: %s 0x%" PRIx64 "-0x%" PRIx64, name->data(), span->addr, span->addr + span->size);
-    });
-
-    modules::listen_create(core, *proc, flags::x86, [&](mod_t mod)
-    {
-        const auto name = modules::name(core, *proc, mod);
-        if(!name)
-            return;
-
-        const auto span = modules::span(core, *proc, mod);
-        if(!span)
-            return;
-
-        LOG(INFO, "module loaded: 32-bit: %s 0x%" PRIx64 "-0x%" PRIx64, name->data(), span->addr, span->addr + span->size);
-    });
-
-    const auto nt64 = modules::wait(core, *proc, "ntdll.dll", flags::x64);
+    const auto nt64 = symbols::load_module(core, *proc, "ntdll");
     EXPECT_TRUE(!!nt64);
 
-    const auto ntwow64 = modules::wait(core, *proc, "ntdll.dll", flags::x86);
+    const auto ntwow64 = symbols::load_module(core, *proc, "wntdll");
     EXPECT_TRUE(!!ntwow64);
 }
 

@@ -13,15 +13,9 @@ namespace
             return FAIL(-1, "unable to wait for %s", target.data());
 
         LOG(INFO, "process %s active", target.data());
-        const auto ntdll = modules::wait(core, *proc, "ntdll.dll", flags::x64);
-        if(!ntdll)
-            return FAIL(-1, "unable to load ntdll.dll");
-
-        LOG(INFO, "ntdll module loaded");
-        process::join(core, *proc, mode_e::user);
-        const auto ok = symbols::load_module(core, *proc, *ntdll);
+        const auto ok = symbols::load_module(core, *proc, "ntdll");
         if(!ok)
-            return FAIL(-1, "unable to load ntdll.dll symbols");
+            return FAIL(-1, "unable to load ntdll symbols");
 
         LOG(INFO, "listening events...");
         const auto fdpsan = plugins::HeapSan{core, *proc};

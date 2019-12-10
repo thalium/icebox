@@ -157,7 +157,11 @@ namespace
             if(!os::check_flags(mod.flags, flags))
                 return walk_e::next;
 
-            const auto inserted = symbols::load_module(core, proc, mod);
+            const auto opt_span = modules::span(core, proc, mod);
+            if(!opt_span)
+                return walk_e::next;
+
+            const auto inserted = symbols::load_module_memory(core, proc, *opt_span);
             if(!inserted)
                 return walk_e::next;
 

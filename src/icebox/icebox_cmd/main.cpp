@@ -36,20 +36,11 @@ namespace
         if(!target)
             return;
 
-        process::join(core, *target, mode_e::user);
-        const auto mod = modules::wait(core, *target, "ntdll.dll", flags::x86);
-        if(!mod)
+        const auto ok = symbols::load_module(core, *target, "wntdll");
+        if(!ok)
             return;
 
         process::join(core, *target, mode_e::user);
-        const auto span = modules::span(core, *target, *mod);
-        if(!span)
-            return;
-
-        const auto inserted = symbols::load_module_memory(core, *target, *span);
-        if(!inserted)
-            return;
-
         plugins::Syscalls32 syscalls(core, *target);
         LOG(INFO, "Every thing is ready ! Please trigger some syscalls");
 
@@ -101,32 +92,7 @@ namespace
         process::join(core, *target, mode_e::user);
 
         const auto is_32bit = process::flags(core, *target).is_x86;
-
-        std::vector<uint8_t> buffer;
-        size_t modcount = 0;
-        modules::list(core, *target, [&](mod_t /*mod*/)
-        {
-            ++modcount;
-            return walk_e::next;
-        });
-        size_t modi = 0;
-        modules::list(core, *target, [&](mod_t mod)
-        {
-            const auto name = modules::name(core, *target, mod);
-            const auto span = modules::span(core, *target, mod);
-            if(!name || !span)
-                return walk_e::next;
-
-            LOG(INFO, "module[%2zd/%-2zd] %s: 0x%" PRIx64 " 0x%" PRIx64 "%s", modi, modcount, name->data(), span->addr, span->size,
-                mod.flags.is_x86 ? " wow64" : "");
-            ++modi;
-
-            const auto inserted = symbols::load_module(core, *target, mod);
-            if(!inserted)
-                return walk_e::next;
-
-            return walk_e::next;
-        });
+        symbols::load_modules(core, *target);
 
         threads::list(core, *target, [&](thread_t thread)
         {
