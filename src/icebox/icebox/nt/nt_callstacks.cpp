@@ -650,6 +650,10 @@ namespace
         if(!return_addr)
             return FAIL(false, "unable to read return address at 0x%" PRIx64, caller_addr_on_stack);
 
+        // end of callstack
+        if(!*return_addr)
+            return false;
+
 #ifdef USE_DEBUG_PRINT
         // print stack
         const auto print_d = 25;

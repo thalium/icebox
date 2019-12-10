@@ -463,6 +463,14 @@ namespace
         const auto symbol = symbols::find(core, proc, addr);
         return symbols::to_string(symbol);
     }
+
+    bool starts_with(std::string_view token, std::string_view prefix)
+    {
+        if(token.size() < prefix.size())
+            return false;
+
+        return !token.compare(0, prefix.size(), prefix.data());
+    }
 }
 
 TEST_F(win10, callstacks)
@@ -484,20 +492,49 @@ TEST_F(win10, callstacks)
 
     symbols::autoload_modules(core, *proc);
     callstacks::autoload_modules(core, *proc);
+
+    // check regular callstacks
     auto tracer = nt::syscalls{core, "ntdll"};
     auto count  = size_t{0};
-    tracer.register_all(*proc, [&](const auto& /* cfg*/)
+    auto bpid   = tracer.register_all(*proc, [&](const auto& /* cfg*/)
     {
         LOG(INFO, " ");
         auto callers = std::vector<callstacks::caller_t>(128);
         const auto n = callstacks::read(core, &callers[0], callers.size(), *proc);
-        EXPECT_GT(n, 0U);
+        EXPECT_GT(n, 1U);
         for(size_t i = 0; i < n; ++i)
             LOG(INFO, "0x%02" PRIx64 ": %s", i, dump_address(core, *proc, callers[i].addr).data());
+        // check last address is thread entry point
+        const auto last = dump_address(core, *proc, callers[n - 1].addr);
+        EXPECT_TRUE(starts_with(last, "ntdll!RtlUserThreadStart+")) << last;
         count++;
     });
+    EXPECT_TRUE(!!bpid);
     run_until(core, [&] { return count > 32; });
     EXPECT_EQ(count, 33U);
+    tracer.unregister(*bpid);
+
+    // check we can read callstacks with one address only
+    const auto opt_addr = symbols::address(core, *proc, "ntdll", "RtlUserThreadStart");
+    EXPECT_TRUE(!!opt_addr);
+
+    const auto opt_phy = memory::virtual_to_physical(core, *opt_addr, proc->dtb);
+    EXPECT_TRUE(!!opt_phy);
+
+    count         = 0;
+    const auto bp = state::break_on_physical(core, "ntdll!RtlUserThreadStart", *opt_phy, [&]
+    {
+        const auto curr = process::current(core);
+        LOG(INFO, " ");
+        auto callers = std::vector<callstacks::caller_t>(128);
+        const auto n = callstacks::read(core, &callers[0], callers.size(), *curr);
+        EXPECT_EQ(n, 1U);
+        const auto last = dump_address(core, *curr, callers[0].addr);
+        EXPECT_EQ(last, "ntdll!RtlUserThreadStart");
+        ++count;
+    });
+    run_until(core, [&] { return count > 0; });
+    EXPECT_EQ(count, 1U);
 }
 
 TEST_F(win10, listen_module_wow64)
