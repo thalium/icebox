@@ -1389,7 +1389,7 @@ bool NtOs::write_arg(size_t index, arg_t arg)
 
 namespace
 {
-    const char* irql_to_text(uint8_t value)
+    const char* irql_to_text(uint64_t value)
     {
         switch(value)
         {
@@ -1411,7 +1411,7 @@ void NtOs::debug_print()
 {
     if(true)
         return;
-    const auto irql   = reader_.byte(kpcr_ + offsets_[KPCR_Irql]);
+    const auto irql   = registers::read(core_, reg_e::cr8);
     const auto cs     = registers::read(core_, reg_e::cs);
     const auto rip    = registers::read(core_, reg_e::rip);
     const auto cr3    = registers::read(core_, reg_e::cr3);
@@ -1423,7 +1423,7 @@ void NtOs::debug_print()
     const auto dump   = "rip: " + to_hex(rip)
                       + " cr3:" + to_hex(cr3)
                       + " dtb:" + to_hex(proc ? proc->dtb.val : 0)
-                      + ' ' + irql_to_text(irql ? *irql : -1)
+                      + ' ' + irql_to_text(irql)
                       + ' ' + (is_user_mode(cs) ? "user" : "kernel")
                       + (name ? " " + *name : "")
                       + (ripsym.empty() ? "" : " " + ripsym)
