@@ -523,14 +523,14 @@ namespace
 
     state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        auto& d       = *core.state_;
-        const auto bp = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
-        d.observers.emplace(phy, bp);
+        auto& d         = *core.state_;
+        const auto bp   = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
         const auto bpid = try_add_breakpoint(core, std::string{name}, phy, *bp);
         if(!bpid)
             return {};
 
         // update all observers breakpoint id
+        d.observers.emplace(phy, bp);
         lookup_observers(d.observers, phy, [&](auto it)
         {
             it->second->bpid = *bpid;
