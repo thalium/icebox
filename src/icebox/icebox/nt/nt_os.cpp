@@ -321,16 +321,7 @@ namespace
         if(!span)
             return false;
 
-        const auto reader = reader::make(core, *proc);
-        const auto opt_id = symbols::identify_pdb(*span, reader);
-        if(!opt_id)
-            return false;
-
-        const auto pdb = symbols::make_pdb(opt_id->name, opt_id->id);
-        if(!pdb)
-            return false;
-
-        auto ok = core.symbols_->insert(symbols::kernel, "ntdll", *span, pdb);
+        auto ok = symbols::load_module_memory(core, symbols::kernel, *span);
         if(!ok)
             return false;
 
@@ -373,7 +364,15 @@ bool NtOs::setup()
 
     LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
         kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    auto ok = symbols::load_module_memory(core_, symbols::kernel, "nt", *kernel);
+    const auto opt_id = symbols::identify_pdb(*kernel, reader::make(core_));
+    if(!opt_id)
+        return FAIL(false, "unable to identify kernel PDB");
+
+    const auto pdb = symbols::make_pdb(opt_id->name, opt_id->id);
+    if(!pdb)
+        return FAIL(false, "unable to read kernel PDB");
+
+    auto ok = core_.symbols_->insert(symbols::kernel, "nt", *kernel, pdb);
     if(!ok)
         return FAIL(false, "unable to load symbols from kernel module");
 
@@ -734,7 +733,7 @@ namespace
         if(!span)
             return;
 
-        const auto inserted = symbols::load_module_memory(os.core_, symbols::kernel, "wntdll", *span);
+        const auto inserted = symbols::load_module_memory(os.core_, symbols::kernel, *span);
         if(!inserted)
             return;
 

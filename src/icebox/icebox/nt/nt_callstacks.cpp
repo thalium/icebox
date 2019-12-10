@@ -463,7 +463,7 @@ namespace
         return parse_module_unwind(c, proc, name, span);
     }
 
-    bool load_ntdll(core::Core& core, proc_t proc, const char* want_name, flags_t flags)
+    bool load_ntdll(core::Core& core, proc_t proc, flags_t flags)
     {
         const auto opt_mod = modules::find_name(core, proc, "ntdll.dll", flags);
         if(!opt_mod)
@@ -473,7 +473,7 @@ namespace
         if(!opt_span)
             return false;
 
-        return symbols::load_module_memory(core, proc, want_name, *opt_span);
+        return symbols::load_module_memory(core, proc, *opt_span);
     }
 
     bool read_offsets(NtCallstacks& c, proc_t proc, flags_t flags)
@@ -483,7 +483,7 @@ namespace
         if(opt_offsets)
             return true;
 
-        const auto ok = !flags.is_x86 || load_ntdll(c.core_, proc, name, flags);
+        const auto ok = !flags.is_x86 || load_ntdll(c.core_, proc, flags);
         if(!ok)
             return FAIL(false, "unable to load ntdll");
 

@@ -46,7 +46,7 @@ namespace
         if(!span)
             return;
 
-        const auto inserted = symbols::load_module_memory(core, *target, "wntdll", *span);
+        const auto inserted = symbols::load_module_memory(core, *target, *span);
         if(!inserted)
             return;
 

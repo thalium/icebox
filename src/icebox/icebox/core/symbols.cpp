@@ -135,29 +135,30 @@ bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t spa
 
 namespace
 {
-    bool has_module(Data& d, const std::string& name, const proc_t (&procs)[2], span_t module)
+    std::string fix_module_name(const std::string& name)
     {
-        for(const auto& proc : procs)
+        auto is_lower       = false;
+        auto is_upper       = false;
+        const auto stripped = fs::path(name).filename().replace_extension().generic_string();
+        auto ret            = stripped;
+        for(auto& c : ret)
         {
-            const auto it = d.mods.find({name, proc});
-            if(it == d.mods.end())
-                continue;
+            const auto alpha = isalpha(c);
+            is_lower |= alpha && tolower(c) == c;
+            is_upper |= alpha && toupper(c) == c;
+            if(is_lower && is_upper)
+                return stripped;
 
-            const auto span = it->second.span;
-            if(span.addr == module.addr && span.size == module.size)
-                return true;
+            c = static_cast<char>(tolower(c));
         }
-        return false;
+        return ret;
     }
 }
 
-bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span)
+bool symbols::Modules::insert(proc_t proc, span_t span)
 {
     // do not reload known modules
-    auto& d = *d_;
-    if(has_module(d, module, {proc, symbols::kernel}, span))
-        return true;
-
+    auto& d           = *d_;
     const auto reader = is_kernel_proc(proc) ? reader::make(d.core) : reader::make(d.core, proc);
     for(const auto& h : g_helpers)
     {
@@ -175,7 +176,8 @@ bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t spa
         if(!mod)
             continue;
 
-        return insert_module(d, proc, module, span, mod, is_cached ? insert_e::cached : insert_e::loaded);
+        const auto name = fix_module_name(opt_id->name);
+        return insert_module(d, proc, name, span, mod, is_cached ? insert_e::cached : insert_e::loaded);
     }
     return false;
 }
@@ -323,8 +325,7 @@ namespace
         if(!name)
             return {"", "", addr};
 
-        const auto path = fs::path(*name).filename().replace_extension("").generic_string();
-        return {path, "", addr};
+        return {fix_module_name(*name), "", addr};
     }
 
     symbols::Symbol read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
@@ -338,7 +339,7 @@ namespace
             return read_name_from_proc(core, proc, addr);
 
         const auto name = modules::name(core, proc, *mod);
-        const auto path = name ? fs::path(*name).filename().replace_extension("").generic_string() : "";
+        const auto path = name ? fix_module_name(*name) : "";
         return {path, "", addr - span->addr};
     }
 }
@@ -384,31 +385,18 @@ std::string symbols::to_string(const symbols::Symbol& symbol)
     return to_offset(0, symbol.offset);
 }
 
-bool symbols::load_module_memory(core::Core& core, proc_t proc, const std::string& module, span_t span)
+bool symbols::load_module_memory(core::Core& core, proc_t proc, span_t span)
 {
-    return core.symbols_->insert(proc, module, span);
-}
-
-namespace
-{
-    bool load_module_at_path(core::Core& core, proc_t proc, mod_t mod, const std::string& name)
-    {
-        const auto span = modules::span(core, proc, mod);
-        if(!span)
-            return false;
-
-        const auto path = fs::path(name).filename().replace_extension("").generic_string();
-        return symbols::load_module_memory(core, proc, path, *span);
-    }
+    return core.symbols_->insert(proc, span);
 }
 
 bool symbols::load_module(core::Core& core, proc_t proc, mod_t mod)
 {
-    const auto name = modules::name(core, proc, mod);
-    if(!name)
+    const auto span = modules::span(core, proc, mod);
+    if(!span)
         return false;
 
-    return load_module_at_path(core, proc, mod, *name);
+    return symbols::load_module_memory(core, proc, *span);
 }
 
 bool symbols::load_modules(core::Core& core, proc_t proc)
@@ -436,23 +424,18 @@ opt<symbols::bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
     });
 }
 
-bool symbols::load_driver_memory(core::Core& core, const std::string& driver, span_t span)
+bool symbols::load_driver_memory(core::Core& core, span_t span)
 {
-    return core.symbols_->insert(symbols::kernel, driver, span);
+    return core.symbols_->insert(symbols::kernel, span);
 }
 
 bool symbols::load_driver(core::Core& core, driver_t driver)
 {
-    const auto name = drivers::name(core, driver);
-    if(!name)
-        return false;
-
     const auto span = drivers::span(core, driver);
     if(!span)
         return false;
 
-    const auto path = fs::path(*name).filename().replace_extension("").generic_string();
-    return load_driver_memory(core, path, *span);
+    return load_driver_memory(core, *span);
 }
 
 bool symbols::load_drivers(core::Core& core)
