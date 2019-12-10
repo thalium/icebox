@@ -297,18 +297,42 @@ namespace
         return true;
     }
 
-    bool try_load_ntdll(NtOs& os, core::Core& core)
+    void break_on_any_syscall_return(NtOs& os, core::Core& core)
     {
         const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
-        auto bp                = state::break_on(core, "KiKernelSysretExit", sysret_exit, {});
+        auto found             = false;
+        auto breakpoints       = std::vector<state::Breakpoint>{};
+        auto rips              = std::unordered_set<uint64_t>{};
+        const auto bp          = state::break_on(core, "KiKernelSysretExit", sysret_exit, [&]
+        {
+            const auto opt_ret = os.read_arg(0);
+            if(!opt_ret)
+                return;
 
-        state::resume(core);
-        state::wait(core);
-        const auto ret_addr = registers::read(core, reg_e::rcx);
-        bp                  = state::break_on(core, "KiKernelSysretExit return", ret_addr, {});
+            const auto ret_addr = opt_ret->val;
+            if(rips.count(ret_addr))
+                return;
 
-        state::resume(core);
-        state::wait(core);
+            rips.insert(ret_addr);
+            const auto ret_bp = state::break_on(core, "KiKernelSysretExit return", ret_addr, [&]
+            {
+                found = true;
+            });
+            if(!ret_bp)
+                return;
+
+            breakpoints.emplace_back(ret_bp);
+        });
+        while(!found)
+        {
+            state::resume(core);
+            state::wait(core);
+        }
+    }
+
+    bool try_load_ntdll(NtOs& os, core::Core& core)
+    {
+        break_on_any_syscall_return(os, core);
         const auto proc = os.proc_current();
         if(!proc)
             return false;
