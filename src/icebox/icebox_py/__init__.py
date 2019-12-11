@@ -34,14 +34,14 @@ class Symbols:
         module, symbol = name.split("!")
         return _icebox.symbols_address(self.proc, module, symbol)
 
-    def struc_names(self, module):
+    def strucs(self, module):
         return _icebox.symbols_struc_names(self.proc, module)
 
     def struc_size(self, name):
         module, struc_name = name.split("!")
         return _icebox.symbols_struc_size(self.proc, module, struc_name)
 
-    def struc_members(self, name):
+    def members(self, name):
         module, struc = name.split("!")
         return _icebox.symbols_struc_members(self.proc, module, struc)
 
@@ -57,6 +57,9 @@ class Process:
     def __init__(self, proc):
         self.proc = proc
         self.symbols = Symbols(proc)
+
+    def __eq__(self, other):
+        return self.proc == other.proc
 
     def name(self):
         return _icebox.process_name(self.proc)
@@ -80,6 +83,10 @@ class Process:
         ret = _icebox.process_parent(self.proc)
         return Process(ret) if ret else None
 
+    def threads(self):
+        for x in _icebox.thread_list(self.proc):
+            yield Thread(x)
+
 class Callback:
     def __init__(self, bpid, callback):
         self.bpid = bpid
@@ -89,7 +96,7 @@ class Processes:
     def __init__(self):
         pass
 
-    def list_all(self):
+    def __call__(self):
         for x in _icebox.process_list():
             yield Process(x)
 
@@ -97,7 +104,7 @@ class Processes:
         return Process(_icebox.process_current())
 
     def find_name(self, name, flags):
-        for p in self.list_all():
+        for p in self():
             got_name = os.path.basename(p.name())
             if got_name != name:
                 continue
@@ -113,7 +120,7 @@ class Processes:
         return None
 
     def find_pid(self, pid):
-        for p in self.list_all():
+        for p in self():
             if p.pid() == pid:
                 return p
         return None
@@ -135,6 +142,9 @@ class Thread:
     def __init__(self, thread):
         self.thread = thread
 
+    def __eq__(self, other):
+        return self.thread == other.thread
+
     def process(self):
         return Process(_icebox.thread_process(self.thread))
 
@@ -147,10 +157,6 @@ class Thread:
 class Threads:
     def __init__(self):
         pass
-
-    def list_all(self, proc):
-        for x in _icebox.thread_list(proc.proc):
-            yield Thread(x)
 
     def current(self):
         return Thread(_icebox.thread_current())
