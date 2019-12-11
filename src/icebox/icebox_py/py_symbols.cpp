@@ -22,6 +22,37 @@ PyObject* py::symbols::address(core::Core& core, PyObject* args)
     return PyLong_FromUnsignedLongLong(*opt_ptr);
 }
 
+PyObject* py::symbols::struc_names(core::Core& core, PyObject* args)
+{
+    auto obj    = static_cast<PyObject*>(nullptr);
+    auto module = static_cast<const char*>(nullptr);
+    auto ok     = PyArg_ParseTuple(args, "Ss", &obj, &module);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    if(!opt_proc)
+        return nullptr;
+
+    module       = module ? module : "";
+    auto py_list = PyList_New(0);
+    if(!py_list)
+        return nullptr;
+
+    PYREF(py_list);
+    ::symbols::struc_names(core, *opt_proc, module, [&](std::string_view name)
+    {
+        const auto py_name = PyUnicode_FromStringAndSize(name.data(), name.size());
+        if(!py_name)
+            return;
+
+        PYREF(py_name);
+        PyList_Append(py_list, py_name);
+    });
+    Py_INCREF(py_list);
+    return py_list;
+}
+
 PyObject* py::symbols::struc_size(core::Core& core, PyObject* args)
 {
     auto obj    = static_cast<PyObject*>(nullptr);
@@ -42,6 +73,39 @@ PyObject* py::symbols::struc_size(core::Core& core, PyObject* args)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read struc size");
 
     return PyLong_FromUnsignedLongLong(*opt_size);
+}
+
+PyObject* py::symbols::struc_members(core::Core& core, PyObject* args)
+{
+    auto obj    = static_cast<PyObject*>(nullptr);
+    auto module = static_cast<const char*>(nullptr);
+    auto struc  = static_cast<const char*>(nullptr);
+    auto ok     = PyArg_ParseTuple(args, "Sss", &obj, &module, &struc);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    if(!opt_proc)
+        return nullptr;
+
+    module       = module ? module : "";
+    struc        = struc ? struc : "";
+    auto py_list = PyList_New(0);
+    if(!py_list)
+        return nullptr;
+
+    PYREF(py_list);
+    ::symbols::struc_members(core, *opt_proc, module, struc, [&](std::string_view name)
+    {
+        const auto py_name = PyUnicode_FromStringAndSize(name.data(), name.size());
+        if(!py_name)
+            return;
+
+        PYREF(py_name);
+        PyList_Append(py_list, py_name);
+    });
+    Py_INCREF(py_list);
+    return py_list;
 }
 
 PyObject* py::symbols::member_offset(core::Core& core, PyObject* args)

@@ -34,14 +34,21 @@ class Symbols:
         module, symbol = name.split("!")
         return _icebox.symbols_address(self.proc, module, symbol)
 
+    def struc_names(self, module):
+        return _icebox.symbols_struc_names(self.proc, module)
+
     def struc_size(self, name):
         module, struc_name = name.split("!")
         return _icebox.symbols_struc_size(self.proc, module, struc_name)
 
-    def struc_offset(self, name):
+    def struc_members(self, name):
+        module, struc = name.split("!")
+        return _icebox.symbols_struc_members(self.proc, module, struc)
+
+    def member_offset(self, name):
         module, struc = name.split("!")
         struc_name, struc_member = struc.split("::")
-        return _icebox.symbols_struc_offset(self.proc, module, struc_name, struc_member)
+        return _icebox.symbols_member_offset(self.proc, module, struc_name, struc_member)
 
     def string(self, ptr):
         return _icebox.symbols_string(self.proc, ptr)

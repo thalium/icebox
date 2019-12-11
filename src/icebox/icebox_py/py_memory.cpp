@@ -12,7 +12,8 @@ PyObject* py::memory::virtual_to_physical(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    const auto opt_phy = ::memory::virtual_to_physical(core, ptr, opt_proc->dtb);
+    const auto dtb     = os::is_kernel_address(core, ptr) ? opt_proc->kdtb : opt_proc->udtb;
+    const auto opt_phy = ::memory::virtual_to_physical(core, ptr, dtb);
     if(!opt_phy)
         Py_RETURN_NONE;
 

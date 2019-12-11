@@ -144,7 +144,9 @@ PyMODINIT_FUNC PyInit__icebox()
         {"thread_listen_delete", &core_exec<&py::threads::listen_delete>, METH_VARARGS, "listen on thread deletion"},
         // symbols
         {"symbols_address", &core_exec<&py::symbols::address>, METH_VARARGS, "read symbols address"},
+        {"symbols_struc_names", &core_exec<&py::symbols::struc_names>, METH_VARARGS, "list structs"},
         {"symbols_struc_size", &core_exec<&py::symbols::struc_size>, METH_VARARGS, "read struc size"},
+        {"symbols_struc_members", &core_exec<&py::symbols::struc_members>, METH_VARARGS, "list struct members"},
         {"symbols_member_offset", &core_exec<&py::symbols::member_offset>, METH_VARARGS, "read struc member offset"},
         {"symbols_string", &core_exec<&py::symbols::string>, METH_VARARGS, "convert address to symbol string"},
         // null terminated
