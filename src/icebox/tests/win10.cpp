@@ -145,19 +145,24 @@ TEST_F(win10, processes)
     EXPECT_TRUE(!!parent_name);
     EXPECT_EQ(*parent_name, "wininit.exe");
 
+    const auto exproc = process::find_name(core, "explorer.exe", {});
+    EXPECT_TRUE(!!exproc);
+
     // join proc in kernel
-    process::join(core, *proc, mode_e::kernel);
+    process::join(core, *exproc, mode_e::kernel);
     const auto kcur = process::current(core);
     EXPECT_TRUE(!!kcur);
-    EXPECT_EQ(id, kcur->id);
-    EXPECT_EQ(dtb, kcur->udtb.val);
+    EXPECT_EQ(exproc->id, kcur->id);
+    EXPECT_EQ(exproc->udtb.val, kcur->udtb.val);
+    EXPECT_EQ(exproc->kdtb.val, kcur->kdtb.val);
 
     // join proc in user-mode
-    process::join(core, *proc, mode_e::user);
+    process::join(core, *exproc, mode_e::user);
     const auto cur = process::current(core);
     EXPECT_TRUE(!!cur);
-    EXPECT_EQ(id, cur->id);
-    EXPECT_EQ(dtb, cur->udtb.val);
+    EXPECT_EQ(exproc->id, kcur->id);
+    EXPECT_EQ(exproc->udtb.val, kcur->udtb.val);
+    EXPECT_EQ(exproc->kdtb.val, kcur->kdtb.val);
 }
 
 TEST_F(win10, threads)

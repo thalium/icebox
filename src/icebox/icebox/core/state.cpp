@@ -30,6 +30,7 @@ namespace std
 bool operator==(phy_t a, phy_t b) { return a.val == b.val; }
 bool operator<(phy_t a, phy_t b) { return a.val < b.val; }
 bool operator==(dtb_t a, dtb_t b) { return a.val == b.val; }
+bool operator!=(dtb_t a, dtb_t b) { return a.val != b.val; }
 bool operator==(proc_t a, proc_t b) { return a.id == b.id; }
 bool operator!=(proc_t a, proc_t b) { return a.id != b.id; }
 bool operator==(thread_t a, thread_t b) { return a.id == b.id; }
@@ -66,14 +67,6 @@ namespace
     using Breakers  = std::unordered_map<phy_t, Breakpoint>;
     using Observer  = std::shared_ptr<BreakpointObserver>;
     using Observers = std::multimap<phy_t, Observer>;
-
-    struct BreakState
-    {
-        proc_t   proc;
-        thread_t thread;
-        uint64_t rip;
-        phy_t    phy;
-    };
 
     using check_fn = std::function<bool()>;
     using Waiters  = std::vector<check_fn>;
@@ -128,7 +121,7 @@ struct state::State
 {
     State(core::Core& core)
         : core(core)
-        , breakstate{}
+        , breakphy{}
         , co_main(co_active())
         , pool(16)
     {
@@ -137,7 +130,7 @@ struct state::State
     core::Core& core;
     Breakers    targets;
     Observers   observers;
-    BreakState  breakstate;
+    phy_t       breakphy;
     Waiters     waiters;
     cothread_t  co_main;
     WorkerPool  pool;
@@ -258,25 +251,14 @@ namespace
 
     bool update_break_state(Data& d)
     {
-        memset(&d.breakstate, 0, sizeof d.breakstate);
-        const auto thread = threads::current(d.core);
-        if(!thread)
-            return FAIL(false, "unable to get current thread");
-
-        const auto proc = threads::process(d.core, *thread);
-        if(!proc)
-            return FAIL(false, "unable to get current proc");
-
+        d.breakphy     = {};
         const auto rip = registers::read(d.core, reg_e::rip);
         const auto dtb = dtb_t{registers::read(d.core, reg_e::cr3)};
         const auto phy = memory::virtual_to_physical(d.core, rip, dtb);
         if(!phy)
             return FAIL(false, "unable to get current physical address");
 
-        d.breakstate.thread = *thread;
-        d.breakstate.proc   = *proc;
-        d.breakstate.rip    = rip;
-        d.breakstate.phy    = *phy;
+        d.breakphy = *phy;
         os::debug_print(d.core);
         return true;
     }
@@ -405,14 +387,23 @@ namespace
         if(!(*state & FDP_STATE_BREAKPOINT_HIT))
             return;
 
-        auto observers = std::vector<Observer>{};
-        lookup_observers(d.observers, d.breakstate.phy, [&](auto it)
+        auto observers  = std::vector<Observer>{};
+        auto opt_thread = opt<thread_t>{};
+        auto opt_proc   = opt<proc_t>{};
+        lookup_observers(d.observers, d.breakphy, [&](auto it)
         {
-            const auto& bp = *it->second;
-            if(bp.proc && bp.proc != d.breakstate.proc)
+            const auto& bp        = *it->second;
+            const auto has_filter = bp.thread || bp.proc;
+            if(has_filter && !opt_thread)
+                opt_thread = threads::current(d.core);
+
+            if(bp.thread && bp.thread != opt_thread)
                 return walk_e::next;
 
-            if(bp.thread && bp.thread != d.breakstate.thread)
+            if(bp.proc && !opt_proc)
+                opt_proc = threads::process(d.core, *opt_thread);
+
+            if(bp.proc && bp.proc != opt_proc)
                 return walk_e::next;
 
             if(bp.task)
@@ -503,9 +494,12 @@ namespace
         return bpid;
     }
 
-    state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, opt<dtb_t> dtb, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
+    state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, opt<dtb_t> dtb, opt<proc_t> proc, opt<thread_t> thread, const state::Task& task)
     {
-        auto& d         = *core.state_;
+        auto& d = *core.state_;
+        if(thread && !proc)
+            proc = threads::process(core, *thread);
+
         const auto bp   = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
         const auto bpid = try_add_breakpoint(core, std::string{name}, phy, dtb);
         if(!bpid)
@@ -623,14 +617,15 @@ bool state::run_fast_to_cr3_write(core::Core& core)
 
 void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc)
 {
-    const auto bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+    const auto bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, proc.kdtb.val);
     if(bpid < 0)
         return;
 
     auto& d = *core.state_;
     run_until(d, [&]
     {
-        return d.breakstate.proc == proc;
+        const auto opt_proc = process::current(core);
+        return opt_proc == proc;
     });
     fdp::unset_breakpoint(core, bpid);
 }
@@ -641,7 +636,8 @@ void state::run_to_proc_at(core::Core& core, std::string_view name, proc_t proc,
     const auto bp = set_virtual_breakpoint(core, name, ptr, proc, {}, {});
     run_until(d, [&]
     {
-        return d.breakstate.rip == ptr;
+        const auto opt_proc = process::current(core);
+        return opt_proc == proc;
     });
 }
 
@@ -654,9 +650,9 @@ void state::run_to_current(core::Core& core, std::string_view name)
     const auto bp     = set_virtual_breakpoint(core, name, rip, {}, *thread, {});
     run_until(d, [&]
     {
+        const auto got_rip = registers::read(core, reg_e::rip);
         const auto got_rsp = registers::read(core, reg_e::rsp);
-        return d.breakstate.rip == rip
-               && got_rsp == rsp;
+        return got_rip == rip && got_rsp == rsp;
     });
 }
 
@@ -687,15 +683,23 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     auto& d = *core.state_;
     run_until(d, [&]
     {
-        uint64_t new_cr3 = registers::read(core, reg_e::cr3);
-
-        if(!ptrs.count(d.breakstate.rip) && (bp_cr3 == BP_CR3_NONE || cr3 == new_cr3))
+        const auto got_cr3 = registers::read(core, reg_e::cr3);
+        const auto rip     = registers::read(core, reg_e::rip);
+        if(!ptrs.count(rip) && (bp_cr3 == BP_CR3_NONE || cr3 == got_cr3))
             return false;
 
-        if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3 != new_cr3)
-            cr3 = new_cr3;
+        if(bp_cr3 == BP_CR3_ON_WRITINGS && cr3 != got_cr3)
+            cr3 = got_cr3;
 
-        return on_bp(d.breakstate.proc, d.breakstate.thread) == walk_e::stop;
+        const auto thread = threads::current(core);
+        if(!thread)
+            return false;
+
+        const auto proc = threads::process(core, *thread);
+        if(!proc)
+            return false;
+
+        return on_bp(*proc, *thread) == walk_e::stop;
     });
 
     if(bp_cr3 == BP_CR3_ON_WRITINGS)

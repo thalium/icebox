@@ -125,6 +125,7 @@ namespace
         PspExitProcess,
         PspExitThread,
         MiProcessLoaderEntry,
+        SwapContext,
         SYMBOL_COUNT,
     };
 
@@ -145,6 +146,7 @@ namespace
         {cat_e::REQUIRED, PspExitProcess,                      "nt", "PspExitProcess"},
         {cat_e::REQUIRED, PspExitThread,                       "nt", "PspExitThread"},
         {cat_e::REQUIRED, MiProcessLoaderEntry,                "nt", "MiProcessLoaderEntry"},
+        {cat_e::REQUIRED, SwapContext,                         "nt", "SwapContext"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -1187,7 +1189,7 @@ namespace
 {
     void proc_join_kernel(NtOs& os, proc_t proc)
     {
-        state::run_to_proc(os.core_, "proc_join_kernel", proc);
+        state::run_to_proc_at(os.core_, "SwapContext", proc, os.symbols_[SwapContext]);
     }
 
     void proc_join_user(NtOs& os, proc_t proc)
@@ -1387,7 +1389,7 @@ void NtOs::debug_print()
     const auto ripcur = symbols::find(core_, *proc, rip);
     const auto ripsym = symbols::to_string(ripcur);
     const auto name   = proc_name(*proc);
-    const auto dump   = "rip: " + to_hex(rip)
+    const auto dump   = "rip:" + to_hex(rip)
                       + " cr3:" + to_hex(cr3)
                       + " kdtb:" + to_hex(proc ? proc->kdtb.val : 0)
                       + " udtb:" + to_hex(proc ? proc->udtb.val : 0)
