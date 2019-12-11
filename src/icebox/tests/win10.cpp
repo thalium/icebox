@@ -119,7 +119,7 @@ TEST_F(win10, processes)
         return walk_e::next;
     });
     EXPECT_NE(processes.size(), 0U);
-    const auto it = processes.find("explorer.exe");
+    const auto it = processes.find("services.exe");
     EXPECT_NE(it, processes.end());
 
     const auto [id, dtb, pid, flags] = it->second;
@@ -141,7 +141,7 @@ TEST_F(win10, processes)
     EXPECT_TRUE(!!parent);
     const auto parent_name = process::name(core, *parent);
     EXPECT_TRUE(!!parent_name);
-    EXPECT_EQ(*parent_name, "userinit.exe");
+    EXPECT_EQ(*parent_name, "wininit.exe");
 
     // join proc in kernel
     process::join(core, *proc, mode_e::kernel);

@@ -199,7 +199,7 @@ namespace nt_namespace
         _LIST_ENTRY     InInitializationOrderLinks;
         ptr_t           DllBase;
         ptr_t           EntryPoint;
-        ptr_t           SizeOfImage;
+        uint32_t        SizeOfImage;
         _UNICODE_STRING FullDllName;
         _UNICODE_STRING BaseDllName;
         ptr_t           _[3];
@@ -247,9 +247,9 @@ namespace nt_namespace
 
     struct _RTL_BALANCED_NODE
     {
-        ptr_t    Left;
-        ptr_t    Right;
-        uint64_t ParentValue;
+        ptr_t Left;
+        ptr_t Right;
+        ptr_t ParentValue;
     };
 
     struct _SEGMENT
