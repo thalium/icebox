@@ -80,8 +80,8 @@ void display_proc(core::Core& core, const proc_t& proc)
         pad_with(*proc_name, 16).data(),
         leader_thread_pc.data(),
         threads_count > 0 ? ("+" + std::to_string(threads_count) + " threads (" + threads + ")").data() : "",
-        proc.dtb.val,
-        proc.dtb.val ? "" : " (kernel)");
+        proc.udtb.val,
+        proc.udtb.val ? "" : " (kernel)");
 }
 
 void display_mod(core::Core& core, const proc_t& proc)

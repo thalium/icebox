@@ -19,14 +19,6 @@ bool os::can_inject_fault(core::Core& core, uint64_t ptr)
     return core.os_->can_inject_fault(ptr);
 }
 
-bool os::reader_setup(core::Core& core, reader::Reader& reader, opt<proc_t> proc)
-{
-    if(!core.os_)
-        return true;
-
-    return core.os_->reader_setup(reader, std::move(proc));
-}
-
 size_t os::unlisten(core::Core& core, bpid_t bpid)
 {
     return core.os_->unlisten(bpid);

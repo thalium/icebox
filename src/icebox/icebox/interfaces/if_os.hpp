@@ -28,8 +28,6 @@ namespace os
         virtual uint64_t            proc_id         (proc_t proc) = 0;
         virtual flags_t             proc_flags      (proc_t proc) = 0;
         virtual void                proc_join       (proc_t proc, mode_e mode) = 0;
-        virtual opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) = 0;
-        virtual opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) = 0;
         virtual opt<proc_t>         proc_parent     (proc_t proc) = 0;
 
         virtual bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) = 0;

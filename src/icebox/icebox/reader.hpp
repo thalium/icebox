@@ -24,9 +24,9 @@ namespace reader
         bool            read_all(void* dst, uint64_t ptr, size_t size) const;
         opt<phy_t>      physical(uint64_t ptr) const;
 
-        core::Core& core_;
-        dtb_t       udtb_;
-        dtb_t       kdtb_;
+        core::Core& core;
+        dtb_t       kdtb;
+        dtb_t       udtb;
     };
 
     Reader  make(core::Core& core);

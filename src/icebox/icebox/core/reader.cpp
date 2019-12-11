@@ -1,17 +1,26 @@
 #include "reader.hpp"
 
+#define PRIVATE_CORE__
+#define FDP_MODULE "reader"
 #include "core.hpp"
+#include "core_private.hpp"
 #include "endian.hpp"
+#include "interfaces/if_os.hpp"
 #include "os.hpp"
 
 namespace
 {
+    dtb_t dtb_select(const reader::Reader& r, uint64_t ptr)
+    {
+        return os::is_kernel_address(r.core, ptr) ? r.kdtb : r.udtb;
+    }
+
     template <typename T, T (*read)(const void*)>
     opt<T> read_mem(const reader::Reader& r, uint64_t ptr)
     {
-        T value;
-        const auto dtb = os::is_kernel_address(r.core_, ptr) ? r.kdtb_ : r.udtb_;
-        const auto ok  = memory::read_virtual_with_dtb(r.core_, &value, dtb, ptr, sizeof value);
+        auto value     = T{};
+        const auto dtb = dtb_select(r, ptr);
+        const auto ok  = memory::read_virtual_with_dtb(r.core, &value, dtb, ptr, sizeof value);
         if(!ok)
             return {};
 
@@ -21,8 +30,9 @@ namespace
     reader::Reader make_reader_with(core::Core& core, const opt<proc_t>& proc)
     {
         const auto cr3 = registers::read(core, reg_e::cr3);
-        auto reader    = reader::Reader{core, {cr3}, {cr3}};
-        os::reader_setup(core, reader, proc);
+        auto reader    = reader::Reader{core, cr3, cr3};
+        if(core.os_)
+            core.os_->reader_setup(reader, proc);
         return reader;
     }
 }
@@ -80,14 +90,14 @@ opt<uint64_t> reader::Reader::read(uint64_t ptr) const
 
 bool reader::Reader::read_all(void* dst, uint64_t ptr, size_t size) const
 {
-    const auto dtb = os::is_kernel_address(core_, ptr) ? kdtb_ : udtb_;
-    return memory::read_virtual_with_dtb(core_, dst, dtb, ptr, size);
+    const auto dtb = dtb_select(*this, ptr);
+    return memory::read_virtual_with_dtb(core, dst, dtb, ptr, size);
 }
 
 opt<phy_t> reader::Reader::physical(uint64_t ptr) const
 {
-    const auto dtb = os::is_kernel_address(core_, ptr) ? kdtb_ : udtb_;
-    const auto phy = memory::virtual_to_physical(core_, ptr, dtb);
+    const auto dtb = dtb_select(*this, ptr);
+    const auto phy = memory::virtual_to_physical(core, ptr, dtb);
     if(!phy)
         return {};
 

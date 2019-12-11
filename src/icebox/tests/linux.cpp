@@ -130,14 +130,14 @@ TEST_F(LinuxTest, processes)
     ASSERT_FALSE(proc_list_empty);
 
     const auto child = utility_child(core);
-    ASSERT_TRUE(child && child->id && child->dtb.val);
+    ASSERT_TRUE(child && child->id && child->udtb.val);
 
     const auto child_find_by_pid = process::find_pid(core, process::pid(core, *child));
     EXPECT_EQ(child->id, child_find_by_pid->id);
-    EXPECT_EQ(child->dtb.val, child_find_by_pid->dtb.val);
+    EXPECT_EQ(child->udtb.val, child_find_by_pid->udtb.val);
 
     const auto utility_find_by_name = process::find_name(core, UTILITY_NAME, {});
-    EXPECT_TRUE(utility_find_by_name && utility_find_by_name->id && utility_find_by_name->dtb.val);
+    EXPECT_TRUE(utility_find_by_name && utility_find_by_name->id && utility_find_by_name->udtb.val);
     if(utility_find_by_name)
     {
         const auto name = process::name(core, *utility_find_by_name);
@@ -150,17 +150,17 @@ TEST_F(LinuxTest, processes)
 
     ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, mode_e::kernel), 5 * SECOND_NS);
     auto current = process::current(core);
-    EXPECT_TRUE(current && current->id && current->dtb.val);
+    EXPECT_TRUE(current && current->id && current->udtb.val);
     EXPECT_EQ(child->id, current->id);
-    EXPECT_EQ(child->dtb.val, current->dtb.val);
+    EXPECT_EQ(child->udtb.val, current->udtb.val);
 
     ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
 
     ASSERT_EXEC_BEFORE_TIMEOUT_NS(process::join(core, *child, mode_e::user), 5 * SECOND_NS);
     current = process::current(core);
-    EXPECT_TRUE(current && current->id && current->dtb.val);
+    EXPECT_TRUE(current && current->id && current->udtb.val);
     EXPECT_EQ(child->id, current->id);
-    EXPECT_EQ(child->dtb.val, current->dtb.val);
+    EXPECT_EQ(child->udtb.val, current->udtb.val);
     EXPECT_TRUE(tests::is_user_mode(core));
 
     ASSERT_TRUE(tests::run_for_ns_with_rand(core, 300 * MILLISECOND_NS, 500 * MILLISECOND_NS)); // multiple slice time (which is 100ms by defaut)
@@ -180,7 +180,7 @@ TEST_F(LinuxTest, threads)
     }
 
     const auto child = utility_child(core);
-    ASSERT_TRUE(child && child->id && child->dtb.val);
+    ASSERT_TRUE(child && child->id && child->udtb.val);
 
     int thread_list_counter = 0;
     threads::list(core, *child, [&](thread_t thread)
@@ -192,9 +192,9 @@ TEST_F(LinuxTest, threads)
         thread_list_counter++;
 
         const auto proc = threads::process(core, thread);
-        EXPECT_TRUE(proc && proc->id && proc->dtb.val);
+        EXPECT_TRUE(proc && proc->id && proc->udtb.val);
         EXPECT_EQ(child->id, proc->id);
-        EXPECT_EQ(child->dtb.val, proc->dtb.val);
+        EXPECT_EQ(child->udtb.val, proc->udtb.val);
 
         const auto pid = threads::tid(core, {}, thread);
         EXPECT_TRUE(pid <= 4194304); // PID <= 4194304 for linux
@@ -343,12 +343,12 @@ TEST_F(LinuxTest, vma_modules)
 {
     auto& core       = *ptr_core;
     const auto child = utility_child(core);
-    ASSERT_TRUE(child && child->id && child->dtb.val);
+    ASSERT_TRUE(child && child->id && child->udtb.val);
 
     test_vma_modules(core, *child, "linux_tst_ibx", 4); // 32 bits process
 
     const auto bash = process::parent(core, *child);
-    ASSERT_TRUE(bash && bash->id && bash->dtb.val);
+    ASSERT_TRUE(bash && bash->id && bash->udtb.val);
 
     const auto bash_name = process::name(core, *bash);
     ASSERT_TRUE(bash_name);

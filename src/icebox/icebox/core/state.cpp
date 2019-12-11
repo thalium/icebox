@@ -72,7 +72,6 @@ namespace
         proc_t   proc;
         thread_t thread;
         uint64_t rip;
-        dtb_t    dtb;
         phy_t    phy;
     };
 
@@ -277,7 +276,6 @@ namespace
         d.breakstate.thread = *thread;
         d.breakstate.proc   = *proc;
         d.breakstate.rip    = rip;
-        d.breakstate.dtb    = dtb;
         d.breakstate.phy    = *phy;
         os::debug_print(d.core);
         return true;
@@ -474,26 +472,10 @@ void state::wait_for(core::Core& core, int timeout_ms)
 
 namespace
 {
-    opt<dtb_t> get_dtb_filter(core::Core& core, const BreakpointObserver& bp)
-    {
-        if(bp.proc)
-            return bp.proc->dtb;
-
-        if(!bp.thread)
-            return {};
-
-        const auto proc = threads::process(core, *bp.thread);
-        if(!proc)
-            return {};
-
-        return proc->dtb;
-    }
-
-    opt<int> try_add_breakpoint(core::Core& core, std::string_view name, phy_t phy, const BreakpointObserver& bp)
+    opt<int> try_add_breakpoint(core::Core& core, std::string_view name, phy_t phy, opt<dtb_t> dtb)
     {
         auto& d       = *core.state_;
         auto& targets = d.targets;
-        auto dtb      = get_dtb_filter(core, bp);
         const auto it = targets.find(phy);
         if(it != targets.end())
         {
@@ -521,11 +503,11 @@ namespace
         return bpid;
     }
 
-    state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
+    state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, opt<dtb_t> dtb, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
         auto& d         = *core.state_;
         const auto bp   = std::make_shared<BreakpointObserver>(task, name, phy, proc, thread);
-        const auto bpid = try_add_breakpoint(core, std::string{name}, phy, *bp);
+        const auto bpid = try_add_breakpoint(core, std::string{name}, phy, dtb);
         if(!bpid)
             return {};
 
@@ -539,23 +521,24 @@ namespace
         return std::make_shared<state::BreakpointPrivate>(core, bp);
     }
 
-    opt<phy_t> to_phy(core::Core& core, uint64_t ptr, const opt<proc_t>& proc)
+    dtb_t dtb_select(core::Core& core, proc_t proc, uint64_t ptr)
     {
-        const auto current = proc ? proc : process::current(core);
-        if(!current)
-            return {};
-
-        return core.os_->proc_resolve(*current, ptr);
+        return core.os_->is_kernel_address(ptr) ? proc.kdtb : proc.udtb;
     }
 
     state::Breakpoint set_virtual_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        const auto target = proc ? core.os_->proc_select(*proc, ptr) : ext::nullopt;
-        const auto phy    = to_phy(core, ptr, target);
-        if(!phy)
+        const auto opt_proc = proc ? proc : thread ? threads::process(core, *thread) : process::current(core);
+        if(!opt_proc)
+            return {};
+
+        const auto dtb     = dtb_select(core, *opt_proc, ptr);
+        const auto opt_phy = memory::virtual_to_physical(core, ptr, dtb);
+        if(!opt_phy)
             return nullptr;
 
-        return set_physical_breakpoint(core, name, *phy, target, thread, task);
+        const auto opt_dtb = proc || thread ? ext::make_optional(dtb) : ext::nullopt;
+        return set_physical_breakpoint(core, name, *opt_phy, opt_dtb, proc, thread, task);
     }
 }
 
@@ -576,12 +559,12 @@ state::Breakpoint state::break_on_thread(core::Core& core, std::string_view name
 
 state::Breakpoint state::break_on_physical(core::Core& core, std::string_view name, phy_t phy, const state::Task& task)
 {
-    return set_physical_breakpoint(core, name, phy, {}, {}, task);
+    return set_physical_breakpoint(core, name, phy, {}, {}, {}, task);
 }
 
-state::Breakpoint state::break_on_physical_process(core::Core& core, std::string_view name, proc_t proc, phy_t phy, const state::Task& task)
+state::Breakpoint state::break_on_physical_process(core::Core& core, std::string_view name, dtb_t dtb, phy_t phy, const state::Task& task)
 {
-    return set_physical_breakpoint(core, name, phy, proc, {}, task);
+    return set_physical_breakpoint(core, name, phy, dtb, {}, {}, task);
 }
 
 namespace

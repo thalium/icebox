@@ -237,8 +237,6 @@ namespace
         uint64_t            proc_id         (proc_t proc) override;
         flags_t             proc_flags      (proc_t proc) override;
         void                proc_join       (proc_t proc, mode_e mode) override;
-        opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
-        opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
 
         bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) override;
@@ -348,8 +346,9 @@ namespace
                 return FAIL(false, "unable to find a valid kernel page directory");
         }
 
-        p.kpgd              = kpgd;
-        p.reader_.kdtb_.val = kpgd;
+        p.kpgd             = kpgd;
+        p.reader_.kdtb.val = kpgd;
+        p.reader_.udtb.val = kpgd;
         return true;
     }
 
@@ -535,8 +534,9 @@ bool OsLinux::setup()
 
     auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
-        auto reader      = reader::make(core_);
-        reader.kdtb_.val = kpgd;
+        auto reader     = reader::make(core_);
+        reader.kdtb.val = kpgd;
+        reader.udtb.val = kpgd;
         return !!reader.read(per_cpu);
     });
     if(!ok)
@@ -861,23 +861,6 @@ void OsLinux::proc_join(proc_t proc, mode_e mode)
     }
 }
 
-opt<phy_t> OsLinux::proc_resolve(proc_t proc, uint64_t ptr)
-{
-    const auto select = proc_select(proc, ptr);
-    if(!select)
-        return {};
-
-    return memory::virtual_to_physical(core_, ptr, select->dtb);
-}
-
-opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t ptr)
-{
-    if(!is_kernel_address(ptr))
-        return proc;
-
-    return proc_t{proc.id, dtb_t{kpgd}};
-}
-
 opt<proc_t> OsLinux::proc_parent(proc_t proc)
 {
     const auto thread_parent = reader_.read(proc.id + *offsets_[TASKSTRUCT_REALPARENT]);
@@ -889,8 +872,8 @@ opt<proc_t> OsLinux::proc_parent(proc_t proc)
 
 bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
-    reader.udtb_ = (proc) ? proc->dtb : dtb_t{0};
-    reader.kdtb_ = dtb_t{kpgd};
+    reader.kdtb = dtb_t{kpgd};
+    reader.udtb = proc ? proc->udtb : dtb_t{kpgd};
     return true;
 }
 
@@ -953,13 +936,13 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
 
     const auto mm = proc_mm(*this, *proc_id);
     if(!mm)
-        return proc_t{*proc_id, dtb_t{0}};
+        return FAIL(ext::nullopt, "unable to read proc_mm of thread 0x%" PRIx64, thread.id);
 
     const auto pgd = mm_pgd(*this, *mm);
     if(!pgd)
-        return proc_t{*proc_id, dtb_t{0}};
+        return FAIL(ext::nullopt, "unable to read mm_pgd of thread 0x%" PRIx64, thread.id);
 
-    return proc_t{*proc_id, dtb_t{*pgd}};
+    return proc_t{*proc_id, dtb_t{*pgd}, dtb_t{*pgd}};
 }
 
 opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
@@ -978,7 +961,7 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
     return reader_.read(*pt_regs_ptr - 8);
 }
 
-uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, remove proc ?
+uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread)
 {
     const auto pid = reader_.le32(thread.id + *offsets_[TASKSTRUCT_PID]);
     if(!pid)

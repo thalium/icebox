@@ -102,7 +102,7 @@ namespace
 
     bool is_kernel_proc(proc_t proc)
     {
-        return proc.id == symbols::kernel.id && proc.dtb.val == symbols::kernel.dtb.val;
+        return proc.id == symbols::kernel.id;
     }
 }
 

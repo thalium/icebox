@@ -34,7 +34,8 @@ struct phy_t
 struct proc_t
 {
     uint64_t id;
-    dtb_t    dtb;
+    dtb_t    kdtb;
+    dtb_t    udtb;
 };
 
 struct thread_t

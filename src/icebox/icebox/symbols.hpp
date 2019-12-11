@@ -17,7 +17,7 @@ namespace symbols
         uint64_t    offset;
     };
 
-    constexpr auto kernel = proc_t{~0ull, {~0ull}};
+    constexpr auto kernel = proc_t{~0ull, {~0ull}, {~0ull}};
 
     bool        load_module_memory  (core::Core& core, proc_t proc, span_t span);
     bool        load_module         (core::Core& core, proc_t proc, const std::string& name);

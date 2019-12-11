@@ -108,14 +108,16 @@ TEST_F(win10, processes)
     auto& core = *ptr_core;
     process::list(core, [&](proc_t proc)
     {
-        EXPECT_NE(proc.dtb.val, 0U);
-        EXPECT_NE(proc.dtb.val, 1U);
+        EXPECT_NE(proc.kdtb.val, 0U);
+        EXPECT_NE(proc.kdtb.val, 1U);
+        EXPECT_NE(proc.udtb.val, 0U);
+        EXPECT_NE(proc.udtb.val, 1U);
         const auto name = process::name(core, proc);
         EXPECT_TRUE(!!name);
         const auto pid = process::pid(core, proc);
         EXPECT_NE(pid, 0U);
         const auto flags = process::flags(core, proc);
-        processes.emplace(*name, Process{proc.id, proc.dtb.val, pid, flags});
+        processes.emplace(*name, Process{proc.id, proc.udtb.val, pid, flags});
         return walk_e::next;
     });
     EXPECT_NE(processes.size(), 0U);
@@ -131,7 +133,7 @@ TEST_F(win10, processes)
     const auto proc = process::find_pid(core, pid);
     EXPECT_TRUE(!!proc);
     EXPECT_EQ(id, proc->id);
-    EXPECT_EQ(dtb, proc->dtb.val);
+    EXPECT_EQ(dtb, proc->udtb.val);
 
     const auto valid = process::is_valid(core, *proc);
     EXPECT_TRUE(valid);
@@ -148,14 +150,14 @@ TEST_F(win10, processes)
     const auto kcur = process::current(core);
     EXPECT_TRUE(!!kcur);
     EXPECT_EQ(id, kcur->id);
-    EXPECT_EQ(dtb, kcur->dtb.val);
+    EXPECT_EQ(dtb, kcur->udtb.val);
 
     // join proc in user-mode
     process::join(core, *proc, mode_e::user);
     const auto cur = process::current(core);
     EXPECT_TRUE(!!cur);
     EXPECT_EQ(id, cur->id);
-    EXPECT_EQ(dtb, cur->dtb.val);
+    EXPECT_EQ(dtb, cur->udtb.val);
 }
 
 TEST_F(win10, threads)
@@ -321,7 +323,7 @@ TEST_F(win10, memory)
     auto& core      = *ptr_core;
     const auto proc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
-    LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
+    LOG(INFO, "explorer kdtb: 0x%" PRIx64 " udtb: 0x%" PRIx64, proc->kdtb.val, proc->udtb.val);
 
     process::join(core, *proc, mode_e::user);
 
@@ -338,12 +340,12 @@ TEST_F(win10, memory)
         EXPECT_TRUE(ok);
 
         from_virtual.resize(span->size);
-        ok = memory::read_virtual_with_dtb(core, &from_virtual[0], proc->dtb, span->addr, span->size);
+        ok = memory::read_virtual_with_dtb(core, &from_virtual[0], proc->udtb, span->addr, span->size);
         EXPECT_TRUE(ok);
 
         EXPECT_EQ(0, memcmp(&from_reader[0], &from_virtual[0], span->size));
 
-        const auto phy = memory::virtual_to_physical(core, span->addr, proc->dtb);
+        const auto phy = memory::virtual_to_physical(core, span->addr, proc->udtb);
         EXPECT_TRUE(!!phy);
         return walk_e::next;
     });
@@ -354,7 +356,7 @@ TEST_F(win10, vm_area)
     auto& core      = *ptr_core;
     const auto proc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
-    LOG(INFO, "explorer dtb: 0x%" PRIx64, proc->dtb.val);
+    LOG(INFO, "explorer udtb: 0x%" PRIx64, proc->udtb.val);
 
     process::join(core, *proc, mode_e::kernel);
     LOG(INFO, "MMVAD               address             size                access      image");
@@ -504,7 +506,7 @@ TEST_F(win10, callstacks)
     const auto opt_addr = symbols::address(core, *proc, "ntdll", "RtlUserThreadStart");
     EXPECT_TRUE(!!opt_addr);
 
-    const auto opt_phy = memory::virtual_to_physical(core, *opt_addr, proc->dtb);
+    const auto opt_phy = memory::virtual_to_physical(core, *opt_addr, proc->udtb);
     EXPECT_TRUE(!!opt_phy);
 
     count         = 0;

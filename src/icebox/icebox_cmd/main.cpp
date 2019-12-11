@@ -68,7 +68,7 @@ namespace
         });
 
         const auto pc = process::current(core);
-        LOG(INFO, "current process: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", pc->id, pc->dtb.val, process::name(core, *pc)->data());
+        LOG(INFO, "current process: 0x%" PRIx64 " kdtb: 0x%" PRIx64 " udtb: 0x%" PRIx64 " %s", pc->id, pc->kdtb.val, pc->udtb.val, process::name(core, *pc)->data());
 
         const auto tc = threads::current(core);
         LOG(INFO, "current thread: 0x%" PRIx64, tc->id);
@@ -87,7 +87,7 @@ namespace
         if(!target)
             return false;
 
-        LOG(INFO, "%s: 0x%" PRIx64 " dtb: 0x%" PRIx64 " %s", proc_target, target->id, target->dtb.val, process::name(core, *target)->data());
+        LOG(INFO, "%s: 0x%" PRIx64 " kdtb: 0x%" PRIx64 " ukdtb: 0x%" PRIx64 " %s", proc_target, target->id, target->kdtb.val, target->udtb.val, process::name(core, *target)->data());
         process::join(core, *target, mode_e::kernel);
         process::join(core, *target, mode_e::user);
 

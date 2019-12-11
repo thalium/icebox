@@ -175,8 +175,6 @@ namespace
         flags_t             proc_flags      (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         void                proc_join       (proc_t proc, mode_e mode) override;
-        opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
-        opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
 
         bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) override;
@@ -278,9 +276,14 @@ namespace
             if(!ok)
                 break;
 
-            os.reader_.kdtb_.val = registers::read(core, reg_e::cr3);
+            os.reader_.kdtb.val = registers::read(core, reg_e::cr3);
         }
         return {};
+    }
+
+    dtb_t dtb_select(proc_t proc, uint64_t ptr)
+    {
+        return is_kernel(ptr) ? proc.kdtb : proc.udtb;
     }
 
     bool read_phy_symbol(NtOs& os, phy_t& dst, proc_t proc, const char* module, const char* name)
@@ -289,7 +292,8 @@ namespace
         if(!where)
             return false;
 
-        const auto phy = memory::virtual_to_physical(os.core_, *where, proc.dtb);
+        const auto dtb = dtb_select(proc, *where);
+        const auto phy = memory::virtual_to_physical(os.core_, *where, dtb);
         if(!phy)
             return false;
 
@@ -369,7 +373,7 @@ namespace
             if(!ok)
                 return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
         }
-        os.reader_.kdtb_ = gdtb;
+        os.reader_.kdtb = gdtb;
         return true;
     }
 }
@@ -461,7 +465,7 @@ bool NtOs::setup()
     if(!ok)
         return false;
 
-    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, reader_.kdtb_.val);
+    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, reader_.kdtb.val);
     return try_load_ntdll(*this, core_);
 }
 
@@ -492,12 +496,13 @@ namespace
     {
         const auto dtb = get_user_dtb(os, eproc + os.offsets_[EPROCESS_Pcb]);
         if(!dtb)
-        {
-            LOG(ERROR, "unable to read dtb from 0x%" PRIx64, eproc);
             return {};
-        }
 
-        return proc_t{eproc, *dtb};
+        const auto kdtb = os.reader_.read(eproc + os.offsets_[EPROCESS_Pcb] + os.offsets_[KPROCESS_DirectoryTableBase]);
+        if(!kdtb)
+            return {};
+
+        return proc_t{eproc, dtb_t{*kdtb}, *dtb};
     }
 }
 
@@ -775,14 +780,14 @@ opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_t flags, const modules::o
         if(opt_bpid)
             return opt_bpid;
 
-        const auto bp = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
+        const auto bp = state::break_on_physical_process(core_, name, proc.udtb, LdrpProcessMappedModule_, [=]
         {
             on_LdrpInsertDataTableEntry_wow64(*this, proc, bpid, on_load);
         });
         return replace_bp(*this, bpid, bp);
     }
 
-    const auto bp = state::break_on_physical_process(core_, name, proc, LdrpProcessMappedModule_, [=]
+    const auto bp = state::break_on_physical_process(core_, name, proc.udtb, LdrpProcessMappedModule_, [=]
     {
         on_LdrpInsertDataTableEntry(*this, bpid, on_load);
     });
@@ -1149,12 +1154,8 @@ opt<proc_t> NtOs::thread_proc(thread_t thread)
     if(!kproc)
         return FAIL(ext::nullopt, "unable to read KTHREAD.Process");
 
-    const auto dtb = get_user_dtb(*this, *kproc);
-    if(!dtb)
-        return FAIL(ext::nullopt, "unable to read dtb");
-
     const auto eproc = *kproc - offsets_[EPROCESS_Pcb];
-    return proc_t{eproc, *dtb};
+    return make_proc(*this, eproc);
 }
 
 opt<uint64_t> NtOs::thread_pc(proc_t /*proc*/, thread_t thread)
@@ -1221,15 +1222,6 @@ void NtOs::proc_join(proc_t proc, mode_e mode)
     return proc_join_user(*this, proc);
 }
 
-opt<phy_t> NtOs::proc_resolve(proc_t proc, uint64_t ptr)
-{
-    const auto phy = memory::virtual_to_physical(core_, ptr, proc.dtb);
-    if(phy)
-        return phy;
-
-    return memory::virtual_to_physical(core_, ptr, reader_.kdtb_);
-}
-
 bool NtOs::is_kernel_address(uint64_t ptr)
 {
     return is_kernel(ptr);
@@ -1241,18 +1233,6 @@ bool NtOs::can_inject_fault(uint64_t ptr)
         return false;
 
     return is_user_mode(registers::read(core_, reg_e::cs));
-}
-
-opt<proc_t> NtOs::proc_select(proc_t proc, uint64_t ptr)
-{
-    if(!is_kernel_address(ptr))
-        return proc;
-
-    const auto kdtb = reader_.read(proc.id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_DirectoryTableBase]);
-    if(!kdtb)
-        return {};
-
-    return proc_t{proc.id, dtb_t{*kdtb}};
 }
 
 opt<proc_t> NtOs::proc_parent(proc_t proc)
@@ -1267,22 +1247,9 @@ opt<proc_t> NtOs::proc_parent(proc_t proc)
 
 bool NtOs::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
-    if(!proc)
-    {
-        reader.kdtb_ = reader_.kdtb_;
-        return true;
-    }
-
-    const auto dtb = get_user_dtb(*this, proc->id + offsets_[EPROCESS_Pcb]);
-    if(!dtb)
-        return false;
-
-    const auto kdtb = reader_.read(proc->id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_DirectoryTableBase]);
-    if(!kdtb)
-        return false;
-
-    reader.udtb_ = *dtb;
-    reader.kdtb_ = dtb_t{*kdtb};
+    const auto cr3 = registers::read(reader.core, reg_e::cr3);
+    reader.kdtb    = proc ? proc->kdtb : reader_.kdtb;
+    reader.udtb    = proc ? proc->udtb : dtb_t{cr3};
     return true;
 }
 
@@ -1422,7 +1389,8 @@ void NtOs::debug_print()
     const auto name   = proc_name(*proc);
     const auto dump   = "rip: " + to_hex(rip)
                       + " cr3:" + to_hex(cr3)
-                      + " dtb:" + to_hex(proc ? proc->dtb.val : 0)
+                      + " kdtb:" + to_hex(proc ? proc->kdtb.val : 0)
+                      + " udtb:" + to_hex(proc ? proc->udtb.val : 0)
                       + ' ' + irql_to_text(irql)
                       + ' ' + (is_user_mode(cs) ? "user" : "kernel")
                       + (name ? " " + *name : "")
