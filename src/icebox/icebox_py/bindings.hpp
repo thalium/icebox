@@ -1,9 +1,6 @@
 #pragma once
 
 #define PY_SSIZE_T_CLEAN
-#ifndef DEBUG
-#    define Py_LIMITED_API 0x03030000
-#endif
 // must be included first
 #include <python.h>
 
