@@ -6,7 +6,6 @@
 #include "log.hpp"
 #include "nt/nt.hpp"
 #include "nt/nt_objects.hpp"
-#include "reader.hpp"
 #include "tracer/syscalls32.gen.hpp"
 #include "utils/file.hpp"
 #include "utils/pe.hpp"

@@ -10,6 +10,7 @@
 #include "modules.hpp"
 #include "os.hpp"
 #include "process.hpp"
+#include "reader.hpp"
 #include "registers.hpp"
 #include "state.hpp"
 #include "symbols.hpp"

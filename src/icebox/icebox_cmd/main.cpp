@@ -2,7 +2,6 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/plugins/syscalls.hpp>
-#include <icebox/reader.hpp>
 #include <icebox/utils/path.hpp>
 #include <icebox/utils/pe.hpp>
 

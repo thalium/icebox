@@ -2,7 +2,6 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/nt/nt_objects.hpp>
-#include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/utils/file.hpp>
 #include <icebox/utils/path.hpp>

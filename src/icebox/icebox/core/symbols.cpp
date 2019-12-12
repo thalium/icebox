@@ -6,7 +6,6 @@
 #include "core_private.hpp"
 #include "interfaces/if_symbols.hpp"
 #include "log.hpp"
-#include "reader.hpp"
 
 #include "utils/hash.hpp"
 #include "utils/hex.hpp"

@@ -1,7 +1,6 @@
 #define FDP_MODULE "tests_win10"
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
-#include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/tracer/tracer.hpp>

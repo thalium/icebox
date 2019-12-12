@@ -9,7 +9,6 @@
 #include "log.hpp"
 #include "nt.hpp"
 #include "nt_objects.hpp"
-#include "reader.hpp"
 #include "utils/hex.hpp"
 #include "utils/path.hpp"
 #include "utils/pe.hpp"

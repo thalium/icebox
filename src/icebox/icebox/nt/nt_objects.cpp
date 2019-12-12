@@ -5,7 +5,6 @@
 #include "endian.hpp"
 #include "log.hpp"
 #include "os.hpp"
-#include "reader.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
 #include "wow64.hpp"

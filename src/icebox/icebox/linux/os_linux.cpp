@@ -5,7 +5,6 @@
 #include "interfaces/if_os.hpp"
 #include "interfaces/if_symbols.hpp"
 #include "log.hpp"
-#include "reader.hpp"
 #include "utils/utils.hpp"
 
 #include <mbedtls/sha1.h>

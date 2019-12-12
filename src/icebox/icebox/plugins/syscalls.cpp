@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "log.hpp"
 #include "nt/nt_objects.hpp"
-#include "reader.hpp"
 #include "tracer/syscalls.gen.hpp"
 #include "utils/file.hpp"
 #include "utils/pe.hpp"

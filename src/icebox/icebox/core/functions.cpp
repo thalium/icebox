@@ -5,7 +5,6 @@
 #include "core.hpp"
 #include "core_private.hpp"
 #include "interfaces/if_os.hpp"
-#include "reader.hpp"
 
 #include <unordered_map>
 

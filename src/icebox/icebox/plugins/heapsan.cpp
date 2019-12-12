@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "log.hpp"
 #include "nt/nt.hpp"
-#include "reader.hpp"
 #include "tracer/heaps.gen.hpp"
 #include "utils/hash.hpp"
 #include "utils/utils.hpp"

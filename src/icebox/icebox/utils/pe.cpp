@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "endian.hpp"
 #include "log.hpp"
-#include "reader.hpp"
 #include "utils/utils.hpp"
 
 #include <array>

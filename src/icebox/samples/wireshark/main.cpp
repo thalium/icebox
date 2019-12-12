@@ -5,7 +5,6 @@
 #include <icebox/log.hpp>
 #include <icebox/nt/nt_types.hpp>
 #include <icebox/os.hpp>
-#include <icebox/reader.hpp>
 #include <icebox/utils/path.hpp>
 #include <icebox/utils/pe.hpp>
 
