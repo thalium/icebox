@@ -39,14 +39,14 @@ PyObject* py::symbols::struc_names(core::Core& core, PyObject* args)
     if(!py_list)
         return nullptr;
 
-    PYREF(py_list);
+    PY_DEFER_DECREF(py_list);
     ::symbols::struc_names(core, *opt_proc, module, [&](std::string_view name)
     {
         const auto py_name = PyUnicode_FromStringAndSize(name.data(), name.size());
         if(!py_name)
             return;
 
-        PYREF(py_name);
+        PY_DEFER_DECREF(py_name);
         PyList_Append(py_list, py_name);
     });
     Py_INCREF(py_list);
@@ -94,14 +94,14 @@ PyObject* py::symbols::struc_members(core::Core& core, PyObject* args)
     if(!py_list)
         return nullptr;
 
-    PYREF(py_list);
+    PY_DEFER_DECREF(py_list);
     ::symbols::struc_members(core, *opt_proc, module, struc, [&](std::string_view name)
     {
         const auto py_name = PyUnicode_FromStringAndSize(name.data(), name.size());
         if(!py_name)
             return;
 
-        PYREF(py_name);
+        PY_DEFER_DECREF(py_name);
         PyList_Append(py_list, py_name);
     });
     Py_INCREF(py_list);

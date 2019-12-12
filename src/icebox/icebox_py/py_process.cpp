@@ -137,14 +137,14 @@ PyObject* py::process::list(core::Core& core, PyObject* /*args*/)
     if(!list)
         return nullptr;
 
-    PYREF(list);
+    PY_DEFER_DECREF(list);
     const auto ok = ::process::list(core, [&](proc_t proc)
     {
         auto item = py::to_bytes(proc);
         if(!item)
             return walk_e::stop;
 
-        PYREF(item);
+        PY_DEFER_DECREF(item);
         const auto err = PyList_Append(list, item);
         if(err)
             return walk_e::stop;
@@ -195,9 +195,10 @@ namespace
             if(!args)
                 return;
 
-            PYREF(args);
+            PY_DEFER_DECREF(args);
             const auto ret = PyEval_CallObject(py_func, args);
-            (void) ret;
+            if(ret)
+                PY_DEFER_DECREF(ret);
         });
         if(!opt_bpid)
             return py::fail_with(nullptr, PyExc_RuntimeError, "unable to listen");

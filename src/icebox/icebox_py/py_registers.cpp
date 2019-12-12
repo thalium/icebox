@@ -6,7 +6,7 @@ PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
     if(!list)
         return nullptr;
 
-    PYREF(list);
+    PY_DEFER_DECREF(list);
     for(auto i = 0; i <= static_cast<size_t>(reg_e::last); ++i)
     {
         const auto arg     = static_cast<reg_e>(i);
@@ -15,17 +15,17 @@ PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
         if(!name)
             return nullptr;
 
-        PYREF(name);
+        PY_DEFER_DECREF(name);
         const auto idx = PyLong_FromLong(i);
         if(!idx)
             return nullptr;
 
-        PYREF(idx);
+        PY_DEFER_DECREF(idx);
         const auto item = Py_BuildValue("(OO)", name, idx);
         if(!item)
             return nullptr;
 
-        PYREF(item);
+        PY_DEFER_DECREF(item);
         const auto err = PyList_Append(list, item);
         if(err)
             return nullptr;
@@ -40,7 +40,7 @@ PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
     if(!list)
         return nullptr;
 
-    PYREF(list);
+    PY_DEFER_DECREF(list);
     for(auto i = 0; i <= static_cast<size_t>(msr_e::last); ++i)
     {
         const auto arg     = static_cast<msr_e>(i);
@@ -49,17 +49,17 @@ PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
         if(!name)
             return nullptr;
 
-        PYREF(name);
+        PY_DEFER_DECREF(name);
         const auto idx = PyLong_FromLong(i);
         if(!idx)
             return nullptr;
 
-        PYREF(idx);
+        PY_DEFER_DECREF(idx);
         const auto item = Py_BuildValue("(OO)", name, idx);
         if(!item)
             return nullptr;
 
-        PYREF(item);
+        PY_DEFER_DECREF(item);
         const auto err = PyList_Append(list, item);
         if(err)
             return nullptr;
