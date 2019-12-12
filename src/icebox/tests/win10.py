@@ -61,6 +61,28 @@ class Fixture(unittest.TestCase):
         pf = pe.parent()
         self.assertEqual(pf.name(), "wininit.exe")
 
+        global num_create
+        num_create = 0
+        def on_create(proc):
+            self.assertIsNotNone(proc.name())
+            self.assertIsNotNone(proc.pid())
+            global num_create
+            num_create += 1
+
+        global num_delete
+        num_delete = 0
+        def on_delete(proc):
+            self.assertIsNotNone(proc.name())
+            self.assertIsNotNone(proc.pid())
+            global num_delete
+            num_delete += 1
+
+        bpa = self.vm.processes.break_on_create(on_create)
+        bpb = self.vm.processes.break_on_delete(on_delete)
+        while num_create < 2 and num_delete < 2:
+            self.vm.resume()
+            self.vm.wait()
+
     def test_threads(self):
         p = self.vm.processes.current()
         threads = []
@@ -87,8 +109,9 @@ class Fixture(unittest.TestCase):
 
     def test_symbols(self):
         p = self.vm.processes.current()
-        rip = self.vm.registers.rip
-        self.assertIsNotNone(p.symbols.string(rip))
+        lstar = self.vm.msr.lstar
+        self.assertEqual(p.symbols.string(lstar), "nt!KiSystemCall64Shadow")
+        self.assertEqual(lstar, p.symbols.address("nt!KiSystemCall64Shadow"))
         strucs = []
         for s in p.symbols.strucs("nt"):
             strucs.append(s)

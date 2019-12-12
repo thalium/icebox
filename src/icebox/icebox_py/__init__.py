@@ -61,6 +61,9 @@ class Process:
     def __eq__(self, other):
         return self.proc == other.proc
 
+    def __repr__(self):
+        return "%s pid:%d" % (self.name(), self.pid())
+
     def name(self):
         return _icebox.process_name(self.proc)
 
@@ -144,6 +147,9 @@ class Thread:
 
     def __eq__(self, other):
         return self.thread == other.thread
+
+    def __repr__(self):
+        return "%s tid:%d" % (self.process().name(), self.tid())
 
     def process(self):
         return Process(_icebox.thread_process(self.thread))
