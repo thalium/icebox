@@ -539,6 +539,9 @@ opt<proc_t> NtOs::proc_find(std::string_view name, flags_t flags)
         if(!os::check_flags(f, flags))
             return walk_e::next;
 
+        if(!proc_is_valid(proc))
+            return walk_e::next;
+
         found = proc;
         return walk_e::stop;
     });
