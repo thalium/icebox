@@ -121,6 +121,7 @@ PyMODINIT_FUNC PyInit__icebox()
         {"memory_virtual_to_physical", &core_exec<&py::memory::virtual_to_physical>, METH_VARARGS, "convert virtual address to physical"},
         {"memory_read_virtual", &core_exec<&py::memory::read_virtual>, METH_VARARGS, "read virtual memory"},
         {"memory_read_virtual_with_dtb", &core_exec<&py::memory::read_virtual_with_dtb>, METH_VARARGS, "read virtual memory with dtb"},
+        {"memory_read_virtual_process", &core_exec<&py::memory::read_virtual_process>, METH_VARARGS, "read virtual process memory"},
         {"memory_read_physical", &core_exec<&py::memory::read_physical>, METH_VARARGS, "read physical memory"},
         // process
         {"process_current", &core_exec<&py::process::current>, METH_NOARGS, "read current process"},

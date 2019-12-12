@@ -45,9 +45,11 @@ PyObject* py::memory::read_virtual(core::Core& core, PyObject* args)
     if(!ok)
         return nullptr;
 
-    ok = check_buffer(buf)
-         && ::memory::read_virtual(core, buf.buf, src, buf.len);
-    PyBuffer_Release(&buf);
+    DEFER([&] { PyBuffer_Release(&buf); });
+    if(!check_buffer(buf))
+        return nullptr;
+
+    ok = ::memory::read_virtual(core, buf.buf, src, buf.len);
     if(!ok)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read virtual memory");
 
@@ -63,9 +65,36 @@ PyObject* py::memory::read_virtual_with_dtb(core::Core& core, PyObject* args)
     if(!ok)
         return nullptr;
 
-    ok = check_buffer(buf)
-         && ::memory::read_virtual_with_dtb(core, buf.buf, dtb_t{dtb}, src, buf.len);
-    PyBuffer_Release(&buf);
+    DEFER([&] { PyBuffer_Release(&buf); });
+    if(!check_buffer(buf))
+        return nullptr;
+
+    ok = ::memory::read_virtual_with_dtb(core, buf.buf, dtb_t{dtb}, src, buf.len);
+    if(!ok)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read virtual memory");
+
+    Py_RETURN_NONE;
+}
+
+PyObject* py::memory::read_virtual_process(core::Core& core, PyObject* args)
+{
+    auto buf     = Py_buffer{};
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto src     = uint64_t{};
+    auto ok      = PyArg_ParseTuple(args, "y*OK", &buf, &py_proc, &src);
+    if(!ok)
+        return nullptr;
+
+    DEFER([&] { PyBuffer_Release(&buf); });
+    if(!check_buffer(buf))
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    const auto reader = reader::make(core, *opt_proc);
+    ok                = reader.read_all(buf.buf, src, buf.len);
     if(!ok)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read virtual memory");
 
@@ -80,9 +109,11 @@ PyObject* py::memory::read_physical(core::Core& core, PyObject* args)
     if(!ok)
         return nullptr;
 
-    ok = check_buffer(buf)
-         && ::memory::read_physical(core, buf.buf, src, buf.len);
-    PyBuffer_Release(&buf);
+    DEFER([&] { PyBuffer_Release(&buf); });
+    if(!check_buffer(buf))
+        return nullptr;
+
+    ok = ::memory::read_physical(core, buf.buf, src, buf.len);
     if(!ok)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read virtual memory");
 

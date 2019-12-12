@@ -38,6 +38,7 @@ namespace py
         PyObject*   virtual_to_physical     (core::Core& core, PyObject* args);
         PyObject*   read_virtual            (core::Core& core, PyObject* args);
         PyObject*   read_virtual_with_dtb   (core::Core& core, PyObject* args);
+        PyObject*   read_virtual_process    (core::Core& core, PyObject* args);
         PyObject*   read_physical           (core::Core& core, PyObject* args);
     } // namespace memory
 

@@ -53,10 +53,31 @@ class Symbols:
     def string(self, ptr):
         return _icebox.symbols_string(self.proc, ptr)
 
+class Virtual:
+    def __init__(self, proc):
+        self.proc = proc
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            buf = bytearray(key.stop - key.start)
+            self.read(buf, key.start)
+            return buf
+
+        buf = bytearray(1)
+        self.read(buf, key)
+        return buf[0]
+
+    def read(self, buf, ptr):
+        return _icebox.memory_read_virtual_process(buf, self.proc, ptr)
+
+    def physical_address(self, ptr):
+        return _icebox.memory_virtual_to_physical(self.proc, ptr)
+
 class Process:
     def __init__(self, proc):
         self.proc = proc
         self.symbols = Symbols(proc)
+        self.memory = Virtual(proc)
 
     def __eq__(self, other):
         return self.proc == other.proc
@@ -177,19 +198,6 @@ class Threads:
         bpid = _icebox.thread_listen_delete(fthread)
         return Callback(bpid, fthread)
 
-class Memory:
-    def __init__(self):
-        pass
-
-    def virtual_to_physical(self, proc, ptr):
-        return _icebox.memory_virtual_to_physical(proc.proc, ptr)
-
-    def read_virtual(self, buf, ptr):
-        return _icebox.memory_read_virtual(buf, ptr)
-
-    def read_virtual_with_dtb(self, buf, dtb, ptr):
-        return _icebox.memory_read_virtual_with_dtb(buf, dtb, ptr)
-
 class Physical:
     def __init__(self):
         pass
@@ -218,7 +226,6 @@ class Vm:
         self.msr = Registers(_icebox.msr_list, _icebox.msr_read, _icebox.msr_write)
         self.threads = Threads()
         self.processes = Processes()
-        self.memory = Memory()
         self.physical = Physical()
 
     def detach(self):

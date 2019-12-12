@@ -39,18 +39,18 @@ class Fixture(unittest.TestCase):
             num += 1
         self.assertGreater(num, 1)
 
+        p = self.vm.processes.find_pid(4)
+        self.assertEqual(p.name(), "System")
+        self.assertTrue(p.is_valid())
+        self.assertEqual(p.pid(), 4)
+        flags = p.flags()
+        self.assertTrue(flags.is_x64)
+        self.assertFalse(flags.is_x86)
+        p.join("kernel")
+
         pa = self.vm.processes.current()
         pb = self.vm.processes.find_name(pa.name(), pa.flags())
         self.assertEqual(pa, pb)
-
-        pc = self.vm.processes.find_pid(4)
-        self.assertEqual(pc.name(), "System")
-        self.assertTrue(pc.is_valid())
-        self.assertEqual(pc.pid(), 4)
-
-        flags = pc.flags()
-        self.assertTrue(flags.is_x64)
-        self.assertFalse(flags.is_x86)
 
         pd = self.vm.processes.wait("explorer.exe", icebox.kFlags_x64)
         self.assertEqual(pd.name(), "explorer.exe")
@@ -102,22 +102,29 @@ class Fixture(unittest.TestCase):
     def test_memory(self):
         rip = self.vm.registers.rip
         p = self.vm.processes.current()
-        phy = self.vm.memory.virtual_to_physical(p, rip)
-        self.assertIsNotNone(phy)
 
         bufa = bytearray(16)
-        self.vm.memory.read_virtual(bufa, rip)
+        p.memory.read(bufa, rip)
 
-        bufb = bytearray(16)
-        self.vm.physical.read(bufb, phy)
+        bufb = p.memory[rip : rip + len(bufa)]
         self.assertEqual(bufa, bufb)
 
-        bufc = self.vm.physical[phy : phy + len(bufb)]
-        self.assertEqual(bufb, bufc)
-
-        idx = len(bufb) >> 1
-        val = self.vm.physical[phy + idx]
+        idx = len(bufa) >> 1
+        val = p.memory[rip + idx]
         self.assertEqual(val, bufb[idx])
+
+        phy = p.memory.physical_address(rip)
+        self.assertEqual(phy, phy)
+
+        bufc = bytearray(len(bufa))
+        self.vm.physical.read(bufc, phy)
+        self.assertEqual(bufa, bufc)
+
+        bufd = self.vm.physical[phy : phy + len(bufc)]
+        self.assertEqual(bufc, bufd)
+
+        val = self.vm.physical[phy + idx]
+        self.assertEqual(val, bufc[idx])
 
     def test_symbols(self):
         p = self.vm.processes.current()
