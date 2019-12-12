@@ -73,11 +73,49 @@ class Virtual:
     def physical_address(self, ptr):
         return _icebox.memory_virtual_to_physical(self.proc, ptr)
 
+class Module:
+    def __init__(self, proc, mod):
+        self.proc = proc
+        self.mod = mod
+
+    def __eq__(self, other):
+        return self.mod == other.mod
+
+    def __repr__(self):
+        return self.name()
+
+    def name(self):
+        return _icebox.modules_name(self.proc, self.mod)
+
+    def span(self):
+        return _icebox.modules_span(self.proc, self.mod)
+
+    def flags(self):
+        return _icebox.modules_flags(self.mod)
+
+class Modules:
+    def __init__(self, proc):
+        self.proc = proc
+
+    def __call__(self):
+        for x in _icebox.modules_list(self.proc):
+            yield Module(self.proc, x)
+
+    def find(self, addr):
+        mod = _icebox.modules_find(self.proc, addr)
+        return Module(self.proc, mod) if mod else None
+
+    def break_on_create(self, flags, callback):
+        fmod = lambda mod: callback(Module(mod))
+        bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
+        return Callback(bpid, fmod)
+
 class Process:
     def __init__(self, proc):
         self.proc = proc
         self.symbols = Symbols(proc)
         self.memory = Virtual(proc)
+        self.modules = Modules(proc)
 
     def __eq__(self, other):
         return self.proc == other.proc

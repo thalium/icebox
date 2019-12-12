@@ -68,6 +68,16 @@ namespace py
         PyObject*   listen_delete   (core::Core& core, PyObject* args);
     } // namespace threads
 
+    namespace modules
+    {
+        PyObject*   list            (core::Core& core, PyObject* args);
+        PyObject*   name            (core::Core& core, PyObject* args);
+        PyObject*   span            (core::Core& core, PyObject* args);
+        PyObject*   flags           (core::Core& core, PyObject* args);
+        PyObject*   find            (core::Core& core, PyObject* args);
+        PyObject*   listen_create   (core::Core& core, PyObject* args);
+    } // namespace modules
+
     namespace symbols
     {
         PyObject*   address         (core::Core& core, PyObject* args);
@@ -77,6 +87,12 @@ namespace py
         PyObject*   member_offset   (core::Core& core, PyObject* args);
         PyObject*   string          (core::Core& core, PyObject* args);
     } // namespace symbols
+
+    namespace flags
+    {
+        PyObject*       from(flags_t flags);
+        opt<flags_t>    to  (PyObject* arg);
+    } // namespace flags
 
     template <typename T>
     T fail_with(T ret, PyObject* err, const char* msg)

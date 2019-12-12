@@ -1,24 +1,5 @@
 #include "bindings.hpp"
 
-namespace
-{
-    opt<flags_t> to_flags(PyObject* arg)
-    {
-        auto flags = flags_t{};
-        auto attr  = PyObject_GetAttrString(arg, "is_x64");
-        if(!attr || !PyBool_Check(attr))
-            return py::fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x64 attribute");
-
-        flags.is_x64 = PyLong_AsLong(attr);
-        attr         = PyObject_GetAttrString(arg, "is_x86");
-        if(!attr || !PyBool_Check(attr))
-            return py::fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x86 attribute");
-
-        flags.is_x86 = PyLong_AsLong(attr);
-        return flags;
-    }
-}
-
 PyObject* py::process::current(core::Core& core, PyObject* /*args*/)
 {
     const auto opt_proc = ::process::current(core);
@@ -79,6 +60,29 @@ PyObject* py::process::pid(core::Core& core, PyObject* args)
     return PyLong_FromUnsignedLongLong(pid);
 }
 
+PyObject* py::flags::from(flags_t flags)
+{
+    return Py_BuildValue("{s:O,s:O}",
+                         "is_x86", flags.is_x86 ? Py_True : Py_False,
+                         "is_x64", flags.is_x64 ? Py_True : Py_False);
+}
+
+opt<flags_t> py::flags::to(PyObject* arg)
+{
+    auto flags = flags_t{};
+    auto attr  = PyObject_GetAttrString(arg, "is_x64");
+    if(!attr || !PyBool_Check(attr))
+        return py::fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x64 attribute");
+
+    flags.is_x64 = PyLong_AsLong(attr);
+    attr         = PyObject_GetAttrString(arg, "is_x86");
+    if(!attr || !PyBool_Check(attr))
+        return py::fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x86 attribute");
+
+    flags.is_x86 = PyLong_AsLong(attr);
+    return flags;
+}
+
 PyObject* py::process::flags(core::Core& core, PyObject* args)
 {
     auto obj = static_cast<PyObject*>(nullptr);
@@ -91,9 +95,7 @@ PyObject* py::process::flags(core::Core& core, PyObject* args)
         return nullptr;
 
     const auto flags = ::process::flags(core, *opt_proc);
-    return Py_BuildValue("{s:O,s:O}",
-                         "is_x86", flags.is_x86 ? Py_True : Py_False,
-                         "is_x64", flags.is_x64 ? Py_True : Py_False);
+    return py::flags::from(flags);
 }
 
 PyObject* py::process::join(core::Core& core, PyObject* args)
@@ -167,8 +169,11 @@ PyObject* py::process::wait(core::Core& core, PyObject* args)
         return nullptr;
 
     name                 = name ? name : "";
-    const auto opt_flags = to_flags(py_flags);
-    const auto opt_proc  = ::process::wait(core, name, *opt_flags);
+    const auto opt_flags = py::flags::to(py_flags);
+    if(!opt_flags)
+        return nullptr;
+
+    const auto opt_proc = ::process::wait(core, name, *opt_flags);
     if(!opt_proc)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to wait for process");
 

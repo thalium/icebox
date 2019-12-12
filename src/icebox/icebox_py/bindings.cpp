@@ -143,6 +143,13 @@ PyMODINIT_FUNC PyInit__icebox()
         {"thread_tid", &core_exec<&py::threads::tid>, METH_VARARGS, "read thread tid"},
         {"thread_listen_create", &core_exec<&py::threads::listen_create>, METH_VARARGS, "listen on thread creation"},
         {"thread_listen_delete", &core_exec<&py::threads::listen_delete>, METH_VARARGS, "listen on thread deletion"},
+        // modules
+        {"modules_list", &core_exec<&py::modules::list>, METH_VARARGS, "list process modules"},
+        {"modules_name", &core_exec<&py::modules::name>, METH_VARARGS, "read module name"},
+        {"modules_span", &core_exec<&py::modules::span>, METH_VARARGS, "read module span"},
+        {"modules_flags", &core_exec<&py::modules::flags>, METH_VARARGS, "read module flags"},
+        {"modules_find", &core_exec<&py::modules::find>, METH_VARARGS, "find module from address"},
+        {"modules_listen_create", &core_exec<&py::modules::listen_create>, METH_VARARGS, "listen on module creation"},
         // symbols
         {"symbols_address", &core_exec<&py::symbols::address>, METH_VARARGS, "read symbols address"},
         {"symbols_struc_names", &core_exec<&py::symbols::struc_names>, METH_VARARGS, "list structs"},

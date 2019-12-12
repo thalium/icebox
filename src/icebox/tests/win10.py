@@ -144,6 +144,20 @@ class Fixture(unittest.TestCase):
         offset = p.symbols.member_offset("nt!_LDR_DATA_TABLE_ENTRY::SizeOfImage")
         self.assertGreater(offset, 0)
 
+    def test_modules(self):
+        p = self.vm.processes.current()
+        modules = []
+        for mod in p.modules():
+            modules.append(mod)
+            addr, size = mod.span()
+            other = p.modules.find(addr)
+            self.assertEqual(mod, other)
+            other = p.modules.find(addr + size - 1)
+            self.assertEqual(mod, other)
+            flags = mod.flags()
+            self.assertIsNotNone(flags)
+        self.assertGreater(len(modules), 1)
+
 if __name__ == '__main__':
     path = os.path.abspath(sys.argv[1])
     sys.path.append(path)
