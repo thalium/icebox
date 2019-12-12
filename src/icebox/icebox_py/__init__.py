@@ -190,7 +190,20 @@ class Memory:
     def read_virtual_with_dtb(self, buf, dtb, ptr):
         return _icebox.memory_read_virtual_with_dtb(buf, dtb, ptr)
 
-    def read_physical(self, buf, ptr):
+class Physical:
+    def __init__(self):
+        pass
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            buf = bytearray(key.stop - key.start)
+            self.read(buf, key.start)
+            return buf
+        buf = bytearray(1)
+        self.read(buf, key)
+        return buf[0]
+
+    def read(self, buf, ptr):
         return _icebox.memory_read_physical(buf, ptr)
 
 class Vm:
@@ -206,6 +219,7 @@ class Vm:
         self.threads = Threads()
         self.processes = Processes()
         self.memory = Memory()
+        self.physical = Physical()
 
     def detach(self):
         _icebox.detach()

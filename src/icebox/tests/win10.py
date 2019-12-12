@@ -47,6 +47,7 @@ class Fixture(unittest.TestCase):
         self.assertEqual(pc.name(), "System")
         self.assertTrue(pc.is_valid())
         self.assertEqual(pc.pid(), 4)
+
         flags = pc.flags()
         self.assertTrue(flags.is_x64)
         self.assertFalse(flags.is_x86)
@@ -89,8 +90,10 @@ class Fixture(unittest.TestCase):
         for t in p.threads():
             threads.append(t)
         self.assertGreater(len(threads), 0)
+
         t = self.vm.threads.current()
         self.assertIn(t, threads)
+
         pa = t.process()
         self.assertEqual(p, pa)
         self.assertNotEqual(t.program_counter(), 0)
@@ -101,11 +104,20 @@ class Fixture(unittest.TestCase):
         p = self.vm.processes.current()
         phy = self.vm.memory.virtual_to_physical(p, rip)
         self.assertIsNotNone(phy)
+
         bufa = bytearray(16)
         self.vm.memory.read_virtual(bufa, rip)
+
         bufb = bytearray(16)
-        self.vm.memory.read_physical(bufb, phy)
+        self.vm.physical.read(bufb, phy)
         self.assertEqual(bufa, bufb)
+
+        bufc = self.vm.physical[phy : phy + len(bufb)]
+        self.assertEqual(bufb, bufc)
+
+        idx = len(bufb) >> 1
+        val = self.vm.physical[phy + idx]
+        self.assertEqual(val, bufb[idx])
 
     def test_symbols(self):
         p = self.vm.processes.current()
