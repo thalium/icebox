@@ -53,6 +53,18 @@ class Symbols:
     def string(self, ptr):
         return _icebox.symbols_string(self.proc, ptr)
 
+    def load_module_memory(self, addr, size):
+        return _icebox.symbols_load_module_memory(self.proc, addr, size)
+
+    def load_module(self, name):
+        return _icebox.symbols_load_module(self.proc, name)
+
+    def load_modules(self):
+        return _icebox.symbols_load_modules(self.proc)
+
+    def autoload_modules(self):
+        return _icebox.symbols_autoload_modules(self.proc)
+
 class Virtual:
     def __init__(self, proc):
         self.proc = proc
@@ -82,7 +94,8 @@ class Module:
         return self.mod == other.mod
 
     def __repr__(self):
-        return self.name()
+        addr, size = self.span()
+        return "%s: %x-%x flags:%s" % (self.name(), addr, addr + size, str(self.flags()))
 
     def name(self):
         return _icebox.modules_name(self.proc, self.mod)
@@ -104,6 +117,14 @@ class Modules:
     def find(self, addr):
         mod = _icebox.modules_find(self.proc, addr)
         return Module(self.proc, mod) if mod else None
+
+    def find_name(self, name):
+        name = name.casefold()
+        for mod in self():
+            mod_name, _ = os.path.splitext(os.path.basename(mod.name()))
+            if mod_name.casefold() == name:
+                return mod
+        return None
 
     def break_on_create(self, flags, callback):
         fmod = lambda mod: callback(Module(mod))
@@ -165,17 +186,17 @@ class Processes:
     def current(self):
         return Process(_icebox.process_current())
 
-    def find_name(self, name, flags):
+    def find_name(self, name, flags=None):
         for p in self():
             got_name = os.path.basename(p.name())
             if got_name != name:
                 continue
 
             got_flags = p.flags()
-            if flags.is_x64 and not got_flags.is_x64:
+            if flags and flags.is_x64 and not got_flags.is_x64:
                 continue
 
-            if flags.is_x86 and not got_flags.is_x86:
+            if flags and flags.is_x86 and not got_flags.is_x86:
                 continue
 
             return p

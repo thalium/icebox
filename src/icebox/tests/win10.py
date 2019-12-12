@@ -145,7 +145,8 @@ class Fixture(unittest.TestCase):
         self.assertGreater(offset, 0)
 
     def test_modules(self):
-        p = self.vm.processes.current()
+        p = self.vm.processes.find_name("dwm.exe")
+        p.join("user")
         modules = []
         for mod in p.modules():
             modules.append(mod)
@@ -157,6 +158,21 @@ class Fixture(unittest.TestCase):
             flags = mod.flags()
             self.assertIsNotNone(flags)
         self.assertGreater(len(modules), 1)
+
+    def test_symbols_load(self):
+        p = self.vm.processes.find_name("dwm.exe", icebox.kFlags_x64)
+        p.join("user")
+
+        kernelbase = p.modules.find_name("kernelbase")
+        self.assertIsNotNone(kernelbase)
+
+        addr, size = kernelbase.span()
+        p.symbols.load_module_memory(addr, size)
+
+        p.symbols.load_module("kernel32")
+        p.symbols.load_modules()
+        bp = p.symbols.autoload_modules()
+        self.assertIsNotNone(bp)
 
 if __name__ == '__main__':
     path = os.path.abspath(sys.argv[1])

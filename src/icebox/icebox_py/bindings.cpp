@@ -96,13 +96,9 @@ const char* py::from_bytes(PyObject* self, size_t size)
     return src;
 }
 
-PyMODINIT_FUNC PyInit__icebox()
+namespace
 {
-    auto args       = std::array<char*, 2>{"_icebox", nullptr};
-    const auto argc = static_cast<int>(args.size());
-    logg::init(argc - 1, &args[0]);
-
-    static auto ice_methods = std::array<PyMethodDef, 48>{{
+    constexpr auto ice_methods = std::array<PyMethodDef, 64>{{
         {"attach", core_attach, METH_VARARGS, "attach vm <name>"},
         {"detach", core_detach, METH_NOARGS, "detach from vm"},
         // state
@@ -151,6 +147,10 @@ PyMODINIT_FUNC PyInit__icebox()
         {"modules_find", &core_exec<&py::modules::find>, METH_VARARGS, "find module from address"},
         {"modules_listen_create", &core_exec<&py::modules::listen_create>, METH_VARARGS, "listen on module creation"},
         // symbols
+        {"symbols_load_module_memory", &core_exec<&py::symbols::load_module_memory>, METH_VARARGS, "load module symbols from memory"},
+        {"symbols_load_module", &core_exec<&py::symbols::load_module>, METH_VARARGS, "load module symbols from name"},
+        {"symbols_load_modules", &core_exec<&py::symbols::load_modules>, METH_VARARGS, "load all module symbols from process"},
+        {"symbols_autoload_modules", &core_exec<&py::symbols::autoload_modules>, METH_VARARGS, "auto-load module symbols from process"},
         {"symbols_address", &core_exec<&py::symbols::address>, METH_VARARGS, "read symbols address"},
         {"symbols_struc_names", &core_exec<&py::symbols::struc_names>, METH_VARARGS, "list structs"},
         {"symbols_struc_size", &core_exec<&py::symbols::struc_size>, METH_VARARGS, "read struc size"},
@@ -160,12 +160,20 @@ PyMODINIT_FUNC PyInit__icebox()
         // null terminated
         {nullptr, nullptr, 0, nullptr},
     }};
-    static auto ice_module  = PyModuleDef{
+}
+
+PyMODINIT_FUNC PyInit__icebox()
+{
+    auto args       = std::array<char*, 2>{"_icebox", nullptr};
+    const auto argc = static_cast<int>(args.size());
+    logg::init(argc - 1, &args[0]);
+
+    static auto ice_module = PyModuleDef{
         PyModuleDef_HEAD_INIT,                     // m_base
         "_icebox",                                 // m_name
         "Python interface for the icebox library", // m_doc
         sizeof(Handle),                            // m_size
-        &ice_methods[0],                           // m_methods
+        const_cast<PyMethodDef*>(&ice_methods[0]), // m_methods
         nullptr,                                   // m_slots
         nullptr,                                   // m_traverse
         nullptr,                                   // m_clear

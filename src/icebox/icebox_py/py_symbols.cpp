@@ -148,3 +148,79 @@ PyObject* py::symbols::string(core::Core& core, PyObject* args)
     const auto txt = ::symbols::to_string(sym);
     return PyUnicode_FromStringAndSize(txt.data(), txt.size());
 }
+
+PyObject* py::symbols::load_module_memory(core::Core& core, PyObject* args)
+{
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto addr    = uint64_t{};
+    auto size    = uint64_t{};
+    auto ok      = PyArg_ParseTuple(args, "SKK", &py_proc, &addr, &size);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    ok = ::symbols::load_module_memory(core, *opt_proc, {addr, size});
+    if(!ok)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load module memory");
+
+    Py_RETURN_NONE;
+}
+
+PyObject* py::symbols::load_module(core::Core& core, PyObject* args)
+{
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto name    = static_cast<const char*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &name);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    name = name ? name : "";
+    ok   = ::symbols::load_module(core, *opt_proc, name);
+    if(!ok)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load module");
+
+    Py_RETURN_NONE;
+}
+
+PyObject* py::symbols::load_modules(core::Core& core, PyObject* args)
+{
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    ok = ::symbols::load_modules(core, *opt_proc);
+    if(!ok)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load modules");
+
+    Py_RETURN_NONE;
+}
+
+PyObject* py::symbols::autoload_modules(core::Core& core, PyObject* args)
+{
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    const auto opt_bp = ::symbols::autoload_modules(core, *opt_proc);
+    if(!opt_bp)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load modules");
+
+    return py::to_bytes(*opt_bp);
+}
