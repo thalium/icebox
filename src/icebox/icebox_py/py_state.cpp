@@ -4,6 +4,9 @@ namespace
 {
     PyObject* none_or_error(bool ok)
     {
+        if(PyErr_Occurred())
+            return nullptr;
+
         if(!ok)
             return py::fail_with(nullptr, PyExc_RuntimeError, "error");
 
