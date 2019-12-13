@@ -98,7 +98,7 @@ const char* py::from_bytes(PyObject* self, size_t size)
 
 namespace
 {
-    constexpr auto ice_methods = std::array<PyMethodDef, 64>{{
+    constexpr auto ice_methods = std::array<PyMethodDef, 80>{{
         {"attach", core_attach, METH_VARARGS, "attach vm <name>"},
         {"detach", core_detach, METH_NOARGS, "detach from vm"},
         // state
@@ -106,6 +106,11 @@ namespace
         {"resume", &core_exec<&py::state::resume>, METH_NOARGS, "resume vm"},
         {"single_step", &core_exec<&py::state::single_step>, METH_NOARGS, "execute a single instruction"},
         {"wait", &core_exec<&py::state::wait>, METH_NOARGS, "wait vm"},
+        {"break_on", &core_exec<&py::state::break_on>, METH_VARARGS, "break on virtual address"},
+        {"break_on_process", &core_exec<&py::state::break_on_process>, METH_VARARGS, "break process on address"},
+        {"break_on_thread", &core_exec<&py::state::break_on_thread>, METH_VARARGS, "break thread on address"},
+        {"break_on_physical", &core_exec<&py::state::break_on_physical>, METH_VARARGS, "break on physical address"},
+        {"break_on_physical_process", &core_exec<&py::state::break_on_physical_process>, METH_VARARGS, "break process on physical address"},
         // registers
         {"msr_list", &core_exec<&py::registers::msr_list>, METH_NOARGS, "list available msr registers"},
         {"msr_read", &core_exec<&py::registers::msr_read>, METH_VARARGS, "read msr register"},
@@ -146,6 +151,12 @@ namespace
         {"modules_flags", &core_exec<&py::modules::flags>, METH_VARARGS, "read module flags"},
         {"modules_find", &core_exec<&py::modules::find>, METH_VARARGS, "find module from address"},
         {"modules_listen_create", &core_exec<&py::modules::listen_create>, METH_VARARGS, "listen on module creation"},
+        // drivers
+        {"drivers_list", &core_exec<&py::drivers::list>, METH_NOARGS, "list drivers"},
+        {"drivers_name", &core_exec<&py::drivers::name>, METH_VARARGS, "read driver name"},
+        {"drivers_span", &core_exec<&py::drivers::span>, METH_VARARGS, "read driver span"},
+        {"drivers_find", &core_exec<&py::drivers::find>, METH_VARARGS, "find driver from address"},
+        {"drivers_listen", &core_exec<&py::drivers::listen>, METH_VARARGS, "listen on driver events"},
         // symbols
         {"symbols_load_module_memory", &core_exec<&py::symbols::load_module_memory>, METH_VARARGS, "load module symbols from memory"},
         {"symbols_load_module", &core_exec<&py::symbols::load_module>, METH_VARARGS, "load module symbols from name"},
@@ -157,6 +168,16 @@ namespace
         {"symbols_struc_members", &core_exec<&py::symbols::struc_members>, METH_VARARGS, "list struct members"},
         {"symbols_member_offset", &core_exec<&py::symbols::member_offset>, METH_VARARGS, "read struc member offset"},
         {"symbols_string", &core_exec<&py::symbols::string>, METH_VARARGS, "convert address to symbol string"},
+        // functions
+        {"functions_read_stack", &core_exec<&py::functions::read_stack>, METH_VARARGS, "read stack value"},
+        {"functions_read_arg", &core_exec<&py::functions::read_arg>, METH_VARARGS, "read arg value"},
+        {"functions_write_arg", &core_exec<&py::functions::write_arg>, METH_VARARGS, "write arg value"},
+        {"functions_break_on_return", &core_exec<&py::functions::break_on_return>, METH_VARARGS, "break on function return"},
+        // callstacks
+        {"callstacks_read", &core_exec<&py::callstacks::read>, METH_VARARGS, "read callstack"},
+        {"callstacks_load_module", &core_exec<&py::callstacks::load_module>, METH_VARARGS, "load module unwind data"},
+        {"callstacks_load_driver", &core_exec<&py::callstacks::load_driver>, METH_VARARGS, "load driver unwind data"},
+        {"callstacks_autoload_modules", &core_exec<&py::callstacks::autoload_modules>, METH_VARARGS, "autoload process module unwind data"},
         // null terminated
         {nullptr, nullptr, 0, nullptr},
     }};

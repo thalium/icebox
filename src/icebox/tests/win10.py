@@ -3,7 +3,7 @@ import inspect
 import sys
 import unittest
 
-class Fixture(unittest.TestCase):
+class Windows(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -15,7 +15,7 @@ class Fixture(unittest.TestCase):
         cls.vm.detach()
 
     def setUp(self):
-        self.vm = Fixture.vm
+        self.vm = Windows.vm
 
     def test_attach(self):
         pass
@@ -62,6 +62,7 @@ class Fixture(unittest.TestCase):
         pf = pe.parent()
         self.assertEqual(pf.name(), "wininit.exe")
 
+        return # too slow
         global num_create
         num_create = 0
         def on_create(proc):
@@ -170,15 +171,108 @@ class Fixture(unittest.TestCase):
         p.symbols.load_module_memory(addr, size)
 
         p.symbols.load_module("kernel32")
+
+        return # too slow
         p.symbols.load_modules()
         bp = p.symbols.autoload_modules()
         self.assertIsNotNone(bp)
 
+    def test_breakpoints(self):
+        p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
+        name = "ntdll!NtWaitForMultipleObjects"
+        addr = p.symbols.address(name)
+        def on_break():
+            global hit
+            hit += 1
+        def run_until_hit():
+            global hit
+            hit = 0
+            while hit == 0:
+                self.vm.resume()
+                self.vm.wait()
+
+        bp = self.vm.break_on("break_on " + name, addr, on_break)
+        run_until_hit()
+        self.assertEqual(self.vm.registers.rip, addr)
+        del bp
+
+        bp = self.vm.break_on_process("break_on_process " + name, p, addr, on_break)
+        run_until_hit()
+        dtb = self.vm.registers.cr3
+        t = self.vm.threads.current()
+        self.assertEqual(self.vm.registers.rip, addr)
+        self.assertEqual(self.vm.processes.current(), p)
+        del bp
+
+        bp = self.vm.break_on_thread("break_on_thread " + name, t, addr, on_break)
+        run_until_hit()
+        self.assertEqual(self.vm.registers.rip, addr)
+        self.assertEqual(self.vm.threads.current(), t)
+        del bp
+
+        phy = p.memory.physical_address(addr)
+        bp = self.vm.break_on_physical("break_on_physical " + name, phy, on_break)
+        run_until_hit()
+        self.assertEqual(self.vm.registers.rip, addr)
+        del bp
+
+        bp = self.vm.break_on_physical_process("break_on_physical_process " + name, dtb, phy, on_break)
+        run_until_hit()
+        self.assertEqual(self.vm.registers.rip, addr)
+        self.assertEqual(self.vm.processes.current(), p)
+        del bp
+
+    def test_drivers(self):
+        drivers = []
+        for drv in self.vm.drivers():
+            drivers.append(drv)
+            addr, size = drv.span()
+            other = self.vm.drivers.find(addr)
+            self.assertEqual(drv, other)
+            other = self.vm.drivers.find(addr + size - 1)
+            self.assertEqual(drv, other)
+        self.assertGreater(len(drivers), 1)
+
+    def test_functions(self):
+        name = "nt!SwapContext"
+        p = self.vm.processes.current()
+        addr = p.symbols.address(name)
+        bp = self.vm.break_on(name, addr, lambda: None)
+        self.vm.resume()
+        self.vm.wait()
+        del bp
+        stack_0 = self.vm.functions.read_stack(0)
+        self.assertIsNotNone(stack_0)
+        arg_0 = self.vm.functions.read_arg(0)
+        self.assertIsNotNone(arg_0)
+        self.vm.functions.write_arg(0, arg_0)
+        self.vm.functions.break_on_return(name + " return", lambda: None)
+        self.vm.resume()
+        self.vm.wait()
+
+    def test_callstacks(self):
+        p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
+        p.join("user")
+        mod = p.modules.find_name("dwm")
+        self.assertIsNotNone(mod)
+        p.callstacks.load_module(mod)
+        name = "nt!NtWaitForMultipleObjects"
+        addr = p.symbols.address(name)
+        bp = self.vm.break_on_process(name, p, addr, lambda: None)
+        self.vm.resume()
+        self.vm.wait()
+        del bp
+
+        p = self.vm.processes.current()
+        addrs = []
+        for x in p.callstacks():
+            addrs.append(x)
+        self.assertGreater(len(addrs), 1)
+
 if __name__ == '__main__':
     path = os.path.abspath(sys.argv[1])
     sys.path.append(path)
-    sys.argv.pop()
+    del sys.argv[1]
     global icebox
     import icebox
-    print()
     unittest.main()

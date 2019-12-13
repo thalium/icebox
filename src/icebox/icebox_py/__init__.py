@@ -131,12 +131,30 @@ class Modules:
         bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
         return Callback(bpid, fmod)
 
+class Callstacks:
+    def __init__(self, proc):
+        self.proc = proc
+
+    def __call__(self):
+        for x in _icebox.callstacks_read(self.proc, 256):
+            yield x
+
+    def load_module(self, mod):
+        return _icebox.callstacks_load_module(self.proc, mod.mod)
+
+    def load_driver(self, drv):
+        return _icebox.callstacks_load_driver(self.proc, drv.drv)
+
+    def autoload_modules(self):
+        return _icebox.callstacks_autoload_modules(self.proc)
+
 class Process:
     def __init__(self, proc):
         self.proc = proc
         self.symbols = Symbols(proc)
         self.memory = Virtual(proc)
         self.modules = Modules(proc)
+        self.callstacks = Callstacks(proc)
 
     def __eq__(self, other):
         return self.proc == other.proc
@@ -273,6 +291,64 @@ class Physical:
     def read(self, buf, ptr):
         return _icebox.memory_read_physical(buf, ptr)
 
+class Functions:
+    def __init__(self):
+        pass
+
+    def read_stack(self, idx):
+        return _icebox.functions_read_stack(idx)
+
+    def read_arg(self, idx):
+        return _icebox.functions_read_arg(idx)
+
+    def write_arg(self, idx, arg):
+        return _icebox.functions_write_arg(idx, arg)
+
+    def break_on_return(self, name, callback):
+        return _icebox.functions_break_on_return(name, callback)
+
+class Driver:
+    def __init__(self, drv):
+        self.drv = drv
+
+    def __eq__(self, other):
+        return self.drv == other.drv
+
+    def __repr__(self):
+        addr, size = self.span()
+        return "%s: %x-%x" % (self.name(), addr, addr + size)
+
+    def name(self):
+        return _icebox.drivers_name(self.drv)
+
+    def span(self):
+        return _icebox.drivers_span(self.drv)
+
+class Drivers:
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        for x in _icebox.drivers_list():
+            yield Driver(x)
+
+    def find(self, addr):
+        drv = _icebox.drivers_find(addr)
+        return Driver(drv) if drv else None
+
+    def find_name(self, name):
+        name = name.casefold()
+        for drv in self():
+            drv_name, _ = os.path.splitext(os.path.basename(drv.name()))
+            if drv_name.casefold() == name:
+                return drv
+        return None
+
+    def break_on(self, callback):
+        fdrv = lambda drv, load: callback(Driver(drv), load)
+        bpid = _icebox.drivers_listen(fdrv)
+        return Callback(bpid, fdrv)
+
 class Vm:
     def __init__(self, name):
         curr = inspect.getsourcefile(lambda: 0)
@@ -286,6 +362,8 @@ class Vm:
         self.threads = Threads()
         self.processes = Processes()
         self.physical = Physical()
+        self.functions = Functions()
+        self.drivers = Drivers()
 
     def detach(self):
         _icebox.detach()
@@ -302,17 +380,22 @@ class Vm:
     def wait(self):
         _icebox.wait()
 
-    def break_on(self, name, ptr, callback):
-        pass
+    def break_on(self, name, where, callback):
+        bp = _icebox.break_on(name, where, callback)
+        return Callback(bp, callback)
 
-    def break_on_process(self, name, proc, ptr, callback):
-        pass
+    def break_on_process(self, name, proc, where, callback):
+        bp = _icebox.break_on_process(name, proc.proc, where, callback)
+        return Callback(bp, callback)
 
-    def break_on_thread(self, name, thread, ptr, callback):
-        pass
+    def break_on_thread(self, name, thread, where, callback):
+        bp = _icebox.break_on_thread(name, thread.thread, where, callback)
+        return Callback(bp, callback)
 
-    def break_on_physical(self, name, phy, callback):
-        pass
+    def break_on_physical(self, name, where, callback):
+        bp = _icebox.break_on_physical(name, where, callback)
+        return Callback(bp, callback)
 
-    def break_on_physical_process(self, name, proc, phy, callback):
-        pass
+    def break_on_physical_process(self, name, dtb, where, callback):
+        bp = _icebox.break_on_physical_process(name, dtb, where, callback)
+        return Callback(bp, callback)

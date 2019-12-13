@@ -14,10 +14,15 @@ namespace py
 {
     namespace state
     {
-        PyObject*   pause       (core::Core& core, PyObject* args);
-        PyObject*   resume      (core::Core& core, PyObject* args);
-        PyObject*   single_step (core::Core& core, PyObject* args);
-        PyObject*   wait        (core::Core& core, PyObject* args);
+        PyObject*   pause                       (core::Core& core, PyObject* args);
+        PyObject*   resume                      (core::Core& core, PyObject* args);
+        PyObject*   single_step                 (core::Core& core, PyObject* args);
+        PyObject*   wait                        (core::Core& core, PyObject* args);
+        PyObject*   break_on                    (core::Core& core, PyObject* args);
+        PyObject*   break_on_process            (core::Core& core, PyObject* args);
+        PyObject*   break_on_thread             (core::Core& core, PyObject* args);
+        PyObject*   break_on_physical           (core::Core& core, PyObject* args);
+        PyObject*   break_on_physical_process   (core::Core& core, PyObject* args);
     } // namespace state
 
     namespace registers
@@ -75,6 +80,15 @@ namespace py
         PyObject*   listen_create   (core::Core& core, PyObject* args);
     } // namespace modules
 
+    namespace drivers
+    {
+        PyObject*   list    (core::Core& core, PyObject* args);
+        PyObject*   name    (core::Core& core, PyObject* args);
+        PyObject*   span    (core::Core& core, PyObject* args);
+        PyObject*   find    (core::Core& core, PyObject* args);
+        PyObject*   listen  (core::Core& core, PyObject* args);
+    }; // namespace drivers
+
     namespace symbols
     {
         PyObject*   load_module_memory  (core::Core& core, PyObject* args);
@@ -88,6 +102,22 @@ namespace py
         PyObject*   member_offset       (core::Core& core, PyObject* args);
         PyObject*   string              (core::Core& core, PyObject* args);
     } // namespace symbols
+
+    namespace functions
+    {
+        PyObject*   read_stack      (core::Core& core, PyObject* args);
+        PyObject*   read_arg        (core::Core& core, PyObject* args);
+        PyObject*   write_arg       (core::Core& core, PyObject* args);
+        PyObject*   break_on_return (core::Core& core, PyObject* args);
+    } // namespace functions
+
+    namespace callstacks
+    {
+        PyObject*   read            (core::Core& core, PyObject* args);
+        PyObject*   load_module     (core::Core& core, PyObject* args);
+        PyObject*   load_driver     (core::Core& core, PyObject* args);
+        PyObject*   autoload_modules(core::Core& core, PyObject* args);
+    } // namespace callstacks
 
     namespace flags
     {
