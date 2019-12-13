@@ -286,34 +286,36 @@ namespace nt_namespace
         // truncated...
     };
 
-    struct _MMVAD_FLAGS
+    namespace win10
     {
-        uint32_t Lock               : 1;
-        uint32_t LockContended      : 1;
-        uint32_t DeleteInProgress   : 1;
-        uint32_t NoChange           : 1;
-        uint32_t VadType            : 3;
-        uint32_t Protection         : 5;
-        uint32_t PreferredNode      : 6;
-        uint32_t PageSize           : 2;
-        uint32_t PrivateMemory      : 1;
-    };
+        struct _MMVAD_SHORT
+        {
+            _RTL_BALANCED_NODE VadNode;
+            uint32_t           StartingVpn;
+            uint32_t           EndingVpn;
+            uint8_t            StartingVpnHigh;
+            uint8_t            EndingVpnHigh;
+            uint8_t            CommitChargeHigh;
+            uint8_t            SpareNT64VadUChar;
+            uint32_t           ReferenceCount;
+            ptr_t              PushLock;
+            uint32_t           VadFlags; // _MMVAD_FLAGS
+            uint32_t           _;
+            // truncated
+        };
+    } // namespace win10
 
-    struct _MMVAD_SHORT
+    namespace win7
     {
-        _RTL_BALANCED_NODE VadNode;
-        uint32_t           StartingVpn;
-        uint32_t           EndingVpn;
-        uint8_t            StartingVpnHigh;
-        uint8_t            EndingVpnHigh;
-        uint8_t            CommitChargeHigh;
-        uint8_t            SpareNT64VadUChar;
-        uint32_t           ReferenceCount;
-        ptr_t              PushLock;
-        _MMVAD_FLAGS       VadFlags;
-        uint32_t           _;
-        // truncated
-    };
+        struct _MMVAD_SHORT
+        {
+            ptr_t Parent;
+            ptr_t LeftChild;
+            ptr_t RightChild;
+            ptr_t StartingVpn;
+            ptr_t EndingVpn;
+        };
+    } // namespace win7
 
 } // namespace nt_namespace
 #undef nt_namespace

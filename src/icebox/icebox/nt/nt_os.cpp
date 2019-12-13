@@ -61,6 +61,8 @@ namespace
         SUBSECTION_ControlArea,
         CONTROL_AREA_FilePointer,
         FILE_OBJECT_FileName,
+        KUSER_SHARED_DATA_NtMajorVersion,
+        KUSER_SHARED_DATA_NtMinorVersion,
         OFFSET_COUNT,
     };
 
@@ -107,6 +109,8 @@ namespace
         {cat_e::REQUIRED,   SUBSECTION_ControlArea,                       "nt", "_SUBSECTION",                      "ControlArea"},
         {cat_e::REQUIRED,   CONTROL_AREA_FilePointer,                     "nt", "_CONTROL_AREA",                    "FilePointer"},
         {cat_e::REQUIRED,   FILE_OBJECT_FileName,                         "nt", "_FILE_OBJECT",                     "FileName"},
+        {cat_e::REQUIRED,   KUSER_SHARED_DATA_NtMajorVersion,             "nt", "_KUSER_SHARED_DATA",               "NtMajorVersion"},
+        {cat_e::REQUIRED,   KUSER_SHARED_DATA_NtMinorVersion,             "nt", "_KUSER_SHARED_DATA",               "NtMinorVersion"},
     };
     // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_offsets), OFFSET_COUNT);
@@ -223,6 +227,7 @@ namespace
         Breakpoints breakpoints_;
         phy_t       LdrpInitializeProcess_;
         phy_t       LdrpProcessMappedModule_;
+        uint32_t    NtMajorVersion_;
     };
 }
 
@@ -451,6 +456,13 @@ bool NtOs::setup()
     const auto proc           = proc_find(system_pid);
     if(!proc)
         return FAIL(false, "unable to find system process");
+
+    // read the NtMajorVersion and NtMinorVersion from the _KUSER_SHARED_DATA
+    static constexpr uint64_t user_shared_data_addr = 0xFFFFF78000000000ULL;
+
+    ok = memory::read_virtual(core_, *proc, &NtMajorVersion_, user_shared_data_addr + offsets_[KUSER_SHARED_DATA_NtMajorVersion], sizeof NtMajorVersion_);
+    if(!ok)
+        return false;
 
     proc_join(*proc, mode_e::kernel);
 
@@ -869,6 +881,14 @@ namespace
 
         return walk_e::next;
     }
+
+    opt<uint64_t> get_vad_root_addr(NtOs& os, const memory::Io& io, proc_t proc, uint64_t vad_root_offset)
+    {
+        if(os.NtMajorVersion_ > 6)
+            return io.read(proc.id + vad_root_offset);
+
+        return proc.id + vad_root_offset;
+    }
 }
 
 bool NtOs::mod_list(proc_t proc, modules::on_mod_fn on_mod)
@@ -913,7 +933,8 @@ opt<mod_t> NtOs::mod_find(proc_t proc, uint64_t addr)
 
 bool NtOs::proc_is_valid(proc_t proc)
 {
-    const auto vad_root = io_.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto io       = memory::make_io(core_, proc);
+    const auto vad_root = get_vad_root_addr(*this, io, proc, offsets_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
 }
 
@@ -954,6 +975,15 @@ opt<span_t> NtOs::mod_span(proc_t proc, mod_t mod)
 
 namespace
 {
+    struct vad_t
+    {
+        nt::ptr_t Left;
+        nt::ptr_t Right;
+        uint64_t  StartingVpn;
+        uint64_t  EndingVpn;
+    };
+
+#if 0
     constexpr int mm_protect_to_vma_access[] =
     {
             VMA_ACCESS_NONE,                                      // PAGE_NOACCESS
@@ -965,8 +995,9 @@ namespace
             VMA_ACCESS_EXEC | VMA_ACCESS_READ | VMA_ACCESS_WRITE, // PAGE_EXECUTE_READWRITE
             VMA_ACCESS_EXEC | VMA_ACCESS_COPY_ON_WRITE,           // PAGE_EXECUTE_WRITECOPY
     };
+#endif
 
-    nt::_LARGE_INTEGER vad_starting(const nt::_MMVAD_SHORT& vad)
+    nt::_LARGE_INTEGER vad_starting(const nt::win10::_MMVAD_SHORT& vad)
     {
         auto ret       = nt::_LARGE_INTEGER{};
         ret.u.LowPart  = vad.StartingVpn;
@@ -974,7 +1005,7 @@ namespace
         return ret;
     }
 
-    nt::_LARGE_INTEGER vad_ending(const nt::_MMVAD_SHORT& vad)
+    nt::_LARGE_INTEGER vad_ending(const nt::win10::_MMVAD_SHORT& vad)
     {
         auto ret       = nt::_LARGE_INTEGER{};
         ret.u.LowPart  = vad.EndingVpn;
@@ -982,54 +1013,78 @@ namespace
         return ret;
     }
 
-    uint64_t get_mmvad(const memory::Io& io, uint64_t current_vad, uint64_t addr)
+    bool read_vad(NtOs& os, vad_t& vad, const memory::Io& io, uint64_t current_vad)
     {
-        auto vad      = nt::_MMVAD_SHORT{};
-        const auto ok = io.read_all(&vad, current_vad, sizeof vad);
-        if(!ok)
-            return FAIL(0, "unable to read _MMVAD_SHORT");
+        if(os.NtMajorVersion_ > 6)
+        {
+            auto temp_vad = nt::win10::_MMVAD_SHORT{};
+            auto ok       = io.read_all(&temp_vad, current_vad, sizeof temp_vad);
+            if(!ok)
+                return FAIL(false, "unable to read _MMVAD_SHORT_WIN10");
 
-        const auto starting_vpn = vad_starting(vad);
-        const auto ending_vpn   = vad_ending(vad);
-        if(starting_vpn.QuadPart <= addr && addr < ending_vpn.QuadPart)
+            vad.Left        = temp_vad.VadNode.Left;
+            vad.Right       = temp_vad.VadNode.Right;
+            vad.StartingVpn = vad_starting(temp_vad).QuadPart;
+            vad.EndingVpn   = vad_ending(temp_vad).QuadPart;
+            return true;
+        }
+
+        auto temp_vad = nt::win7::_MMVAD_SHORT{};
+        const auto ok = io.read_all(&temp_vad, current_vad, sizeof temp_vad);
+        if(!ok)
+            return FAIL(false, "unable to read _MMVAD_SHORT_WIN7");
+
+        vad.Left        = temp_vad.LeftChild;
+        vad.Right       = temp_vad.RightChild;
+        vad.StartingVpn = temp_vad.StartingVpn;
+        vad.EndingVpn   = temp_vad.EndingVpn;
+        return true;
+    }
+
+    uint64_t get_mmvad(NtOs& os, const memory::Io& io, uint64_t current_vad, uint64_t addr)
+    {
+        auto vad      = vad_t{};
+        const auto ok = read_vad(os, vad, io, current_vad);
+        if(!ok)
+            return 0;
+
+        if(vad.StartingVpn <= addr && addr <= vad.EndingVpn)
             return current_vad;
 
-        const auto node = addr <= starting_vpn.QuadPart ? vad.VadNode.Left : vad.VadNode.Right;
+        const auto node = addr <= vad.StartingVpn ? vad.Left : vad.Right;
         if(!node)
             return 0;
 
-        return get_mmvad(io, node, addr);
+        return get_mmvad(os, io, node, addr);
     }
 
-    opt<span_t> get_vad_span(const memory::Io& io, uint64_t current_vad)
+    opt<span_t> get_vad_span(NtOs& os, const memory::Io& io, uint64_t current_vad)
     {
-        auto vad      = nt::_MMVAD_SHORT{};
-        const auto ok = io.read_all(&vad, current_vad, sizeof vad);
+        auto vad      = vad_t{};
+        const auto ok = read_vad(os, vad, io, current_vad);
         if(!ok)
             return {};
 
-        const auto starting_vpn = vad_starting(vad);
-        const auto ending_vpn   = vad_ending(vad);
-        return span_t{starting_vpn.QuadPart << 12, ((ending_vpn.QuadPart - starting_vpn.QuadPart) + 1) << 12};
+        return span_t{vad.StartingVpn << 12, ((vad.EndingVpn - vad.StartingVpn) + 1) << 12};
     }
 
-    bool rec_walk_vad_tree(const memory::Io& io, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
+    bool rec_walk_vad_tree(NtOs& os, const memory::Io& io, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
     {
-        auto vad      = nt::_MMVAD_SHORT{};
-        const auto ok = io.read_all(&vad, current_vad, sizeof vad);
+        auto vad      = vad_t{};
+        const auto ok = read_vad(os, vad, io, current_vad);
         if(!ok)
             return false;
 
-        if(vad.VadNode.Left)
-            if(!rec_walk_vad_tree(io, proc, vad.VadNode.Left, level + 1, on_vm_area))
+        if(vad.Left)
+            if(!rec_walk_vad_tree(os, io, proc, vad.Left, level + 1, on_vm_area))
                 return false;
 
         const auto walk = on_vm_area(vm_area_t{current_vad});
         if(walk == walk_e::stop)
             return false;
 
-        if(vad.VadNode.Right)
-            if(!rec_walk_vad_tree(io, proc, vad.VadNode.Right, level + 1, on_vm_area))
+        if(vad.Right)
+            if(!rec_walk_vad_tree(os, io, proc, vad.Right, level + 1, on_vm_area))
                 return false;
 
         return true;
@@ -1039,21 +1094,21 @@ namespace
 bool NtOs::vm_area_list(proc_t proc, vm_area::on_vm_area_fn on_vm_area)
 {
     const auto io       = memory::make_io(core_, proc);
-    const auto vad_root = io.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto vad_root = get_vad_root_addr(*this, io, proc, offsets_[EPROCESS_VadRoot]);
     if(!vad_root)
         return false;
 
-    return rec_walk_vad_tree(io, proc, *vad_root, 0, on_vm_area);
+    return rec_walk_vad_tree(*this, io, proc, *vad_root, 0, on_vm_area);
 }
 
 opt<vm_area_t> NtOs::vm_area_find(proc_t proc, uint64_t addr)
 {
     const auto io       = memory::make_io(core_, proc);
-    const auto vad_root = io.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto vad_root = get_vad_root_addr(*this, io, proc, offsets_[EPROCESS_VadRoot]);
     if(!vad_root)
         return {};
 
-    const auto vad = get_mmvad(io, *vad_root, addr >> 12);
+    const auto vad = get_mmvad(*this, io, *vad_root, addr >> 12);
     if(!vad)
         return {};
 
@@ -1063,22 +1118,12 @@ opt<vm_area_t> NtOs::vm_area_find(proc_t proc, uint64_t addr)
 opt<span_t> NtOs::vm_area_span(proc_t proc, vm_area_t vm_area)
 {
     const auto io = memory::make_io(core_, proc);
-    return get_vad_span(io, vm_area.id);
+    return get_vad_span(*this, io, vm_area.id);
 }
 
-vma_access_e NtOs::vm_area_access(proc_t proc, vm_area_t vm_area)
+vma_access_e NtOs::vm_area_access(proc_t /*proc*/, vm_area_t /*vm_area*/)
 {
-    auto vad      = nt::_MMVAD_SHORT{};
-    const auto io = memory::make_io(core_, proc);
-    const auto ok = io.read_all(&vad, vm_area.id, sizeof vad);
-    if(!ok)
-        return FAIL(VMA_ACCESS_NONE, "unable to read _MMVAD_SHORT");
-
-    auto access = mm_protect_to_vma_access[vad.VadFlags.Protection & 0x7];
-    if(!vad.VadFlags.PrivateMemory)
-        access |= VMA_ACCESS_SHARED;
-
-    return static_cast<vma_access_e>(access);
+    return VMA_ACCESS_NONE; // todo with struct bitfields
 }
 
 vma_type_e NtOs::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
@@ -1103,7 +1148,8 @@ opt<std::string> NtOs::vm_area_name(proc_t proc, vm_area_t vm_area)
 
     // the file_pointer_addr is _EX_FAST_REF
     *file_pointer_addr &= ~0xF;
-    return nt::read_unicode_string(io, *file_pointer_addr + offsets_[FILE_OBJECT_FileName]);
+    const auto name = nt::read_unicode_string(io, *file_pointer_addr + offsets_[FILE_OBJECT_FileName]);
+    return name ? name : "";
 }
 
 bool NtOs::driver_list(drivers::on_driver_fn on_driver)

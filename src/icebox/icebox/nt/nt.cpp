@@ -208,9 +208,6 @@ std::vector<const char*> nt_types::page_access_all(uint32_t arg)
     return dump_all(all_PAGE_ACCESS, arg, &page_access_str);
 }
 
-STATIC_ASSERT_EQ(sizeof(nt::_MMVAD_SHORT), 56);
-STATIC_ASSERT_EQ(offsetof(nt::_MMVAD_SHORT, VadFlags), 48);
-
 #ifdef _MSC_VER
 
 namespace
