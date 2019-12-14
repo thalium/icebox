@@ -68,8 +68,6 @@ namespace
     using Observer  = std::shared_ptr<BreakpointObserver>;
     using Observers = std::multimap<phy_t, Observer>;
 
-    using check_fn = std::function<bool()>;
-    using Waiters  = std::vector<check_fn>;
     using Buffer   = std::vector<uint8_t>;
 
     template <typename T>
@@ -131,7 +129,6 @@ struct state::State
     Breakers    targets;
     Observers   observers;
     phy_t       breakphy;
-    Waiters     waiters;
     cothread_t  co_main;
     WorkerPool  pool;
     Workers     workers;
@@ -570,32 +567,13 @@ namespace
         if(ok)
             return;
 
-        auto is_end = false;
-        d.waiters.emplace_back([&]
-        {
-            is_end = is_end || predicate();
-            return is_end;
-        });
-        while(!is_end)
+        while(true)
         {
             try_resume(d);
             try_wait(d, state_e::update, breakpoints_e::skip);
 
-            // check & remove every ended predicates
-            auto any_end = false;
-            remove_erase_if(d.waiters, [&](const auto& check)
-            {
-                const auto ended = check();
-                any_end          = any_end || ended;
-                return ended;
-            });
-            // we can return directly if our predicate has ended
-            if(is_end)
+            if(predicate())
                 return;
-
-            // on other predicates, ignore spurious breakpoints & continue
-            if(any_end)
-                continue;
 
             check_breakpoints(d);
         }
