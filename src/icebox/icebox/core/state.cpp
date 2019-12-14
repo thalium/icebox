@@ -494,7 +494,7 @@ namespace
         return bpid;
     }
 
-    state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, opt<dtb_t> dtb, opt<proc_t> proc, opt<thread_t> thread, const state::Task& task)
+    state::Breakpoint set_physical_breakpoint(core::Core& core, std::string_view name, phy_t phy, const opt<dtb_t>& dtb, opt<proc_t> proc, const opt<thread_t>& thread, const state::Task& task)
     {
         auto& d = *core.state_;
         if(thread && !proc)
