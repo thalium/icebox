@@ -5,25 +5,29 @@ import os
 import struct
 import sys
 
+
 # voodoo magic to attach dynamic properties to a single class instance
 def _attach_dynamic_property(instance, name, propr):
     class_name = instance.__class__.__name__ + '_'
     child_class = type(class_name, (instance.__class__,), {name: propr})
     instance.__class__ = child_class
 
+
 class Registers:
     def __init__(self, regs, read, write):
         for name, idx in regs():
             def get_property(idx):
-                fget = lambda _: read(idx)
-                fset = lambda _, arg: write(idx, arg)
+                def fget(_): return read(idx)
+                def fset(_, arg): return write(idx, arg)
                 return property(fget, fset)
             _attach_dynamic_property(self, name, get_property(idx))
+
 
 class Flags:
     def __init__(self, dict):
         for k, v in dict.items():
             setattr(self, k, v)
+
 
 kFlags_x86 = Flags({"is_x86": True,  "is_x64": False})
 kFlags_x64 = Flags({"is_x86": False, "is_x64": True})
@@ -41,6 +45,7 @@ def dump_bytes(buf):
     if len(buf) > 8:
         return dump_bytes(buf[:8]) + " " + dump_bytes(buf[8:])
     return binascii.hexlify(buf).decode()
+
 
 class Symbols:
     def __init__(self, py_proc):
@@ -84,13 +89,14 @@ class Symbols:
 
     def dump_type(self, name, ptr):
         size = self.struc_size(name)
-        members = [(m, self.member_offset("%s::%s" % (name, m)), 0) for m in self.members(name)]
+        members = [(m, self.member_offset("%s::%s" % (name, m)), 0)
+                   for m in self.members(name)]
         last_offset = size
         num_members = len(members)
         max_name = 0
         for i, (mname, offset, _) in enumerate(reversed(members)):
             if offset >= last_offset:
-                continue # union types...
+                continue  # union types...
             max_name = max(len(mname), max_name)
             members[num_members - 1 - i] = mname, offset, last_offset - offset
             last_offset = offset
@@ -98,8 +104,10 @@ class Symbols:
         for mname, offset, msize in members:
             if msize == 0:
                 continue
-            buf = self.py_proc.memory[ptr + offset : ptr + offset + msize]
-            print("  %3x %s %s" % (offset, mname.ljust(max_name), dump_bytes(buf)))
+            buf = self.py_proc.memory[ptr + offset: ptr + offset + msize]
+            print("  %3x %s %s" %
+                  (offset, mname.ljust(max_name), dump_bytes(buf)))
+
 
 class Virtual:
     def __init__(self, proc):
@@ -120,6 +128,7 @@ class Virtual:
 
     def physical_address(self, ptr):
         return _icebox.memory_virtual_to_physical(self.proc, ptr)
+
 
 class Module:
     def __init__(self, proc, mod):
@@ -142,6 +151,7 @@ class Module:
     def flags(self):
         return _icebox.modules_flags(self.mod)
 
+
 class Modules:
     def __init__(self, proc):
         self.proc = proc
@@ -163,9 +173,10 @@ class Modules:
         return None
 
     def break_on_create(self, flags, callback):
-        fmod = lambda mod: callback(Module(mod))
+        def fmod(mod): return callback(Module(mod))
         bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
         return Callback(bpid, fmod)
+
 
 class Callstacks:
     def __init__(self, proc):
@@ -184,6 +195,7 @@ class Callstacks:
     def autoload_modules(self):
         return _icebox.callstacks_autoload_modules(self.proc)
 
+
 class VmArea:
     def __init__(self, proc, vma):
         self.proc = proc
@@ -192,6 +204,7 @@ class VmArea:
     def span(self):
         return _icebox.vm_area_span(self.proc, self.vma)
 
+
 class VmAreas:
     def __init__(self, proc):
         self.proc = proc
@@ -199,6 +212,7 @@ class VmAreas:
     def __call__(self):
         for x in _icebox.vm_area_list(self.proc):
             yield VmArea(self.proc, x)
+
 
 class Process:
     def __init__(self, proc):
@@ -241,10 +255,12 @@ class Process:
         for x in _icebox.thread_list(self.proc):
             yield Thread(x)
 
+
 class Callback:
     def __init__(self, bpid, callback):
         self.bpid = bpid
         self.callback = callback
+
 
 class Processes:
     def __init__(self):
@@ -283,14 +299,15 @@ class Processes:
         return Process(_icebox.process_wait(name, flags))
 
     def break_on_create(self, callback):
-        fproc = lambda proc: callback(Process(proc))
+        def fproc(proc): return callback(Process(proc))
         bpid = _icebox.process_listen_create(fproc)
         return Callback(bpid, fproc)
 
     def break_on_delete(self, callback):
-        fproc = lambda proc: callback(Process(proc))
+        def fproc(proc): return callback(Process(proc))
         bpid = _icebox.process_listen_delete(fproc)
         return Callback(bpid, fproc)
+
 
 class Thread:
     def __init__(self, thread):
@@ -311,6 +328,7 @@ class Thread:
     def tid(self):
         return _icebox.thread_tid(self.thread)
 
+
 class Threads:
     def __init__(self):
         pass
@@ -319,14 +337,15 @@ class Threads:
         return Thread(_icebox.thread_current())
 
     def break_on_create(self):
-        fthread = lambda thread: callback(Thread(thread))
+        def fthread(thread): return callback(Thread(thread))
         bpid = _icebox.thread_listen_create(fthread)
         return Callback(bpid, fthread)
 
     def break_on_delete(self):
-        fthread = lambda thread: callback(Thread(thread))
+        def fthread(thread): return callback(Thread(thread))
         bpid = _icebox.thread_listen_delete(fthread)
         return Callback(bpid, fthread)
+
 
 class Physical:
     def __init__(self):
@@ -344,6 +363,7 @@ class Physical:
     def read(self, buf, ptr):
         return _icebox.memory_read_physical(buf, ptr)
 
+
 class Functions:
     def __init__(self):
         pass
@@ -359,6 +379,7 @@ class Functions:
 
     def break_on_return(self, name, callback):
         return _icebox.functions_break_on_return(name, callback)
+
 
 class Driver:
     def __init__(self, drv):
@@ -376,6 +397,7 @@ class Driver:
 
     def span(self):
         return _icebox.drivers_span(self.drv)
+
 
 class Drivers:
     def __init__(self):
@@ -398,9 +420,10 @@ class Drivers:
         return None
 
     def break_on(self, callback):
-        fdrv = lambda drv, load: callback(Driver(drv), load)
+        def fdrv(drv, load): return callback(Driver(drv), load)
         bpid = _icebox.drivers_listen(fdrv)
         return Callback(bpid, fdrv)
+
 
 class Vm:
     def __init__(self, name):
@@ -410,8 +433,10 @@ class Vm:
         global _icebox
         import _icebox
         _icebox.attach(name)
-        self.registers = Registers(_icebox.register_list, _icebox.register_read, _icebox.register_write)
-        self.msr = Registers(_icebox.msr_list, _icebox.msr_read, _icebox.msr_write)
+        self.registers = Registers(
+            _icebox.register_list, _icebox.register_read, _icebox.register_write)
+        self.msr = Registers(
+            _icebox.msr_list, _icebox.msr_read, _icebox.msr_write)
         self.threads = Threads()
         self.processes = Processes()
         self.physical = Physical()

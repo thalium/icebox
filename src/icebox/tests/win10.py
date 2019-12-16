@@ -4,6 +4,7 @@ import struct
 import sys
 import unittest
 
+
 class Windows(unittest.TestCase):
 
     @classmethod
@@ -32,7 +33,8 @@ class Windows(unittest.TestCase):
         self.vm.registers.rax += 1
         self.vm.registers.rax -= 1
         p = self.vm.processes.current()
-        self.assertEqual(p.symbols.string(self.vm.msr.lstar), "nt!KiSystemCall64Shadow")
+        lstar = p.symbols.string(self.vm.msr.lstar)
+        self.assertEqual(lstar, "nt!KiSystemCall64Shadow")
 
     def test_processes(self):
         num = 0
@@ -63,9 +65,10 @@ class Windows(unittest.TestCase):
         pf = pe.parent()
         self.assertEqual(pf.name(), "wininit.exe")
 
-        return # too slow
+        return  # too slow
         global num_create
         num_create = 0
+
         def on_create(proc):
             self.assertIsNotNone(proc.name())
             self.assertIsNotNone(proc.pid())
@@ -74,6 +77,7 @@ class Windows(unittest.TestCase):
 
         global num_delete
         num_delete = 0
+
         def on_delete(proc):
             self.assertIsNotNone(proc.name())
             self.assertIsNotNone(proc.pid())
@@ -108,7 +112,7 @@ class Windows(unittest.TestCase):
         bufa = bytearray(16)
         p.memory.read(bufa, rip)
 
-        bufb = p.memory[rip : rip + len(bufa)]
+        bufb = p.memory[rip: rip + len(bufa)]
         self.assertEqual(bufa, bufb)
 
         idx = len(bufa) >> 1
@@ -122,7 +126,7 @@ class Windows(unittest.TestCase):
         self.vm.physical.read(bufc, phy)
         self.assertEqual(bufa, bufc)
 
-        bufd = self.vm.physical[phy : phy + len(bufc)]
+        bufd = self.vm.physical[phy: phy + len(bufc)]
         self.assertEqual(bufc, bufd)
 
         val = self.vm.physical[phy + idx]
@@ -143,12 +147,12 @@ class Windows(unittest.TestCase):
         for m in p.symbols.members("nt!_LDR_DATA_TABLE_ENTRY"):
             members.append(m)
         self.assertIn("SizeOfImage", members)
-        offset = p.symbols.member_offset("nt!_LDR_DATA_TABLE_ENTRY::SizeOfImage")
+        moff = "nt!_LDR_DATA_TABLE_ENTRY::SizeOfImage"
+        offset = p.symbols.member_offset(moff)
         self.assertGreater(offset, 0)
         proc_ptr = struct.unpack_from("<Q", p.proc)[0]
         print()
         p.symbols.dump_type("nt!_EPROCESS", proc_ptr)
-
 
     def test_modules(self):
         p = self.vm.processes.find_name("dwm.exe")
@@ -177,7 +181,7 @@ class Windows(unittest.TestCase):
 
         p.symbols.load_module("kernel32")
 
-        return # too slow
+        return  # too slow
         p.symbols.load_modules()
         bp = p.symbols.autoload_modules()
         self.assertIsNotNone(bp)
@@ -186,9 +190,11 @@ class Windows(unittest.TestCase):
         p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
         name = "ntdll!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
+
         def on_break():
             global hit
             hit += 1
+
         def run_until_hit():
             global hit
             hit = 0
@@ -201,7 +207,8 @@ class Windows(unittest.TestCase):
         self.assertEqual(self.vm.registers.rip, addr)
         del bp
 
-        bp = self.vm.break_on_process("break_on_process " + name, p, addr, on_break)
+        bp = self.vm.break_on_process(
+            "break_on_process " + name, p, addr, on_break)
         run_until_hit()
         dtb = self.vm.registers.cr3
         t = self.vm.threads.current()
@@ -209,19 +216,22 @@ class Windows(unittest.TestCase):
         self.assertEqual(self.vm.processes.current(), p)
         del bp
 
-        bp = self.vm.break_on_thread("break_on_thread " + name, t, addr, on_break)
+        bp = self.vm.break_on_thread(
+            "break_on_thread " + name, t, addr, on_break)
         run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.threads.current(), t)
         del bp
 
         phy = p.memory.physical_address(addr)
-        bp = self.vm.break_on_physical("break_on_physical " + name, phy, on_break)
+        bp = self.vm.break_on_physical(
+            "break_on_physical " + name, phy, on_break)
         run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         del bp
 
-        bp = self.vm.break_on_physical_process("break_on_physical_process " + name, dtb, phy, on_break)
+        bp = self.vm.break_on_physical_process(
+            "break_on_physical_process " + name, dtb, phy, on_break)
         run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.processes.current(), p)
@@ -278,6 +288,7 @@ class Windows(unittest.TestCase):
         p = self.vm.processes.current()
         for vma in p.vm_areas():
             addr, size = vma.span()
+
 
 if __name__ == '__main__':
     path = os.path.abspath(sys.argv[1])
