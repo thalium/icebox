@@ -2,11 +2,11 @@
 
 PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
 {
-    auto list = PyList_New(0);
-    if(!list)
+    auto py_list = PyList_New(0);
+    if(!py_list)
         return nullptr;
 
-    PY_DEFER_DECREF(list);
+    PY_DEFER_DECREF(py_list);
     for(auto i = 0; i <= static_cast<size_t>(reg_e::last); ++i)
     {
         const auto arg     = static_cast<reg_e>(i);
@@ -26,21 +26,21 @@ PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
             return nullptr;
 
         PY_DEFER_DECREF(item);
-        const auto err = PyList_Append(list, item);
+        const auto err = PyList_Append(py_list, item);
         if(err)
             return nullptr;
     }
-    Py_INCREF(list);
-    return list;
+    Py_INCREF(py_list);
+    return py_list;
 }
 
 PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
 {
-    auto list = PyList_New(0);
-    if(!list)
+    auto py_list = PyList_New(0);
+    if(!py_list)
         return nullptr;
 
-    PY_DEFER_DECREF(list);
+    PY_DEFER_DECREF(py_list);
     for(auto i = 0; i <= static_cast<size_t>(msr_e::last); ++i)
     {
         const auto arg     = static_cast<msr_e>(i);
@@ -60,12 +60,12 @@ PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
             return nullptr;
 
         PY_DEFER_DECREF(item);
-        const auto err = PyList_Append(list, item);
+        const auto err = PyList_Append(py_list, item);
         if(err)
             return nullptr;
     }
-    Py_INCREF(list);
-    return list;
+    Py_INCREF(py_list);
+    return py_list;
 }
 
 namespace

@@ -11,12 +11,12 @@ PyObject* py::process::current(core::Core& core, PyObject* /*args*/)
 
 PyObject* py::process::name(core::Core& core, PyObject* args)
 {
-    auto obj = static_cast<PyObject*>(nullptr);
-    auto ok  = PyArg_ParseTuple(args, "S", &obj);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -29,12 +29,12 @@ PyObject* py::process::name(core::Core& core, PyObject* args)
 
 PyObject* py::process::is_valid(core::Core& core, PyObject* args)
 {
-    auto obj = static_cast<PyObject*>(nullptr);
-    auto ok  = PyArg_ParseTuple(args, "S", &obj);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -47,12 +47,12 @@ PyObject* py::process::is_valid(core::Core& core, PyObject* args)
 
 PyObject* py::process::pid(core::Core& core, PyObject* args)
 {
-    auto obj = static_cast<PyObject*>(nullptr);
-    auto ok  = PyArg_ParseTuple(args, "S", &obj);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -85,12 +85,12 @@ opt<flags_t> py::flags::to(PyObject* arg)
 
 PyObject* py::process::flags(core::Core& core, PyObject* args)
 {
-    auto obj = static_cast<PyObject*>(nullptr);
-    auto ok  = PyArg_ParseTuple(args, "S", &obj);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -100,13 +100,13 @@ PyObject* py::process::flags(core::Core& core, PyObject* args)
 
 PyObject* py::process::join(core::Core& core, PyObject* args)
 {
-    auto obj     = static_cast<PyObject*>(nullptr);
+    auto py_proc = static_cast<PyObject*>(nullptr);
     auto strmode = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Ss", &obj, &strmode);
+    auto ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &strmode);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -117,12 +117,12 @@ PyObject* py::process::join(core::Core& core, PyObject* args)
 
 PyObject* py::process::parent(core::Core& core, PyObject* args)
 {
-    auto obj = static_cast<PyObject*>(nullptr);
-    auto ok  = PyArg_ParseTuple(args, "S", &obj);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -135,11 +135,11 @@ PyObject* py::process::parent(core::Core& core, PyObject* args)
 
 PyObject* py::process::list(core::Core& core, PyObject* /*args*/)
 {
-    auto list = PyList_New(0);
-    if(!list)
+    auto py_list = PyList_New(0);
+    if(!py_list)
         return nullptr;
 
-    PY_DEFER_DECREF(list);
+    PY_DEFER_DECREF(py_list);
     const auto ok = ::process::list(core, [&](proc_t proc)
     {
         auto item = py::to_bytes(proc);
@@ -147,7 +147,7 @@ PyObject* py::process::list(core::Core& core, PyObject* /*args*/)
             return walk_e::stop;
 
         PY_DEFER_DECREF(item);
-        const auto err = PyList_Append(list, item);
+        const auto err = PyList_Append(py_list, item);
         if(err)
             return walk_e::stop;
 
@@ -156,8 +156,8 @@ PyObject* py::process::list(core::Core& core, PyObject* /*args*/)
     if(!ok)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to list processes");
 
-    Py_INCREF(list);
-    return list;
+    Py_INCREF(py_list);
+    return py_list;
 }
 
 PyObject* py::process::wait(core::Core& core, PyObject* args)

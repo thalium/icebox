@@ -2,20 +2,20 @@
 
 PyObject* py::modules::list(core::Core& core, PyObject* args)
 {
-    auto obj      = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "S", &obj);
+    auto py_proc  = static_cast<PyObject*>(nullptr);
+    const auto ok = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
-    auto list = PyList_New(0);
-    if(!list)
+    auto py_list = PyList_New(0);
+    if(!py_list)
         return nullptr;
 
-    PY_DEFER_DECREF(list);
+    PY_DEFER_DECREF(py_list);
     ::modules::list(core, *opt_proc, [&](mod_t mod)
     {
         auto item = py::to_bytes(mod);
@@ -23,14 +23,14 @@ PyObject* py::modules::list(core::Core& core, PyObject* args)
             return walk_e::stop;
 
         PY_DEFER_DECREF(item);
-        const auto err = PyList_Append(list, item);
+        const auto err = PyList_Append(py_list, item);
         if(err)
             return walk_e::stop;
 
         return walk_e::next;
     });
-    Py_INCREF(list);
-    return list;
+    Py_INCREF(py_list);
+    return py_list;
 }
 
 PyObject* py::modules::name(core::Core& core, PyObject* args)

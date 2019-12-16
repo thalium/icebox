@@ -12,11 +12,11 @@ PyObject* py::callstacks::read(core::Core& core, PyObject* args)
     if(!opt_proc)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to wait for process");
 
-    auto list = PyList_New(0);
-    if(!list)
+    auto py_list = PyList_New(0);
+    if(!py_list)
         return nullptr;
 
-    PY_DEFER_DECREF(list);
+    PY_DEFER_DECREF(py_list);
     auto buf     = std::vector<::callstacks::caller_t>(size);
     const auto n = ::callstacks::read(core, &buf[0], buf.size(), *opt_proc);
     for(size_t i = 0; i < n; ++i)
@@ -26,13 +26,13 @@ PyObject* py::callstacks::read(core::Core& core, PyObject* args)
             return nullptr;
 
         PY_DEFER_DECREF(item);
-        const auto err = PyList_Append(list, item);
+        const auto err = PyList_Append(py_list, item);
         if(err)
             return nullptr;
     }
 
-    Py_INCREF(list);
-    return list;
+    Py_INCREF(py_list);
+    return py_list;
 }
 
 PyObject* py::callstacks::load_module(core::Core& core, PyObject* args)

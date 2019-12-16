@@ -2,14 +2,14 @@
 
 PyObject* py::symbols::address(core::Core& core, PyObject* args)
 {
-    auto obj    = static_cast<PyObject*>(nullptr);
-    auto module = static_cast<const char*>(nullptr);
-    auto symbol = static_cast<const char*>(nullptr);
-    auto ok     = PyArg_ParseTuple(args, "Sss", &obj, &module, &symbol);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto module  = static_cast<const char*>(nullptr);
+    auto symbol  = static_cast<const char*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &symbol);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -24,13 +24,13 @@ PyObject* py::symbols::address(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::struc_names(core::Core& core, PyObject* args)
 {
-    auto obj    = static_cast<PyObject*>(nullptr);
-    auto module = static_cast<const char*>(nullptr);
-    auto ok     = PyArg_ParseTuple(args, "Ss", &obj, &module);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto module  = static_cast<const char*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &module);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -55,14 +55,14 @@ PyObject* py::symbols::struc_names(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::struc_size(core::Core& core, PyObject* args)
 {
-    auto obj    = static_cast<PyObject*>(nullptr);
-    auto module = static_cast<const char*>(nullptr);
-    auto struc  = static_cast<const char*>(nullptr);
-    auto ok     = PyArg_ParseTuple(args, "Sss", &obj, &module, &struc);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto module  = static_cast<const char*>(nullptr);
+    auto struc   = static_cast<const char*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &struc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -77,14 +77,14 @@ PyObject* py::symbols::struc_size(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::struc_members(core::Core& core, PyObject* args)
 {
-    auto obj    = static_cast<PyObject*>(nullptr);
-    auto module = static_cast<const char*>(nullptr);
-    auto struc  = static_cast<const char*>(nullptr);
-    auto ok     = PyArg_ParseTuple(args, "Sss", &obj, &module, &struc);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto module  = static_cast<const char*>(nullptr);
+    auto struc   = static_cast<const char*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &struc);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -110,15 +110,15 @@ PyObject* py::symbols::struc_members(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::member_offset(core::Core& core, PyObject* args)
 {
-    auto obj    = static_cast<PyObject*>(nullptr);
-    auto module = static_cast<const char*>(nullptr);
-    auto struc  = static_cast<const char*>(nullptr);
-    auto member = static_cast<const char*>(nullptr);
-    auto ok     = PyArg_ParseTuple(args, "Ssss", &obj, &module, &struc, &member);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto module  = static_cast<const char*>(nullptr);
+    auto struc   = static_cast<const char*>(nullptr);
+    auto member  = static_cast<const char*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "Ssss", &py_proc, &module, &struc, &member);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 
@@ -134,13 +134,13 @@ PyObject* py::symbols::member_offset(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::string(core::Core& core, PyObject* args)
 {
-    auto obj = static_cast<PyObject*>(nullptr);
-    auto ptr = uint64_t{};
-    auto ok  = PyArg_ParseTuple(args, "SK", &obj, &ptr);
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ptr     = uint64_t{};
+    auto ok      = PyArg_ParseTuple(args, "SK", &py_proc, &ptr);
     if(!ok)
         return nullptr;
 
-    const auto opt_proc = py::from_bytes<proc_t>(obj);
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
     if(!opt_proc)
         return nullptr;
 

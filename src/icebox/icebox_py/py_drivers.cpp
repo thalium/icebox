@@ -2,11 +2,11 @@
 
 PyObject* py::drivers::list(core::Core& core, PyObject* /*args*/)
 {
-    auto list = PyList_New(0);
-    if(!list)
+    auto py_list = PyList_New(0);
+    if(!py_list)
         return nullptr;
 
-    PY_DEFER_DECREF(list);
+    PY_DEFER_DECREF(py_list);
     ::drivers::list(core, [&](driver_t drv)
     {
         auto item = py::to_bytes(drv);
@@ -14,14 +14,14 @@ PyObject* py::drivers::list(core::Core& core, PyObject* /*args*/)
             return walk_e::stop;
 
         PY_DEFER_DECREF(item);
-        const auto err = PyList_Append(list, item);
+        const auto err = PyList_Append(py_list, item);
         if(err)
             return walk_e::stop;
 
         return walk_e::next;
     });
-    Py_INCREF(list);
-    return list;
+    Py_INCREF(py_list);
+    return py_list;
 }
 
 PyObject* py::drivers::name(core::Core& core, PyObject* args)
