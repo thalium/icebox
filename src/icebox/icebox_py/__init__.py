@@ -5,6 +5,11 @@ import os
 import struct
 import sys
 
+# load _icebox bindings
+curr = inspect.getsourcefile(lambda: 0)
+path = os.path.abspath(os.path.join(curr, ".."))
+sys.path.append(path)
+import _icebox
 
 # voodoo magic to attach dynamic properties to a single class instance
 def _attach_dynamic_property(instance, name, propr):
@@ -173,7 +178,7 @@ class Modules:
         return None
 
     def break_on_create(self, flags, callback):
-        def fmod(mod): return callback(Module(mod))
+        def fmod(mod): return callback(Module(self.proc, mod))
         bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
         return Callback(bpid, fmod)
 
@@ -336,12 +341,12 @@ class Threads:
     def current(self):
         return Thread(_icebox.thread_current())
 
-    def break_on_create(self):
+    def break_on_create(self, callback):
         def fthread(thread): return callback(Thread(thread))
         bpid = _icebox.thread_listen_create(fthread)
         return Callback(bpid, fthread)
 
-    def break_on_delete(self):
+    def break_on_delete(self, callback):
         def fthread(thread): return callback(Thread(thread))
         bpid = _icebox.thread_listen_delete(fthread)
         return Callback(bpid, fthread)
@@ -427,11 +432,6 @@ class Drivers:
 
 class Vm:
     def __init__(self, name):
-        curr = inspect.getsourcefile(lambda: 0)
-        path = os.path.abspath(os.path.join(curr, ".."))
-        sys.path.append(path)
-        global _icebox
-        import _icebox
         _icebox.attach(name)
         self.registers = Registers(
             _icebox.register_list, _icebox.register_read, _icebox.register_write)

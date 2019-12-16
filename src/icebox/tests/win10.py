@@ -65,30 +65,32 @@ class Windows(unittest.TestCase):
         pf = pe.parent()
         self.assertEqual(pf.name(), "wininit.exe")
 
-        return  # too slow
-        global num_create
-        num_create = 0
-
-        def on_create(proc):
-            self.assertIsNotNone(proc.name())
-            self.assertIsNotNone(proc.pid())
+        if False:  # too slow
             global num_create
-            num_create += 1
+            num_create = 0
 
-        global num_delete
-        num_delete = 0
+            def on_create(proc):
+                self.assertIsNotNone(proc.name())
+                self.assertIsNotNone(proc.pid())
+                global num_create
+                num_create += 1
 
-        def on_delete(proc):
-            self.assertIsNotNone(proc.name())
-            self.assertIsNotNone(proc.pid())
             global num_delete
-            num_delete += 1
+            num_delete = 0
 
-        bpa = self.vm.processes.break_on_create(on_create)
-        bpb = self.vm.processes.break_on_delete(on_delete)
-        while num_create < 2 and num_delete < 2:
-            self.vm.resume()
-            self.vm.wait()
+            def on_delete(proc):
+                self.assertIsNotNone(proc.name())
+                self.assertIsNotNone(proc.pid())
+                global num_delete
+                num_delete += 1
+
+            bpa = self.vm.processes.break_on_create(on_create)
+            bpb = self.vm.processes.break_on_delete(on_delete)
+            while num_create < 2 and num_delete < 2:
+                self.vm.resume()
+                self.vm.wait()
+            del bpa
+            del bpb
 
     def test_threads(self):
         p = self.vm.processes.current()
@@ -181,15 +183,18 @@ class Windows(unittest.TestCase):
 
         p.symbols.load_module("kernel32")
 
-        return  # too slow
-        p.symbols.load_modules()
-        bp = p.symbols.autoload_modules()
-        self.assertIsNotNone(bp)
+        if False:  # too slow
+            p.symbols.load_modules()
+            bp = p.symbols.autoload_modules()
+            self.assertIsNotNone(bp)
 
     def test_breakpoints(self):
         p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
         name = "ntdll!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
+
+        global hit
+        hit = 0
 
         def on_break():
             global hit
@@ -287,7 +292,7 @@ class Windows(unittest.TestCase):
     def test_vma(self):
         p = self.vm.processes.current()
         for vma in p.vm_areas():
-            addr, size = vma.span()
+            _, _ = vma.span()
 
 
 if __name__ == '__main__':
