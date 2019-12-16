@@ -241,6 +241,7 @@ target_link_libraries(icebox_py PRIVATE
 )
 set(deploy_dir $<$<CONFIG:Debug>:${bin_d_dir}>$<$<CONFIG:RelWithDebInfo>:${bin_dir}>$<$<CONFIG:Release>:${bin_dir}>)
 add_custom_command(TARGET icebox_py POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${root_dir}/src/icebox/icebox_py/setup.py"    "${deploy_dir}"
     COMMAND ${CMAKE_COMMAND} -E copy "${root_dir}/src/icebox/icebox_py/__init__.py" "${deploy_dir}/icebox"
 )
 
