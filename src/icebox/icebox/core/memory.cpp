@@ -156,6 +156,9 @@ namespace
 
     bool read_virtual(core::Core& core, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
     {
+        if(!size)
+            return true;
+
         const auto full = fdp::read_virtual(core, dst, size, dtb, src);
         if(full)
             return true;
@@ -179,6 +182,9 @@ namespace
 
     bool read_physical(core::Core& core, uint8_t* dst, uint64_t src, size_t size)
     {
+        if(!size)
+            return true;
+
         return read_pages("physical", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
             return fdp::read_physical(core, pgdst, pgsize, phy_t{pgsrc});
