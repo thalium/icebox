@@ -1,15 +1,9 @@
 import binascii
-import enum
-import inspect
 import os
 import struct
-import sys
 
-# load _icebox bindings
-curr = inspect.getsourcefile(lambda: 0)
-path = os.path.abspath(os.path.join(curr, ".."))
-sys.path.append(path)
-import _icebox
+from . import _icebox
+
 
 # voodoo magic to attach dynamic properties to a single class instance
 def _attach_dynamic_property(instance, name, propr):
