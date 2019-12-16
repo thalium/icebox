@@ -1,6 +1,8 @@
+import binascii
 import enum
 import inspect
 import os
+import struct
 import sys
 
 # voodoo magic to attach dynamic properties to a single class instance
@@ -26,9 +28,24 @@ class Flags:
 kFlags_x86 = Flags({"is_x86": True,  "is_x64": False})
 kFlags_x64 = Flags({"is_x86": False, "is_x64": True})
 
+
+def dump_bytes(buf):
+    if len(buf) == 1:
+        return hex(struct.unpack_from("<B", buf)[0])[2:]
+    if len(buf) == 2:
+        return hex(struct.unpack_from("<H", buf)[0])[2:]
+    if len(buf) == 4:
+        return hex(struct.unpack_from("<I", buf)[0])[2:]
+    if len(buf) == 8:
+        return hex(struct.unpack_from("<Q", buf)[0])[2:]
+    if len(buf) > 8:
+        return dump_bytes(buf[:8]) + " " + dump_bytes(buf[8:])
+    return binascii.hexlify(buf).decode()
+
 class Symbols:
-    def __init__(self, proc):
-        self.proc = proc
+    def __init__(self, py_proc):
+        self.py_proc = py_proc
+        self.proc = py_proc.proc
 
     def address(self, name):
         module, symbol = name.split("!")
@@ -64,6 +81,25 @@ class Symbols:
 
     def autoload_modules(self):
         return _icebox.symbols_autoload_modules(self.proc)
+
+    def dump_type(self, name, ptr):
+        size = self.struc_size(name)
+        members = [(m, self.member_offset("%s::%s" % (name, m)), 0) for m in self.members(name)]
+        last_offset = size
+        num_members = len(members)
+        max_name = 0
+        for i, (mname, offset, _) in enumerate(reversed(members)):
+            if offset >= last_offset:
+                continue # union types...
+            max_name = max(len(mname), max_name)
+            members[num_members - 1 - i] = mname, offset, last_offset - offset
+            last_offset = offset
+        print("%s %x" % (name, ptr))
+        for mname, offset, msize in members:
+            if msize == 0:
+                continue
+            buf = self.py_proc.memory[ptr + offset : ptr + offset + msize]
+            print("  %3x %s %s" % (offset, mname.ljust(max_name), dump_bytes(buf)))
 
 class Virtual:
     def __init__(self, proc):
@@ -167,7 +203,7 @@ class VmAreas:
 class Process:
     def __init__(self, proc):
         self.proc = proc
-        self.symbols = Symbols(proc)
+        self.symbols = Symbols(self)
         self.memory = Virtual(proc)
         self.modules = Modules(proc)
         self.callstacks = Callstacks(proc)

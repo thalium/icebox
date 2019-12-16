@@ -1,5 +1,6 @@
-import os
 import inspect
+import os
+import struct
 import sys
 import unittest
 
@@ -144,6 +145,10 @@ class Windows(unittest.TestCase):
         self.assertIn("SizeOfImage", members)
         offset = p.symbols.member_offset("nt!_LDR_DATA_TABLE_ENTRY::SizeOfImage")
         self.assertGreater(offset, 0)
+        proc_ptr = struct.unpack_from("<Q", p.proc)[0]
+        print()
+        p.symbols.dump_type("nt!_EPROCESS", proc_ptr)
+
 
     def test_modules(self):
         p = self.vm.processes.find_name("dwm.exe")
