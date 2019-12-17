@@ -93,11 +93,18 @@ int fdp::set_breakpoint(core::Core& core, FDP_BreakpointType type, int bpid, FDP
     return FDP_SetBreakpoint(cast(core.shm_), 0, type, bpid, access, ptrtype, ptr, len, cr3);
 }
 
-bool fdp::read_physical(core::Core& core, void* vdst, size_t size, phy_t phy)
+bool fdp::read_physical(core::Core& core, void* vdst, phy_t src, size_t size)
 {
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    return FDP_ReadPhysicalMemory(cast(core.shm_), dst, usize, phy.val);
+    return FDP_ReadPhysicalMemory(cast(core.shm_), dst, usize, src.val);
+}
+
+bool fdp::write_physical(core::Core& core, phy_t dst, const void* vsrc, size_t size)
+{
+    const auto src   = reinterpret_cast<uint8_t*>(const_cast<void*>(vsrc));
+    const auto usize = static_cast<uint32_t>(size);
+    return FDP_WritePhysicalMemory(cast(core.shm_), src, usize, dst.val);
 }
 
 namespace
@@ -116,13 +123,23 @@ namespace
     }
 }
 
-bool fdp::read_virtual(core::Core& core, void* vdst, size_t size, dtb_t dtb, uint64_t ptr)
+bool fdp::read_virtual(core::Core& core, void* vdst, uint64_t src, dtb_t dtb, size_t size)
 {
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
     return switch_dtb(core, dtb, [&]
     {
-        return FDP_ReadVirtualMemory(cast(core.shm_), 0, dst, usize, ptr);
+        return FDP_ReadVirtualMemory(cast(core.shm_), 0, dst, usize, src);
+    });
+}
+
+bool fdp::write_virtual(core::Core& core, uint64_t dst, dtb_t dtb, const void* vsrc, size_t size)
+{
+    const auto src   = reinterpret_cast<uint8_t*>(const_cast<void*>(vsrc));
+    const auto usize = static_cast<uint32_t>(size);
+    return switch_dtb(core, dtb, [&]
+    {
+        return FDP_WriteVirtualMemory(cast(core.shm_), 0, src, usize, dst);
     });
 }
 

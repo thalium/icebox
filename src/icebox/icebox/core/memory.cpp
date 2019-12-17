@@ -10,6 +10,8 @@
 #include "mmu.hpp"
 #include "utils/utils.hpp"
 
+#include <array>
+
 struct memory::Memory
 {
     int depth = 0;
@@ -33,7 +35,7 @@ namespace
         const auto pml4e_base = dtb.val & (mask(40) << 12);
         const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
         entry_t pml4e         = {0};
-        auto ok               = fdp::read_physical(core, &pml4e, sizeof pml4e, phy_t{pml4e_ptr});
+        auto ok               = fdp::read_physical(core, &pml4e, phy_t{pml4e_ptr}, sizeof pml4e);
         if(!ok)
             return {};
 
@@ -42,7 +44,7 @@ namespace
 
         const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
         entry_t pdpe        = {0};
-        ok                  = fdp::read_physical(core, &pdpe, sizeof pdpe, phy_t{pdpe_ptr});
+        ok                  = fdp::read_physical(core, &pdpe, phy_t{pdpe_ptr}, sizeof pdpe);
         if(!ok)
             return {};
 
@@ -59,7 +61,7 @@ namespace
 
         const auto pde_ptr = pdpe.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pd * 8;
         entry_t pde        = {0};
-        ok                 = fdp::read_physical(core, &pde, sizeof pde, phy_t{pde_ptr});
+        ok                 = fdp::read_physical(core, &pde, phy_t{pde_ptr}, sizeof pde);
         if(!ok)
             return {};
 
@@ -76,7 +78,7 @@ namespace
 
         const auto pte_ptr = pde.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pt * 8;
         entry_t pte        = {0};
-        ok                 = fdp::read_physical(core, &pte, sizeof pte, phy_t{pte_ptr});
+        ok                 = fdp::read_physical(core, &pte, phy_t{pte_ptr}, sizeof pte);
         if(!ok)
             return {};
 
@@ -135,13 +137,13 @@ namespace
     template <typename T>
     bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
     {
-        uint8_t buffer[PAGE_SIZE];
-        size_t fill = 0;
+        auto buffer = std::array<uint8_t, PAGE_SIZE>{};
+        auto fill   = size_t{};
         auto ptr    = utils::align<PAGE_SIZE>(src);
-        size_t skip = src - ptr;
+        auto skip   = src - ptr;
         while(fill < size)
         {
-            const auto ok = operand(buffer, ptr, sizeof buffer);
+            const auto ok = operand(&buffer[0], ptr, sizeof buffer);
             if(!ok)
                 return FAIL(false, "unable to read %s mem 0x%" PRIx64 "-0x%" PRIx64 " (%zu 0x%zx bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
 
@@ -154,12 +156,25 @@ namespace
         return true;
     }
 
+    bool read_virtual_page(core::Core& core, uint8_t* pgdst, uint64_t pgsrc, dtb_t dtb, size_t pgsize)
+    {
+        auto ok = fdp::read_virtual(core, pgdst, pgsrc, dtb, pgsize);
+        if(ok)
+            return true;
+
+        ok = inject_page_fault(core, dtb, pgsrc, true);
+        if(!ok)
+            return false;
+
+        return fdp::read_virtual(core, pgdst, pgsrc, dtb, pgsize);
+    }
+
     bool read_virtual(core::Core& core, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
     {
         if(!size)
             return true;
 
-        const auto full = fdp::read_virtual(core, dst, size, dtb, src);
+        const auto full = fdp::read_virtual(core, dst, src, dtb, size);
         if(full)
             return true;
 
@@ -168,15 +183,7 @@ namespace
 
         return read_pages("virtual", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
-            auto ok = fdp::read_virtual(core, pgdst, pgsize, dtb, pgsrc);
-            if(ok)
-                return true;
-
-            ok = inject_page_fault(core, dtb, pgsrc, true);
-            if(!ok)
-                return false;
-
-            return fdp::read_virtual(core, pgdst, pgsize, dtb, pgsrc);
+            return read_virtual_page(core, pgdst, pgsrc, dtb, pgsize);
         });
     }
 
@@ -187,8 +194,87 @@ namespace
 
         return read_pages("physical", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
-            return fdp::read_physical(core, pgdst, pgsize, phy_t{pgsrc});
+            return fdp::read_physical(core, pgdst, phy_t{pgsrc}, pgsize);
         });
+    }
+
+    template <typename T, typename U>
+    bool write_pages(const char* where, uint64_t dst, const uint8_t* src, size_t size, const T& read, const U& write)
+    {
+        auto buffer = std::array<uint8_t, PAGE_SIZE>{};
+        auto fill   = size_t{};
+        auto ptr    = utils::align<PAGE_SIZE>(dst);
+        auto skip   = dst - ptr;
+        while(fill < size)
+        {
+            // we want to write only PAGE_SIZE buffers
+            // so read back missing leading & trailing bytes if any
+            const auto chunk = std::min(size - fill, sizeof buffer - skip);
+            if(chunk != PAGE_SIZE)
+            {
+                const auto ok = read(&buffer[0], ptr, sizeof buffer);
+                if(!ok)
+                    return FAIL(false, "unable to read %s mem 0x%" PRIx64 "-0x%" PRIx64 " (%zu 0x%zx bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+            }
+
+            // overwrite with input data
+            memcpy(&buffer[skip], &src[fill], chunk);
+            const auto ok = write(ptr, &buffer[0], sizeof buffer);
+            if(!ok)
+                return FAIL(false, "unable to write %s mem 0x%" PRIx64 "-0x%" PRIx64 " (%zu 0x%zx bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+
+            fill += chunk;
+            skip = 0;
+            ptr += sizeof buffer;
+        }
+        return true;
+    }
+
+    bool write_virtual(core::Core& core, uint64_t dst, dtb_t dtb, const uint8_t* src, uint32_t size)
+    {
+        if(!size)
+            return true;
+
+        const auto full = fdp::write_virtual(core, dst, dtb, src, size);
+        if(full)
+            return true;
+
+        if(!os::can_inject_fault(core, dst))
+            return false;
+
+        const auto read_virtual = [&](uint8_t* pgdst, uint64_t pgsrc, size_t pgsize)
+        {
+            return read_virtual_page(core, pgdst, pgsrc, dtb, pgsize);
+        };
+        const auto write_virtual = [&](uint64_t pgdst, const uint8_t* pgsrc, size_t pgsize)
+        {
+            auto ok = fdp::write_virtual(core, pgdst, dtb, pgsrc, pgsize);
+            if(ok)
+                return true;
+
+            ok = inject_page_fault(core, dtb, pgdst, true);
+            if(!ok)
+                return false;
+
+            return fdp::write_virtual(core, pgdst, dtb, pgsrc, pgsize);
+        };
+        return write_pages("virtual", dst, src, size, read_virtual, write_virtual);
+    }
+
+    bool write_physical(core::Core& core, uint64_t dst, const uint8_t* src, size_t size)
+    {
+        if(!size)
+            return true;
+
+        const auto read_physical = [&](uint8_t* pgdst, uint64_t pgsrc, size_t pgsize)
+        {
+            return fdp::read_physical(core, pgdst, phy_t{pgsrc}, pgsize);
+        };
+        const auto write_physical = [&](uint64_t pgdst, const uint8_t* pgsrc, size_t pgsize)
+        {
+            return fdp::write_physical(core, phy_t{pgdst}, pgsrc, pgsize);
+        };
+        return write_pages("physical", dst, src, size, read_physical, write_physical);
     }
 }
 
@@ -211,4 +297,25 @@ bool memory::read_physical(core::Core& core, void* vdst, uint64_t src, size_t si
 {
     const auto dst = reinterpret_cast<uint8_t*>(vdst);
     return ::read_physical(core, dst, src, size);
+}
+
+bool memory::write_virtual(core::Core& core, uint64_t dst, const void* vsrc, size_t size)
+{
+    const auto src   = reinterpret_cast<const uint8_t*>(vsrc);
+    const auto usize = static_cast<uint32_t>(size);
+    const auto dtb   = dtb_t{registers::read(core, reg_e::cr3)};
+    return ::write_virtual(core, dst, dtb, src, usize);
+}
+
+bool memory::write_virtual_with_dtb(core::Core& core, uint64_t dst, dtb_t dtb, const void* vsrc, size_t size)
+{
+    const auto src   = reinterpret_cast<const uint8_t*>(vsrc);
+    const auto usize = static_cast<uint32_t>(size);
+    return ::write_virtual(core, dst, dtb, src, usize);
+}
+
+bool memory::write_physical(core::Core& core, uint64_t dst, const void* vsrc, size_t size)
+{
+    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+    return ::write_physical(core, dst, src, size);
 }
