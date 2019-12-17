@@ -637,12 +637,6 @@ namespace
         return bpid;
     }
 
-    template <typename T>
-    opt<bpid_t> register_listener(NtOs& os, std::string_view name, uint64_t addr, const T& on_value, void (*callback)(NtOs&, bpid_t, const T&))
-    {
-        return listen_to(os, ++os.last_bpid_, name, addr, on_value, callback);
-    }
-
     void on_PspInsertThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, reg_e::rcx);
@@ -651,9 +645,13 @@ namespace
 
     void on_PspExitProcess(NtOs& os, bpid_t /*bpid*/, const process::on_event_fn& on_proc)
     {
-        const auto eproc = registers::read(os.core_, reg_e::rdx);
-        if(const auto proc = make_proc(os, eproc))
-            on_proc(*proc);
+        const auto eproc       = registers::read(os.core_, reg_e::rdx);
+        const auto head        = eproc + os.offsets_[EPROCESS_ThreadListHead];
+        const auto item        = os.reader_.read(head);
+        const auto has_threads = item && item != head;
+        if(!has_threads)
+            if(const auto proc = make_proc(os, eproc))
+                on_proc(*proc);
     }
 
     void on_PspExitThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
@@ -680,17 +678,17 @@ opt<bpid_t> NtOs::listen_proc_create(const process::on_event_fn& on_create)
 
 opt<bpid_t> NtOs::listen_proc_delete(const process::on_event_fn& on_delete)
 {
-    return register_listener(*this, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
+    return listen_to(*this, ++last_bpid_, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
 }
 
 opt<bpid_t> NtOs::listen_thread_create(const threads::on_event_fn& on_create)
 {
-    return register_listener(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
+    return listen_to(*this, ++last_bpid_, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
 opt<bpid_t> NtOs::listen_thread_delete(const threads::on_event_fn& on_delete)
 {
-    return register_listener(*this, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
+    return listen_to(*this, ++last_bpid_, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
 }
 
 namespace
