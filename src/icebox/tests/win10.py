@@ -86,7 +86,7 @@ class Windows(unittest.TestCase):
 
             bpa = self.vm.processes.break_on_create(on_create)
             bpb = self.vm.processes.break_on_delete(on_delete)
-            while num_create < 2 and num_delete < 2:
+            while num_create < 2 or num_delete < 2:
                 self.vm.resume()
                 self.vm.wait()
             del bpa
