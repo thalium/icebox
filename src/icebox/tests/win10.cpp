@@ -331,26 +331,35 @@ TEST_F(win10, memory)
 
     process::join(core, *proc, mode_e::user);
 
-    auto from_reader  = std::vector<uint8_t>{};
-    auto from_virtual = std::vector<uint8_t>{};
-    const auto io     = memory::make_io(core, *proc);
+    auto buffer   = std::vector<uint8_t>{};
+    auto got_read = std::vector<uint8_t>{};
+    const auto io = memory::make_io(core, *proc);
     modules::list(core, *proc, [&](mod_t mod)
     {
         const auto span = modules::span(core, *proc, mod);
         EXPECT_TRUE(!!span);
 
-        from_reader.resize(span->size);
-        auto ok = io.read_all(&from_reader[0], span->addr, span->size);
+        buffer.resize(span->size);
+        auto ok = io.read_all(&buffer[0], span->addr, span->size);
         EXPECT_TRUE(ok);
+        EXPECT_GT(buffer.size(), 2U);
+        EXPECT_EQ(buffer[0], 'M');
+        EXPECT_EQ(buffer[1], 'Z');
 
-        from_virtual.resize(span->size);
-        ok = memory::read_virtual_with_dtb(core, &from_virtual[0], proc->udtb, span->addr, span->size);
+        got_read.resize(span->size);
+        ok = memory::read_virtual_with_dtb(core, &got_read[0], proc->udtb, span->addr, span->size);
         EXPECT_TRUE(ok);
-
-        EXPECT_EQ(0, memcmp(&from_reader[0], &from_virtual[0], span->size));
+        EXPECT_EQ(0, memcmp(&buffer[0], &got_read[0], span->size));
 
         const auto phy = memory::virtual_to_physical(core, span->addr, proc->udtb);
         EXPECT_TRUE(!!phy);
+
+        ok = memory::write_virtual_with_dtb(core, span->addr, proc->udtb, &buffer[0], span->size);
+        EXPECT_TRUE(!!ok);
+
+        ok = memory::read_virtual_with_dtb(core, &got_read[0], proc->udtb, span->addr, span->size);
+        EXPECT_TRUE(ok);
+        EXPECT_EQ(0, memcmp(&buffer[0], &got_read[0], span->size));
         return walk_e::next;
     });
 }
