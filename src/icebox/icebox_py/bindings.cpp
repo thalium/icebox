@@ -89,7 +89,7 @@ namespace
     }
 
     template <bool (*Op)(core::Core&)>
-    PyObject* exec_core(PyObject* self, PyObject* /*args*/)
+    PyObject* core_exec(PyObject* self, PyObject* /*args*/)
     {
         auto core = core_from_self(self);
         if(!core)
@@ -101,6 +101,103 @@ namespace
 
         Py_RETURN_NONE;
     }
+
+    template <typename T>
+    struct defer_t
+    {
+        defer_t(T op)
+            : op(op)
+        {
+        }
+
+        ~defer_t()
+        {
+            op();
+        }
+
+        T op;
+    };
+
+    template <typename T>
+    defer_t<T> make_defer(T op)
+    {
+        return defer_t<T>{op};
+    }
+
+#define CONCAT__(X, Y)  Y
+#define CONCAT_(X, Y)   CONCAT__(~, X##Y)
+#define CONCAT(X, Y)    CONCAT_(X, Y)
+
+#define DEFER(X)    const auto CONCAT(defer_, __COUNTER__) = make_defer(X)
+#define PYREF(X)    DEFER([=] { Py_DECREF(X); })
+
+    PyObject* register_list(PyObject* /*self*/, PyObject* /*args*/)
+    {
+        auto list = PyList_New(0);
+        if(!list)
+            return nullptr;
+
+        PYREF(list);
+        for(auto i = 0; i <= static_cast<size_t>(reg_e::last); ++i)
+        {
+            const auto arg     = static_cast<reg_e>(i);
+            const auto strname = registers::to_string(arg);
+            const auto name    = PyUnicode_FromStringAndSize(strname.data(), strname.size());
+            if(!name)
+                return nullptr;
+
+            PYREF(name);
+            const auto idx = PyLong_FromLong(i);
+            if(!idx)
+                return nullptr;
+
+            PYREF(idx);
+            const auto item = Py_BuildValue("(OO)", name, idx);
+            if(!item)
+                return nullptr;
+
+            PYREF(item);
+            const auto err = PyList_Append(list, item);
+            if(err)
+                return nullptr;
+        }
+        Py_INCREF(list);
+        return list;
+    }
+
+    PyObject* msr_list(PyObject* /*self*/, PyObject* /*args*/)
+    {
+        auto list = PyList_New(0);
+        if(!list)
+            return nullptr;
+
+        PYREF(list);
+        for(auto i = 0; i <= static_cast<size_t>(msr_e::last); ++i)
+        {
+            const auto arg     = static_cast<msr_e>(i);
+            const auto strname = registers::to_string(arg);
+            const auto name    = PyUnicode_FromStringAndSize(strname.data(), strname.size());
+            if(!name)
+                return nullptr;
+
+            PYREF(name);
+            const auto idx = PyLong_FromLong(i);
+            if(!idx)
+                return nullptr;
+
+            PYREF(idx);
+            const auto item = Py_BuildValue("(OO)", name, idx);
+            if(!item)
+                return nullptr;
+
+            PYREF(item);
+            const auto err = PyList_Append(list, item);
+            if(err)
+                return nullptr;
+        }
+        Py_INCREF(list);
+        return list;
+    }
 }
 
 PyMODINIT_FUNC PyInit_icebox()
@@ -109,13 +206,15 @@ PyMODINIT_FUNC PyInit_icebox()
     const auto argc = static_cast<int>(args.size());
     logg::init(argc - 1, &args[0]);
 
-    static auto ice_methods = std::array<PyMethodDef, 7>{{
+    static auto ice_methods = std::array<PyMethodDef, 16>{{
         {"attach", &core_attach, METH_VARARGS, "attach vm <name>"},
         {"detach", &core_detach, METH_NOARGS, "detach from vm"},
-        {"pause", &exec_core<&state::pause>, METH_NOARGS, "pause vm"},
-        {"resume", &exec_core<&state::resume>, METH_NOARGS, "resume vm"},
-        {"single_step", &exec_core<&state::single_step>, METH_NOARGS, "execute a single instruction"},
-        {"wait", &exec_core<&state::wait>, METH_NOARGS, "wait vm"},
+        {"pause", &core_exec<&state::pause>, METH_NOARGS, "pause vm"},
+        {"resume", &core_exec<&state::resume>, METH_NOARGS, "resume vm"},
+        {"single_step", &core_exec<&state::single_step>, METH_NOARGS, "execute a single instruction"},
+        {"wait", &core_exec<&state::wait>, METH_NOARGS, "wait vm"},
+        {"register_list", &register_list, METH_NOARGS, "list available registers"},
+        {"msr_list", &msr_list, METH_NOARGS, "list available msr registers"},
         {nullptr, nullptr, 0, nullptr},
     }};
     static auto ice_module  = PyModuleDef{
