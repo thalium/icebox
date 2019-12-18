@@ -67,8 +67,7 @@ namespace
     using Breakers  = std::unordered_map<phy_t, Breakpoint>;
     using Observer  = std::shared_ptr<BreakpointObserver>;
     using Observers = std::multimap<phy_t, Observer>;
-
-    using Buffer   = std::vector<uint8_t>;
+    using Buffer    = std::vector<uint8_t>;
 
     template <typename T>
     struct Pool
