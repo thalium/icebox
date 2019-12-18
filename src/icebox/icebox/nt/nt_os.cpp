@@ -1344,7 +1344,7 @@ bool NtOs::write_arg(size_t index, arg_t arg)
 
 namespace
 {
-    const char* irql_to_text(uint64_t value)
+    std::string irql_to_text(uint64_t value)
     {
         switch(value)
         {
@@ -1352,7 +1352,7 @@ namespace
             case 1: return "apc";
             case 2: return "dispatch";
         }
-        return "?";
+        return std::to_string(value);
     }
 
     std::string to_hex(uint64_t x)
