@@ -93,8 +93,8 @@ PyObject* py::memory::read_virtual_process(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    const auto reader = reader::make(core, *opt_proc);
-    ok                = reader.read_all(buf.buf, src, buf.len);
+    const auto io = ::memory::make_io(core, *opt_proc);
+    ok            = io.read_all(buf.buf, src, buf.len);
     if(!ok)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read virtual memory");
 
