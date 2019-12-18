@@ -4,7 +4,7 @@
 
 #include "icebox/types.hpp"
 
-namespace reader { struct Reader; }
+namespace memory { struct Io; }
 
 namespace nt_namespace
 {
@@ -224,7 +224,7 @@ namespace nt_namespace
         ptr_t    SecurityQualityOfService;
     };
 
-    opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr);
+    opt<std::string> read_unicode_string(const memory::Io& io, uint64_t addr);
 
     struct _OBJECT_DIRECTORY_ENTRY
     {

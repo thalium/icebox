@@ -63,7 +63,7 @@ namespace
     {
         std::vector<uint8_t> invalid;
 
-        const auto reader = reader::make(core);
+        const auto io = memory::make_io(core);
         NET_BUFFER_LIST      netBufferList;
         NET_BUFFER           netBuffer;
         MDL                  mdl;
@@ -71,11 +71,11 @@ namespace
 
         for(uint64_t addr = netBuffListAddress; addr != 0; addr = reinterpret_cast<uint64_t>(netBufferList.Next))
         {
-            auto ok = reader.read_all(&netBufferList, addr, sizeof netBufferList);
+            auto ok = io.read_all(&netBufferList, addr, sizeof netBufferList);
             if(!ok)
                 return invalid;
 
-            ok = reader.read_all(&netBuffer, (uint64_t) netBufferList.FirstNetBuffer, sizeof netBuffer);
+            ok = io.read_all(&netBuffer, (uint64_t) netBufferList.FirstNetBuffer, sizeof netBuffer);
             if(!ok)
                 return invalid;
 
@@ -88,11 +88,11 @@ namespace
             data.resize(data.size() + dataSize);
             do
             {
-                ok = reader.read_all(&mdl, mdlAddress, sizeof mdl);
+                ok = io.read_all(&mdl, mdlAddress, sizeof mdl);
                 if(!ok)
                     return invalid;
                 size = std::min(mdl.ByteCount - mdlOffset, dataSize);
-                ok   = reader.read_all(&data[dataOffset], (uint64_t) mdl.MappedSystemVa + mdlOffset, size);
+                ok   = io.read_all(&data[dataOffset], (uint64_t) mdl.MappedSystemVa + mdlOffset, size);
                 if(!ok)
                     return invalid;
 
@@ -121,8 +121,7 @@ namespace
 
     opt<callstacks::context_t> get_saved_wow64_ctx(core::Core& core, proc_t proc)
     {
-        const auto reader = reader::make(core, proc);
-
+        const auto io            = memory::make_io(core, proc);
         const auto cs            = registers::read(core, reg_e::cs);
         const auto is_kernel_ctx = cs && 0x0F == 0x00;
         const auto teb           = registers::read_msr(core, is_kernel_ctx ? msr_e::kernel_gs_base : msr_e::gs_base);
@@ -131,14 +130,14 @@ namespace
             return {};
 
         const auto TlsSlot       = teb + *TEB_TlsSlots + 8;
-        const auto WOW64_CONTEXT = reader.read(TlsSlot);
+        const auto WOW64_CONTEXT = io.read(TlsSlot);
         if(!WOW64_CONTEXT)
             return {};
         LOG(INFO, "TEB is: 0x%" PRIx64 ", r12 is: 0x%" PRIx64 ", r13 is: 0x%" PRIx64, teb, TlsSlot, *WOW64_CONTEXT);
 
         auto offset = 4; // FIXME: why 4 on 10240 ?
         nt_types::_WOW64_CONTEXT wow64ctx;
-        const auto ok = reader.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
+        const auto ok = io.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
         if(!ok)
             return {};
 

@@ -92,7 +92,7 @@ namespace
     const struct
     {
         const char* name;
-        opt<symbols::Identity>  (*identify) (span_t, const reader::Reader&);
+        opt<symbols::Identity>  (*identify) (span_t, const memory::Io&);
         ModulePtr               (*make)     (const std::string& name, const std::string& guid);
     } g_helpers[] =
     {
@@ -157,11 +157,11 @@ namespace
 bool symbols::Modules::insert(proc_t proc, span_t span)
 {
     // do not reload known modules
-    auto& d           = *d_;
-    const auto reader = is_kernel_proc(proc) ? reader::make(d.core) : reader::make(d.core, proc);
+    auto& d       = *d_;
+    const auto io = is_kernel_proc(proc) ? memory::make_io(d.core) : memory::make_io(d.core, proc);
     for(const auto& h : g_helpers)
     {
-        const auto opt_id = h.identify(span, reader);
+        const auto opt_id = h.identify(span, io);
         if(!opt_id)
             continue;
 
@@ -418,7 +418,7 @@ namespace
         return insert_module(d, proc, module, opt_mod->span, opt_mod->module, insert_e::cached);
     }
 
-    bool is_target_module(core::Core& core, proc_t proc, mod_t mod, const reader::Reader& reader, const std::string& name)
+    bool is_target_module(core::Core& core, proc_t proc, mod_t mod, const memory::Io& io, const std::string& name)
     {
         const auto opt_span = modules::span(core, proc, mod);
         if(!opt_span)
@@ -426,7 +426,7 @@ namespace
 
         for(const auto& h : g_helpers)
         {
-            const auto opt_id = h.identify(*opt_span, reader);
+            const auto opt_id = h.identify(*opt_span, io);
             if(!opt_id)
                 continue;
 
@@ -441,10 +441,10 @@ namespace
     {
         auto found = opt<mod_t>{};
         process::join(core, proc, mode_e::user);
-        const auto reader    = reader::make(core, proc);
+        const auto io        = memory::make_io(core, proc);
         const auto check_mod = [&](mod_t mod)
         {
-            if(is_target_module(core, proc, mod, reader, name))
+            if(is_target_module(core, proc, mod, io, name))
                 found = mod;
             return found ? walk_e::stop : walk_e::next;
         };

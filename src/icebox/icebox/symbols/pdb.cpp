@@ -4,7 +4,7 @@
 #include "endian.hpp"
 #include "indexer.hpp"
 #include "log.hpp"
-#include "reader.hpp"
+#include "memory.hpp"
 #include "utils/hex.hpp"
 #include "utils/pe.hpp"
 
@@ -126,14 +126,14 @@ namespace
     }
 }
 
-opt<symbols::Identity> symbols::identify_pdb(span_t span, const reader::Reader& reader)
+opt<symbols::Identity> symbols::identify_pdb(span_t span, const memory::Io& io)
 {
     // try to find pe debug section
-    const auto debug     = pe::find_debug_codeview(reader, span);
+    const auto debug     = pe::find_debug_codeview(io, span);
     const auto span_read = debug ? *debug : span;
 
     auto buffer   = std::vector<uint8_t>(span_read.size);
-    const auto ok = reader.read_all(&buffer[0], span_read.addr, span_read.size);
+    const auto ok = io.read_all(&buffer[0], span_read.addr, span_read.size);
     if(!ok)
         return {};
 

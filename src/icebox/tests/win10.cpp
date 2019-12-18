@@ -333,14 +333,14 @@ TEST_F(win10, memory)
 
     auto from_reader  = std::vector<uint8_t>{};
     auto from_virtual = std::vector<uint8_t>{};
-    const auto reader = reader::make(core, *proc);
+    const auto io     = memory::make_io(core, *proc);
     modules::list(core, *proc, [&](mod_t mod)
     {
         const auto span = modules::span(core, *proc, mod);
         EXPECT_TRUE(!!span);
 
         from_reader.resize(span->size);
-        auto ok = reader.read_all(&from_reader[0], span->addr, span->size);
+        auto ok = io.read_all(&from_reader[0], span->addr, span->size);
         EXPECT_TRUE(ok);
 
         from_virtual.resize(span->size);

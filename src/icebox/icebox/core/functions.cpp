@@ -34,9 +34,9 @@ bool functions::break_on_return(core::Core& core, std::string_view name, const f
         return false;
 
     const auto ptr_size    = process::flags(core, *proc).is_x86 ? 4 : 8;
-    const auto reader      = reader::make(core, *proc);
+    const auto io          = memory::make_io(core, *proc);
     const auto want_rsp    = registers::read(core, reg_e::rsp);
-    const auto return_addr = reader.read(want_rsp);
+    const auto return_addr = io.read(want_rsp);
     if(!return_addr)
         return false;
 

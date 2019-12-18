@@ -3,11 +3,7 @@
 #include "enums.hpp"
 #include "types.hpp"
 
-#include <functional>
-
 namespace core { struct Core; }
-namespace sym { struct Symbols; }
-namespace reader { struct Reader; }
 
 namespace os
 {

@@ -4,7 +4,7 @@
 
 #include <functional>
 
-namespace reader { struct Reader; }
+namespace memory { struct Io; }
 
 namespace symbols
 {
@@ -35,7 +35,7 @@ namespace symbols
         std::string name;
         std::string id;
     };
-    opt<Identity> identify_pdb(span_t span, const reader::Reader& reader);
+    opt<Identity> identify_pdb(span_t span, const memory::Io& io);
 
     std::shared_ptr<Module> make_pdb    (const std::string& module, const std::string& guid);
     std::shared_ptr<Module> make_dwarf  (const std::string& module, const std::string& guid);

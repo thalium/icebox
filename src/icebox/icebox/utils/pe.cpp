@@ -171,18 +171,18 @@ namespace nt
 
 } // namespace nt
 
-opt<bool> pe::is_pe64(const reader::Reader& reader, const uint64_t image_file_header)
+opt<bool> pe::is_pe64(const memory::Io& io, const uint64_t image_file_header)
 {
-    const auto machine = reader.le16(image_file_header + offsetof(nt::IMAGE_FILE_HEADER, Machine));
+    const auto machine = io.le16(image_file_header + offsetof(nt::IMAGE_FILE_HEADER, Machine));
     if(!machine)
         return FAIL(ext::nullopt, "unable to read IMAGE_FILE_HEADER.Machine");
 
     return *machine == nt::image_file_machine_amd64;
 }
 
-opt<span_t> pe::find_image_directory(const reader::Reader& reader, const span_t span, const image_directory_entry_e id)
+opt<span_t> pe::find_image_directory(const memory::Io& io, const span_t span, const image_directory_entry_e id)
 {
-    const auto e_lfanew = reader.le32(span.addr + offsetof(nt::IMAGE_DOS_HEADER, e_lfanew));
+    const auto e_lfanew = io.le32(span.addr + offsetof(nt::IMAGE_DOS_HEADER, e_lfanew));
     if(!e_lfanew)
         return FAIL(ext::nullopt, "unable to read e_lfanew");
 
@@ -190,17 +190,17 @@ opt<span_t> pe::find_image_directory(const reader::Reader& reader, const span_t 
     const auto image_file_header     = image_nt_header + offsetof(nt::IMAGE_NT_HEADERS64, FileHeader);
     const auto image_optional_header = image_nt_header + offsetof(nt::IMAGE_NT_HEADERS64, OptionalHeader);
 
-    const auto pe64 = is_pe64(reader, image_file_header);
+    const auto pe64 = is_pe64(io, image_file_header);
     if(!pe64)
         return FAIL(ext::nullopt, "unable to read get pe machine type");
 
     const auto offset          = *pe64 ? offsetof(nt::IMAGE_OPTIONAL_HEADER64, DataDirectory) : offsetof(nt::IMAGE_OPTIONAL_HEADER32, DataDirectory);
     const auto data_directory  = image_optional_header + offset + id * sizeof(nt::IMAGE_DATA_DIRECTORY);
-    const auto virtual_address = reader.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, VirtualAddress));
+    const auto virtual_address = io.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, VirtualAddress));
     if(!virtual_address)
         return FAIL(ext::nullopt, "unable to read DataDirectory.VirtualAddress");
 
-    const auto size = reader.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, Size));
+    const auto size = io.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, Size));
     if(!size)
         return FAIL(ext::nullopt, "unable to read DataDirectory.Size");
 
@@ -208,21 +208,21 @@ opt<span_t> pe::find_image_directory(const reader::Reader& reader, const span_t 
     return span_t{span.addr + *virtual_address, *size};
 }
 
-opt<span_t> pe::find_debug_codeview(const reader::Reader& reader, span_t span)
+opt<span_t> pe::find_debug_codeview(const memory::Io& io, span_t span)
 {
-    const auto directory = find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
+    const auto directory = find_image_directory(io, span, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
     if(!directory)
         return {};
 
-    const auto type = reader.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, Type));
+    const auto type = io.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, Type));
     if(!type)
         return {};
 
     if(*type != 2)
         return FAIL(ext::nullopt, "invalid IMAGE_DEBUG_TYPE, want IMAGE_DEBUG_TYPE_CODEVIEW = 2, got %d", *type);
 
-    const auto addr = reader.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, AddressOfRawData));
-    const auto size = reader.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, SizeOfData));
+    const auto addr = io.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, AddressOfRawData));
+    const auto size = io.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, SizeOfData));
     if(!addr || !size)
         return {};
 

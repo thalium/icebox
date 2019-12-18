@@ -13,4 +13,39 @@ namespace memory
     bool        write_virtual           (core::Core& core, uint64_t dst, const void*, size_t size);
     bool        write_virtual_with_dtb  (core::Core& core, uint64_t dst, dtb_t dtb, const void* src, size_t size);
     bool        write_physical          (core::Core& core, uint64_t dst, const void* src, size_t size);
+
+    struct Io
+    {
+        ~Io() = default;
+
+        // read methods
+        opt<uint8_t>    byte    (uint64_t ptr) const;
+        opt<uint16_t>   le16    (uint64_t ptr) const;
+        opt<uint32_t>   le32    (uint64_t ptr) const;
+        opt<uint64_t>   le64    (uint64_t ptr) const;
+        opt<uint16_t>   be16    (uint64_t ptr) const;
+        opt<uint32_t>   be32    (uint64_t ptr) const;
+        opt<uint64_t>   be64    (uint64_t ptr) const;
+        opt<uint64_t>   read    (uint64_t ptr) const;
+        bool            read_all(void* dst, uint64_t ptr, size_t size) const;
+        opt<phy_t>      physical(uint64_t ptr) const;
+
+        // write methods
+        bool    write_byte  (uint64_t ptr, uint8_t arg) const;
+        bool    write_le16  (uint64_t ptr, uint16_t arg) const;
+        bool    write_le32  (uint64_t ptr, uint32_t arg) const;
+        bool    write_le64  (uint64_t ptr, uint64_t arg) const;
+        bool    write_be16  (uint64_t ptr, uint16_t arg) const;
+        bool    write_be32  (uint64_t ptr, uint32_t arg) const;
+        bool    write_be64  (uint64_t ptr, uint64_t arg) const;
+        bool    write       (uint64_t ptr, uint64_t arg) const;
+        bool    write_all   (uint64_t ptr, const void* src, size_t size) const;
+
+        core::Core& core;
+        dtb_t       kdtb;
+        dtb_t       udtb;
+    };
+
+    Io  make_io (core::Core& core);
+    Io  make_io (core::Core& core, proc_t proc);
 } // namespace memory

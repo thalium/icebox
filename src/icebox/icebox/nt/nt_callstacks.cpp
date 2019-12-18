@@ -346,8 +346,8 @@ namespace
 
         auto& buf = c.buffer_;
         buf.resize(exception_dir.size);
-        const auto reader = reader::make(c.core_, proc);
-        auto ok           = reader.read_all(&buf[0], exception_dir.addr, exception_dir.size);
+        const auto io = memory::make_io(c.core_, proc);
+        auto ok       = io.read_all(&buf[0], exception_dir.addr, exception_dir.size);
         if(!ok)
             return {};
 
@@ -363,7 +363,7 @@ namespace
 
             auto unwind_info   = UnwindInfo{};
             const auto to_read = mod_base_addr + unwind_info_ptr;
-            ok                 = reader.read_all(&unwind_info[0], to_read, sizeof unwind_info);
+            ok                 = io.read_all(&unwind_info[0], to_read, sizeof unwind_info);
             if(!ok)
                 return FAIL(ext::nullopt, "unable to read unwind info");
 
@@ -389,7 +389,7 @@ namespace
 
             buf.resize(buf_offset + unwind_codes_size);
             auto buffer = &buf[buf_offset];
-            ok          = reader.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
+            ok          = io.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
             if(!ok)
                 return FAIL(ext::nullopt, "unable to read unwind codes");
 
@@ -437,8 +437,8 @@ namespace
     opt<FunctionTable> parse_module_unwind(NtCallstacks& c, proc_t proc, const std::string& name, const span_t span)
     {
         LOG(INFO, "loading %s", name.data());
-        const auto reader        = reader::make(c.core_, proc);
-        const auto exception_dir = pe::find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+        const auto io            = memory::make_io(c.core_, proc);
+        const auto exception_dir = pe::find_image_directory(io, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
         if(!exception_dir)
             return FAIL(ext::nullopt, "unable to get span of exception_dir");
 
@@ -514,14 +514,14 @@ namespace
 
     opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, flags_t flags)
     {
-        const auto reader = reader::make(c.core_, proc);
+        const auto io = memory::make_io(c.core_, proc);
         if(!read_offsets(c, proc, flags))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
         const auto teb    = registers::read_msr(c.core_, flags.is_x86 ? msr_e::fs_base : msr_e::gs_base);
         const auto nt_tib = teb + offset(c, flags, TEB_NtTib);
-        auto base         = reader.read(nt_tib + offset(c, flags, NT_TIB_StackBase));
-        auto limit        = reader.read(nt_tib + offset(c, flags, NT_TIB_StackLimit));
+        auto base         = io.read(nt_tib + offset(c, flags, NT_TIB_StackBase));
+        auto limit        = io.read(nt_tib + offset(c, flags, NT_TIB_StackLimit));
         if(!base || !limit)
             return FAIL(ext::nullopt, "unable to find stack boundaries");
 
@@ -608,7 +608,7 @@ namespace
         return check_previous_exist(--it, end, offset_in_mod);
     }
 
-    bool get_next_context_x64(NtCallstacks& c, proc_t proc, const reader::Reader& reader, const span_t& stack, context_t& ctx)
+    bool get_next_context_x64(NtCallstacks& c, proc_t proc, const memory::Io& io, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 8;
 
@@ -636,7 +636,7 @@ namespace
             ctx.sp = ctx.bp - function_entry->frame_reg_offset;
 
         if(function_entry->prev_frame_reg != 0)
-            if(const auto bp = reader.read(ctx.sp + function_entry->prev_frame_reg))
+            if(const auto bp = io.read(ctx.sp + function_entry->prev_frame_reg))
                 ctx.bp = *bp;
 
         const auto caller_addr_on_stack = ctx.sp + *stack_frame_size;
@@ -645,7 +645,7 @@ namespace
         if(stack.addr > caller_addr_on_stack || stack.addr + stack.size < caller_addr_on_stack)
             return false;
 
-        const auto return_addr = reader.read(caller_addr_on_stack);
+        const auto return_addr = io.read(caller_addr_on_stack);
         if(!return_addr)
             return FAIL(false, "unable to read return address at 0x%" PRIx64, caller_addr_on_stack);
 
@@ -668,17 +668,17 @@ namespace
         return true;
     }
 
-    bool get_next_context_x86(NtCallstacks& /*c*/, proc_t /*proc*/, const reader::Reader& reader, const span_t& stack, context_t& ctx)
+    bool get_next_context_x86(NtCallstacks& /*c*/, proc_t /*proc*/, const memory::Io& io, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 4;
         if(stack.addr > ctx.bp || stack.addr + stack.size < ctx.bp)
             return FAIL(false, "ebp out of stack bounds, ebp: 0x%" PRIx64 " stack bounds: 0x%" PRIx64 "-0x%" PRIx64, ctx.bp, stack.addr, stack.addr + stack.size);
 
-        const auto caller_addr_on_stack = reader.le32(ctx.bp);
+        const auto caller_addr_on_stack = io.le32(ctx.bp);
         if(!caller_addr_on_stack)
             return FAIL(false, "unable to read caller address on stack at 0x%" PRIx64, ctx.bp);
 
-        const auto return_addr = reader.le32(ctx.bp + reg_size);
+        const auto return_addr = io.le32(ctx.bp + reg_size);
         if(!return_addr)
             return FAIL(false, "unable to read return address at 0x%" PRIx64, ctx.bp + reg_size);
 
@@ -689,8 +689,8 @@ namespace
 
     size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
-        const auto reader = reader::make(c.core_, proc);
-        const auto stack  = get_stack(c, proc, first, first.flags);
+        const auto io    = memory::make_io(c.core_, proc);
+        const auto stack = get_stack(c, proc, first, first.flags);
         if(!stack)
             return 0;
 
@@ -699,7 +699,7 @@ namespace
         const auto next_context = first.flags.is_x86 ? &get_next_context_x86 : &get_next_context_x64;
         for(size_t i = 1; i < num_callers; ++i)
         {
-            const auto ok = next_context(c, proc, reader, *stack, ctx);
+            const auto ok = next_context(c, proc, io, *stack, ctx);
             if(!ok)
                 return i;
 

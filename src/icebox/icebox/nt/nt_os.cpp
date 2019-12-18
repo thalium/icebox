@@ -161,7 +161,7 @@ namespace
         bool    setup               () override;
         bool    is_kernel_address   (uint64_t ptr) override;
         bool    can_inject_fault    (uint64_t ptr) override;
-        bool    reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
+        bool    memory_io_setup     (memory::Io& io, opt<proc_t> proc) override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -211,23 +211,23 @@ namespace
         void debug_print() override;
 
         // members
-        core::Core&    core_;
-        NtOffsets      offsets_;
-        NtSymbols      symbols_;
-        std::string    last_dump_;
-        uint64_t       kpcr_;
-        reader::Reader reader_;
-        bpid_t         last_bpid_;
-        Breakpoints    breakpoints_;
-        phy_t          LdrpInitializeProcess_;
-        phy_t          LdrpProcessMappedModule_;
+        core::Core& core_;
+        NtOffsets   offsets_;
+        NtSymbols   symbols_;
+        std::string last_dump_;
+        uint64_t    kpcr_;
+        memory::Io  io_;
+        bpid_t      last_bpid_;
+        Breakpoints breakpoints_;
+        phy_t       LdrpInitializeProcess_;
+        phy_t       LdrpProcessMappedModule_;
     };
 }
 
 NtOs::NtOs(core::Core& core)
     : core_(core)
     , kpcr_(0)
-    , reader_(reader::make(core))
+    , io_(memory::make_io(core))
     , last_bpid_(0)
     , LdrpInitializeProcess_{0}
     , LdrpProcessMappedModule_{0}
@@ -273,7 +273,7 @@ namespace
             if(!ok)
                 break;
 
-            os.reader_.kdtb.val = registers::read(core, reg_e::cr3);
+            os.io_.kdtb.val = registers::read(core, reg_e::cr3);
         }
         return {};
     }
@@ -370,7 +370,7 @@ namespace
             if(!ok)
                 return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
         }
-        os.reader_.kdtb = gdtb;
+        os.io_.kdtb = gdtb;
         return true;
     }
 }
@@ -389,7 +389,7 @@ bool NtOs::setup()
 
     LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
         kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    const auto opt_id = symbols::identify_pdb(*kernel, reader::make(core_));
+    const auto opt_id = symbols::identify_pdb(*kernel, memory::make_io(core_));
     if(!opt_id)
         return FAIL(false, "unable to identify kernel PDB");
 
@@ -462,7 +462,7 @@ bool NtOs::setup()
     if(!ok)
         return false;
 
-    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, reader_.kdtb.val);
+    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, io_.kdtb.val);
     return try_load_ntdll(*this, core_);
 }
 
@@ -475,14 +475,14 @@ namespace
 {
     opt<dtb_t> get_user_dtb(NtOs& os, uint64_t kprocess)
     {
-        const auto dtb = os.reader_.read(kprocess + os.offsets_[KPROCESS_UserDirectoryTableBase]);
+        const auto dtb = os.io_.read(kprocess + os.offsets_[KPROCESS_UserDirectoryTableBase]);
         if(dtb && *dtb != 0 && *dtb != 1)
             return dtb_t{*dtb};
 
         if(os.offsets_[KPROCESS_DirectoryTableBase] == os.offsets_[KPROCESS_UserDirectoryTableBase])
             return {};
 
-        const auto kdtb = os.reader_.read(kprocess + os.offsets_[KPROCESS_DirectoryTableBase]);
+        const auto kdtb = os.io_.read(kprocess + os.offsets_[KPROCESS_DirectoryTableBase]);
         if(!kdtb)
             return {};
 
@@ -495,7 +495,7 @@ namespace
         if(!dtb)
             return {};
 
-        const auto kdtb = os.reader_.read(eproc + os.offsets_[EPROCESS_Pcb] + os.offsets_[KPROCESS_DirectoryTableBase]);
+        const auto kdtb = os.io_.read(eproc + os.offsets_[EPROCESS_Pcb] + os.offsets_[KPROCESS_DirectoryTableBase]);
         if(!kdtb)
             return {};
 
@@ -506,7 +506,7 @@ namespace
 bool NtOs::proc_list(process::on_proc_fn on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
-    for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
+    for(auto link = io_.read(head); link != head; link = io_.read(*link))
     {
         const auto eproc = *link - offsets_[EPROCESS_ActiveProcessLinks];
         const auto proc  = make_proc(*this, eproc);
@@ -565,9 +565,9 @@ opt<proc_t> NtOs::proc_find(uint64_t pid)
 
 namespace
 {
-    opt<uint64_t> read_wow64_peb(const NtOs& os, const reader::Reader& reader, proc_t proc)
+    opt<uint64_t> read_wow64_peb(const NtOs& os, const memory::Io& io, proc_t proc)
     {
-        const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
+        const auto wowp = io.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
             return FAIL(ext::nullopt, "unable to read EPROCESS.Wow64Process");
 
@@ -577,7 +577,7 @@ namespace
         if(!os.offsets_[EWOW64PROCESS_NtdllType])
             return wowp;
 
-        const auto peb32 = reader.read(*wowp + os.offsets_[EWOW64PROCESS_Peb]);
+        const auto peb32 = io.read(*wowp + os.offsets_[EWOW64PROCESS_Peb]);
         if(!peb32)
             return FAIL(ext::nullopt, "unable to read EWOW64PROCESS.Peb");
 
@@ -591,7 +591,7 @@ opt<std::string> NtOs::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14 + 1];
-    const auto ok             = reader_.read_all(buffer, proc.id + offsets_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok             = io_.read_all(buffer, proc.id + offsets_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
@@ -600,11 +600,11 @@ opt<std::string> NtOs::proc_name(proc_t proc)
     if(name.size() < sizeof buffer - 1)
         return name;
 
-    const auto image_file_name = reader_.read(proc.id + offsets_[EPROCESS_SeAuditProcessCreationInfo] + offsets_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
+    const auto image_file_name = io_.read(proc.id + offsets_[EPROCESS_SeAuditProcessCreationInfo] + offsets_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
     if(!image_file_name)
         return name;
 
-    const auto path = nt::read_unicode_string(reader_, *image_file_name + offsets_[OBJECT_NAME_INFORMATION_Name]);
+    const auto path = nt::read_unicode_string(io_, *image_file_name + offsets_[OBJECT_NAME_INFORMATION_Name]);
     if(!path)
         return name;
 
@@ -613,7 +613,7 @@ opt<std::string> NtOs::proc_name(proc_t proc)
 
 uint64_t NtOs::proc_id(proc_t proc)
 {
-    const auto pid = reader_.read(proc.id + offsets_[EPROCESS_UniqueProcessId]);
+    const auto pid = io_.read(proc.id + offsets_[EPROCESS_UniqueProcessId]);
     if(!pid)
         return 0;
 
@@ -647,7 +647,7 @@ namespace
     {
         const auto eproc       = registers::read(os.core_, reg_e::rdx);
         const auto head        = eproc + os.offsets_[EPROCESS_ThreadListHead];
-        const auto item        = os.reader_.read(head);
+        const auto item        = os.io_.read(head);
         const auto has_threads = item && item != head;
         if(!has_threads)
             if(const auto proc = make_proc(os, eproc))
@@ -811,9 +811,9 @@ size_t NtOs::unlisten(bpid_t bpid)
 
 namespace
 {
-    opt<walk_e> mod_list_64(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
+    opt<walk_e> mod_list_64(const NtOs& os, proc_t proc, const memory::Io& io, const modules::on_mod_fn& on_mod)
     {
-        const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
+        const auto peb = io.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
             return FAIL(ext::nullopt, "unable to read EPROCESS.Peb");
 
@@ -821,7 +821,7 @@ namespace
         if(!*peb)
             return walk_e::next;
 
-        const auto ldr = reader.read(*peb + os.offsets_[PEB_Ldr]);
+        const auto ldr = io.read(*peb + os.offsets_[PEB_Ldr]);
         if(!ldr)
             return FAIL(ext::nullopt, "unable to read PEB.Ldr");
 
@@ -830,7 +830,7 @@ namespace
             return walk_e::next;
 
         const auto head = *ldr + offsetof(nt::_PEB_LDR_DATA, InLoadOrderModuleList);
-        for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
+        for(auto link = io.read(head); link && link != head; link = io.read(*link))
         {
             const auto ret = on_mod({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x64});
             if(ret == walk_e::stop)
@@ -840,9 +840,9 @@ namespace
         return walk_e::next;
     }
 
-    opt<walk_e> mod_list_32(const NtOs& os, proc_t proc, const reader::Reader& reader, const modules::on_mod_fn& on_mod)
+    opt<walk_e> mod_list_32(const NtOs& os, proc_t proc, const memory::Io& io, const modules::on_mod_fn& on_mod)
     {
-        const auto peb32 = read_wow64_peb(os, reader, proc);
+        const auto peb32 = read_wow64_peb(os, io, proc);
         if(!peb32)
             return {};
 
@@ -850,7 +850,7 @@ namespace
         if(!*peb32)
             return walk_e::next;
 
-        const auto ldr32 = reader.le32(*peb32 + os.offsets_[PEB32_Ldr]);
+        const auto ldr32 = io.le32(*peb32 + os.offsets_[PEB32_Ldr]);
         if(!ldr32)
             return FAIL(ext::nullopt, "unable to read PEB32.Ldr");
 
@@ -859,7 +859,7 @@ namespace
             return walk_e::next;
 
         const auto head = *ldr32 + offsetof32(wow64::_PEB_LDR_DATA, InLoadOrderModuleList);
-        for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
+        for(auto link = io.le32(head); link && link != head; link = io.le32(*link))
         {
             const auto ret = on_mod({*link - offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x86});
             if(ret == walk_e::stop)
@@ -872,24 +872,24 @@ namespace
 
 bool NtOs::mod_list(proc_t proc, modules::on_mod_fn on_mod)
 {
-    const auto reader = reader::make(core_, proc);
-    auto ret          = mod_list_64(*this, proc, reader, on_mod);
+    const auto io = memory::make_io(core_, proc);
+    auto ret      = mod_list_64(*this, proc, io, on_mod);
     if(!ret)
         return false;
     if(*ret == walk_e::stop)
         return true;
 
-    ret = mod_list_32(*this, proc, reader, on_mod);
+    ret = mod_list_32(*this, proc, io, on_mod);
     return !!ret;
 }
 
 opt<std::string> NtOs::mod_name(proc_t proc, mod_t mod)
 {
-    const auto reader = reader::make(core_, proc);
+    const auto io = memory::make_io(core_, proc);
     if(mod.flags.is_x86)
-        return wow64::read_unicode_string(reader, mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, FullDllName));
+        return wow64::read_unicode_string(io, mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, FullDllName));
 
-    return nt::read_unicode_string(reader, mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
+    return nt::read_unicode_string(io, mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<mod_t> NtOs::mod_find(proc_t proc, uint64_t addr)
@@ -912,15 +912,15 @@ opt<mod_t> NtOs::mod_find(proc_t proc, uint64_t addr)
 
 bool NtOs::proc_is_valid(proc_t proc)
 {
-    const auto vad_root = reader_.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto vad_root = io_.read(proc.id + offsets_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
 }
 
 flags_t NtOs::proc_flags(proc_t proc)
 {
-    const auto reader = reader::make(core_, proc);
-    auto flags        = flags_t{};
-    const auto wow64  = reader.read(proc.id + offsets_[EPROCESS_Wow64Process]);
+    const auto io    = memory::make_io(core_, proc);
+    auto flags       = flags_t{};
+    const auto wow64 = io.read(proc.id + offsets_[EPROCESS_Wow64Process]);
     if(*wow64)
         flags.is_x86 = true;
     else
@@ -931,10 +931,10 @@ flags_t NtOs::proc_flags(proc_t proc)
 namespace
 {
     template <typename T>
-    opt<span_t> read_ldr_span(const reader::Reader& reader, uint64_t ptr)
+    opt<span_t> read_ldr_span(const memory::Io& io, uint64_t ptr)
     {
         auto entry    = T{};
-        const auto ok = reader.read_all(&entry, ptr, sizeof entry);
+        const auto ok = io.read_all(&entry, ptr, sizeof entry);
         if(!ok)
             return {};
 
@@ -944,11 +944,11 @@ namespace
 
 opt<span_t> NtOs::mod_span(proc_t proc, mod_t mod)
 {
-    const auto reader = reader::make(core_, proc);
+    const auto io = memory::make_io(core_, proc);
     if(mod.flags.is_x86)
-        return read_ldr_span<wow64::_LDR_DATA_TABLE_ENTRY>(reader, mod.id);
+        return read_ldr_span<wow64::_LDR_DATA_TABLE_ENTRY>(io, mod.id);
 
-    return read_ldr_span<nt::_LDR_DATA_TABLE_ENTRY>(reader, mod.id);
+    return read_ldr_span<nt::_LDR_DATA_TABLE_ENTRY>(io, mod.id);
 }
 
 namespace
@@ -981,10 +981,10 @@ namespace
         return ret;
     }
 
-    uint64_t get_mmvad(const reader::Reader& reader, uint64_t current_vad, uint64_t addr)
+    uint64_t get_mmvad(const memory::Io& io, uint64_t current_vad, uint64_t addr)
     {
         auto vad      = nt::_MMVAD_SHORT{};
-        const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
+        const auto ok = io.read_all(&vad, current_vad, sizeof vad);
         if(!ok)
             return FAIL(0, "unable to read _MMVAD_SHORT");
 
@@ -997,13 +997,13 @@ namespace
         if(!node)
             return 0;
 
-        return get_mmvad(reader, node, addr);
+        return get_mmvad(io, node, addr);
     }
 
-    opt<span_t> get_vad_span(const reader::Reader& reader, uint64_t current_vad)
+    opt<span_t> get_vad_span(const memory::Io& io, uint64_t current_vad)
     {
         auto vad      = nt::_MMVAD_SHORT{};
-        const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
+        const auto ok = io.read_all(&vad, current_vad, sizeof vad);
         if(!ok)
             return {};
 
@@ -1012,15 +1012,15 @@ namespace
         return span_t{starting_vpn.QuadPart << 12, ((ending_vpn.QuadPart - starting_vpn.QuadPart) + 1) << 12};
     }
 
-    bool rec_walk_vad_tree(const reader::Reader& reader, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
+    bool rec_walk_vad_tree(const memory::Io& io, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
     {
         auto vad      = nt::_MMVAD_SHORT{};
-        const auto ok = reader.read_all(&vad, current_vad, sizeof vad);
+        const auto ok = io.read_all(&vad, current_vad, sizeof vad);
         if(!ok)
             return false;
 
         if(vad.VadNode.Left)
-            if(!rec_walk_vad_tree(reader, proc, vad.VadNode.Left, level + 1, on_vm_area))
+            if(!rec_walk_vad_tree(io, proc, vad.VadNode.Left, level + 1, on_vm_area))
                 return false;
 
         const auto walk = on_vm_area(vm_area_t{current_vad});
@@ -1028,7 +1028,7 @@ namespace
             return false;
 
         if(vad.VadNode.Right)
-            if(!rec_walk_vad_tree(reader, proc, vad.VadNode.Right, level + 1, on_vm_area))
+            if(!rec_walk_vad_tree(io, proc, vad.VadNode.Right, level + 1, on_vm_area))
                 return false;
 
         return true;
@@ -1037,22 +1037,22 @@ namespace
 
 bool NtOs::vm_area_list(proc_t proc, vm_area::on_vm_area_fn on_vm_area)
 {
-    const auto reader   = reader::make(core_, proc);
-    const auto vad_root = reader.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto io       = memory::make_io(core_, proc);
+    const auto vad_root = io.read(proc.id + offsets_[EPROCESS_VadRoot]);
     if(!vad_root)
         return false;
 
-    return rec_walk_vad_tree(reader, proc, *vad_root, 0, on_vm_area);
+    return rec_walk_vad_tree(io, proc, *vad_root, 0, on_vm_area);
 }
 
 opt<vm_area_t> NtOs::vm_area_find(proc_t proc, uint64_t addr)
 {
-    const auto reader   = reader::make(core_, proc);
-    const auto vad_root = reader.read(proc.id + offsets_[EPROCESS_VadRoot]);
+    const auto io       = memory::make_io(core_, proc);
+    const auto vad_root = io.read(proc.id + offsets_[EPROCESS_VadRoot]);
     if(!vad_root)
         return {};
 
-    const auto vad = get_mmvad(reader, *vad_root, addr >> 12);
+    const auto vad = get_mmvad(io, *vad_root, addr >> 12);
     if(!vad)
         return {};
 
@@ -1061,15 +1061,15 @@ opt<vm_area_t> NtOs::vm_area_find(proc_t proc, uint64_t addr)
 
 opt<span_t> NtOs::vm_area_span(proc_t proc, vm_area_t vm_area)
 {
-    const auto reader = reader::make(core_, proc);
-    return get_vad_span(reader, vm_area.id);
+    const auto io = memory::make_io(core_, proc);
+    return get_vad_span(io, vm_area.id);
 }
 
 vma_access_e NtOs::vm_area_access(proc_t proc, vm_area_t vm_area)
 {
-    auto vad          = nt::_MMVAD_SHORT{};
-    const auto reader = reader::make(core_, proc);
-    const auto ok     = reader.read_all(&vad, vm_area.id, sizeof vad);
+    auto vad      = nt::_MMVAD_SHORT{};
+    const auto io = memory::make_io(core_, proc);
+    const auto ok = io.read_all(&vad, vm_area.id, sizeof vad);
     if(!ok)
         return FAIL(VMA_ACCESS_NONE, "unable to read _MMVAD_SHORT");
 
@@ -1087,28 +1087,28 @@ vma_type_e NtOs::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
 
 opt<std::string> NtOs::vm_area_name(proc_t proc, vm_area_t vm_area)
 {
-    const auto reader          = reader::make(core_, proc);
-    const auto subsection_addr = reader.read(vm_area.id + offsets_[MMVAD_SubSection]);
+    const auto io              = memory::make_io(core_, proc);
+    const auto subsection_addr = io.read(vm_area.id + offsets_[MMVAD_SubSection]);
     if(!subsection_addr)
         return "";
 
-    const auto control_area_addr = reader.read(*subsection_addr + offsets_[SUBSECTION_ControlArea]);
+    const auto control_area_addr = io.read(*subsection_addr + offsets_[SUBSECTION_ControlArea]);
     if(!control_area_addr)
         return "";
 
-    auto file_pointer_addr = reader.read(*control_area_addr + offsets_[CONTROL_AREA_FilePointer]);
+    auto file_pointer_addr = io.read(*control_area_addr + offsets_[CONTROL_AREA_FilePointer]);
     if(!file_pointer_addr || !*file_pointer_addr) // if no file pointer cannot get the image name
         return "";
 
     // the file_pointer_addr is _EX_FAST_REF
     *file_pointer_addr &= ~0xF;
-    return nt::read_unicode_string(reader, *file_pointer_addr + offsets_[FILE_OBJECT_FileName]);
+    return nt::read_unicode_string(io, *file_pointer_addr + offsets_[FILE_OBJECT_FileName]);
 }
 
 bool NtOs::driver_list(drivers::on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
-    for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
+    for(auto link = io_.read(head); link != head; link = io_.read(*link))
         if(on_driver({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == walk_e::stop)
             break;
     return true;
@@ -1116,18 +1116,18 @@ bool NtOs::driver_list(drivers::on_driver_fn on_driver)
 
 opt<std::string> NtOs::driver_name(driver_t drv)
 {
-    return nt::read_unicode_string(reader_, drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
+    return nt::read_unicode_string(io_, drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<span_t> NtOs::driver_span(driver_t drv)
 {
-    return read_ldr_span<nt::_LDR_DATA_TABLE_ENTRY>(reader_, drv.id);
+    return read_ldr_span<nt::_LDR_DATA_TABLE_ENTRY>(io_, drv.id);
 }
 
 bool NtOs::thread_list(proc_t proc, threads::on_thread_fn on_thread)
 {
     const auto head = proc.id + offsets_[EPROCESS_ThreadListHead];
-    for(auto link = reader_.read(head); link && link != head; link = reader_.read(*link))
+    for(auto link = io_.read(head); link && link != head; link = io_.read(*link))
         if(on_thread({*link - offsets_[ETHREAD_ThreadListEntry]}) == walk_e::stop)
             break;
 
@@ -1136,7 +1136,7 @@ bool NtOs::thread_list(proc_t proc, threads::on_thread_fn on_thread)
 
 opt<thread_t> NtOs::thread_current()
 {
-    const auto thread = reader_.read(kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_CurrentThread]);
+    const auto thread = io_.read(kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_CurrentThread]);
     if(!thread)
         return FAIL(ext::nullopt, "unable to read KPCR.Prcb.CurrentThread");
 
@@ -1145,7 +1145,7 @@ opt<thread_t> NtOs::thread_current()
 
 opt<proc_t> NtOs::thread_proc(thread_t thread)
 {
-    const auto kproc = reader_.read(thread.id + offsets_[KTHREAD_Process]);
+    const auto kproc = io_.read(thread.id + offsets_[KTHREAD_Process]);
     if(!kproc)
         return FAIL(ext::nullopt, "unable to read KTHREAD.Process");
 
@@ -1155,14 +1155,14 @@ opt<proc_t> NtOs::thread_proc(thread_t thread)
 
 opt<uint64_t> NtOs::thread_pc(proc_t /*proc*/, thread_t thread)
 {
-    const auto ktrap_frame = reader_.read(thread.id + offsets_[ETHREAD_Tcb] + offsets_[KTHREAD_TrapFrame]);
+    const auto ktrap_frame = io_.read(thread.id + offsets_[ETHREAD_Tcb] + offsets_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
         return FAIL(ext::nullopt, "unable to read KTHREAD.TrapFrame");
 
     if(!*ktrap_frame)
         return {};
 
-    const auto rip = reader_.read(*ktrap_frame + offsets_[KTRAP_FRAME_Rip]);
+    const auto rip = io_.read(*ktrap_frame + offsets_[KTRAP_FRAME_Rip]);
     if(!rip)
         return {};
 
@@ -1171,7 +1171,7 @@ opt<uint64_t> NtOs::thread_pc(proc_t /*proc*/, thread_t thread)
 
 uint64_t NtOs::thread_id(proc_t /*proc*/, thread_t thread)
 {
-    const auto tid = reader_.read(thread.id + offsets_[ETHREAD_Cid] + offsets_[CLIENT_ID_UniqueThread]);
+    const auto tid = io_.read(thread.id + offsets_[ETHREAD_Cid] + offsets_[CLIENT_ID_UniqueThread]);
     if(!tid)
         return 0;
 
@@ -1232,19 +1232,19 @@ bool NtOs::can_inject_fault(uint64_t ptr)
 
 opt<proc_t> NtOs::proc_parent(proc_t proc)
 {
-    const auto reader     = reader::make(core_, proc);
-    const auto parent_pid = reader.read(proc.id + offsets_[EPROCESS_InheritedFromUniqueProcessId]);
+    const auto io         = memory::make_io(core_, proc);
+    const auto parent_pid = io.read(proc.id + offsets_[EPROCESS_InheritedFromUniqueProcessId]);
     if(!parent_pid)
         return {};
 
     return proc_find(*parent_pid);
 }
 
-bool NtOs::reader_setup(reader::Reader& reader, opt<proc_t> proc)
+bool NtOs::memory_io_setup(memory::Io& io, opt<proc_t> proc)
 {
-    const auto cr3 = registers::read(reader.core, reg_e::cr3);
-    reader.kdtb    = proc ? proc->kdtb : reader_.kdtb;
-    reader.udtb    = proc ? proc->udtb : dtb_t{cr3};
+    const auto cr3 = registers::read(io.core, reg_e::cr3);
+    io.kdtb        = proc ? proc->kdtb : io_.kdtb;
+    io.udtb        = proc ? proc->udtb : dtb_t{cr3};
     return true;
 }
 
@@ -1258,9 +1258,9 @@ namespace
         return arg_t{*arg};
     }
 
-    opt<arg_t> read_stack32(const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_stack32(const memory::Io& io, uint64_t sp, size_t index)
     {
-        return to_arg(reader.le32(sp + index * sizeof(uint32_t)));
+        return to_arg(io.le32(sp + index * sizeof(uint32_t)));
     }
 
     bool write_stack32(core::Core& /*core*/, size_t /*index*/, uint32_t /*arg*/)
@@ -1269,9 +1269,9 @@ namespace
         return false;
     }
 
-    opt<arg_t> read_stack64(const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_stack64(const memory::Io& io, uint64_t sp, size_t index)
     {
-        return to_arg(reader.le64(sp + index * sizeof(uint64_t)));
+        return to_arg(io.le64(sp + index * sizeof(uint64_t)));
     }
 
     bool write_stack64(core::Core& /*core*/, size_t /*index*/, uint64_t /*arg*/)
@@ -1280,9 +1280,9 @@ namespace
         return false;
     }
 
-    opt<arg_t> read_arg32(const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_arg32(const memory::Io& io, uint64_t sp, size_t index)
     {
-        return read_stack32(reader, sp, index + 1);
+        return read_stack32(io, sp, index + 1);
     }
 
     bool write_arg32(core::Core& core, size_t index, arg_t arg)
@@ -1290,7 +1290,7 @@ namespace
         return write_stack32(core, index + 1, static_cast<uint32_t>(arg.val));
     }
 
-    opt<arg_t> read_arg64(core::Core& core, const reader::Reader& reader, uint64_t sp, size_t index)
+    opt<arg_t> read_arg64(core::Core& core, const memory::Io& io, uint64_t sp, size_t index)
     {
         switch(index)
         {
@@ -1298,7 +1298,7 @@ namespace
             case 1:     return to_arg      (registers::read(core, reg_e::rdx));
             case 2:     return to_arg      (registers::read(core, reg_e::r8));
             case 3:     return to_arg      (registers::read(core, reg_e::r9));
-            default:    return read_stack64(reader, sp, index + 1);
+            default:    return read_stack64(io, sp, index + 1);
         }
     }
 
@@ -1320,11 +1320,11 @@ opt<arg_t> NtOs::read_stack(size_t index)
     const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
     const auto sp       = registers::read(core_, reg_e::rsp);
-    const auto reader   = reader::make(core_);
+    const auto io       = memory::make_io(core_);
     if(is_32bit)
-        return read_stack32(reader, sp, index);
+        return read_stack32(io, sp, index);
 
-    return read_stack64(reader, sp, index);
+    return read_stack64(io, sp, index);
 }
 
 opt<arg_t> NtOs::read_arg(size_t index)
@@ -1332,11 +1332,11 @@ opt<arg_t> NtOs::read_arg(size_t index)
     const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
     const auto sp       = registers::read(core_, reg_e::rsp);
-    const auto reader   = reader::make(core_);
+    const auto io       = memory::make_io(core_);
     if(is_32bit)
-        return read_arg32(reader, sp, index);
+        return read_arg32(io, sp, index);
 
-    return read_arg64(core_, reader, sp, index);
+    return read_arg64(core_, io, sp, index);
 }
 
 bool NtOs::write_arg(size_t index, arg_t arg)

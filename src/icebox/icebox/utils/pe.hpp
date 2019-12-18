@@ -3,7 +3,7 @@
 #include "icebox/types.hpp"
 
 namespace core { struct Core; }
-namespace reader { struct Reader; }
+namespace memory { struct Io; }
 
 namespace pe
 {
@@ -26,8 +26,8 @@ namespace pe
         IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR, // COM Runtime descriptor
     };
 
-    opt<span_t> find_image_directory(const reader::Reader& reader, span_t span, image_directory_entry_e id);
-    opt<span_t> find_debug_codeview (const reader::Reader& reader, span_t span);
-    opt<bool>   is_pe64             (const reader::Reader& reader, const uint64_t image_file_header);
+    opt<span_t> find_image_directory(const memory::Io& io, span_t span, image_directory_entry_e id);
+    opt<span_t> find_debug_codeview (const memory::Io& io, span_t span);
+    opt<bool>   is_pe64             (const memory::Io& io, const uint64_t image_file_header);
     opt<size_t> read_image_size     (const void* src, size_t size);
 } // namespace pe

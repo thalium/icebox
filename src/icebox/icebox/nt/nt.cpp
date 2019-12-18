@@ -1,6 +1,6 @@
 #include "nt_types.hpp"
 
-#include "reader.hpp"
+#include "memory.hpp"
 #include "utils/hex.hpp"
 #include "utils/utf8.hpp"
 
@@ -10,10 +10,10 @@
 namespace
 {
     template <typename T>
-    opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr)
+    opt<std::string> read_unicode_string(const memory::Io& io, uint64_t addr)
     {
         T str;
-        auto ok = reader.read_all(&str, addr, sizeof str);
+        auto ok = io.read_all(&str, addr, sizeof str);
         if(!ok)
             return {};
 
@@ -22,7 +22,7 @@ namespace
             return {};
 
         auto buffer = std::vector<uint8_t>(str.Length);
-        ok          = reader.read_all(&buffer[0], str.Buffer, str.Length);
+        ok          = io.read_all(&buffer[0], str.Buffer, str.Length);
         if(!ok)
             return {};
 
@@ -31,14 +31,14 @@ namespace
     }
 }
 
-opt<std::string> wow64::read_unicode_string(const reader::Reader& reader, uint64_t addr)
+opt<std::string> wow64::read_unicode_string(const memory::Io& io, uint64_t addr)
 {
-    return ::read_unicode_string<wow64::_UNICODE_STRING>(reader, addr);
+    return ::read_unicode_string<wow64::_UNICODE_STRING>(io, addr);
 }
 
-opt<std::string> nt::read_unicode_string(const reader::Reader& reader, uint64_t addr)
+opt<std::string> nt::read_unicode_string(const memory::Io& io, uint64_t addr)
 {
-    return ::read_unicode_string<nt::_UNICODE_STRING>(reader, addr);
+    return ::read_unicode_string<nt::_UNICODE_STRING>(io, addr);
 }
 
 STATIC_ASSERT_EQ(sizeof(wow64::_UNICODE_STRING), 8);

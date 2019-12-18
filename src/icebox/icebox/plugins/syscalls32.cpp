@@ -155,8 +155,8 @@ bool Data::setup()
                                               wow64::PLARGE_INTEGER /*ByteOffsetm*/, wow64::PULONG /*Key*/)
     {
         std::vector<char> buf(Length);
-        const auto reader = reader::make(core_, proc_);
-        const auto ok     = reader.read_all(&buf[0], Buffer, Length);
+        const auto io = memory::make_io(core_, proc_);
+        const auto ok = io.read_all(&buf[0], Buffer, Length);
         if(!ok)
             return 1;
 
@@ -219,15 +219,15 @@ bool Data::setup()
                                              wow64::PIO_STATUS_BLOCK /*IoStatusBlock*/, wow64::ULONG /*ShareAccess*/, wow64::ULONG /*OpenOptions*/)
     {
         wow64::_OBJECT_ATTRIBUTES attr;
-        const auto reader = reader::make(core_, proc_);
-        const auto ok     = reader.read_all(&attr, ObjectAttributes, sizeof attr);
+        const auto io = memory::make_io(core_, proc_);
+        const auto ok = io.read_all(&attr, ObjectAttributes, sizeof attr);
         if(!ok)
             return 1;
 
         if(!attr.ObjectName)
             return 1;
 
-        const auto object_name = wow64::read_unicode_string(reader, attr.ObjectName);
+        const auto object_name = wow64::read_unicode_string(io, attr.ObjectName);
         if(!object_name)
             return 1;
 
@@ -241,16 +241,16 @@ bool Data::setup()
                                                       wow64::PRTL_USER_PROCESS_PARAMETERS ProcessParameters, wow64::PPROCESS_CREATE_INFO /*CreateInfo*/,
                                                       wow64::PPROCESS_ATTRIBUTE_LIST /*AttributeList*/)
     {
-        const auto reader = reader::make(core_, proc_);
+        const auto io = memory::make_io(core_, proc_);
 
         // TODO get _RTL_USER_PROCESS_PARAMETERS from pdb
         // fields ImagePathName and CommandLine
         // 32 bits unicode string
-        const auto image_pathname = wow64::read_unicode_string(reader, ProcessParameters + 0x38);
+        const auto image_pathname = wow64::read_unicode_string(io, ProcessParameters + 0x38);
         if(!image_pathname)
             return 1;
 
-        const auto command_line = wow64::read_unicode_string(reader, ProcessParameters + 0x40);
+        const auto command_line = wow64::read_unicode_string(io, ProcessParameters + 0x40);
         if(!command_line)
             return 1;
 
@@ -265,15 +265,15 @@ bool Data::setup()
                                                wow64::ULONG /*EaLength*/)
     {
         wow64::_OBJECT_ATTRIBUTES attr;
-        const auto reader = reader::make(core_, proc_);
-        const auto ok     = reader.read_all(&attr, ObjectAttributes, sizeof attr);
+        const auto io = memory::make_io(core_, proc_);
+        const auto ok = io.read_all(&attr, ObjectAttributes, sizeof attr);
         if(!ok)
             return 1;
 
         if(!attr.ObjectName)
             return 1;
 
-        const auto object_name = wow64::read_unicode_string(reader, attr.ObjectName);
+        const auto object_name = wow64::read_unicode_string(io, attr.ObjectName);
         if(!object_name)
             return 1;
 

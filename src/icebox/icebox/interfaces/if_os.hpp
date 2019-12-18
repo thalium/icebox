@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace core { struct Core; }
-namespace reader { struct Reader; }
+namespace io { struct Io; }
 
 namespace os
 {
@@ -17,7 +17,7 @@ namespace os
         virtual bool    setup               () = 0;
         virtual bool    is_kernel_address   (uint64_t ptr) = 0;
         virtual bool    can_inject_fault    (uint64_t ptr) = 0;
-        virtual bool    reader_setup        (reader::Reader& reader, opt<proc_t> proc) = 0;
+        virtual bool    memory_io_setup     (memory::Io& io, opt<proc_t> proc) = 0;
 
         virtual bool                proc_list       (process::on_proc_fn on_proc) = 0;
         virtual opt<proc_t>         proc_current    () = 0;

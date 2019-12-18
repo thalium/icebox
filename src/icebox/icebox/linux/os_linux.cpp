@@ -225,7 +225,7 @@ namespace
         bool    setup               () override;
         bool    is_kernel_address   (uint64_t ptr) override;
         bool    can_inject_fault    (uint64_t ptr) override;
-        bool    reader_setup        (reader::Reader& reader, opt<proc_t> proc) override;
+        bool    memory_io_setup     (memory::Io& io, opt<proc_t> proc) override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -275,10 +275,10 @@ namespace
         void debug_print() override;
 
         // members
-        core::Core&    core_;
-        reader::Reader reader_;
-        LinuxOffsets   offsets_;
-        LinuxSymbols   symbols_;
+        core::Core&  core_;
+        memory::Io   io_;
+        LinuxOffsets offsets_;
+        LinuxSymbols symbols_;
         uint64_t per_cpu = 0;
         uint64_t kpgd    = 0;
         version  kversion = {"0"};
@@ -288,14 +288,14 @@ namespace
 
 OsLinux::OsLinux(core::Core& core)
     : core_(core)
-    , reader_(reader::make(core)) // kernel page directory is setted up later during setup()
+    , io_(memory::make_io(core)) // kernel page directory is setted up later during setup()
 {
 }
 
 namespace
 {
     // dmesg -t | grep -i "Linux version" | sha1sum | cut -c1-40
-    opt<std::string> read_str(reader::Reader& reader, const uint64_t& addr, const unsigned int& buffer_size)
+    opt<std::string> read_str(const memory::Io& io, const uint64_t& addr, const unsigned int& buffer_size)
     {
         std::string ret;
         std::vector<char> buffer(buffer_size + 1);
@@ -303,7 +303,7 @@ namespace
 
         do
         {
-            const auto ok = reader.read_all(&buffer[0], addr + offset, buffer_size);
+            const auto ok = io.read_all(&buffer[0], addr + offset, buffer_size);
             if(!ok)
                 return FAIL(ext::nullopt, "unable to read %u bytes at address (0x%" PRIx64 ")", buffer_size, addr + offset);
 
@@ -345,9 +345,9 @@ namespace
                 return FAIL(false, "unable to find a valid kernel page directory");
         }
 
-        p.kpgd             = kpgd;
-        p.reader_.kdtb.val = kpgd;
-        p.reader_.udtb.val = kpgd;
+        p.kpgd         = kpgd;
+        p.io_.kdtb.val = kpgd;
+        p.io_.udtb.val = kpgd;
         return true;
     }
 
@@ -374,7 +374,7 @@ namespace
         bool start_kernel = true;
         while(offset <= END_KERNEL)
         {
-            if(p.reader_.read_all(&buffer[sizeof target], offset, PAGE_SIZE))
+            if(p.io_.read_all(&buffer[sizeof target], offset, PAGE_SIZE))
             {
                 if(start_kernel)
                 {
@@ -396,9 +396,9 @@ namespace
         return false;
     }
 
-    opt<std::string> get_linux_banner(reader::Reader reader, uint64_t addr)
+    opt<std::string> get_linux_banner(const memory::Io& io, uint64_t addr)
     {
-        auto str = read_str(reader, addr, 256); // for recent ubuntu, linux_banner length is about 180 bytes
+        auto str = read_str(io, addr, 256); // for recent ubuntu, linux_banner length is about 180 bytes
         if(!str)
             return {};
 
@@ -533,10 +533,10 @@ bool OsLinux::setup()
 
     auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
-        auto reader     = reader::make(core_);
-        reader.kdtb.val = kpgd;
-        reader.udtb.val = kpgd;
-        return !!reader.read(per_cpu);
+        auto io     = memory::make_io(core_);
+        io.kdtb.val = kpgd;
+        io.udtb.val = kpgd;
+        return !!io.read(per_cpu);
     });
     if(!ok)
         return FAIL(false, "unable to read kernel DTB");
@@ -552,7 +552,7 @@ bool OsLinux::setup()
         else
             LOG(INFO, "try with next linux banner...");
 
-        const auto linux_banner = get_linux_banner(reader_, candidate);
+        const auto linux_banner = get_linux_banner(io_, candidate);
         if(!linux_banner)
             return walk_e::next;
         LOG(INFO, "linux banner found '%s'", linux_banner->data());
@@ -611,7 +611,7 @@ bool OsLinux::proc_list(process::on_proc_fn on_process)
             if(on_process(*proc) == walk_e::stop)
                 return true;
 
-        link = reader_.read(*link);
+        link = io_.read(*link);
         if(!link)
             return FAIL(false, "unable to read next process address");
     } while(link != head);
@@ -663,7 +663,7 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    return read_str(reader_, proc.id + *offsets_[TASKSTRUCT_COMM], 16);
+    return read_str(io_, proc.id + *offsets_[TASKSTRUCT_COMM], 16);
     // 16 is COMM member length
     // todo
     //   -> create a member_size() in sym::IMod
@@ -702,11 +702,11 @@ flags_t OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5
     if(kversion >= version("3.4"))
         mask |= (1UL << TIF_ADDR32 | 1UL << TIF_X32);
 
-    const auto thread_info = (offsets_[TASKSTRUCT_THREADINFO]) ? proc.id + *offsets_[TASKSTRUCT_THREADINFO] : reader_.read(proc.id + *offsets_[TASKSTRUCT_STACK]);
+    const auto thread_info = (offsets_[TASKSTRUCT_THREADINFO]) ? proc.id + *offsets_[TASKSTRUCT_THREADINFO] : io_.read(proc.id + *offsets_[TASKSTRUCT_STACK]);
     if(!thread_info)
         return FAIL(flags_t{}, "unable to find thread_info address of process 0x%" PRIx64, proc.id);
 
-    const auto flags = reader_.le32(*thread_info + *offsets_[THREADINFO_FLAGS]);
+    const auto flags = io_.le32(*thread_info + *offsets_[THREADINFO_FLAGS]);
     if(!flags)
         return FAIL(flags_t{}, "unable to read thread_info flags of process 0x%" PRIx64, proc.id);
 
@@ -725,7 +725,7 @@ namespace
 		and a stable version of kernel (e.g it will not work properly with a kernel v4.0-rc3, 3.15-rc5, ...)
 		*/
 
-        const auto stack_ptr = p.reader_.read(thread.id + *p.offsets_[TASKSTRUCT_STACK]);
+        const auto stack_ptr = p.io_.read(thread.id + *p.offsets_[TASKSTRUCT_STACK]);
         if(!stack_ptr)
             return FAIL(ext::nullopt, "unable to read task_struct->stack of 0x%" PRIx64 " thread", thread.id);
 
@@ -831,7 +831,7 @@ void OsLinux::proc_join(proc_t proc, mode_e mode)
             continue;
         }
 
-        const auto user_rip = reader_.read(*pt_regs_ptr + *offsets_[PTREGS_IP]);
+        const auto user_rip = io_.read(*pt_regs_ptr + *offsets_[PTREGS_IP]);
         if(!user_rip)
             LOG(ERROR, "unable to read rip in pt_regs struct of thread 0x%" PRIx64, current_thread->id);
         if(!user_rip || !(*user_rip))
@@ -850,7 +850,7 @@ void OsLinux::proc_join(proc_t proc, mode_e mode)
             if(!updated_pt_regs_ptr)
                 return walk_e::stop;
 
-            const auto updated_user_rip = reader_.read(*updated_pt_regs_ptr + *offsets_[PTREGS_IP]);
+            const auto updated_user_rip = io_.read(*updated_pt_regs_ptr + *offsets_[PTREGS_IP]);
             if(!updated_user_rip || *user_rip != *updated_user_rip)
                 return walk_e::stop;
 
@@ -862,17 +862,17 @@ void OsLinux::proc_join(proc_t proc, mode_e mode)
 
 opt<proc_t> OsLinux::proc_parent(proc_t proc)
 {
-    const auto thread_parent = reader_.read(proc.id + *offsets_[TASKSTRUCT_REALPARENT]);
+    const auto thread_parent = io_.read(proc.id + *offsets_[TASKSTRUCT_REALPARENT]);
     if(!thread_parent)
         return FAIL(ext::nullopt, "unable to read pointer to the parent of process 0x%" PRIx64, proc.id);
 
     return thread_proc(thread_t{*thread_parent});
 }
 
-bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
+bool OsLinux::memory_io_setup(memory::Io& io, opt<proc_t> proc)
 {
-    reader.kdtb = dtb_t{kpgd};
-    reader.udtb = proc ? proc->udtb : dtb_t{kpgd};
+    io.kdtb = dtb_t{kpgd};
+    io.udtb = proc ? proc->udtb : dtb_t{kpgd};
     return true;
 }
 
@@ -885,7 +885,7 @@ bool OsLinux::thread_list(proc_t proc, threads::on_thread_fn on_thread)
         if(on_thread(thread_t{*link - *offsets_[TASKSTRUCT_THREADGROUP]}) == walk_e::stop)
             return true;
 
-        link = reader_.read(*link);
+        link = io_.read(*link);
         if(!link)
             return FAIL(false, "unable to read next thread address");
     } while(link != head);
@@ -895,7 +895,7 @@ bool OsLinux::thread_list(proc_t proc, threads::on_thread_fn on_thread)
 
 opt<thread_t> OsLinux::thread_current()
 {
-    const auto addr = reader_.read(per_cpu + *symbols_[CURRENT_TASK] - *symbols_[PER_CPU_START]);
+    const auto addr = io_.read(per_cpu + *symbols_[CURRENT_TASK] - *symbols_[PER_CPU_START]);
     if(!addr)
         return FAIL(ext::nullopt, "unable to read current_task in per_cpu area");
 
@@ -906,7 +906,7 @@ namespace
 {
     opt<uint64_t> proc_mm(OsLinux& p, uint64_t proc_thread_id)
     {
-        const auto mm = p.reader_.read(proc_thread_id + *p.offsets_[TASKSTRUCT_MM]);
+        const auto mm = p.io_.read(proc_thread_id + *p.offsets_[TASKSTRUCT_MM]);
         if(mm && !*mm)
             return {};
 
@@ -915,7 +915,7 @@ namespace
 
     opt<uint64_t> mm_pgd(OsLinux& p, uint64_t mm)
     {
-        const auto pgd_t = p.reader_.read(mm + *p.offsets_[MMSTRUCT_PGD]);
+        const auto pgd_t = p.io_.read(mm + *p.offsets_[MMSTRUCT_PGD]);
         if(!pgd_t)
             return FAIL(ext::nullopt, "unable to read pgd_t at 0x%" PRIx64 " in mm_struct of process", mm + *p.offsets_[MMSTRUCT_PGD]);
 
@@ -929,7 +929,7 @@ namespace
 
 opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
-    const auto proc_id = reader_.read(thread.id + *offsets_[TASKSTRUCT_GROUPLEADER]);
+    const auto proc_id = io_.read(thread.id + *offsets_[TASKSTRUCT_GROUPLEADER]);
     if(!proc_id)
         return FAIL(ext::nullopt, "unable to find the leader of thread 0x%" PRIx64, thread.id);
 
@@ -957,12 +957,12 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
     if(!pt_regs_ptr)
         return FAIL(ext::nullopt, "unable to find pt_regs struct of thread 0x%" PRIx64, thread.id);
 
-    return reader_.read(*pt_regs_ptr - 8);
+    return io_.read(*pt_regs_ptr - 8);
 }
 
 uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread)
 {
-    const auto pid = reader_.le32(thread.id + *offsets_[TASKSTRUCT_PID]);
+    const auto pid = io_.le32(thread.id + *offsets_[TASKSTRUCT_PID]);
     if(!pid)
         return 0xffffffffffffffff; // opt<uint64_t> either ? (0 is a valid pid for an iddle task in linux)
 
@@ -975,7 +975,7 @@ namespace
     bool vm_area_list_from(OsLinux& p, vm_area_t from, T on_vm_area)
     {
         opt<uint64_t> vm_area;
-        for(vm_area = from.id; vm_area && *vm_area; vm_area = p.reader_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))
+        for(vm_area = from.id; vm_area && *vm_area; vm_area = p.io_.read(*vm_area + *p.offsets_[VMAREASTRUCT_VMNEXT]))
             if(on_vm_area(vm_area_t{*vm_area}) == walk_e::stop)
                 return true;
 
@@ -987,7 +987,7 @@ namespace
 
     opt<std::string> vm_area_file_mapped(OsLinux& p, vm_area_t vm_area)
     {
-        const auto file = p.reader_.read(vm_area.id + *p.offsets_[VMAREASTRUCT_VMFILE]);
+        const auto file = p.io_.read(vm_area.id + *p.offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
             return FAIL(ext::nullopt, "unable to read vm_file pointer in vm_area 0x%" PRIx64, vm_area.id);
 
@@ -1002,15 +1002,15 @@ namespace
         else
             return FAIL(ext::nullopt, "unable to find the offset of dentry member in file structures");
 
-        const auto dentry = p.reader_.read(*file + dentry_offset);
+        const auto dentry = p.io_.read(*file + dentry_offset);
         if(!dentry)
             return FAIL(ext::nullopt, "unable to read dentry pointer in file 0x%" PRIx64, *file);
 
-        const auto name = p.reader_.read(*dentry + *p.offsets_[DENTRY_DNAME] + *p.offsets_[QSTR_NAME]);
+        const auto name = p.io_.read(*dentry + *p.offsets_[DENTRY_DNAME] + *p.offsets_[QSTR_NAME]);
         if(!name)
             return FAIL(ext::nullopt, "unable to read qstr_name pointer in dentry 0x%" PRIx64, *dentry);
 
-        return read_str(p.reader_, *name, 32);
+        return read_str(p.io_, *name, 32);
     }
 }
 
@@ -1024,7 +1024,7 @@ bool OsLinux::mod_list(proc_t proc, modules::on_mod_fn on_module)
     {
         loader_found_or_stopped_before = false;
 
-        const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
+        const auto file = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
         {
             loader_found_or_stopped_before = true;
@@ -1081,25 +1081,25 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
     if(!mm)
         return FAIL(ext::nullopt, "unable to find the mm_struct which module 0x%" PRIx64 " belongs", mod.id);
 
-    const auto start_brk = reader_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
-    const auto mmap_base = reader_.read(*mm + *offsets_[MMSTRUCT_MMAPBASE]);
+    const auto start_brk = io_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
+    const auto mmap_base = io_.read(*mm + *offsets_[MMSTRUCT_MMAPBASE]);
     if(!start_brk || !mmap_base || !*start_brk || !*mmap_base)
         return FAIL(ext::nullopt, "unable to read addresses of start_brk and mmap_base in mm 0x%" PRIx64, *mm);
 
-    const auto mod_start = reader_.read(mod.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    const auto mod_start = io_.read(mod.id + *offsets_[VMAREASTRUCT_VMSTART]);
     if(!mod_start)
         return FAIL(ext::nullopt, "unable to read vm_start of module 0x%" PRIx64, mod.id);
 
     bool main_elf = (mod_start < start_brk);
 
-    const auto file_first_part = reader_.read(mod.id + *offsets_[VMAREASTRUCT_VMFILE]);
+    const auto file_first_part = io_.read(mod.id + *offsets_[VMAREASTRUCT_VMFILE]);
     if(!file_first_part)
         return FAIL(ext::nullopt, "unable to read vm_file pointer in module 0x%" PRIx64, mod.id);
 
     opt<uint64_t> mod_end = {};
     const auto ok         = vm_area_list_from(*this, vm_area_t{mod.id}, [&](vm_area_t vm_area)
     {
-        const auto end = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
+        const auto end = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
         if(!end || !*end)
         {
             mod_end = {};
@@ -1112,7 +1112,7 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
         if(main_elf && *end > *start_brk) // vm_area belongs to heap
             return walk_e::stop;
 
-        const auto file = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
+        const auto file = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
         {
             mod_end = {};
@@ -1170,7 +1170,7 @@ bool OsLinux::vm_area_list(proc_t proc, vm_area::on_vm_area_fn on_vm_area)
     if(!mm)
         return false;
 
-    const auto first = reader_.read(*mm + *offsets_[MMSTRUCT_MMAP]);
+    const auto first = io_.read(*mm + *offsets_[MMSTRUCT_MMAP]);
     if(!first)
         return FAIL(false, "unable to read mmap of process 0x%" PRIx64, proc.id);
 
@@ -1197,8 +1197,8 @@ opt<vm_area_t> OsLinux::vm_area_find(proc_t proc, uint64_t addr)
 
 opt<span_t> OsLinux::vm_area_span(proc_t /*proc*/, vm_area_t vm_area)
 {
-    const auto start = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
-    const auto end   = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
+    const auto start = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    const auto end   = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
     if(!start || !end || !*end || *start > *end)
         return FAIL(ext::nullopt, "unable to read vm_start and vm_end of vm_area 0x%" PRIx64, vm_area.id);
 
@@ -1213,7 +1213,7 @@ vma_access_e OsLinux::vm_area_access(proc_t /*proc*/, vm_area_t vm_area)
     const uint8_t VM_EXEC   = 4;
     const uint8_t VM_SHARED = 8;
 
-    const auto flags = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFLAGS]);
+    const auto flags = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMFLAGS]);
     if(!flags)
         return FAIL(VMA_ACCESS_NONE, "unable to read flags of vm_area 0x%" PRIx64, vm_area.id);
 
@@ -1236,11 +1236,11 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
     if(!mm)
         return FAIL(vma_type_e::none, "unable to find the mm_struct which vm_area 0x%" PRIx64 " belongs", vm_area.id);
 
-    const auto vma_start = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    const auto vma_start = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
     if(!vma_start)
         return FAIL(vma_type_e::none, "unable to read vm_start of vm_area 0x%" PRIx64, vm_area.id);
 
-    const auto start_brk = reader_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
+    const auto start_brk = io_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
     if(start_brk && *start_brk)
     {
         const auto vma_heap = vm_area_find(proc, *start_brk);
@@ -1254,7 +1254,7 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
     else
         LOG(ERROR, "unable to read address of start_brk in mm 0x%" PRIx64, *mm);
 
-    const auto start_stack = reader_.read(*mm + *offsets_[MMSTRUCT_STARTSTACK]);
+    const auto start_stack = io_.read(*mm + *offsets_[MMSTRUCT_STARTSTACK]);
     if(start_stack && *start_stack)
     {
         const auto vma_stack = vm_area_find(proc, *start_stack);
@@ -1277,7 +1277,7 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
 
 opt<std::string> OsLinux::vm_area_name(proc_t proc, vm_area_t vm_area)
 {
-    const auto vma_start = reader_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
+    const auto vma_start = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
     if(!vma_start)
         return FAIL(ext::nullopt, "unable to read vm_start of vm_area 0x%" PRIx64, vm_area.id);
 
@@ -1290,7 +1290,7 @@ opt<std::string> OsLinux::vm_area_name(proc_t proc, vm_area_t vm_area)
 
 bool OsLinux::driver_list(drivers::on_driver_fn on_driver)
 {
-    auto link = reader_.read(*symbols_[MODULES]);
+    auto link = io_.read(*symbols_[MODULES]);
     if(!link)
         return FAIL(false, "unable to read next module address from modules symbol");
 
@@ -1299,7 +1299,7 @@ bool OsLinux::driver_list(drivers::on_driver_fn on_driver)
         if(on_driver(driver_t{*link - *offsets_[MODULE_LIST]}) == walk_e::stop)
             return true;
 
-        link = reader_.read(*link);
+        link = io_.read(*link);
         if(!link)
             return FAIL(false, "unable to read next module address");
     } while(link != *symbols_[MODULES]);
@@ -1309,7 +1309,7 @@ bool OsLinux::driver_list(drivers::on_driver_fn on_driver)
 
 opt<std::string> OsLinux::driver_name(driver_t drv)
 {
-    return read_str(reader_, drv.id + *offsets_[MODULE_NAME], 64);
+    return read_str(io_, drv.id + *offsets_[MODULE_NAME], 64);
 }
 
 opt<span_t> OsLinux::driver_span(driver_t drv)
@@ -1329,8 +1329,8 @@ opt<span_t> OsLinux::driver_span(driver_t drv)
     else
         return FAIL(ext::nullopt, "unable to find base address and size in module structures");
 
-    const auto addr = reader_.read(drv.id + addr_offset);
-    const auto size = reader_.le32(drv.id + size_offet);
+    const auto addr = io_.read(drv.id + addr_offset);
+    const auto size = io_.le32(drv.id + size_offet);
     if(!addr | !size)
         return {};
 

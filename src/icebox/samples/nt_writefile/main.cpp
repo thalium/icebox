@@ -10,13 +10,13 @@
 
 namespace
 {
-    bool read_file(std::vector<uint8_t>& dst, const reader::Reader& reader, nt::PVOID Buffer, nt::ULONG Length)
+    bool read_file(std::vector<uint8_t>& dst, const memory::Io& io, nt::PVOID Buffer, nt::ULONG Length)
     {
         if(Length > 64 * 1024 * 1024)
             return FAIL(false, "buffer too big size:%d", Length);
 
         dst.resize(Length);
-        const auto ok = reader.read_all(&dst[0], Buffer, Length);
+        const auto ok = io.read_all(&dst[0], Buffer, Length);
         if(!ok)
             return FAIL(false, "unable to read range:0x%" PRIx64 "-0x%" PRIx64, Buffer, Buffer + Length);
 
@@ -48,18 +48,18 @@ namespace
         if(!ok)
             return FAIL(-1, "unable to load ntdll symbols");
 
-        int idx           = -1;
-        auto objects      = objects::make(core, *proc);
-        auto tracer       = nt::syscalls{core, "ntdll"};
-        auto buffer       = std::vector<uint8_t>{};
-        const auto reader = reader::make(core, *proc);
-        const auto bp     = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
+        int idx       = -1;
+        auto objects  = objects::make(core, *proc);
+        auto tracer   = nt::syscalls{core, "ntdll"};
+        auto buffer   = std::vector<uint8_t>{};
+        const auto io = memory::make_io(core, *proc);
+        const auto bp = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
                                                                nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer,
                                                                nt::ULONG Length, nt::PLARGE_INTEGER /*ByteOffset*/, nt::PULONG /*Key*/)
         {
             ++idx;
             const auto filename = read_filename(*objects, FileHandle);
-            const auto read     = read_file(buffer, reader, Buffer, Length);
+            const auto read     = read_file(buffer, io, Buffer, Length);
             if(!filename || !read)
                 return;
 

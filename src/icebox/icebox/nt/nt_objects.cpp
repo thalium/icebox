@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "endian.hpp"
 #include "log.hpp"
-#include "os.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
 #include "wow64.hpp"
@@ -99,17 +98,17 @@ struct objects::Data
     Data(core::Core& core, proc_t proc)
         : core(core)
         , proc(proc)
-        , reader(reader::make(core, proc))
+        , io(memory::make_io(core, proc))
     {
     }
 
-    core::Core&    core;
-    proc_t         proc;
-    reader::Reader reader;
-    MemberOffsets  members;
-    SymbolOffsets  symbols;
-    obj_t          root;
-    uint8_t        masks[16];
+    core::Core&   core;
+    proc_t        proc;
+    memory::Io    io;
+    MemberOffsets members;
+    SymbolOffsets symbols;
+    obj_t         root;
+    uint8_t       masks[16];
 };
 
 namespace
@@ -147,11 +146,11 @@ namespace
         if(fail)
             return false;
 
-        auto ok = d.reader.read_all(&d.root.id, d.symbols[ObpRootDirectoryObject], sizeof d.root.id);
+        auto ok = d.io.read_all(&d.root.id, d.symbols[ObpRootDirectoryObject], sizeof d.root.id);
         if(!ok)
             return false;
 
-        return d.reader.read_all(&d.masks, d.symbols[ObpInfoMaskToOffset], sizeof d.masks);
+        return d.io.read_all(&d.masks, d.symbols[ObpInfoMaskToOffset], sizeof d.masks);
     }
 }
 
@@ -174,11 +173,11 @@ namespace
         if(handle & 0x80000000)
             handle = ((handle << 32) >> 32) & ~0xffffffff80000000;
 
-        const auto handle_table = d.reader.read(handle_table_addr);
+        const auto handle_table = d.io.read(handle_table_addr);
         if(!handle_table)
             return FAIL(ext::nullopt, "unable to read handle table");
 
-        auto handle_table_code = d.reader.read(*handle_table + d.members[HANDLE_TABLE_TableCode]);
+        auto handle_table_code = d.io.read(*handle_table + d.members[HANDLE_TABLE_TableCode]);
         if(!handle_table_code)
             return FAIL(ext::nullopt, "unable to read handle table code");
 
@@ -204,7 +203,7 @@ namespace
                 handle -= i;
                 j = handle / (((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC) / POINTER_SIZE);
 
-                handle_table_code = d.reader.read(*handle_table_code + j);
+                handle_table_code = d.io.read(*handle_table_code + j);
                 // handle_table_code = *handle_table_code + j;
                 break;
 
@@ -216,8 +215,8 @@ namespace
                 k -= j;
                 k /= (PAGE_SIZE / POINTER_SIZE);
 
-                handle_table_code = d.reader.read(*handle_table_code + k);
-                handle_table_code = d.reader.read(*handle_table_code + j);
+                handle_table_code = d.io.read(*handle_table_code + k);
+                handle_table_code = d.io.read(*handle_table_code + j);
                 break;
 
             default:
@@ -226,7 +225,7 @@ namespace
         if(!*handle_table_code)
             return {};
 
-        const auto handle_table_entry = d.reader.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
+        const auto handle_table_entry = d.io.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
         if(!handle_table_entry)
             return FAIL(ext::nullopt, "unable to read table entry");
 
@@ -249,21 +248,21 @@ namespace
     {
         const auto POINTER_SIZE     = 8;
         const auto obj_header       = obj.id - d.members[OBJECT_HEADER_Body];
-        const auto encoded_type_idx = d.reader.byte(obj_header + d.members[OBJECT_HEADER_TypeIndex]);
+        const auto encoded_type_idx = d.io.byte(obj_header + d.members[OBJECT_HEADER_TypeIndex]);
         if(!encoded_type_idx)
             return FAIL(ext::nullopt, "unable to read encoded type index");
 
-        const auto header_cookie = d.reader.byte(d.symbols[ObHeaderCookie]);
+        const auto header_cookie = d.io.byte(d.symbols[ObHeaderCookie]);
         if(!header_cookie)
             return FAIL(ext::nullopt, "unable to read ObHeaderCookie");
 
         const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
         const auto type_idx           = static_cast<size_t>(*encoded_type_idx ^ *header_cookie ^ obj_addr_cookie);
-        const auto obj_type           = d.reader.read(d.symbols[ObTypeIndexTable] + type_idx * POINTER_SIZE);
+        const auto obj_type           = d.io.read(d.symbols[ObTypeIndexTable] + type_idx * POINTER_SIZE);
         if(!obj_type)
             return FAIL(ext::nullopt, "unable to read object type");
 
-        return nt::read_unicode_string(d.reader, *obj_type + d.members[OBJECT_TYPE_Name]);
+        return nt::read_unicode_string(d.io, *obj_type + d.members[OBJECT_TYPE_Name]);
     }
 }
 
@@ -278,16 +277,16 @@ namespace
     {
         auto info_mask    = uint8_t{};
         const auto header = obj.id - d.members[OBJECT_HEADER_Body];
-        auto ok           = d.reader.read_all(&info_mask, header + d.members[OBJECT_HEADER_InfoMask], sizeof info_mask);
+        auto ok           = d.io.read_all(&info_mask, header + d.members[OBJECT_HEADER_InfoMask], sizeof info_mask);
         if(!ok)
             return {};
 
         auto info = nt::_OBJECT_HEADER_NAME_INFO{};
-        ok        = d.reader.read_all(&info, header - d.masks[info_mask & 3], sizeof info);
+        ok        = d.io.read_all(&info, header - d.masks[info_mask & 3], sizeof info);
         if(!ok)
             return {};
 
-        return nt::read_unicode_string(d.reader, header - d.masks[info_mask & 3] + offsetof(nt::_OBJECT_HEADER_NAME_INFO, Name));
+        return nt::read_unicode_string(d.io, header - d.masks[info_mask & 3] + offsetof(nt::_OBJECT_HEADER_NAME_INFO, Name));
     }
 }
 
@@ -311,12 +310,12 @@ opt<objects::file_t> objects::file_read(Data& d, nt::HANDLE handle)
 
 opt<std::string> objects::file_name(Data& d, file_t file)
 {
-    return nt::read_unicode_string(d.reader, file.id + d.members[FILE_OBJECT_FileName]);
+    return nt::read_unicode_string(d.io, file.id + d.members[FILE_OBJECT_FileName]);
 }
 
 opt<objects::device_t> objects::file_device(Data& d, file_t file)
 {
-    const auto dev = d.reader.read(file.id + d.members[FILE_OBJECT_DeviceObject]);
+    const auto dev = d.io.read(file.id + d.members[FILE_OBJECT_DeviceObject]);
     if(!dev)
         return {};
 
@@ -325,7 +324,7 @@ opt<objects::device_t> objects::file_device(Data& d, file_t file)
 
 opt<objects::driver_t> objects::device_driver(Data& d, device_t device)
 {
-    const auto drv = d.reader.read(device.id + d.members[DEVICE_OBJECT_DriverObject]);
+    const auto drv = d.io.read(device.id + d.members[DEVICE_OBJECT_DriverObject]);
     if(!drv)
         return {};
 
@@ -334,7 +333,7 @@ opt<objects::driver_t> objects::device_driver(Data& d, device_t device)
 
 opt<std::string> objects::driver_name(Data& d, driver_t driver)
 {
-    return nt::read_unicode_string(d.reader, driver.id + d.members[DRIVER_OBJECT_DriverName]);
+    return nt::read_unicode_string(d.io, driver.id + d.members[DRIVER_OBJECT_DriverName]);
 }
 
 namespace
@@ -397,7 +396,7 @@ namespace
         entry.ChainLink   = root.HashBuckets[bucket];
         while(entry.ChainLink)
         {
-            const auto ok = d.reader.read_all(&entry, entry.ChainLink, sizeof entry);
+            const auto ok = d.io.read_all(&entry, entry.ChainLink, sizeof entry);
             if(!ok)
                 return {};
 
@@ -430,7 +429,7 @@ opt<objects::obj_t> objects::find(Data& d, nt::ptr_t root, std::string_view path
     for(const auto& token : components)
     {
         auto directory = nt::_OBJECT_DIRECTORY{};
-        const auto ok  = d.reader.read_all(&directory, root, sizeof directory);
+        const auto ok  = d.io.read_all(&directory, root, sizeof directory);
         if(!ok)
             return {};
 
@@ -456,7 +455,7 @@ namespace
     opt<T> read_as(Data& d, uint64_t id)
     {
         auto struc    = T{};
-        const auto ok = d.reader.read_all(&struc, id, sizeof struc);
+        const auto ok = d.io.read_all(&struc, id, sizeof struc);
         if(!ok)
             return {};
 

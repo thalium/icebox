@@ -131,8 +131,8 @@ bool Data::setup()
                                               nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
     {
         std::vector<char> buf(Length);
-        const auto reader = reader::make(core_, proc_);
-        const auto ok     = reader.read_all(&buf[0], Buffer, Length);
+        const auto io = memory::make_io(core_, proc_);
+        const auto ok = io.read_all(&buf[0], Buffer, Length);
         if(!ok)
             return 1;
 
