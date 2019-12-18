@@ -128,6 +128,14 @@ class Virtual:
     def physical_address(self, ptr):
         return _icebox.memory_virtual_to_physical(self.proc, ptr)
 
+    def __setitem__(self, key, item):
+        if isinstance(key, slice):
+            return self.write(item, key.start)
+        return self.write(struct.pack("B", item), key)
+
+    def write(self, buf, ptr):
+        return _icebox.memory_write_virtual(buf, self.proc, ptr)
+
 
 class Module:
     def __init__(self, proc, mod):
@@ -361,6 +369,14 @@ class Physical:
 
     def read(self, buf, ptr):
         return _icebox.memory_read_physical(buf, ptr)
+
+    def __setitem__(self, key, item):
+        if isinstance(key, slice):
+            return self.write(item, key.start)
+        return self.write(struct.pack("B", item), key)
+
+    def write(self, buf, ptr):
+        return _icebox.memory_write_physical(buf, ptr)
 
 
 class Functions:

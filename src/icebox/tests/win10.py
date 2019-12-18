@@ -122,7 +122,7 @@ class Windows(unittest.TestCase):
         self.assertEqual(val, bufb[idx])
 
         phy = p.memory.physical_address(rip)
-        self.assertEqual(phy, phy)
+        self.assertIsNotNone(phy)
 
         bufc = bytearray(len(bufa))
         self.vm.physical.read(bufc, phy)
@@ -133,6 +133,37 @@ class Windows(unittest.TestCase):
 
         val = self.vm.physical[phy + idx]
         self.assertEqual(val, bufc[idx])
+
+    def test_memory_writes(self):
+        rip = self.vm.registers.rip
+        p = self.vm.processes.current()
+        backup = p.memory[rip]
+        p.memory[rip] = 0xcc
+        val = p.memory[rip]
+        self.assertEqual(val, 0xcc)
+        p.memory[rip] = backup
+
+        backup = p.memory[rip : rip + 16]
+        zero = b'\x00' * len(backup)
+        p.memory[rip : rip + len(backup)] = zero
+        val = p.memory[rip : rip + len(backup)]
+        self.assertEqual(zero, val)
+        p.memory.write(backup, rip)
+        val = p.memory[rip : rip + len(backup)]
+        self.assertEqual(val, backup)
+
+        phy = p.memory.physical_address(rip)
+        self.assertIsNotNone(phy)
+
+        phy_backup = self.vm.physical[phy : phy + 16]
+        self.assertEqual(backup, phy_backup)
+        zero = b'\x00' * len(backup)
+        self.vm.physical[phy : phy + len(backup)] = zero
+        val = self.vm.physical[phy : phy + len(backup)]
+        self.assertEqual(zero, val)
+        self.vm.physical.write(backup, phy)
+        val = self.vm.physical[phy : phy + len(backup)]
+        self.assertEqual(val, backup)
 
     def test_symbols(self):
         p = self.vm.processes.current()
@@ -163,6 +194,8 @@ class Windows(unittest.TestCase):
         for mod in p.modules():
             modules.append(mod)
             addr, size = mod.span()
+            header = p.memory[addr : addr + 2]
+            self.assertEqual(header, b'MZ')
             other = p.modules.find(addr)
             self.assertEqual(mod, other)
             other = p.modules.find(addr + size - 1)
