@@ -24,6 +24,7 @@ enum class reg_e
     r13,
     r14,
     r15,
+    last = r15, // must be last
 };
 
 enum class walk_e
@@ -34,10 +35,11 @@ enum class walk_e
 
 enum class msr_e : uint32_t
 {
-    lstar          = 0xC0000082,
-    fs_base        = 0xC0000100,
-    gs_base        = 0xC0000101,
-    kernel_gs_base = 0xC0000102,
+    lstar,
+    fs_base,
+    gs_base,
+    kernel_gs_base,
+    last = kernel_gs_base, // must be last
 };
 
 enum class mode_e

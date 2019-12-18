@@ -189,7 +189,14 @@ namespace
 {
     uint64_t cast(msr_e reg)
     {
-        return static_cast<uint64_t>(reg);
+        switch(reg)
+        {
+            case msr_e::lstar:          return 0xC0000082;
+            case msr_e::fs_base:        return 0xC0000100;
+            case msr_e::gs_base:        return 0xC0000101;
+            case msr_e::kernel_gs_base: return 0xC0000102;
+        }
+        return ~0ULL;
     }
 }
 
