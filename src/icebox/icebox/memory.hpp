@@ -32,15 +32,15 @@ namespace memory
         opt<phy_t>      physical(uint64_t ptr) const;
 
         // write methods
-        bool    write_byte  (uint64_t ptr, uint8_t arg) const;
-        bool    write_le16  (uint64_t ptr, uint16_t arg) const;
-        bool    write_le32  (uint64_t ptr, uint32_t arg) const;
-        bool    write_le64  (uint64_t ptr, uint64_t arg) const;
-        bool    write_be16  (uint64_t ptr, uint16_t arg) const;
-        bool    write_be32  (uint64_t ptr, uint32_t arg) const;
-        bool    write_be64  (uint64_t ptr, uint64_t arg) const;
-        bool    write       (uint64_t ptr, uint64_t arg) const;
-        bool    write_all   (uint64_t ptr, const void* src, size_t size) const;
+        bool    write_byte  (uint64_t dst, uint8_t arg) const;
+        bool    write_le16  (uint64_t dst, uint16_t arg) const;
+        bool    write_le32  (uint64_t dst, uint32_t arg) const;
+        bool    write_le64  (uint64_t dst, uint64_t arg) const;
+        bool    write_be16  (uint64_t dst, uint16_t arg) const;
+        bool    write_be32  (uint64_t dst, uint32_t arg) const;
+        bool    write_be64  (uint64_t dst, uint64_t arg) const;
+        bool    write       (uint64_t dst, uint64_t arg) const;
+        bool    write_all   (uint64_t dst, const void* src, size_t size) const;
 
         core::Core& core;
         opt<proc_t> proc;
