@@ -59,6 +59,7 @@ struct mod_t
 {
     uint64_t id;
     flags_t  flags;
+    uint8_t  _[3];
 };
 
 struct driver_t

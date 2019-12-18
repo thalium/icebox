@@ -701,7 +701,7 @@ namespace
         const auto rcx      = registers::read(os.core_, reg_e::rcx);
         const auto mod_addr = is_32bit ? static_cast<uint32_t>(rcx) : rcx;
         const auto flags    = is_32bit ? flags::x86 : flags::x64;
-        on_mod({mod_addr, flags});
+        on_mod({mod_addr, flags, {}});
     }
 
     opt<bpid_t> replace_bp(NtOs& os, bpid_t bpid, const state::Breakpoint& bp)
@@ -830,7 +830,7 @@ namespace
         const auto head = *ldr + offsetof(nt::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = io.read(head); link && link != head; link = io.read(*link))
         {
-            const auto ret = on_mod({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x64});
+            const auto ret = on_mod({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x64, {}});
             if(ret == walk_e::stop)
                 return ret;
         }
@@ -859,7 +859,7 @@ namespace
         const auto head = *ldr32 + offsetof32(wow64::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = io.le32(head); link && link != head; link = io.le32(*link))
         {
-            const auto ret = on_mod({*link - offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x86});
+            const auto ret = on_mod({*link - offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), flags::x86, {}});
             if(ret == walk_e::stop)
                 return ret;
         }

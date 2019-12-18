@@ -1030,7 +1030,7 @@ bool OsLinux::mod_list(proc_t proc, modules::on_mod_fn on_module)
         if(!*file || *file == last_file) // anonymous module OR same mod as last one
             return walk_e::next;
 
-        const auto mod = mod_t{vm_area.id, flag};
+        const auto mod = mod_t{vm_area.id, flag, {}};
         if(on_module(mod) == walk_e::stop)
         {
             loader_found_or_stopped_before = true;

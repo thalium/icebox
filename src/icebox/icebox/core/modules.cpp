@@ -6,6 +6,7 @@
 #include "core_private.hpp"
 #include "interfaces/if_os.hpp"
 #include "utils/path.hpp"
+#include "utils/utils.hpp"
 
 #ifdef _MSC_VER
 #    define stricmp _stricmp
@@ -13,6 +14,8 @@
 #    include <strings.h>
 #    define stricmp strcasecmp
 #endif
+
+STATIC_ASSERT_EQ(sizeof(mod_t), 16);
 
 bool modules::list(core::Core& core, proc_t proc, modules::on_mod_fn on_mod)
 {
