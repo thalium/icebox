@@ -255,7 +255,8 @@ namespace
             return FAIL(false, "unable to get current physical address");
 
         d.breakphy = *phy;
-        os::debug_print(d.core);
+        if(false)
+            os::debug_print(d.core);
         return true;
     }
 

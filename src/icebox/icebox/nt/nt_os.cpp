@@ -1364,8 +1364,6 @@ namespace
 
 void NtOs::debug_print()
 {
-    if(true)
-        return;
     const auto irql   = registers::read(core_, reg_e::cr8);
     const auto cs     = registers::read(core_, reg_e::cs);
     const auto rip    = registers::read(core_, reg_e::rip);
