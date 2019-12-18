@@ -121,6 +121,7 @@ namespace
         PspExitThread,
         MiProcessLoaderEntry,
         SwapContext,
+        KiSwapThread,
         SYMBOL_COUNT,
     };
 
@@ -142,6 +143,7 @@ namespace
         {cat_e::REQUIRED, PspExitThread,                       "nt", "PspExitThread"},
         {cat_e::REQUIRED, MiProcessLoaderEntry,                "nt", "MiProcessLoaderEntry"},
         {cat_e::REQUIRED, SwapContext,                         "nt", "SwapContext"},
+        {cat_e::REQUIRED, KiSwapThread,                         "nt", "KiSwapThread"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -1178,7 +1180,10 @@ namespace
 {
     void proc_join_kernel(NtOs& os, proc_t proc)
     {
-        state::run_to_proc_at(os.core_, "SwapContext", proc, os.symbols_[SwapContext]);
+        state::run_to_proc_at(os.core_, "KiSwapThread", proc, os.symbols_[KiSwapThread]);
+        const auto ret_addr = functions::return_address(os.core_, proc);
+        if(ret_addr)
+            state::run_to_proc_at(os.core_, "return KiSwapThread", proc, *ret_addr);
     }
 
     void proc_join_user(NtOs& os, proc_t proc)
