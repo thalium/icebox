@@ -593,21 +593,6 @@ bool state::run_fast_to_cr3_write(core::Core& core)
     return true;
 }
 
-void state::run_to_proc(core::Core& core, std::string_view /*name*/, proc_t proc)
-{
-    const auto bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, proc.kdtb.val);
-    if(bpid < 0)
-        return;
-
-    auto& d = *core.state_;
-    run_until(d, [&]
-    {
-        const auto opt_proc = process::current(core);
-        return opt_proc == proc;
-    });
-    fdp::unset_breakpoint(core, bpid);
-}
-
 void state::run_to_proc_at(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr)
 {
     auto& d       = *core.state_;
