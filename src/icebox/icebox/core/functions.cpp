@@ -23,28 +23,33 @@ std::shared_ptr<functions::Data> functions::setup()
     return std::make_shared<functions::Data>();
 }
 
+opt<uint64_t> functions::return_address(core::Core& core, proc_t proc)
+{
+    const auto io       = memory::make_io(core, proc);
+    const auto want_rsp = registers::read(core, reg_e::rsp);
+    return io.read(want_rsp);
+}
+
 bool functions::break_on_return(core::Core& core, std::string_view name, const functions::on_return_fn& on_return)
 {
     const auto thread = threads::current(core);
     if(!thread)
         return false;
 
-    const auto proc = process::current(core);
+    const auto proc = threads::process(core, *thread);
     if(!proc)
         return false;
 
     const auto ptr_size    = process::flags(core, *proc).is_x86 ? 4 : 8;
-    const auto io          = memory::make_io(core, *proc);
+    const auto return_addr = return_address(core, *proc);
     const auto want_rsp    = registers::read(core, reg_e::rsp);
-    const auto return_addr = io.read(want_rsp);
     if(!return_addr)
         return false;
 
     struct Private
     {
         core::Core& core;
-    } ctx = {core};
-
+    } ctx         = {core};
     const auto bp = state::break_on_thread(core, name, *thread, *return_addr, [=]
     {
         auto& d        = *ctx.core.func_;
