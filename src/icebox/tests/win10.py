@@ -276,6 +276,9 @@ class Windows(unittest.TestCase):
         mod = p.modules.find_name("dwm")
         self.assertIsNotNone(mod)
         p.callstacks.load_module(mod)
+        mod = p.modules.find_name("ntdll")
+        self.assertIsNotNone(mod)
+        p.callstacks.load_module(mod)
         name = "nt!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
         bp = self.vm.break_on_process(name, p, addr, lambda: None)
