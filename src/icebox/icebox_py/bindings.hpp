@@ -37,11 +37,14 @@ namespace py
 
     namespace memory
     {
-        PyObject*   virtual_to_physical     (core::Core& core, PyObject* args);
-        PyObject*   read_virtual            (core::Core& core, PyObject* args);
-        PyObject*   read_virtual_with_dtb   (core::Core& core, PyObject* args);
-        PyObject*   read_virtual_process    (core::Core& core, PyObject* args);
-        PyObject*   read_physical           (core::Core& core, PyObject* args);
+        PyObject*   virtual_to_physical         (core::Core& core, PyObject* args);
+        PyObject*   virtual_to_physical_with_dtb(core::Core& core, PyObject* args);
+        PyObject*   read_virtual                (core::Core& core, PyObject* args);
+        PyObject*   read_virtual_with_dtb       (core::Core& core, PyObject* args);
+        PyObject*   read_physical               (core::Core& core, PyObject* args);
+        PyObject*   write_virtual               (core::Core& core, PyObject* args);
+        PyObject*   write_virtual_with_dtb      (core::Core& core, PyObject* args);
+        PyObject*   write_physical              (core::Core& core, PyObject* args);
     } // namespace memory
 
     namespace process

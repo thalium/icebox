@@ -123,7 +123,7 @@ class Virtual:
         return buf[0]
 
     def read(self, buf, ptr):
-        return _icebox.memory_read_virtual_process(buf, self.proc, ptr)
+        return _icebox.memory_read_virtual(buf, self.proc, ptr)
 
     def physical_address(self, ptr):
         return _icebox.memory_virtual_to_physical(self.proc, ptr)

@@ -162,7 +162,8 @@ PyObject* py::symbols::load_module_memory(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    ok = ::symbols::load_module_memory(core, *opt_proc, {addr, size});
+    const auto io = ::memory::make_io(core, *opt_proc);
+    ok            = ::symbols::load_module_memory(core, *opt_proc, io, {addr, size});
     if(!ok)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load module memory");
 
