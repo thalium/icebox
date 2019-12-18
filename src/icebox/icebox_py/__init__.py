@@ -148,6 +148,22 @@ class Callstacks:
     def autoload_modules(self):
         return _icebox.callstacks_autoload_modules(self.proc)
 
+class VmArea:
+    def __init__(self, proc, vma):
+        self.proc = proc
+        self.vma = vma
+
+    def span(self):
+        return _icebox.vm_area_span(self.proc, self.vma)
+
+class VmAreas:
+    def __init__(self, proc):
+        self.proc = proc
+
+    def __call__(self):
+        for x in _icebox.vm_area_list(self.proc):
+            yield VmArea(self.proc, x)
+
 class Process:
     def __init__(self, proc):
         self.proc = proc
@@ -155,6 +171,7 @@ class Process:
         self.memory = Virtual(proc)
         self.modules = Modules(proc)
         self.callstacks = Callstacks(proc)
+        self.vm_areas = VmAreas(proc)
 
     def __eq__(self, other):
         return self.proc == other.proc

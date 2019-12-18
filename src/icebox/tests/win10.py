@@ -269,6 +269,11 @@ class Windows(unittest.TestCase):
             addrs.append(x)
         self.assertGreater(len(addrs), 1)
 
+    def test_vma(self):
+        p = self.vm.processes.current()
+        for vma in p.vm_areas():
+            addr, size = vma.span()
+
 if __name__ == '__main__':
     path = os.path.abspath(sys.argv[1])
     sys.path.append(path)

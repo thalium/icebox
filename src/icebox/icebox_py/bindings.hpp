@@ -119,6 +119,12 @@ namespace py
         PyObject*   autoload_modules(core::Core& core, PyObject* args);
     } // namespace callstacks
 
+    namespace vm_area
+    {
+        PyObject*   list(core::Core&, PyObject* args);
+        PyObject*   span(core::Core&, PyObject* args);
+    } // namespace vm_area
+
     namespace flags
     {
         PyObject*       from(flags_t flags);

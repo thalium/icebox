@@ -178,6 +178,9 @@ namespace
         {"callstacks_load_module", &core_exec<&py::callstacks::load_module>, METH_VARARGS, "load module unwind data"},
         {"callstacks_load_driver", &core_exec<&py::callstacks::load_driver>, METH_VARARGS, "load driver unwind data"},
         {"callstacks_autoload_modules", &core_exec<&py::callstacks::autoload_modules>, METH_VARARGS, "autoload process module unwind data"},
+        // vm_area
+        {"vm_area_list", &core_exec<&py::vm_area::list>, METH_VARARGS, "list process vm areas"},
+        {"vm_area_span", &core_exec<&py::vm_area::span>, METH_VARARGS, "read vm area span"},
         // null terminated
         {nullptr, nullptr, 0, nullptr},
     }};
