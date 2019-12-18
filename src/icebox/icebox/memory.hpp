@@ -6,13 +6,14 @@ namespace core { struct Core; }
 
 namespace memory
 {
-    opt<phy_t>  virtual_to_physical     (core::Core& core, uint64_t ptr, dtb_t dtb);
-    bool        read_virtual            (core::Core& core, void* dst, uint64_t src, size_t size);
-    bool        read_virtual_with_dtb   (core::Core& core, void* dst, dtb_t dtb, uint64_t src, size_t size);
-    bool        read_physical           (core::Core& core, void* dst, uint64_t src, size_t size);
-    bool        write_virtual           (core::Core& core, uint64_t dst, const void*, size_t size);
-    bool        write_virtual_with_dtb  (core::Core& core, uint64_t dst, dtb_t dtb, const void* src, size_t size);
-    bool        write_physical          (core::Core& core, uint64_t dst, const void* src, size_t size);
+    opt<phy_t>  virtual_to_physical         (core::Core& core, proc_t proc, uint64_t ptr);
+    opt<phy_t>  virtual_to_physical_with_dtb(core::Core& core, dtb_t dtb, uint64_t ptr);
+    bool        read_virtual                (core::Core& core, proc_t proc, void* dst, uint64_t src, size_t size);
+    bool        read_virtual_with_dtb       (core::Core& core, dtb_t dtb, void* dst, uint64_t src, size_t size);
+    bool        read_physical               (core::Core& core, void* dst, uint64_t src, size_t size);
+    bool        write_virtual               (core::Core& core, proc_t proc, uint64_t dst, const void*, size_t size);
+    bool        write_virtual_with_dtb      (core::Core& core, dtb_t dtb, uint64_t dst, const void*, size_t size);
+    bool        write_physical              (core::Core& core, uint64_t dst, const void* src, size_t size);
 
     struct Io
     {
@@ -42,10 +43,11 @@ namespace memory
         bool    write_all   (uint64_t ptr, const void* src, size_t size) const;
 
         core::Core& core;
-        dtb_t       kdtb;
-        dtb_t       udtb;
+        opt<proc_t> proc;
+        dtb_t       dtb;
     };
 
-    Io  make_io (core::Core& core);
-    Io  make_io (core::Core& core, proc_t proc);
+    Io  make_io_kernel  (core::Core& core);
+    Io  make_io_current (core::Core& core);
+    Io  make_io         (core::Core& core, proc_t proc);
 } // namespace memory

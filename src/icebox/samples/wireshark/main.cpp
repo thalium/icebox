@@ -63,7 +63,7 @@ namespace
     {
         std::vector<uint8_t> invalid;
 
-        const auto io = memory::make_io(core);
+        const auto io = memory::make_io_kernel(core);
         NET_BUFFER_LIST      netBufferList;
         NET_BUFFER           netBuffer;
         MDL                  mdl;
@@ -159,7 +159,8 @@ namespace
             if(!opt_span)
                 return walk_e::next;
 
-            const auto inserted = symbols::load_module_memory(core, proc, *opt_span);
+            const auto io       = memory::make_io(core, proc);
+            const auto inserted = symbols::load_module_memory(core, proc, io, *opt_span);
             if(!inserted)
                 return walk_e::next;
 

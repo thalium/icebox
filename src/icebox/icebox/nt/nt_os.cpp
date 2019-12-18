@@ -161,7 +161,7 @@ namespace
         bool    setup               () override;
         bool    is_kernel_address   (uint64_t ptr) override;
         bool    can_inject_fault    (uint64_t ptr) override;
-        bool    memory_io_setup     (memory::Io& io, opt<proc_t> proc) override;
+        dtb_t   kernel_dtb          () override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -227,7 +227,7 @@ namespace
 NtOs::NtOs(core::Core& core)
     : core_(core)
     , kpcr_(0)
-    , io_(memory::make_io(core))
+    , io_(memory::make_io_current(core))
     , last_bpid_(0)
     , LdrpInitializeProcess_{0}
     , LdrpProcessMappedModule_{0}
@@ -241,16 +241,16 @@ namespace
         return !!(ptr & 0xFFF0000000000000);
     }
 
-    opt<span_t> find_kernel_at(core::Core& core, uint64_t needle)
+    opt<span_t> find_kernel_at(NtOs& os, uint64_t needle)
     {
-        uint8_t buf[PAGE_SIZE];
+        auto buf = std::array<uint8_t, PAGE_SIZE>{};
         for(auto ptr = utils::align<PAGE_SIZE>(needle); ptr < needle; ptr -= PAGE_SIZE)
         {
-            auto ok = memory::read_virtual(core, buf, ptr, sizeof buf);
+            auto ok = os.io_.read_all(&buf[0], ptr, sizeof buf);
             if(!ok)
                 return {};
 
-            const auto size = pe::read_image_size(buf, sizeof buf);
+            const auto size = pe::read_image_size(&buf[0], sizeof buf);
             if(!size)
                 continue;
 
@@ -266,31 +266,25 @@ namespace
         const auto lstar = registers::read_msr(core, msr_e::lstar);
         for(size_t i = 0; i < 64; ++i)
         {
-            if(const auto kernel = find_kernel_at(core, lstar))
+            if(const auto kernel = find_kernel_at(os, lstar))
                 return kernel;
 
             const auto ok = state::run_fast_to_cr3_write(core);
             if(!ok)
                 break;
 
-            os.io_.kdtb.val = registers::read(core, reg_e::cr3);
+            os.io_.dtb = dtb_t{registers::read(core, reg_e::cr3)};
         }
         return {};
     }
 
-    dtb_t dtb_select(proc_t proc, uint64_t ptr)
-    {
-        return is_kernel(ptr) ? proc.kdtb : proc.udtb;
-    }
-
-    bool read_phy_symbol(NtOs& os, phy_t& dst, proc_t proc, const char* module, const char* name)
+    bool read_phy_symbol(NtOs& os, phy_t& dst, const memory::Io& io, const char* module, const char* name)
     {
         const auto where = symbols::address(os.core_, symbols::kernel, module, name);
         if(!where)
             return false;
 
-        const auto dtb = dtb_select(proc, *where);
-        const auto phy = memory::virtual_to_physical(os.core_, *where, dtb);
+        const auto phy = io.physical(*where);
         if(!phy)
             return false;
 
@@ -346,15 +340,16 @@ namespace
         if(!span)
             return false;
 
-        auto ok = symbols::load_module_memory(core, symbols::kernel, *span);
+        const auto io = memory::make_io(core, *proc);
+        auto ok       = symbols::load_module_memory(core, symbols::kernel, io, *span);
         if(!ok)
             return false;
 
-        ok = read_phy_symbol(os, os.LdrpInitializeProcess_, *proc, "ntdll", "LdrpInitializeProcess");
+        ok = read_phy_symbol(os, os.LdrpInitializeProcess_, io, "ntdll", "LdrpInitializeProcess");
         if(!ok)
             return false;
 
-        ok = read_phy_symbol(os, os.LdrpProcessMappedModule_, *proc, "ntdll", "LdrpProcessMappedModule");
+        ok = read_phy_symbol(os, os.LdrpProcessMappedModule_, io, "ntdll", "LdrpProcessMappedModule");
         if(!ok)
             return false;
 
@@ -366,11 +361,11 @@ namespace
         auto gdtb = dtb_t{registers::read(os.core_, reg_e::cr3)};
         if(os.offsets_[KPRCB_KernelDirectoryTableBase])
         {
-            const auto ok = memory::read_virtual(os.core_, &gdtb, os.kpcr_ + os.offsets_[KPCR_Prcb] + os.offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
+            const auto ok = memory::read_virtual_with_dtb(os.core_, gdtb, &gdtb, os.kpcr_ + os.offsets_[KPCR_Prcb] + os.offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
             if(!ok)
                 return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
         }
-        os.io_.kdtb = gdtb;
+        os.io_.dtb = gdtb;
         return true;
     }
 }
@@ -389,7 +384,7 @@ bool NtOs::setup()
 
     LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
         kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    const auto opt_id = symbols::identify_pdb(*kernel, memory::make_io(core_));
+    const auto opt_id = symbols::identify_pdb(*kernel, io_);
     if(!opt_id)
         return FAIL(false, "unable to identify kernel PDB");
 
@@ -462,7 +457,7 @@ bool NtOs::setup()
     if(!ok)
         return false;
 
-    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, io_.kdtb.val);
+    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, io_.dtb.val);
     return try_load_ntdll(*this, core_);
 }
 
@@ -757,7 +752,8 @@ namespace
         if(!span)
             return;
 
-        const auto inserted = symbols::load_module_memory(os.core_, symbols::kernel, *span);
+        const auto io       = memory::make_io(os.core_, proc);
+        const auto inserted = symbols::load_module_memory(os.core_, symbols::kernel, io, *span);
         if(!inserted)
             return;
 
@@ -1240,12 +1236,9 @@ opt<proc_t> NtOs::proc_parent(proc_t proc)
     return proc_find(*parent_pid);
 }
 
-bool NtOs::memory_io_setup(memory::Io& io, opt<proc_t> proc)
+dtb_t NtOs::kernel_dtb()
 {
-    const auto cr3 = registers::read(io.core, reg_e::cr3);
-    io.kdtb        = proc ? proc->kdtb : io_.kdtb;
-    io.udtb        = proc ? proc->udtb : dtb_t{cr3};
-    return true;
+    return io_.dtb;
 }
 
 namespace
@@ -1320,7 +1313,7 @@ opt<arg_t> NtOs::read_stack(size_t index)
     const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
     const auto sp       = registers::read(core_, reg_e::rsp);
-    const auto io       = memory::make_io(core_);
+    const auto io       = memory::make_io_current(core_);
     if(is_32bit)
         return read_stack32(io, sp, index);
 
@@ -1332,7 +1325,7 @@ opt<arg_t> NtOs::read_arg(size_t index)
     const auto cs       = registers::read(core_, reg_e::cs);
     const auto is_32bit = cs == x86_cs;
     const auto sp       = registers::read(core_, reg_e::rsp);
-    const auto io       = memory::make_io(core_);
+    const auto io       = memory::make_io_current(core_);
     if(is_32bit)
         return read_arg32(io, sp, index);
 

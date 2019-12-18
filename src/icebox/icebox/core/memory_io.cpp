@@ -10,17 +10,11 @@
 
 namespace
 {
-    dtb_t dtb_select(const memory::Io& io, uint64_t ptr)
-    {
-        return os::is_kernel_address(io.core, ptr) ? io.kdtb : io.udtb;
-    }
-
     template <typename T, T (*read)(const void*)>
     opt<T> read_mem(const memory::Io& io, uint64_t src)
     {
-        auto value     = T{};
-        const auto dtb = dtb_select(io, src);
-        const auto ok  = memory::read_virtual_with_dtb(io.core, &value, dtb, src, sizeof value);
+        auto value    = T{};
+        const auto ok = io.read_all(&value, src, sizeof value);
         if(!ok)
             return {};
 
@@ -32,28 +26,25 @@ namespace
     {
         auto value = T{};
         write(&value, arg);
-        const auto dtb = dtb_select(io, dst);
-        return memory::write_virtual_with_dtb(io.core, dst, dtb, &value, sizeof value);
-    }
-
-    memory::Io make_io_with(core::Core& core, const opt<proc_t>& proc)
-    {
-        const auto cr3 = registers::read(core, reg_e::cr3);
-        auto io        = memory::Io{core, {cr3}, {cr3}};
-        if(core.os_)
-            core.os_->memory_io_setup(io, proc);
-        return io;
+        return io.write_all(dst, &value, sizeof value);
     }
 }
 
-memory::Io memory::make_io(core::Core& core)
+memory::Io memory::make_io_kernel(core::Core& core)
 {
-    return make_io_with(core, {});
+    const auto dtb = core.os_->kernel_dtb();
+    return memory::Io{core, {}, dtb};
+}
+
+memory::Io memory::make_io_current(core::Core& core)
+{
+    const auto dtb = dtb_t{registers::read(core, reg_e::cr3)};
+    return memory::Io{core, {}, dtb};
 }
 
 memory::Io memory::make_io(core::Core& core, proc_t proc)
 {
-    return make_io_with(core, proc);
+    return memory::Io{core, proc, proc.udtb};
 }
 
 opt<uint8_t> memory::Io::byte(uint64_t ptr) const
@@ -99,18 +90,18 @@ opt<uint64_t> memory::Io::read(uint64_t ptr) const
 
 bool memory::Io::read_all(void* dst, uint64_t ptr, size_t size) const
 {
-    const auto dtb = dtb_select(*this, ptr);
-    return memory::read_virtual_with_dtb(core, dst, dtb, ptr, size);
+    if(proc)
+        return memory::read_virtual(core, *proc, dst, ptr, size);
+
+    return memory::read_virtual_with_dtb(core, dtb, dst, ptr, size);
 }
 
 opt<phy_t> memory::Io::physical(uint64_t ptr) const
 {
-    const auto dtb = dtb_select(*this, ptr);
-    const auto phy = memory::virtual_to_physical(core, ptr, dtb);
-    if(!phy)
-        return {};
+    if(proc)
+        return memory::virtual_to_physical(core, *proc, ptr);
 
-    return *phy;
+    return memory::virtual_to_physical_with_dtb(core, dtb, ptr);
 }
 
 bool memory::Io::write_byte(uint64_t dst, uint8_t arg) const
@@ -156,6 +147,8 @@ bool memory::Io::write(uint64_t dst, uint64_t arg) const
 
 bool memory::Io::write_all(uint64_t dst, const void* src, size_t size) const
 {
-    const auto dtb = dtb_select(*this, dst);
-    return memory::write_virtual_with_dtb(core, dst, dtb, src, size);
+    if(proc)
+        return memory::write_virtual(core, *proc, dst, src, size);
+
+    return memory::write_virtual_with_dtb(core, dtb, dst, src, size);
 }

@@ -347,17 +347,21 @@ TEST_F(win10, memory)
         EXPECT_EQ(buffer[1], 'Z');
 
         got_read.resize(span->size);
-        ok = memory::read_virtual_with_dtb(core, &got_read[0], proc->udtb, span->addr, span->size);
+        ok = memory::read_virtual_with_dtb(core, proc->udtb, &got_read[0], span->addr, span->size);
         EXPECT_TRUE(ok);
         EXPECT_EQ(0, memcmp(&buffer[0], &got_read[0], span->size));
 
-        const auto phy = memory::virtual_to_physical(core, span->addr, proc->udtb);
+        const auto phy = memory::virtual_to_physical(core, *proc, span->addr);
         EXPECT_TRUE(!!phy);
 
-        ok = memory::write_virtual_with_dtb(core, span->addr, proc->udtb, &buffer[0], span->size);
+        const auto phyb = memory::virtual_to_physical_with_dtb(core, proc->udtb, span->addr);
+        EXPECT_TRUE(!!phyb);
+        EXPECT_EQ(phy->val, phyb->val);
+
+        ok = memory::write_virtual(core, *proc, span->addr, &buffer[0], span->size);
         EXPECT_TRUE(!!ok);
 
-        ok = memory::read_virtual_with_dtb(core, &got_read[0], proc->udtb, span->addr, span->size);
+        ok = memory::read_virtual(core, *proc, &got_read[0], span->addr, span->size);
         EXPECT_TRUE(ok);
         EXPECT_EQ(0, memcmp(&buffer[0], &got_read[0], span->size));
         return walk_e::next;
@@ -519,7 +523,7 @@ TEST_F(win10, callstacks)
     const auto opt_addr = symbols::address(core, *proc, "ntdll", "RtlUserThreadStart");
     EXPECT_TRUE(!!opt_addr);
 
-    const auto opt_phy = memory::virtual_to_physical(core, *opt_addr, proc->udtb);
+    const auto opt_phy = memory::virtual_to_physical(core, *proc, *opt_addr);
     EXPECT_TRUE(!!opt_phy);
 
     count         = 0;

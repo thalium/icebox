@@ -108,28 +108,44 @@ namespace
 
         return slow_virtual_to_physical(core, ptr, dtb);
     }
+
+    dtb_t dtb_select(core::Core& core, proc_t proc, uint64_t ptr)
+    {
+        return os::is_kernel_address(core, ptr) ? proc.kdtb : proc.udtb;
+    }
+
+    opt<phy_t> virtual_to_physical(core::Core& core, proc_t* /*proc*/, dtb_t dtb, uint64_t ptr)
+    {
+        const auto ret = try_virtual_to_physical(core, ptr, dtb);
+        if(ret)
+            return ret;
+
+        if(!os::can_inject_fault(core, ptr))
+            return {};
+
+        auto& mem = *core.mem_;
+        mem.depth++;
+        if(mem.depth > 1)
+            return {};
+
+        const auto ok = inject_page_fault(core, dtb, ptr, true);
+        mem.depth--;
+        if(!ok)
+            return {};
+
+        return try_virtual_to_physical(core, ptr, dtb);
+    }
 }
 
-opt<phy_t> memory::virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb)
+opt<phy_t> memory::virtual_to_physical(core::Core& core, proc_t proc, uint64_t ptr)
 {
-    const auto ret = try_virtual_to_physical(core, ptr, dtb);
-    if(ret)
-        return ret;
+    const auto dtb = dtb_select(core, proc, ptr);
+    return ::virtual_to_physical(core, &proc, dtb, ptr);
+}
 
-    if(!os::can_inject_fault(core, ptr))
-        return {};
-
-    auto& mem = *core.mem_;
-    mem.depth++;
-    if(mem.depth > 1)
-        return {};
-
-    const auto ok = inject_page_fault(core, dtb, ptr, true);
-    mem.depth--;
-    if(!ok)
-        return {};
-
-    return try_virtual_to_physical(core, ptr, dtb);
+opt<phy_t> memory::virtual_to_physical_with_dtb(core::Core& core, dtb_t dtb, uint64_t ptr)
+{
+    return ::virtual_to_physical(core, nullptr, dtb, ptr);
 }
 
 namespace
@@ -169,7 +185,7 @@ namespace
         return fdp::read_virtual(core, pgdst, pgsrc, dtb, pgsize);
     }
 
-    bool read_virtual(core::Core& core, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
+    bool read_virtual(core::Core& core, proc_t* /*proc*/, dtb_t dtb, uint8_t* dst, uint64_t src, uint32_t size)
     {
         if(!size)
             return true;
@@ -230,7 +246,7 @@ namespace
         return true;
     }
 
-    bool write_virtual(core::Core& core, uint64_t dst, dtb_t dtb, const uint8_t* src, uint32_t size)
+    bool write_virtual(core::Core& core, proc_t* /*proc*/, dtb_t dtb, uint64_t dst, const uint8_t* src, uint32_t size)
     {
         if(!size)
             return true;
@@ -278,19 +294,19 @@ namespace
     }
 }
 
-bool memory::read_virtual(core::Core& core, void* vdst, uint64_t src, size_t size)
+bool memory::read_virtual(core::Core& core, proc_t proc, void* vdst, uint64_t src, size_t size)
 {
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    const auto dtb   = dtb_t{registers::read(core, reg_e::cr3)};
-    return ::read_virtual(core, dst, dtb, src, usize);
+    const auto dtb   = dtb_select(core, proc, src);
+    return ::read_virtual(core, &proc, dtb, dst, src, usize);
 }
 
-bool memory::read_virtual_with_dtb(core::Core& core, void* vdst, dtb_t dtb, uint64_t src, size_t size)
+bool memory::read_virtual_with_dtb(core::Core& core, dtb_t dtb, void* vdst, uint64_t src, size_t size)
 {
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    return ::read_virtual(core, dst, dtb, src, usize);
+    return ::read_virtual(core, nullptr, dtb, dst, src, usize);
 }
 
 bool memory::read_physical(core::Core& core, void* vdst, uint64_t src, size_t size)
@@ -299,19 +315,19 @@ bool memory::read_physical(core::Core& core, void* vdst, uint64_t src, size_t si
     return ::read_physical(core, dst, src, size);
 }
 
-bool memory::write_virtual(core::Core& core, uint64_t dst, const void* vsrc, size_t size)
+bool memory::write_virtual(core::Core& core, proc_t proc, uint64_t dst, const void* vsrc, size_t size)
 {
     const auto src   = reinterpret_cast<const uint8_t*>(vsrc);
     const auto usize = static_cast<uint32_t>(size);
-    const auto dtb   = dtb_t{registers::read(core, reg_e::cr3)};
-    return ::write_virtual(core, dst, dtb, src, usize);
+    const auto dtb   = dtb_select(core, proc, dst);
+    return ::write_virtual(core, &proc, dtb, dst, src, usize);
 }
 
-bool memory::write_virtual_with_dtb(core::Core& core, uint64_t dst, dtb_t dtb, const void* vsrc, size_t size)
+bool memory::write_virtual_with_dtb(core::Core& core, dtb_t dtb, uint64_t dst, const void* vsrc, size_t size)
 {
     const auto src   = reinterpret_cast<const uint8_t*>(vsrc);
     const auto usize = static_cast<uint32_t>(size);
-    return ::write_virtual(core, dst, dtb, src, usize);
+    return ::write_virtual(core, nullptr, dtb, dst, src, usize);
 }
 
 bool memory::write_physical(core::Core& core, uint64_t dst, const void* vsrc, size_t size)

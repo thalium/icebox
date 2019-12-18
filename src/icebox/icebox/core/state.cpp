@@ -250,7 +250,7 @@ namespace
         d.breakphy     = {};
         const auto rip = registers::read(d.core, reg_e::rip);
         const auto dtb = dtb_t{registers::read(d.core, reg_e::cr3)};
-        const auto phy = memory::virtual_to_physical(d.core, rip, dtb);
+        const auto phy = memory::virtual_to_physical_with_dtb(d.core, dtb, rip);
         if(!phy)
             return FAIL(false, "unable to get current physical address");
 
@@ -522,11 +522,11 @@ namespace
         if(!opt_proc)
             return {};
 
-        const auto dtb     = dtb_select(core, *opt_proc, ptr);
-        const auto opt_phy = memory::virtual_to_physical(core, ptr, dtb);
+        const auto opt_phy = memory::virtual_to_physical(core, *opt_proc, ptr);
         if(!opt_phy)
             return nullptr;
 
+        const auto dtb     = dtb_select(core, *opt_proc, ptr);
         const auto opt_dtb = proc || thread ? ext::make_optional(dtb) : ext::nullopt;
         return set_physical_breakpoint(core, name, *opt_phy, opt_dtb, proc, thread, task);
     }

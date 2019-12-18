@@ -225,7 +225,7 @@ namespace
         bool    setup               () override;
         bool    is_kernel_address   (uint64_t ptr) override;
         bool    can_inject_fault    (uint64_t ptr) override;
-        bool    memory_io_setup     (memory::Io& io, opt<proc_t> proc) override;
+        dtb_t   kernel_dtb          () override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -288,7 +288,7 @@ namespace
 
 OsLinux::OsLinux(core::Core& core)
     : core_(core)
-    , io_(memory::make_io(core)) // kernel page directory is setted up later during setup()
+    , io_(memory::make_io_current(core)) // kernel page directory is setted up later during setup()
 {
 }
 
@@ -345,9 +345,8 @@ namespace
                 return FAIL(false, "unable to find a valid kernel page directory");
         }
 
-        p.kpgd         = kpgd;
-        p.io_.kdtb.val = kpgd;
-        p.io_.udtb.val = kpgd;
+        p.kpgd    = kpgd;
+        p.io_.dtb = dtb_t{kpgd};
         return true;
     }
 
@@ -533,9 +532,8 @@ bool OsLinux::setup()
 
     auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
-        auto io     = memory::make_io(core_);
-        io.kdtb.val = kpgd;
-        io.udtb.val = kpgd;
+        auto io = memory::make_io_current(core_);
+        io.dtb  = dtb_t{kpgd};
         return !!io.read(per_cpu);
     });
     if(!ok)
@@ -869,11 +867,9 @@ opt<proc_t> OsLinux::proc_parent(proc_t proc)
     return thread_proc(thread_t{*thread_parent});
 }
 
-bool OsLinux::memory_io_setup(memory::Io& io, opt<proc_t> proc)
+dtb_t OsLinux::kernel_dtb()
 {
-    io.kdtb = dtb_t{kpgd};
-    io.udtb = proc ? proc->udtb : dtb_t{kpgd};
-    return true;
+    return dtb_t{kpgd};
 }
 
 bool OsLinux::thread_list(proc_t proc, threads::on_thread_fn on_thread)
@@ -919,7 +915,7 @@ namespace
         if(!pgd_t)
             return FAIL(ext::nullopt, "unable to read pgd_t at 0x%" PRIx64 " in mm_struct of process", mm + *p.offsets_[MMSTRUCT_PGD]);
 
-        const auto pgd = memory::virtual_to_physical(p.core_, *pgd_t, dtb_t{p.kpgd});
+        const auto pgd = memory::virtual_to_physical_with_dtb(p.core_, dtb_t{p.kpgd}, *pgd_t);
         if(!pgd)
             return FAIL(ext::nullopt, "unable to find the pgd converting virtual addr 0x%" PRIx64 " to physical one", *pgd_t);
 

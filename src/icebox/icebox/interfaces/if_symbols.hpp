@@ -49,7 +49,7 @@ namespace symbols
         using on_module_fn = std::function<walk_e(span_t span, const Module& module)>;
 
         bool    insert  (proc_t proc, const std::string& module, span_t span, const std::shared_ptr<Module>& symbols);
-        bool    insert  (proc_t proc, span_t span);
+        bool    insert  (proc_t proc, const memory::Io& io, span_t span);
         bool    remove  (proc_t proc, const std::string& module);
 
         bool            list            (proc_t proc, const on_module_fn& on_module);

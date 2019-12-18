@@ -472,7 +472,8 @@ namespace
         if(!opt_span)
             return false;
 
-        return symbols::load_module_memory(core, proc, *opt_span);
+        const auto io = memory::make_io(core, proc);
+        return symbols::load_module_memory(core, proc, io, *opt_span);
     }
 
     bool read_offsets(NtCallstacks& c, proc_t proc, flags_t flags)

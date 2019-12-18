@@ -4,6 +4,7 @@
 #include <functional>
 
 namespace core { struct Core; }
+namespace memory { struct Io; }
 
 namespace symbols
 {
@@ -19,7 +20,7 @@ namespace symbols
 
     constexpr auto kernel = proc_t{~0ull, {~0ull}, {~0ull}};
 
-    bool        load_module_memory  (core::Core& core, proc_t proc, span_t span);
+    bool        load_module_memory  (core::Core& core, proc_t proc, const memory::Io& io, span_t span);
     bool        load_module         (core::Core& core, proc_t proc, const std::string& name);
     bool        load_modules        (core::Core& core, proc_t proc);
     opt<bpid_t> autoload_modules    (core::Core& core, proc_t proc);

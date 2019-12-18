@@ -127,7 +127,7 @@ namespace
     }
 }
 
-bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span, const ModulePtr& symbols)
+bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span, const std::shared_ptr<Module>& symbols)
 {
     return insert_module(*d_, proc, module, span, symbols, insert_e::loaded);
 }
@@ -154,11 +154,10 @@ namespace
     }
 }
 
-bool symbols::Modules::insert(proc_t proc, span_t span)
+bool symbols::Modules::insert(proc_t proc, const memory::Io& io, span_t span)
 {
     // do not reload known modules
-    auto& d       = *d_;
-    const auto io = is_kernel_proc(proc) ? memory::make_io(d.core) : memory::make_io(d.core, proc);
+    auto& d = *d_;
     for(const auto& h : g_helpers)
     {
         const auto opt_id = h.identify(span, io);
@@ -218,7 +217,7 @@ bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module)
 
 namespace
 {
-    enum find_e
+    enum class find_e
     {
         all,
         proc_only,
@@ -393,9 +392,9 @@ std::string symbols::to_string(const symbols::Symbol& symbol)
     return to_offset(0, symbol.offset);
 }
 
-bool symbols::load_module_memory(core::Core& core, proc_t proc, span_t span)
+bool symbols::load_module_memory(core::Core& core, proc_t proc, const memory::Io& io, span_t span)
 {
-    return core.symbols_->insert(proc, span);
+    return core.symbols_->insert(proc, io, span);
 }
 
 namespace
@@ -406,7 +405,8 @@ namespace
         if(!opt_span)
             return false;
 
-        return symbols::load_module_memory(core, proc, *opt_span);
+        const auto io = memory::make_io(core, proc);
+        return symbols::load_module_memory(core, proc, io, *opt_span);
     }
 
     bool copy_module(Data& d, proc_t proc, const std::string& module)
@@ -515,7 +515,8 @@ opt<symbols::bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
 
 bool symbols::load_driver_memory(core::Core& core, span_t span)
 {
-    return core.symbols_->insert(symbols::kernel, span);
+    const auto io = memory::make_io_kernel(core);
+    return core.symbols_->insert(symbols::kernel, io, span);
 }
 
 bool symbols::load_driver(core::Core& core, driver_t driver)
