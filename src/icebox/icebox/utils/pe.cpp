@@ -197,7 +197,7 @@ opt<span_t> pe::find_image_directory(const memory::Io& io, const span_t span, co
     const auto offset          = *pe64 ? offsetof(nt::IMAGE_OPTIONAL_HEADER64, DataDirectory) : offsetof(nt::IMAGE_OPTIONAL_HEADER32, DataDirectory);
     const auto data_directory  = image_optional_header + offset + id * sizeof(nt::IMAGE_DATA_DIRECTORY);
     const auto virtual_address = io.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, VirtualAddress));
-    if(!virtual_address)
+    if(!virtual_address || !*virtual_address)
         return FAIL(ext::nullopt, "unable to read DataDirectory.VirtualAddress");
 
     const auto size = io.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, Size));
