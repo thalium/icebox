@@ -132,9 +132,9 @@ void Data::finalize()
 {
     // sort & map strings
     fill_strings(strings, data);
-    auto sorted = std::vector<uint32_t>{};
+    auto sorted = std::vector<size_t>{};
     sorted.resize(strings.size());
-    for(uint32_t i = 0; i < strings.size(); ++i)
+    for(size_t i = 0; i < strings.size(); ++i)
         sorted[i] = i;
     std::sort(sorted.begin(), sorted.end(), [&](const auto& a, const auto& b)
     {
@@ -146,10 +146,10 @@ void Data::finalize()
     reverse.resize(strings.size());
     auto new_data = StringData{};
     new_data.reserve(data.size());
-    for(uint32_t i = 0; i < strings.size(); ++i)
+    for(size_t i = 0; i < strings.size(); ++i)
     {
         const auto idx = sorted[i];
-        reverse[idx]   = i;
+        reverse[idx]   = static_cast<uint32_t>(i);
         save_string_data(new_data, strings[idx]);
     }
     data.swap(new_data);
