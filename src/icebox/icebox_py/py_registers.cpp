@@ -7,7 +7,7 @@ PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
-    for(auto i = 0; i <= static_cast<size_t>(reg_e::last); ++i)
+    for(auto i = 0; i <= static_cast<int>(reg_e::last); ++i)
     {
         const auto arg     = static_cast<reg_e>(i);
         const auto strname = ::registers::to_string(arg);
@@ -41,7 +41,7 @@ PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
-    for(auto i = 0; i <= static_cast<size_t>(msr_e::last); ++i)
+    for(auto i = 0; i <= static_cast<int>(msr_e::last); ++i)
     {
         const auto arg     = static_cast<msr_e>(i);
         const auto strname = ::registers::to_string(arg);

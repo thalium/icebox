@@ -2,7 +2,7 @@
 
 #define PY_SSIZE_T_CLEAN
 // must be included first
-#include <python.h>
+#include <Python.h>
 
 #include "defer.hpp"
 

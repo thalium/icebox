@@ -191,7 +191,8 @@ namespace
 
 PyMODINIT_FUNC PyInit__icebox()
 {
-    auto args       = std::array<char*, 2>{"_icebox", nullptr};
+    char main[]     = "_icebox";
+    auto args       = std::array<char*, 2>{main, nullptr};
     const auto argc = static_cast<int>(args.size());
     logg::init(argc - 1, &args[0]);
 

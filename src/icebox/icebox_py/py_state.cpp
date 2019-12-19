@@ -45,8 +45,8 @@ namespace
     {
         struct Data
         {
-            constexpr Data(const T& value)
-                : value(value)
+            Data(T value)
+                : value(std::move(value))
             {
             }
             T value;
@@ -75,7 +75,7 @@ namespace
     template <typename T>
     opt<T> unwrap(PyObject* py_obj)
     {
-        auto vptr = PyCapsule_GetPointer(py_obj);
+        auto vptr = PyCapsule_GetPointer(py_obj, nullptr);
         if(!vptr)
             return py::fail_with(ext::nullopt, PyExc_RuntimeError, "unable to unwrap capsule");
 
