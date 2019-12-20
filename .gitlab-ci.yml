@@ -37,15 +37,15 @@ build:clang:
     - ubuntu
     - docker
   variables:
-    CC: /usr/bin/clang-7
-    CXX: /usr/bin/clang++-7
-    CLANG_TIDY: /usr/bin/clang-tidy-7
+    CC: /usr/bin/clang-8
+    CXX: /usr/bin/clang++-8
+    CLANG_TIDY: /usr/bin/clang-tidy-8
     TARGET: Ninja
     USE_STATIC_ANALYZER: 1
   script:
     - $APT_UPDATE && $APT_INSTALL
-        clang-7
-        clang-tidy-7
+        clang-8
+        clang-tidy-8
         cmake
         ninja-build
         python3
