@@ -23,6 +23,7 @@ build:gcc:
         cmake
         g++-8
         gcc-8
+        libpython3-dev
         ninja-build
         python3
         > /dev/null
@@ -47,6 +48,7 @@ build:clang:
         clang-9
         clang-tidy-9
         cmake
+        libpython3-dev
         ninja-build
         python3
         > /dev/null
