@@ -14,10 +14,20 @@ build:gcc:
   tags:
     - ubuntu
     - docker
+  variables:
+    CC: /usr/bin/gcc-8
+    CXX: /usr/bin/g++-8
+    TARGET: Ninja
   script:
-    - $APT_UPDATE && $APT_INSTALL cmake python3 gcc-8 g++-8 ninja-build > /dev/null
+    - $APT_UPDATE && $APT_INSTALL
+        cmake
+        g++-8
+        gcc-8
+        ninja-build
+        python3
+        > /dev/null
     - cd build
-    - CC=/usr/bin/gcc-8 CXX=/usr/bin/g++-8 TARGET=Ninja ./configure.sh
+    - ./configure.sh
     - cd ../out/x64
     - ninja
 
@@ -26,10 +36,22 @@ build:clang:
   tags:
     - ubuntu
     - docker
+  variables:
+    CC: /usr/bin/clang-7
+    CXX: /usr/bin/clang++-7
+    CLANG_TIDY: /usr/bin/clang-tidy-7
+    TARGET: Ninja
+    USE_STATIC_ANALYZER: 1
   script:
-    - $APT_UPDATE && $APT_INSTALL cmake python3 clang-7 clang-tidy-7 ninja-build > /dev/null
+    - $APT_UPDATE && $APT_INSTALL
+        clang-7
+        clang-tidy-7
+        cmake
+        ninja-build
+        python3
+        > /dev/null
     - cd build
-    - CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja USE_STATIC_ANALYZER=1 ./configure.sh
+    - ./configure.sh
     - cd ../out/x64
     - ninja
 
