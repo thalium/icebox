@@ -82,7 +82,7 @@ def parse_job(job, raw_job):
         if "variables" not in job:
             job["variables"] = ""
         for k, v in raw_job["variables"].items():
-            job["variables"] += k + " = " + v + "\n"
+            job["variables"] += "%s = %s\n" % (k, v)
 
     return stage_name
 
