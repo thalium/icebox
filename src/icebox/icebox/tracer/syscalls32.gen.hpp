@@ -201,7 +201,7 @@ namespace wow64
     using on_NtWaitForKeyedEvent_fn                                = std::function<void(HANDLE, PVOID, BOOLEAN, PLARGE_INTEGER)>;
     using on_NtWaitForMultipleObjects32_fn                         = std::function<void(ULONG, LONG, WAIT_TYPE, BOOLEAN, PLARGE_INTEGER)>;
     using on_NtWaitForMultipleObjects_fn                           = std::function<void(ULONG, HANDLE, WAIT_TYPE, BOOLEAN, PLARGE_INTEGER)>;
-    using on_NtWaitForWorkViaWorkerFactory_fn                      = std::function<void(HANDLE, PFILE_IO_COMPLETION_INFORMATION, PVOID, PVOID, PVOID)>;
+    using on_NtWaitForWorkViaWorkerFactory_fn                      = std::function<void(HANDLE, PFILE_IO_COMPLETION_INFORMATION, LONG, LONG, LONG)>;
     using on_NtWaitLowEventPair_fn                                 = std::function<void(HANDLE)>;
     using on_NtWorkerFactoryWorkerReady_fn                         = std::function<void(HANDLE)>;
     using on_NtWriteFileGather_fn                                  = std::function<void(HANDLE, HANDLE, PIO_APC_ROUTINE, PVOID, PIO_STATUS_BLOCK, PFILE_SEGMENT_ELEMENT, ULONG, PLARGE_INTEGER, PULONG)>;

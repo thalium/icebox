@@ -2299,9 +2299,9 @@
         "NtWaitForWorkViaWorkerFactory" : ["NTSTATUS",[
             ["WorkerFactoryHandle","HANDLE"],
             ["MiniPacket","PFILE_IO_COMPLETION_INFORMATION"],
-            ["Arg2","PVOID"],
-            ["Arg3","PVOID"],
-            ["Arg4","PVOID"]
+            [ "Arg2", "LONG" ],
+            [ "Arg3", "LONG" ],
+            [ "Arg4", "LONG" ]
         ]],
         "ZwWaitHighEventPair" : ["NTSTATUS",[
             ["EventPairHandle","HANDLE"]

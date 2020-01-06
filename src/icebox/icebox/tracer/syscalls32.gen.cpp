@@ -203,7 +203,7 @@ namespace
         {"_NtWaitForKeyedEvent@16", 4, {{"HANDLE", "KeyedEventHandle", sizeof(wow64::HANDLE)}, {"PVOID", "KeyValue", sizeof(wow64::PVOID)}, {"BOOLEAN", "Alertable", sizeof(wow64::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(wow64::PLARGE_INTEGER)}}},
         {"_NtWaitForMultipleObjects32@20", 5, {{"ULONG", "Count", sizeof(wow64::ULONG)}, {"LONG", "Handles", sizeof(wow64::LONG)}, {"WAIT_TYPE", "WaitType", sizeof(wow64::WAIT_TYPE)}, {"BOOLEAN", "Alertable", sizeof(wow64::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(wow64::PLARGE_INTEGER)}}},
         {"_NtWaitForMultipleObjects@20", 5, {{"ULONG", "Count", sizeof(wow64::ULONG)}, {"HANDLE", "Handles", sizeof(wow64::HANDLE)}, {"WAIT_TYPE", "WaitType", sizeof(wow64::WAIT_TYPE)}, {"BOOLEAN", "Alertable", sizeof(wow64::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(wow64::PLARGE_INTEGER)}}},
-        {"_NtWaitForWorkViaWorkerFactory@20", 5, {{"HANDLE", "WorkerFactoryHandle", sizeof(wow64::HANDLE)}, {"PFILE_IO_COMPLETION_INFORMATION", "MiniPacket", sizeof(wow64::PFILE_IO_COMPLETION_INFORMATION)}, {"PVOID", "Arg2", sizeof(wow64::PVOID)}, {"PVOID", "Arg3", sizeof(wow64::PVOID)}, {"PVOID", "Arg4", sizeof(wow64::PVOID)}}},
+        {"_NtWaitForWorkViaWorkerFactory@20", 5, {{"HANDLE", "WorkerFactoryHandle", sizeof(wow64::HANDLE)}, {"PFILE_IO_COMPLETION_INFORMATION", "MiniPacket", sizeof(wow64::PFILE_IO_COMPLETION_INFORMATION)}, {"LONG", "Arg2", sizeof(wow64::LONG)}, {"LONG", "Arg3", sizeof(wow64::LONG)}, {"LONG", "Arg4", sizeof(wow64::LONG)}}},
         {"_NtWaitLowEventPair@4", 1, {{"HANDLE", "EventPairHandle", sizeof(wow64::HANDLE)}}},
         {"_NtWorkerFactoryWorkerReady@4", 1, {{"HANDLE", "WorkerFactoryHandle", sizeof(wow64::HANDLE)}}},
         {"_NtWriteFile@36", 9, {{"HANDLE", "FileHandle", sizeof(wow64::HANDLE)}, {"HANDLE", "Event", sizeof(wow64::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(wow64::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(wow64::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(wow64::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(wow64::PVOID)}, {"ULONG", "Length", sizeof(wow64::ULONG)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(wow64::PLARGE_INTEGER)}, {"PULONG", "Key", sizeof(wow64::PULONG)}}},
@@ -3902,9 +3902,9 @@ opt<bpid_t> wow64::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t pro
 
         const auto WorkerFactoryHandle = arg<wow64::HANDLE>(core, 0);
         const auto MiniPacket          = arg<wow64::PFILE_IO_COMPLETION_INFORMATION>(core, 1);
-        const auto Arg2                = arg<wow64::PVOID>(core, 2);
-        const auto Arg3                = arg<wow64::PVOID>(core, 3);
-        const auto Arg4                = arg<wow64::PVOID>(core, 4);
+        const auto Arg2                = arg<wow64::LONG>(core, 2);
+        const auto Arg3                = arg<wow64::LONG>(core, 3);
+        const auto Arg4                = arg<wow64::LONG>(core, 4);
 
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[190]);
