@@ -250,7 +250,7 @@ namespace
         const auto obj_header       = obj.id - d.members[OBJECT_HEADER_Body];
         const auto encoded_type_idx = d.io.byte(obj_header + d.members[OBJECT_HEADER_TypeIndex]);
         if(!encoded_type_idx)
-            return FAIL(ext::nullopt, "unable to read encoded type index");
+            return {};
 
         const auto header_cookie = d.io.byte(d.symbols[ObHeaderCookie]);
         if(!header_cookie)
