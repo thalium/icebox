@@ -228,6 +228,7 @@ namespace
         phy_t       LdrpInitializeProcess_;
         phy_t       LdrpProcessMappedModule_;
         uint32_t    NtMajorVersion_;
+        uint32_t    NtMinorVersion_;
     };
 }
 
@@ -464,6 +465,10 @@ bool NtOs::setup()
     if(!ok)
         return false;
 
+    ok = memory::read_virtual(core_, *proc, &NtMinorVersion_, user_shared_data_addr + offsets_[KUSER_SHARED_DATA_NtMinorVersion], sizeof NtMinorVersion_);
+    if(!ok)
+        return false;
+
     proc_join(*proc, mode_e::kernel);
 
     // now update kernel dtb with the one read from system process
@@ -471,7 +476,7 @@ bool NtOs::setup()
     if(!ok)
         return false;
 
-    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64, kpcr_, io_.dtb.val);
+    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64 " version: %d.%d", kpcr_, io_.dtb.val, NtMajorVersion_, NtMinorVersion_);
     return try_load_ntdll(*this, core_);
 }
 
