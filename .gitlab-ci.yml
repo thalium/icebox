@@ -158,7 +158,7 @@ virtualbox:gcc:
       --with-openssl=%OPENSSL_DIR%
       --with-openssl32=c:/OpenSSL-Win32
       --with-qt5=%QT_DIR%/qtbase
-      --with-python=c:/Python37-32
+      --with-python=c:/Python38
       --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl
       --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
     - call env.bat
