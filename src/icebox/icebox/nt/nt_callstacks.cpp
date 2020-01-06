@@ -5,6 +5,7 @@
 #include "endian.hpp"
 #include "interfaces/if_callstacks.hpp"
 #include "log.hpp"
+#include "nt_types.hpp"
 #include "utils/path.hpp"
 #include "utils/pe.hpp"
 #include "utils/utils.hpp"
@@ -105,21 +106,21 @@ namespace
         OFFSET_COUNT,
     };
 
-    struct NtOffset
+    struct UserOffset
     {
         offsets_e   e_id;
         const char* struc;
         const char* member;
     };
     // clang-format off
-    const NtOffset g_nt_offsets[] =
+    const UserOffset g_user_offsets[] =
     {
         {TEB_NtTib,         "_TEB",     "NtTib"},
         {NT_TIB_StackBase,  "_NT_TIB",  "StackBase"},
         {NT_TIB_StackLimit, "_NT_TIB",  "StackLimit"},
     };
     // clang-format on
-    STATIC_ASSERT_EQ(COUNT_OF(g_nt_offsets), OFFSET_COUNT);
+    STATIC_ASSERT_EQ(COUNT_OF(g_user_offsets), OFFSET_COUNT);
 
     enum class cat_e
     {
@@ -169,10 +170,8 @@ namespace
     {
         {cat_e::REQUIRED, KiSystemCall64,                  "nt", "KiSystemCall64"},
     };
+    // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_symbols), SYMBOL_COUNT);
-
-    using NtKernelOffsets = std::array<uint64_t, KERNEL_OFFSET_COUNT>;
-    using NtSymbols       = std::array<uint64_t, SYMBOL_COUNT>;
 
     const auto UNWIND_CHAINED_FLAG_MASK = 0b00100000;
 
@@ -185,14 +184,16 @@ namespace
         uint32_t unwind_info;
     };
 
-    using Modules       = std::map<uint64_t, mod_t>;
-    using Drivers       = std::map<uint64_t, driver_t>;
-    using AllModules    = std::unordered_map<proc_t, Modules>;
-    using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
-    using Offsets       = std::array<uint64_t, OFFSET_COUNT>;
-    using Buffer        = std::vector<uint8_t>;
-    using caller_t      = callstacks::caller_t;
-    using context_t     = callstacks::context_t;
+    using Modules         = std::map<uint64_t, mod_t>;
+    using Drivers         = std::map<uint64_t, driver_t>;
+    using AllModules      = std::unordered_map<proc_t, Modules>;
+    using ExceptionDirs   = std::unordered_map<std::string, FunctionTable>;
+    using UserOffsets     = std::array<uint64_t, OFFSET_COUNT>;
+    using NtKernelOffsets = std::array<uint64_t, KERNEL_OFFSET_COUNT>;
+    using NtSymbols       = std::array<uint64_t, SYMBOL_COUNT>;
+    using Buffer          = std::vector<uint8_t>;
+    using caller_t        = callstacks::caller_t;
+    using context_t       = callstacks::context_t;
 
     struct NtCallstacks
         : public callstacks::Module
@@ -205,15 +206,15 @@ namespace
         bool    preload     (proc_t proc, const std::string& name, span_t span) override;
 
         // members
-        core::Core&     core_;
-        Drivers         all_drivers_;
-        AllModules      all_modules_;
-        ExceptionDirs   exception_dirs_;
-        opt<Offsets>    offsets64_;
-        opt<Offsets>    offsets32_;
-        NtKernelOffsets kernel_offsets_;
-        NtSymbols       symbols_;
-        Buffer          buffer_;
+        core::Core&          core_;
+        Drivers              all_drivers_;
+        AllModules           all_modules_;
+        ExceptionDirs        exception_dirs_;
+        opt<UserOffsets>     user_offsets64_;
+        opt<UserOffsets>     user_offsets32_;
+        opt<NtKernelOffsets> kernel_offsets_;
+        opt<NtSymbols>       symbols_;
+        Buffer               buffer_;
     };
 }
 
@@ -526,22 +527,22 @@ namespace
         return parse_module_unwind(c, proc, name, span);
     }
 
-    bool read_offsets(NtCallstacks& c, flags_t flags)
+    bool read_user_offsets(NtCallstacks& c, flags_t flags)
     {
-        auto& opt_offsets = flags.is_x86 ? c.offsets32_ : c.offsets64_;
+        auto& opt_offsets = flags.is_x86 ? c.user_offsets32_ : c.user_offsets64_;
         if(opt_offsets)
             return true;
 
         const auto name = flags.is_x86 ? "wntdll" : "ntdll";
         bool fail       = false;
-        auto offsets    = Offsets{};
+        auto offsets    = UserOffsets{};
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
-            fail |= g_nt_offsets[i].e_id != i;
-            const auto opt_mb = symbols::read_member(c.core_, symbols::kernel, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            fail |= g_user_offsets[i].e_id != i;
+            const auto opt_mb = symbols::read_member(c.core_, symbols::kernel, name, g_user_offsets[i].struc, g_user_offsets[i].member);
             if(!opt_mb)
             {
-                LOG(ERROR, "unable to read %s!%s.%s member offset", name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+                LOG(ERROR, "unable to read %s!%s.%s member offset", name, g_user_offsets[i].struc, g_user_offsets[i].member);
                 continue;
             }
             offsets[i] = opt_mb->offset;
@@ -553,22 +554,22 @@ namespace
         return true;
     }
 
-    uint64_t offset_to(const NtCallstacks& c, flags_t flags, offsets_e off)
+    uint64_t user_offset(const NtCallstacks& c, flags_t flags, offsets_e off)
     {
-        const auto& offsets = flags.is_x86 ? *c.offsets32_ : *c.offsets64_;
+        const auto& offsets = flags.is_x86 ? *c.user_offsets32_ : *c.user_offsets64_;
         return offsets[off];
     }
 
     opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, flags_t flags)
     {
         const auto io = memory::make_io(c.core_, proc);
-        if(!read_offsets(c, flags))
+        if(!read_user_offsets(c, flags))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
         const auto teb    = registers::read_msr(c.core_, flags.is_x86 ? msr_e::fs_base : msr_e::gs_base);
-        const auto nt_tib = teb + offset_to(c, flags, TEB_NtTib);
-        auto base         = io.read(nt_tib + offset_to(c, flags, NT_TIB_StackBase));
-        auto limit        = io.read(nt_tib + offset_to(c, flags, NT_TIB_StackLimit));
+        const auto nt_tib = teb + user_offset(c, flags, TEB_NtTib);
+        auto base         = io.read(nt_tib + user_offset(c, flags, NT_TIB_StackBase));
+        auto limit        = io.read(nt_tib + user_offset(c, flags, NT_TIB_StackLimit));
         if(!base || !limit)
             return FAIL(ext::nullopt, "unable to find stack boundaries");
 
@@ -582,8 +583,12 @@ namespace
 
     bool read_kernel_offsets(NtCallstacks& c)
     {
-        bool fail    = false;
-        memset(&c.kernel_offsets_[0], 0, sizeof c.kernel_offsets_);
+        if(c.kernel_offsets_)
+            return true;
+
+        auto& offsets = *c.kernel_offsets_;
+        bool fail     = false;
+        memset(&offsets[0], 0, sizeof offsets);
         for(size_t i = 0; i < KERNEL_OFFSET_COUNT; ++i)
         {
             fail |= g_kernel_offsets[i].e_id != i;
@@ -593,7 +598,7 @@ namespace
                 LOG(ERROR, "unable to read %s!%s.%s member offset", g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
                 continue;
             }
-            c.kernel_offsets_[i] = *offset;
+            offsets[i] = *offset;
         }
         if(fail)
             return false;
@@ -603,8 +608,12 @@ namespace
 
     bool read_symbols(NtCallstacks& c)
     {
-        bool fail    = false;
-        memset(&c.symbols_[0], 0, sizeof c.symbols_);
+        if(c.symbols_)
+            return true;
+
+        auto& symbols = *c.symbols_;
+        bool fail     = false;
+        memset(&symbols[0], 0, sizeof symbols);
         for(size_t i = 0; i < SYMBOL_COUNT; ++i)
         {
             fail |= g_symbols[i].e_id != i;
@@ -614,7 +623,7 @@ namespace
                 LOG(ERROR, "unable to read %s!%s symbol", g_symbols[i].module, g_symbols[i].name);
                 continue;
             }
-            c.symbols_[i] = *addr;
+            symbols[i] = *addr;
         }
         if(fail)
             return false;
@@ -802,17 +811,55 @@ namespace
         return false;
     }
 
+    bool switch_ctx_x86(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
+    {
+        const auto opt_stack = get_stack(c, proc, ctx, ctx.flags);
+        if(!opt_stack)
+            return false;
+
+        stack = *opt_stack;
+
+        // wow64 context is stored by wow64cpu.dll
+        const auto teb          = registers::read_msr(c.core_, msr_e::gs_base); // always in kernel ctx here
+        const auto TEB_TlsSlots = symbols::member_offset(c.core_, symbols::kernel, "nt", "_TEB", "TlsSlots");
+        if(!TEB_TlsSlots)
+            return false;
+
+        const auto TlsSlot       = teb + *TEB_TlsSlots + 8;
+        const auto WOW64_CONTEXT = io.read(TlsSlot);
+        if(!WOW64_CONTEXT)
+            return false;
+
+        if(false)
+            LOG(INFO, "TEB is: 0x%" PRIx64 ", r12 is: 0x%" PRIx64 ", r13 is: 0x%" PRIx64, teb, TlsSlot, *WOW64_CONTEXT);
+
+        auto offset = 4; // FIXME: why 4 on 10240 ?
+        nt_types::_WOW64_CONTEXT wow64ctx;
+        const auto ok = io.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
+        if(!ok)
+            return false;
+
+        const auto ebp   = static_cast<uint64_t>(wow64ctx.Ebp);
+        const auto eip   = static_cast<uint64_t>(wow64ctx.Eip);
+        const auto esp   = static_cast<uint64_t>(wow64ctx.Esp);
+        const auto segcs = static_cast<uint64_t>(wow64ctx.SegCs);
+        ctx              = context_t{eip, esp, ebp, segcs, flags::x86};
+        return true;
+    }
+
     opt<uint64_t> switch_bp_x64(NtCallstacks& c, proc_t proc, const memory::Io& io)
     {
-        const auto kernel_gs_base = registers::read_msr(c.core_, msr_e::gs_base); // waring x86
-        const auto rsp_base       = kernel_gs_base + c.kernel_offsets_[KPCR_Prcb] + c.kernel_offsets_[KPRCB_RspBase];
-        auto base                 = io.read(rsp_base);
+        const auto kernel_gs_base  = registers::read_msr(c.core_, msr_e::gs_base);
+        const auto& kernel_offsets = *c.kernel_offsets_;
+        const auto rsp_base        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + kernel_offsets[KPRCB_RspBase];
+        auto base                  = io.read(rsp_base);
         if(!base)
             return {};
 
-        auto fake_ctx    = context_t{};
-        fake_ctx.ip      = c.symbols_[KiSystemCall64];
-        const auto tuple = get_name_span(c, proc, fake_ctx);
+        auto fake_ctx       = context_t{};
+        const auto& symbols = *c.symbols_;
+        fake_ctx.ip         = symbols[KiSystemCall64];
+        const auto tuple    = get_name_span(c, proc, fake_ctx);
         if(!tuple)
             return {};
 
@@ -833,12 +880,7 @@ namespace
         return bp;
     }
 
-    opt<uint64_t> switch_bp(NtCallstacks& c, proc_t proc, const memory::Io& io)
-    {
-        return switch_bp_x64(c, proc, io);
-    }
-
-    bool switch_ctx(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
+    bool switch_ctx_x64(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
     {
         const auto opt_stack = get_stack(c, proc, ctx, ctx.flags);
         if(!opt_stack)
@@ -847,7 +889,7 @@ namespace
         stack  = *opt_stack;
         ctx.sp = stack.addr + stack.size;
 
-        const auto bp = switch_bp(c, proc, io);
+        const auto bp = switch_bp_x64(c, proc, io);
         if(!bp)
             return false;
 
@@ -855,9 +897,18 @@ namespace
         return true;
     }
 
+    bool switch_ctx(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
+    {
+        const auto flags = process::flags(c.core_, proc);
+        if(flags.is_x86)
+            return switch_ctx_x86(c, proc, io, stack, ctx);
+
+        return switch_ctx_x64(c, proc, io, stack, ctx);
+    }
+
     size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
-        const auto io    = memory::make_io(c.core_, proc);
+        const auto io        = memory::make_io(c.core_, proc);
         const auto opt_stack = get_stack(c, proc, first, first.flags);
         if(!opt_stack)
             return 0;
@@ -866,7 +917,7 @@ namespace
         auto ctx        = first;
         callers[0].addr = ctx.ip;
 
-        auto land       = land_e::unknown;
+        auto land = land_e::unknown;
         get_state(c, ctx, land);
 
         const auto next_context = first.flags.is_x86 ? &get_next_context_x86 : &get_next_context_x64;
