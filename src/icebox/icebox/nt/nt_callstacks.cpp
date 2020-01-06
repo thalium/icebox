@@ -462,37 +462,19 @@ namespace
         return parse_module_unwind(c, proc, name, span);
     }
 
-    bool load_ntdll(core::Core& core, proc_t proc, flags_t flags)
-    {
-        const auto opt_mod = modules::find_name(core, proc, "ntdll.dll", flags);
-        if(!opt_mod)
-            return false;
-
-        const auto opt_span = modules::span(core, proc, *opt_mod);
-        if(!opt_span)
-            return false;
-
-        const auto io = memory::make_io(core, proc);
-        return symbols::load_module_memory(core, proc, io, *opt_span);
-    }
-
-    bool read_offsets(NtCallstacks& c, proc_t proc, flags_t flags)
+    bool read_offsets(NtCallstacks& c, flags_t flags)
     {
         auto& opt_offsets = flags.is_x86 ? c.offsets32_ : c.offsets64_;
-        const auto name   = flags.is_x86 ? "wntdll" : "ntdll";
         if(opt_offsets)
             return true;
 
-        const auto ok = !flags.is_x86 || load_ntdll(c.core_, proc, flags);
-        if(!ok)
-            return FAIL(false, "unable to load ntdll");
-
-        bool fail    = false;
-        auto offsets = Offsets{};
+        const auto name = flags.is_x86 ? "wntdll" : "ntdll";
+        bool fail       = false;
+        auto offsets    = Offsets{};
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_nt_offsets[i].e_id != i;
-            const auto offset = symbols::member_offset(c.core_, proc, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            const auto offset = symbols::member_offset(c.core_, symbols::kernel, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
             if(!offset)
             {
                 LOG(ERROR, "unable to read %s!%s.%s member offset", name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
@@ -507,7 +489,7 @@ namespace
         return true;
     }
 
-    uint64_t offset(const NtCallstacks& c, flags_t flags, offsets_e off)
+    uint64_t offset_to(const NtCallstacks& c, flags_t flags, offsets_e off)
     {
         const auto& offsets = flags.is_x86 ? *c.offsets32_ : *c.offsets64_;
         return offsets[off];
@@ -516,13 +498,13 @@ namespace
     opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, flags_t flags)
     {
         const auto io = memory::make_io(c.core_, proc);
-        if(!read_offsets(c, proc, flags))
+        if(!read_offsets(c, flags))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
         const auto teb    = registers::read_msr(c.core_, flags.is_x86 ? msr_e::fs_base : msr_e::gs_base);
-        const auto nt_tib = teb + offset(c, flags, TEB_NtTib);
-        auto base         = io.read(nt_tib + offset(c, flags, NT_TIB_StackBase));
-        auto limit        = io.read(nt_tib + offset(c, flags, NT_TIB_StackLimit));
+        const auto nt_tib = teb + offset_to(c, flags, TEB_NtTib);
+        auto base         = io.read(nt_tib + offset_to(c, flags, NT_TIB_StackBase));
+        auto limit        = io.read(nt_tib + offset_to(c, flags, NT_TIB_StackLimit));
         if(!base || !limit)
             return FAIL(ext::nullopt, "unable to find stack boundaries");
 
