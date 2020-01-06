@@ -654,6 +654,9 @@ namespace
     bool get_next_context_x86(NtCallstacks& /*c*/, proc_t /*proc*/, const memory::Io& io, const span_t& stack, context_t& ctx)
     {
         constexpr auto reg_size = 4;
+        if(!ctx.bp)
+            return false;
+
         if(stack.addr > ctx.bp || stack.addr + stack.size < ctx.bp)
             return FAIL(false, "ebp out of stack bounds, ebp: 0x%" PRIx64 " stack bounds: 0x%" PRIx64 "-0x%" PRIx64, ctx.bp, stack.addr, stack.addr + stack.size);
 
