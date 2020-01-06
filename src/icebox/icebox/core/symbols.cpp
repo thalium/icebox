@@ -337,6 +337,9 @@ namespace
 
     symbols::Symbol read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
     {
+        if(!process::is_valid(core, proc))
+            return read_name_from_proc(core, proc, addr);
+
         const auto mod = modules::find(core, proc, addr);
         if(!mod)
             return read_name_from_proc(core, proc, addr);
