@@ -9,7 +9,6 @@ namespace core { struct Core; }
 
 namespace functions
 {
-    using bpid_t       = uint64_t;
     using on_return_fn = std::function<void(void)>;
 
     opt<arg_t>      read_stack      (core::Core& core, size_t index);

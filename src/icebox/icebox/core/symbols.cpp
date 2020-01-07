@@ -464,7 +464,7 @@ namespace
         const auto bpx86 = modules::listen_create(core, proc, flags::x86, check_mod);
         if(!bpx86)
         {
-            os::unlisten(core, *bpx64);
+            state::drop_breakpoint(core, *bpx64);
             return {};
         }
 
@@ -473,8 +473,8 @@ namespace
             state::resume(core);
             state::wait(core);
         }
-        os::unlisten(core, *bpx64);
-        os::unlisten(core, *bpx86);
+        state::drop_breakpoint(core, *bpx64);
+        state::drop_breakpoint(core, *bpx86);
         return found;
     }
 }
@@ -506,7 +506,7 @@ bool symbols::load_modules(core::Core& core, proc_t proc)
     return true;
 }
 
-opt<symbols::bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
+opt<bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
 {
     load_modules(core, proc);
     const auto ptr   = &core;

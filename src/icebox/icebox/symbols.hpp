@@ -8,7 +8,6 @@ namespace memory { struct Io; }
 
 namespace symbols
 {
-    using bpid_t     = uint64_t;
     using on_name_fn = std::function<void(std::string_view)>;
 
     struct Symbol

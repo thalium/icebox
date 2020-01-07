@@ -40,4 +40,8 @@ namespace state
     void        run_to_current              (core::Core& core, std::string_view name);
     void        run_to                      (core::Core& core, std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, std::function<walk_e(proc_t, thread_t)> on_bp);
     bool        inject_interrupt            (core::Core& core, uint32_t code, uint32_t error, uint64_t cr2);
+    bpid_t      save_breakpoint             (core::Core& core, const Breakpoint& bp);
+    bpid_t      acquire_breakpoint_id       (core::Core& core);
+    bpid_t      save_breakpoint_with        (core::Core& core, bpid_t bpid, const Breakpoint& bp);
+    void        drop_breakpoint             (core::Core& core, bpid_t bpid);
 } // namespace state

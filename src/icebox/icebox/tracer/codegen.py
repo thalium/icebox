@@ -47,11 +47,9 @@ namespace {namespace}
         ~{filename}();
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
-        using bpid_t     = uint64_t;
         using callcfgs_t = std::array<tracer::callcfg_t, {size}>;
 
         opt<bpid_t>         register_all(proc_t proc, const on_call_fn& on_call);
-        bool                unregister  (bpid_t id);
         const callcfgs_t&   callcfgs    ();
 
 {listens}
@@ -91,7 +89,7 @@ def generate_definitions(json_data, filename, namespace, wow64):
         definitions += """
 opt<bpid_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
 {{
-    return register_callback(*d_, ++d_->last_id, proc, "{symbol_name}", [=]
+    return register_callback(*d_, proc, "{symbol_name}", [=]
     {{
         auto& core = d_->core;
 {read_args}
@@ -122,7 +120,6 @@ def generate_impl(json_data, filename, namespace, pad, wow64):
 #include "core.hpp"
 
 #include <cstring>
-#include <map>
 
 namespace
 {{
@@ -132,9 +129,6 @@ namespace
     {{{{
 {callers}
     }}}};
-
-    using bpid_t    = {namespace}::{filename}::bpid_t;
-    using Listeners = std::multimap<bpid_t, state::Breakpoint>;
 }}
 
 struct {namespace}::{filename}::Data
@@ -143,14 +137,11 @@ struct {namespace}::{filename}::Data
 
     core::Core&   core;
     std::string   module;
-    Listeners     listeners;
-    bpid_t        last_id;
 }};
 
 {namespace}::{filename}::Data::Data(core::Core& core, std::string_view module)
     : core(core)
     , module(module)
-    , last_id(0)
 {{
 }}
 
@@ -168,7 +159,7 @@ const {namespace}::{filename}::callcfgs_t& {namespace}::{filename}::callcfgs()
 
 namespace
 {{
-    opt<bpid_t> register_callback({namespace}::{filename}::Data& d, bpid_t id, proc_t proc, const char* name, const state::Task& on_call)
+    opt<bpid_t> register_callback_with({namespace}::{filename}::Data& d, bpid_t bpid, proc_t proc, const char* name, const state::Task& on_call)
     {{
         const auto addr = symbols::address(d.core, proc, d.module, name);
         if(!addr)
@@ -178,8 +169,13 @@ namespace
         if(!bp)
             return FAIL(ext::nullopt, "unable to set breakpoint");
 
-        d.listeners.emplace(id, bp);
-        return id;
+        return state::save_breakpoint_with(d.core, bpid, bp);
+    }}
+
+    opt<bpid_t> register_callback({namespace}::{filename}::Data& d, proc_t proc, const char* name, const state::Task& on_call)
+    {{
+        const auto bpid = state::acquire_breakpoint_id(d.core);
+        return register_callback_with(d, bpid, proc, name, on_call);
     }}
 
     template <typename T>
@@ -198,20 +194,11 @@ namespace
 {definitions}
 opt<bpid_t> {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
 {{
-    const auto id   = ++d_->last_id;
-    const auto size = d_->listeners.size();
+    auto& d         = *d_;
+    const auto bpid = state::acquire_breakpoint_id(d.core);
     for(const auto cfg : g_callcfgs)
-        register_callback(*d_, id, proc, cfg.name, [=]{{ on_call(cfg); }});
-
-    if(size == d_->listeners.size())
-        return {{}};
-
-    return id;
-}}
-
-bool {namespace}::{filename}::unregister(bpid_t id)
-{{
-    return d_->listeners.erase(id) > 0;
+        register_callback_with(d, bpid, proc, cfg.name, [=]{{ on_call(cfg); }});
+    return bpid;
 }}
 """.format(filename=filename, namespace=namespace,
         definitions=generate_definitions(json_data, filename, namespace, wow64),

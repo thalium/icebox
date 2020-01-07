@@ -67,7 +67,7 @@ opt<span_t> drivers::span(core::Core& core, driver_t drv)
     return core.os_->driver_span(drv);
 }
 
-opt<os::bpid_t> drivers::listen_create(core::Core& core, const on_event_fn& on_load)
+opt<bpid_t> drivers::listen_create(core::Core& core, const on_event_fn& on_load)
 {
     return core.os_->listen_drv_create(on_load);
 }

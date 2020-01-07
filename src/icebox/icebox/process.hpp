@@ -9,7 +9,6 @@ namespace core { struct Core; }
 
 namespace process
 {
-    using bpid_t      = uint64_t;
     using on_proc_fn  = std::function<walk_e(proc_t)>;
     using on_event_fn = std::function<void(proc_t)>;
 

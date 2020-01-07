@@ -57,12 +57,12 @@ opt<proc_t> process::parent(core::Core& core, proc_t proc)
     return core.os_->proc_parent(proc);
 }
 
-opt<os::bpid_t> process::listen_create(core::Core& core, const on_event_fn& on_proc_event)
+opt<bpid_t> process::listen_create(core::Core& core, const on_event_fn& on_proc_event)
 {
     return core.os_->listen_proc_create(on_proc_event);
 }
 
-opt<os::bpid_t> process::listen_delete(core::Core& core, const on_event_fn& on_proc_event)
+opt<bpid_t> process::listen_delete(core::Core& core, const on_event_fn& on_proc_event)
 {
     return core.os_->listen_proc_delete(on_proc_event);
 }
@@ -96,6 +96,6 @@ opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_t 
         state::resume(core);
         state::wait(core);
     }
-    os::unlisten(core, *bpid);
+    state::drop_breakpoint(core, *bpid);
     return found;
 }

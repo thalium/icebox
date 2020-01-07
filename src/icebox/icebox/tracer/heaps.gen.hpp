@@ -24,11 +24,9 @@ namespace nt
         ~heaps();
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
-        using bpid_t     = uint64_t;
         using callcfgs_t = std::array<tracer::callcfg_t, 6>;
 
         opt<bpid_t>         register_all(proc_t proc, const on_call_fn& on_call);
-        bool                unregister  (bpid_t id);
         const callcfgs_t&   callcfgs    ();
 
         opt<bpid_t> register_RtlFreeHeap               (proc_t proc, const on_RtlFreeHeap_fn& on_func);

@@ -35,11 +35,6 @@ opt<phy_t> os::virtual_to_physical(core::Core& core, proc_t* proc, dtb_t dtb, ui
     return core.os_->virtual_to_physical(proc, dtb, ptr);
 }
 
-size_t os::unlisten(core::Core& core, bpid_t bpid)
-{
-    return core.os_->unlisten(bpid);
-}
-
 void os::debug_print(core::Core& core)
 {
     return core.os_->debug_print();

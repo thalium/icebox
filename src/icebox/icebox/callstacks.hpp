@@ -6,8 +6,6 @@ namespace core { struct Core; }
 
 namespace callstacks
 {
-    using bpid_t = uint64_t;
-
     struct context_t
     {
         uint64_t ip;    // instruction pointer

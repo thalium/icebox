@@ -82,3 +82,8 @@ struct vm_area_t
 {
     uint64_t id;
 };
+
+struct bpid_t
+{
+    uint64_t id;
+};

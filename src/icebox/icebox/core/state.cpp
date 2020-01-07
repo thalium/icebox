@@ -110,14 +110,16 @@ namespace
         bool finished        = false; // worker thread is dead
     };
 
-    using WorkerPool = Pool<Worker>;
-    using Workers    = std::vector<std::unique_ptr<Worker>>;
+    using WorkerPool  = Pool<Worker>;
+    using Workers     = std::vector<std::unique_ptr<Worker>>;
+    using Breakpoints = std::multimap<uint64_t, state::Breakpoint>;
 }
 
 struct state::State
 {
     State(core::Core& core)
         : core(core)
+        , last_bpid{}
         , breakphy{}
         , co_main(co_active())
         , pool(16)
@@ -127,6 +129,8 @@ struct state::State
     core::Core& core;
     Breakers    targets;
     Observers   observers;
+    Breakpoints breakpoints;
+    bpid_t      last_bpid;
     phy_t       breakphy;
     cothread_t  co_main;
     WorkerPool  pool;
@@ -690,4 +694,49 @@ bool state::restore(core::Core& core)
 bool state::inject_interrupt(core::Core& core, uint32_t code, uint32_t error, uint64_t cr2)
 {
     return fdp::inject_interrupt(core, code, error, cr2);
+}
+
+namespace
+{
+    bpid_t acquire_bpid(Data& d)
+    {
+        ++d.last_bpid.id;
+        return d.last_bpid;
+    }
+
+    bpid_t save_bpid(Data& d, bpid_t bpid, const state::Breakpoint& bp)
+    {
+        d.breakpoints.emplace(bpid.id, bp);
+        return bpid;
+    }
+}
+
+bpid_t state::save_breakpoint(core::Core& core, const Breakpoint& bp)
+{
+    if(!bp)
+        return {};
+
+    auto& d = *core.state_;
+    return save_bpid(d, acquire_bpid(d), bp);
+}
+
+bpid_t state::acquire_breakpoint_id(core::Core& core)
+{
+    auto& d = *core.state_;
+    return acquire_bpid(d);
+}
+
+bpid_t state::save_breakpoint_with(core::Core& core, bpid_t bpid, const Breakpoint& bp)
+{
+    if(!bp)
+        return bpid;
+
+    auto& d = *core.state_;
+    return save_bpid(d, bpid, bp);
+}
+
+void state::drop_breakpoint(core::Core& core, bpid_t bpid)
+{
+    auto& d = *core.state_;
+    d.breakpoints.erase(bpid.id);
 }

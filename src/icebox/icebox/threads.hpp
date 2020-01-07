@@ -9,7 +9,6 @@ namespace core { struct Core; }
 
 namespace threads
 {
-    using bpid_t       = uint64_t;
     using on_thread_fn = std::function<walk_e(thread_t)>;
     using on_event_fn  = std::function<void(thread_t)>;
 

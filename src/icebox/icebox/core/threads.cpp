@@ -31,12 +31,12 @@ uint64_t threads::tid(core::Core& core, proc_t proc, thread_t thread)
     return core.os_->thread_id(proc, thread);
 }
 
-opt<os::bpid_t> threads::listen_create(core::Core& core, const on_event_fn& on_thread_event)
+opt<bpid_t> threads::listen_create(core::Core& core, const on_event_fn& on_thread_event)
 {
     return core.os_->listen_thread_create(on_thread_event);
 }
 
-opt<os::bpid_t> threads::listen_delete(core::Core& core, const on_event_fn& on_thread_event)
+opt<bpid_t> threads::listen_delete(core::Core& core, const on_event_fn& on_thread_event)
 {
     return core.os_->listen_thread_delete(on_thread_event);
 }

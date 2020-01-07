@@ -160,9 +160,6 @@ namespace
     using NtOffsets = std::array<uint64_t, OFFSET_COUNT>;
     using NtSymbols = std::array<uint64_t, SYMBOL_COUNT>;
 
-    using bpid_t      = os::bpid_t;
-    using Breakpoints = std::multimap<bpid_t, state::Breakpoint>;
-
     struct NtOs
         : public os::Module
     {
@@ -215,7 +212,6 @@ namespace
         opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_delete) override;
         opt<bpid_t> listen_mod_create   (proc_t proc, flags_t flags, const modules::on_event_fn& on_load) override;
         opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_load) override;
-        size_t      unlisten            (bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
         opt<arg_t>  read_arg    (size_t index) override;
@@ -230,8 +226,6 @@ namespace
         std::string last_dump_;
         uint64_t    kpcr_;
         memory::Io  io_;
-        bpid_t      last_bpid_;
-        Breakpoints breakpoints_;
         size_t      num_page_faults_;
 
         // constants
@@ -247,7 +241,6 @@ NtOs::NtOs(core::Core& core)
     : core_(core)
     , kpcr_(0)
     , io_(memory::make_io_current(core))
-    , last_bpid_(0)
     , num_page_faults_(0)
     , LdrpInitializeProcess_{0}
     , LdrpProcessMappedModule_{0}
@@ -740,27 +733,23 @@ uint64_t NtOs::proc_id(proc_t proc)
 namespace
 {
     template <typename T, typename U, typename V>
-    opt<bpid_t> listen_to(NtOs& os, bpid_t bpid, std::string_view name, T addr, const U& on_value, V callback)
+    opt<bpid_t> listen_to(NtOs& os, std::string_view name, T addr, const U& on_value, V callback)
     {
         const auto osptr = &os;
         const auto bp    = state::break_on(os.core_, name, addr, [=]
         {
-            callback(*osptr, bpid, on_value);
+            callback(*osptr, on_value);
         });
-        if(!bp)
-            return {};
-
-        os.breakpoints_.emplace(bpid, bp);
-        return bpid;
+        return state::save_breakpoint(os.core_, bp);
     }
 
-    void on_PspInsertThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
+    void on_PspInsertThread(NtOs& os, const threads::on_event_fn& on_thread)
     {
         const auto thread = registers::read(os.core_, reg_e::rcx);
         on_thread({thread});
     }
 
-    void on_PspExitProcess(NtOs& os, bpid_t /*bpid*/, const process::on_event_fn& on_proc)
+    void on_PspExitProcess(NtOs& os, const process::on_event_fn& on_proc)
     {
         const auto eproc       = registers::read(os.core_, reg_e::rdx);
         const auto head        = eproc + os.offsets_[EPROCESS_ThreadListHead];
@@ -771,7 +760,7 @@ namespace
                 on_proc(*proc);
     }
 
-    void on_PspExitThread(NtOs& os, bpid_t /*bpid*/, const threads::on_event_fn& on_thread)
+    void on_PspExitThread(NtOs& os, const threads::on_event_fn& on_thread)
     {
         if(const auto thread = os.thread_current())
             on_thread(*thread);
@@ -780,8 +769,7 @@ namespace
 
 opt<bpid_t> NtOs::listen_proc_create(const process::on_event_fn& on_create)
 {
-    const auto bpid = ++last_bpid_;
-    const auto bp   = state::break_on_physical(core_, "LdrpInitializeProcess", LdrpInitializeProcess_, [=]
+    const auto bp = state::break_on_physical(core_, "LdrpInitializeProcess", LdrpInitializeProcess_, [=]
     {
         const auto proc = process::current(core_);
         if(!proc)
@@ -789,30 +777,29 @@ opt<bpid_t> NtOs::listen_proc_create(const process::on_event_fn& on_create)
 
         on_create(*proc);
     });
-    breakpoints_.emplace(bpid, bp);
-    return bpid;
+    return state::save_breakpoint(core_, bp);
 }
 
 opt<bpid_t> NtOs::listen_proc_delete(const process::on_event_fn& on_delete)
 {
-    return listen_to(*this, ++last_bpid_, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
+    return listen_to(*this, "PspExitProcess", symbols_[PspExitProcess], on_delete, &on_PspExitProcess);
 }
 
 opt<bpid_t> NtOs::listen_thread_create(const threads::on_event_fn& on_create)
 {
-    return listen_to(*this, ++last_bpid_, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
+    return listen_to(*this, "PspInsertThread", symbols_[PspInsertThread], on_create, &on_PspInsertThread);
 }
 
 opt<bpid_t> NtOs::listen_thread_delete(const threads::on_event_fn& on_delete)
 {
-    return listen_to(*this, ++last_bpid_, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
+    return listen_to(*this, "PspExitThread", symbols_[PspExitThread], on_delete, &on_PspExitThread);
 }
 
 namespace
 {
     constexpr auto x86_cs = 0x23;
 
-    void on_LdrpInsertDataTableEntry(NtOs& os, bpid_t /*bpid*/, const modules::on_event_fn& on_mod)
+    void on_LdrpInsertDataTableEntry(NtOs& os, const modules::on_event_fn& on_mod)
     {
         const auto cs       = registers::read(os.core_, reg_e::cs);
         const auto is_32bit = cs == x86_cs;
@@ -826,12 +813,8 @@ namespace
 
     opt<bpid_t> replace_bp(NtOs& os, bpid_t bpid, const state::Breakpoint& bp)
     {
-        os.breakpoints_.erase(bpid);
-        if(!bp)
-            return {};
-
-        os.breakpoints_.emplace(bpid, bp);
-        return bpid;
+        state::drop_breakpoint(os.core_, bpid);
+        return state::save_breakpoint_with(os.core_, bpid, bp);
     }
 
     opt<bpid_t> try_on_LdrpProcessMappedModule(NtOs& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
@@ -843,7 +826,7 @@ namespace
         const auto ptr = &os;
         const auto bp  = state::break_on_process(os.core_, "wntdll!_LdrpProcessMappedModule@16", proc, *where, [=]
         {
-            on_LdrpInsertDataTableEntry(*ptr, bpid, on_mod);
+            on_LdrpInsertDataTableEntry(*ptr, on_mod);
         });
         return replace_bp(os, bpid, bp);
     }
@@ -885,10 +868,10 @@ namespace
 
 opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_t flags, const modules::on_event_fn& on_load)
 {
-    const auto bpid = ++last_bpid_;
     const auto name = "ntdll!LdrpProcessMappedModule";
     if(flags.is_x86)
     {
+        const auto bpid     = state::acquire_breakpoint_id(core_);
         const auto opt_bpid = try_on_LdrpProcessMappedModule(*this, proc, bpid, on_load);
         if(opt_bpid)
             return opt_bpid;
@@ -902,29 +885,19 @@ opt<bpid_t> NtOs::listen_mod_create(proc_t proc, flags_t flags, const modules::o
 
     const auto bp = state::break_on_physical_process(core_, name, proc.udtb, LdrpProcessMappedModule_, [=]
     {
-        on_LdrpInsertDataTableEntry(*this, bpid, on_load);
+        on_LdrpInsertDataTableEntry(*this, on_load);
     });
-    return replace_bp(*this, bpid, bp);
+    return state::save_breakpoint(core_, bp);
 }
 
 opt<bpid_t> NtOs::listen_drv_create(const drivers::on_event_fn& on_load)
 {
-    const auto bpid = ++last_bpid_;
-    const auto ok   = listen_to(*this, bpid, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_load, [](NtOs& os, bpid_t /*bpid*/, const auto& on_load)
+    return listen_to(*this, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], on_load, [](NtOs& os, const auto& on_load)
     {
         const auto drv_addr   = registers::read(os.core_, reg_e::rcx);
         const auto drv_loaded = registers::read(os.core_, reg_e::rdx);
         on_load({drv_addr}, drv_loaded);
     });
-    if(!ok)
-        return {};
-
-    return bpid;
-}
-
-size_t NtOs::unlisten(bpid_t bpid)
-{
-    return breakpoints_.erase(bpid);
 }
 
 namespace

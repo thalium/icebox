@@ -78,7 +78,7 @@ namespace
             state::resume(core);
             state::wait(core);
         }
-        tracer.unregister(*bp);
+        state::drop_breakpoint(core, *bp);
 
         return 0;
     }

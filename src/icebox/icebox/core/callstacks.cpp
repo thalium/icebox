@@ -45,7 +45,7 @@ bool callstacks::load_driver(core::Core& core, proc_t proc, driver_t drv)
     return core.callstacks_->preload(proc, *opt_name, *opt_span);
 }
 
-opt<callstacks::bpid_t> callstacks::autoload_modules(core::Core& core, proc_t proc)
+opt<bpid_t> callstacks::autoload_modules(core::Core& core, proc_t proc)
 {
     modules::list(core, proc, [&](mod_t mod)
     {

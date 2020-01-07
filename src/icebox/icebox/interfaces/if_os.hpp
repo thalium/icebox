@@ -60,7 +60,6 @@ namespace os
         virtual opt<bpid_t> listen_thread_delete(const threads::on_event_fn& on_delete) = 0;
         virtual opt<bpid_t> listen_mod_create   (proc_t proc, flags_t flags, const modules::on_event_fn& on_load) = 0;
         virtual opt<bpid_t> listen_drv_create   (const drivers::on_event_fn& on_load) = 0;
-        virtual size_t      unlisten            (bpid_t bpid) = 0;
 
         virtual opt<arg_t>  read_stack  (size_t index) = 0;
         virtual opt<arg_t>  read_arg    (size_t index) = 0;

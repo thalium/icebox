@@ -9,7 +9,6 @@ namespace core { struct Core; }
 
 namespace modules
 {
-    using bpid_t      = uint64_t;
     using on_mod_fn   = std::function<walk_e(mod_t)>;
     using on_event_fn = std::function<void(mod_t)>;
 

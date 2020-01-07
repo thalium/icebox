@@ -599,7 +599,7 @@ TEST_F(win10, callstacks)
     EXPECT_TRUE(!!bpid);
     run_until(core, [&] { return count > 32; });
     EXPECT_EQ(count, 33U);
-    tracer.unregister(*bpid);
+    state::drop_breakpoint(core, *bpid);
 
     // check we can read callstacks with one address only
     const auto opt_addr = symbols::address(core, *proc, "ntdll", "RtlUserThreadStart");
