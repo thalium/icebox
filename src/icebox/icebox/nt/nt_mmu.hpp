@@ -2,6 +2,24 @@
 
 #include <stdint.h>
 
+struct virt_t
+{
+    union
+    {
+        uint64_t value;
+        struct
+        {
+            uint64_t offset : 12;
+            uint64_t pt     : 9;
+            uint64_t pd     : 9;
+            uint64_t pdp    : 9;
+            uint64_t pml4   : 9;
+            uint64_t unused : 16;
+        } f;
+    } u;
+};
+static_assert(sizeof(virt_t) * 8 == 64, "invalid virt_t size");
+
 struct MMPTE_HARDWARE
 {
     uint64_t Valid                  : 1;
