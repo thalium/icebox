@@ -580,9 +580,17 @@ namespace
     }
 }
 
-bool state::run_fast_to_cr3_write(core::Core& core)
+bool state::run_to_cr_write(core::Core& core, reg_e reg)
 {
-    const auto bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);
+    int reg_value = 0;
+    switch(reg)
+    {
+        case reg_e::cr3:    reg_value = 3; break;
+        case reg_e::cr8:    reg_value = 8; break;
+        default:            return false;
+    }
+
+    const auto bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, reg_value, 1, 0);
     if(bpid < 0)
         return false;
 

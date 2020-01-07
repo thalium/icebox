@@ -277,7 +277,7 @@ namespace
             if(const auto kernel = find_kernel_at(os, lstar))
                 return kernel;
 
-            const auto ok = state::run_fast_to_cr3_write(core);
+            const auto ok = state::run_to_cr_write(core, reg_e::cr3);
             if(!ok)
                 break;
 
