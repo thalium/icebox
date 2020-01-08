@@ -73,7 +73,7 @@ opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_t 
     if(proc)
         return *proc;
 
-    opt<proc_t> found;
+    auto found      = opt<proc_t>{};
     const auto bpid = process::listen_create(core, [&](proc_t proc)
     {
         const auto new_flags = process::flags(core, proc);
@@ -92,10 +92,8 @@ opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_t 
         return {};
 
     while(!found)
-    {
-        state::resume(core);
-        state::wait(core);
-    }
+        state::exec(core);
+
     state::drop_breakpoint(core, *bpid);
     return found;
 }

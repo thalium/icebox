@@ -313,12 +313,9 @@ namespace
         const auto now = std::chrono::high_resolution_clock::now();
         const auto end = now + std::chrono::seconds(30);
         while(std::chrono::high_resolution_clock::now() < end)
-        {
-            state::resume(core);
-            state::wait(core);
-        }
-        pcap.write(capture_path);
+            state::exec(core);
 
+        pcap.write(capture_path);
         return 0;
     }
 }

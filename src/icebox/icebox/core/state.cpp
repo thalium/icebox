@@ -451,15 +451,18 @@ bool state::wait(core::Core& core)
     return try_wait(d, state_e::update, breakpoints_e::update);
 }
 
+void state::exec(core::Core& core)
+{
+    state::resume(core);
+    state::wait(core);
+}
+
 void state::wait_for(core::Core& core, int timeout_ms)
 {
     const auto now      = std::chrono::steady_clock::now();
     const auto deadline = now + std::chrono::milliseconds(timeout_ms);
     while(std::chrono::steady_clock::now() < deadline)
-    {
-        state::resume(core);
-        state::wait(core);
-    }
+        state::exec(core);
 }
 
 namespace

@@ -97,7 +97,6 @@ namespace
             if(rips.count(ret_addr))
                 return;
 
-            rips.insert(ret_addr);
             const auto ret_bp = state::break_on(core, "KiKernelSysretExit return", ret_addr, [&]
             {
                 const auto proc = process::current(core);
@@ -114,16 +113,12 @@ namespace
 
                 ntdll = modules::find_name(core, *proc, "ntdll.dll", flags::x64);
             });
-            if(!ret_bp)
-                return;
-
+            rips.insert(ret_addr);
             breakpoints.emplace_back(ret_bp);
         });
         while(!ntdll)
-        {
-            state::resume(core);
-            state::wait(core);
-        }
+            state::exec(core);
+
         return ntdll;
     }
 

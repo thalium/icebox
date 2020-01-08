@@ -20,10 +20,7 @@ namespace
 
         const auto n = 100;
         for(size_t i = 0; i < n; ++i)
-        {
-            state::resume(core);
-            state::wait(core);
-        }
+            state::exec(core);
 
         syscall_plugin.generate("output.json");
     }
@@ -45,8 +42,7 @@ namespace
 
         for(size_t i = 0; i < 3000; ++i)
         {
-            state::resume(core);
-            state::wait(core);
+            state::exec(core);
             if(i % 200 == 0)
                 LOG(INFO, "%zd", i);
         }
@@ -123,10 +119,7 @@ namespace
                     rip, symbols::to_string(symbol).data(), procname ? procname->data() : "", pid, tid);
             });
             for(size_t i = 0; i < 16; ++i)
-            {
-                state::resume(core);
-                state::wait(core);
-            }
+                state::exec(core);
         }
 
         // test callstack
@@ -149,10 +142,7 @@ namespace
                 LOG(INFO, " ");
             });
             for(size_t i = 0; i < 3; ++i)
-            {
-                state::resume(core);
-                state::wait(core);
-            }
+                state::exec(core);
         }
 
         // test syscall plugin

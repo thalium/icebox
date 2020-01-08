@@ -443,8 +443,8 @@ namespace
 
     opt<mod_t> wait_for_module(core::Core& core, proc_t proc, const std::string& name)
     {
-        auto found = opt<mod_t>{};
         process::join(core, proc, mode_e::user);
+        auto found           = opt<mod_t>{};
         const auto io        = memory::make_io(core, proc);
         const auto check_mod = [&](mod_t mod)
         {
@@ -469,10 +469,8 @@ namespace
         }
 
         while(!found)
-        {
-            state::resume(core);
-            state::wait(core);
-        }
+            state::exec(core);
+
         state::drop_breakpoint(core, *bpx64);
         state::drop_breakpoint(core, *bpx86);
         return found;

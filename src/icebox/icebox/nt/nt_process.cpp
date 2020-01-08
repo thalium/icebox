@@ -206,10 +206,7 @@ namespace
             rets.insert(ret_addr);
         });
         while(!hit)
-        {
-            state::resume(os.core_);
-            state::wait(os.core_);
-        }
+            state::exec(os.core_);
     }
 
     void proc_join_kernel(nt::Os& os, proc_t proc)

@@ -22,10 +22,8 @@ namespace
         const auto now    = std::chrono::high_resolution_clock::now();
         const auto end    = now + std::chrono::minutes(5);
         while(std::chrono::high_resolution_clock::now() < end)
-        {
-            state::resume(core);
-            state::wait(core);
-        }
+            state::exec(core);
+
         return 0;
     }
 }
