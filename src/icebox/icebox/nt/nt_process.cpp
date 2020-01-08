@@ -103,13 +103,13 @@ opt<proc_t> nt::Os::proc_find(uint64_t pid)
 opt<std::string> nt::Os::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
-    char buffer[14 + 1];
-    const auto ok             = io_.read_all(buffer, proc.id + offsets_[EPROCESS_ImageFileName], sizeof buffer);
-    buffer[sizeof buffer - 1] = 0;
+    auto buffer   = std::array<char, 14 + 1>{};
+    const auto ok = io_.read_all(&buffer[0], proc.id + offsets_[EPROCESS_ImageFileName], sizeof buffer);
+    buffer.back() = 0;
     if(!ok)
         return {};
 
-    const auto name = std::string{buffer};
+    const auto name = std::string{&buffer[0]};
     if(name.size() < sizeof buffer - 1)
         return name;
 
