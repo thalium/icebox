@@ -468,6 +468,10 @@ class Vm:
     def wait(self):
         _icebox.wait()
 
+    def exec(self):
+        self.resume()
+        self.wait()
+
     def break_on(self, name, where, callback):
         bp = _icebox.break_on(name, where, callback)
         return Callback(bp, callback)

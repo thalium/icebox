@@ -87,8 +87,7 @@ class Windows(unittest.TestCase):
             bpa = self.vm.processes.break_on_create(on_create)
             bpb = self.vm.processes.break_on_delete(on_delete)
             while num_create < 2 or num_delete < 2:
-                self.vm.resume()
-                self.vm.wait()
+                self.vm.exec()
             del bpa
             del bpb
 
@@ -237,8 +236,7 @@ class Windows(unittest.TestCase):
             global hit
             hit = 0
             while hit == 0:
-                self.vm.resume()
-                self.vm.wait()
+                self.vm.exec()
 
         bp = self.vm.break_on("break_on " + name, addr, on_break)
         run_until_hit()
@@ -291,8 +289,7 @@ class Windows(unittest.TestCase):
         p = self.vm.processes.current()
         addr = p.symbols.address(name)
         bp = self.vm.break_on(name, addr, lambda: None)
-        self.vm.resume()
-        self.vm.wait()
+        self.vm.exec()
         del bp
         stack_0 = self.vm.functions.read_stack(0)
         self.assertIsNotNone(stack_0)
@@ -300,8 +297,7 @@ class Windows(unittest.TestCase):
         self.assertIsNotNone(arg_0)
         self.vm.functions.write_arg(0, arg_0)
         self.vm.functions.break_on_return(name + " return", lambda: None)
-        self.vm.resume()
-        self.vm.wait()
+        self.vm.exec()
 
     def test_callstacks(self):
         p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
@@ -315,8 +311,7 @@ class Windows(unittest.TestCase):
         name = "nt!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
         bp = self.vm.break_on_process(name, p, addr, lambda: None)
-        self.vm.resume()
-        self.vm.wait()
+        self.vm.exec()
         del bp
 
         p = self.vm.processes.current()
