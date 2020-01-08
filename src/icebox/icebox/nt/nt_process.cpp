@@ -211,10 +211,13 @@ namespace
 
     void proc_join_kernel(nt::Os& os, proc_t proc)
     {
-        break_on_any_return_of(os, proc, "KiSwapThread", os.symbols_[KiSwapThread], [&]
+        while(true)
         {
-            return functions::return_address(os.core_, proc);
-        });
+            state::run_to_cr_write(os.core_, reg_e::cr3);
+            const auto curr = process::current(os.core_);
+            if(curr && curr->id == proc.id)
+                return;
+        }
     }
 
     void proc_join_user(nt::Os& os, proc_t proc)
