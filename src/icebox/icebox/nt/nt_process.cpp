@@ -182,21 +182,52 @@ flags_t nt::Os::proc_flags(proc_t proc)
 
 namespace
 {
+    template <typename T>
+    void break_on_any_return_of(nt::Os& os, proc_t proc, const std::string& name, uint64_t addr, const T& read_ret_addr)
+    {
+        auto hit      = false;
+        auto rets     = std::unordered_set<uint64_t>{};
+        auto bps      = std::vector<state::Breakpoint>{};
+        const auto bp = state::break_on_process(os.core_, name, proc, addr, [&]
+        {
+            const auto opt_ret = read_ret_addr();
+            if(!opt_ret)
+                return;
+
+            const auto ret_addr = *opt_ret;
+            if(rets.count(ret_addr))
+                return;
+
+            const auto bp_ret = state::break_on_process(os.core_, name + " return", proc, ret_addr, [&]
+            {
+                hit = true;
+            });
+            bps.emplace_back(bp_ret);
+            rets.insert(ret_addr);
+        });
+        while(!hit)
+        {
+            state::resume(os.core_);
+            state::wait(os.core_);
+        }
+    }
+
     void proc_join_kernel(nt::Os& os, proc_t proc)
     {
-        state::run_to_proc_at(os.core_, "KiSwapThread", proc, os.symbols_[KiSwapThread]);
-        const auto ret_addr = functions::return_address(os.core_, proc);
-        if(ret_addr)
-            state::run_to_proc_at(os.core_, "return KiSwapThread", proc, *ret_addr);
+        break_on_any_return_of(os, proc, "KiSwapThread", os.symbols_[KiSwapThread], [&]
+        {
+            return functions::return_address(os.core_, proc);
+        });
     }
 
     void proc_join_user(nt::Os& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
-        state::run_to_proc_at(os.core_, "KiKernelSysretExit", proc, where);
-        const auto rip = registers::read(os.core_, reg_e::rcx);
-        state::run_to_proc_at(os.core_, "return KiKernelSysretExit", proc, rip);
+        break_on_any_return_of(os, proc, "KiKernelSysretExit", where, [&]
+        {
+            return std::make_optional(registers::read(os.core_, reg_e::rcx));
+        });
     }
 }
 

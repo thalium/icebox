@@ -605,17 +605,6 @@ bool state::run_to_cr_write(core::Core& core, reg_e reg)
     return true;
 }
 
-void state::run_to_proc_at(core::Core& core, std::string_view name, proc_t proc, uint64_t ptr)
-{
-    auto& d       = *core.state_;
-    const auto bp = set_virtual_breakpoint(core, name, ptr, proc, {}, {});
-    run_until(d, [&]
-    {
-        const auto opt_proc = process::current(core);
-        return opt_proc == proc;
-    });
-}
-
 void state::run_to_current(core::Core& core, std::string_view name)
 {
     auto& d           = *core.state_;
