@@ -41,36 +41,41 @@ namespace
         return replace_bp(os, bpid, bp);
     }
 
-    void on_LdrpInsertDataTableEntry_wow64(nt::Os& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
+    bool try_load_wntdll(nt::Os& os, proc_t proc)
     {
         const auto objects = objects::make(os.core_, proc);
         if(!objects)
-            return;
+            return false;
 
         const auto entry = objects::find(*objects, 0, "\\KnownDlls32\\ntdll.dll");
         if(!entry)
-            return;
+            return false;
 
         const auto section = objects::as_section(*entry);
         if(!section)
-            return;
+            return false;
 
         const auto control_area = objects::section_control_area(*objects, *section);
         if(!control_area)
-            return;
+            return false;
 
         const auto segment = objects::control_area_segment(*objects, *control_area);
         if(!segment)
-            return;
+            return false;
 
         const auto span = objects::segment_span(*objects, *segment);
         if(!span)
-            return;
+            return false;
 
-        const auto io       = memory::make_io(os.core_, proc);
-        const auto inserted = symbols::load_module_memory(os.core_, symbols::kernel, io, *span);
-        if(!inserted)
-            return;
+        const auto io = memory::make_io(os.core_, proc);
+        return symbols::load_module_memory(os.core_, symbols::kernel, io, *span);
+    }
+
+    void on_LdrpInsertDataTableEntry_wow64(nt::Os& os, proc_t proc, bpid_t bpid, const modules::on_event_fn& on_mod)
+    {
+        if(!symbols::address(os.core_, proc, "wntdll", "_LdrpSendDllNotifications@12"))
+            if(!try_load_wntdll(os, proc))
+                return;
 
         try_on_LdrpProcessMappedModule(os, proc, bpid, on_mod);
     }
@@ -78,7 +83,7 @@ namespace
 
 opt<bpid_t> nt::Os::listen_mod_create(proc_t proc, flags_t flags, const modules::on_event_fn& on_load)
 {
-    const auto name = "ntdll!LdrpProcessMappedModule";
+    const auto name = "ntdll!LdrpSendDllNotifications";
     if(flags.is_x86)
     {
         const auto bpid     = state::acquire_breakpoint_id(core_);
@@ -86,14 +91,14 @@ opt<bpid_t> nt::Os::listen_mod_create(proc_t proc, flags_t flags, const modules:
         if(opt_bpid)
             return opt_bpid;
 
-        const auto bp = state::break_on_physical_process(core_, name, proc.udtb, LdrpProcessMappedModule_, [=]
+        const auto bp = state::break_on_physical_process(core_, name, proc.udtb, LdrpSendDllNotifications_, [=]
         {
             on_LdrpInsertDataTableEntry_wow64(*this, proc, bpid, on_load);
         });
         return replace_bp(*this, bpid, bp);
     }
 
-    const auto bp = state::break_on_physical_process(core_, name, proc.udtb, LdrpProcessMappedModule_, [=]
+    const auto bp = state::break_on_physical_process(core_, name, proc.udtb, LdrpSendDllNotifications_, [=]
     {
         on_LdrpInsertDataTableEntry(*this, on_load);
     });

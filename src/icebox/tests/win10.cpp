@@ -628,11 +628,35 @@ TEST_F(win10, listen_module_wow64)
     const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
+    const auto bp_x64 = modules::listen_create(core, *proc, flags::x64, [&](mod_t mod)
+    {
+        const auto name = modules::name(core, *proc, mod);
+        if(!name)
+            return;
+
+        LOG(INFO, "+ x64 module %s", name->data());
+    });
+
+    const auto bp_x86 = modules::listen_create(core, *proc, flags::x86, [&](mod_t mod)
+    {
+        const auto name = modules::name(core, *proc, mod);
+        if(!name)
+            return;
+
+        LOG(INFO, "+ x86 module %s", name->data());
+    });
+
     const auto nt64 = symbols::load_module(core, *proc, "ntdll");
     EXPECT_TRUE(!!nt64);
 
+    const auto wow64cpu = symbols::load_module(core, *proc, "wow64cpu");
+    EXPECT_TRUE(!!wow64cpu);
+
     const auto ntwow64 = symbols::load_module(core, *proc, "wntdll");
     EXPECT_TRUE(!!ntwow64);
+
+    const auto kbase = symbols::load_module(core, *proc, "wkernelbase");
+    EXPECT_TRUE(!!kbase);
 }
 
 TEST_F(win10, symbols)

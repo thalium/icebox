@@ -15,7 +15,7 @@ nt::Os::Os(core::Core& core)
     , io_(memory::make_io_current(core))
     , num_page_faults_(0)
     , LdrpInitializeProcess_{0}
-    , LdrpProcessMappedModule_{0}
+    , LdrpSendDllNotifications_{0}
     , NtMajorVersion_{0}
     , NtMinorVersion_{0}
     , PhysicalMemoryLimitMask_{0}
@@ -150,12 +150,12 @@ namespace
         if(!ok)
             return false;
 
-        LOG(INFO, "LdrpInitializeProcess 0x%" PRIX64, os.LdrpInitializeProcess_.val);
-        ok = read_phy_symbol(os, os.LdrpProcessMappedModule_, io, "ntdll", "LdrpProcessMappedModule");
+        ok = read_phy_symbol(os, os.LdrpSendDllNotifications_, io, "ntdll", "LdrpSendDllNotifications");
         if(!ok)
             return false;
 
-        LOG(INFO, "LdrpProcessMappedModule 0x%" PRIX64, os.LdrpProcessMappedModule_.val);
+        LOG(INFO, "LdrpInitializeProcess    0x%" PRIX64, os.LdrpInitializeProcess_.val);
+        LOG(INFO, "LdrpSendDllNotifications 0x%" PRIX64, os.LdrpSendDllNotifications_.val);
         return true;
     }
 

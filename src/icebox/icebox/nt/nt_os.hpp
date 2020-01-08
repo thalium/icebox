@@ -138,7 +138,7 @@ namespace nt
 
         // constants
         phy_t    LdrpInitializeProcess_;
-        phy_t    LdrpProcessMappedModule_;
+        phy_t    LdrpSendDllNotifications_;
         uint32_t NtMajorVersion_;
         uint32_t NtMinorVersion_;
         uint64_t PhysicalMemoryLimitMask_;
