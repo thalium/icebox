@@ -44,7 +44,7 @@ namespace
 
     struct unwind_code_t
     {
-        uint32_t stack_size_used;
+        uint32_t stack_size_to_use;
         uint8_t  code_offset;
         uint8_t  unwind_op_and_info;
     };
@@ -56,6 +56,7 @@ namespace
         uint32_t stack_frame_size;
         uint32_t prev_frame_reg;
         uint32_t mother_start_addr;
+        uint32_t machframe_rip_off;
         uint8_t  prolog_size;
         uint8_t  frame_reg_offset;
         size_t   unwind_codes_idx;
@@ -235,25 +236,65 @@ namespace
         return a.start_address < b.start_address;
     }
 
-    opt<uint64_t> get_stack_frame_size(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
+    opt<int> get_unwind_nb_max(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
     {
         const auto off_in_prolog = off_in_mod - function_entry.start_address;
         if(off_in_prolog == 0)
             return 0;
 
         if(off_in_prolog > function_entry.prolog_size)
-            return function_entry.stack_frame_size;
+            return function_entry.unwind_codes_nb;
 
         const auto idx = function_entry.unwind_codes_idx;
         const auto nb  = function_entry.unwind_codes_nb;
         if(idx + nb >= function_table.unwinds.size())
             return {};
 
-        for(auto it = &function_table.unwinds[idx]; it < &function_table.unwinds[idx + nb]; ++it)
-            if(off_in_prolog > it->code_offset)
-                return function_entry.stack_frame_size - it->stack_size_used;
+        for(auto i = 0; i < nb; ++i)
+        {
+            const auto uwd = function_table.unwinds[idx];
+            if(off_in_prolog > uwd.code_offset)
+                return i;
+        }
 
         return {};
+    }
+
+    opt<uint64_t> get_stack_frame_size(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
+    {
+        const auto opt_nb = get_unwind_nb_max(off_in_mod, function_table, function_entry);
+        if(!opt_nb)
+            return {};
+
+        const auto nb = *opt_nb;
+        if(nb == 0)
+            return 0;
+
+        if(nb == function_entry.unwind_codes_nb)
+            return function_entry.stack_frame_size;
+
+        const auto idx = function_entry.unwind_codes_idx;
+        return function_entry.stack_frame_size - function_table.unwinds[idx + nb].stack_size_to_use;
+    }
+
+    opt<uint64_t> get_prev_frame_reg(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
+    {
+        const auto opt_nb = get_unwind_nb_max(off_in_mod, function_table, function_entry);
+        if(!opt_nb)
+            return {};
+
+        const auto nb = *opt_nb;
+        if(nb == 0)
+            return 0;
+
+        if(!function_entry.prev_frame_reg)
+            return 0;
+
+        if(nb == function_entry.unwind_codes_nb)
+            return function_entry.prev_frame_reg;
+
+        const auto idx = function_entry.unwind_codes_idx;
+        return function_entry.prev_frame_reg - function_table.unwinds[idx + nb].stack_size_to_use;
     }
 
     template <typename T>
@@ -384,9 +425,13 @@ namespace
                 case UWOP_SAVE_XMM128_FAR:
                     idx += 4;
                     break;
+                case UWOP_PUSH_MACHFRAME:
+                    function_entry.stack_frame_size += unwind_code_info ? 0x30 : 0x28;
+                    function_entry.machframe_rip_off = 0x28; // should never be 2 UWOP_PUSH_MACHFRAME in a same prolog
+                                                             // rip is pushed in 6th position (cf microsoft documentation)
+                    break;
 
                 default:
-                case UWOP_PUSH_MACHFRAME:
                     break;
             }
 
@@ -475,6 +520,7 @@ namespace
                 }
 
                 function_entry.stack_frame_size += mother_function_entry->stack_frame_size;
+                function_entry.prev_frame_reg = mother_function_entry->prev_frame_reg; // child_function_entry should not change frame register ?
             }
 
             function_table.function_entries.push_back(function_entry);
@@ -492,6 +538,7 @@ namespace
                 continue; // Should never happend
 
             orphan_fe.stack_frame_size += mother_function_entry->stack_frame_size;
+            orphan_fe.prev_frame_reg = mother_function_entry->prev_frame_reg; // child_function_entry should not change frame register ?
             function_table.function_entries.push_back(orphan_fe);
         }
 
@@ -560,20 +607,22 @@ namespace
         return offsets[off];
     }
 
-    opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, flags_t flags)
+    opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, const context_t& ctx)
     {
         const auto io = memory::make_io(c.core_, proc);
-        if(!read_user_offsets(c, flags))
+        if(!read_user_offsets(c, ctx.flags))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
-        const auto teb    = registers::read_msr(c.core_, flags.is_x86 ? msr_e::fs_base : msr_e::gs_base);
-        const auto nt_tib = teb + user_offset(c, flags, TEB_NtTib);
-        auto base         = io.read(nt_tib + user_offset(c, flags, NT_TIB_StackBase));
-        auto limit        = io.read(nt_tib + user_offset(c, flags, NT_TIB_StackLimit));
+        const auto is_kernel_ctx = !(ctx.cs & 0x03);
+        const auto msr_read      = ctx.flags.is_x86 ? msr_e::fs_base : (is_kernel_ctx ? msr_e::kernel_gs_base : msr_e::gs_base);
+        const auto teb           = registers::read_msr(c.core_, msr_read);
+        const auto nt_tib        = teb + user_offset(c, ctx.flags, TEB_NtTib);
+        auto base                = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackBase));
+        auto limit               = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackLimit));
         if(!base || !limit)
             return FAIL(ext::nullopt, "unable to find stack boundaries");
 
-        if(flags.is_x86)
+        if(ctx.flags.is_x86)
         {
             *base  = static_cast<uint32_t>(*base);
             *limit = static_cast<uint32_t>(*limit);
@@ -643,12 +692,12 @@ namespace
         return span_t{(size_t) 0, (size_t) -1};
     }
 
-    opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctx, flags_t flags)
+    opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctx)
     {
         if(os::is_kernel_address(c.core_, ctx.ip))
             return get_kernel_stack(c);
 
-        return get_user_stack(c, proc, flags);
+        return get_user_stack(c, proc, ctx);
     }
 
     opt<std::tuple<std::string, span_t>> get_name_span(NtCallstacks& c, proc_t proc, const context_t& ctx)
@@ -734,16 +783,20 @@ namespace
 
         const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_table, *function_entry);
         if(!stack_frame_size)
-            return FAIL(false, "Can't calculate stack frame size");
+            return FAIL(false, "cannot calculate stack frame size");
 
         if(function_entry->frame_reg_offset != 0)
             ctx.sp = ctx.bp - function_entry->frame_reg_offset;
 
-        if(function_entry->prev_frame_reg != 0)
-            if(const auto bp = io.read(ctx.sp + function_entry->prev_frame_reg))
+        const auto prev_frame_reg = get_prev_frame_reg(off_in_mod, *function_table, *function_entry);
+        if(!prev_frame_reg)
+            return FAIL(false, "cannot calculate previous frame register offset");
+
+        if(*prev_frame_reg != 0)
+            if(const auto bp = io.read(ctx.sp + *prev_frame_reg))
                 ctx.bp = *bp;
 
-        const auto caller_addr_on_stack = ctx.sp + *stack_frame_size;
+        const auto caller_addr_on_stack = ctx.sp + *stack_frame_size - function_entry->machframe_rip_off;
 
         // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
         if(stack.addr > caller_addr_on_stack || stack.addr + stack.size < caller_addr_on_stack)
@@ -767,6 +820,7 @@ namespace
         LOG(INFO, "Chosen chosen 0x%" PRIx64 " start address 0x%" PRIx64 " end 0x%" PRIx64, off_in_mod, function_entry->start_address, function_entry->end_address);
         LOG(INFO, "Offset of current func 0x%" PRIx64 ", Caller address on stack 0x%" PRIx64 " so 0x%" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
 #endif
+
         ctx.ip = *return_addr;
         ctx.sp = caller_addr_on_stack + reg_size;
         return true;
@@ -805,6 +859,10 @@ namespace
                 land = os::is_kernel_address(c.core_, ctx.ip) ? land_e::kernel : land_e::switched_k2u;
                 return true;
             case land_e::switched_k2u:
+                if(os::is_kernel_address(c.core_, ctx.ip))
+                    return false;
+                land = land_e::user;
+                return true;
             case land_e::user:
                 return !os::is_kernel_address(c.core_, ctx.ip);
         }
@@ -813,12 +871,11 @@ namespace
 
     bool switch_ctx_x86(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
     {
-        const auto opt_stack = get_stack(c, proc, ctx, ctx.flags);
+        const auto opt_stack = get_stack(c, proc, ctx);
         if(!opt_stack)
             return false;
 
         stack = *opt_stack;
-
         // wow64 context is stored by wow64cpu.dll
         const auto teb          = registers::read_msr(c.core_, msr_e::gs_base); // always in kernel ctx here
         const auto TEB_TlsSlots = symbols::member_offset(c.core_, symbols::kernel, "nt", "_TEB", "TlsSlots");
@@ -880,15 +937,26 @@ namespace
         return bp;
     }
 
+    opt<uint64_t> switch_sp_x64(NtCallstacks& c, const memory::Io& io)
+    {
+        const auto teb    = registers::read_msr(c.core_, msr_e::gs_base);
+        const auto nt_tib = teb + user_offset(c, flags::x64, TEB_NtTib);
+        return io.read(nt_tib + user_offset(c, flags::x64, NT_TIB_StackLimit));
+    }
+
     bool switch_ctx_x64(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
     {
-        const auto opt_stack = get_stack(c, proc, ctx, ctx.flags);
+        const auto opt_stack = get_stack(c, proc, ctx);
         if(!opt_stack)
             return false;
 
-        stack  = *opt_stack;
-        ctx.sp = stack.addr + stack.size;
+        stack = *opt_stack;
 
+        const auto sp = switch_sp_x64(c, io);
+        if(!sp)
+            return false;
+
+        ctx.sp        = *sp;
         const auto bp = switch_bp_x64(c, proc, io);
         if(!bp)
             return false;
@@ -909,7 +977,7 @@ namespace
     size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
         const auto io        = memory::make_io(c.core_, proc);
-        const auto opt_stack = get_stack(c, proc, first, first.flags);
+        const auto opt_stack = get_stack(c, proc, first);
         if(!opt_stack)
             return 0;
 
