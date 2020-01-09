@@ -10,7 +10,12 @@
 
 namespace
 {
-    using Returns = std::unordered_map<uint64_t, state::Breakpoint>;
+    struct Return
+    {
+        state::Breakpoint       bp;
+        functions::on_return_fn on_return;
+    };
+    using Returns = std::unordered_map<uint64_t, Return>;
 }
 
 struct functions::Data
@@ -59,10 +64,10 @@ bool functions::break_on_return(core::Core& core, std::string_view name, const f
         if(it == d.returns.end())
             return;
 
-        on_return();
+        it->second.on_return();
         d.returns.erase(it);
     });
-    core.func_->returns.emplace(want_rsp, bp);
+    core.func_->returns.emplace(want_rsp, Return{bp, on_return});
     return true;
 }
 
