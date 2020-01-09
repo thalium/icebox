@@ -39,7 +39,7 @@ opt<proc_t> nt::make_proc(nt::Os& os, uint64_t eproc)
 
 bool nt::Os::proc_list(process::on_proc_fn on_process)
 {
-    const auto head = symbols_[PsActiveProcessHead];
+    const auto head = *symbols_[PsActiveProcessHead];
     for(auto link = io_.read(head); link != head; link = io_.read(*link))
     {
         const auto eproc = *link - offsets_[EPROCESS_ActiveProcessLinks];
@@ -148,7 +148,7 @@ opt<bpid_t> nt::Os::listen_proc_create(const process::on_event_fn& on_create)
 
 opt<bpid_t> nt::Os::listen_proc_delete(const process::on_event_fn& on_delete)
 {
-    const auto bp = state::break_on(core_, "PspExitProcess", symbols_[PspExitProcess], [=]
+    const auto bp = state::break_on(core_, "PspExitProcess", *symbols_[PspExitProcess], [=]
     {
         const auto eproc       = registers::read(core_, reg_e::rdx);
         const auto head        = eproc + offsets_[EPROCESS_ThreadListHead];
@@ -223,7 +223,7 @@ namespace
     void proc_join_user(nt::Os& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
-        const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
+        const auto where = os.symbols_[KiKernelSysretExit] ? *os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
         break_on_any_return_of(os, proc, "KiKernelSysretExit", where, [&]
         {
             return std::make_optional(registers::read(os.core_, reg_e::rcx));

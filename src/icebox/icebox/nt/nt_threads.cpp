@@ -5,7 +5,7 @@
 
 opt<bpid_t> nt::Os::listen_thread_create(const threads::on_event_fn& on_create)
 {
-    const auto bp = state::break_on(core_, "PspInsertThread", symbols_[PspInsertThread], [=]
+    const auto bp = state::break_on(core_, "PspInsertThread", *symbols_[PspInsertThread], [=]
     {
         const auto thread = registers::read(core_, reg_e::rcx);
         on_create({thread});
@@ -15,7 +15,7 @@ opt<bpid_t> nt::Os::listen_thread_create(const threads::on_event_fn& on_create)
 
 opt<bpid_t> nt::Os::listen_thread_delete(const threads::on_event_fn& on_delete)
 {
-    const auto bp = state::break_on(core_, "PspExitThread", symbols_[PspExitThread], [=]
+    const auto bp = state::break_on(core_, "PspExitThread", *symbols_[PspExitThread], [=]
     {
         if(const auto thread = thread_current())
             on_delete(*thread);

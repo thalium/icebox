@@ -83,7 +83,7 @@ namespace
 
     opt<mod_t> wait_for_ntdll(nt::Os& os, core::Core& core)
     {
-        const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
+        const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? *os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
         auto ntdll             = opt<mod_t>{};
         auto breakpoints       = std::vector<state::Breakpoint>{};
         auto rips              = std::unordered_set<uint64_t>{};

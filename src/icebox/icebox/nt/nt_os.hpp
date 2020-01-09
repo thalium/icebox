@@ -6,19 +6,28 @@
 enum offset_e
 {
     CLIENT_ID_UniqueThread,
+    CONTROL_AREA_FilePointer,
+    DEVICE_OBJECT_DriverObject,
+    DRIVER_OBJECT_DriverName,
     EPROCESS_ActiveProcessLinks,
     EPROCESS_ImageFileName,
+    EPROCESS_InheritedFromUniqueProcessId,
+    EPROCESS_ObjectTable,
     EPROCESS_Pcb,
     EPROCESS_Peb,
     EPROCESS_SeAuditProcessCreationInfo,
     EPROCESS_ThreadListHead,
     EPROCESS_UniqueProcessId,
-    EPROCESS_InheritedFromUniqueProcessId,
     EPROCESS_VadRoot,
     EPROCESS_Wow64Process,
     ETHREAD_Cid,
     ETHREAD_Tcb,
     ETHREAD_ThreadListEntry,
+    EWOW64PROCESS_NtdllType,
+    EWOW64PROCESS_Peb,
+    FILE_OBJECT_DeviceObject,
+    FILE_OBJECT_FileName,
+    HANDLE_TABLE_TableCode,
     KPCR_Prcb,
     KPRCB_CurrentThread,
     KPRCB_KernelDirectoryTableBase,
@@ -27,40 +36,46 @@ enum offset_e
     KTHREAD_Process,
     KTHREAD_TrapFrame,
     KTRAP_FRAME_Rip,
+    KUSER_SHARED_DATA_NtMajorVersion,
+    KUSER_SHARED_DATA_NtMinorVersion,
+    MMVAD_FirstPrototypePte,
+    MMVAD_SubSection,
+    OBJECT_ATTRIBUTES_ObjectName,
+    OBJECT_HEADER_Body,
+    OBJECT_HEADER_InfoMask,
+    OBJECT_HEADER_TypeIndex,
     OBJECT_NAME_INFORMATION_Name,
+    OBJECT_TYPE_Name,
     PEB_Ldr,
     PEB32_Ldr,
     SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,
-    EWOW64PROCESS_Peb,
-    EWOW64PROCESS_NtdllType,
-    MMVAD_SubSection,
-    MMVAD_FirstPrototypePte,
     SUBSECTION_ControlArea,
-    CONTROL_AREA_FilePointer,
-    FILE_OBJECT_FileName,
-    KUSER_SHARED_DATA_NtMajorVersion,
-    KUSER_SHARED_DATA_NtMinorVersion,
     OFFSET_COUNT,
 };
 
 enum symbol_e
 {
     KiKernelSysretExit,
+    KiSwapThread,
+    MiProcessLoaderEntry,
+    ObHeaderCookie,
+    ObpInfoMaskToOffset,
+    ObpKernelHandleTable,
+    ObpRootDirectoryObject,
+    ObTypeIndexTable,
     PsActiveProcessHead,
     PsLoadedModuleList,
-    PspInsertThread,
     PspExitProcess,
     PspExitThread,
-    MiProcessLoaderEntry,
+    PspInsertThread,
     SwapContext,
-    KiSwapThread,
     SYMBOL_COUNT,
 };
 
 namespace nt
 {
     using Offsets = std::array<uint64_t, OFFSET_COUNT>;
-    using Symbols = std::array<uint64_t, SYMBOL_COUNT>;
+    using Symbols = std::array<opt<uint64_t>, SYMBOL_COUNT>;
 
     struct Os;
     bool            load_kernel_symbols (nt::Os& os);

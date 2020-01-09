@@ -16,8 +16,8 @@ namespace
 
     struct NtOffset
     {
-        cat_e       e_cat;
         offset_e    e_id;
+        cat_e       e_cat;
         const char* module;
         const char* struc;
         const char* member;
@@ -25,64 +25,79 @@ namespace
     // clang-format off
     const NtOffset g_offsets[] =
     {
-        {cat_e::REQUIRED,   CLIENT_ID_UniqueThread,                       "nt", "_CLIENT_ID",                       "UniqueThread"},
-        {cat_e::REQUIRED,   EPROCESS_ActiveProcessLinks,                  "nt", "_EPROCESS",                        "ActiveProcessLinks"},
-        {cat_e::REQUIRED,   EPROCESS_ImageFileName,                       "nt", "_EPROCESS",                        "ImageFileName"},
-        {cat_e::REQUIRED,   EPROCESS_Pcb,                                 "nt", "_EPROCESS",                        "Pcb"},
-        {cat_e::REQUIRED,   EPROCESS_Peb,                                 "nt", "_EPROCESS",                        "Peb"},
-        {cat_e::REQUIRED,   EPROCESS_SeAuditProcessCreationInfo,          "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
-        {cat_e::REQUIRED,   EPROCESS_ThreadListHead,                      "nt", "_EPROCESS",                        "ThreadListHead"},
-        {cat_e::REQUIRED,   EPROCESS_UniqueProcessId,                     "nt", "_EPROCESS",                        "UniqueProcessId"},
-        {cat_e::REQUIRED,   EPROCESS_InheritedFromUniqueProcessId,        "nt", "_EPROCESS",                        "InheritedFromUniqueProcessId"},
-        {cat_e::REQUIRED,   EPROCESS_VadRoot,                             "nt", "_EPROCESS",                        "VadRoot"},
-        {cat_e::REQUIRED,   EPROCESS_Wow64Process,                        "nt", "_EPROCESS",                        "Wow64Process"},
-        {cat_e::REQUIRED,   ETHREAD_Cid,                                  "nt", "_ETHREAD",                         "Cid"},
-        {cat_e::REQUIRED,   ETHREAD_Tcb,                                  "nt", "_ETHREAD",                         "Tcb"},
-        {cat_e::REQUIRED,   ETHREAD_ThreadListEntry,                      "nt", "_ETHREAD",                         "ThreadListEntry"},
-        {cat_e::REQUIRED,   KPCR_Prcb,                                    "nt", "_KPCR",                            "Prcb"},
-        {cat_e::REQUIRED,   KPRCB_CurrentThread,                          "nt", "_KPRCB",                           "CurrentThread"},
-        {cat_e::OPTIONAL,   KPRCB_KernelDirectoryTableBase,               "nt", "_KPRCB",                           "KernelDirectoryTableBase"},
-        {cat_e::REQUIRED,   KPROCESS_DirectoryTableBase,                  "nt", "_KPROCESS",                        "DirectoryTableBase"},
-        {cat_e::OPTIONAL,   KPROCESS_UserDirectoryTableBase,              "nt", "_KPROCESS",                        "UserDirectoryTableBase"},
-        {cat_e::REQUIRED,   KTHREAD_Process,                              "nt", "_KTHREAD",                         "Process"},
-        {cat_e::REQUIRED,   KTHREAD_TrapFrame,                            "nt", "_KTHREAD",                         "TrapFrame"},
-        {cat_e::REQUIRED,   KTRAP_FRAME_Rip,                              "nt", "_KTRAP_FRAME",                     "Rip"},
-        {cat_e::REQUIRED,   OBJECT_NAME_INFORMATION_Name,                 "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
-        {cat_e::REQUIRED,   PEB_Ldr,                                      "nt", "_PEB",                             "Ldr"},
-        {cat_e::REQUIRED,   PEB32_Ldr,                                    "nt", "_PEB32",                           "Ldr"},
-        {cat_e::REQUIRED,   SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName, "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
-        {cat_e::OPTIONAL,   EWOW64PROCESS_Peb,                            "nt", "_EWOW64PROCESS",                   "Peb"},
-        {cat_e::OPTIONAL,   EWOW64PROCESS_NtdllType,                      "nt", "_EWOW64PROCESS",                   "NtdllType"},
-        {cat_e::REQUIRED,   MMVAD_SubSection,                             "nt", "_MMVAD",                           "Subsection"},
-        {cat_e::REQUIRED,   MMVAD_FirstPrototypePte,                      "nt", "_MMVAD",                           "FirstPrototypePte"},
-        {cat_e::REQUIRED,   SUBSECTION_ControlArea,                       "nt", "_SUBSECTION",                      "ControlArea"},
-        {cat_e::REQUIRED,   CONTROL_AREA_FilePointer,                     "nt", "_CONTROL_AREA",                    "FilePointer"},
-        {cat_e::REQUIRED,   FILE_OBJECT_FileName,                         "nt", "_FILE_OBJECT",                     "FileName"},
-        {cat_e::REQUIRED,   KUSER_SHARED_DATA_NtMajorVersion,             "nt", "_KUSER_SHARED_DATA",               "NtMajorVersion"},
-        {cat_e::REQUIRED,   KUSER_SHARED_DATA_NtMinorVersion,             "nt", "_KUSER_SHARED_DATA",               "NtMinorVersion"},
+        {CLIENT_ID_UniqueThread,                       cat_e::REQUIRED, "nt", "_CLIENT_ID",                       "UniqueThread"},
+        {CONTROL_AREA_FilePointer,                     cat_e::REQUIRED, "nt", "_CONTROL_AREA",                    "FilePointer"},
+        {DEVICE_OBJECT_DriverObject,                   cat_e::REQUIRED, "nt", "_DEVICE_OBJECT",                   "DriverObject"},
+        {DRIVER_OBJECT_DriverName,                     cat_e::REQUIRED, "nt", "_DRIVER_OBJECT",                   "DriverName"},
+        {EPROCESS_ActiveProcessLinks,                  cat_e::REQUIRED, "nt", "_EPROCESS",                        "ActiveProcessLinks"},
+        {EPROCESS_ImageFileName,                       cat_e::REQUIRED, "nt", "_EPROCESS",                        "ImageFileName"},
+        {EPROCESS_InheritedFromUniqueProcessId,        cat_e::REQUIRED, "nt", "_EPROCESS",                        "InheritedFromUniqueProcessId"},
+        {EPROCESS_ObjectTable,                         cat_e::REQUIRED, "nt", "_EPROCESS",                        "ObjectTable"},
+        {EPROCESS_Pcb,                                 cat_e::REQUIRED, "nt", "_EPROCESS",                        "Pcb"},
+        {EPROCESS_Peb,                                 cat_e::REQUIRED, "nt", "_EPROCESS",                        "Peb"},
+        {EPROCESS_SeAuditProcessCreationInfo,          cat_e::REQUIRED, "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
+        {EPROCESS_ThreadListHead,                      cat_e::REQUIRED, "nt", "_EPROCESS",                        "ThreadListHead"},
+        {EPROCESS_UniqueProcessId,                     cat_e::REQUIRED, "nt", "_EPROCESS",                        "UniqueProcessId"},
+        {EPROCESS_VadRoot,                             cat_e::REQUIRED, "nt", "_EPROCESS",                        "VadRoot"},
+        {EPROCESS_Wow64Process,                        cat_e::REQUIRED, "nt", "_EPROCESS",                        "Wow64Process"},
+        {ETHREAD_Cid,                                  cat_e::REQUIRED, "nt", "_ETHREAD",                         "Cid"},
+        {ETHREAD_Tcb,                                  cat_e::REQUIRED, "nt", "_ETHREAD",                         "Tcb"},
+        {ETHREAD_ThreadListEntry,                      cat_e::REQUIRED, "nt", "_ETHREAD",                         "ThreadListEntry"},
+        {EWOW64PROCESS_NtdllType,                      cat_e::OPTIONAL, "nt", "_EWOW64PROCESS",                   "NtdllType"},
+        {EWOW64PROCESS_Peb,                            cat_e::OPTIONAL, "nt", "_EWOW64PROCESS",                   "Peb"},
+        {FILE_OBJECT_DeviceObject,                     cat_e::REQUIRED, "nt", "_FILE_OBJECT",                     "DeviceObject"},
+        {FILE_OBJECT_FileName,                         cat_e::REQUIRED, "nt", "_FILE_OBJECT",                     "FileName"},
+        {HANDLE_TABLE_TableCode,                       cat_e::REQUIRED, "nt", "_HANDLE_TABLE",                    "TableCode"},
+        {KPCR_Prcb,                                    cat_e::REQUIRED, "nt", "_KPCR",                            "Prcb"},
+        {KPRCB_CurrentThread,                          cat_e::REQUIRED, "nt", "_KPRCB",                           "CurrentThread"},
+        {KPRCB_KernelDirectoryTableBase,               cat_e::OPTIONAL, "nt", "_KPRCB",                           "KernelDirectoryTableBase"},
+        {KPROCESS_DirectoryTableBase,                  cat_e::REQUIRED, "nt", "_KPROCESS",                        "DirectoryTableBase"},
+        {KPROCESS_UserDirectoryTableBase,              cat_e::OPTIONAL, "nt", "_KPROCESS",                        "UserDirectoryTableBase"},
+        {KTHREAD_Process,                              cat_e::REQUIRED, "nt", "_KTHREAD",                         "Process"},
+        {KTHREAD_TrapFrame,                            cat_e::REQUIRED, "nt", "_KTHREAD",                         "TrapFrame"},
+        {KTRAP_FRAME_Rip,                              cat_e::REQUIRED, "nt", "_KTRAP_FRAME",                     "Rip"},
+        {KUSER_SHARED_DATA_NtMajorVersion,             cat_e::REQUIRED, "nt", "_KUSER_SHARED_DATA",               "NtMajorVersion"},
+        {KUSER_SHARED_DATA_NtMinorVersion,             cat_e::REQUIRED, "nt", "_KUSER_SHARED_DATA",               "NtMinorVersion"},
+        {MMVAD_FirstPrototypePte,                      cat_e::REQUIRED, "nt", "_MMVAD",                           "FirstPrototypePte"},
+        {MMVAD_SubSection,                             cat_e::REQUIRED, "nt", "_MMVAD",                           "Subsection"},
+        {OBJECT_ATTRIBUTES_ObjectName,                 cat_e::REQUIRED, "nt", "_OBJECT_ATTRIBUTES",               "ObjectName"},
+        {OBJECT_HEADER_Body,                           cat_e::REQUIRED, "nt", "_OBJECT_HEADER",                   "Body"},
+        {OBJECT_HEADER_InfoMask,                       cat_e::REQUIRED, "nt", "_OBJECT_HEADER",                   "InfoMask"},
+        {OBJECT_HEADER_TypeIndex,                      cat_e::REQUIRED, "nt", "_OBJECT_HEADER",                   "TypeIndex"},
+        {OBJECT_NAME_INFORMATION_Name,                 cat_e::REQUIRED, "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
+        {OBJECT_TYPE_Name,                             cat_e::REQUIRED, "nt", "_OBJECT_TYPE",                     "Name"},
+        {PEB_Ldr,                                      cat_e::REQUIRED, "nt", "_PEB",                             "Ldr"},
+        {PEB32_Ldr,                                    cat_e::REQUIRED, "nt", "_PEB32",                           "Ldr"},
+        {SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName, cat_e::REQUIRED, "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
+        {SUBSECTION_ControlArea,                       cat_e::REQUIRED, "nt", "_SUBSECTION",                      "ControlArea"},
     };
     // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_offsets), OFFSET_COUNT);
 
     struct NtSymbol
     {
-        cat_e       e_cat;
         symbol_e    e_id;
+        cat_e       e_cat;
         const char* module;
         const char* name;
     };
     // clang-format off
     const NtSymbol g_symbols[] =
     {
-        {cat_e::OPTIONAL, KiKernelSysretExit,                  "nt", "KiKernelSysretExit"},
-        {cat_e::REQUIRED, PsActiveProcessHead,                 "nt", "PsActiveProcessHead"},
-        {cat_e::REQUIRED, PsLoadedModuleList,                  "nt", "PsLoadedModuleList"},
-        {cat_e::REQUIRED, PspInsertThread,                     "nt", "PspInsertThread"},
-        {cat_e::REQUIRED, PspExitProcess,                      "nt", "PspExitProcess"},
-        {cat_e::REQUIRED, PspExitThread,                       "nt", "PspExitThread"},
-        {cat_e::REQUIRED, MiProcessLoaderEntry,                "nt", "MiProcessLoaderEntry"},
-        {cat_e::REQUIRED, SwapContext,                         "nt", "SwapContext"},
-        {cat_e::REQUIRED, KiSwapThread,                         "nt", "KiSwapThread"},
+        {KiKernelSysretExit,                    cat_e::OPTIONAL, "nt", "KiKernelSysretExit"},
+        {KiSwapThread,                          cat_e::REQUIRED, "nt", "KiSwapThread"},
+        {MiProcessLoaderEntry,                  cat_e::REQUIRED, "nt", "MiProcessLoaderEntry"},
+        {ObHeaderCookie,                        cat_e::OPTIONAL, "nt", "ObHeaderCookie"},
+        {ObpInfoMaskToOffset,                   cat_e::REQUIRED, "nt", "ObpInfoMaskToOffset"},
+        {ObpKernelHandleTable,                  cat_e::REQUIRED, "nt", "ObpKernelHandleTable"},
+        {ObpRootDirectoryObject,                cat_e::REQUIRED, "nt", "ObpRootDirectoryObject"},
+        {ObTypeIndexTable,                      cat_e::REQUIRED, "nt", "ObTypeIndexTable"},
+        {PsActiveProcessHead,                   cat_e::REQUIRED, "nt", "PsActiveProcessHead"},
+        {PsLoadedModuleList,                    cat_e::REQUIRED, "nt", "PsLoadedModuleList"},
+        {PspExitProcess,                        cat_e::REQUIRED, "nt", "PspExitProcess"},
+        {PspExitThread,                         cat_e::REQUIRED, "nt", "PspExitThread"},
+        {PspInsertThread,                       cat_e::REQUIRED, "nt", "PspInsertThread"},
+        {SwapContext,                           cat_e::REQUIRED, "nt", "SwapContext"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -90,9 +105,9 @@ namespace
 
 bool nt::load_kernel_symbols(nt::Os& os)
 {
-    bool fail = false;
-    int i     = -1;
-    memset(&os.symbols_[0], 0, sizeof os.symbols_);
+    bool fail   = false;
+    int i       = -1;
+    os.symbols_ = {};
     for(const auto& sym : g_symbols)
     {
         fail |= sym.e_id != ++i;
@@ -109,8 +124,8 @@ bool nt::load_kernel_symbols(nt::Os& os)
         os.symbols_[i] = *addr;
     }
 
-    i = -1;
-    memset(&os.offsets_[0], 0, sizeof os.offsets_);
+    i           = -1;
+    os.offsets_ = {};
     for(const auto& off : g_offsets)
     {
         fail |= off.e_id != ++i;

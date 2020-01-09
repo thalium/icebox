@@ -107,7 +107,7 @@ opt<bpid_t> nt::Os::listen_mod_create(proc_t proc, flags_t flags, const modules:
 
 opt<bpid_t> nt::Os::listen_drv_create(const drivers::on_event_fn& on_load)
 {
-    const auto bp = state::break_on(core_, "MiProcessLoaderEntry", symbols_[MiProcessLoaderEntry], [=]
+    const auto bp = state::break_on(core_, "MiProcessLoaderEntry", *symbols_[MiProcessLoaderEntry], [=]
     {
         const auto drv_addr   = registers::read(core_, reg_e::rcx);
         const auto drv_loaded = registers::read(core_, reg_e::rdx);
@@ -263,7 +263,7 @@ opt<span_t> nt::Os::mod_span(proc_t proc, mod_t mod)
 
 bool nt::Os::driver_list(drivers::on_driver_fn on_driver)
 {
-    const auto head = symbols_[PsLoadedModuleList];
+    const auto head = *symbols_[PsLoadedModuleList];
     for(auto link = io_.read(head); link != head; link = io_.read(*link))
         if(on_driver({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == walk_e::stop)
             break;

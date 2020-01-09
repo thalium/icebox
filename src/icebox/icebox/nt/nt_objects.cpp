@@ -1,14 +1,15 @@
 #include "nt_objects.hpp"
 
+#define PRIVATE_CORE__
 #define FDP_MODULE "nt_objects"
 #include "core.hpp"
+#include "core/core_private.hpp"
 #include "endian.hpp"
 #include "log.hpp"
+#include "nt_os.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
 #include "wow64.hpp"
-
-#include <array>
 
 #ifdef _MSC_VER
 #    include <string.h>
@@ -17,106 +18,22 @@
 #    include <strings.h>
 #endif
 
-namespace
-{
-    enum class cat_e
-    {
-        REQUIRED,
-        OPTIONAL,
-    };
-
-    enum member_offset_e
-    {
-        EPROCESS_ObjectTable,
-        HANDLE_TABLE_TableCode,
-        KPCR_Prcb,
-        OBJECT_HEADER_Body,
-        OBJECT_HEADER_InfoMask,
-        OBJECT_HEADER_TypeIndex,
-        OBJECT_TYPE_Name,
-        OBJECT_ATTRIBUTES_ObjectName,
-        FILE_OBJECT_FileName,
-        FILE_OBJECT_DeviceObject,
-        DEVICE_OBJECT_DriverObject,
-        DRIVER_OBJECT_DriverName,
-        MEMBER_OFFSET_COUNT,
-    };
-    struct MemberOffset
-    {
-        cat_e           e_cat;
-        member_offset_e e_id;
-        const char*     module;
-        const char*     struc;
-        const char*     member;
-    };
-    // clang-format off
-    const MemberOffset g_member_offsets[] =
-    {
-        {cat_e::REQUIRED, EPROCESS_ObjectTable,                         "nt", "_EPROCESS",                          "ObjectTable"},
-        {cat_e::REQUIRED, HANDLE_TABLE_TableCode,                       "nt", "_HANDLE_TABLE",                      "TableCode"},
-        {cat_e::REQUIRED, KPCR_Prcb,                                    "nt", "_KPCR",                              "Prcb"},
-        {cat_e::REQUIRED, OBJECT_HEADER_Body,                           "nt", "_OBJECT_HEADER",                     "Body"},
-        {cat_e::REQUIRED, OBJECT_HEADER_InfoMask,                       "nt", "_OBJECT_HEADER",                     "InfoMask"},
-        {cat_e::REQUIRED, OBJECT_HEADER_TypeIndex,                      "nt", "_OBJECT_HEADER",                     "TypeIndex"},
-        {cat_e::REQUIRED, OBJECT_TYPE_Name,                             "nt", "_OBJECT_TYPE",                       "Name"},
-        {cat_e::REQUIRED, OBJECT_ATTRIBUTES_ObjectName,                 "nt", "_OBJECT_ATTRIBUTES",                 "ObjectName"},
-        {cat_e::REQUIRED, FILE_OBJECT_FileName,                         "nt", "_FILE_OBJECT",                       "FileName"},
-        {cat_e::REQUIRED, FILE_OBJECT_DeviceObject,                     "nt", "_FILE_OBJECT",                       "DeviceObject"},
-        {cat_e::REQUIRED, DEVICE_OBJECT_DriverObject,                   "nt", "_DEVICE_OBJECT",                     "DriverObject"},
-        {cat_e::REQUIRED, DRIVER_OBJECT_DriverName,                     "nt", "_DRIVER_OBJECT",                     "DriverName"},
-    };
-    // clang-format on
-    static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
-
-    enum symbol_offset_e
-    {
-        ObpInfoMaskToOffset,
-        ObpKernelHandleTable,
-        ObpRootDirectoryObject,
-        ObTypeIndexTable,
-        ObHeaderCookie,
-        SYMBOL_OFFSET_COUNT,
-    };
-
-    struct SymbolOffset
-    {
-        cat_e           e_cat;
-        symbol_offset_e e_id;
-        const char*     module;
-        const char*     name;
-    };
-    // clang-format off
-    const SymbolOffset g_symbol_offsets[] =
-    {
-        {cat_e::REQUIRED, ObpInfoMaskToOffset,             "nt", "ObpInfoMaskToOffset"},
-        {cat_e::REQUIRED, ObpKernelHandleTable,            "nt", "ObpKernelHandleTable"},
-        {cat_e::REQUIRED, ObpRootDirectoryObject,          "nt", "ObpRootDirectoryObject"},
-        {cat_e::REQUIRED, ObTypeIndexTable,                "nt", "ObTypeIndexTable"},
-        {cat_e::OPTIONAL, ObHeaderCookie,                  "nt", "ObHeaderCookie"},
-    };
-    // clang-format on
-    static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
-
-    using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
-    using SymbolOffsets = std::array<opt<uint64_t>, SYMBOL_OFFSET_COUNT>;
-}
-
 struct objects::Data
 {
     Data(core::Core& core, proc_t proc)
         : core(core)
+        , nt(*core.nt_)
         , proc(proc)
         , io(memory::make_io(core, proc))
     {
     }
 
-    core::Core&   core;
-    proc_t        proc;
-    memory::Io    io;
-    MemberOffsets members;
-    SymbolOffsets symbols;
-    obj_t         root;
-    uint8_t       masks[16];
+    core::Core& core;
+    nt::Os&     nt;
+    proc_t      proc;
+    memory::Io  io;
+    obj_t       root;
+    uint8_t     masks[16];
 };
 
 namespace
@@ -125,47 +42,11 @@ namespace
 
     bool setup(Data& d)
     {
-        bool fail = false;
-        int i     = -1;
-        for(const auto& sym : g_symbol_offsets)
-        {
-            fail |= sym.e_id != ++i;
-            const auto addr = symbols::address(d.core, symbols::kernel, sym.module, sym.name);
-            if(!addr)
-            {
-                fail |= sym.e_cat == cat_e::REQUIRED;
-                if(sym.e_cat == cat_e::REQUIRED)
-                    LOG(ERROR, "unable to read %s!%s symbol offset", sym.module, sym.name);
-                else
-                    LOG(WARNING, "unable to read optional %s!%s symbol offset", sym.module, sym.name);
-                continue;
-            }
-            d.symbols[i] = *addr;
-        }
-        i = -1;
-        for(const auto& off : g_member_offsets)
-        {
-            fail |= off.e_id != ++i;
-            const auto offset = symbols::member_offset(d.core, symbols::kernel, off.module, off.struc, off.member);
-            if(!offset)
-            {
-                fail |= off.e_cat == cat_e::REQUIRED;
-                if(off.e_cat == cat_e::REQUIRED)
-                    LOG(ERROR, "unable to read %s!%s.%s member offset", off.module, off.struc, off.member);
-                else
-                    LOG(WARNING, "unable to read optional %s!%s.%s member offset", off.module, off.struc, off.member);
-                continue;
-            }
-            d.members[i] = *offset;
-        }
-        if(fail)
-            return false;
-
-        auto ok = d.io.read_all(&d.root.id, *d.symbols[ObpRootDirectoryObject], sizeof d.root.id);
+        const auto ok = d.io.read_all(&d.root.id, *d.nt.symbols_[ObpRootDirectoryObject], sizeof d.root.id);
         if(!ok)
             return false;
 
-        return d.io.read_all(&d.masks, *d.symbols[ObpInfoMaskToOffset], sizeof d.masks);
+        return d.io.read_all(&d.masks, *d.nt.symbols_[ObpInfoMaskToOffset], sizeof d.masks);
     }
 }
 
@@ -184,7 +65,7 @@ namespace
     opt<objects::obj_t> object_read(const Data& d, nt::HANDLE handle)
     {
         // Is kernel handle
-        const auto handle_table_addr = handle & 0x80000000 ? *d.symbols[ObpKernelHandleTable] : d.proc.id + d.members[EPROCESS_ObjectTable];
+        const auto handle_table_addr = handle & 0x80000000 ? *d.nt.symbols_[ObpKernelHandleTable] : d.proc.id + d.nt.offsets_[EPROCESS_ObjectTable];
         if(handle & 0x80000000)
             handle = ((handle << 32) >> 32) & ~0xffffffff80000000;
 
@@ -192,7 +73,7 @@ namespace
         if(!handle_table)
             return FAIL(ext::nullopt, "unable to read handle table");
 
-        auto handle_table_code = d.io.read(*handle_table + d.members[HANDLE_TABLE_TableCode]);
+        auto handle_table_code = d.io.read(*handle_table + d.nt.offsets_[HANDLE_TABLE_TableCode]);
         if(!handle_table_code)
             return FAIL(ext::nullopt, "unable to read handle table code");
 
@@ -247,7 +128,7 @@ namespace
         // TODO deal with theses shifts on x32
         uint64_t p                = 0xffff;
         const uint64_t obj_header = (((*handle_table_entry >> 16) | (p << 48)) >> 4) << 4;
-        const auto obj_body       = obj_header + d.members[OBJECT_HEADER_Body];
+        const auto obj_body       = obj_header + d.nt.offsets_[OBJECT_HEADER_Body];
         return objects::obj_t{obj_body};
     }
 }
@@ -262,14 +143,14 @@ namespace
     opt<std::string> object_type(const Data& d, objects::obj_t obj)
     {
         const auto POINTER_SIZE     = 8;
-        const auto obj_header       = obj.id - d.members[OBJECT_HEADER_Body];
-        const auto encoded_type_idx = d.io.byte(obj_header + d.members[OBJECT_HEADER_TypeIndex]);
+        const auto obj_header       = obj.id - d.nt.offsets_[OBJECT_HEADER_Body];
+        const auto encoded_type_idx = d.io.byte(obj_header + d.nt.offsets_[OBJECT_HEADER_TypeIndex]);
         if(!encoded_type_idx)
             return {};
 
         const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
         auto type_idx                 = *encoded_type_idx ^ obj_addr_cookie;
-        const auto opt_cookie         = d.symbols[ObHeaderCookie];
+        const auto opt_cookie         = d.nt.symbols_[ObHeaderCookie];
         if(opt_cookie)
         {
             const auto header_cookie = d.io.byte(*opt_cookie);
@@ -279,11 +160,11 @@ namespace
             type_idx ^= *header_cookie;
         }
 
-        const auto obj_type = d.io.read(*d.symbols[ObTypeIndexTable] + static_cast<size_t>(type_idx) * POINTER_SIZE);
+        const auto obj_type = d.io.read(*d.nt.symbols_[ObTypeIndexTable] + static_cast<size_t>(type_idx) * POINTER_SIZE);
         if(!obj_type)
             return FAIL(ext::nullopt, "unable to read object type");
 
-        return nt::read_unicode_string(d.io, *obj_type + d.members[OBJECT_TYPE_Name]);
+        return nt::read_unicode_string(d.io, *obj_type + d.nt.offsets_[OBJECT_TYPE_Name]);
     }
 }
 
@@ -297,8 +178,8 @@ namespace
     opt<std::string> object_name(Data& d, objects::obj_t obj)
     {
         auto info_mask    = uint8_t{};
-        const auto header = obj.id - d.members[OBJECT_HEADER_Body];
-        auto ok           = d.io.read_all(&info_mask, header + d.members[OBJECT_HEADER_InfoMask], sizeof info_mask);
+        const auto header = obj.id - d.nt.offsets_[OBJECT_HEADER_Body];
+        auto ok           = d.io.read_all(&info_mask, header + d.nt.offsets_[OBJECT_HEADER_InfoMask], sizeof info_mask);
         if(!ok)
             return {};
 
@@ -331,12 +212,12 @@ opt<objects::file_t> objects::file_read(Data& d, nt::HANDLE handle)
 
 opt<std::string> objects::file_name(Data& d, file_t file)
 {
-    return nt::read_unicode_string(d.io, file.id + d.members[FILE_OBJECT_FileName]);
+    return nt::read_unicode_string(d.io, file.id + d.nt.offsets_[FILE_OBJECT_FileName]);
 }
 
 opt<objects::device_t> objects::file_device(Data& d, file_t file)
 {
-    const auto dev = d.io.read(file.id + d.members[FILE_OBJECT_DeviceObject]);
+    const auto dev = d.io.read(file.id + d.nt.offsets_[FILE_OBJECT_DeviceObject]);
     if(!dev)
         return {};
 
@@ -345,7 +226,7 @@ opt<objects::device_t> objects::file_device(Data& d, file_t file)
 
 opt<objects::driver_t> objects::device_driver(Data& d, device_t device)
 {
-    const auto drv = d.io.read(device.id + d.members[DEVICE_OBJECT_DriverObject]);
+    const auto drv = d.io.read(device.id + d.nt.offsets_[DEVICE_OBJECT_DriverObject]);
     if(!drv)
         return {};
 
@@ -354,7 +235,7 @@ opt<objects::driver_t> objects::device_driver(Data& d, device_t device)
 
 opt<std::string> objects::driver_name(Data& d, driver_t driver)
 {
-    return nt::read_unicode_string(d.io, driver.id + d.members[DRIVER_OBJECT_DriverName]);
+    return nt::read_unicode_string(d.io, driver.id + d.nt.offsets_[DRIVER_OBJECT_DriverName]);
 }
 
 namespace
