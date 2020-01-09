@@ -21,6 +21,9 @@ namespace
         if(!str.Length)
             return {};
 
+        if(!str.Buffer)
+            return {};
+
         auto buffer = std::vector<uint8_t>(str.Length);
         ok          = io.read_all(&buffer[0], str.Buffer, str.Length);
         if(!ok)
