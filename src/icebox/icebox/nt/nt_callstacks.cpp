@@ -485,7 +485,7 @@ namespace
             const auto frame_register       = unwind_info[3] & 0x0F;      // register used as frame pointer
             function_entry.frame_reg_offset = 16 * (unwind_info[3] >> 4); // offset of frame register
             if(function_entry.frame_reg_offset != 0 && frame_register != UWINFO_RBP)
-                LOG(ERROR, "WARNING : in function %s+%lx the used framed register is not rbp (code %d)", name.data(), function_entry.start_address, frame_register);
+                LOG(ERROR, "WARNING : in function %s+%x the used framed register is not rbp (code %d)", name.data(), function_entry.start_address, frame_register);
 
             const auto SIZE_UC           = size_t{2};
             const auto chained_info_size = chained_flag ? sizeof(RuntimeFunction) : 0;
