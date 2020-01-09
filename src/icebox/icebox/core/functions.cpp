@@ -40,7 +40,8 @@ bool functions::break_on_return(core::Core& core, std::string_view name, const f
     if(!proc)
         return false;
 
-    const auto ptr_size    = process::flags(core, *proc).is_x86 ? 4 : 8;
+    const auto cs          = registers::read(core, reg_e::cs);
+    const auto ptr_size    = cs == 0x23 ? 4 : 8;
     const auto return_addr = return_address(core, *proc);
     const auto want_rsp    = registers::read(core, reg_e::rsp);
     if(!return_addr)
