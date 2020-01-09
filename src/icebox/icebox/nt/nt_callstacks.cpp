@@ -607,9 +607,8 @@ namespace
         return offsets[off];
     }
 
-    opt<span_t> get_user_stack(NtCallstacks& c, proc_t proc, const context_t& ctx)
+    opt<span_t> get_user_stack(NtCallstacks& c, const memory::Io& io, const context_t& ctx)
     {
-        const auto io = memory::make_io(c.core_, proc);
         if(!read_user_offsets(c, ctx.flags))
             return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
@@ -627,7 +626,7 @@ namespace
             *base  = static_cast<uint32_t>(*base);
             *limit = static_cast<uint32_t>(*limit);
         }
-        return span_t{*limit, *base - *limit};
+        return span_t{*base, *base - *limit};
     }
 
     bool read_kernel_offsets(NtCallstacks& c)
@@ -680,7 +679,7 @@ namespace
         return true;
     }
 
-    opt<span_t> get_kernel_stack(NtCallstacks& c)
+    opt<span_t> get_kernel_stack(NtCallstacks& c, const memory::Io& io, const context_t& ctx)
     {
         if(!read_kernel_offsets(c))
             return FAIL(ext::nullopt, "unable to read nt offsets");
@@ -688,16 +687,24 @@ namespace
         if(!read_symbols(c))
             return FAIL(ext::nullopt, "unable to read nt symbols");
 
-        // TODO: get kernel stack boundaries
-        return span_t{(size_t) 0, (size_t) -1};
+        const auto is_kernel_ctx   = !(ctx.cs & 0x03);
+        const auto msr_read        = is_kernel_ctx ? msr_e::gs_base : msr_e::kernel_gs_base;
+        const auto kernel_gs_base  = registers::read_msr(c.core_, msr_read);
+        const auto& kernel_offsets = *c.kernel_offsets_;
+        const auto rsp_base        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + kernel_offsets[KPRCB_RspBase];
+        auto base                  = io.read(rsp_base);
+        if(!base)
+            return {};
+
+        return span_t{*base, *base - 0xFFFF800000000000};
     }
 
-    opt<span_t> get_stack(NtCallstacks& c, proc_t proc, const context_t& ctx)
+    opt<span_t> get_stack(NtCallstacks& c, const memory::Io& io, const context_t& ctx)
     {
         if(os::is_kernel_address(c.core_, ctx.ip))
-            return get_kernel_stack(c);
+            return get_kernel_stack(c, io, ctx);
 
-        return get_user_stack(c, proc, ctx);
+        return get_user_stack(c, io, ctx);
     }
 
     opt<std::tuple<std::string, span_t>> get_name_span(NtCallstacks& c, proc_t proc, const context_t& ctx)
@@ -799,7 +806,7 @@ namespace
         const auto caller_addr_on_stack = ctx.sp + *stack_frame_size - function_entry->machframe_rip_off;
 
         // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
-        if(stack.addr > caller_addr_on_stack || stack.addr + stack.size < caller_addr_on_stack)
+        if(!(stack.addr > caller_addr_on_stack && caller_addr_on_stack > (stack.addr - stack.size)))
             return false;
 
         const auto return_addr = io.read(caller_addr_on_stack);
@@ -832,7 +839,7 @@ namespace
         if(!ctx.bp)
             return false;
 
-        if(stack.addr > ctx.bp || stack.addr + stack.size < ctx.bp)
+        if(!(stack.addr < ctx.bp && ctx.bp < (stack.addr - stack.size)))
             return FAIL(false, "ebp out of stack bounds, ebp: 0x%" PRIx64 " stack bounds: 0x%" PRIx64 "-0x%" PRIx64, ctx.bp, stack.addr, stack.addr + stack.size);
 
         const auto caller_addr_on_stack = io.le32(ctx.bp);
@@ -869,9 +876,9 @@ namespace
         return false;
     }
 
-    bool switch_ctx_x86(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
+    bool switch_ctx_x86(NtCallstacks& c, const memory::Io& io, span_t& stack, context_t& ctx)
     {
-        const auto opt_stack = get_stack(c, proc, ctx);
+        const auto opt_stack = get_stack(c, io, ctx);
         if(!opt_stack)
             return false;
 
@@ -946,7 +953,7 @@ namespace
 
     bool switch_ctx_x64(NtCallstacks& c, proc_t proc, const memory::Io& io, span_t& stack, context_t& ctx)
     {
-        const auto opt_stack = get_stack(c, proc, ctx);
+        const auto opt_stack = get_stack(c, io, ctx);
         if(!opt_stack)
             return false;
 
@@ -969,7 +976,7 @@ namespace
     {
         const auto flags = process::flags(c.core_, proc);
         if(flags.is_x86)
-            return switch_ctx_x86(c, proc, io, stack, ctx);
+            return switch_ctx_x86(c, io, stack, ctx);
 
         return switch_ctx_x64(c, proc, io, stack, ctx);
     }
@@ -977,7 +984,7 @@ namespace
     size_t read_callers(NtCallstacks& c, caller_t* callers, size_t num_callers, proc_t proc, const context_t& first)
     {
         const auto io        = memory::make_io(c.core_, proc);
-        const auto opt_stack = get_stack(c, proc, first);
+        const auto opt_stack = get_stack(c, io, first);
         if(!opt_stack)
             return 0;
 
