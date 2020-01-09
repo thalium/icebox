@@ -19,6 +19,12 @@
 
 namespace
 {
+    enum class cat_e
+    {
+        REQUIRED,
+        OPTIONAL,
+    };
+
     enum member_offset_e
     {
         EPROCESS_ObjectTable,
@@ -37,6 +43,7 @@ namespace
     };
     struct MemberOffset
     {
+        cat_e           e_cat;
         member_offset_e e_id;
         const char*     module;
         const char*     struc;
@@ -45,18 +52,18 @@ namespace
     // clang-format off
     const MemberOffset g_member_offsets[] =
     {
-        {EPROCESS_ObjectTable,                         "nt", "_EPROCESS",                          "ObjectTable"},
-        {HANDLE_TABLE_TableCode,                       "nt", "_HANDLE_TABLE",                      "TableCode"},
-        {KPCR_Prcb,                                    "nt", "_KPCR",                              "Prcb"},
-        {OBJECT_HEADER_Body,                           "nt", "_OBJECT_HEADER",                     "Body"},
-        {OBJECT_HEADER_InfoMask,                       "nt", "_OBJECT_HEADER",                     "InfoMask"},
-        {OBJECT_HEADER_TypeIndex,                      "nt", "_OBJECT_HEADER",                     "TypeIndex"},
-        {OBJECT_TYPE_Name,                             "nt", "_OBJECT_TYPE",                       "Name"},
-        {OBJECT_ATTRIBUTES_ObjectName,                 "nt", "_OBJECT_ATTRIBUTES",                 "ObjectName"},
-        {FILE_OBJECT_FileName,                         "nt", "_FILE_OBJECT",                       "FileName"},
-        {FILE_OBJECT_DeviceObject,                     "nt", "_FILE_OBJECT",                       "DeviceObject"},
-        {DEVICE_OBJECT_DriverObject,                   "nt", "_DEVICE_OBJECT",                     "DriverObject"},
-        {DRIVER_OBJECT_DriverName,                     "nt", "_DRIVER_OBJECT",                     "DriverName"},
+        {cat_e::REQUIRED, EPROCESS_ObjectTable,                         "nt", "_EPROCESS",                          "ObjectTable"},
+        {cat_e::REQUIRED, HANDLE_TABLE_TableCode,                       "nt", "_HANDLE_TABLE",                      "TableCode"},
+        {cat_e::REQUIRED, KPCR_Prcb,                                    "nt", "_KPCR",                              "Prcb"},
+        {cat_e::REQUIRED, OBJECT_HEADER_Body,                           "nt", "_OBJECT_HEADER",                     "Body"},
+        {cat_e::REQUIRED, OBJECT_HEADER_InfoMask,                       "nt", "_OBJECT_HEADER",                     "InfoMask"},
+        {cat_e::REQUIRED, OBJECT_HEADER_TypeIndex,                      "nt", "_OBJECT_HEADER",                     "TypeIndex"},
+        {cat_e::REQUIRED, OBJECT_TYPE_Name,                             "nt", "_OBJECT_TYPE",                       "Name"},
+        {cat_e::REQUIRED, OBJECT_ATTRIBUTES_ObjectName,                 "nt", "_OBJECT_ATTRIBUTES",                 "ObjectName"},
+        {cat_e::REQUIRED, FILE_OBJECT_FileName,                         "nt", "_FILE_OBJECT",                       "FileName"},
+        {cat_e::REQUIRED, FILE_OBJECT_DeviceObject,                     "nt", "_FILE_OBJECT",                       "DeviceObject"},
+        {cat_e::REQUIRED, DEVICE_OBJECT_DriverObject,                   "nt", "_DEVICE_OBJECT",                     "DriverObject"},
+        {cat_e::REQUIRED, DRIVER_OBJECT_DriverName,                     "nt", "_DRIVER_OBJECT",                     "DriverName"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
@@ -73,6 +80,7 @@ namespace
 
     struct SymbolOffset
     {
+        cat_e           e_cat;
         symbol_offset_e e_id;
         const char*     module;
         const char*     name;
@@ -80,17 +88,17 @@ namespace
     // clang-format off
     const SymbolOffset g_symbol_offsets[] =
     {
-        {ObpInfoMaskToOffset,             "nt", "ObpInfoMaskToOffset"},
-        {ObpKernelHandleTable,            "nt", "ObpKernelHandleTable"},
-        {ObpRootDirectoryObject,          "nt", "ObpRootDirectoryObject"},
-        {ObTypeIndexTable,                "nt", "ObTypeIndexTable"},
-        {ObHeaderCookie,                  "nt", "ObHeaderCookie"},
+        {cat_e::REQUIRED, ObpInfoMaskToOffset,             "nt", "ObpInfoMaskToOffset"},
+        {cat_e::REQUIRED, ObpKernelHandleTable,            "nt", "ObpKernelHandleTable"},
+        {cat_e::REQUIRED, ObpRootDirectoryObject,          "nt", "ObpRootDirectoryObject"},
+        {cat_e::REQUIRED, ObTypeIndexTable,                "nt", "ObTypeIndexTable"},
+        {cat_e::OPTIONAL, ObHeaderCookie,                  "nt", "ObHeaderCookie"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
     using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
-    using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
+    using SymbolOffsets = std::array<opt<uint64_t>, SYMBOL_OFFSET_COUNT>;
 }
 
 struct objects::Data
@@ -118,27 +126,34 @@ namespace
     bool setup(Data& d)
     {
         bool fail = false;
-        for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
+        int i     = -1;
+        for(const auto& sym : g_symbol_offsets)
         {
-            const auto& sym = g_symbol_offsets[i];
+            fail |= sym.e_id != ++i;
             const auto addr = symbols::address(d.core, symbols::kernel, sym.module, sym.name);
             if(!addr)
             {
-                fail = true;
-                LOG(INFO, "unable to read %s!%s symbol offset", sym.module, sym.name);
+                fail |= sym.e_cat == cat_e::REQUIRED;
+                if(sym.e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read %s!%s symbol offset", sym.module, sym.name);
+                else
+                    LOG(WARNING, "unable to read optional %s!%s symbol offset", sym.module, sym.name);
                 continue;
             }
-
             d.symbols[i] = *addr;
         }
-        for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
+        i = -1;
+        for(const auto& off : g_member_offsets)
         {
-            const auto& mb    = g_member_offsets[i];
-            const auto offset = symbols::member_offset(d.core, symbols::kernel, mb.module, mb.struc, mb.member);
+            fail |= off.e_id != ++i;
+            const auto offset = symbols::member_offset(d.core, symbols::kernel, off.module, off.struc, off.member);
             if(!offset)
             {
-                fail = true;
-                LOG(INFO, "unable to read %s!%s.%s member offset", mb.module, mb.struc, mb.member);
+                fail |= off.e_cat == cat_e::REQUIRED;
+                if(off.e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read %s!%s.%s member offset", off.module, off.struc, off.member);
+                else
+                    LOG(WARNING, "unable to read optional %s!%s.%s member offset", off.module, off.struc, off.member);
                 continue;
             }
             d.members[i] = *offset;
@@ -146,11 +161,11 @@ namespace
         if(fail)
             return false;
 
-        auto ok = d.io.read_all(&d.root.id, d.symbols[ObpRootDirectoryObject], sizeof d.root.id);
+        auto ok = d.io.read_all(&d.root.id, *d.symbols[ObpRootDirectoryObject], sizeof d.root.id);
         if(!ok)
             return false;
 
-        return d.io.read_all(&d.masks, d.symbols[ObpInfoMaskToOffset], sizeof d.masks);
+        return d.io.read_all(&d.masks, *d.symbols[ObpInfoMaskToOffset], sizeof d.masks);
     }
 }
 
@@ -169,7 +184,7 @@ namespace
     opt<objects::obj_t> object_read(const Data& d, nt::HANDLE handle)
     {
         // Is kernel handle
-        const auto handle_table_addr = handle & 0x80000000 ? d.symbols[ObpKernelHandleTable] : d.proc.id + d.members[EPROCESS_ObjectTable];
+        const auto handle_table_addr = handle & 0x80000000 ? *d.symbols[ObpKernelHandleTable] : d.proc.id + d.members[EPROCESS_ObjectTable];
         if(handle & 0x80000000)
             handle = ((handle << 32) >> 32) & ~0xffffffff80000000;
 
@@ -252,13 +267,19 @@ namespace
         if(!encoded_type_idx)
             return {};
 
-        const auto header_cookie = d.io.byte(d.symbols[ObHeaderCookie]);
-        if(!header_cookie)
-            return FAIL(ext::nullopt, "unable to read ObHeaderCookie");
-
         const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
-        const auto type_idx           = static_cast<size_t>(*encoded_type_idx ^ *header_cookie ^ obj_addr_cookie);
-        const auto obj_type           = d.io.read(d.symbols[ObTypeIndexTable] + type_idx * POINTER_SIZE);
+        auto type_idx                 = *encoded_type_idx ^ obj_addr_cookie;
+        const auto opt_cookie         = d.symbols[ObHeaderCookie];
+        if(opt_cookie)
+        {
+            const auto header_cookie = d.io.byte(*opt_cookie);
+            if(!header_cookie)
+                return FAIL(ext::nullopt, "unable to read ObHeaderCookie");
+
+            type_idx ^= *header_cookie;
+        }
+
+        const auto obj_type = d.io.read(*d.symbols[ObTypeIndexTable] + static_cast<size_t>(type_idx) * POINTER_SIZE);
         if(!obj_type)
             return FAIL(ext::nullopt, "unable to read object type");
 
