@@ -15,6 +15,7 @@
 core::Core::Core(std::string name)
     : name_(std::move(name))
     , shm_(nullptr)
+    , os_(nullptr)
 {
 }
 
@@ -25,25 +26,82 @@ core::Core::~Core()
 
 namespace
 {
+    bool setup_nt(core::Core& core)
+    {
+        core.nt_ = os::make_nt(core);
+        if(!core.nt_)
+            return false;
+
+        os::attach(core, *core.nt_);
+        return true;
+    }
+
+    bool finalize_nt(core::Core& core)
+    {
+        core.callstacks_ = callstacks::make_nt(core);
+        if(core.callstacks_)
+            return true;
+
+        core.nt_.reset();
+        return false;
+    }
+
+    bool setup_linux(core::Core& core)
+    {
+        core.linux_ = os::make_linux(core);
+        if(!core.linux_)
+            return false;
+
+        core.os_ = core.linux_.get();
+        return true;
+    }
+
+    bool finalize_linux(core::Core& /*core*/)
+    {
+        return true;
+    }
+
     struct interfaces_t
     {
         const char* name;
-        std::unique_ptr<os::Module>         (*make)             (core::Core& core);
-        std::unique_ptr<callstacks::Module> (*make_callstacks)  (core::Core& core);
+        bool    (*make)     (core::Core& core);
+        bool    (*finalize) (core::Core& core);
     };
     const interfaces_t g_interfaces[] =
     {
             {
                 "nt",
-                &os::make_nt,
-                &callstacks::make_nt,
+                &setup_nt,
+                &finalize_nt,
             },
             {
                 "linux",
-                &os::make_linux,
-                nullptr,
+                &setup_linux,
+                &finalize_linux,
             },
     };
+
+    bool try_load_os(core::Core& core)
+    {
+        for(const auto& h : g_interfaces)
+        {
+            core.os_ = nullptr;
+            auto ok  = h.make(core);
+            if(!ok)
+                continue;
+
+            ok = core.os_->setup();
+            if(!ok)
+                continue;
+
+            ok = h.finalize(core);
+            if(!ok)
+                continue;
+
+            return true;
+        }
+        return false;
+    }
 
     auto setup(core::Core& core, const std::string& name)
     {
@@ -61,32 +119,12 @@ namespace
         core.func_    = functions::setup();
         core.symbols_ = std::make_unique<symbols::Modules>(core);
 
-        // register os helpers
-        auto interfaces = static_cast<const interfaces_t*>(nullptr);
-        core.os_.reset();
-        for(const auto& h : g_interfaces)
-        {
-            core.os_ = h.make(core);
-            if(!core.os_)
-                continue;
+        const auto loaded = try_load_os(core);
+        if(loaded)
+            return true;
 
-            const auto ok = core.os_->setup();
-            interfaces    = &h;
-            if(ok)
-                break;
-
-            core.os_.reset();
-        }
-        if(!core.os_)
-        {
-            state::resume(core);
-            return false;
-        }
-
-        if(interfaces->make_callstacks)
-            core.callstacks_ = interfaces->make_callstacks(core);
-
-        return true;
+        state::resume(core);
+        return false;
     }
 }
 

@@ -7,6 +7,7 @@
 
 namespace core { struct Core; }
 namespace io { struct Io; }
+namespace nt { struct Os; }
 
 namespace os
 {
@@ -68,6 +69,7 @@ namespace os
         virtual void debug_print() = 0;
     };
 
-    std::unique_ptr<Module> make_nt     (core::Core& core);
+    std::shared_ptr<nt::Os> make_nt     (core::Core& core);
+    void                    attach      (core::Core&, nt::Os&);
     std::unique_ptr<Module> make_linux  (core::Core& core);
 } // namespace os

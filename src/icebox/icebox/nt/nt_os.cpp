@@ -299,9 +299,14 @@ bool nt::Os::setup()
     return try_load_ntdll(*this, core_);
 }
 
-std::unique_ptr<os::Module> os::make_nt(core::Core& core)
+std::shared_ptr<nt::Os> os::make_nt(core::Core& core)
 {
-    return std::make_unique<nt::Os>(core);
+    return std::make_shared<nt::Os>(core);
+}
+
+void os::attach(core::Core& core, nt::Os& os)
+{
+    core.os_ = &os;
 }
 
 dtb_t nt::Os::kernel_dtb()

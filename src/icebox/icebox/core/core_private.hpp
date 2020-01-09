@@ -31,6 +31,7 @@ namespace functions
 namespace os { struct Module; }
 namespace callstacks { struct Module; }
 namespace symbols { struct Modules; }
+namespace nt { struct Os; }
 
 namespace core
 {
@@ -38,8 +39,9 @@ namespace core
     using State      = std::shared_ptr<state::State>;
     using Functions  = std::shared_ptr<functions::Data>;
     using Callstacks = std::unique_ptr<callstacks::Module>;
-    using Os         = std::unique_ptr<os::Module>;
     using Symbols    = std::unique_ptr<symbols::Modules>;
+    using Nt         = std::shared_ptr<nt::Os>;
+    using Linux      = std::unique_ptr<os::Module>;
 
     struct Core
     {
@@ -51,7 +53,9 @@ namespace core
         Memory            mem_;
         State             state_;
         Functions         func_;
-        Os                os_;
+        Nt                nt_;
+        Linux             linux_;
+        os::Module*       os_;
         Callstacks        callstacks_;
         Symbols           symbols_;
     };
