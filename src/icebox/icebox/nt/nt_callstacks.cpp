@@ -133,6 +133,8 @@ namespace
     {
         KPCR_Prcb,
         KPRCB_RspBase,
+        KPRCB_RspBaseShadow,
+        KPRCB_UserRspShadow,
         KERNEL_OFFSET_COUNT,
     };
 
@@ -149,6 +151,8 @@ namespace
     {
         {cat_e::REQUIRED,   KPCR_Prcb,                      "nt", "_KPCR", "Prcb"},
         {cat_e::REQUIRED,   KPRCB_RspBase,                  "nt", "_KPRCB", "RspBase"},
+        {cat_e::OPTIONAL,   KPRCB_RspBaseShadow,                  "nt", "_KPRCB", "RspBaseShadow"},
+        {cat_e::OPTIONAL,   KPRCB_UserRspShadow,                  "nt", "_KPRCB", "UserRspShadow"},
     };
     // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_kernel_offsets), KERNEL_OFFSET_COUNT);
@@ -156,6 +160,8 @@ namespace
     enum symbol_e
     {
         KiSystemCall64,
+        KiSystemCall64Shadow,
+        KiKvaShadow,
         SYMBOL_COUNT,
     };
 
@@ -170,6 +176,8 @@ namespace
     const NtSymbol g_symbols[] =
     {
         {cat_e::REQUIRED, KiSystemCall64,                  "nt", "KiSystemCall64"},
+        {cat_e::OPTIONAL, KiSystemCall64Shadow,                  "nt", "KiSystemCall64Shadow"},
+        {cat_e::OPTIONAL, KiKvaShadow,                  "nt", "KiKvaShadow"},
     };
     // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_symbols), SYMBOL_COUNT);
@@ -634,8 +642,8 @@ namespace
         if(c.kernel_offsets_)
             return true;
 
-        auto& offsets = *c.kernel_offsets_;
-        bool fail     = false;
+        bool fail    = false;
+        auto offsets = NtKernelOffsets{};
         memset(&offsets[0], 0, sizeof offsets);
         for(size_t i = 0; i < KERNEL_OFFSET_COUNT; ++i)
         {
@@ -643,7 +651,11 @@ namespace
             const auto offset = symbols::member_offset(c.core_, symbols::kernel, g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
             if(!offset)
             {
-                LOG(ERROR, "unable to read %s!%s.%s member offset", g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
+                fail |= g_kernel_offsets[i].e_cat == cat_e::REQUIRED;
+                if(g_kernel_offsets[i].e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read %s!%s.%s member offset", g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
+                else
+                    LOG(WARNING, "unable to read optional %s!%s.%s member offset", g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
                 continue;
             }
             offsets[i] = *offset;
@@ -651,6 +663,7 @@ namespace
         if(fail)
             return false;
 
+        c.kernel_offsets_ = offsets;
         return true;
     }
 
@@ -668,7 +681,11 @@ namespace
             const auto addr = symbols::address(c.core_, symbols::kernel, g_symbols[i].module, g_symbols[i].name);
             if(!addr)
             {
-                LOG(ERROR, "unable to read %s!%s symbol", g_symbols[i].module, g_symbols[i].name);
+                fail |= g_symbols[i].e_cat == cat_e::REQUIRED;
+                if(g_symbols[i].e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read %s!%s symbol offset", g_symbols[i].module, g_symbols[i].name);
+                else
+                    LOG(WARNING, "unable to read optional %s!%s symbol offset", g_symbols[i].module, g_symbols[i].name);
                 continue;
             }
             symbols[i] = *addr;
@@ -915,15 +932,17 @@ namespace
     {
         const auto kernel_gs_base  = registers::read_msr(c.core_, msr_e::gs_base);
         const auto& kernel_offsets = *c.kernel_offsets_;
-        const auto rsp_base        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + kernel_offsets[KPRCB_RspBase];
+        const auto& symbols        = *c.symbols_;
+        const auto shadow          = symbols[KiKvaShadow] ? io.read(symbols[KiKvaShadow]) : 0;
+        const auto rsp_base_off    = shadow ? kernel_offsets[KPRCB_RspBaseShadow] : kernel_offsets[KPRCB_RspBase];
+        const auto rsp_base        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + rsp_base_off;
         auto base                  = io.read(rsp_base);
         if(!base)
             return {};
 
-        auto fake_ctx       = context_t{};
-        const auto& symbols = *c.symbols_;
-        fake_ctx.ip         = symbols[KiSystemCall64];
-        const auto tuple    = get_name_span(c, proc, fake_ctx);
+        auto fake_ctx    = context_t{};
+        fake_ctx.ip      = shadow ? symbols[KiSystemCall64Shadow] : symbols[KiSystemCall64];
+        const auto tuple = get_name_span(c, proc, fake_ctx);
         if(!tuple)
             return {};
 
@@ -946,6 +965,16 @@ namespace
 
     opt<uint64_t> switch_sp_x64(NtCallstacks& c, const memory::Io& io)
     {
+        const auto& symbols = *c.symbols_;
+        const auto shadow   = symbols[KiKvaShadow] ? io.read(symbols[KiKvaShadow]) : 0;
+        if(shadow)
+        {
+            const auto kernel_gs_base  = registers::read_msr(c.core_, msr_e::gs_base);
+            const auto& kernel_offsets = *c.kernel_offsets_;
+            const auto user_rsp        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + kernel_offsets[KPRCB_UserRspShadow];
+            return io.read(user_rsp);
+        }
+
         const auto teb    = registers::read_msr(c.core_, msr_e::gs_base);
         const auto nt_tib = teb + user_offset(c, flags::x64, TEB_NtTib);
         return io.read(nt_tib + user_offset(c, flags::x64, NT_TIB_StackLimit));
