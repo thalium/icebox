@@ -256,7 +256,7 @@ namespace
         if(!dbg)
             return false;
 
-        const auto on_member = [&](symbols::Struc& struc, Dwarf_Die member, std::string_view name)
+        const auto on_member = [&](auto& struc, Dwarf_Die member, std::string_view name)
         {
             const auto opt_offset = read_member_offset(*dbg, member);
             const auto offset     = opt_offset ? *opt_offset : (uint32_t) -1;

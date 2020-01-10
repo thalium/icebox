@@ -17,6 +17,20 @@ namespace symbols
         uint64_t    offset;
     };
 
+    struct Member
+    {
+        std::string_view name;
+        uint32_t         offset;
+        uint32_t         bits;
+    };
+
+    struct Struc
+    {
+        std::string_view    name;
+        std::vector<Member> members;
+        size_t              bytes;
+    };
+
     constexpr auto kernel = proc_t{~0ull, {~0ull}, {~0ull}};
 
     bool        load_module_memory  (core::Core& core, proc_t proc, const memory::Io& io, span_t span);
@@ -28,11 +42,11 @@ namespace symbols
     bool        load_drivers        (core::Core& core);
     bool        unload              (core::Core& core, proc_t proc, const std::string& module);
 
-    opt<uint64_t>   address         (core::Core& core, proc_t proc, const std::string& module, const std::string& symbol);
-    void            struc_names     (core::Core& core, proc_t proc, const std::string& module, const on_name_fn& on_struc);
-    opt<size_t>     struc_size      (core::Core& core, proc_t proc, const std::string& module, const std::string& struc);
-    void            struc_members   (core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const on_name_fn& on_member);
-    opt<uint64_t>   member_offset   (core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
-    Symbol          find            (core::Core& core, proc_t proc, uint64_t addr);
-    std::string     to_string       (const Symbol& symbol);
+    opt<uint64_t>   address     (core::Core& core, proc_t proc, const std::string& module, const std::string& symbol);
+    void            list_strucs (core::Core& core, proc_t proc, const std::string& module, const on_name_fn& on_struc);
+    opt<Struc>      read_struc  (core::Core& core, proc_t proc, const std::string& module, const std::string& struc);
+    opt<Member>     find_member (const Struc& struc, const std::string& member);
+    opt<Member>     read_member (core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
+    Symbol          find        (core::Core& core, proc_t proc, uint64_t addr);
+    std::string     to_string   (const Symbol& symbol);
 } // namespace symbols

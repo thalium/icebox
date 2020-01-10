@@ -672,24 +672,19 @@ TEST_F(win10, symbols)
     EXPECT_EQ(strsym, "nt!PspExitProcess");
 
     auto strucs = std::vector<std::string>{};
-    symbols::struc_names(core, *opt_proc, "nt", [&](std::string_view struc)
+    symbols::list_strucs(core, *opt_proc, "nt", [&](std::string_view struc)
     {
         strucs.emplace_back(struc);
     });
     const auto it_struc = std::find(strucs.begin(), strucs.end(), "_KPROCESS");
     EXPECT_NE(it_struc, strucs.end());
 
-    const auto opt_size = symbols::struc_size(core, *opt_proc, "nt", "_KPROCESS");
-    EXPECT_TRUE(!!opt_size);
+    const auto opt_struc = symbols::read_struc(core, *opt_proc, "nt", "_KPROCESS");
+    EXPECT_TRUE(!!opt_struc);
 
     auto members = std::vector<std::string>{};
-    symbols::struc_members(core, *opt_proc, "nt", "_KPROCESS", [&](std::string_view member)
-    {
-        members.emplace_back(member);
-    });
+    for(const auto& m : opt_struc->members)
+        members.emplace_back(m.name);
     const auto it_member = std::find(members.begin(), members.end(), "DirectoryTableBase");
     EXPECT_NE(it_member, members.end());
-
-    const auto opt_offset = symbols::member_offset(core, *opt_proc, "nt", "_KPROCESS", "DirectoryTableBase");
-    EXPECT_TRUE(!!opt_offset);
 }

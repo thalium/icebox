@@ -474,13 +474,13 @@ namespace
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_nt_offsets[i].e_id != i;
-            const auto offset = symbols::member_offset(c.core_, symbols::kernel, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
-            if(!offset)
+            const auto opt_mb = symbols::read_member(c.core_, symbols::kernel, name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            if(!opt_mb)
             {
                 LOG(ERROR, "unable to read %s!%s.%s member offset", name, g_nt_offsets[i].struc, g_nt_offsets[i].member);
                 continue;
             }
-            offsets[i] = *offset;
+            offsets[i] = opt_mb->offset;
         }
         if(fail)
             return false;

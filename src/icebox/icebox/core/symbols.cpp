@@ -25,6 +25,13 @@
 #    define boyer_moore_horspool_searcher   std::experimental::make_boyer_moore_horspool_searcher
 #endif
 
+#ifdef _MSC_VER
+#    define strnicmp _strnicmp
+#else
+#    include <strings.h>
+#    define strnicmp strncasecmp
+#endif
+
 namespace
 {
     struct ModKey
@@ -263,36 +270,59 @@ opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, 
     return it->span.addr + *opt_offset;
 }
 
-void symbols::Modules::struc_names(proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc)
+void symbols::Modules::list_strucs(proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc)
 {
     const auto mod = find(proc, module);
     if(mod)
-        mod->struc_names(on_struc);
+        mod->list_strucs(on_struc);
 }
 
-opt<size_t> symbols::Modules::struc_size(proc_t proc, const std::string& module, const std::string& struc)
+opt<symbols::Struc> symbols::Modules::read_struc(proc_t proc, const std::string& module, const std::string& struc)
 {
     const auto mod = find(proc, module);
     if(!mod)
         return {};
 
-    return mod->struc_size(struc);
+    return mod->read_struc(struc);
 }
 
-void symbols::Modules::struc_members(proc_t proc, const std::string& module, const std::string& struc, const on_name_fn& on_member)
+namespace
 {
-    const auto mod = find(proc, module);
-    if(mod)
-        mod->struc_members(struc, on_member);
+    bool is_lowercase_equal(const std::string_view& a, const std::string_view& b)
+    {
+        if(a.size() != b.size())
+            return false;
+
+        return !strnicmp(a.data(), b.data(), a.size());
+    }
 }
 
-opt<uint64_t> symbols::Modules::member_offset(proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
+void symbols::list_strucs(core::Core& core, proc_t proc, const std::string& module, const on_name_fn& on_struc)
 {
-    const auto mod = find(proc, module);
-    if(!mod)
+    return core.symbols_->list_strucs(proc, module, on_struc);
+}
+
+opt<symbols::Struc> symbols::read_struc(core::Core& core, proc_t proc, const std::string& module, const std::string& struc)
+{
+    return core.symbols_->read_struc(proc, module, struc);
+}
+
+opt<symbols::Member> symbols::find_member(const Struc& struc, const std::string& member)
+{
+    for(const auto& m : struc.members)
+        if(is_lowercase_equal(m.name, member))
+            return m;
+
+    return {};
+}
+
+opt<symbols::Member> symbols::read_member(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
+{
+    const auto opt_struc = read_struc(core, proc, module, struc);
+    if(!opt_struc)
         return {};
 
-    return mod->member_offset(struc, member);
+    return find_member(*opt_struc, member);
 }
 
 namespace
@@ -548,26 +578,6 @@ bool symbols::unload(core::Core& core, proc_t proc, const std::string& module)
 opt<uint64_t> symbols::address(core::Core& core, proc_t proc, const std::string& module, const std::string& symbol)
 {
     return core.symbols_->address(proc, module, symbol);
-}
-
-void symbols::struc_names(core::Core& core, proc_t proc, const std::string& module, const on_name_fn& on_struc)
-{
-    core.symbols_->struc_names(proc, module, on_struc);
-}
-
-opt<size_t> symbols::struc_size(core::Core& core, proc_t proc, const std::string& module, const std::string& struc)
-{
-    return core.symbols_->struc_size(proc, module, struc);
-}
-
-void symbols::struc_members(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const on_name_fn& on_member)
-{
-    core.symbols_->struc_members(proc, module, struc, on_member);
-}
-
-opt<uint64_t> symbols::member_offset(core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member)
-{
-    return core.symbols_->member_offset(proc, module, struc, member);
 }
 
 symbols::Symbol symbols::find(core::Core& core, proc_t proc, uint64_t addr)

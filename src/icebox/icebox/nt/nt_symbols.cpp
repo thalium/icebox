@@ -129,17 +129,17 @@ bool nt::load_kernel_symbols(nt::Os& os)
     for(const auto& off : g_offsets)
     {
         fail |= off.e_id != ++i;
-        const auto offset = symbols::member_offset(os.core_, symbols::kernel, off.module, off.struc, off.member);
-        if(!offset)
+        const auto opt_mb = symbols::read_member(os.core_, symbols::kernel, off.module, off.struc, off.member);
+        if(!opt_mb)
         {
             fail |= off.e_cat == cat_e::REQUIRED;
             if(off.e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read %s!%s.%s member offset", off.module, off.struc, off.member);
+                LOG(ERROR, "unable to read %s!%s.%s member", off.module, off.struc, off.member);
             else
-                LOG(WARNING, "unable to read optional %s!%s.%s member offset", off.module, off.struc, off.member);
+                LOG(WARNING, "unable to read optional %s!%s.%s member", off.module, off.struc, off.member);
             continue;
         }
-        os.offsets_[i] = *offset;
+        os.offsets_[i] = opt_mb->offset;
     }
     return !fail;
 }

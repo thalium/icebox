@@ -495,9 +495,12 @@ namespace
         for(const auto& off : g_offsets)
         {
             fail |= off.e_id != ++i;
-            offsets[i] = symbols::member_offset(core, symbols::kernel, off.module, off.struc, off.member);
-            if(offsets[i])
+            const auto opt_mb = symbols::read_member(core, symbols::kernel, off.module, off.struc, off.member);
+            if(opt_mb)
+            {
+                offsets[i] = opt_mb->offset;
                 continue;
+            }
 
             fail |= off.e_cat == cat_e::REQUIRED;
             if(off.e_cat == cat_e::REQUIRED)
@@ -577,11 +580,11 @@ bool OsLinux::setup()
             return FAIL(walk_e::next, "unable to parse kernel version in this linux banner");
         kversion = match[1].str();
 
-        const auto opt_pt_regs_size = symbols::struc_size(core_, symbols::kernel, "kernel", "pt_regs");
-        if(!opt_pt_regs_size)
+        const auto opt_struc = symbols::read_struc(core_, symbols::kernel, "kernel", "pt_regs");
+        if(!opt_struc)
             return FAIL(walk_e::next, "unable to read the size of pt_regs structure");
-        pt_regs_size = *opt_pt_regs_size;
 
+        pt_regs_size = opt_struc->bytes;
         LOG(INFO, "kernel %s loaded with kaslr 0x%" PRIx64, kversion.get().data(), *kaslr);
         return walk_e::stop;
     });

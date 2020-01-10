@@ -3,14 +3,7 @@
 
 #include <cstring>
 
-#ifdef _MSC_VER
-#    define strnicmp _strnicmp
-#else
-#    include <strings.h>
-#    define strnicmp strncasecmp
-#endif
-
-struct symbols::Struc
+struct symbols::IndexerStruc
 {
     uint32_t name_idx;
     uint32_t size;
@@ -36,7 +29,7 @@ namespace
     using StringData = std::vector<char>;
     using Strings    = std::vector<std::string_view>;
     using Symbols    = std::vector<Sym>;
-    using Strucs     = std::vector<symbols::Struc>;
+    using Strucs     = std::vector<symbols::IndexerStruc>;
     using Members    = std::vector<Member>;
 
     struct Data
@@ -45,18 +38,16 @@ namespace
         Data(std::string_view id);
 
         // symbols::Indexer methods
-        void            add_symbol  (std::string_view name, size_t offset) override;
-        symbols::Struc& add_struc   (std::string_view name, size_t size) override;
-        void            add_member  (symbols::Struc& struc, std::string_view name, size_t offset) override;
-        void            finalize    () override;
+        void                    add_symbol  (std::string_view name, size_t offset) override;
+        symbols::IndexerStruc&  add_struc   (std::string_view name, size_t size) override;
+        void                    add_member  (symbols::IndexerStruc& struc, std::string_view name, size_t offset) override;
+        void                    finalize    () override;
 
         // symbols::Module methods
         std::string_view        id              () override;
         opt<size_t>             symbol_offset   (const std::string& symbol) override;
-        void                    struc_names     (const symbols::on_name_fn& on_struc) override;
-        opt<size_t>             struc_size      (const std::string& struc) override;
-        void                    struc_members   (const std::string& struc, const symbols::on_name_fn& on_member) override;
-        opt<size_t>             member_offset   (const std::string& struc, const std::string& member) override;
+        void                    list_strucs     (const symbols::on_name_fn& on_struc) override;
+        opt<symbols::Struc>     read_struc      (const std::string& struc) override;
         opt<symbols::Offset>    find_symbol     (size_t offset) override;
         bool                    list_symbols    (symbols::on_symbol_fn on_symbol) override;
 
@@ -103,17 +94,17 @@ void Data::add_symbol(std::string_view name, size_t offset)
     offsets.emplace_back(sym);
 }
 
-symbols::Struc& Data::add_struc(std::string_view name, size_t size)
+symbols::IndexerStruc& Data::add_struc(std::string_view name, size_t size)
 {
     const auto name_idx = last_name_idx++;
     save_string_data(data, name);
     const auto usize      = static_cast<uint32_t>(size);
     const auto member_idx = static_cast<uint32_t>(members.size());
-    strucs.emplace_back(symbols::Struc{name_idx, usize, member_idx, member_idx});
+    strucs.emplace_back(symbols::IndexerStruc{name_idx, usize, member_idx, member_idx});
     return strucs.back();
 }
 
-void Data::add_member(symbols::Struc& struc, std::string_view name, size_t offset)
+void Data::add_member(symbols::IndexerStruc& struc, std::string_view name, size_t offset)
 {
     const auto name_idx = last_name_idx++;
     save_string_data(data, name);
@@ -211,58 +202,36 @@ opt<size_t> Data::symbol_offset(const std::string& symbol)
     return opt_sym->offset;
 }
 
-void Data::struc_names(const symbols::on_name_fn& on_struc)
+void Data::list_strucs(const symbols::on_name_fn& on_struc)
 {
     for(const auto& struc : strucs)
         on_struc(strings[struc.name_idx]);
 }
 
-opt<size_t> Data::struc_size(const std::string& struc)
+opt<symbols::Struc> Data::read_struc(const std::string& struc)
 {
     const auto opt_struc = binary_search(strings, strucs, struc);
     if(!opt_struc)
         return {};
 
-    return opt_struc->size;
-}
-
-void Data::struc_members(const std::string& struc, const symbols::on_name_fn& on_member)
-{
-    const auto opt_struc = binary_search(strings, strucs, struc);
-    if(!opt_struc)
-        return;
-
+    auto ret  = symbols::Struc{};
+    ret.name  = strings[opt_struc->name_idx];
+    ret.bytes = opt_struc->size;
+    ret.members.reserve(opt_struc->member_end - opt_struc->member_idx);
     for(auto idx = opt_struc->member_idx; idx < opt_struc->member_end; ++idx)
     {
         const auto& m = members[idx];
-        on_member(strings[m.name_idx]);
+        ret.members.emplace_back(symbols::Member{strings[m.name_idx], m.offset, 0});
     }
-}
 
-namespace
-{
-    bool is_lowercase_equal(const std::string_view& a, const std::string_view& b)
+    auto last_offset = ret.bytes;
+    for(auto it = ret.members.rbegin(); it != ret.members.rend(); ++it)
     {
-        if(a.size() != b.size())
-            return false;
-
-        return !strnicmp(a.data(), b.data(), a.size());
+        const auto max_offset = std::max<size_t>(last_offset, it->offset);
+        it->bits              = static_cast<uint32_t>(max_offset - it->offset) * 8;
+        last_offset           = it->offset;
     }
-}
-
-opt<size_t> Data::member_offset(const std::string& struc, const std::string& member)
-{
-    const auto opt_struc = binary_search(strings, strucs, struc);
-    if(!opt_struc)
-        return {};
-
-    for(auto idx = opt_struc->member_idx; idx != opt_struc->member_end; ++idx)
-    {
-        const auto& m = members[idx];
-        if(is_lowercase_equal(member, strings[m.name_idx]))
-            return m.offset;
-    }
-    return {};
+    return ret;
 }
 
 namespace
