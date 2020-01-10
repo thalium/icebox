@@ -22,7 +22,7 @@ PyObject* py::symbols::address(core::Core& core, PyObject* args)
     return PyLong_FromUnsignedLongLong(*opt_ptr);
 }
 
-PyObject* py::symbols::struc_names(core::Core& core, PyObject* args)
+PyObject* py::symbols::list_strucs(core::Core& core, PyObject* args)
 {
     auto py_proc = static_cast<PyObject*>(nullptr);
     auto module  = static_cast<const char*>(nullptr);
@@ -40,7 +40,7 @@ PyObject* py::symbols::struc_names(core::Core& core, PyObject* args)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
-    ::symbols::struc_names(core, *opt_proc, module, [&](std::string_view name)
+    ::symbols::list_strucs(core, *opt_proc, module, [&](std::string_view name)
     {
         const auto py_name = PyUnicode_FromStringAndSize(name.data(), name.size());
         if(!py_name)
@@ -53,7 +53,7 @@ PyObject* py::symbols::struc_names(core::Core& core, PyObject* args)
     return py_list;
 }
 
-PyObject* py::symbols::struc_size(core::Core& core, PyObject* args)
+PyObject* py::symbols::read_struc(core::Core& core, PyObject* args)
 {
     auto py_proc = static_cast<PyObject*>(nullptr);
     auto module  = static_cast<const char*>(nullptr);
@@ -66,70 +66,30 @@ PyObject* py::symbols::struc_size(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    module              = module ? module : "";
-    struc               = struc ? struc : "";
-    const auto opt_size = ::symbols::struc_size(core, *opt_proc, module, struc);
-    if(!opt_size)
+    module               = module ? module : "";
+    struc                = struc ? struc : "";
+    const auto opt_struc = ::symbols::read_struc(core, *opt_proc, module, struc);
+    if(!opt_struc)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read struc size");
 
-    return PyLong_FromUnsignedLongLong(*opt_size);
-}
-
-PyObject* py::symbols::struc_members(core::Core& core, PyObject* args)
-{
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto module  = static_cast<const char*>(nullptr);
-    auto struc   = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &struc);
-    if(!ok)
-        return nullptr;
-
-    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
-    if(!opt_proc)
-        return nullptr;
-
-    module       = module ? module : "";
-    struc        = struc ? struc : "";
     auto py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
-    PY_DEFER_DECREF(py_list);
-    ::symbols::struc_members(core, *opt_proc, module, struc, [&](std::string_view name)
+    for(const auto& m : opt_struc->members)
     {
-        const auto py_name = PyUnicode_FromStringAndSize(name.data(), name.size());
-        if(!py_name)
-            return;
+        const auto py_item = Py_BuildValue("{s:s,s:k,s:k}",
+                                           "name", m.name.data(),
+                                           "offset", m.offset,
+                                           "bits", m.bits);
+        PY_DEFER_DECREF(py_item);
+        PyList_Append(py_list, py_item);
+    }
 
-        PY_DEFER_DECREF(py_name);
-        PyList_Append(py_list, py_name);
-    });
-    Py_INCREF(py_list);
-    return py_list;
-}
-
-PyObject* py::symbols::member_offset(core::Core& core, PyObject* args)
-{
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto module  = static_cast<const char*>(nullptr);
-    auto struc   = static_cast<const char*>(nullptr);
-    auto member  = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Ssss", &py_proc, &module, &struc, &member);
-    if(!ok)
-        return nullptr;
-
-    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
-    if(!opt_proc)
-        return nullptr;
-
-    module                = module ? module : "";
-    struc                 = struc ? struc : "";
-    member                = member ? member : "";
-    const auto opt_offset = ::symbols::member_offset(core, *opt_proc, module, struc, member);
-    if(!opt_offset)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read struc offset");
-
-    return PyLong_FromUnsignedLongLong(*opt_offset);
+    return Py_BuildValue("{s:s,s:K,s:O}",
+                         "name", opt_struc->name.data(),
+                         "bytes", opt_struc->bytes,
+                         "members", py_list);
 }
 
 PyObject* py::symbols::string(core::Core& core, PyObject* args)

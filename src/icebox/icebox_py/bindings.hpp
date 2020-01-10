@@ -99,10 +99,8 @@ namespace py
         PyObject*   load_modules        (core::Core& core, PyObject* args);
         PyObject*   autoload_modules    (core::Core& core, PyObject* args);
         PyObject*   address             (core::Core& core, PyObject* args);
-        PyObject*   struc_names         (core::Core& core, PyObject* args);
-        PyObject*   struc_size          (core::Core& core, PyObject* args);
-        PyObject*   struc_members       (core::Core& core, PyObject* args);
-        PyObject*   member_offset       (core::Core& core, PyObject* args);
+        PyObject*   list_strucs         (core::Core& core, PyObject* args);
+        PyObject*   read_struc          (core::Core& core, PyObject* args);
         PyObject*   string              (core::Core& core, PyObject* args);
     } // namespace symbols
 

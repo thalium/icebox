@@ -166,10 +166,8 @@ namespace
         {"symbols_load_modules", &core_exec<&py::symbols::load_modules>, METH_VARARGS, "load all module symbols from process"},
         {"symbols_autoload_modules", &core_exec<&py::symbols::autoload_modules>, METH_VARARGS, "auto-load module symbols from process"},
         {"symbols_address", &core_exec<&py::symbols::address>, METH_VARARGS, "read symbols address"},
-        {"symbols_struc_names", &core_exec<&py::symbols::struc_names>, METH_VARARGS, "list structs"},
-        {"symbols_struc_size", &core_exec<&py::symbols::struc_size>, METH_VARARGS, "read struc size"},
-        {"symbols_struc_members", &core_exec<&py::symbols::struc_members>, METH_VARARGS, "list struct members"},
-        {"symbols_member_offset", &core_exec<&py::symbols::member_offset>, METH_VARARGS, "read struc member offset"},
+        {"symbols_list_strucs", &core_exec<&py::symbols::list_strucs>, METH_VARARGS, "list structs"},
+        {"symbols_read_struc", &core_exec<&py::symbols::read_struc>, METH_VARARGS, "read struc"},
         {"symbols_string", &core_exec<&py::symbols::string>, METH_VARARGS, "convert address to symbol string"},
         // functions
         {"functions_read_stack", &core_exec<&py::functions::read_stack>, METH_VARARGS, "read stack value"},

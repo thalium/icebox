@@ -1,6 +1,7 @@
 import binascii
 import os
 import struct
+import types
 
 from . import _icebox
 
@@ -56,20 +57,26 @@ class Symbols:
         return _icebox.symbols_address(self.proc, module, symbol)
 
     def strucs(self, module):
-        return _icebox.symbols_struc_names(self.proc, module)
+        return _icebox.symbols_list_strucs(self.proc, module)
 
-    def struc_size(self, name):
+    def struc(self, name):
         module, struc_name = name.split("!")
-        return _icebox.symbols_struc_size(self.proc, module, struc_name)
+        ret = _icebox.symbols_read_struc(self.proc, module, struc_name)
+        if not ret:
+            return ret
 
-    def members(self, name):
-        module, struc = name.split("!")
-        return _icebox.symbols_struc_members(self.proc, module, struc)
-
-    def member_offset(self, name):
-        module, struc = name.split("!")
-        struc_name, struc_member = struc.split("::")
-        return _icebox.symbols_member_offset(self.proc, module, struc_name, struc_member)
+        struc = types.SimpleNamespace()
+        setattr(struc, "name", ret["name"])
+        setattr(struc, "size", ret["bytes"])
+        members = []
+        for m in ret["members"]:
+            item = types.SimpleNamespace()
+            setattr(item, "name", m["name"])
+            setattr(item, "bits", m["bits"])
+            setattr(item, "offset", m["offset"])
+            members.append(item)
+        setattr(struc, "members", members)
+        return struc
 
     def string(self, ptr):
         return _icebox.symbols_string(self.proc, ptr)
@@ -87,25 +94,19 @@ class Symbols:
         return _icebox.symbols_autoload_modules(self.proc)
 
     def dump_type(self, name, ptr):
-        size = self.struc_size(name)
-        members = [(m, self.member_offset("%s::%s" % (name, m)), 0)
-                   for m in self.members(name)]
-        last_offset = size
-        num_members = len(members)
+        struc = self.struc(name)
         max_name = 0
-        for i, (mname, offset, _) in enumerate(reversed(members)):
-            if offset >= last_offset:
-                continue  # union types...
-            max_name = max(len(mname), max_name)
-            members[num_members - 1 - i] = mname, offset, last_offset - offset
-            last_offset = offset
+        for m in struc.members:
+            max_name = max(len(m.name), max_name)
         print("%s %x" % (name, ptr))
-        for mname, offset, msize in members:
-            if msize == 0:
+        for m in struc.members:
+            size = m.bits >> 3
+            if not size:
                 continue
-            buf = self.py_proc.memory[ptr + offset: ptr + offset + msize]
+
+            buf = self.py_proc.memory[ptr + m.offset: ptr + m.offset + size]
             print("  %3x %s %s" %
-                  (offset, mname.ljust(max_name), dump_bytes(buf)))
+                  (m.offset, m.name.ljust(max_name), dump_bytes(buf)))
 
 
 class Virtual:

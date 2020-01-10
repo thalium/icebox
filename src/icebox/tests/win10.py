@@ -173,14 +173,16 @@ class Windows(unittest.TestCase):
         for s in p.symbols.strucs("nt"):
             strucs.append(s)
         self.assertIn("_LDR_DATA_TABLE_ENTRY", strucs)
-        size = p.symbols.struc_size("nt!_LDR_DATA_TABLE_ENTRY")
-        self.assertGreater(size, 1)
+        struc = p.symbols.struc("nt!_LDR_DATA_TABLE_ENTRY")
+        self.assertGreater(struc.size, 1)
         members = []
-        for m in p.symbols.members("nt!_LDR_DATA_TABLE_ENTRY"):
-            members.append(m)
+        offset = None
+        for m in struc.members:
+            members.append(m.name)
+            if m.name == "SizeOfImage":
+                offset = m.offset
         self.assertIn("SizeOfImage", members)
-        moff = "nt!_LDR_DATA_TABLE_ENTRY::SizeOfImage"
-        offset = p.symbols.member_offset(moff)
+        self.assertIsNotNone(offset)
         self.assertGreater(offset, 0)
         proc_ptr = struct.unpack_from("<Q", p.proc)[0]
         print()
