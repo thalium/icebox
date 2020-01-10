@@ -52,11 +52,17 @@ Tags:
 * docker
 
 
+Variables:
+```bash
+CC = /usr/bin/gcc-8
+CXX = /usr/bin/g++-8
+TARGET = Ninja
+```
 Commands:
 ```bash
-$APT_UPDATE && $APT_INSTALL cmake python3 gcc-8 g++-8 ninja-build > /dev/null
+$APT_UPDATE && $APT_INSTALL cmake g++-8 gcc-8 ninja-build python3 > /dev/null
 cd build
-CC=/usr/bin/gcc-8 CXX=/usr/bin/g++-8 TARGET=Ninja ./configure.sh
+./configure.sh
 cd ../out/x64
 ninja
 ```
@@ -84,11 +90,19 @@ Tags:
 * docker
 
 
+Variables:
+```bash
+CC = /usr/bin/clang-8
+CXX = /usr/bin/clang++-8
+CLANG_TIDY = /usr/bin/clang-tidy-8
+TARGET = Ninja
+USE_STATIC_ANALYZER = 1
+```
 Commands:
 ```bash
-$APT_UPDATE && $APT_INSTALL cmake python3 clang-7 clang-tidy-7 ninja-build > /dev/null
+$APT_UPDATE && $APT_INSTALL clang-8 clang-tidy-8 cmake ninja-build python3 > /dev/null
 cd build
-CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja USE_STATIC_ANALYZER=1 ./configure.sh
+./configure.sh
 cd ../out/x64
 ninja
 ```
