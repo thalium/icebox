@@ -11,6 +11,7 @@ namespace core { struct Core; }
 
 namespace fdp
 {
+    void            exit                (core::Core& core);
     void            reset               (core::Core& core);
     opt<FDP_State>  state               (core::Core& core);
     bool            state_changed       (core::Core& core);

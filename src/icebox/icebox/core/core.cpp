@@ -18,6 +18,11 @@ core::Core::Core(std::string name)
 {
 }
 
+core::Core::~Core()
+{
+    fdp::exit(*this);
+}
+
 namespace
 {
     struct interfaces_t

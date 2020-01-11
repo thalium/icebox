@@ -37,6 +37,13 @@ fdp::shm* fdp::setup(const std::string& name)
     return cast(ptr);
 }
 
+void fdp::exit(core::Core& core)
+{
+    auto ptr = cast(core.shm_);
+    FDP_ExitSHM(ptr);
+    core.shm_ = nullptr;
+}
+
 void fdp::reset(core::Core& core)
 {
     auto ptr = cast(core.shm_);

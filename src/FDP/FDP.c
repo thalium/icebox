@@ -327,6 +327,11 @@ FDP_EXPORTED FDP_SHM* FDP_OpenSHM(const char* pShmName)
     return pFDPSHM;
 }
 
+FDP_EXPORTED void FDP_ExitSHM(FDP_SHM* pShm)
+{
+    free(pShm);
+}
+
 static void RunCmd(FDP_SHM* pFDP, void* pDst, const void* pSrc, size_t szSize)
 {
     LockSHM(pFDP->pSharedFDPSHM);
