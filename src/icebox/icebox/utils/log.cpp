@@ -12,7 +12,9 @@ void logg::init(int argc, char** argv)
     loguru::g_preamble_date   = false;
     loguru::g_preamble_thread = false;
     loguru::g_preamble_file   = false;
-    loguru::init(argc, argv);
+    auto options              = loguru::Options{};
+    options.main_thread_name  = nullptr;
+    loguru::init(argc, argv, options);
 }
 
 #ifdef _MSC_VER
