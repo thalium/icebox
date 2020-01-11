@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2016-2018 Oracle Corporation
+ * Copyright (C) 2016-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,11 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef DEV_HDA_COMMON_H
-#define DEV_HDA_COMMON_H
+#ifndef VBOX_INCLUDED_SRC_Audio_DevHDACommon_h
+#define VBOX_INCLUDED_SRC_Audio_DevHDACommon_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
+#endif
 
 #include "AudioMixer.h"
 #include <VBox/log.h> /* LOG_ENABLED */
@@ -90,7 +93,11 @@ AssertCompile(HDA_MAX_SDI <= HDA_MAX_SDO);
 /** Default timer frequency (in Hz).
  *
  * Lowering this value can ask for trouble, as backends then can run
- * into data underruns. */
+ * into data underruns.
+ *
+ * Note: For handling surround setups (e.g. 5.1 speaker setups) we need
+ *       a higher Hz rate, as the device emulation otherwise will come into
+ *       timing trouble, making the output (DMA reads) crackling. */
 #define HDA_TIMER_HZ_DEFAULT        100
 
 /** Default position adjustment (in audio samples).
@@ -112,7 +119,7 @@ AssertCompile(HDA_MAX_SDI <= HDA_MAX_SDO);
 
 /** HDA's (fixed) audio frame size in bytes.
  *  We only support 16-bit stereo frames at the moment. */
-#define HDA_FRAME_SIZE              4
+#define HDA_FRAME_SIZE_DEFAULT      4
 
 /** Offset of the SD0 register map. */
 #define HDA_REG_DESC_SD0_BASE       0x80
@@ -549,7 +556,7 @@ typedef struct HDABDLESTATE
 typedef struct HDABDLEDESC
 {
     /** Starting address of the actual buffer. Must be 128-bit aligned. */
-    uint64_t     u64BufAdr;
+    uint64_t     u64BufAddr;
     /** Size of the actual buffer (in bytes). */
     uint32_t     u32BufSize;
     /** Bit 0: Interrupt on completion; the controller will generate
@@ -622,7 +629,7 @@ int           hdaR3DMAWrite(PHDASTATE pThis, PHDASTREAM pStream, const void *pvB
  */
 uint32_t      hdaGetINTSTS(PHDASTATE pThis);
 #ifdef IN_RING3
-int           hdaR3SDFMTToPCMProps(uint32_t u32SDFMT, PPDMAUDIOPCMPROPS pProps);
+int           hdaR3SDFMTToPCMProps(uint16_t u16SDFMT, PPDMAUDIOPCMPROPS pProps);
 #endif /* IN_RING3 */
 /** @} */
 
@@ -647,5 +654,5 @@ bool          hdaR3TimerSet(PHDASTATE pThis, PHDASTREAM pStream, uint64_t u64Exp
 #endif /* IN_RING3 */
 /** @} */
 
-#endif /* !DEV_HDA_H_COMMON */
+#endif /* !VBOX_INCLUDED_SRC_Audio_DevHDACommon_h */
 

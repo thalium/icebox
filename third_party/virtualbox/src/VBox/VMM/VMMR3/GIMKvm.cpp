@@ -168,7 +168,7 @@ VMMR3_INT_DECL(int) gimR3KvmInit(PVM pVM)
     }
     else
     {
-        Assert(ASMIsIntelCpu() || ASMIsViaCentaurCpu());
+        Assert(ASMIsIntelCpu() || ASMIsViaCentaurCpu() || ASMIsShanghaiCpu());
         pKvm->fTrapXcptUD   = false;
         pKvm->uOpCodeNative = OP_VMCALL;
     }

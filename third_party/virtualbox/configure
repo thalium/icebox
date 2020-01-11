@@ -241,6 +241,11 @@ strip_L()
   echo "$1"|$KBUILD_SED 's|-L\([^ ]\+\)|\1|g; s|^-[^L][^ ]*||g; s| -[^L][^ ]*||g; s|^ ||; s| *$||g'
 }
 
+L_to_PATH()
+{
+  echo "$1"|$KBUILD_SED 's|-L\([^ ]\+\)|\1|g; s|^-[^L][^ ]*||g; s| -[^L][^ ]*||g; s|^ ||; s| *$||g; s| |:|g'
+}
+
 strip_I()
 {
   echo "$1"|$KBUILD_SED 's|-I\([^ ]\+\)|\1|g; s|^-[^I][^ ]*||g; s| -[^I][^ ]*||g; s|^ ||; s| *$||g'
@@ -1512,7 +1517,7 @@ EOF
           TOOLQT5=`pkg-config Qt5Core --variable=prefix`
           TOOLQT5BIN=`pkg-config Qt5Core --variable=host_bins`
           if test_compile "$LIBQT5 $LIBPTHREAD $FLGQT5" qt5 qt5 nofatal; then
-            test_execute_path "`strip_L "$LIBQT5"`" nofatal && foundqt5=3 # pkg-config
+            test_execute_path "`L_to_PATH "$LIBQT5"`" nofatal && foundqt5=3 # pkg-config
           fi
         fi
       else
@@ -1530,13 +1535,13 @@ EOF
         LIBQT5="-L$q/lib -lQt5CoreVBox"
         TOOLQT5="$q"
         if test_compile "$LIBQT5 $LIBPTHREAD $I_INCQT5 $FLGQT5" qt5 qt5 nofatal &&
-            test_execute_path "`strip_L "$LIBQT5"`" nofatal; then
+            test_execute_path "`L_to_PATH "$LIBQT5"`" nofatal; then
           foundqt5=2 # internal
           break;
         fi
         LIBQT5="-L$q/lib -lQt5Core"
         if test_compile "$LIBQT5 $LIBPTHREAD $I_INCQT5 $FLGQT5" qt5 qt5 nofatal &&
-            test_execute_path "`strip_L "$LIBQT5"`" nofatal; then
+            test_execute_path "`L_to_PATH "$LIBQT5"`" nofatal; then
           foundqt5=1 # no pkg-config, Qt directory
           break;
         fi
@@ -1566,7 +1571,7 @@ echo "  printf(\", expected version $QT5MAJ.$QT5MIN or higher\\\\n\");" >> $ODIR
 EOF
     [ -n "$INCQT5" ] && I_INCQT5=`prefix_I "$INCQT5"`
     if test_compile "$LIBQT5 $LIBPTHREAD $I_INCQT5 $FLGQT5" qt5 qt5 nofatal; then
-      if test_execute_path "`strip_L "$LIBQT5"`"; then
+      if test_execute_path "`L_to_PATH "$LIBQT5"`"; then
         if [ "$OS" = "darwin" ]; then
           # Successful build & run the test application so add the necessary
           # params to AutoConfig.kmk:

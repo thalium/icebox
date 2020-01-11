@@ -26,22 +26,25 @@ BLDDIRS += \
 
 if1of ($(KBUILD_TARGET), win linux solaris freebsd)
  DLLS += \
-    VBoxOGL \
-    VBoxOGLarrayspu \
+    VBoxOGL
+
+ LIBRARIES += \
     VBoxOGLpassthroughspu \
     VBoxOGLpackspu \
     VBoxOGLfeedbackspu
 endif
 
 VBOX_OGL_X86_GUEST_DLLS = \
-     VBoxOGL-x86 \
-     VBoxOGLarrayspu-x86 \
+     VBoxOGL-x86
+
+VBOX_OGL_X86_GUEST_LIBRARIES = \
      VBoxOGLpassthroughspu-x86 \
      VBoxOGLpackspu-x86 \
      VBoxOGLfeedbackspu-x86
 
 ifdef VBOX_WITH_WDDM
  DLLS.win.amd64 += $(VBOX_OGL_X86_GUEST_DLLS)
+ LIBRARIES.win.amd64 += $(VBOX_OGL_X86_GUEST_LIBRARIES)
 endif
 
 if1of ($(KBUILD_TARGET), linux solaris freebsd)
@@ -203,13 +206,17 @@ if1of ($(KBUILD_TARGET), linux solaris)
  	$(VBOX_PATH_CROGL_GENFILES)/solaris_glxapi_exports.asm
  endif
 endif
-# VBoxOGL_LIBS = \  # VBOX_LIB_OGL_CRUTIL includes these and caused an interesting conflict.
-#	$(VBOX_LIB_IPRT_GUEST_R3_SHARED) \
-#	$(VBOX_LIB_VBGL_R3_SHARED) \
-
 VBoxOGL_LIBS = \
-	$(VBOX_LIB_OGL_CRUTIL) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload$(VBOX_SUFF_LIB)
+	$(PATH_STAGE_LIB)/additions/VBoxOGLfeedbackspu$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLpassthroughspu$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLpackspu$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLerrorspu$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLcrpacker$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLcrutil$(VBOX_SUFF_LIB) \
+	$(VBOX_LIB_IPRT_GUEST_R3_SHARED) \
+	$(VBOX_LIB_VBGL_R3_SHARED)
 
 VBoxOGL_LIBS.win += \
 	$(PATH_STAGE_LIB)/additions/VBoxDispMpLogger$(VBOX_SUFF_LIB) \
@@ -254,10 +261,17 @@ ifdef VBOX_WITH_WDDM
 #
 VBoxOGL-x86_EXTENDS = VBoxOGL
 VBoxOGL-x86_BLD_TRG_ARCH = x86
-VBoxOGL-x86_LIBS = $(VBOX_LIB_IPRT_GUEST_R3_SHARED_X86) \
-	$(VBOX_LIB_VBGL_R3_SHARED_X86) \
-	$(VBOX_LIB_OGL_CRUTIL_X86) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload-x86$(VBOX_SUFF_LIB)
+VBoxOGL-x86_LIBS = \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLfeedbackspu-x86$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLpassthroughspu-x86$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLpackspu-x86$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLerrorspu-x86$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLcrpacker-x86$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate-x86$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload-x86$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/additions/VBoxOGLcrutil-x86$(VBOX_SUFF_LIB) \
+	$(VBOX_LIB_IPRT_GUEST_R3_SHARED_X86) \
+	$(VBOX_LIB_VBGL_R3_SHARED_X86)
 
 VBoxOGL-x86_LIBS.win += \
 	$(PATH_STAGE_LIB)/additions/VBoxDispMpLogger-x86$(VBOX_SUFF_LIB) \
@@ -447,58 +461,9 @@ $(VBOX_PATH_CROGL_GENFILES)/linux_exports.c: \
 endif
 
 #
-# VBoxOGLarrayspu
-#
-VBoxOGLarrayspu_TEMPLATE      = VBOXCROGLR3GUESTDLL
-VBoxOGLarrayspu_INCS          = \
-	array \
-	$(VBOX_GRAPHICS_INCS)
-if1of ($(KBUILD_TARGET), linux solaris freebsd)
- VBoxOGLarrayspu_INCS += \
-        $(VBOX_GL_INCS)
-endif
-if defined(VBOX_SIGNING_MODE) && defined(VBOX_WITH_WDDM)
- VBoxOGLarrayspu_INSTTYPE.win = none
- VBoxOGLarrayspu_DEBUG_INSTTYPE.win = both
-endif
-VBoxOGLarrayspu_INCS.darwin  += $(PATH_OUT)/obj/VBoxOGL
-VBoxOGLarrayspu_INTERMEDIATES = \
-	$(VBOX_PATH_CROGL_GENFILES)/state/cr_currentpointers.h \
-	$(VBOX_PATH_CROGL_GENFILES)/state/cr_statefuncs.h
-VBoxOGLarrayspu_SOURCES       = \
-	array/arrayspu.c \
-	array/arrayspu_config.c \
-	array/arrayspu_init.c
-VBoxOGLarrayspu_SOURCES.win   = \
-	array/arrayspu.def \
-	array/arrayspu.rc
-VBoxOGLarrayspu_LIBS          = \
-	$(VBOX_LIB_OGL_CRUTIL) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload$(VBOX_SUFF_LIB) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate$(VBOX_SUFF_LIB)
-ifdef VBOX_WITH_CRHGSMI
-VBoxOGLarrayspu_DEFS.win   += VBOX_WITH_CRHGSMI
-endif
-ifdef VBOX_WITH_WDDM
-VBoxOGLarrayspu_DEFS.win   += VBOX_WITH_WDDM
-endif
-
-ifdef VBOX_WITH_WDDM
-#
-# VBoxOGLarrayspu-x86 - x86 version of VBoxOGLarrayspu built for amd64 build
-#
-VBoxOGLarrayspu-x86_EXTENDS = VBoxOGLarrayspu
-VBoxOGLarrayspu-x86_BLD_TRG_ARCH = x86
-VBoxOGLarrayspu-x86_LIBS = $(VBOX_LIB_OGL_CRUTIL_X86) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload-x86$(VBOX_SUFF_LIB) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate-x86$(VBOX_SUFF_LIB)
-VBoxOGLarrayspu-x86_DEFS = $(VBoxOGLarrayspu_DEFS) VBOX_WDDM_WOW64
-endif
-
-#
 # VBoxOGLpassthroughspu
 #
-VBoxOGLpassthroughspu_TEMPLATE    = VBOXCROGLR3GUESTDLL
+VBoxOGLpassthroughspu_TEMPLATE    = VBOXCROGLR3GUESTLIB
 VBoxOGLpassthroughspu_INCS        = \
 	passthrough \
 	$(VBOX_GRAPHICS_INCS)
@@ -506,20 +471,11 @@ if1of ($(KBUILD_TARGET), linux solaris freebsd)
  VBoxOGLpassthroughspu_INCS += \
         $(VBOX_GL_INCS)
 endif
-if defined(VBOX_SIGNING_MODE) && defined(VBOX_WITH_WDDM)
- VBoxOGLpassthroughspu_INSTTYPE.win = none
- VBoxOGLpassthroughspu_DEBUG_INSTTYPE.win = both
-endif
 VBoxOGLpassthroughspu_SOURCES     = \
 	passthrough/passthroughspu_init.c \
 	$(VBOX_PATH_CROGL_GENFILES)/passthroughspu.c
-VBoxOGLpassthroughspu_SOURCES.win = \
-	passthrough/passthrough.def \
-	passthrough/passthroughspu.rc
 VBoxOGLpassthroughspu_CLEAN       = \
 	$(VBOX_PATH_CROGL_GENFILES)/passthroughspu.c
-VBoxOGLpassthroughspu_LIBS        = \
-	$(VBOX_LIB_OGL_CRUTIL)
 ifdef VBOX_WITH_CRHGSMI
 VBoxOGLpassthroughspu_DEFS.win   += VBOX_WITH_CRHGSMI
 endif
@@ -533,7 +489,6 @@ ifdef VBOX_WITH_WDDM
 #
 VBoxOGLpassthroughspu-x86_EXTENDS = VBoxOGLpassthroughspu
 VBoxOGLpassthroughspu-x86_BLD_TRG_ARCH = x86
-VBoxOGLpassthroughspu-x86_LIBS = $(VBOX_LIB_OGL_CRUTIL_X86)
 VBoxOGLpassthroughspu-x86_DEFS = $(VBoxOGLpassthroughspu_DEFS) VBOX_WDDM_WOW64
 endif
 
@@ -547,7 +502,7 @@ $(VBOX_PATH_CROGL_GENFILES)/passthroughspu.c: $(PATH_SUB_CURRENT)/passthrough/pa
 #
 # VBoxOGLpackspu
 #
-VBoxOGLpackspu_TEMPLATE      = VBOXCROGLR3GUESTDLL
+VBoxOGLpackspu_TEMPLATE      = VBOXCROGLR3GUESTLIB
 VBoxOGLpackspu_DEFS          = TRACKS_STATE=1 PACKS=1
 VBoxOGLpackspu_INCS          = \
 	pack \
@@ -555,10 +510,6 @@ VBoxOGLpackspu_INCS          = \
 if1of ($(KBUILD_TARGET), linux solaris freebsd)
  VBoxOGLpackspu_INCS += \
         $(VBOX_GL_INCS)
-endif
-if defined(VBOX_SIGNING_MODE) && defined(VBOX_WITH_WDDM)
- VBoxOGLpackspu_INSTTYPE.win = none
- VBoxOGLpackspu_DEBUG_INSTTYPE.win = both
 endif
 VBoxOGLpackspu_INTERMEDIATES = \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_proto.h \
@@ -582,20 +533,12 @@ VBoxOGLpackspu_SOURCES    = \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_get.c \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_flush.c \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_beginend.c
-VBoxOGLpackspu_SOURCES.win = \
-	pack/pack.def \
-	pack/packspu.rc
 VBoxOGLpackspu_CLEAN       = \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_proto.h \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu.c \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_get.c \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_flush.c \
 	$(VBOX_PATH_CROGL_GENFILES)/packspu_beginend.c
-VBoxOGLpackspu_LIBS        = \
-	$(VBOX_LIB_OGL_CRUTIL) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload$(VBOX_SUFF_LIB) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate$(VBOX_SUFF_LIB) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLcrpacker$(VBOX_SUFF_LIB)
 VBoxOGLpackspu_LIBS.win += \
 	$(PATH_STAGE_LIB)/additions/VBoxDispMpLogger$(VBOX_SUFF_LIB) \
 	$(PATH_STAGE_LIB)/additions/VBoxWddmUmKmt$(VBOX_SUFF_LIB) \
@@ -620,10 +563,6 @@ ifdef VBOX_WITH_WDDM
 #
 VBoxOGLpackspu-x86_EXTENDS = VBoxOGLpackspu
 VBoxOGLpackspu-x86_BLD_TRG_ARCH = x86
-VBoxOGLpackspu-x86_LIBS = $(VBOX_LIB_OGL_CRUTIL_X86) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload-x86$(VBOX_SUFF_LIB) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate-x86$(VBOX_SUFF_LIB) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLcrpacker-x86$(VBOX_SUFF_LIB)
 VBoxOGLpackspu-x86_LIBS.win += \
 	$(PATH_STAGE_LIB)/additions/VBoxDispMpLogger-x86$(VBOX_SUFF_LIB) \
 	$(PATH_STAGE_LIB)/additions/VBoxWddmUmKmt-x86$(VBOX_SUFF_LIB) \
@@ -657,7 +596,7 @@ $(VBOX_PATH_CROGL_GENFILES)/packspu_proto.h: $(addprefix $(PATH_SUB_CURRENT)/pac
 #
 # VBoxOGLfeedbackspu
 #
-VBoxOGLfeedbackspu_TEMPLATE    = VBOXCROGLR3GUESTDLL
+VBoxOGLfeedbackspu_TEMPLATE    = VBOXCROGLR3GUESTLIB
 VBoxOGLfeedbackspu_INCS        = \
 	feedback \
 	$(VBOX_GRAPHICS_INCS)
@@ -665,11 +604,7 @@ if1of ($(KBUILD_TARGET), linux solaris freebsd)
  VBoxOGLfeedbackspu_INCS += \
         $(VBOX_GL_INCS)
 endif
-if defined(VBOX_SIGNING_MODE) && defined(VBOX_WITH_WDDM)
- VBoxOGLfeedbackspu_INSTTYPE.win = none
- VBoxOGLfeedbackspu_DEBUG_INSTTYPE.win = both
-endif
-VBoxOGLarrayspu_INTERMEDIATES = \
+VBoxOGLfeedbackspu_INTERMEDIATES = \
 	$(VBOX_PATH_CROGL_GENFILES)/feedbackspu_proto.h
 VBoxOGLfeedbackspu_SOURCES     = \
 	feedback/feedbackspu_config.c \
@@ -677,16 +612,11 @@ VBoxOGLfeedbackspu_SOURCES     = \
 	feedback/feedback_context.c \
 	$(VBOX_PATH_CROGL_GENFILES)/feedbackspu.c \
 	$(VBOX_PATH_CROGL_GENFILES)/feedbackspu_state.c
-VBoxOGLfeedbackspu_SOURCES.win = \
-	feedback/feedback.def \
-	feedback/feedbackspu.rc
 VBoxOGLfeedbackspu_CLEAN       = \
 	$(VBOX_PATH_CROGL_GENFILES)/feedbackspu_proto.h \
 	$(VBOX_PATH_CROGL_GENFILES)/feedbackspu.c \
 	$(VBOX_PATH_CROGL_GENFILES)/feedbackspu_state.c
 VBoxOGLfeedbackspu_LIBS        = \
-	$(VBOX_LIB_OGL_CRUTIL) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload$(VBOX_SUFF_LIB) \
 	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate$(VBOX_SUFF_LIB)
 ifdef VBOX_WITH_CRHGSMI
 VBoxOGLfeedbackspu_DEFS.win   += VBOX_WITH_CRHGSMI
@@ -701,9 +631,6 @@ ifdef VBOX_WITH_WDDM
 #
 VBoxOGLfeedbackspu-x86_EXTENDS = VBoxOGLfeedbackspu
 VBoxOGLfeedbackspu-x86_BLD_TRG_ARCH = x86
-VBoxOGLfeedbackspu-x86_LIBS = $(VBOX_LIB_OGL_CRUTIL_X86) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload-x86$(VBOX_SUFF_LIB) \
-	$(PATH_STAGE_LIB)/additions/VBoxOGLcrstate-x86$(VBOX_SUFF_LIB)
 VBoxOGLfeedbackspu-x86_DEFS = $(VBoxOGLfeedbackspu_DEFS) VBOX_WDDM_WOW64
 endif
 

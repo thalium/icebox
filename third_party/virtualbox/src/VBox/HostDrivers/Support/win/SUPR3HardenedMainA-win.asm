@@ -33,6 +33,7 @@
 
 ; External code.
 extern NAME(supR3HardenedEarlyProcessInit)
+extern NAME(supR3HardenedMonitor_KiUserApcDispatcher_C)
 
 
 BEGINCODE
@@ -106,6 +107,81 @@ BEGINPROC supR3HardenedEarlyProcessInitThunk
         ret
 ENDPROC   supR3HardenedEarlyProcessInitThunk
 
+
+;;
+; Hook for KiUserApcDispatcher that validates user APC calls during early process
+; init to prevent calls going to or referring to executable memory we've freed
+; already.
+;
+; We just call C code here, just like supR3HardenedEarlyProcessInitThunk does.
+;
+; @sa supR3HardenedMonitor_KiUserApcDispatcher_C
+;
+BEGINPROC supR3HardenedMonitor_KiUserApcDispatcher
+        ;
+        ; Prologue.
+        ;
+
+        ; Reserve space for the "return" address.
+        push    0
+
+        ; Create a stack frame, saving xBP.
+        push    xBP
+        SEH64_PUSH_xBP
+        mov     xBP, xSP
+        SEH64_SET_FRAME_xBP 0 ; probably wrong...
+
+        ; Save all volatile registers.
+        push    xAX
+        push    xCX
+        push    xDX
+%ifdef RT_ARCH_AMD64
+        push    r8
+        push    r9
+        push    r10
+        push    r11
+%endif
+
+        ; Reserve spill space and align the stack.
+        sub     xSP, 20h
+        and     xSP, ~0fh
+        SEH64_END_PROLOGUE
+
+        ;
+        ; Call the C/C++ code that does the actual work.  This returns the
+        ; resume address in xAX, which we put in the "return" stack position.
+        ;
+        ; On AMD64, a CONTEXT structure is found at our RSP address when we're called.
+        ; On x86, there a 16 byte structure containing the two routines and their
+        ; arguments followed by a CONTEXT structure.
+        ;
+        lea     xCX, [xBP + xCB + xCB]
+%ifdef RT_ARCH_X86
+        mov     [xSP], xCX
+%endif
+        call    NAME(supR3HardenedMonitor_KiUserApcDispatcher_C)
+        mov     [xBP + xCB], xAX
+
+        ;
+        ; Restore volatile registers.
+        ;
+        mov     xAX, [xBP - xCB*1]
+        mov     xCX, [xBP - xCB*2]
+        mov     xDX, [xBP - xCB*3]
+%ifdef RT_ARCH_AMD64
+        mov     r8,  [xBP - xCB*4]
+        mov     r9,  [xBP - xCB*5]
+        mov     r10, [xBP - xCB*6]
+        mov     r11, [xBP - xCB*7]
+%endif
+        ;
+        ; Use the leave instruction to restore xBP and set up xSP to point at
+        ; the resume address. Then use the 'ret' instruction to execute the
+        ; original KiUserApcDispatcher code as if we've never been here...
+        ;
+        leave
+        ret
+ENDPROC   supR3HardenedMonitor_KiUserApcDispatcher
 
 
 ;;

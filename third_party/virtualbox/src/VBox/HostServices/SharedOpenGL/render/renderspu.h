@@ -13,11 +13,7 @@
 #define RENDER_APIENTRY __stdcall
 #define snprintf _snprintf
 #elif defined(DARWIN)
-# ifndef VBOX_WITH_COCOA_QT
-#  include <AGL/AGL.h>
-# else
-#  include "renderspu_cocoa_helper.h"
-# endif
+# include "renderspu_cocoa_helper.h"
 #define RENDER_APIENTRY
 #else
 #include <GL/glx.h>
@@ -46,26 +42,6 @@ AssertCompile(sizeof (Window) == sizeof (unsigned long));
 
 #define MAX_VISUALS 32
 
-#ifdef RT_OS_DARWIN
-# ifndef VBOX_WITH_COCOA_QT
-enum
-{
-    /* Event classes */
-    kEventClassVBox         = 'vbox',
-    /* Event kinds */
-    kEventVBoxShowWindow    = 'swin',
-    kEventVBoxHideWindow    = 'hwin',
-    kEventVBoxMoveWindow    = 'mwin',
-    kEventVBoxResizeWindow  = 'rwin',
-    kEventVBoxDisposeWindow = 'dwin',
-    kEventVBoxUpdateDock    = 'udck',
-    kEventVBoxUpdateContext = 'uctx',
-    kEventVBoxBoundsChanged = 'bchg'
-};
-pascal OSStatus windowEvtHndlr(EventHandlerCallRef myHandler, EventRef event, void* userData);
-# endif
-#endif /* RT_OS_DARWIN */
-
 /**
  * Visual info
  */
@@ -75,9 +51,6 @@ typedef struct {
 #if defined(WINDOWS)
 //    HDC device_context;
 #elif defined(DARWIN)
-# ifndef VBOX_WITH_COCOA_QT
-    WindowRef window;
-# endif
 #elif defined(GLX)
     Display *dpy;
     XVisualInfo *visual;
@@ -120,32 +93,15 @@ typedef struct WindowInfo {
     HDC redraw_device_context;
     HRGN hRgn;
 #elif defined(DARWIN)
-# ifndef VBOX_WITH_COCOA_QT
-    WindowRef window;
-    WindowRef nativeWindow; /**< for render_to_app_window */
-    WindowRef appWindow;
-    EventHandlerUPP event_handler;
-    GLint bufferName;
-    AGLContext dummyContext;
-    RgnHandle hVisibleRegion;
-    /* unsigned long context_ptr; */
-# else
     NativeNSViewRef window;
     NativeNSViewRef nativeWindow; /**< for render_to_app_window */
     NativeNSOpenGLContextRef *currentCtx;
-# endif
 #elif defined(GLX)
     Window window;
     Window nativeWindow;  /**< for render_to_app_window */
     Window appWindow;     /**< Same as nativeWindow but for garbage collections purposes */
 #endif
     int nvSwapGroup;
-
-#ifdef USE_OSMESA
-    GLubyte *buffer;    /**< for rendering to off screen buffer.  */
-    int in_buffer_width;
-    int in_buffer_height;
-#endif
 
 } WindowInfo;
 
@@ -162,11 +118,7 @@ typedef struct _ContextInfo {
 #if defined(WINDOWS)
     HGLRC hRC;
 #elif defined(DARWIN)
-# ifndef VBOX_WITH_COCOA_QT
-    AGLContext context;
-# else
     NativeNSOpenGLContextRef context;
-# endif
 #elif defined(GLX)
     GLXContext context;
 #endif
@@ -279,36 +231,17 @@ typedef struct {
 
     ContextInfo *defaultSharedContext;
 
-#ifndef CHROMIUM_THREADSAFE
-    ContextInfo *currentContext;
-#endif
-
     crOpenGLInterface ws;  /**< Window System interface */
 
     CRHashTable *barrierHash;
 
-    int is_swap_master, num_swap_clients;
-    int swap_mtu;
-    char *swap_master_url;
+    int num_swap_clients;
     CRConnection **swap_conns;
 
     SPUDispatchTable blitterDispatch;
     CRHashTable *blitterTable;
 
     PFNVCRSERVER_CLIENT_CALLOUT pfnClientCallout;
-
-#ifdef USE_OSMESA
-    /** Off screen rendering hooks.  */
-    int use_osmesa;
-
-    OSMesaContext (*OSMesaCreateContext)( GLenum format, OSMesaContext sharelist );
-    GLboolean (* OSMesaMakeCurrent)( OSMesaContext ctx,
-                     GLubyte *buffer,
-                     GLenum type,
-                     GLsizei width,
-                     GLsizei height );
-    void (*OSMesaDestroyContext)( OSMesaContext ctx );
-#endif
 
 #if defined(GLX)
     RTTHREAD hWinCmdThread;
@@ -328,7 +261,6 @@ typedef struct {
 #endif
 
 #ifdef RT_OS_DARWIN
-# ifdef VBOX_WITH_COCOA_QT
     PFNDELETE_OBJECT pfnDeleteObject;
     PFNGET_ATTACHED_OBJECTS pfnGetAttachedObjects;
     PFNGET_HANDLE pfnGetHandle;
@@ -337,16 +269,6 @@ typedef struct {
     PFNGET_OBJECT_PARAMETERIV pfnGetObjectParameteriv;
 
     CR_GLSL_CACHE GlobalShaders;
-# else
-    RgnHandle hRootVisibleRegion;
-    RTSEMFASTMUTEX syncMutex;
-    EventHandlerUPP hParentEventHandler;
-    WindowGroupRef pParentGroup;
-    WindowGroupRef pMasterGroup;
-    GLint currentBufferName;
-    uint64_t uiDockUpdateTS;
-    bool fInit;
-# endif
 #endif /* RT_OS_DARWIN */
     /* If TRUE, render should tell window server to prevent artificial content
      * up-scaling when displayed on HiDPI monitor. */
@@ -379,19 +301,11 @@ extern RenderSPU render_spu;
 /* @todo remove this hack */
 extern uint64_t render_spu_parent_window_id;
 
-#ifdef CHROMIUM_THREADSAFE
 extern CRtsd _RenderTSD;
 #define GET_CONTEXT_VAL() ((ContextInfo *) crGetTSD(&_RenderTSD))
 #define SET_CONTEXT_VAL(_v) do { \
         crSetTSD(&_RenderTSD, (_v)); \
     } while (0)
-#else
-#define GET_CONTEXT_VAL() (render_spu.currentContext)
-#define SET_CONTEXT_VAL(_v) do { \
-        render_spu.currentContext = (_v); \
-    } while (0)
-
-#endif
 
 #define GET_CONTEXT(T)  ContextInfo *T = GET_CONTEXT_VAL()
 
@@ -412,8 +326,8 @@ extern void renderspu_SystemGetMaxWindowSize( WindowInfo *window, GLint *w, GLin
 extern void renderspu_SystemWindowPosition( WindowInfo *window, GLint x, GLint y );
 extern void renderspu_SystemWindowVisibleRegion(WindowInfo *window, GLint cRects, const GLint* pRects);
 extern GLboolean renderspu_SystemWindowNeedEmptyPresent(WindowInfo *window);
-extern int renderspu_SystemInit();
-extern int renderspu_SystemTerm();
+extern int renderspu_SystemInit(void);
+extern int renderspu_SystemTerm(void);
 extern void renderspu_SystemDefaultSharedContextChanged(ContextInfo *fromContext, ContextInfo *toContext);
 extern void renderspu_SystemShowWindow( WindowInfo *window, GLboolean showIt );
 extern void renderspu_SystemMakeCurrent( WindowInfo *window, GLint windowInfor, ContextInfo *context );
@@ -424,7 +338,7 @@ uint32_t renderspu_SystemPostprocessFunctions(SPUNamedFunctionTable *aFunctions,
 extern void renderspu_GCWindow(void);
 extern int renderspuCreateFunctions( SPUNamedFunctionTable table[] );
 extern GLboolean renderspuVBoxCompositorSet( WindowInfo *window, const struct VBOXVR_SCR_COMPOSITOR * pCompositor);
-extern void renderspuVBoxCompositorClearAll();
+extern void renderspuVBoxCompositorClearAll(void);
 extern int renderspuVBoxCompositorLock(WindowInfo *window, const struct VBOXVR_SCR_COMPOSITOR **ppCompositor);
 extern int renderspuVBoxCompositorUnlock(WindowInfo *window);
 extern const struct VBOXVR_SCR_COMPOSITOR * renderspuVBoxCompositorAcquire( WindowInfo *window);
@@ -481,22 +395,22 @@ extern void RENDER_APIENTRY renderspuSwapBuffers( GLint window, GLint flags );
 
 extern uint32_t renderspuContextMarkDeletedAndRelease( ContextInfo *context );
 
-int renderspuDefaultCtxInit();
+int renderspuDefaultCtxInit(void);
 void renderspuCleanupBase(bool fDeleteTables);
 
-ContextInfo * renderspuDefaultSharedContextAcquire();
+ContextInfo * renderspuDefaultSharedContextAcquire(void);
 void renderspuDefaultSharedContextRelease(ContextInfo * pCtx);
 uint32_t renderspuContextRelease(ContextInfo *context);
 uint32_t renderspuContextRetain(ContextInfo *context);
 
-bool renderspuCalloutAvailable();
+bool renderspuCalloutAvailable(void);
 bool renderspuCalloutClient(PFNVCRSERVER_CLIENT_CALLOUT_CB pfnCb, void *pvCb);
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-DECLEXPORT(void) renderspuSetWindowId(uint64_t winId);
+DECLHIDDEN(void) renderspuSetWindowId(uint64_t winId);
 DECLEXPORT(void) renderspuReparentWindow(GLint window);
 DECLEXPORT(void) renderspuSetUnscaledHiDPI(bool fEnable);
 #ifdef __cplusplus

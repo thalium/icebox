@@ -62,23 +62,11 @@ VBoxVideoW8.sys
 ;gl VBoxOGL.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
 ;gl VBoxD3D9wddm.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
 ;gl wined3dwddm.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;gl VBoxOGLarrayspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;gl VBoxOGLcrutil.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;gl VBoxOGLerrorspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;gl VBoxOGLfeedbackspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;gl VBoxOGLpackspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;gl VBoxOGLpassthroughspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
 
 ;amd64 [VBoxVideo.GL_wow64]
 ;amd64 ;gl VBoxOGL-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
 ;amd64 ;gl VBoxD3D9wddm-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
 ;amd64 ;gl wined3dwddm-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;amd64 ;gl VBoxOGLarrayspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;amd64 ;gl VBoxOGLcrutil-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;amd64 ;gl VBoxOGLerrorspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;amd64 ;gl VBoxOGLfeedbackspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;amd64 ;gl VBoxOGLpackspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
-;amd64 ;gl VBoxOGLpassthroughspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
 
 [VBoxVideo_SoftwareDeviceSettings]
 ;dispd3d HKR,, InstalledDisplayDrivers, %REG_MULTI_SZ%, VBoxDispD3D
@@ -125,18 +113,6 @@ VBoxVideoW8.sys = 1
 ;gl VBoxD3D9wddm.dll = 1
 ;amd64 ;gl wined3dwddm-x86.dll = 1
 ;gl wined3dwddm.dll = 1
-;amd64 ;gl VBoxOGLarrayspu-x86.dll = 1
-;gl VBoxOGLarrayspu.dll = 1
-;amd64 ;gl VBoxOGLcrutil-x86.dll = 1
-;gl VBoxOGLcrutil.dll = 1
-;amd64 ;gl VBoxOGLerrorspu-x86.dll = 1
-;gl VBoxOGLerrorspu.dll = 1
-;amd64 ;gl VBoxOGLfeedbackspu-x86.dll = 1
-;gl VBoxOGLfeedbackspu.dll = 1
-;amd64 ;gl VBoxOGLpackspu-x86.dll = 1
-;gl VBoxOGLpackspu.dll = 1
-;amd64 ;gl VBoxOGLpassthroughspu-x86.dll = 1
-;gl VBoxOGLpassthroughspu.dll = 1
 
 [Strings]
 REG_SZ = 0x00000000

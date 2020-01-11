@@ -19,6 +19,7 @@ fedora18        = FEDORA_18
 fedora17        = FEDORA_17
 fedora16        = FEDORA_16
 fedora15        = FEDORA_15
+el8             = EL_8
 el7             = EL_7
 el6             = EL_6
 el5             = EL_5

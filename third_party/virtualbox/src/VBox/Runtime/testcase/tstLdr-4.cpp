@@ -39,8 +39,29 @@
 #include <iprt/err.h>
 #include <iprt/string.h>
 
+#include <VBox/sup.h>
+
+
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
+static SUPGLOBALINFOPAGE g_MyGip = { SUPGLOBALINFOPAGE_MAGIC, SUPGLOBALINFOPAGE_VERSION, SUPGIPMODE_INVARIANT_TSC, 42 };
+static PSUPGLOBALINFOPAGE g_pMyGip = &g_MyGip;
 
 extern "C" DECLEXPORT(int) DisasmTest1(void);
+
+
+static DECLCALLBACK(int) testEnumSegment(RTLDRMOD hLdrMod, PCRTLDRSEG pSeg, void *pvUser)
+{
+    uint32_t *piSeg = (uint32_t *)pvUser;
+    RTPrintf("  Seg#%02u: %RTptr LB %RTptr %s\n"
+             "     link=%RTptr LB %RTptr align=%RTptr fProt=%#x offFile=%RTfoff\n"
+             , *piSeg, pSeg->RVA, pSeg->cbMapped, pSeg->pszName,
+             pSeg->LinkAddress, pSeg->cb, pSeg->Alignment, pSeg->fProt, pSeg->offFile);
+    *piSeg += 1;
+    RT_NOREF(hLdrMod);
+    return VINF_SUCCESS;
+}
 
 
 /**
@@ -79,8 +100,14 @@ static DECLCALLBACK(int) testGetImport(RTLDRMOD hLdrMod, const char *pszModule, 
         *pValue = (uintptr_t)0;
     else if (!strcmp(pszSymbol, "MyPrintf")             || !strcmp(pszSymbol, "_MyPrintf"))
         *pValue = (uintptr_t)RTPrintf;
+    else if (!strcmp(pszSymbol, "SUPR0Printf")          || !strcmp(pszSymbol, "_SUPR0Printf"))
+        *pValue = (uintptr_t)RTPrintf;
     else if (!strcmp(pszSymbol, "SomeImportFunction")   || !strcmp(pszSymbol, "_SomeImportFunction"))
         *pValue = (uintptr_t)0;
+    else if (!strcmp(pszSymbol, "g_pSUPGlobalInfoPage") || !strcmp(pszSymbol, "_g_pSUPGlobalInfoPage"))
+        *pValue = (uintptr_t)&g_pMyGip;
+    else if (!strcmp(pszSymbol, "g_SUPGlobalInfoPage")  || !strcmp(pszSymbol, "_g_SUPGlobalInfoPage"))
+        *pValue = (uintptr_t)&g_MyGip;
     else
     {
         RTPrintf("tstLdr-4: Unexpected import '%s'!\n", pszSymbol);
@@ -116,9 +143,6 @@ static int testLdrOne(const char *pszFilename)
         { NULL, NULL, 0, "foo" },
         { NULL, NULL, 0, "bar" },
         { NULL, NULL, 0, "foobar" },
-        { NULL, NULL, 0, "kLdr-foo" },
-        { NULL, NULL, 0, "kLdr-bar" },
-        { NULL, NULL, 0, "kLdr-foobar" }
     };
     unsigned i;
     int rc;
@@ -128,14 +152,7 @@ static int testLdrOne(const char *pszFilename)
      */
     for (i = 0; i < RT_ELEMENTS(aLoads); i++)
     {
-        if (!strncmp(aLoads[i].pszName, RT_STR_TUPLE("kLdr-")))
-        {
-            rc = RTLdrOpenkLdr(pszFilename, 0, RTLDRARCH_WHATEVER, &aLoads[i].hLdrMod);
-            if (rc == VERR_ELF_EXE_NOT_SUPPORTED)
-                continue;
-        }
-        else
-            rc = RTLdrOpen(pszFilename, 0, RTLDRARCH_WHATEVER, &aLoads[i].hLdrMod);
+        rc = RTLdrOpen(pszFilename, 0, RTLDRARCH_WHATEVER, &aLoads[i].hLdrMod);
         if (RT_FAILURE(rc))
         {
             RTPrintf("tstLdr-4: Failed to open '%s'/%d, rc=%Rrc. aborting test.\n", pszFilename, i, rc);
@@ -198,6 +215,8 @@ static int testLdrOne(const char *pszFilename)
             }
             DECLCALLBACKPTR(int, pfnDisasmTest1)(void) = (DECLCALLBACKPTR(int, RT_NOTHING)(void))(uintptr_t)Value; /* eeeh. */
             RTPrintf("tstLdr-4: pfnDisasmTest1=%p / add-symbol-file %s %#x\n", pfnDisasmTest1, pszFilename, aLoads[i].pvBits);
+            uint32_t iSeg = 0;
+            RTLdrEnumSegments(aLoads[i].hLdrMod, testEnumSegment, &iSeg);
 
             /* call the test function. */
             rc = pfnDisasmTest1();

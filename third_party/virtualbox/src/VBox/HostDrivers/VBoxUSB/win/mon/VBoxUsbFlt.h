@@ -35,10 +35,9 @@
 typedef struct VBOXUSBFLTCTX
 {
     LIST_ENTRY ListEntry;
-    PKEVENT pChangeEvent;
-    RTPROCESS Process;
+    RTPROCESS Process;          // Purely informational, no function?
     uint32_t cActiveFilters;
-    BOOLEAN bRemoved;
+    BOOLEAN bRemoved;           // For debugging only?
 } VBOXUSBFLTCTX, *PVBOXUSBFLTCTX;
 
 NTSTATUS VBoxUsbFltInit();
@@ -47,7 +46,6 @@ NTSTATUS VBoxUsbFltCreate(PVBOXUSBFLTCTX pContext);
 NTSTATUS VBoxUsbFltClose(PVBOXUSBFLTCTX pContext);
 int VBoxUsbFltAdd(PVBOXUSBFLTCTX pContext, PUSBFILTER pFilter, uintptr_t *pId);
 int VBoxUsbFltRemove(PVBOXUSBFLTCTX pContext, uintptr_t uId);
-NTSTATUS VBoxUsbFltSetNotifyEvent(PVBOXUSBFLTCTX pContext, HANDLE hEvent);
 NTSTATUS VBoxUsbFltFilterCheck(PVBOXUSBFLTCTX pContext);
 
 NTSTATUS VBoxUsbFltGetDevice(PVBOXUSBFLTCTX pContext, HVBOXUSBDEVUSR hDevice, PUSBSUP_GETDEV_MON pInfo);
@@ -57,7 +55,6 @@ HVBOXUSBFLTDEV VBoxUsbFltProxyStarted(PDEVICE_OBJECT pPdo);
 void VBoxUsbFltProxyStopped(HVBOXUSBFLTDEV hDev);
 
 NTSTATUS VBoxUsbFltPdoAdd(PDEVICE_OBJECT pPdo, BOOLEAN *pbFiltered);
-NTSTATUS VBoxUsbFltPdoAddCompleted(PDEVICE_OBJECT pPdo);
 NTSTATUS VBoxUsbFltPdoRemove(PDEVICE_OBJECT pPdo);
 BOOLEAN VBoxUsbFltPdoIsFiltered(PDEVICE_OBJECT pPdo);
 

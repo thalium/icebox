@@ -63,12 +63,6 @@ Function ExtractFiles
 
 !if $%VBOX_WITH_CROGL% == "1"
   ; crOpenGL
-  FILE "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu.dll"
-  FILE "$%PATH_OUT%\bin\additions\VBoxOGLcrutil.dll"
-  FILE "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu.dll"
-  FILE "$%PATH_OUT%\bin\additions\VBoxOGLpackspu.dll"
-  FILE "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu.dll"
-  FILE "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu.dll"
   FILE "$%PATH_OUT%\bin\additions\VBoxOGL.dll"
 
   SetOutPath "$0\VBoxVideo\OpenGL"
@@ -83,12 +77,6 @@ Function ExtractFiles
     SetOutPath "$0\VBoxVideo\OpenGL\SysWow64"
     FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\d3d8.dll"
     FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\d3d9.dll"
-    FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLarrayspu.dll"
-    FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLcrutil.dll"
-    FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLerrorspu.dll"
-    FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLpackspu.dll"
-    FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLpassthroughspu.dll"
-    FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLfeedbackspu.dll"
     FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGL.dll"
     FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxD3D8.dll"
     FILE "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxD3D9.dll"
@@ -108,12 +96,6 @@ Function ExtractFiles
   FILE "$%PATH_OUT%\bin\additions\VBoxDispD3D.dll"
 
   !if $%VBOX_WITH_CROGL% == "1"
-    FILE "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu.dll"
-    FILE "$%PATH_OUT%\bin\additions\VBoxOGLcrutil.dll"
-    FILE "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu.dll"
-    FILE "$%PATH_OUT%\bin\additions\VBoxOGLpackspu.dll"
-    FILE "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu.dll"
-    FILE "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu.dll"
     FILE "$%PATH_OUT%\bin\additions\VBoxOGL.dll"
 
     FILE "$%PATH_OUT%\bin\additions\VBoxD3D9wddm.dll"
@@ -124,12 +106,6 @@ Function ExtractFiles
     FILE "$%PATH_OUT%\bin\additions\VBoxDispD3D-x86.dll"
 
     !if $%VBOX_WITH_CROGL% == "1"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu-x86.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLcrutil-x86.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu-x86.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLpackspu-x86.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu-x86.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu-x86.dll"
       FILE "$%PATH_OUT%\bin\additions\VBoxOGL-x86.dll"
 
       FILE "$%PATH_OUT%\bin\additions\VBoxD3D9wddm-x86.dll"
@@ -149,12 +125,6 @@ Function ExtractFiles
     FILE "$%PATH_OUT%\bin\additions\VBoxDispD3D.dll"
 
     !if $%VBOX_WITH_CROGL% == "1"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLcrutil.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLpackspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu.dll"
       FILE "$%PATH_OUT%\bin\additions\VBoxOGL.dll"
 
       FILE "$%PATH_OUT%\bin\additions\VBoxD3D9wddm.dll"
@@ -165,12 +135,6 @@ Function ExtractFiles
       FILE "$%PATH_OUT%\bin\additions\VBoxDispD3D-x86.dll"
 
       !if $%VBOX_WITH_CROGL% == "1"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLcrutil-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLpackspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu-x86.dll"
         FILE "$%PATH_OUT%\bin\additions\VBoxOGL-x86.dll"
 
         FILE "$%PATH_OUT%\bin\additions\VBoxD3D9wddm-x86.dll"

@@ -29,20 +29,65 @@
 TARGET=`readlink -e -- "${0}"` || exit 1
 MY_DIR="${TARGET%/[!/]*}"
 
-if [ -z "$1" ]; then
-    echo "Usage: $0 <filename.tar.gz> [--without-hardening]"
-    echo "  Export VirtualBox kernel modules to <filename.tar.gz>"
+# What this script does:
+usage_msg="\
+Usage: `basename ${0}` --file <path>|--folder <path> [--without-hardening]
+
+Exports the VirtualBox host kernel modules to the tar.gz archive or folder in \
+<path>, optionally adjusting the Make files to build them without hardening.
+
+Examples:
+  `basename ${0}` --file /tmp/vboxhost.tar.gz
+  `basename ${0}` --folder /tmp/tmpdir --without-hardening"
+
+usage()
+{
+    case "${1}" in
+    0)
+        echo "${usage_msg}" | fold -s -w80 ;;
+    *)
+        echo "${usage_msg}" | fold -s -w80 >&2 ;;
+    esac
+    exit "${1}"
+}
+
+fail()
+{
+    echo "${1}" | fold -s -w80 >&2
     exit 1
-fi
+}
 
+unset FILE FOLDER
 VBOX_WITH_HARDENING=1
-if [ "$2" = "--without-hardening" ]; then
-    VBOX_WITH_HARDENING=
-fi
+while test -n "${1}"; do
+    case "${1}" in
+    --file)
+        FILE="${2}"
+        shift 2 ;;
+    --folder)
+        FOLDER="${2}"
+        shift 2 ;;
+    --without-hardening)
+        unset VBOX_WITH_HARDENING
+        shift ;;
+    -h|--help)
+        usage 0 ;;
+    *)
+        echo "Unknown parameter ${1}" >&2
+        usage 1 ;;
+    esac
+done
+test -z "$FILE" || test -z "$FOLDER" ||
+    fail "Only one of --file and --folder may be used"
+test -n "$FILE" || test -n "$FOLDER" || usage 1
 
-PATH_TMP="`cd \`dirname $1\`; pwd`/.vbox_modules"
+if test -n "$FOLDER"; then
+    PATH_TMP="$FOLDER"
+else
+    PATH_TMP="`cd \`dirname $FILE\`; pwd`/.vbox_modules"
+    FILE_OUT="`cd \`dirname $FILE\`; pwd`/`basename $FILE`"
+fi
 PATH_OUT=$PATH_TMP
-FILE_OUT="`cd \`dirname $1\`; pwd`/`basename $1`"
 PATH_ROOT="`cd ${MY_DIR}/../../../..; pwd`"
 PATH_LOG=/tmp/vbox-export-host.log
 PATH_LINUX="$PATH_ROOT/src/VBox/HostDrivers/linux"
@@ -63,6 +108,7 @@ VBOX_SVN_REV=`sed -e 's/^ *VBOX_SVN_REV_FALLBACK *:= \+\$(patsubst *%:,, *\$Rev:
 . $PATH_VBOXPCI/linux/files_vboxpci
 
 # Temporary path for creating the modules, will be removed later
+rm -rf "$PATH_TMP"
 mkdir $PATH_TMP || exit 1
 
 # Create auto-generated version file, needed by all modules
@@ -158,6 +204,9 @@ install -D -m 0755 $PATH_LINUX/build_in_tmp $PATH_TMP/build_in_tmp
 rm $PATH_TMP/version-generated.h
 rm $PATH_TMP/revision-generated.h
 rm $PATH_TMP/product-generated.h
+
+# If we are exporting to a folder then stop now.
+test -n "$FOLDER" && exit 0
 
 # Do a test build
 echo Doing a test build, this may take a while.

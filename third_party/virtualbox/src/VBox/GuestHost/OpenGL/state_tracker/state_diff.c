@@ -13,8 +13,11 @@
 
 void crStateDiffContext( CRContext *from, CRContext *to )
 {
+    PCRStateTracker pState = from->pStateTracker;
 	CRbitvalue *bitID = from->bitid;
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
+
+    CRASSERT(from->pStateTracker == to->pStateTracker);
 
 	/*crDebug( "Diffing two contexts!" ); */
 
@@ -142,22 +145,23 @@ void crStateFreeFBImageLegacy(CRContext *to)
 
 int crStateAcquireFBImage(CRContext *to, CRFBData *data)
 {
+    PCRStateTracker pState = to->pStateTracker;
     /*CRBufferState *pBuf = &to->buffer; - unused */
     CRPixelPackState packing = to->client.pack;
     uint32_t i;
 
-    diff_api.PixelStorei(GL_PACK_SKIP_ROWS, 0);
-    diff_api.PixelStorei(GL_PACK_SKIP_PIXELS, 0);
-    diff_api.PixelStorei(GL_PACK_ALIGNMENT, 1);
-    diff_api.PixelStorei(GL_PACK_ROW_LENGTH, 0);
-    diff_api.PixelStorei(GL_PACK_IMAGE_HEIGHT, 0);
-    diff_api.PixelStorei(GL_PACK_SKIP_IMAGES, 0);
-    diff_api.PixelStorei(GL_PACK_SWAP_BYTES, 0);
-    diff_api.PixelStorei(GL_PACK_LSB_FIRST, 0);
+    pState->diff_api.PixelStorei(GL_PACK_SKIP_ROWS, 0);
+    pState->diff_api.PixelStorei(GL_PACK_SKIP_PIXELS, 0);
+    pState->diff_api.PixelStorei(GL_PACK_ALIGNMENT, 1);
+    pState->diff_api.PixelStorei(GL_PACK_ROW_LENGTH, 0);
+    pState->diff_api.PixelStorei(GL_PACK_IMAGE_HEIGHT, 0);
+    pState->diff_api.PixelStorei(GL_PACK_SKIP_IMAGES, 0);
+    pState->diff_api.PixelStorei(GL_PACK_SWAP_BYTES, 0);
+    pState->diff_api.PixelStorei(GL_PACK_LSB_FIRST, 0);
 
     if (to->bufferobject.packBuffer->hwid>0)
     {
-        diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+        pState->diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
     }
 
     for (i = 0; i < data->cElements; ++i)
@@ -168,291 +172,292 @@ int crStateAcquireFBImage(CRContext *to, CRFBData *data)
         {
             if (!to->buffer.depthTest)
             {
-                diff_api.Enable(GL_DEPTH_TEST);
+                pState->diff_api.Enable(GL_DEPTH_TEST);
             }
             if (to->pixel.depthScale != 1.0f)
             {
-                diff_api.PixelTransferf (GL_DEPTH_SCALE, 1.0f);
+                pState->diff_api.PixelTransferf (GL_DEPTH_SCALE, 1.0f);
             }
             if (to->pixel.depthBias != 0.0f)
             {
-                diff_api.PixelTransferf (GL_DEPTH_BIAS, 0.0f);
+                pState->diff_api.PixelTransferf (GL_DEPTH_BIAS, 0.0f);
             }
         }
         if (el->enmFormat == GL_STENCIL_INDEX || el->enmFormat == GL_DEPTH_STENCIL)
         {
         	if (!to->stencil.stencilTest)
             {
-                diff_api.Enable(GL_STENCIL_TEST);
+                pState->diff_api.Enable(GL_STENCIL_TEST);
             }
             if (to->pixel.mapStencil)
             {
-                diff_api.PixelTransferi (GL_MAP_STENCIL, GL_FALSE);
+                pState->diff_api.PixelTransferi (GL_MAP_STENCIL, GL_FALSE);
             }
             if (to->pixel.indexOffset)
             {
-                diff_api.PixelTransferi (GL_INDEX_OFFSET, 0);
+                pState->diff_api.PixelTransferi (GL_INDEX_OFFSET, 0);
             }
             if (to->pixel.indexShift)
             {
-                diff_api.PixelTransferi (GL_INDEX_SHIFT, 0);
+                pState->diff_api.PixelTransferi (GL_INDEX_SHIFT, 0);
             }
         }
 
-        diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, el->idFBO);
+        pState->diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, el->idFBO);
 
         if (el->enmBuffer)
-            diff_api.ReadBuffer(el->enmBuffer);
+            pState->diff_api.ReadBuffer(el->enmBuffer);
 
-        diff_api.ReadPixels(el->posX, el->posY, el->width, el->height, el->enmFormat, el->enmType, el->pvData);
+        pState->diff_api.ReadPixels(el->posX, el->posY, el->width, el->height, el->enmFormat, el->enmType, el->pvData);
         crDebug("Acquired %d;%d;%d;%d;%d;0x%p fb image", el->enmBuffer, el->width, el->height, el->enmFormat, el->enmType, el->pvData);
 
         if (el->enmFormat == GL_DEPTH_COMPONENT || el->enmFormat == GL_DEPTH_STENCIL)
         {
             if (to->pixel.depthScale != 1.0f)
             {
-                diff_api.PixelTransferf (GL_DEPTH_SCALE, to->pixel.depthScale);
+                pState->diff_api.PixelTransferf (GL_DEPTH_SCALE, to->pixel.depthScale);
             }
             if (to->pixel.depthBias != 0.0f)
             {
-                diff_api.PixelTransferf (GL_DEPTH_BIAS, to->pixel.depthBias);
+                pState->diff_api.PixelTransferf (GL_DEPTH_BIAS, to->pixel.depthBias);
             }
             if (!to->buffer.depthTest)
             {
-                diff_api.Disable(GL_DEPTH_TEST);
+                pState->diff_api.Disable(GL_DEPTH_TEST);
             }
         }
         if (el->enmFormat == GL_STENCIL_INDEX || el->enmFormat == GL_DEPTH_STENCIL)
         {
             if (to->pixel.indexOffset)
             {
-                diff_api.PixelTransferi (GL_INDEX_OFFSET, to->pixel.indexOffset);
+                pState->diff_api.PixelTransferi (GL_INDEX_OFFSET, to->pixel.indexOffset);
             }
             if (to->pixel.indexShift)
             {
-                diff_api.PixelTransferi (GL_INDEX_SHIFT, to->pixel.indexShift);
+                pState->diff_api.PixelTransferi (GL_INDEX_SHIFT, to->pixel.indexShift);
             }
             if (to->pixel.mapStencil)
             {
-                diff_api.PixelTransferi (GL_MAP_STENCIL, GL_TRUE);
+                pState->diff_api.PixelTransferi (GL_MAP_STENCIL, GL_TRUE);
             }
             if (!to->stencil.stencilTest)
             {
-                diff_api.Disable(GL_STENCIL_TEST);
+                pState->diff_api.Disable(GL_STENCIL_TEST);
             }
         }
     }
 
     if (to->bufferobject.packBuffer->hwid>0)
     {
-        diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, to->bufferobject.packBuffer->hwid);
+        pState->diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, to->bufferobject.packBuffer->hwid);
     }
     if (to->framebufferobject.readFB)
     {
         CRASSERT(to->framebufferobject.readFB->hwid);
-        diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, to->framebufferobject.readFB->hwid);
-        diff_api.ReadBuffer(to->framebufferobject.readFB->readbuffer);
+        pState->diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, to->framebufferobject.readFB->hwid);
+        pState->diff_api.ReadBuffer(to->framebufferobject.readFB->readbuffer);
 
     }
     else if (data->idOverrrideFBO)
     {
-        diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, data->idOverrrideFBO);
-        diff_api.ReadBuffer(GL_COLOR_ATTACHMENT0);
+        pState->diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, data->idOverrrideFBO);
+        pState->diff_api.ReadBuffer(GL_COLOR_ATTACHMENT0);
     }
     else
     {
-        diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, 0);
-        diff_api.ReadBuffer(to->buffer.readBuffer);
+        pState->diff_api.BindFramebufferEXT(GL_READ_FRAMEBUFFER, 0);
+        pState->diff_api.ReadBuffer(to->buffer.readBuffer);
     }
 
-    diff_api.PixelStorei(GL_PACK_SKIP_ROWS, packing.skipRows);
-    diff_api.PixelStorei(GL_PACK_SKIP_PIXELS, packing.skipPixels);
-    diff_api.PixelStorei(GL_PACK_ALIGNMENT, packing.alignment);
-    diff_api.PixelStorei(GL_PACK_ROW_LENGTH, packing.rowLength);
-    diff_api.PixelStorei(GL_PACK_IMAGE_HEIGHT, packing.imageHeight);
-    diff_api.PixelStorei(GL_PACK_SKIP_IMAGES, packing.skipImages);
-    diff_api.PixelStorei(GL_PACK_SWAP_BYTES, packing.swapBytes);
-    diff_api.PixelStorei(GL_PACK_LSB_FIRST, packing.psLSBFirst);
+    pState->diff_api.PixelStorei(GL_PACK_SKIP_ROWS, packing.skipRows);
+    pState->diff_api.PixelStorei(GL_PACK_SKIP_PIXELS, packing.skipPixels);
+    pState->diff_api.PixelStorei(GL_PACK_ALIGNMENT, packing.alignment);
+    pState->diff_api.PixelStorei(GL_PACK_ROW_LENGTH, packing.rowLength);
+    pState->diff_api.PixelStorei(GL_PACK_IMAGE_HEIGHT, packing.imageHeight);
+    pState->diff_api.PixelStorei(GL_PACK_SKIP_IMAGES, packing.skipImages);
+    pState->diff_api.PixelStorei(GL_PACK_SWAP_BYTES, packing.swapBytes);
+    pState->diff_api.PixelStorei(GL_PACK_LSB_FIRST, packing.psLSBFirst);
     return VINF_SUCCESS;
 }
 
 void crStateApplyFBImage(CRContext *to, CRFBData *data)
 {
+    PCRStateTracker pState = to->pStateTracker;
+    CRPixelPackState unpack = to->client.unpack;
+    uint32_t i;
+
+    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    pState->diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    pState->diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    pState->diff_api.PixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_IMAGES, 0);
+    pState->diff_api.PixelStorei(GL_UNPACK_SWAP_BYTES, 0);
+    pState->diff_api.PixelStorei(GL_UNPACK_LSB_FIRST, 0);
+
+    if (to->bufferobject.unpackBuffer->hwid>0)
     {
-        /*CRBufferState *pBuf = &to->buffer; - unused */
-        CRPixelPackState unpack = to->client.unpack;
-        uint32_t i;
+        pState->diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+    }
 
-        diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-        diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-        diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        diff_api.PixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
-        diff_api.PixelStorei(GL_UNPACK_SKIP_IMAGES, 0);
-        diff_api.PixelStorei(GL_UNPACK_SWAP_BYTES, 0);
-        diff_api.PixelStorei(GL_UNPACK_LSB_FIRST, 0);
+    pState->diff_api.Disable(GL_ALPHA_TEST);
+    pState->diff_api.Disable(GL_SCISSOR_TEST);
+    pState->diff_api.Disable(GL_BLEND);
+    pState->diff_api.Disable(GL_COLOR_LOGIC_OP);
+    pState->diff_api.Disable(GL_DEPTH_TEST);
+    pState->diff_api.Disable(GL_STENCIL_TEST);
 
-        if (to->bufferobject.unpackBuffer->hwid>0)
-        {
-            diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
-        }
-
-        diff_api.Disable(GL_ALPHA_TEST);
-        diff_api.Disable(GL_SCISSOR_TEST);
-        diff_api.Disable(GL_BLEND);
-        diff_api.Disable(GL_COLOR_LOGIC_OP);
-        diff_api.Disable(GL_DEPTH_TEST);
-        diff_api.Disable(GL_STENCIL_TEST);
-
-        for (i = 0; i < data->cElements; ++i)
-        {
-            CRFBDataElement *el = &data->aElements[i];
+    for (i = 0; i < data->cElements; ++i)
+    {
+        CRFBDataElement *el = &data->aElements[i];
 #if 0
-            char fname[200];
-            sprintf(fname, "./img_apply_%p_%d_%d.tga", to, i, el->enmFormat);
-            crDumpNamedTGA(fname, el->width, el->height, el->pvData);
+        char fname[200];
+        sprintf(fname, "./img_apply_%p_%d_%d.tga", to, i, el->enmFormat);
+        crDumpNamedTGA(fname, el->width, el->height, el->pvData);
 #endif
 
-            /* Before SSM version SHCROGL_SSM_VERSION_WITH_SEPARATE_DEPTH_STENCIL_BUFFERS
-             * saved state file contined invalid DEPTH/STENCIL data. In order to prevent
-             * crashes and improper guest App behavior, this data should be ignored. */
-            if (   data->u32Version < SHCROGL_SSM_VERSION_WITH_SEPARATE_DEPTH_STENCIL_BUFFERS
-                && (   el->enmFormat == GL_DEPTH_COMPONENT
-                    || el->enmFormat == GL_STENCIL_INDEX
-                    || el->enmFormat == GL_DEPTH_STENCIL))
-                continue;
+        /* Before SSM version SHCROGL_SSM_VERSION_WITH_SEPARATE_DEPTH_STENCIL_BUFFERS
+         * saved state file contined invalid DEPTH/STENCIL data. In order to prevent
+         * crashes and improper guest App behavior, this data should be ignored. */
+        if (   data->u32Version < SHCROGL_SSM_VERSION_WITH_SEPARATE_DEPTH_STENCIL_BUFFERS
+            && (   el->enmFormat == GL_DEPTH_COMPONENT
+                || el->enmFormat == GL_STENCIL_INDEX
+                || el->enmFormat == GL_DEPTH_STENCIL))
+            continue;
 
-            if (el->enmFormat == GL_DEPTH_COMPONENT || el->enmFormat == GL_DEPTH_STENCIL)
+        if (el->enmFormat == GL_DEPTH_COMPONENT || el->enmFormat == GL_DEPTH_STENCIL)
+        {
+            pState->diff_api.Enable(GL_DEPTH_TEST);
+            if (to->pixel.depthScale != 1.0f)
             {
-                diff_api.Enable(GL_DEPTH_TEST);
-                if (to->pixel.depthScale != 1.0f)
-                {
-                    diff_api.PixelTransferf (GL_DEPTH_SCALE, 1.0f);
-                }
-                if (to->pixel.depthBias != 0.0f)
-                {
-                    diff_api.PixelTransferf (GL_DEPTH_BIAS, 0.0f);
-                }
+                pState->diff_api.PixelTransferf (GL_DEPTH_SCALE, 1.0f);
             }
-            if (el->enmFormat == GL_STENCIL_INDEX || el->enmFormat == GL_DEPTH_STENCIL)
+            if (to->pixel.depthBias != 0.0f)
             {
-                diff_api.Enable(GL_STENCIL_TEST);
-                if (to->pixel.mapStencil)
-                {
-                    diff_api.PixelTransferi (GL_MAP_STENCIL, GL_FALSE);
-                }
-                if (to->pixel.indexOffset)
-                {
-                    diff_api.PixelTransferi (GL_INDEX_OFFSET, 0);
-                }
-                if (to->pixel.indexShift)
-                {
-                    diff_api.PixelTransferi (GL_INDEX_SHIFT, 0);
-                }
+                pState->diff_api.PixelTransferf (GL_DEPTH_BIAS, 0.0f);
             }
-
-            diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, el->idFBO);
-
-            if (el->enmBuffer)
-                diff_api.DrawBuffer(el->enmBuffer);
-
-            diff_api.WindowPos2iARB(el->posX, el->posY);
-            diff_api.DrawPixels(el->width, el->height, el->enmFormat, el->enmType, el->pvData);
-            crDebug("Applied %d;%d;%d;%d;%d;0x%p fb image", el->enmBuffer, el->width, el->height, el->enmFormat, el->enmType, el->pvData);
-
-            if (el->enmFormat == GL_DEPTH_COMPONENT || el->enmFormat == GL_DEPTH_STENCIL)
+        }
+        if (el->enmFormat == GL_STENCIL_INDEX || el->enmFormat == GL_DEPTH_STENCIL)
+        {
+            pState->diff_api.Enable(GL_STENCIL_TEST);
+            if (to->pixel.mapStencil)
             {
-                if (to->pixel.depthScale != 1.0f)
-                {
-                    diff_api.PixelTransferf (GL_DEPTH_SCALE, to->pixel.depthScale);
-                }
-                if (to->pixel.depthBias != 0.0f)
-                {
-                    diff_api.PixelTransferf (GL_DEPTH_BIAS, to->pixel.depthBias);
-                }
-                diff_api.Disable(GL_DEPTH_TEST);
+                pState->diff_api.PixelTransferi (GL_MAP_STENCIL, GL_FALSE);
             }
-            if (el->enmFormat == GL_STENCIL_INDEX || el->enmFormat == GL_DEPTH_STENCIL)
+            if (to->pixel.indexOffset)
             {
-                if (to->pixel.indexOffset)
-                {
-                    diff_api.PixelTransferi (GL_INDEX_OFFSET, to->pixel.indexOffset);
-                }
-                if (to->pixel.indexShift)
-                {
-                    diff_api.PixelTransferi (GL_INDEX_SHIFT, to->pixel.indexShift);
-                }
-                if (to->pixel.mapStencil)
-                {
-                    diff_api.PixelTransferi (GL_MAP_STENCIL, GL_TRUE);
-                }
-                diff_api.Disable(GL_STENCIL_TEST);
+                pState->diff_api.PixelTransferi (GL_INDEX_OFFSET, 0);
+            }
+            if (to->pixel.indexShift)
+            {
+                pState->diff_api.PixelTransferi (GL_INDEX_SHIFT, 0);
             }
         }
 
-        diff_api.WindowPos3fvARB(to->current.rasterAttrib[VERT_ATTRIB_POS]);
-        if (to->bufferobject.unpackBuffer->hwid>0)
-        {
-            diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, to->bufferobject.unpackBuffer->hwid);
-        }
-        if (to->framebufferobject.drawFB)
-        {
-            CRASSERT(to->framebufferobject.drawFB->hwid);
-            diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, to->framebufferobject.drawFB->hwid);
-            diff_api.DrawBuffer(to->framebufferobject.drawFB->drawbuffer[0]);
-        }
-        else if (data->idOverrrideFBO)
-        {
-            diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, data->idOverrrideFBO);
-            diff_api.DrawBuffer(GL_COLOR_ATTACHMENT0);
-        }
-        else
-        {
-            diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
-            diff_api.DrawBuffer(to->buffer.drawBuffer);
-        }
-        if (to->buffer.alphaTest)
-        {
-            diff_api.Enable(GL_ALPHA_TEST);
-        }
-        if (to->viewport.scissorTest)
-        {
-            diff_api.Enable(GL_SCISSOR_TEST);
-        }
-        if (to->buffer.blend)
-        {
-            diff_api.Enable(GL_BLEND);
-        }
-        if (to->buffer.logicOp)
-        {
-            diff_api.Enable(GL_COLOR_LOGIC_OP);
-        }
-        if (to->buffer.depthTest)
-        {
-            diff_api.Enable(GL_DEPTH_TEST);
-        }
-        if (to->stencil.stencilTest)
-        {
-            diff_api.Enable(GL_STENCIL_TEST);
-        }
+        pState->diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, el->idFBO);
 
-        diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, unpack.skipRows);
-        diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, unpack.skipPixels);
-        diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, unpack.alignment);
-        diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, unpack.rowLength);
-        diff_api.PixelStorei(GL_UNPACK_IMAGE_HEIGHT, unpack.imageHeight);
-        diff_api.PixelStorei(GL_UNPACK_SKIP_IMAGES, unpack.skipImages);
-        diff_api.PixelStorei(GL_UNPACK_SWAP_BYTES, unpack.swapBytes);
-        diff_api.PixelStorei(GL_UNPACK_LSB_FIRST, unpack.psLSBFirst);
+        if (el->enmBuffer)
+            pState->diff_api.DrawBuffer(el->enmBuffer);
 
-        diff_api.Finish();
+        pState->diff_api.WindowPos2iARB(el->posX, el->posY);
+        pState->diff_api.DrawPixels(el->width, el->height, el->enmFormat, el->enmType, el->pvData);
+        crDebug("Applied %d;%d;%d;%d;%d;0x%p fb image", el->enmBuffer, el->width, el->height, el->enmFormat, el->enmType, el->pvData);
+
+        if (el->enmFormat == GL_DEPTH_COMPONENT || el->enmFormat == GL_DEPTH_STENCIL)
+        {
+            if (to->pixel.depthScale != 1.0f)
+            {
+                pState->diff_api.PixelTransferf (GL_DEPTH_SCALE, to->pixel.depthScale);
+            }
+            if (to->pixel.depthBias != 0.0f)
+            {
+                pState->diff_api.PixelTransferf (GL_DEPTH_BIAS, to->pixel.depthBias);
+            }
+            pState->diff_api.Disable(GL_DEPTH_TEST);
+        }
+        if (el->enmFormat == GL_STENCIL_INDEX || el->enmFormat == GL_DEPTH_STENCIL)
+        {
+            if (to->pixel.indexOffset)
+            {
+                pState->diff_api.PixelTransferi (GL_INDEX_OFFSET, to->pixel.indexOffset);
+            }
+            if (to->pixel.indexShift)
+            {
+                pState->diff_api.PixelTransferi (GL_INDEX_SHIFT, to->pixel.indexShift);
+            }
+            if (to->pixel.mapStencil)
+            {
+                pState->diff_api.PixelTransferi (GL_MAP_STENCIL, GL_TRUE);
+            }
+            pState->diff_api.Disable(GL_STENCIL_TEST);
+        }
     }
+
+    pState->diff_api.WindowPos3fvARB(to->current.rasterAttrib[VERT_ATTRIB_POS]);
+    if (to->bufferobject.unpackBuffer->hwid>0)
+    {
+        pState->diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, to->bufferobject.unpackBuffer->hwid);
+    }
+    if (to->framebufferobject.drawFB)
+    {
+        CRASSERT(to->framebufferobject.drawFB->hwid);
+        pState->diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, to->framebufferobject.drawFB->hwid);
+        pState->diff_api.DrawBuffer(to->framebufferobject.drawFB->drawbuffer[0]);
+    }
+    else if (data->idOverrrideFBO)
+    {
+        pState->diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, data->idOverrrideFBO);
+        pState->diff_api.DrawBuffer(GL_COLOR_ATTACHMENT0);
+    }
+    else
+    {
+        pState->diff_api.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
+        pState->diff_api.DrawBuffer(to->buffer.drawBuffer);
+    }
+    if (to->buffer.alphaTest)
+    {
+        pState->diff_api.Enable(GL_ALPHA_TEST);
+    }
+    if (to->viewport.scissorTest)
+    {
+        pState->diff_api.Enable(GL_SCISSOR_TEST);
+    }
+    if (to->buffer.blend)
+    {
+        pState->diff_api.Enable(GL_BLEND);
+    }
+    if (to->buffer.logicOp)
+    {
+        pState->diff_api.Enable(GL_COLOR_LOGIC_OP);
+    }
+    if (to->buffer.depthTest)
+    {
+        pState->diff_api.Enable(GL_DEPTH_TEST);
+    }
+    if (to->stencil.stencilTest)
+    {
+        pState->diff_api.Enable(GL_STENCIL_TEST);
+    }
+
+    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, unpack.skipRows);
+    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, unpack.skipPixels);
+    pState->diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, unpack.alignment);
+    pState->diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, unpack.rowLength);
+    pState->diff_api.PixelStorei(GL_UNPACK_IMAGE_HEIGHT, unpack.imageHeight);
+    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_IMAGES, unpack.skipImages);
+    pState->diff_api.PixelStorei(GL_UNPACK_SWAP_BYTES, unpack.swapBytes);
+    pState->diff_api.PixelStorei(GL_UNPACK_LSB_FIRST, unpack.psLSBFirst);
+
+    pState->diff_api.Finish();
 }
 
 void crStateSwitchContext( CRContext *from, CRContext *to )
 {
+    PCRStateTracker pState = from->pStateTracker;
 	CRbitvalue *bitID = to->bitid;
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
+
+    CRASSERT(from->pStateTracker == to->pStateTracker);
 
 	if (CHECKDIRTY(sb->attrib.dirty, bitID))
 	{
@@ -589,17 +594,17 @@ void crStateSwitchContext( CRContext *from, CRContext *to )
 void crStateSyncHWErrorState(CRContext *ctx)
 {
     GLenum err;
-    while ((err = diff_api.GetError()) != GL_NO_ERROR)
+    while ((err = ctx->pStateTracker->diff_api.GetError()) != GL_NO_ERROR)
     {
         if (ctx->error != GL_NO_ERROR)
             ctx->error = err;
     }
 }
 
-GLenum crStateCleanHWErrorState(void)
+GLenum crStateCleanHWErrorState(PCRStateTracker pState)
 {
     GLenum err;
-    while ((err = diff_api.GetError()) != GL_NO_ERROR)
+    while ((err = pState->diff_api.GetError()) != GL_NO_ERROR)
     {
         static int cErrPrints = 0;
 #ifndef DEBUG_misha
@@ -617,10 +622,15 @@ GLenum crStateCleanHWErrorState(void)
 
 void crStateSwitchPrepare(CRContext *toCtx, CRContext *fromCtx, GLuint idDrawFBO, GLuint idReadFBO)
 {
+    PCRStateTracker pState = toCtx ? toCtx->pStateTracker : fromCtx->pStateTracker;
+
+    CRASSERT(pState);
+    CRASSERT(!toCtx || !fromCtx || toCtx->pStateTracker == fromCtx->pStateTracker);
+
     if (!fromCtx)
         return;
 
-    if (g_bVBoxEnableDiffOnMakeCurrent && toCtx && toCtx != fromCtx)
+    if (pState->fVBoxEnableDiffOnMakeCurrent && toCtx && toCtx != fromCtx)
         crStateSyncHWErrorState(fromCtx);
 
 #ifdef CR_EXT_framebuffer_object
@@ -630,6 +640,11 @@ void crStateSwitchPrepare(CRContext *toCtx, CRContext *fromCtx, GLuint idDrawFBO
 
 void crStateSwitchPostprocess(CRContext *toCtx, CRContext *fromCtx, GLuint idDrawFBO, GLuint idReadFBO)
 {
+    PCRStateTracker pState = toCtx ? toCtx->pStateTracker : fromCtx->pStateTracker;
+
+    CRASSERT(pState);
+    CRASSERT(!toCtx || !fromCtx || toCtx->pStateTracker == fromCtx->pStateTracker);
+
     if (!toCtx)
         return;
 
@@ -637,8 +652,8 @@ void crStateSwitchPostprocess(CRContext *toCtx, CRContext *fromCtx, GLuint idDra
     crStateFramebufferObjectReenableHW(fromCtx, toCtx, idDrawFBO, idReadFBO);
 #endif
 
-    if (g_bVBoxEnableDiffOnMakeCurrent && fromCtx && toCtx != fromCtx)
+    if (pState->fVBoxEnableDiffOnMakeCurrent && fromCtx && toCtx != fromCtx)
     {
-        CR_STATE_CLEAN_HW_ERR_WARN("error on make current");
+        CR_STATE_CLEAN_HW_ERR_WARN(pState, "error on make current");
     }
 }

@@ -109,7 +109,7 @@ extern DECLEXPORT(void) crSignalSemaphore(CRsemaphore *s);
 #define VBoxTlsRefGetImpl(_tls) (crGetTSD((CRtsd*)(_tls)))
 #define VBoxTlsRefSetImpl(_tls, _val) (crSetTSD((CRtsd*)(_tls), (_val)))
 #define VBoxTlsRefAssertImpl CRASSERT
-#include <VBoxVideo3D.h>
+#include <VBox/Graphics/VBoxVideo3D.h>
 
 #ifdef __cplusplus
 }

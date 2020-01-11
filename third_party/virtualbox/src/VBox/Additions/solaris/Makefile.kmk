@@ -169,13 +169,7 @@ SOLARIS_ADD_STRIP_BINS = \
 	$(if $(VBOX_OSE),,vboxfs_s10)
 
 SOLARIS_ADD_SYSLIBS = \
-	VBoxOGL.so \
-	VBoxOGLcrutil.so \
-	VBoxOGLfeedbackspu.so \
-	VBoxOGLpassthroughspu.so \
-	VBoxOGLarrayspu.so \
-	VBoxOGLerrorspu.so \
-	VBoxOGLpackspu.so
+	VBoxOGL.so
 
 SOLARIS_ADD_DRIVERS = \
 	vboxguest \

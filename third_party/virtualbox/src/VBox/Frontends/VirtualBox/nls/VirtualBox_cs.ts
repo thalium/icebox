@@ -11,7 +11,7 @@
     <message>
         <source>--</source>
         <comment>Native language country name (empty if this language is for all countries)</comment>
-        <translation></translation>
+        <translation type="unfinished">--</translation>
     </message>
     <message>
         <source>English</source>
@@ -21,7 +21,7 @@
     <message>
         <source>--</source>
         <comment>Language country name, in English (empty if native country name is empty)</comment>
-        <translation></translation>
+        <translation type="unfinished">--</translation>
     </message>
     <message>
         <source>Oracle Corporation</source>
@@ -156,11 +156,11 @@
         <translation type="obsolete">Rozlišení snímku: %1x%2, počet snímků: %3fps,rychlost snímků: %4kbps</translation>
     </message>
     <message>
-        <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.</source>
+        <source>The VirtualBox Linux kernel driver is either not loaded or not set up correctly. Please try setting it up again by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.&lt;br/&gt;&lt;br/&gt;If your system has EFI Secure Boot enabled you may also need to sign the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before you can load them. Please see your Linux system&apos;s documentation for more information.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you do not mix the OSE version and the PUEL version of VirtualBox.</source>
+        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you are not mixing builds of VirtualBox from different sources.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -241,7 +241,7 @@
     <name>QIMessageBox</name>
     <message>
         <source>OK</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Yes</source>
@@ -345,6 +345,18 @@
         <source>%1, %2: %3, %4: %5, %6: %7</source>
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text, col.4 name: col.4 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation type="obsolete">Plný</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="obsolete">Pouze pro čtení</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="obsolete">Ano</translation>
     </message>
 </context>
 <context>
@@ -1193,7 +1205,7 @@
     </message>
     <message>
         <source>Enable menu-bar</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Status Bar</source>
@@ -1649,6 +1661,94 @@
         <source>Enable audio input</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Find</source>
+        <translation type="obsolete">&amp;Hledat</translation>
+    </message>
+    <message>
+        <source>Log Viewer</source>
+        <translation type="obsolete">Prohlížeč záznamu</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;Aktualizovat</translation>
+    </message>
+    <message>
+        <source>&amp;Save...</source>
+        <translation type="obsolete">&amp;Uložit...</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation type="obsolete">Host</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation type="obsolete">Nastavení</translation>
+    </message>
+    <message>
+        <source>Log</source>
+        <translation type="obsolete">Log</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">Smazat</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="obsolete">Aktualizovat</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">Přejmenovat</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="obsolete">Kopírovat</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">Import</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="obsolete">Exportovat</translation>
+    </message>
+    <message>
+        <source>Take a snapshot of the current virtual machine state</source>
+        <translation type="obsolete">Sejmout snímek aktuálního stavu virtuálního počítače</translation>
+    </message>
+    <message>
+        <source>Delete selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Smaže vybraný snímek virtuálního počítače</translation>
+    </message>
+    <message>
+        <source>Restore selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Obnoví vybraný snímek virtuálního počítače</translation>
+    </message>
+    <message>
+        <source>&amp;Clone...</source>
+        <translation type="obsolete">&amp;Klonovat...</translation>
+    </message>
+    <message>
+        <source>&amp;Copy...</source>
+        <translation type="obsolete">&amp;Kopírovat...</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Aktualizuje seznam médií</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="obsolete">Přidat</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Odstranit</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="obsolete">Nápověda</translation>
+    </message>
 </context>
 <context>
     <name>UIActonPool</name>
@@ -1939,6 +2039,79 @@
     </message>
 </context>
 <context>
+    <name>UIChooserItemGroup</name>
+    <message>
+        <source>Enter group</source>
+        <translation type="obsolete">Vstoupit do skupiny</translation>
+    </message>
+    <message>
+        <source>Exit group</source>
+        <translation type="obsolete">Vystoupit ze skupiny</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt;</source>
+        <comment>Group item tool-tip / Group name</comment>
+        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n group(s)</source>
+        <comment>Group item tool-tip / Group info</comment>
+        <translation type="obsolete">
+            <numerusform>%n skupina</numerusform>
+            <numerusform>%n skupiny</numerusform>
+            <numerusform>%n skupin</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Group info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n machine(s)</source>
+        <comment>Group item tool-tip / Machine info</comment>
+        <translation type="obsolete">
+            <numerusform>%n počítač</numerusform>
+            <numerusform>%n počítače</numerusform>
+            <numerusform>%n počítačů</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n running)</source>
+        <comment>Group item tool-tip / Running machine info</comment>
+        <translation type="obsolete">
+            <numerusform>(%n běží)</numerusform>
+            <numerusform>(%n běžící)</numerusform>
+            <numerusform>(%n běžících)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1 %2&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper, including running</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt; {1 %2&lt;?}</translation>
+    </message>
+    <message>
+        <source>Collapse group</source>
+        <translation type="obsolete">Sbalit skupinu</translation>
+    </message>
+    <message>
+        <source>Expand group</source>
+        <translation type="obsolete">Rozbalit skupinu</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserModel</name>
+    <message>
+        <source>New group</source>
+        <translation type="obsolete">Nová skupina</translation>
+    </message>
+</context>
+<context>
     <name>UICloneVMWizard</name>
     <message>
         <source>Clone a virtual machine</source>
@@ -2035,6 +2208,39 @@
     </message>
 </context>
 <context>
+    <name>UICloudProfileDetailsWidget</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">Resetovat</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="obsolete">Přidat</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileManager</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">Resetovat</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zavřít</translation>
+    </message>
+</context>
+<context>
+    <name>UICustomFileSystemModel</name>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="obsolete">Cesta</translation>
+    </message>
+</context>
+<context>
     <name>UIDescriptionPagePrivate</name>
     <message>
         <source>No description. Press the Edit button below to add it.</source>
@@ -2047,6 +2253,253 @@
     <message>
         <source>Edit (Ctrl+E)</source>
         <translation type="obsolete">Upravit (Ctrl+E)</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetails</name>
+    <message>
+        <source>Operating System</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Operační systém</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Skupiny</translation>
+    </message>
+    <message>
+        <source>Information Inaccessible</source>
+        <comment>details</comment>
+        <translation type="obsolete">Informace je nedostupná</translation>
+    </message>
+    <message>
+        <source>Base Memory</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Operační paměť</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1 MB</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Procesory</translation>
+    </message>
+    <message>
+        <source>Execution Cap</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Omezení procesoru</translation>
+    </message>
+    <message>
+        <source>%1%</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1%</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Pořadí při bootování</translation>
+    </message>
+    <message>
+        <source>VT-x/AMD-V</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">VT-x/AMD-V</translation>
+    </message>
+    <message>
+        <source>Nested Paging</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Přímý přístup k hardware</translation>
+    </message>
+    <message>
+        <source>PAE/NX</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">PAE/NX</translation>
+    </message>
+    <message>
+        <source>Minimal Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Minimální paravirtualizace</translation>
+    </message>
+    <message>
+        <source>Hyper-V Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Hyper-V paravirtualizace</translation>
+    </message>
+    <message>
+        <source>KVM Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">KVM paravirtualizace</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Akcelerace</translation>
+    </message>
+    <message>
+        <source>Video Memory</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Video paměť</translation>
+    </message>
+    <message>
+        <source>Screens</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Obrazovky</translation>
+    </message>
+    <message>
+        <source>Scale-factor</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Faktor změny</translation>
+    </message>
+    <message>
+        <source>2D Video</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">2D Video</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">3D</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Akcelerace</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server Port</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">Port vzdáleného serveru</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">Vzdálený server</translation>
+    </message>
+    <message>
+        <source>Video Capture File</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Soubor se zachyceným videem</translation>
+    </message>
+    <message>
+        <source>Video Capture Attributes</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Atributy pro zachycené video</translation>
+    </message>
+    <message>
+        <source>Frame Size: %1x%2, Frame Rate: %3fps, Bit Rate: %4kbps</source>
+        <translation type="obsolete">Rozlišení snímku: %1x%2, počet snímků: %3fps,rychlost snímků: %4kbps</translation>
+    </message>
+    <message>
+        <source>Video Capture</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Zachytávání videa</translation>
+    </message>
+    <message>
+        <source>[Optical Drive]</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">[Optický disk]</translation>
+    </message>
+    <message>
+        <source>Host Driver</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Ovladač hostitele</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Řadič</translation>
+    </message>
+    <message>
+        <source>Bridged Adapter, %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Karta použitá v síťovém mostu, %1</translation>
+    </message>
+    <message>
+        <source>Internal Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Interní síť, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Host-only Adapter, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Síť pouze s hostem,&apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Obecný ovladač, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos; { %2 }</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Obecný ovladač, &apos;%1&apos; { %2 }</translation>
+    </message>
+    <message>
+        <source>NAT Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">NAT síť, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Karta %1</translation>
+    </message>
+    <message>
+        <source>Port %1</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">Port %1</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">Filtry zařízení</translation>
+    </message>
+    <message>
+        <source>%1 (%2 active)</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">%1 (%2 aktivní)</translation>
+    </message>
+    <message>
+        <source>USB Controller Inaccessible</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">USB řadič je nedostupný</translation>
+    </message>
+    <message>
+        <source>Shared Folders</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">Sdílené složky</translation>
+    </message>
+    <message>
+        <source>Menu-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Nabídková lišta</translation>
+    </message>
+    <message>
+        <source>Status-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Stavová lišta</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar Position</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Pozice mini nástrojové lišty</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Nahoře</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Dole</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Mini nástrojová lišta</translation>
     </message>
 </context>
 <context>
@@ -2715,6 +3168,13 @@
     </message>
 </context>
 <context>
+    <name>UIErrorPane</name>
+    <message>
+        <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
+        <translation type="obsolete">Vybraný virtuální počítač je &lt;i&gt;nedostupný&lt;/i&gt;. Prosím prohlédněte si chybovou zprávu zobrazenou níže a stiskněte tlačítko &lt;b&gt;Obnovit&lt;/b&gt;, pokud chcete zopakovat test dostupnosti:</translation>
+    </message>
+</context>
+<context>
     <name>UIErrorString</name>
     <message>
         <source>Result&amp;nbsp;Code: </source>
@@ -3083,6 +3543,52 @@ p, li { white-space: pre-wrap; }
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIFDCreationDialog</name>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Velikost:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zavřít</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Zrušit</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Pozastaveno</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Heslo</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
     </message>
 </context>
 <context>
@@ -4240,6 +4746,14 @@ p, li { white-space: pre-wrap; }
         <source>When checked, machine windows will be raised when the mouse pointer moves over them.</source>
         <translation>Je-li zatrženo, budou se okna virtuálních počítačů při přejezdu myší dostávat do popředí.</translation>
     </message>
+    <message>
+        <source>Scale Factor:</source>
+        <translation type="obsolete">Faktor změny:</translation>
+    </message>
+    <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">Nastavuje faktor změny obrazovky hosta.</translation>
+    </message>
 </context>
 <context>
     <name>UIGlobalSettingsExtension</name>
@@ -5299,6 +5813,36 @@ p, li { white-space: pre-wrap; }
         <source>%1: %2</source>
         <comment>&apos;key: value&apos;, like &apos;Name: MyVM&apos;</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestControlFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zavřít</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Heslo</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Zrušit</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Pozastaveno</translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestProcessControlWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zavřít</translation>
     </message>
 </context>
 <context>
@@ -6644,6 +7188,75 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>UIItemHostNetwork</name>
+    <message>
+        <source>Automatically configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">Automaticky nastaveno</translation>
+    </message>
+    <message>
+        <source>Manually configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">Nastaveno ručně</translation>
+    </message>
+    <message>
+        <source>IPv4 Address</source>
+        <translation type="obsolete">IPv4 adresa</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>address</comment>
+        <translation type="obsolete">Nenastavena</translation>
+    </message>
+    <message>
+        <source>IPv4 Network Mask</source>
+        <translation type="obsolete">IPv4 síťová maska</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>mask</comment>
+        <translation type="obsolete">Nenastavena</translation>
+    </message>
+    <message>
+        <source>IPv6 Address</source>
+        <translation type="obsolete">IPv6 adresa</translation>
+    </message>
+    <message>
+        <source>IPv6 Prefix Length</source>
+        <translation type="obsolete">Délka masky pro IPv6</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>length</comment>
+        <translation type="obsolete">Nenastavena</translation>
+    </message>
+    <message>
+        <source>DHCP Server</source>
+        <translation type="obsolete">DHCP server</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="obsolete">Adresa</translation>
+    </message>
+    <message>
+        <source>Network Mask</source>
+        <translation type="obsolete">Síťová maska</translation>
+    </message>
+    <message>
+        <source>Lower Bound</source>
+        <translation type="obsolete">Spodní hranice</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>bound</comment>
+        <translation type="obsolete">Nenastavena</translation>
+    </message>
+    <message>
+        <source>Upper Bound</source>
+        <translation type="obsolete">Horní hranice</translation>
+    </message>
+</context>
+<context>
     <name>UIItemNetworkNAT</name>
     <message>
         <source>%1, %2</source>
@@ -6654,6 +7267,93 @@ p, li { white-space: pre-wrap; }
         <source>%1</source>
         <comment>col.2 text</comment>
         <translation type="unfinished">%1</translation>
+    </message>
+    <message>
+        <source>Network Name</source>
+        <translation type="obsolete">Název sítě</translation>
+    </message>
+    <message>
+        <source>[empty]</source>
+        <translation type="obsolete">[žádný]</translation>
+    </message>
+    <message>
+        <source>%1 (renamed from %2)</source>
+        <translation type="obsolete">%1 (změna názvu z %2)</translation>
+    </message>
+    <message>
+        <source>Old Network Name</source>
+        <translation type="obsolete">Starý název sítě</translation>
+    </message>
+    <message>
+        <source>New Network Name</source>
+        <translation type="obsolete">Nový název sítě</translation>
+    </message>
+    <message>
+        <source>Network CIDR</source>
+        <translation type="obsolete">Síťový CIDR rozsah</translation>
+    </message>
+    <message>
+        <source>Supports DHCP</source>
+        <translation type="obsolete">Podpora DHCP</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation type="obsolete">ano</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation type="obsolete">ne</translation>
+    </message>
+    <message>
+        <source>Supports IPv6</source>
+        <translation type="obsolete">Podpora IPv6</translation>
+    </message>
+    <message>
+        <source>Default IPv6 route</source>
+        <translation type="obsolete">Výchozí routování pro IPv6</translation>
+    </message>
+    <message>
+        <source>No new name specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Pro předchozí NAT síť &lt;b&gt;%1&lt;/b&gt; nebyl zadán žádný nový název.</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Pro NAT síť &lt;b&gt;%1&lt;/b&gt; nebyl zadán CIDR rozsah.</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Pro předchozí NAT síť &lt;b&gt;%1&lt;/b&gt; nebyl zadán žádný CIDR rozsah.</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">Pro NAT síť &lt;b&gt;%2&lt;/b&gt; byl zadán neplatný CIDR rozsah (&lt;i&gt;%1&lt;/i&gt;).</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network previously called &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">Pro předchozí NAT síť &lt;b&gt;%2&lt;/b&gt; byl zadán neplatný CIDR rozsah (&lt;i&gt;%1&lt;/i&gt;).</translation>
+    </message>
+</context>
+<context>
+    <name>UILanguageItem</name>
+    <message>
+        <source> (built-in)</source>
+        <comment>Language</comment>
+        <translation type="obsolete"> (vestavěný)</translation>
+    </message>
+    <message>
+        <source>&lt;unavailable&gt;</source>
+        <comment>Language</comment>
+        <translation type="obsolete">&lt;nedostupný&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>Author(s)</comment>
+        <translation type="obsolete">&lt;neznámý&gt;</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <comment>Language</comment>
+        <translation type="obsolete">Výchozí</translation>
     </message>
 </context>
 <context>
@@ -6724,6 +7424,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Select a filename for the screenshot ...</source>
         <translation>Vyberte soubor pro uložení snímku obrazovky...</translation>
+    </message>
+</context>
+<context>
+    <name>UIMachinePreview</name>
+    <message>
+        <source>No preview</source>
+        <translation type="obsolete">Bez náhledu</translation>
+    </message>
+    <message>
+        <source>Update disabled</source>
+        <translation type="obsolete">Aktualizace zakázána</translation>
+    </message>
+    <message>
+        <source>Every 0.5 s</source>
+        <translation type="obsolete">Každých 0,5 s</translation>
+    </message>
+    <message>
+        <source>Every 1 s</source>
+        <translation type="obsolete">Každou sekundu</translation>
+    </message>
+    <message>
+        <source>Every 2 s</source>
+        <translation type="obsolete">Každé 2 sekundy</translation>
+    </message>
+    <message>
+        <source>Every 5 s</source>
+        <translation type="obsolete">Každých 5 sekund</translation>
+    </message>
+    <message>
+        <source>Every 10 s</source>
+        <translation type="obsolete">Každých 10 sekund</translation>
     </message>
 </context>
 <context>
@@ -9783,6 +10514,42 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>UIMediumItem</name>
+    <message>
+        <source>Format:</source>
+        <translation type="obsolete">Formát:</translation>
+    </message>
+    <message>
+        <source>Storage details:</source>
+        <translation type="obsolete">Detaily o umístění:</translation>
+    </message>
+    <message>
+        <source>Attached to:</source>
+        <translation type="obsolete">Připojen k:</translation>
+    </message>
+    <message>
+        <source>UUID:</source>
+        <translation type="obsolete">UUID:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;Nepřipojeno&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Encrypted&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;Nešifrováno&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>--</source>
+        <comment>no info</comment>
+        <translation type="obsolete">--</translation>
+    </message>
+    <message>
+        <source>Removing medium...</source>
+        <translation type="obsolete">Odstraňuji médium...</translation>
+    </message>
+</context>
+<context>
     <name>UIMediumManager</name>
     <message>
         <source>&amp;Hard drives</source>
@@ -9997,6 +10764,53 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Move selected disk image file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Velikost:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+    <message>
+        <source>&amp;Create</source>
+        <translation type="obsolete">Vy&amp;tvořit</translation>
+    </message>
+</context>
+<context>
+    <name>UIMediumSelector</name>
+    <message>
+        <source>&amp;Add...</source>
+        <translation type="obsolete">&amp;Přidat...</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;Aktualizovat</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Aktualizuje seznam médií</translation>
+    </message>
+    <message>
+        <source>Virtual Size</source>
+        <translation type="obsolete">Virtuální velikost</translation>
+    </message>
+    <message>
+        <source>Actual Size</source>
+        <translation type="obsolete">Skutečná velikost</translation>
     </message>
 </context>
 <context>
@@ -12145,6 +12959,10 @@ p, li { white-space: pre-wrap; }
         <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">Import</translation>
+    </message>
 </context>
 <context>
     <name>UIMiniProcessWidgetAdditions</name>
@@ -13472,6 +14290,13 @@ krok a připojit pevné disky později použitím dialogu Nastavení VM.&lt;/p&g
     </message>
 </context>
 <context>
+    <name>UIScaleFactorEditor</name>
+    <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">Nastavuje faktor změny obrazovky hosta.</translation>
+    </message>
+</context>
+<context>
     <name>UIScreenshotViewer</name>
     <message>
         <source>Screenshot of %1 (%2)</source>
@@ -13797,6 +14622,42 @@ krok a připojit pevné disky později použitím dialogu Nastavení VM.&lt;/p&g
     </message>
 </context>
 <context>
+    <name>UISnapshotItem</name>
+    <message>
+        <source>Current State (changed)</source>
+        <comment>Current State (Modified)</comment>
+        <translation type="obsolete">Aktuální stav (změněn)</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <comment>Current State (Unmodified)</comment>
+        <translation type="obsolete">Aktuální stav</translation>
+    </message>
+    <message>
+        <source>The current state differs from the state stored in the current snapshot</source>
+        <translation type="obsolete">Aktuální stav se liší od stavu uloženého v aktuálním snímku</translation>
+    </message>
+    <message>
+        <source>The current state is identical to the state stored in the current snapshot</source>
+        <translation type="obsolete">Aktuální stav se shoduje se stavem uloženým v aktuálním snímku</translation>
+    </message>
+    <message>
+        <source>%1 since %2</source>
+        <comment>Current State (time or date + time)</comment>
+        <translation type="obsolete">%1 od %2</translation>
+    </message>
+    <message>
+        <source>Taken at %1</source>
+        <comment>Snapshot (time)</comment>
+        <translation type="obsolete">Získán v %1</translation>
+    </message>
+    <message>
+        <source>Taken on %1</source>
+        <comment>Snapshot (date + time)</comment>
+        <translation type="obsolete">Získán %1</translation>
+    </message>
+</context>
+<context>
     <name>UISnapshotPane</name>
     <message>
         <source>Current State (changed)</source>
@@ -13996,6 +14857,21 @@ krok a připojit pevné disky později použitím dialogu Nastavení VM.&lt;/p&g
     </message>
 </context>
 <context>
+    <name>UIToolsModel</name>
+    <message>
+        <source>Network</source>
+        <translation type="obsolete">Síť</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation type="obsolete">Detaily</translation>
+    </message>
+    <message>
+        <source>Snapshots</source>
+        <translation type="obsolete">Snímky</translation>
+    </message>
+</context>
+<context>
     <name>UIToolsPaneGlobal</name>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;This window represents a set of global tools which are currently opened (or can be opened). They are not related to any particular machine but to the complete VM collection. For a list of currently available tools check the corresponding menu at the right side of the main tool bar located at the top of the window. This list will be extended with new tools in future releases.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
@@ -14040,6 +14916,46 @@ krok a připojit pevné disky později použitím dialogu Nastavení VM.&lt;/p&g
         <source>%1</source>
         <comment>col.1 text</comment>
         <translation type="unfinished">%1</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ID dodavatele: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product ID: %2&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ID produktu: %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Revision: %3&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Revize: %3&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product: %4&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Produkt: %4&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Manufacturer: %5&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Výrobce: %5&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Serial No.: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Sériové číslo: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Port: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Port: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;State: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Stav: %1&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
@@ -14472,6 +15388,37 @@ krok a připojit pevné disky později použitím dialogu Nastavení VM.&lt;/p&g
     </message>
 </context>
 <context>
+    <name>UIVMLogViewerWidget</name>
+    <message>
+        <source>Log Viewer</source>
+        <translation type="obsolete">Prohlížeč záznamu</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zavřít</translation>
+    </message>
+    <message>
+        <source>Enter a search string here</source>
+        <translation type="obsolete">Sem napište hledaný řetězec</translation>
+    </message>
+    <message>
+        <source>C&amp;ase Sensitive</source>
+        <translation type="obsolete">Rozlišov&amp;at velikost písmen</translation>
+    </message>
+    <message>
+        <source>String not found</source>
+        <translation type="obsolete">Řetězec nenalezen</translation>
+    </message>
+    <message>
+        <source>Save VirtualBox Log As</source>
+        <translation type="obsolete">Uložit záznam VirtualBoxu jako</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No log files found. Press the &lt;b&gt;Refresh&lt;/b&gt; button to rescan the log folder &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</source>
+        <translation type="obsolete">&lt;p&gt;Žádný soubor se záznamem nenalezen. Stiskněte tlačítko &lt;b&gt;Aktualizovat&lt;/b&gt; pro opětovné prozkoumání složky se záznamy &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
     <name>UIVMPreviewWindow</name>
     <message>
         <source>Update Disabled</source>
@@ -14500,6 +15447,41 @@ krok a připojit pevné disky později použitím dialogu Nastavení VM.&lt;/p&g
     <message>
         <source>No Preview</source>
         <translation type="obsolete">Bez náhledu</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManager</name>
+    <message>
+        <source>Manager</source>
+        <comment>Note: main window title which is prepended by the product name.</comment>
+        <translation type="obsolete">Správce</translation>
+    </message>
+    <message>
+        <source>Select a virtual machine file</source>
+        <translation type="obsolete">Vybere soubor s virtuálním počítačem</translation>
+    </message>
+    <message>
+        <source>Virtual machine files (%1)</source>
+        <translation type="obsolete">Soubory virtuálního počítače (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UIVisoCreator</name>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Odstranit</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">Resetovat</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="obsolete">Přidat</translation>
     </message>
 </context>
 <context>
@@ -15062,6 +16044,10 @@ krok a připojit pevné disky později použitím dialogu Nastavení VM.&lt;/p&g
     <message>
         <source>Write in Oracle Public Cloud 1.0 format.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a file to export the virtual appliance to...</source>
+        <translation type="obsolete">Zadejte název souboru pro export appliance...</translation>
     </message>
 </context>
 <context>
@@ -17087,7 +18073,7 @@ Verze %1</translation>
     <message>
         <source>Windows Multimedia</source>
         <comment>AudioDriverType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>OSS Audio Driver</source>
@@ -17102,17 +18088,17 @@ Verze %1</translation>
     <message>
         <source>Windows DirectSound</source>
         <comment>AudioDriverType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>CoreAudio</source>
         <comment>AudioDriverType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intel PRO/1000 MT Server (82545EM)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Not attached</source>
@@ -17122,7 +18108,7 @@ Verze %1</translation>
     <message>
         <source>NAT</source>
         <comment>NetworkAttachmentType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Host Interface</source>
@@ -17275,32 +18261,32 @@ Verze %1</translation>
     <message>
         <source>PIIX3</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished">PIIX3</translation>
     </message>
     <message>
         <source>PIIX4</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished">PIIX4</translation>
     </message>
     <message>
         <source>ICH6</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished">ICH6</translation>
     </message>
     <message>
         <source>AHCI</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lsilogic</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>BusLogic</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>User-defined</source>
@@ -17375,7 +18361,7 @@ Verze %1</translation>
     <message>
         <source>USB</source>
         <comment>DeviceType</comment>
-        <translation></translation>
+        <translation type="unfinished">USB</translation>
     </message>
     <message>
         <source>Shared Folder</source>
@@ -17385,17 +18371,17 @@ Verze %1</translation>
     <message>
         <source>IDE</source>
         <comment>StorageBus</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SATA</source>
         <comment>StorageBus</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SCSI</source>
         <comment>StorageBus</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Primary</source>
@@ -17440,32 +18426,32 @@ Verze %1</translation>
     <message>
         <source>ICH AC97</source>
         <comment>AudioControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SoundBlaster 16</source>
         <comment>AudioControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PCnet-PCI II (Am79C970A)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PCnet-FAST III (Am79C973)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intel PRO/1000 MT Desktop (82540EM)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intel PRO/1000 T Server (82543GC)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
@@ -18802,6 +19788,102 @@ Verze %1</translation>
         <source>Audio</source>
         <comment>IndicatorType</comment>
         <translation type="unfinished">Zvuk</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details report</comment>
+        <translation type="obsolete">Procesory</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="obsolete">Umístění</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation type="obsolete">Skupiny</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <translation type="obsolete">Pořadí při bootování</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <translation type="obsolete">Akcelerace</translation>
+    </message>
+    <message>
+        <source>Hard Disks</source>
+        <translation type="obsolete">Pevné disky</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <translation type="obsolete">Řadič</translation>
+    </message>
+    <message>
+        <source>Internal Network</source>
+        <translation type="obsolete">Vnitřní síť</translation>
+    </message>
+    <message>
+        <source>Generic Driver</source>
+        <translation type="obsolete">Obecný ovladač</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation type="obsolete">Odpojen</translation>
+    </message>
+    <message>
+        <source>Host Pipe</source>
+        <translation type="obsolete">Hostitelské roura</translation>
+    </message>
+    <message>
+        <source>Host Device</source>
+        <translation type="obsolete">Hostitelské zařízení</translation>
+    </message>
+    <message>
+        <source>Raw File</source>
+        <translation type="obsolete">Přímý soubor</translation>
+    </message>
+    <message>
+        <source>TCP</source>
+        <translation type="obsolete">TCP</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <translation type="obsolete">Filtry zařízení</translation>
+    </message>
+    <message>
+        <source>VDI (VirtualBox Disk Image)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VDI (VirtualBox Disk Image)</translation>
+    </message>
+    <message>
+        <source>VMDK (Virtual Machine Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VMDK (Virtual Machine Disk)</translation>
+    </message>
+    <message>
+        <source>VHD (Virtual Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VHD (Virtual Hard Disk)</translation>
+    </message>
+    <message>
+        <source>HDD (Parallels Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">HDD (Parallels Hard Disk)</translation>
+    </message>
+    <message>
+        <source>QED (QEMU enhanced disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QED (QEMU enhanced disk)</translation>
+    </message>
+    <message>
+        <source>QCOW (QEMU Copy-On-Write)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QCOW (QEMU Copy-On-Write)</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <comment>serial port</comment>
+        <translation type="obsolete">Odpojen</translation>
     </message>
 </context>
 <context>

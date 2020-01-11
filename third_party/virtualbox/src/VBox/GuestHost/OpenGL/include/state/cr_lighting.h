@@ -83,7 +83,7 @@ DECLEXPORT(void) crStateLightingDiff(CRLightingBits *bb, CRbitvalue *bitID,
 DECLEXPORT(void) crStateLightingSwitch(CRLightingBits *bb, CRbitvalue *bitID,
                                        CRContext *fromCtx, CRContext *toCtx);
 
-DECLEXPORT(void) crStateColorMaterialRecover( void );
+DECLEXPORT(void) crStateColorMaterialRecover(PCRStateTracker pState);
 
 #ifdef __cplusplus
 }

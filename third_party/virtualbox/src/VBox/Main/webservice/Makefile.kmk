@@ -115,14 +115,6 @@ if "$(VBOX_PATH_GSOAP_BIN)" == ""
   VBOX_PATH_GSOAP_BIN  := $(VBOX_PATH_GSOAP_BIN)/macosx
  else if "$(KBUILD_HOST)" == "win"
   VBOX_PATH_GSOAP_BIN  := $(VBOX_PATH_GSOAP_BIN)/win32
- else if "$(KBUILD_HOST)" == "linux"
-  VBOX_PATH_GSOAP_BIN  := $(VBOX_PATH_GSOAP_BIN)/linux386
- else if "$(KBUILD_HOST)" == "solaris"
-  if $(VBOX_SOLARIS_11_VERSION) >= 164
-   VBOX_PATH_GSOAP_BIN  := $(VBOX_PATH_GSOAP_BIN)/solaris11.x86
-  else
-   VBOX_PATH_GSOAP_BIN  := $(VBOX_PATH_GSOAP_BIN)/solaris.x86
-  endif
  else
   VBOX_PATH_GSOAP_BIN  := $(VBOX_PATH_GSOAP_BIN)/$(KBUILD_HOST).x86
  endif

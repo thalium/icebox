@@ -102,8 +102,12 @@ void UIWizardExportAppPage3::refreshCurrentSettings()
     /* Compose file-name: */
     QString strName;
 
+    /* If there is base file name already: */
+    const QString strBaseName = QFileInfo(m_pFileSelector->path()).baseName();
+    if (!strBaseName.isEmpty())
+        strName = strBaseName;
     /* If it's one VM only, we use the VM name as file-name: */
-    if (fieldImp("machineNames").toStringList().size() == 1)
+    else if (fieldImp("machineNames").toStringList().size() == 1)
         strName = fieldImp("machineNames").toStringList()[0];
     /* Otherwise => we use the default file-name: */
     else

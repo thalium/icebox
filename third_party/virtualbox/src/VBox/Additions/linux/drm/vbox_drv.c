@@ -46,6 +46,10 @@
 
 int vbox_modeset = -1;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0) || defined(RHEL_81)
+#include <drm/drm_probe_helper.h>
+#endif
+
 MODULE_PARM_DESC(modeset, "Disable/Enable modesetting");
 module_param_named(modeset, vbox_modeset, int, 0400);
 
@@ -255,7 +259,10 @@ static void vbox_master_drop(struct drm_device *dev, struct drm_file *file_priv)
 
 static struct drm_driver driver = {
 	.driver_features =
-	    DRIVER_MODESET | DRIVER_GEM | DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED |
+	    DRIVER_MODESET | DRIVER_GEM | DRIVER_HAVE_IRQ |
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0) && !defined(RHEL_81)
+	    DRIVER_IRQ_SHARED |
+#endif
 	    DRIVER_PRIME,
 	.dev_priv_size = 0,
 
@@ -265,7 +272,8 @@ static struct drm_driver driver = {
 	.master_set = vbox_master_set,
 	.master_drop = vbox_master_drop,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
-# if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0) && !defined(RHEL_75)
+# if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0) && !defined(RHEL_75) \
+  && !defined(OPENSUSE_151)
 	.set_busid = drm_pci_set_busid,
 # endif
 #endif

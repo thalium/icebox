@@ -50,6 +50,16 @@
  * It could be done for the first way as well, but requires tons of bit checks.
  */
 
+/**
+ * Helper for walking the hash tables.
+ */
+typedef struct CRStateSnapshotWalkArgs
+{
+    PSSMHANDLE      pSSM;
+    PCRStateTracker pState;
+} CRStateSnapshotWalkArgs;
+typedef CRStateSnapshotWalkArgs *PCRStateSnapshotWalkArgs;
+
 static int32_t crStateAllocAndSSMR3GetMem(PSSMHANDLE pSSM, void **pBuffer, size_t cbBuffer)
 {
     CRASSERT(pSSM && pBuffer && cbBuffer>0);
@@ -395,7 +405,7 @@ static int32_t crStateLoadRenderbufferObject(CRRenderbufferObject *pRBO, PSSMHAN
     return rc;
 }
 
-static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM)
+static int32_t crStateSaveTextureObjData(PCRStateTracker pState, CRTextureObj *pTexture, PSSMHANDLE pSSM)
 {
     int32_t rc, face, i;
     GLint bound = 0;
@@ -432,7 +442,7 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
                 if (!bound)
                 {
                     GLenum getEnum;
-                    diff_api.BindTexture(pTexture->target, pTexture->hwid);
+                    pState->diff_api.BindTexture(pTexture->target, pTexture->hwid);
                     bound = 1;
 
                     /* osx nvidia drivers seem to have a bug that 1x1 TEXTURE_2D texture becmes inaccessible for some reason
@@ -464,7 +474,7 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
                     if (getEnum)
                     {
                         GLint curTex;
-                        diff_api.GetIntegerv(getEnum, &curTex);
+                        pState->diff_api.GetIntegerv(getEnum, &curTex);
                         if ((GLuint)curTex != pTexture->hwid)
                         {
                             crWarning("texture not bound properly: expected %d, but was %d. Texture state data: target(0x%x), id(%d), w(%d), h(%d)",
@@ -505,8 +515,8 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
                         GLint w,h=0;
                         crDebug("get image: compressed %i, face %i, level %i, width %i, height %i, bytes %i",
                                 ptl->compressed, face, i, ptl->width, ptl->height, ptl->bytes);
-                        diff_api.GetTexLevelParameteriv(target, i, GL_TEXTURE_WIDTH, &w);
-                        diff_api.GetTexLevelParameteriv(target, i, GL_TEXTURE_HEIGHT, &h);
+                        pState->diff_api.GetTexLevelParameteriv(target, i, GL_TEXTURE_WIDTH, &w);
+                        pState->diff_api.GetTexLevelParameteriv(target, i, GL_TEXTURE_HEIGHT, &h);
                         if (w!=ptl->width || h!=ptl->height)
                         {
                             crWarning("!!!tex size mismatch %i, %i!!!", w, h);
@@ -522,11 +532,11 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
                     {
                         if (!ptl->compressed)
                         {
-                            diff_api.GetTexImage(target, i, ptl->format, ptl->type, pImg);
+                            pState->diff_api.GetTexImage(target, i, ptl->format, ptl->type, pImg);
                         }
                         else
                         {
-                            diff_api.GetCompressedTexImageARB(target, i, pImg);
+                            pState->diff_api.GetCompressedTexImageARB(target, i, pImg);
                         }
                     }
                 }
@@ -601,7 +611,9 @@ static int32_t crStateLoadTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
 static void crStateSaveSharedTextureCB(unsigned long key, void *data1, void *data2)
 {
     CRTextureObj *pTexture = (CRTextureObj *) data1;
-    PSSMHANDLE pSSM = (PSSMHANDLE) data2;
+    PCRStateSnapshotWalkArgs pArgs = (PCRStateSnapshotWalkArgs)data2;
+    PCRStateTracker pState = pArgs->pState;
+    PSSMHANDLE pSSM = pArgs->pSSM;
     int32_t rc;
 
     CRASSERT(pTexture && pSSM);
@@ -610,7 +622,7 @@ static void crStateSaveSharedTextureCB(unsigned long key, void *data1, void *dat
     CRASSERT(rc == VINF_SUCCESS);
     rc = SSMR3PutMem(pSSM, pTexture, sizeof(*pTexture));
     CRASSERT(rc == VINF_SUCCESS);
-    rc = crStateSaveTextureObjData(pTexture, pSSM);
+    rc = crStateSaveTextureObjData(pState, pTexture, pSSM);
     CRASSERT(rc == VINF_SUCCESS);
 }
 
@@ -856,7 +868,9 @@ static void crStateCopyEvalPtrs2D(CREvaluator2D *pDst, CREvaluator2D *pSrc)
 static void crStateSaveBufferObjectCB(unsigned long key, void *data1, void *data2)
 {
     CRBufferObject *pBufferObj = (CRBufferObject *) data1;
-    PSSMHANDLE pSSM = (PSSMHANDLE) data2;
+    PCRStateSnapshotWalkArgs pArgs = (PCRStateSnapshotWalkArgs)data2;
+    PCRStateTracker pState = pArgs->pState;
+    PSSMHANDLE pSSM = pArgs->pSSM;
     int32_t rc;
 
     CRASSERT(pBufferObj && pSSM);
@@ -876,8 +890,8 @@ static void crStateSaveBufferObjectCB(unsigned long key, void *data1, void *data
     }
     else if (pBufferObj->id!=0 && pBufferObj->size>0)
     {
-        diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, pBufferObj->hwid);
-        pBufferObj->pointer = diff_api.MapBufferARB(GL_ARRAY_BUFFER_ARB, GL_READ_ONLY_ARB);
+        pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, pBufferObj->hwid);
+        pBufferObj->pointer = pState->diff_api.MapBufferARB(GL_ARRAY_BUFFER_ARB, GL_READ_ONLY_ARB);
         rc = SSMR3PutMem(pSSM, &pBufferObj->pointer, sizeof(pBufferObj->pointer));
         CRASSERT(rc == VINF_SUCCESS);
         if (pBufferObj->pointer)
@@ -885,7 +899,7 @@ static void crStateSaveBufferObjectCB(unsigned long key, void *data1, void *data
             rc = SSMR3PutMem(pSSM, pBufferObj->pointer, pBufferObj->size);
             CRASSERT(rc == VINF_SUCCESS);
         }
-        diff_api.UnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+        pState->diff_api.UnmapBufferARB(GL_ARRAY_BUFFER_ARB);
         pBufferObj->pointer = NULL;
     }
 }
@@ -1048,7 +1062,9 @@ static char* crStateLoadString(PSSMHANDLE pSSM)
 static void crStateSaveGLSLShaderCB(unsigned long key, void *data1, void *data2)
 {
     CRGLSLShader *pShader = (CRGLSLShader*) data1;
-    PSSMHANDLE pSSM = (PSSMHANDLE) data2;
+    PCRStateSnapshotWalkArgs pArgs = (PCRStateSnapshotWalkArgs)data2;
+    PCRStateTracker pState = pArgs->pState;
+    PSSMHANDLE pSSM = pArgs->pSSM;
     int32_t rc;
 
     rc = SSMR3PutMem(pSSM, &key, sizeof(key));
@@ -1066,11 +1082,11 @@ static void crStateSaveGLSLShaderCB(unsigned long key, void *data1, void *data2)
         GLint sLen=0;
         GLchar *source=NULL;
 
-        diff_api.GetShaderiv(pShader->hwid, GL_SHADER_SOURCE_LENGTH, &sLen);
+        pState->diff_api.GetShaderiv(pShader->hwid, GL_SHADER_SOURCE_LENGTH, &sLen);
         if (sLen>0)
         {
             source = (GLchar*) crAlloc(sLen);
-            diff_api.GetShaderSource(pShader->hwid, sLen, NULL, source);
+            pState->diff_api.GetShaderSource(pShader->hwid, sLen, NULL, source);
         }
 
         crStateSaveString(source, pSSM);
@@ -1105,6 +1121,8 @@ static void crStateSaveGLSLShaderKeyCB(unsigned long key, void *data1, void *dat
     PSSMHANDLE pSSM = (PSSMHANDLE) data2;
     int32_t rc;
 
+    RT_NOREF(data1);
+
     rc = SSMR3PutMem(pSSM, &key, sizeof(key));
     CRASSERT(rc == VINF_SUCCESS);
 }
@@ -1125,7 +1143,9 @@ static void crStateSaveGLSLProgramAttribs(CRGLSLProgramState *pState, PSSMHANDLE
 static void crStateSaveGLSLProgramCB(unsigned long key, void *data1, void *data2)
 {
     CRGLSLProgram *pProgram = (CRGLSLProgram*) data1;
-    PSSMHANDLE pSSM = (PSSMHANDLE) data2;
+    PCRStateSnapshotWalkArgs pArgs = (PCRStateSnapshotWalkArgs)data2;
+    PCRStateTracker pState = pArgs->pState;
+    PSSMHANDLE pSSM = pArgs->pSSM;
     int32_t rc;
     uint32_t ui32;
     GLint maxUniformLen, activeUniforms=0, uniformsCount=0, i, j;
@@ -1150,14 +1170,14 @@ static void crStateSaveGLSLProgramCB(unsigned long key, void *data1, void *data2
         ui32 = crHashtableNumElements(pProgram->activeState.attachedShaders);
         rc = SSMR3PutU32(pSSM, ui32);
         CRASSERT(rc == VINF_SUCCESS);
-        crHashtableWalk(pProgram->currentState.attachedShaders, crStateSaveGLSLShaderCB, pSSM);
+        crHashtableWalk(pProgram->currentState.attachedShaders, crStateSaveGLSLShaderCB, pArgs);
     }
 
     crStateSaveGLSLProgramAttribs(&pProgram->currentState, pSSM);
     crStateSaveGLSLProgramAttribs(&pProgram->activeState, pSSM);
 
-    diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformLen);
-    diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORMS, &activeUniforms);
+    pState->diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformLen);
+    pState->diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORMS, &activeUniforms);
 
     if (!maxUniformLen)
     {
@@ -1181,7 +1201,7 @@ static void crStateSaveGLSLProgramCB(unsigned long key, void *data1, void *data2
 
     for (i=0; i<activeUniforms; ++i)
     {
-        diff_api.GetActiveUniform(pProgram->hwid, i, maxUniformLen, NULL, &size, &type, name);
+        pState->diff_api.GetActiveUniform(pProgram->hwid, i, maxUniformLen, NULL, &size, &type, name);
         uniformsCount += size;
     }
     CRASSERT(uniformsCount>=activeUniforms);
@@ -1197,7 +1217,7 @@ static void crStateSaveGLSLProgramCB(unsigned long key, void *data1, void *data2
 
         for (i=0; i<activeUniforms; ++i)
         {
-            diff_api.GetActiveUniform(pProgram->hwid, i, maxUniformLen, NULL, &size, &type, name);
+            pState->diff_api.GetActiveUniform(pProgram->hwid, i, maxUniformLen, NULL, &size, &type, name);
 
             if (size>1)
             {
@@ -1214,23 +1234,23 @@ static void crStateSaveGLSLProgramCB(unsigned long key, void *data1, void *data2
                 {
                     sprintf(pIndexStr, "[%i]", j);
                 }
-                location = diff_api.GetUniformLocation(pProgram->hwid, name);
+                location = pState->diff_api.GetUniformLocation(pProgram->hwid, name);
 
                 rc = SSMR3PutMem(pSSM, &type, sizeof(type));
                 CRASSERT(rc == VINF_SUCCESS);
 
                 crStateSaveString(name, pSSM);
 
-                if (crStateIsIntUniform(type))
+                if (crStateIsIntUniform(pState, type))
                 {
-                    diff_api.GetUniformiv(pProgram->hwid, location, &idata[0]);
-                    rc = SSMR3PutMem(pSSM, &idata[0], crStateGetUniformSize(type)*sizeof(idata[0]));
+                    pState->diff_api.GetUniformiv(pProgram->hwid, location, &idata[0]);
+                    rc = SSMR3PutMem(pSSM, &idata[0], crStateGetUniformSize(pState, type)*sizeof(idata[0]));
                     CRASSERT(rc == VINF_SUCCESS);
                 }
                 else
                 {
-                    diff_api.GetUniformfv(pProgram->hwid, location, &fdata[0]);
-                    rc = SSMR3PutMem(pSSM, &fdata[0], crStateGetUniformSize(type)*sizeof(fdata[0]));
+                    pState->diff_api.GetUniformfv(pProgram->hwid, location, &fdata[0]);
+                    rc = SSMR3PutMem(pSSM, &fdata[0], crStateGetUniformSize(pState, type)*sizeof(fdata[0]));
                     CRASSERT(rc == VINF_SUCCESS);
                 }
             }
@@ -1258,8 +1278,16 @@ static int32_t crStateSaveClientPointer(CRVertexArrays *pArrays, int32_t index, 
     if (cp->locked)
     {
         CRASSERT(cp->p);
-        rc = SSMR3PutMem(pSSM, cp->p, cp->stride*(pArrays->lockFirst+pArrays->lockCount));
-        AssertRCReturn(rc, rc);
+        if (cp->fRealPtr)
+        {
+            rc = SSMR3PutMem(pSSM, cp->p, cp->stride*(pArrays->lockFirst+pArrays->lockCount));
+            AssertRCReturn(rc, rc);
+        }
+        else
+        {
+            crError("crStateSaveClientPointer: cp=%#p doesn't point to host memory!\n", cp);
+            return VERR_INVALID_STATE;
+        }
     }
 #endif
 
@@ -1288,6 +1316,7 @@ static int32_t crStateLoadClientPointer(CRVertexArrays *pArrays, int32_t index, 
     {
         rc = crStateAllocAndSSMR3GetMem(pSSM, (void**)&cp->p, cp->stride*(pArrays->lockFirst+pArrays->lockCount));
         AssertRCReturn(rc, rc);
+        cp->fRealPtr = 1;
     }
 #endif
 
@@ -1461,9 +1490,14 @@ static int32_t crStateLoadKeys(CRHashTable *pHash, PSSMHANDLE pSSM, uint32_t u32
 
 int32_t crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM)
 {
+    PCRStateTracker pState = pContext->pStateTracker;
     int32_t rc, i;
     uint32_t ui32, j;
     GLboolean bSaveShared = GL_TRUE;
+    CRStateSnapshotWalkArgs Args;
+
+    Args.pSSM = pSSM;
+    Args.pState = pState;
 
     CRASSERT(pContext && pSSM);
 
@@ -1527,27 +1561,27 @@ int32_t crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM)
     }
 
     /* Save textures */
-    rc = crStateSaveTextureObjData(&pContext->texture.base1D, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.base1D, pSSM);
     AssertRCReturn(rc, rc);
-    rc = crStateSaveTextureObjData(&pContext->texture.base2D, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.base2D, pSSM);
     AssertRCReturn(rc, rc);
-    rc = crStateSaveTextureObjData(&pContext->texture.base3D, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.base3D, pSSM);
     AssertRCReturn(rc, rc);
-    rc = crStateSaveTextureObjData(&pContext->texture.proxy1D, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.proxy1D, pSSM);
     AssertRCReturn(rc, rc);
-    rc = crStateSaveTextureObjData(&pContext->texture.proxy2D, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.proxy2D, pSSM);
     AssertRCReturn(rc, rc);
-    rc = crStateSaveTextureObjData(&pContext->texture.proxy3D, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.proxy3D, pSSM);
 #ifdef CR_ARB_texture_cube_map
-    rc = crStateSaveTextureObjData(&pContext->texture.baseCubeMap, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.baseCubeMap, pSSM);
     AssertRCReturn(rc, rc);
-    rc = crStateSaveTextureObjData(&pContext->texture.proxyCubeMap, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.proxyCubeMap, pSSM);
     AssertRCReturn(rc, rc);
 #endif
 #ifdef CR_NV_texture_rectangle
-    rc = crStateSaveTextureObjData(&pContext->texture.baseRect, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.baseRect, pSSM);
     AssertRCReturn(rc, rc);
-    rc = crStateSaveTextureObjData(&pContext->texture.proxyRect, pSSM);
+    rc = crStateSaveTextureObjData(pState, &pContext->texture.proxyRect, pSSM);
     AssertRCReturn(rc, rc);
 #endif
 
@@ -1560,7 +1594,7 @@ int32_t crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM)
         ui32 = crHashtableNumElements(pContext->shared->textureTable);
         rc = SSMR3PutU32(pSSM, ui32);
         AssertRCReturn(rc, rc);
-        crHashtableWalk(pContext->shared->textureTable, crStateSaveSharedTextureCB, pSSM);
+        crHashtableWalk(pContext->shared->textureTable, crStateSaveSharedTextureCB, &Args);
 
 #ifdef CR_STATE_NO_TEXTURE_IMAGE_STORE
         /* Restore previous texture bindings via diff_api */
@@ -1570,14 +1604,14 @@ int32_t crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM)
 
             pTexUnit = &pContext->texture.unit[pContext->texture.curTextureUnit];
 
-            diff_api.BindTexture(GL_TEXTURE_1D, pTexUnit->currentTexture1D->hwid);
-            diff_api.BindTexture(GL_TEXTURE_2D, pTexUnit->currentTexture2D->hwid);
-            diff_api.BindTexture(GL_TEXTURE_3D, pTexUnit->currentTexture3D->hwid);
+            pState->diff_api.BindTexture(GL_TEXTURE_1D, pTexUnit->currentTexture1D->hwid);
+            pState->diff_api.BindTexture(GL_TEXTURE_2D, pTexUnit->currentTexture2D->hwid);
+            pState->diff_api.BindTexture(GL_TEXTURE_3D, pTexUnit->currentTexture3D->hwid);
 #ifdef CR_ARB_texture_cube_map
-            diff_api.BindTexture(GL_TEXTURE_CUBE_MAP_ARB, pTexUnit->currentTextureCubeMap->hwid);
+            pState->diff_api.BindTexture(GL_TEXTURE_CUBE_MAP_ARB, pTexUnit->currentTextureCubeMap->hwid);
 #endif
 #ifdef CR_NV_texture_rectangle
-            diff_api.BindTexture(GL_TEXTURE_RECTANGLE_NV, pTexUnit->currentTextureRect->hwid);
+            pState->diff_api.BindTexture(GL_TEXTURE_RECTANGLE_NV, pTexUnit->currentTextureRect->hwid);
 #endif
         }
 #endif
@@ -1664,16 +1698,16 @@ int32_t crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM)
     AssertRCReturn(rc, rc);
 
     /* Save default one*/
-    crStateSaveBufferObjectCB(0, pContext->bufferobject.nullBuffer, pSSM);
+    crStateSaveBufferObjectCB(0, pContext->bufferobject.nullBuffer, &Args);
 
     if (bSaveShared)
     {
         /* Save all the rest */
-        crHashtableWalk(pContext->shared->buffersTable, crStateSaveBufferObjectCB, pSSM);
+        crHashtableWalk(pContext->shared->buffersTable, crStateSaveBufferObjectCB, &Args);
     }
 
     /* Restore binding */
-    diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, pContext->bufferobject.arrayBuffer->hwid);
+    pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, pContext->bufferobject.arrayBuffer->hwid);
 
     /* Save pointers */
     rc = SSMR3PutU32(pSSM, pContext->bufferobject.arrayBuffer->id);
@@ -1753,11 +1787,11 @@ int32_t crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM)
     ui32 = crHashtableNumElements(pContext->glsl.shaders);
     rc = SSMR3PutU32(pSSM, ui32);
     AssertRCReturn(rc, rc);
-    crHashtableWalk(pContext->glsl.shaders, crStateSaveGLSLShaderCB, pSSM);
+    crHashtableWalk(pContext->glsl.shaders, crStateSaveGLSLShaderCB, &Args);
     ui32 = crHashtableNumElements(pContext->glsl.programs);
     rc = SSMR3PutU32(pSSM, ui32);
     AssertRCReturn(rc, rc);
-    crHashtableWalk(pContext->glsl.programs, crStateSaveGLSLProgramCB, pSSM);
+    crHashtableWalk(pContext->glsl.programs, crStateSaveGLSLProgramCB, &Args);
     rc = SSMR3PutU32(pSSM, pContext->glsl.activeProgram?pContext->glsl.activeProgram->id:0);
     AssertRCReturn(rc, rc);
 #endif
@@ -1782,7 +1816,7 @@ static void crStateFindSharedCB(unsigned long key, void *data1, void *data2)
     }
 }
 
-int32_t crStateSaveGlobals(PSSMHANDLE pSSM)
+int32_t crStateSaveGlobals(PCRStateTracker pState, PSSMHANDLE pSSM)
 {
     /* don't need that for now */
 #if 0
@@ -1799,19 +1833,21 @@ int32_t crStateSaveGlobals(PSSMHANDLE pSSM)
         AssertRCReturn(rc, rc);
 #include "state_bits_globalop.h"
 #undef CRSTATE_BITS_OP
+#else
+    RT_NOREF(pState, pSSM);
 #endif
     return VINF_SUCCESS;
 }
 
-int32_t crStateLoadGlobals(PSSMHANDLE pSSM, uint32_t u32Version)
+int32_t crStateLoadGlobals(PCRStateTracker pState, PSSMHANDLE pSSM, uint32_t u32Version)
 {
     CRStateBits *pBits;
     int rc;
-    CRASSERT(g_cContexts >= 1);
-    if (g_cContexts <= 1)
+    CRASSERT(pState->cContexts >= 1);
+    if (pState->cContexts <= 1)
         return VINF_SUCCESS;
 
-    pBits = GetCurrentBits();
+    pBits = GetCurrentBits(pState);
 
     if (u32Version >= SHCROGL_SSM_VERSION_WITH_STATE_BITS)
     {
@@ -1865,6 +1901,7 @@ AssertCompile(RTASSERT_OFFSET_OF(CRContext, shared) >= VBOXTLSREFDATA_ASSERT_OFF
 
 int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRSTATE_CONTEXT_GET pfnCtxGet, PSSMHANDLE pSSM, uint32_t u32Version)
 {
+    PCRStateTracker pState = pContext->pStateTracker;
     CRContext* pTmpContext;
     int32_t rc, i, j;
     uint32_t uiNumElems, ui, k;
@@ -1879,6 +1916,8 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
     if (!pTmpContext)
         return VERR_NO_MEMORY;
 
+    pTmpContext->pStateTracker = pState;
+    pTmpContext->bufferobject.pStateTracker = pState;
     CRASSERT(VBoxTlsRefIsFunctional(pContext));
 
     if (u32Version <= SHCROGL_SSM_VERSION_WITH_INVALID_ERROR_STATE)
@@ -1997,6 +2036,9 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
         AssertRCReturn(rc, rc);
     }
 
+    pTmpContext->pStateTracker = pState; /* Set to a valid pointer again. */
+    pTmpContext->bufferobject.pStateTracker = pState;
+
     /* preserve the error to restore it at the end of context creation,
      * it should not normally change, but just in case it it changed */
     err = pTmpContext->error;
@@ -2026,7 +2068,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
         {
             CRASSERT(pContext->shared->refCount==1);
             bLoadShared = GL_FALSE;
-            crStateFreeShared(pContext, pContext->shared);
+            crStateFreeShared(pState, pContext, pContext->shared);
             pContext->shared = NULL;
             pTmpContext->shared->refCount++;
         }
@@ -2643,12 +2685,12 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
                 AssertRCReturn(rc, rc);
                 pProgram->pUniforms[k].name = crStateLoadString(pSSM);
 
-                if (crStateIsIntUniform(pProgram->pUniforms[k].type))
+                if (crStateIsIntUniform(pState, pProgram->pUniforms[k].type))
                 {
                     itemsize = sizeof(GLint);
                 } else itemsize = sizeof(GLfloat);
 
-                datasize = crStateGetUniformSize(pProgram->pUniforms[k].type)*itemsize;
+                datasize = crStateGetUniformSize(pState, pProgram->pUniforms[k].type)*itemsize;
                 pProgram->pUniforms[k].data = crAlloc((unsigned int /* this case is just so stupid */)datasize);
                 if (!pProgram->pUniforms[k].data) return VERR_NO_MEMORY;
 

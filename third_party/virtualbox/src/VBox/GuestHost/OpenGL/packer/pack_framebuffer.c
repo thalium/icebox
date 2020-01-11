@@ -54,18 +54,3 @@ crPackDeleteFramebuffersEXT(GLsizei n, const GLuint * framebuffers)
     crPackFree(data_ptr);
 }
 
-void PACK_APIENTRY
-crPackDeleteRenderbuffersEXTSWAP(GLsizei n, const GLuint * renderbuffers)
-{
-    (void) n;
-    (void) renderbuffers;
-    crError ("No swap version");
-}
-
-void PACK_APIENTRY
-crPackDeleteFramebuffersEXTSWAP(GLsizei n, const GLuint * framebuffers)
-{
-    (void) n;
-    (void) framebuffers;
-    crError ("No swap version");
-}

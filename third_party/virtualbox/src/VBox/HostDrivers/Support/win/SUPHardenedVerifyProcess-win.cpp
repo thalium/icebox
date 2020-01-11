@@ -488,7 +488,8 @@ static int supHardNtVpFileMemCompareSection(PSUPHNTVPSTATE pThis, PSUPHNTVPIMAGE
 
 #ifdef IN_RING3
             if (   pThis->enmKind == SUPHARDNTVPKIND_CHILD_PURIFICATION
-                || pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION)
+                || pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION
+                || pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED)
             {
                 PVOID pvRestoreAddr = (uint8_t *)pImage->uImageBase + uRva;
                 rcNt = supHardNtVpFileMemRestore(pThis, pvRestoreAddr, pbFile, cbThis, fCorrectProtection);
@@ -528,7 +529,8 @@ static int supHardNtVpCheckSectionProtection(PSUPHNTVPSTATE pThis, PSUPHNTVPIMAG
     if (!cb)
         return VINF_SUCCESS;
     if (   pThis->enmKind == SUPHARDNTVPKIND_CHILD_PURIFICATION
-        || pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION)
+        || pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION
+        || pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED)
         return VINF_SUCCESS;
 
     for (uint32_t i = 0; i < pImage->cRegions; i++)
@@ -869,7 +871,7 @@ static int supHardNtVpVerifyImageMemoryCompare(PSUPHNTVPSTATE pThis, PSUPHNTVPIM
      * Figure out areas we should skip during comparison.
      */
     uint32_t         cSkipAreas = 0;
-    SUPHNTVPSKIPAREA aSkipAreas[5];
+    SUPHNTVPSKIPAREA aSkipAreas[6];
     if (pImage->fNtCreateSectionPatch)
     {
         RTLDRADDR uValue;
@@ -894,6 +896,13 @@ static int supHardNtVpVerifyImageMemoryCompare(PSUPHNTVPSTATE pThis, PSUPHNTVPIM
         rc = RTLdrGetSymbolEx(pImage->pCacheEntry->hLdrMod, pbBits, 0, UINT32_MAX, "LdrInitializeThunk", &uValue);
         if (RT_FAILURE(rc))
             return supHardNtVpSetInfo2(pThis, rc, "%s: Failed to find 'LdrInitializeThunk': %Rrc", pImage->pszName, rc);
+        aSkipAreas[cSkipAreas].uRva = (uint32_t)uValue;
+        aSkipAreas[cSkipAreas++].cb = 14;
+
+        /* Ignore our patched KiUserApcDispatcher hack. */
+        rc = RTLdrGetSymbolEx(pImage->pCacheEntry->hLdrMod, pbBits, 0, UINT32_MAX, "KiUserApcDispatcher", &uValue);
+        if (RT_FAILURE(rc))
+            return supHardNtVpSetInfo2(pThis, rc, "%s: Failed to find 'KiUserApcDispatcher': %Rrc", pImage->pszName, rc);
         aSkipAreas[cSkipAreas].uRva = (uint32_t)uValue;
         aSkipAreas[cSkipAreas++].cb = 14;
 
@@ -1300,6 +1309,12 @@ static int supHardNtVpNewImage(PSUPHNTVPSTATE pThis, PSUPHNTVPIMAGE pImage, PMEM
             pThis->cFixes++;
             SUP_DPRINTF(("supHardNtVpScanVirtualMemory: NtUnmapViewOfSection(,%p) failed: %#x\n", pMemInfo->AllocationBase, rcNt));
         }
+        else if (pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED)
+        {
+            SUP_DPRINTF(("supHardNtVpScanVirtualMemory: Ignoring unknown mem at %p LB %#zx (base %p) - '%ls'\n",
+                         pMemInfo->BaseAddress, pMemInfo->RegionSize, pMemInfo->AllocationBase, pwszFilename));
+            return VINF_OBJECT_DESTROYED;
+        }
 #endif
         /*
          * Special error message if we can.
@@ -1468,12 +1483,12 @@ static bool supHardNtVpFreeOrReplacePrivateExecMemory(PSUPHNTVPSTATE pThis, HAND
 
     /*
      * In the BSOD workaround mode, we need to make a copy of the memory before
-     * freeing it.
+     * freeing it.  Bird abuses this code for logging purposes too.
      */
     uintptr_t   uCopySrc  = (uintptr_t)pvFree;
     size_t      cbCopy    = 0;
     void       *pvCopy    = NULL;
-    if (pThis->fFlags & SUPHARDNTVP_F_EXEC_ALLOC_REPLACE_WITH_RW)
+    //if (pThis->fFlags & SUPHARDNTVP_F_EXEC_ALLOC_REPLACE_WITH_RW)
     {
         cbCopy = cbFree;
         pvCopy = RTMemAllocZ(cbCopy);
@@ -1487,7 +1502,15 @@ static bool supHardNtVpFreeOrReplacePrivateExecMemory(PSUPHNTVPSTATE pThis, HAND
         if (!NT_SUCCESS(rcNt))
             supHardNtVpSetInfo2(pThis, VERR_SUP_VP_REPLACE_VIRTUAL_MEMORY_FAILED,
                                 "Error reading data from original alloc: %#x (%p LB %#zx)", rcNt, uCopySrc, cbCopy, rcNt);
-        supR3HardenedLogFlush();
+        for (size_t off = 0; off < cbCopy; off += 256)
+        {
+            size_t const cbChunk = RT_MIN(256, cbCopy - off);
+            void const  *pvChunk = (uint8_t const *)pvCopy + off;
+            if (!ASMMemIsZero(pvChunk, cbChunk))
+                SUP_DPRINTF(("%.*RhxD\n", cbChunk, pvChunk));
+        }
+        if (pThis->fFlags & SUPHARDNTVP_F_EXEC_ALLOC_REPLACE_WITH_RW)
+            supR3HardenedLogFlush();
     }
 
     /*
@@ -1811,7 +1834,7 @@ static int supHardNtVpScanVirtualMemory(PSUPHNTVPSTATE pThis, HANDLE hProcess)
                                         MemInfo.Type, MemInfo.AllocationBase, MemInfo.BaseAddress, MemInfo.RegionSize);
                 pThis->cFixes++;
             }
-            else
+            else if (pThis->enmKind != SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED)
 # endif /* IN_RING3 */
                 supHardNtVpSetInfo2(pThis, VERR_SUP_VP_FOUND_EXEC_MEMORY,
                                     "Found executable memory at %p (%p LB %#zx): type=%#x prot=%#x state=%#x aprot=%#x abase=%p",
@@ -2372,7 +2395,8 @@ static int supHardNtVpCheckDlls(PSUPHNTVPSTATE pThis)
     if (iNtDll == UINT32_MAX)
         return supHardNtVpSetInfo2(pThis, VERR_SUP_VP_NO_NTDLL_MAPPING,
                                    "The process has no NTDLL.DLL.");
-    if (iKernel32 == UINT32_MAX && pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION)
+    if (iKernel32 == UINT32_MAX && (   pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION
+                                    || pThis->enmKind == SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED))
         return supHardNtVpSetInfo2(pThis, VERR_SUP_VP_NO_KERNEL32_MAPPING,
                                    "The process has no KERNEL32.DLL.");
     else if (iKernel32 != UINT32_MAX && pThis->enmKind == SUPHARDNTVPKIND_CHILD_PURIFICATION)
@@ -2428,7 +2452,8 @@ DECLHIDDEN(int) supHardenedWinVerifyProcess(HANDLE hProcess, HANDLE hThread, SUP
      * allocate any state memory for these.
      */
     int rc = VINF_SUCCESS;
-    if (enmKind != SUPHARDNTVPKIND_CHILD_PURIFICATION)
+    if (   enmKind != SUPHARDNTVPKIND_CHILD_PURIFICATION
+        && enmKind != SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED)
        rc = supHardNtVpThread(hProcess, hThread, pErrInfo);
     if (RT_SUCCESS(rc))
         rc = supHardNtVpDebugger(hProcess, pErrInfo);

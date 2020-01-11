@@ -139,6 +139,13 @@ struct VBOXVR_SCR_COMPOSITOR_ENTRY;
 #define APIENTRY
 #endif
 
+/** For the pointer hack, bugref:9407. */
+#ifdef IN_GUEST
+# define CRVBOX_HOST_ONLY_PARAM(a_Stuff)
+#else
+# define CRVBOX_HOST_ONLY_PARAM(a_Stuff)    , a_Stuff
+#endif
+
 
 /**********************************************************************/
 /*****     Define things that might have been missing in gl.h     *****/

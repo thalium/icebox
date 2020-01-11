@@ -10,41 +10,41 @@
 
 
 
-void APIENTRY crStateGenFencesNV(GLsizei n, GLuint *fences)
+void APIENTRY crStateGenFencesNV(PCRStateTracker pState, GLsizei n, GLuint *fences)
 {
-    (void)n; (void)fences;
+    RT_NOREF(pState, n, fences);
 }
 
 
-void APIENTRY crStateDeleteFencesNV(GLsizei n, const GLuint *fences)
+void APIENTRY crStateDeleteFencesNV(PCRStateTracker pState, GLsizei n, const GLuint *fences)
 {
-    (void)n; (void)fences;
+    RT_NOREF(pState, n, fences);
 }
 
-void APIENTRY crStateSetFenceNV(GLuint fence, GLenum condition)
+void APIENTRY crStateSetFenceNV(PCRStateTracker pState, GLuint fence, GLenum condition)
 {
-    (void)fence; (void)condition;
+    RT_NOREF(pState, fence, condition);
 }
 
-GLboolean APIENTRY crStateTestFenceNV(GLuint fence)
+GLboolean APIENTRY crStateTestFenceNV(PCRStateTracker pState, GLuint fence)
 {
-    (void)fence;
+    RT_NOREF(pState, fence);
     return GL_FALSE;
 }
 
-void APIENTRY crStateFinishFenceNV(GLuint fence)
+void APIENTRY crStateFinishFenceNV(PCRStateTracker pState, GLuint fence)
 {
-    (void)fence;
+    RT_NOREF(pState, fence);
 }
 
-GLboolean APIENTRY crStateIsFenceNV(GLuint fence)
+GLboolean APIENTRY crStateIsFenceNV(PCRStateTracker pState, GLuint fence)
 {
-    (void)fence;
+    RT_NOREF(pState, fence);
     return GL_FALSE;
 }
 
-void APIENTRY crStateGetFenceivNV(GLuint fence, GLenum pname, GLint *params)
+void APIENTRY crStateGetFenceivNV(PCRStateTracker pState, GLuint fence, GLenum pname, GLint *params)
 {
-    (void)fence; (void)pname; (void)params;
+    RT_NOREF(pState, fence, pname, params);
 }
 

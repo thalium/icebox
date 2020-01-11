@@ -105,9 +105,6 @@ static int testLdrOne(const char *pszFilename)
         { NULL, NULL, (RTUINTPTR)0xefefef00, "foo" },
         { NULL, NULL, (RTUINTPTR)0x40404040, "bar" },
         { NULL, NULL, (RTUINTPTR)0xefefef00, "foobar" },
-        { NULL, NULL, (RTUINTPTR)0xefefef00, "kLdr-foo" },
-        { NULL, NULL, (RTUINTPTR)0x40404040, "kLdr-bar" },
-        { NULL, NULL, (RTUINTPTR)0xefefef00, "kLdr-foobar" }
     };
     unsigned i;
 
@@ -122,11 +119,7 @@ static int testLdrOne(const char *pszFilename)
         RTPrintf("tstLdr: Loading image at %RTptr\n", aLoads[i].Addr);
 
         /* open it */
-        int rc;
-        if (!strncmp(aLoads[i].pszName, RT_STR_TUPLE("kLdr-")))
-            rc = RTLdrOpenkLdr(pszFilename, 0, RTLDRARCH_WHATEVER, &aLoads[i].hLdrMod);
-        else
-            rc = RTLdrOpen(pszFilename, 0, RTLDRARCH_WHATEVER, &aLoads[i].hLdrMod);
+        int rc = RTLdrOpen(pszFilename, 0, RTLDRARCH_WHATEVER, &aLoads[i].hLdrMod);
         if (RT_FAILURE(rc))
         {
             RTPrintf("tstLdr: Failed to open '%s'/%d, rc=%Rrc. aborting test.\n", pszFilename, i, rc);

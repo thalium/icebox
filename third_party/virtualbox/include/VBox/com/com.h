@@ -35,19 +35,31 @@
 namespace com
 {
 
+/** @name VBOX_COM_INIT_F_XXX - flags for com::Initialize().
+ * @{ */
+/** Windows: Caller is the GUI and needs a STA rather than MTA apartment. */
+#define VBOX_COM_INIT_F_GUI             RT_BIT_32(0)
+/** Windows: Auto registration updating, if privileged enough. */
+#define VBOX_COM_INIT_F_AUTO_REG_UPDATE RT_BIT_32(1)
+/** Windows: Opt-out of COM patching (client code should do this). */
+#define VBOX_COM_INIT_F_NO_COM_PATCHING RT_BIT_32(2)
+/** The default flags. */
+#define VBOX_COM_INIT_F_DEFAULT         (VBOX_COM_INIT_F_AUTO_REG_UPDATE)
+/** @} */
+
 /**
  *  Initializes the COM runtime.
+ *
  *  Must be called on the main thread, before any COM activity in any thread, and by any thread
  *  willing to perform COM operations.
  *
- *  @param fGui             if call is performed on the GUI thread
- *  @param fAutoRegUpdate   if to do auto MS COM registration updates.
  *  @return COM result code
  */
-HRESULT Initialize(bool fGui = false, bool fAutoRegUpdate = true);
+HRESULT Initialize(uint32_t fInitFlags = VBOX_COM_INIT_F_DEFAULT);
 
 /**
  *  Shuts down the COM runtime.
+ *
  *  Must be called on the main thread before termination.
  *  No COM calls may be made in any thread after this method returns.
  */
@@ -55,6 +67,7 @@ HRESULT Shutdown();
 
 /**
  *  Resolves a given interface ID to a string containing the interface name.
+ *
  *  If, for some reason, the given IID cannot be resolved to a name, a NULL
  *  string is returned. A non-NULL string returned by this function must be
  *  freed using SysFreeString().
@@ -109,6 +122,10 @@ int VBoxLogRelCreate(const char *pcszEntity, const char *pcszLogFile,
                      uint32_t cMaxEntriesPerGroup, uint32_t cHistory,
                      uint32_t uHistoryFileTime, uint64_t uHistoryFileSize,
                      PRTERRINFO pErrInfo);
+
+#ifdef RT_OS_WINDOWS
+void PatchComBugs(void);
+#endif
 
 } /* namespace com */
 

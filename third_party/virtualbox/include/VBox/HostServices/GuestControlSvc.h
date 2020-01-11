@@ -186,6 +186,10 @@ enum eHostFn
      */
     HOST_FILE_TELL = 271,
     /**
+     * Changes the file size.
+     */
+    HOST_MSG_FILE_SET_SIZE,
+    /**
      * Removes a directory on the guest.
      */
     HOST_DIR_REMOVE = 320,
@@ -262,6 +266,37 @@ enum eGuestFn
      * Guest wants to close a specific guest session.
      */
     GUEST_SESSION_CLOSE = 21,
+    /** Report guest side feature flags and retrieve the host ones.
+     *
+     * VBoxService makes this call right after becoming master to indicate to the
+     * host what features it support in addition.  In return the host will return
+     * features the host supports.  Two 64-bit parameters are passed in from the
+     * guest with the guest features (VBOX_GUESTCTRL_GF_XXX), the host replies by
+     * replacing the parameter values with the host ones (VBOX_GUESTCTRL_HF_XXX).
+     *
+     * @retval  VINF_SUCCESS on success.
+     * @retval  VERR_ACCESS_DENIED it not master.
+     * @retval  VERR_INVALID_CLIENT_ID
+     * @retval  VERR_WRONG_PARAMETER_COUNT
+     * @retval  VERR_WRONG_PARAMETER_TYPE
+     * @since   6.0.10, 5.2.32
+     */
+    GUEST_MSG_REPORT_FEATURES,
+    /** Query the host ones feature masks.
+     *
+     * This is for the session sub-process so that it can get hold of the features
+     * from the host.  Again, it is prudent to set the 127 bit and observe it being
+     * cleared on success, as older hosts might return success without doing
+     * anything.
+     *
+     * @retval  VINF_SUCCESS on success.
+     * @retval  VERR_INVALID_CLIENT_ID
+     * @retval  VERR_WRONG_PARAMETER_COUNT
+     * @retval  VERR_WRONG_PARAMETER_TYPE
+     * @since   6.0.10, 5.2.32
+     */
+    GUEST_MSG_QUERY_FEATURES,
+
     /**
      * Guests sends output from an executed process.
      */
@@ -348,9 +383,12 @@ enum GUEST_FILE_NOTIFYTYPE
     GUEST_FILE_NOTIFYTYPE_OPEN = 10,
     GUEST_FILE_NOTIFYTYPE_CLOSE = 20,
     GUEST_FILE_NOTIFYTYPE_READ = 30,
+    GUEST_FILE_NOTIFYTYPE_READ_OFFSET,  /**< @since 6.0.10, 5.2.32 - VBOX_GUESTCTRL_HF_0_NOTIFY_RDWR_OFFSET */
     GUEST_FILE_NOTIFYTYPE_WRITE = 40,
+    GUEST_FILE_NOTIFYTYPE_WRITE_OFFSET, /**< @since 6.0.10, 5.2.32 - VBOX_GUESTCTRL_HF_0_NOTIFY_RDWR_OFFSET */
     GUEST_FILE_NOTIFYTYPE_SEEK = 50,
-    GUEST_FILE_NOTIFYTYPE_TELL = 60
+    GUEST_FILE_NOTIFYTYPE_TELL = 60,
+    GUEST_FILE_NOTIFYTYPE_SET_SIZE
 };
 
 /**
@@ -363,6 +401,25 @@ enum GUEST_FILE_SEEKTYPE
     GUEST_FILE_SEEKTYPE_CURRENT = 4,
     GUEST_FILE_SEEKTYPE_END = 8
 };
+
+/** @name VBOX_GUESTCTRL_GF_XXX - Guest features.
+ * @sa GUEST_MSG_REPORT_FEATURES
+ * @{ */
+/** Supports HOST_MSG_FILE_SET_SIZE. */
+#define VBOX_GUESTCTRL_GF_0_SET_SIZE     RT_BIT_64(0)
+/** Bit that must be set in the 2nd parameter, will be cleared if the host reponds
+ * correctly (old hosts might not). */
+#define VBOX_GUESTCTRL_GF_1_MUST_BE_ONE RT_BIT_64(63)
+/** @} */
+
+/** @name VBOX_GUESTCTRL_HF_XXX - Host features.
+ * @sa GUEST_MSG_REPORT_FEATURES
+ * @{ */
+/** Host supports the GUEST_FILE_NOTIFYTYPE_READ_OFFSET and
+ *  GUEST_FILE_NOTIFYTYPE_WRITE_OFFSET notification types. */
+#define VBOX_GUESTCTRL_HF_0_NOTIFY_RDWR_OFFSET      RT_BIT_64(0)
+/** @} */
+
 
 /*
  * HGCM parameter structures.
@@ -808,6 +865,21 @@ typedef struct HGCMMsgFileTell
     HGCMFunctionParameter handle;
 } HGCMMsgFileTell;
 
+/**
+ * Changes the file size.
+ */
+typedef struct HGCMMsgFileSetSize
+{
+    VBGLIOCHGCMCALL         Hdr;
+    /** Context ID. */
+    HGCMFunctionParameter   id32Context;
+    /** File handle to seek. */
+    HGCMFunctionParameter   id32Handle;
+    /** The new file size. */
+    HGCMFunctionParameter   cb64NewSize;
+} HGCMMsgFileSetSize;
+
+
 /******************************************************************************
 * HGCM replies from the guest. These are handled in Main's low-level HGCM     *
 * callbacks and dispatched to the appropriate guest object.                   *
@@ -837,9 +909,23 @@ typedef struct HGCMReplyFileNotify
         } read;
         struct
         {
+            /** Actual data read (if any). */
+            HGCMFunctionParameter pvData;
+            /** The new file offset (signed).  Negative value if non-seekable files. */
+            HGCMFunctionParameter off64New;
+        } ReadOffset;
+        struct
+        {
             /** How much data (in bytes) have been successfully written. */
             HGCMFunctionParameter written;
         } write;
+        struct
+        {
+            /** Number of bytes that was successfully written. */
+            HGCMFunctionParameter cb32Written;
+            /** The new file offset (signed).  Negative value if non-seekable files. */
+            HGCMFunctionParameter off64New;
+        } WriteOffset;
         struct
         {
             HGCMFunctionParameter offset;
@@ -848,6 +934,10 @@ typedef struct HGCMReplyFileNotify
         {
             HGCMFunctionParameter offset;
         } tell;
+        struct
+        {
+            HGCMFunctionParameter cb64Size;
+        } SetSize;
     } u;
 } HGCMReplyFileNotify;
 
@@ -1062,6 +1152,11 @@ typedef struct CALLBACKDATA_FILE_NOTIFY
             /** New file offset after successful tell. */
             uint64_t uOffActual;
         } tell;
+        struct
+        {
+            /** The new file siz.e */
+            uint64_t cbSize;
+        } SetSize;
     } u;
 } CALLBACKDATA_FILE_NOTIFY, *PCALLBACKDATA_FILE_NOTIFY;
 

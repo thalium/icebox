@@ -20,7 +20,8 @@ print("""
 #include "cr_spu.h"
 #include "cr_string.h"
 #include "cr_error.h"
-#include "cr_environment.h"
+
+#include <iprt/env.h>
 
 #include <stdio.h>
 #if defined(WINDOWS)
@@ -35,9 +36,6 @@ print("""
 #elif defined (DARWIN)
 #define SYSTEM_GL "libGL.dylib"
 #define SYSTEM_CGL "OpenGL"
-# ifndef VBOX_WITH_COCOA_QT
-#  define SYSTEM_AGL "AGL"
-# endif
 #include <string.h> /* VBOX */
 #elif defined(IRIX) || defined(IRIX64) || defined(Linux) || defined(FreeBSD) || defined(AIX) || defined(SunOS) || defined(OSF1)
 #include <string.h>
@@ -58,10 +56,6 @@ static CRDLL *glDll = NULL;
 #define SYSTEM_GL_LIB_DIR   "/System/Library/Frameworks/OpenGL.framework/Libraries"
 #define SYSTEM_CGL_DIR  "/System/Library/Frameworks/OpenGL.framework"
 static CRDLL *cglDll = NULL;
-# ifndef VBOX_WITH_COCOA_QT
-#  define SYSTEM_AGL_DIR  "/System/Library/Frameworks/AGL.framework"
-static CRDLL *aglDll = NULL;
-# endif
 #endif
 
 #if defined(WINDOWS)
@@ -262,11 +256,6 @@ crUnloadOpenGL( void )
 #ifdef DARWIN
 	crDLLClose( cglDll );
 	cglDll = NULL;
-
-# ifndef VBOX_WITH_COCOA_QT
-	crDLLClose( aglDll );
-	aglDll = NULL;
-# endif
 #endif
 }
 
@@ -293,12 +282,9 @@ print("""
 	SPUNamedFunctionTable *entry = table;
 	int i;
 
-	const char *env_syspath = crGetenv( "CR_SYSTEM_GL_PATH" );
+	const char *env_syspath = RTEnvGet( "CR_SYSTEM_GL_PATH" );
 #ifdef DARWIN
-	const char *env_cgl_syspath = crGetenv( "CR_SYSTEM_CGL_PATH" );
-# ifndef VBOX_WITH_COCOA_QT
-	const char *env_agl_syspath = crGetenv( "CR_SYSTEM_AGL_PATH" );
-# endif
+	const char *env_cgl_syspath = RTEnvGet( "CR_SYSTEM_CGL_PATH" );
 #endif
 
 	crDebug( "Looking for the system's OpenGL library..." );
@@ -325,18 +311,6 @@ print("""
 	}
 
 	crDebug( "Found it in %s.", !env_cgl_syspath ? "default path" : env_cgl_syspath );
-
-# ifndef VBOX_WITH_COCOA_QT
-	crDebug( "Looking for the system's AGL library..." );
-	aglDll = __findSystemGL( env_agl_syspath, SYSTEM_AGL_DIR, SYSTEM_AGL );
-	if (!aglDll)
-	{
-		crError("Unable to find system AGL!");
-		return 0;
-	}
-
-	crDebug( "Found it in %s.", !env_agl_syspath ? "default path" : env_agl_syspath );
-# endif
 #endif
 """)
 
@@ -465,11 +439,6 @@ for fun in useful_wgl_functions:
 	print('\tinterface->%s = (%sFunc_t) crDLLGetNoError(glDll, "%s");' % (fun,fun,fun))
 
 print('#elif defined(DARWIN)')
-print('# ifndef VBOX_WITH_COCOA_QT')
-for fun in useful_agl_functions:
-	print('\tinterface->%s = (%sFunc_t) crDLLGetNoError(aglDll, "%s");' % (fun,fun,fun))
-print('# endif')
-
 for fun in useful_cgl_functions:
 	print('\tinterface->%s = (%sFunc_t) crDLLGetNoError(cglDll, "%s");' % (fun, fun,fun))
 
@@ -579,7 +548,7 @@ int crLoadOSMesa( OSMesaContext (**createContext)( GLenum format, OSMesaContext 
 {
 	static CRDLL *osMesaDll = NULL;
 
-	const char *env_syspath = crGetenv( "CR_SYSTEM_GL_PATH" );
+	const char *env_syspath = RTEnvGet( "CR_SYSTEM_GL_PATH" );
 
 	crDebug( "Looking for the system's OSMesa library..." );
 	osMesaDll = __findSystemLib( env_syspath, "libOSMesa.so" );

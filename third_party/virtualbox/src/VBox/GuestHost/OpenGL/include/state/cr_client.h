@@ -61,12 +61,18 @@ typedef struct {
     GLint stride;
     GLboolean enabled;
     GLboolean normalized; /* Added with GL_ARB_vertex_program */
+# ifndef IN_GUEST
+    GLboolean fRealPtr;   /**< @bugref{9407} */
+# endif
     int bytesPerIndex;
 #ifdef CR_ARB_vertex_buffer_object
     CRBufferObject *buffer;
 #endif
 #ifdef CR_EXT_compiled_vertex_array
     GLboolean locked;
+# ifndef IN_GUEST
+    GLboolean fPrevRealPtr; /**< @bugref{9407} */
+# endif
     unsigned char *prevPtr;
     GLint   prevStride;
 #endif
@@ -132,8 +138,8 @@ DECLEXPORT(void) crStateClientDestroyBits(CRClientBits *c);
 DECLEXPORT(void) crStateClientInit(struct CRContext *g);
 DECLEXPORT(void) crStateClientDestroy(struct CRContext *g);
 
-DECLEXPORT(GLboolean) crStateUseServerArrays(void);
-DECLEXPORT(GLboolean) crStateUseServerArrayElements(void);
+DECLEXPORT(GLboolean) crStateUseServerArrays(PCRStateTracker pState);
+DECLEXPORT(GLboolean) crStateUseServerArrayElements(PCRStateTracker pState);
 DECLEXPORT(CRClientPointer*) crStateGetClientPointerByIndex(int index, CRVertexArrays *array);
 
 #ifdef __cplusplus

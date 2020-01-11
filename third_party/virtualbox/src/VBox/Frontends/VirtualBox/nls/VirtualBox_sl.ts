@@ -13,7 +13,7 @@
         <location line="+11"/>
         <source>--</source>
         <comment>Native language country name (empty if this language is for all countries)</comment>
-        <translation></translation>
+        <translation type="unfinished">--</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -25,7 +25,7 @@
         <location line="+11"/>
         <source>--</source>
         <comment>Language country name, in English (empty if native country name is empty)</comment>
-        <translation></translation>
+        <translation type="unfinished">--</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -37,7 +37,7 @@
 <context>
     <name>QApplication</name>
     <message>
-        <location filename="../src/main.cpp" line="+446"/>
+        <location filename="../src/main.cpp" line="+449"/>
         <source>Executable &lt;b&gt;%1&lt;/b&gt; requires Qt %2.x, found Qt %3.</source>
         <translation>Izvedljiva datoteka &lt;b&gt;%1&lt;/b&gt; zahteva Qt %2.x, najden Qt %3.</translation>
     </message>
@@ -67,7 +67,17 @@
         <translation>Prepričajte se, da je bil modul jedra uspešno naložen.</translation>
     </message>
     <message>
-        <location line="+432"/>
+        <location line="-27"/>
+        <source>The VirtualBox Linux kernel driver is either not loaded or not set up correctly. Please try setting it up again by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.&lt;br/&gt;&lt;br/&gt;If your system has EFI Secure Boot enabled you may also need to sign the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before you can load them. Please see your Linux system&apos;s documentation for more information.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you are not mixing builds of VirtualBox from different sources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+441"/>
         <source>VirtualBox - Runtime Error</source>
         <translation>VirtualBox - napaka izvajanja</translation>
     </message>
@@ -92,12 +102,11 @@
         <translation>Moduli jedra VirtualBox se ne ujemajo s to različico VirtualBoxa.Namestitev VirtualBoxa očitno ni bila uspešna. Poizkusite ga popolnoma odstraniti in ponovno namestiti.</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you do not mix the OSE version and the PUEL version of VirtualBox.</source>
-        <translation>Moduli jedra VirtualBox se ne ujemajo s to različico VirtualBoxa. Namestitev VirtualBoxa očitno ni bila uspešna. Izvajanje&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;bo morda to popravilo. Prepričajte se, da ne mešate različic VirtualBoxa OSE in PUEL.</translation>
+        <translation type="vanished">Moduli jedra VirtualBox se ne ujemajo s to različico VirtualBoxa. Namestitev VirtualBoxa očitno ni bila uspešna. Izvajanje&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;bo morda to popravilo. Prepričajte se, da ne mešate različic VirtualBoxa OSE in PUEL.</translation>
     </message>
     <message>
-        <location line="-20"/>
+        <location line="-16"/>
         <source>This error means that the kernel driver was either not able to allocate enough memory or that some mapping operation failed.</source>
         <translation>Ta napaka pomeni, da gonilnik jedra ni mogel dodeliti dovolj pomnilnka ali je neko opravilo preslikave spodletelo.</translation>
     </message>
@@ -106,9 +115,8 @@
         <translation type="obsolete">Gonilnik jedra Linux VirtualBox (vboxdrv) ni naložen ali obstaja težava z dovoljenji za /dev/vboxdrv. Ponovno namestite modul jedra z izvajanjem &lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; s skrbniškimi dovoljenji. Če v vaši distribuciji ni na voljo, najprej namestite paket DKMS. Ta paket sledi spremembam jedra Linux in po potrebi ponovno kodno prevede modul jedra vboxdrv.</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.</source>
-        <translation>Gonilnik jedra Linux VirtualBox (vboxdrv) ni naložen ali pa obstaja težava z dovoljenji za /dev/vboxdrv. Ponovno namestite modul jedra z izvajanjem &lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; v skrbniškem načinu.</translation>
+        <translation type="vanished">Gonilnik jedra Linux VirtualBox (vboxdrv) ni naložen ali pa obstaja težava z dovoljenji za /dev/vboxdrv. Ponovno namestite modul jedra z izvajanjem &lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; v skrbniškem načinu.</translation>
     </message>
 </context>
 <context>
@@ -245,6 +253,18 @@
         <source>%1, %2: %3, %4: %5, %6: %7</source>
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text, col.4 name: col.4 text</comment>
         <translation>%1, %2: %3, %4: %5, %6: %7</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation type="obsolete">Poln</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="obsolete">Samo za branje</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="obsolete">Da</translation>
     </message>
 </context>
 <context>
@@ -417,6 +437,34 @@
         <translation>&amp;O VirtualBoxu …</translation>
     </message>
     <message>
+        <source>&amp;Find</source>
+        <translation type="obsolete">&amp;Poišči</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;Osveži</translation>
+    </message>
+    <message>
+        <source>&amp;Save...</source>
+        <translation type="obsolete">&amp;Shrani …</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation type="obsolete">Gost</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">Izbriši</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">Preimenuj</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="obsolete">Kopiraj</translation>
+    </message>
+    <message>
         <location filename="../src/runtime/UIActionPoolRuntime.cpp" line="-35"/>
         <source>Take Sn&amp;apshot...</source>
         <translation>&amp;Zajemi posnetek stanja …</translation>
@@ -459,6 +507,10 @@
         <translation>Prikaži okno Upravljalnika gostiteljskega omrežja</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="obsolete">Uvozi</translation>
+    </message>
+    <message>
         <location line="+27"/>
         <source>&amp;Import Appliance...</source>
         <translation>&amp;Uvozi namensko napravo …</translation>
@@ -467,6 +519,10 @@
         <location line="+1"/>
         <source>Import an appliance into VirtualBox</source>
         <translation>Uvozi namensko napravo v VirtulaBox</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="obsolete">Izvozi</translation>
     </message>
     <message>
         <location line="+27"/>
@@ -492,6 +548,10 @@
         <location line="+18"/>
         <source>&amp;Group</source>
         <translation>&amp;Skupina</translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation type="obsolete">&amp;Premakni …</translation>
     </message>
     <message>
         <location line="+361"/>
@@ -1211,6 +1271,142 @@
         <translation>Ustvari bližnjice datotek določila navideznega računalnika na namizju</translation>
     </message>
     <message>
+        <source>&amp;Take...</source>
+        <translation type="obsolete">&amp;Zajemi …</translation>
+    </message>
+    <message>
+        <source>Take a snapshot of the current virtual machine state</source>
+        <translation type="obsolete">Zajemi posnetek stanja trenutnega navideznega računalnika</translation>
+    </message>
+    <message>
+        <source>Take Snapshot (%1)</source>
+        <translation type="obsolete">Zajemi posnetek stanja (%1)</translation>
+    </message>
+    <message>
+        <source>Delete selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Izbriši izban posnetek stanja navideznega računalnika</translation>
+    </message>
+    <message>
+        <source>Delete Snapshot (%1)</source>
+        <translation type="obsolete">Izbriši posnetek stanja (%1)</translation>
+    </message>
+    <message>
+        <source>Restore selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Obnovi izbran posnetek stanja navideznega računalnika</translation>
+    </message>
+    <message>
+        <source>Restore Snapshot (%1)</source>
+        <translation type="obsolete">Obnovi posnetek stanja (%1)</translation>
+    </message>
+    <message>
+        <source>Open pane with the selected snapshot properties</source>
+        <translation type="obsolete">Odpri podokno z lastnostmi izbranega posnetka stanja</translation>
+    </message>
+    <message>
+        <source>Open Snapshot Properties (%1)</source>
+        <translation type="obsolete">Odpri lastnosti posnetka stanja (%1)</translation>
+    </message>
+    <message>
+        <source>&amp;Clone...</source>
+        <translation type="obsolete">&amp;Kloniraj …</translation>
+    </message>
+    <message>
+        <source>Clone Virtual Machine (%1)</source>
+        <translation type="obsolete">Kloniraj navidezni računalnik (%1)</translation>
+    </message>
+    <message>
+        <source>&amp;Medium</source>
+        <translation type="obsolete">&amp;Nosilec</translation>
+    </message>
+    <message>
+        <source>&amp;Copy...</source>
+        <translation type="obsolete">&amp;Kopiraj …</translation>
+    </message>
+    <message>
+        <source>Copy selected disk image file</source>
+        <translation type="obsolete">Kopiraj izbrano datoteko odtisa diska</translation>
+    </message>
+    <message>
+        <source>Copy Disk Image File (%1)</source>
+        <translation type="obsolete">Kopiraj datoteko odtisa diska (%1)</translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation type="obsolete">Premakni izbrano datoteko odtisa diska</translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation type="obsolete">Premakni datoteko odtisa diska (%1)</translation>
+    </message>
+    <message>
+        <source>Remove selected disk image file</source>
+        <translation type="obsolete">Odstrani izbrano datoteko odtisa diska</translation>
+    </message>
+    <message>
+        <source>Remove Disk Image File (%1)</source>
+        <translation type="obsolete">Odstrani datoteko odtisa diska (%1)</translation>
+    </message>
+    <message>
+        <source>Re&amp;lease...</source>
+        <translation type="obsolete">&amp;Sprosti …</translation>
+    </message>
+    <message>
+        <source>Release Disk Image File (%1)</source>
+        <translation type="obsolete">Sprosti datoteko odtisa diska (%1)</translation>
+    </message>
+    <message>
+        <source>Open pane with selected disk image file properties</source>
+        <translation type="obsolete">Odpri podokno z lastnostmi izbrane datoteke odtisa diska</translation>
+    </message>
+    <message>
+        <source>Open Disk Image File Properties (%1)</source>
+        <translation type="obsolete">Odpri lastosti datoteke odtisa diska (%1)</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Osveži seznam datotek odtisa diska</translation>
+    </message>
+    <message>
+        <source>Refresh Disk Image Files (%1)</source>
+        <translation type="obsolete">Osveži datoteke odtisa diska (%1)</translation>
+    </message>
+    <message>
+        <source>Create new host-only network</source>
+        <translation type="obsolete">Ustvari novo gostiteljsko omrežje</translation>
+    </message>
+    <message>
+        <source>Create Host-only Network (%1)</source>
+        <translation type="obsolete">Ustvari gostiteljsko omrežje (%1)</translation>
+    </message>
+    <message>
+        <source>Remove selected host-only network</source>
+        <translation type="obsolete">Odstrani izbrano gostiteljsko omrežje</translation>
+    </message>
+    <message>
+        <source>Remove Host-only Network (%1)</source>
+        <translation type="obsolete">Odstrani gostiteljsko omrežje (%1)</translation>
+    </message>
+    <message>
+        <source>Open pane with selected host-only network properties</source>
+        <translation type="obsolete">Odpri podokno z lastnostmi izbranega gostiteljskega omrežja</translation>
+    </message>
+    <message>
+        <source>Open Host-only Network Properties (%1)</source>
+        <translation type="obsolete">Odpri lastosti gostiteljskega omrežja (%1)</translation>
+    </message>
+    <message>
+        <source>Refresh the list of host-only networks</source>
+        <translation type="obsolete">Osveži seznam gostiteljskih omrežij</translation>
+    </message>
+    <message>
+        <source>Refresh Host-only Networks (%1)</source>
+        <translation type="obsolete">Osveži gostiteljska omrežja (%1)</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Odstrani</translation>
+    </message>
+    <message>
         <location line="+24"/>
         <source>Sort group of first selected virtual machine alphabetically</source>
         <translation>Razvrsti skupino prvo izbranega navideznega računalnika po abecedi</translation>
@@ -1356,6 +1552,10 @@
         <location line="+1767"/>
         <source>Disable Dock Icon Overlay</source>
         <translation>Onemogoči prekrivnost ikone Docka</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation type="obsolete">Nastavitve</translation>
     </message>
 </context>
 <context>
@@ -1671,11 +1871,566 @@
     </message>
 </context>
 <context>
+    <name>UIChooserItemGroup</name>
+    <message>
+        <source>Virtual Machine group</source>
+        <translation type="obsolete">Skupina navideznih računalnikov</translation>
+    </message>
+    <message>
+        <source>Enter group</source>
+        <translation type="obsolete">Vstopi v skupino</translation>
+    </message>
+    <message>
+        <source>Exit group</source>
+        <translation type="obsolete">Izhod iz skupine</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt;</source>
+        <comment>Group item tool-tip / Group name</comment>
+        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n group(s)</source>
+        <comment>Group item tool-tip / Group info</comment>
+        <translation type="obsolete">
+            <numerusform>%n skupina</numerusform>
+            <numerusform>%n skupini</numerusform>
+            <numerusform>%n skupine</numerusform>
+            <numerusform>%n skupin</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Group info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n machine(s)</source>
+        <comment>Group item tool-tip / Machine info</comment>
+        <translation type="obsolete">
+            <numerusform>%n računalnik</numerusform>
+            <numerusform>%n računalnika</numerusform>
+            <numerusform>%n računalniki</numerusform>
+            <numerusform>%n računalnikov</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n running)</source>
+        <comment>Group item tool-tip / Running machine info</comment>
+        <translation type="obsolete">
+            <numerusform>(%n v izvajanju)</numerusform>
+            <numerusform>(%n v izvajanju)</numerusform>
+            <numerusform>(%n v izvajanju)</numerusform>
+            <numerusform>(%n v izvajanju)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1 %2&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper, including running</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1 %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>Collapse group</source>
+        <translation type="obsolete">Strni skupino</translation>
+    </message>
+    <message>
+        <source>Expand group</source>
+        <translation type="obsolete">Razširi skupino</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserItemMachine</name>
+    <message>
+        <source>Virtual Machine</source>
+        <translation type="obsolete">Navidezni računalnik</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserModel</name>
+    <message>
+        <source>New group</source>
+        <translation type="obsolete">Nova skupina</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserView</name>
+    <message>
+        <source>Contains a tree of Virtual Machines and their groups</source>
+        <translation type="obsolete">Vsebuje drevo navideznih računalnikov in njihove skupine</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileDetailsWidget</name>
+    <message>
+        <source>Reset Changes (%1)</source>
+        <translation type="obsolete">Ponastavi spremembe (%1)</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="obsolete">Uveljavi</translation>
+    </message>
+    <message>
+        <source>Apply Changes (%1)</source>
+        <translation type="obsolete">Uveljavi spremembe (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileManager</name>
+    <message>
+        <source>Apply</source>
+        <translation type="obsolete">Uveljavi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zapri</translation>
+    </message>
+    <message>
+        <source>Close dialog without saving</source>
+        <translation type="obsolete">Zapri pogovorno okno brez shranjevanja</translation>
+    </message>
+    <message>
+        <source>Reset Changes (%1)</source>
+        <translation type="obsolete">Ponastavi spremembe (%1)</translation>
+    </message>
+    <message>
+        <source>Apply Changes (%1)</source>
+        <translation type="obsolete">Uveljavi spremembe (%1)</translation>
+    </message>
+    <message>
+        <source>Close Window (%1)</source>
+        <translation type="obsolete">Zapri okno (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UICustomFileSystemModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Ime</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="obsolete">Pot</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetails</name>
+    <message>
+        <source>Name</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Ime</translation>
+    </message>
+    <message>
+        <source>Operating System</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Operacijski sistem</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Skupine</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1 MB</translation>
+    </message>
+    <message>
+        <source>Base Memory</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Osnovni pomnilnik</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Procesorji</translation>
+    </message>
+    <message>
+        <source>%1%</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1%</translation>
+    </message>
+    <message>
+        <source>Execution Cap</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Omejitev izvajanja</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Vrstni red zagona</translation>
+    </message>
+    <message>
+        <source>Chipset Type</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Vrsta veznega nabora</translation>
+    </message>
+    <message>
+        <source>EFI</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">EFI</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Pospeševanje</translation>
+    </message>
+    <message>
+        <source>Video Memory</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Grafični pomnilnik</translation>
+    </message>
+    <message>
+        <source>Screens</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Zasloni</translation>
+    </message>
+    <message>
+        <source>Scale-factor</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Faktor umerjanja</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Pospeševanje</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server Port</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">Vrata strežnika oddaljenega namizja</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">Strežnik oddaljenega namizja</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/vrde/VRDE server)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/recording)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">Ni priklopljen</translation>
+    </message>
+    <message>
+        <source>Host Driver</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Gonilnik gostitelja</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Krmilnik</translation>
+    </message>
+    <message>
+        <source>Audio Output</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Zvočni izhod</translation>
+    </message>
+    <message>
+        <source>Audio Input</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Zvočni vhod</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Vmesnik %1</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (network/adapter)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Port %1</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">Vrata %1</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>USB Controller</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">Krmilnik USB</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">Filtri naprav</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Shared Folders</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">Deljene mape</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">Brez</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (system/EFI)</comment>
+        <translation type="obsolete">Omogočeno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (system/EFI)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>VT-x/AMD-V</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">VT-x/AMD-V</translation>
+    </message>
+    <message>
+        <source>Nested Paging</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Ugnezdeno odstranjevanje</translation>
+    </message>
+    <message>
+        <source>PAE/NX</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">PAE/NX</translation>
+    </message>
+    <message>
+        <source>Minimal Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Najmanjša paranavideznost</translation>
+    </message>
+    <message>
+        <source>Hyper-V Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Paranavideznost Hyper-V</translation>
+    </message>
+    <message>
+        <source>KVM Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Paranavideznost KVM</translation>
+    </message>
+    <message>
+        <source>2D Video</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Grafika 2D</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">3D</translation>
+    </message>
+    <message>
+        <source>Frame Size: %1x%2, Frame Rate: %3fps, Bit Rate: %4kbps</source>
+        <translation type="obsolete">Velikost sličic: %1x%2, hitrost sličic: %3 sl./s, bitna hitrost: %4 kb/s</translation>
+    </message>
+    <message>
+        <source>[Optical Drive]</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">[optični pogon]</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/output)</comment>
+        <translation type="obsolete">Omogočeno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio/output)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/input)</comment>
+        <translation type="obsolete">Omogočeno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio/input)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Bridged Adapter, %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Povezan vmesnik, %1</translation>
+    </message>
+    <message>
+        <source>Internal Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Notranje omrežje, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Host-only Adapter, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Gostiteljski vmesnik, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Splošni gonilnik, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos; { %2 }</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Splošni gonilnik, &apos;%1&apos; {%2}</translation>
+    </message>
+    <message>
+        <source>NAT Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Omrežje NAT, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>%1 (%2 active)</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">%1 (%2 dejavnih)</translation>
+    </message>
+    <message>
+        <source>Information Inaccessible</source>
+        <comment>details</comment>
+        <translation type="obsolete">Podatki niso dostopni</translation>
+    </message>
+    <message>
+        <source>USB Controller Inaccessible</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">Krmilnik USB ni dostopen</translation>
+    </message>
+    <message>
+        <source>Menu-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Menijska vrstica</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/menu-bar)</comment>
+        <translation type="obsolete">Omogočeno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/menu-bar)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Status-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Vrstica stanja</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/status-bar)</comment>
+        <translation type="obsolete">Omogočeno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/status-bar)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar Position</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Položaj mini orodne vrstice</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Zgoraj</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Spodaj</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Mini orodna vrstica</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/mini-toolbar)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (description)</comment>
+        <translation type="obsolete">Brez</translation>
+    </message>
+    <message>
+        <source>Video Capture File</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Datoteka zajema videoposnetka</translation>
+    </message>
+    <message>
+        <source>Video Capture Attributes</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Lastnosti zajema videoposnetka</translation>
+    </message>
+    <message>
+        <source>Video Capture</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Zajem videoposnetka</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetailsElement</name>
+    <message>
+        <source>%1 details</source>
+        <comment>like &apos;General details&apos; or &apos;Storage details&apos;</comment>
+        <translation type="obsolete">Podrobnosti - %1</translation>
+    </message>
+</context>
+<context>
     <name>UIDetailsPagePrivate</name>
     <message>
         <location filename="../src/selector/UIDesktopPane.cpp" line="+593"/>
         <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
         <translation>Izbran navidezni računalnk je &lt;i&gt;nedostopen&lt;/i&gt;. Preglejte spodnje  sporočilo napake in pritisnite gumb &lt;b&gt;Osveži&lt;/b&gt;, če želite ponoviti preverjanje dostopnosti:</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetailsSet</name>
+    <message>
+        <source>Contains the details of virtual machine &apos;%1&apos;</source>
+        <translation type="obsolete">Vsebuje podatke navideznega računalnika &apos;%1&apos;</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetailsView</name>
+    <message>
+        <source>Contains a list of Virtual Machine details</source>
+        <translation type="obsolete">Vsebuje seznam podrobnosti navideznega računalnika</translation>
     </message>
 </context>
 <context>
@@ -1757,6 +2512,13 @@
     </message>
 </context>
 <context>
+    <name>UIErrorPane</name>
+    <message>
+        <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
+        <translation type="obsolete">Izbran navidezni računalnk je &lt;i&gt;nedostopen&lt;/i&gt;. Preglejte spodnje  sporočilo napake in pritisnite gumb &lt;b&gt;Osveži&lt;/b&gt;, če želite ponoviti preverjanje dostopnosti:</translation>
+    </message>
+</context>
+<context>
     <name>UIErrorString</name>
     <message>
         <location filename="../src/globals/UIErrorString.cpp" line="+126"/>
@@ -1803,6 +2565,56 @@
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
         <translation>%1, %2: %3</translation>
+    </message>
+</context>
+<context>
+    <name>UIFDCreationDialog</name>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Velikost:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zapri</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Prekliči</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Premor</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Geslo</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Ime</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
     </message>
 </context>
 <context>
@@ -2546,6 +3358,11 @@
         <comment>details (network)</comment>
         <translation>Splošni gonilnik, &apos;%1&apos; {%2}</translation>
     </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/recording)</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
 </context>
 <context>
     <name>UIGDetailsElement</name>
@@ -2666,6 +3483,10 @@
         <translation>Okna računalnika:</translation>
     </message>
     <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">Nadzira faktor umerjanja zaslona gosta.</translation>
+    </message>
+    <message>
         <location line="+19"/>
         <source>&amp;Raise Window Under Mouse</source>
         <translation>P&amp;ovišaj okno pod miško</translation>
@@ -2679,6 +3500,10 @@
         <location line="+26"/>
         <source>Holds the maximum height which we would like the guest to use.</source>
         <translation>Vsebuje največjo višino, katero želimo, da bi uporabil gost.</translation>
+    </message>
+    <message>
+        <source>Scale Factor:</source>
+        <translation type="obsolete">Faktor umerjanja:</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -3532,6 +4357,40 @@
     </message>
 </context>
 <context>
+    <name>UIGuestControlFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zapri</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Geslo</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Ime</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Prekliči</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Premor</translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestProcessControlWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zapri</translation>
+    </message>
+</context>
+<context>
     <name>UIHelpButton</name>
     <message>
         <location filename="../src/widgets/UISpecialControls.cpp" line="+180"/>
@@ -3566,7 +4425,7 @@
         <translation>Desni %1</translation>
     </message>
     <message>
-        <location line="+232"/>
+        <location line="+233"/>
         <source>Left Shift</source>
         <translation>Levi Shift</translation>
     </message>
@@ -4031,6 +4890,14 @@
         <translation>Naslov/Maska IPv6</translation>
     </message>
     <message>
+        <source>Adding network...</source>
+        <translation type="obsolete">Dodajanje omrežja …</translation>
+    </message>
+    <message>
+        <source>Removing network...</source>
+        <translation type="obsolete">Odstranjevanje omrežja …</translation>
+    </message>
+    <message>
         <location line="+827"/>
         <source>Host Network Manager</source>
         <translation>Upravljalnik gostiteljskega omrežja</translation>
@@ -4123,6 +4990,11 @@
         <location line="+1"/>
         <source>Shortcut</source>
         <translation>Bližnjica</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <comment>scope: description</comment>
+        <translation type="obsolete">%1: %2</translation>
     </message>
 </context>
 <context>
@@ -4905,7 +5777,159 @@
     </message>
 </context>
 <context>
+    <name>UIItemHostNetwork</name>
+    <message>
+        <source>Enable</source>
+        <comment>DHCP Server</comment>
+        <translation type="obsolete">Omogoči</translation>
+    </message>
+    <message>
+        <source>Adapter</source>
+        <translation type="obsolete">Vmesnik</translation>
+    </message>
+    <message>
+        <source>Automatically configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">Samodejno nastavljeno</translation>
+    </message>
+    <message>
+        <source>Manually configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">Ročno nastavljeno</translation>
+    </message>
+    <message>
+        <source>IPv4 Address</source>
+        <translation type="obsolete">Naslov IPv4</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>address</comment>
+        <translation type="obsolete">Ni nastavljeno</translation>
+    </message>
+    <message>
+        <source>IPv4 Network Mask</source>
+        <translation type="obsolete">Maska omrežja IPv4</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>mask</comment>
+        <translation type="obsolete">Ni nastavljeno</translation>
+    </message>
+    <message>
+        <source>IPv6 Address</source>
+        <translation type="obsolete">Naslov IPv6</translation>
+    </message>
+    <message>
+        <source>IPv6 Prefix Length</source>
+        <translation type="obsolete">Dolžina predpone IPv6</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>length</comment>
+        <translation type="obsolete">Ni nastavljeno</translation>
+    </message>
+    <message>
+        <source>DHCP Server</source>
+        <translation type="obsolete">Strežnik DHCP</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>server</comment>
+        <translation type="obsolete">Omogočeno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>server</comment>
+        <translation type="obsolete">Onemogočeno</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="obsolete">Naslov</translation>
+    </message>
+    <message>
+        <source>Network Mask</source>
+        <translation type="obsolete">Maska omrežja</translation>
+    </message>
+    <message>
+        <source>Lower Bound</source>
+        <translation type="obsolete">Spodnja omejitev</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>bound</comment>
+        <translation type="obsolete">Ni nastavljeno</translation>
+    </message>
+    <message>
+        <source>Upper Bound</source>
+        <translation type="obsolete">Zgornja omejitev</translation>
+    </message>
+</context>
+<context>
     <name>UIItemNetworkNAT</name>
+    <message>
+        <source>Network Name</source>
+        <translation type="obsolete">Ime omrežja</translation>
+    </message>
+    <message>
+        <source>[empty]</source>
+        <translation type="obsolete">[prazno]</translation>
+    </message>
+    <message>
+        <source>%1 (renamed from %2)</source>
+        <translation type="obsolete">%1 (preimenovano iz %2)</translation>
+    </message>
+    <message>
+        <source>Old Network Name</source>
+        <translation type="obsolete">Staro ime omrežja</translation>
+    </message>
+    <message>
+        <source>New Network Name</source>
+        <translation type="obsolete">Novo ime omrežja</translation>
+    </message>
+    <message>
+        <source>Network CIDR</source>
+        <translation type="obsolete">CIDR omrežja</translation>
+    </message>
+    <message>
+        <source>Supports DHCP</source>
+        <translation type="obsolete">Podpira DHCP</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation type="obsolete">Da</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation type="obsolete">Ne</translation>
+    </message>
+    <message>
+        <source>Supports IPv6</source>
+        <translation type="obsolete">Podpira IPv6</translation>
+    </message>
+    <message>
+        <source>Default IPv6 route</source>
+        <translation type="obsolete">Privzeta pot OPv6</translation>
+    </message>
+    <message>
+        <source>No new name specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Za omrežje NAT s prejšnjim imenom &lt;b&gt;%1&lt;/b&gt; ni navedenega novega imena.</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Za omrežje NAT &lt;b&gt;%1&lt;/b&gt; ni navedenega CIDR-a.</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Za omrežje NAT s prejšnjim menom &lt;b&gt;%1&lt;/b&gt;  ni navedenega CIDR-a.</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">Za omrežje NAT &lt;b&gt;%2&lt;/b&gt;  ni navedenega CIDR-a (&lt;i&gt;%1&lt;/i&gt;).</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network previously called &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">Za omrežje NAT s prejšnjim imenom &lt;b&gt;%2&lt;/b&gt; ni navedenega CIDR-a (&lt;i&gt;%1&lt;/i&gt;).</translation>
+    </message>
     <message>
         <location filename="../src/settings/global/UIGlobalSettingsNetwork.cpp" line="-155"/>
         <source>%1, %2</source>
@@ -4917,6 +5941,29 @@
         <source>%1</source>
         <comment>col.2 text</comment>
         <translation>%1</translation>
+    </message>
+</context>
+<context>
+    <name>UILanguageItem</name>
+    <message>
+        <source> (built-in)</source>
+        <comment>Language</comment>
+        <translation type="obsolete">(vgrajeno)</translation>
+    </message>
+    <message>
+        <source>&lt;unavailable&gt;</source>
+        <comment>Language</comment>
+        <translation type="obsolete">&lt;ni na voljo&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>Author(s)</comment>
+        <translation type="obsolete">&lt;neznano&gt;</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <comment>Language</comment>
+        <translation type="obsolete">Privzeto</translation>
     </message>
 </context>
 <context>
@@ -4933,6 +5980,37 @@
         <location filename="../src/runtime/UIMachineLogic.cpp" line="-766"/>
         <source>Select a filename for the screenshot ...</source>
         <translation>Izberite ime datoteke za zaslonsko sliko …</translation>
+    </message>
+</context>
+<context>
+    <name>UIMachinePreview</name>
+    <message>
+        <source>No preview</source>
+        <translation type="obsolete">Ni predogleda</translation>
+    </message>
+    <message>
+        <source>Update disabled</source>
+        <translation type="obsolete">Posodobitev onemogočena</translation>
+    </message>
+    <message>
+        <source>Every 0.5 s</source>
+        <translation type="obsolete">Vsakih 0,5 s</translation>
+    </message>
+    <message>
+        <source>Every 1 s</source>
+        <translation type="obsolete">Vsako 1 s</translation>
+    </message>
+    <message>
+        <source>Every 2 s</source>
+        <translation type="obsolete">Vsaki 2 s</translation>
+    </message>
+    <message>
+        <source>Every 5 s</source>
+        <translation type="obsolete">Vsakih 5 s</translation>
+    </message>
+    <message>
+        <source>Every 10 s</source>
+        <translation type="obsolete">Vsakih 10 s</translation>
     </message>
 </context>
 <context>
@@ -6450,7 +7528,7 @@
     <message>
         <location filename="../src/settings/machine/UIMachineSettingsStorage.cpp" line="-547"/>
         <source>Add NVMe Controller</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7158,6 +8236,59 @@
     </message>
 </context>
 <context>
+    <name>UIMediumItem</name>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation type="obsolete">Trenutna pripona (*.%1)</translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation type="obsolete">Izberite mesto tega nosilca</translation>
+    </message>
+    <message>
+        <source>Moving medium...</source>
+        <translation type="obsolete">Premikanje nosilca …</translation>
+    </message>
+    <message>
+        <source>%1, %2: %3, %4: %5</source>
+        <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text</comment>
+        <translation type="obsolete">%1, %2: %3, %4: %5</translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation type="obsolete">Oblika:</translation>
+    </message>
+    <message>
+        <source>Storage details:</source>
+        <translation type="obsolete">Podrobnosti pomnilniške naprave:</translation>
+    </message>
+    <message>
+        <source>Attached to:</source>
+        <translation type="obsolete">Priklopljen v:</translation>
+    </message>
+    <message>
+        <source>UUID:</source>
+        <translation type="obsolete">UUID:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;Ni&amp;nbsp;priklopljen&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Encrypted&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;Ni&amp;nbsp;šifriran&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>--</source>
+        <comment>no info</comment>
+        <translation type="obsolete">--</translation>
+    </message>
+    <message>
+        <source>Removing medium...</source>
+        <translation type="obsolete">Odstranjevanje nosilca …</translation>
+    </message>
+</context>
+<context>
     <name>UIMediumManager</name>
     <message>
         <location filename="../src/medium/UIMediumManager.cpp" line="+902"/>
@@ -7420,6 +8551,61 @@
         <location filename="../src/medium/UIMediumManager.cpp" line="+3"/>
         <source>Choose the location of this medium</source>
         <translation>Izberite mesto tega nosilca</translation>
+    </message>
+    <message>
+        <source>&amp;Create</source>
+        <translation type="obsolete">&amp;Ustvari</translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Velikost:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIMediumSelector</name>
+    <message>
+        <source>&amp;Add...</source>
+        <translation type="obsolete">&amp;Dodaj …</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;Osveži</translation>
+    </message>
+    <message>
+        <source>Refresh Disk Image Files (%1)</source>
+        <translation type="obsolete">Osveži datoteke odtisa diska (%1)</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Osveži seznam datotek odtisa diska</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Ime</translation>
+    </message>
+    <message>
+        <source>Virtual Size</source>
+        <translation type="obsolete">Navidezna velikost</translation>
+    </message>
+    <message>
+        <source>Actual Size</source>
+        <translation type="obsolete">Dejanska velikost</translation>
     </message>
 </context>
 <context>
@@ -8661,6 +9847,10 @@
         <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
         <translation>Ustvarjanje pomnilniške naprave odtisa navideznega diska &lt;b&gt;%1&lt;/b&gt; je spodletelo.&lt;/nobr&gt;</translation>
     </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">Uvozi</translation>
+    </message>
     <message numerus="yes">
         <location line="+73"/>
         <source>&lt;p&gt;The %n following virtual machine(s) are currently in a saved state: &lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;&lt;p&gt;If you continue the runtime state of the exported machine(s) will be discarded. The other machine(s) will not be changed.&lt;/p&gt;</source>
@@ -9171,7 +10361,7 @@
 <context>
     <name>UINetworkReplyPrivate</name>
     <message>
-        <location filename="../src/net/UINetworkReply.cpp" line="+965"/>
+        <location filename="../src/net/UINetworkReply.cpp" line="+980"/>
         <source>Host not found</source>
         <translation>Gostitelj ni bil najden</translation>
     </message>
@@ -9235,7 +10425,7 @@
 <context>
     <name>UINetworkReplyPrivateThread</name>
     <message>
-        <location line="-581"/>
+        <location line="-596"/>
         <source>During proxy configuration</source>
         <translation>Med nastavitvijo posredniškega strežnika</translation>
     </message>
@@ -9377,6 +10567,13 @@
     </message>
 </context>
 <context>
+    <name>UIScaleFactorEditor</name>
+    <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">Nadzira faktor umerjanja zaslona gosta.</translation>
+    </message>
+</context>
+<context>
     <name>UIScreenshotViewer</name>
     <message>
         <location filename="../src/selector/UISnapshotDetailsWidget.cpp" line="-1402"/>
@@ -9397,7 +10594,7 @@
 <context>
     <name>UISelectorWindow</name>
     <message>
-        <location filename="../src/selector/UISelectorWindow.cpp" line="+188"/>
+        <location filename="../src/selector/UISelectorWindow.cpp" line="+190"/>
         <source>Show Toolbar</source>
         <translation>Prikaži orodno vrstico</translation>
     </message>
@@ -9412,7 +10609,7 @@
         <translation>Prikaži vrstico stanja</translation>
     </message>
     <message>
-        <location line="+373"/>
+        <location line="+377"/>
         <source>Select a virtual machine file</source>
         <translation>Izberite datoteko navideznega računalnika</translation>
     </message>
@@ -9719,6 +10916,58 @@
     </message>
 </context>
 <context>
+    <name>UISnapshotItem</name>
+    <message>
+        <source>Current State (changed)</source>
+        <comment>Current State (Modified)</comment>
+        <translation type="obsolete">Trenutno stanje (spremenjeno)</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <comment>Current State (Unmodified)</comment>
+        <translation type="obsolete">Trenutno stanje</translation>
+    </message>
+    <message>
+        <source>The current state is identical to the state stored in the current snapshot</source>
+        <translation type="obsolete">Trenutno stanje je enako stanju, shranjenemu v trenutnem posnetku</translation>
+    </message>
+    <message>
+        <source>%1 (%2 ago)</source>
+        <comment>date time (how long ago)</comment>
+        <translation type="obsolete">%1 (pred %2)</translation>
+    </message>
+    <message>
+        <source>%1 since %2</source>
+        <comment>Current State (time or date + time)</comment>
+        <translation type="obsolete">%1 od %2</translation>
+    </message>
+    <message>
+        <source>current</source>
+        <comment>snapshot</comment>
+        <translation type="obsolete">trenutno</translation>
+    </message>
+    <message>
+        <source>online</source>
+        <comment>snapshot</comment>
+        <translation type="obsolete">povezan</translation>
+    </message>
+    <message>
+        <source>offline</source>
+        <comment>snapshot</comment>
+        <translation type="obsolete">nepovezan</translation>
+    </message>
+    <message>
+        <source>Taken at %1</source>
+        <comment>Snapshot (time)</comment>
+        <translation type="obsolete">Zajeto ob %1</translation>
+    </message>
+    <message>
+        <source>Taken on %1</source>
+        <comment>Snapshot (date + time)</comment>
+        <translation type="obsolete">Zajeto %1</translation>
+    </message>
+</context>
+<context>
     <name>UISnapshotPane</name>
     <message>
         <location filename="../src/selector/UISnapshotPane.cpp" line="+278"/>
@@ -9965,6 +11214,17 @@
     </message>
 </context>
 <context>
+    <name>UIToolsModel</name>
+    <message>
+        <source>Network</source>
+        <translation type="obsolete">Omrežje</translation>
+    </message>
+    <message>
+        <source>Snapshots</source>
+        <translation type="obsolete">Posnetki stanja</translation>
+    </message>
+</context>
+<context>
     <name>UIToolsPaneGlobal</name>
     <message>
         <location filename="../src/selector/UIToolsPaneGlobal.cpp" line="+181"/>
@@ -10018,6 +11278,46 @@
         <source>%1</source>
         <comment>col.1 text</comment>
         <translation>%1</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ID prodajalca: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product ID: %2&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ID izdelka: %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Revision: %3&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Revizija: %3&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product: %4&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Izdelek: %4&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Manufacturer: %5&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Izdelovalec: %5&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Serial No.: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Serijska št.: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Port: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Vrata: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;State: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Stanje: %1&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
@@ -10401,6 +11701,75 @@
         <location line="+419"/>
         <source>Fil&amp;ter</source>
         <translation>&amp;Filter</translation>
+    </message>
+</context>
+<context>
+    <name>UIVMLogViewerWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Zapri</translation>
+    </message>
+    <message>
+        <source>Enter a search string here</source>
+        <translation type="obsolete">Sem vnesite iskalni niz</translation>
+    </message>
+    <message>
+        <source>C&amp;ase Sensitive</source>
+        <translation type="obsolete">&amp;Občutljivo na velikost črk</translation>
+    </message>
+    <message>
+        <source>String not found</source>
+        <translation type="obsolete">Niz ni bil najden</translation>
+    </message>
+    <message>
+        <source>Save VirtualBox Log As</source>
+        <translation type="obsolete">Shrani dnevnik VirtualBoxa kot</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No log files found. Press the &lt;b&gt;Refresh&lt;/b&gt; button to rescan the log folder &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</source>
+        <translation type="obsolete">&lt;p&gt;Nobene datoteke dnevnika ni bilo mogoče najti. Pritisnite gumb &lt;b&gt;Osveži&lt;/b&gt;, da ponovno preiščete mapo z dnevniki &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManager</name>
+    <message>
+        <source>Manager</source>
+        <comment>Note: main window title which is prepended by the product name.</comment>
+        <translation type="obsolete">Upravljalnik</translation>
+    </message>
+    <message>
+        <source>Select a virtual machine file</source>
+        <translation type="obsolete">Izberite datoteko navideznega računalnika</translation>
+    </message>
+    <message>
+        <source>Virtual machine files (%1)</source>
+        <translation type="obsolete">Datoteke navideznega računalnika (%1)</translation>
+    </message>
+    <message>
+        <source>Show Toolbar Text</source>
+        <translation type="obsolete">Prikaži besedilo orodnih vrstic</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManagerWidget</name>
+    <message>
+        <source>Show Toolbar Text</source>
+        <translation type="obsolete">Prikaži besedilo orodnih vrstic</translation>
+    </message>
+</context>
+<context>
+    <name>UIVisoCreator</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Ime</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Velikost</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Odstrani</translation>
     </message>
 </context>
 <context>
@@ -10805,6 +12174,10 @@
         <translation>Nastavitve namenske naprave</translation>
     </message>
     <message>
+        <source>Choose a file to export the virtual appliance to...</source>
+        <translation type="obsolete">Izberite datoteko, v katero želite izvoziti namensko napravo …</translation>
+    </message>
+    <message>
         <location line="+3"/>
         <source>Please choose where to create the virtual appliance. You can create it on your own computer, on the Sun Cloud service or on an S3 storage server.</source>
         <translation>Izberite mesto za ustvarjanje navideznega računalnika. Ustvarite ga lahko na svojem računalniku, storitvi Sun Cloud ali strežniku S3.</translation>
@@ -10832,7 +12205,7 @@
         <translation>p&amp;reprostem sistemu za shranjevanje (S3)</translation>
     </message>
     <message>
-        <location filename="../src/wizards/exportappliance/UIWizardExportAppPageBasic3.cpp" line="+342"/>
+        <location filename="../src/wizards/exportappliance/UIWizardExportAppPageBasic3.cpp" line="+346"/>
         <location filename="../src/wizards/exportappliance/UIWizardExportAppPageExpert.cpp" line="-8"/>
         <source>Appliance</source>
         <translation>Namenska naprava</translation>
@@ -12622,6 +13995,11 @@
         <translation>Obojesmerno</translation>
     </message>
     <message>
+        <source>None</source>
+        <comment>GraphicsControllerType</comment>
+        <translation type="obsolete">Brez</translation>
+    </message>
+    <message>
         <location line="+26"/>
         <source>Normal</source>
         <comment>MediumType</comment>
@@ -13110,6 +14488,11 @@
         <translation>Nedejavno</translation>
     </message>
     <message>
+        <source>Processors</source>
+        <comment>details report</comment>
+        <translation type="obsolete">Procesorji</translation>
+    </message>
+    <message>
         <location filename="../src/converter/UIConverterBackendCOM.cpp" line="-143"/>
         <source>Taking Snapshot</source>
         <comment>MachineState</comment>
@@ -13232,6 +14615,75 @@
         <source>NVMe Port %1</source>
         <comment>StorageSlot</comment>
         <translation>Vrata NVMe %1</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Ime</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation type="obsolete">Skupine</translation>
+    </message>
+    <message>
+        <source>RAM</source>
+        <translation type="obsolete">RAM</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <translation type="obsolete">Vrstni red zagona</translation>
+    </message>
+    <message>
+        <source>Chipset Type</source>
+        <translation type="obsolete">Vrsta veznega nabora</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <translation type="obsolete">Pospeševanje</translation>
+    </message>
+    <message>
+        <source>Hard Disks</source>
+        <translation type="obsolete">Trdi diski</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <translation type="obsolete">Krmilnik</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>network adapter</comment>
+        <translation type="obsolete">Ni priklopljen</translation>
+    </message>
+    <message>
+        <source>NAT</source>
+        <translation type="obsolete">NAT</translation>
+    </message>
+    <message>
+        <source>Internal Network</source>
+        <translation type="obsolete">Notranje omrežje</translation>
+    </message>
+    <message>
+        <source>Generic Driver</source>
+        <translation type="obsolete">Splošni gonilnik</translation>
+    </message>
+    <message>
+        <source>Host Pipe</source>
+        <translation type="obsolete">Cev gostitelja</translation>
+    </message>
+    <message>
+        <source>Host Device</source>
+        <translation type="obsolete">Gostiteljska naprava</translation>
+    </message>
+    <message>
+        <source>Raw File</source>
+        <translation type="obsolete">Surova datoteka</translation>
+    </message>
+    <message>
+        <source>TCP</source>
+        <translation type="obsolete">TCP</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <translation type="obsolete">Filtri naprav</translation>
     </message>
     <message>
         <location line="+1229"/>
@@ -13362,6 +14814,36 @@
         <translation>Zaporedna vrata</translation>
     </message>
     <message>
+        <source>VDI (VirtualBox Disk Image)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VDI (Odtis diska VirtualBox - angl. VirtualBox Disk Image)</translation>
+    </message>
+    <message>
+        <source>VMDK (Virtual Machine Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VMDK (disk navideznega računalnika - angl. Virtual Machine Disk)</translation>
+    </message>
+    <message>
+        <source>VHD (Virtual Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VHD (navidezni trdi disk - angl. Virtual Hard Disk)</translation>
+    </message>
+    <message>
+        <source>HDD (Parallels Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">HDD (vzporedni trdi disk - angl. Parallels Hard Disk)</translation>
+    </message>
+    <message>
+        <source>QED (QEMU enhanced disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QED (izboljšani disk QEMU - angl. QEMU enhanced disk)</translation>
+    </message>
+    <message>
+        <source>QCOW (QEMU Copy-On-Write)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QCOW (kopiranje ob pisanju QEMU - angl. QEMU Copy-On-Write)</translation>
+    </message>
+    <message>
         <source>Parallel ports</source>
         <comment>InformationElementType</comment>
         <translation type="vanished">Vzporedna vrata</translation>
@@ -13414,6 +14896,10 @@
         <source>Network statistics</source>
         <comment>InformationElementType</comment>
         <translation>Omrežna statistika</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <translation type="obsolete">Ni priklopljen</translation>
     </message>
 </context>
 <context>

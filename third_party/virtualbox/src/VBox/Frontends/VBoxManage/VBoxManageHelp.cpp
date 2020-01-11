@@ -516,6 +516,8 @@ void printUsage(USAGECATEGORY fCategory, uint32_t fSubCategory, PRTSTREAM pStrm)
                      "                            [--spec-ctrl on|off]\n"
                      "                            [--l1d-flush-on-sched on|off]\n"
                      "                            [--l1d-flush-on-vm-entry on|off]\n"
+                     "                            [--mds-clear-on-sched on|off]\n"
+                     "                            [--mds-clear-on-vm-entry on|off]\n"
                      "                            [--cpu-profile \"host|Intel 80[86|286|386]\"]\n"
                      "                            [--cpuid-portability-level <0..3>\n"
                      "                            [--cpuid-set <leaf[:subleaf]> <eax> <ebx> <ecx> <edx>]\n"
@@ -662,7 +664,8 @@ void printUsage(USAGECATEGORY fCategory, uint32_t fSubCategory, PRTSTREAM pStrm)
                      "                            [--audiocodec stac9700|ad1980|stac9221|sb16]\n"
                      "                            [--clipboard disabled|hosttoguest|guesttohost|\n"
                      "                                         bidirectional]\n"
-                     "                            [--draganddrop disabled|hosttoguest]\n");
+                     "                            [--draganddrop disabled|hosttoguest|guesttohost|\n"
+                     "                                         bidirectional]\n");
         RTStrmPrintf(pStrm,
                      "                            [--vrde on|off]\n"
                      "                            [--vrdeextpack default|<name>\n"
@@ -810,7 +813,8 @@ void printUsage(USAGECATEGORY fCategory, uint32_t fSubCategory, PRTSTREAM pStrm)
                      "                            audioout on|off |\n"
                      "                            clipboard disabled|hosttoguest|guesttohost|\n"
                      "                                      bidirectional |\n"
-                     "                            draganddrop disabled|hosttoguest |\n"
+                     "                            draganddrop disabled|hosttoguest|guesttohost|\n"
+                     "                                      bidirectional |\n"
                      "                            vrde on|off |\n"
                      "                            vrdeport <port> |\n"
                      "                            vrdeproperty <name=[value]> |\n"

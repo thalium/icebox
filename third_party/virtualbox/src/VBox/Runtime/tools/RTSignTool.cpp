@@ -45,6 +45,7 @@
 #ifndef RT_OS_WINDOWS
 # include <iprt/formats/pecoff.h>
 #endif
+#include <iprt/crypto/applecodesign.h>
 #include <iprt/crypto/digest.h>
 #include <iprt/crypto/x509.h>
 #include <iprt/crypto/pkcs7.h>
@@ -85,8 +86,6 @@ typedef struct SIGNTOOLPKCS7
     RTCRPKCS7CONTENTINFO        ContentInfo;
     /** Pointer to the decoded SignedData inside the ContentInfo member. */
     PRTCRPKCS7SIGNEDDATA        pSignedData;
-    /** Pointer to the indirect data content. */
-    PRTCRSPCINDIRECTDATACONTENT pIndData;
 
     /** Newly encoded raw signature.
      * @sa SignToolPkcs7_Encode()  */
@@ -142,9 +141,7 @@ static int HandleShowExeWorkerPkcs7Display(PSHOWEXEPKCS7 pThis, PRTCRPKCS7SIGNED
 static void SignToolPkcs7_Delete(PSIGNTOOLPKCS7 pThis)
 {
     RTCrPkcs7ContentInfo_Delete(&pThis->ContentInfo);
-    pThis->pIndData    = NULL;
     pThis->pSignedData = NULL;
-    pThis->pIndData    = NULL;
     RTMemFree(pThis->pbBuf);
     pThis->pbBuf       = NULL;
     pThis->cbBuf       = 0;
@@ -198,8 +195,8 @@ static int SignToolPkcs7_Decode(PSIGNTOOLPKCS7 pThis, bool fCatalog)
              */
             if (!strcmp(pThis->pSignedData->ContentInfo.ContentType.szObjId, RTCRSPCINDIRECTDATACONTENT_OID))
             {
-                pThis->pIndData = pThis->pSignedData->ContentInfo.u.pIndirectDataContent;
-                Assert(pThis->pIndData);
+                PRTCRSPCINDIRECTDATACONTENT pIndData = pThis->pSignedData->ContentInfo.u.pIndirectDataContent;
+                Assert(pIndData);
 
                 /*
                  * Check that things add up.
@@ -211,7 +208,7 @@ static int SignToolPkcs7_Decode(PSIGNTOOLPKCS7 pThis, bool fCatalog)
                                                      RTErrInfoInitStatic(&ErrInfo), "SD");
                 if (RT_SUCCESS(rc))
                 {
-                    rc = RTCrSpcIndirectDataContent_CheckSanityEx(pThis->pIndData,
+                    rc = RTCrSpcIndirectDataContent_CheckSanityEx(pIndData,
                                                                   pThis->pSignedData,
                                                                   RTCRSPCINDIRECTDATACONTENT_SANITY_F_ONLY_KNOWN_HASH,
                                                                   RTErrInfoInitStatic(&ErrInfo));
@@ -222,6 +219,8 @@ static int SignToolPkcs7_Decode(PSIGNTOOLPKCS7 pThis, bool fCatalog)
                 else
                     RTMsgError("PKCS#7 sanity check failed for '%s': %Rrc - %s\n", pThis->pszFilename, rc, ErrInfo.szMsg);
             }
+            else if (!strcmp(pThis->pSignedData->ContentInfo.ContentType.szObjId, RTCR_PKCS7_DATA_OID))
+            { /* apple code signing */ }
             else if (!fCatalog)
                 RTMsgError("Unexpected the signed content in '%s': %s (expected %s)", pThis->pszFilename,
                            pThis->pSignedData->ContentInfo.ContentType.szObjId, RTCRSPCINDIRECTDATACONTENT_OID);
@@ -628,6 +627,8 @@ static RTEXITCODE SignToolPkcs7Exe_InitFromFile(PSIGNTOOLPKCS7EXE pThis, const c
             {
                 if (cVerbosity > 2)
                     RTPrintf("PKCS#7 signature: %u bytes\n", cbActual);
+                if (cVerbosity > 3)
+                    RTPrintf("%.*Rhxd\n", cbActual, pvBuf);
 
                 /*
                  * Decode it.
@@ -1311,11 +1312,13 @@ static DECLCALLBACK(int) VerifyExecCertVerifyCallback(PCRTCRX509CERTIFICATE pCer
         && (fFlags & RTCRPKCS7VCC_F_SIGNED_DATA))
     {
         /*
-         * If kernel signing, a valid certificate path must be anchored by the
-         * microsoft kernel signing root certificate.  The only alternative is
-         * test signing.
+         * If windows kernel signing, a valid certificate path must be anchored
+         * by the microsoft kernel signing root certificate.  The only
+         * alternative is test signing.
          */
-        if (pState->fKernel && hCertPaths != NIL_RTCRX509CERTPATHS)
+        if (   pState->fKernel
+            && hCertPaths != NIL_RTCRX509CERTPATHS
+            && pState->enmSignType == VERIFYEXESTATE::kSignType_Windows)
         {
             uint32_t cFound = 0;
             uint32_t cValid = 0;
@@ -1361,6 +1364,38 @@ static DECLCALLBACK(int) VerifyExecCertVerifyCallback(PCRTCRX509CERTIFICATE pCer
             if (RT_SUCCESS(rc) && cValid != 2)
                 RTMsgWarning("%u valid paths, expected 2", cValid);
         }
+        /*
+         * For Mac OS X signing, check for special developer ID attributes.
+         */
+        else if (pState->enmSignType == VERIFYEXESTATE::kSignType_OSX)
+        {
+            uint32_t cDevIdApp  = 0;
+            uint32_t cDevIdKext = 0;
+            for (uint32_t i = 0; i < pCert->TbsCertificate.T3.Extensions.cItems; i++)
+            {
+                PCRTCRX509EXTENSION pExt = pCert->TbsCertificate.T3.Extensions.papItems[i];
+                if (RTAsn1ObjId_CompareWithString(&pExt->ExtnId, RTCR_APPLE_CS_DEVID_APPLICATION_OID) == 0)
+                {
+                    cDevIdApp++;
+                    if (!pExt->Critical.fValue)
+                        rc = RTErrInfoSetF(pErrInfo, VERR_GENERAL_FAILURE,
+                                           "Dev ID Application certificate extension is not flagged critical");
+                }
+                else if (RTAsn1ObjId_CompareWithString(&pExt->ExtnId, RTCR_APPLE_CS_DEVID_KEXT_OID) == 0)
+                {
+                    cDevIdKext++;
+                    if (!pExt->Critical.fValue)
+                        rc = RTErrInfoSetF(pErrInfo, VERR_GENERAL_FAILURE,
+                                           "Dev ID kext certificate extension is not flagged critical");
+                }
+            }
+            if (cDevIdApp == 0)
+                rc = RTErrInfoSetF(pErrInfo, VERR_GENERAL_FAILURE,
+                                   "Certificate is missing the 'Dev ID Application' extension");
+            if (cDevIdKext == 0 && pState->fKernel)
+                rc = RTErrInfoSetF(pErrInfo, VERR_GENERAL_FAILURE,
+                                   "Certificate is missing the 'Dev ID kext' extension");
+        }
     }
 
     return rc;
@@ -1370,6 +1405,7 @@ static DECLCALLBACK(int) VerifyExecCertVerifyCallback(PCRTCRX509CERTIFICATE pCer
 /** @callback_method_impl{FNRTLDRVALIDATESIGNEDDATA}  */
 static DECLCALLBACK(int) VerifyExeCallback(RTLDRMOD hLdrMod, RTLDRSIGNATURETYPE enmSignature,
                                            void const *pvSignature, size_t cbSignature,
+                                           void const *pvExternalData, size_t cbExternalData,
                                            PRTERRINFO pErrInfo, void *pvUser)
 {
     VERIFYEXESTATE *pState = (VERIFYEXESTATE *)pvUser;
@@ -1395,6 +1431,14 @@ static DECLCALLBACK(int) VerifyExeCallback(RTLDRMOD hLdrMod, RTLDRSIGNATURETYPE 
              * Do the actual verification.  Will have to modify this so it takes
              * the authenticode policies into account.
              */
+            if (pvExternalData)
+                return RTCrPkcs7VerifySignedDataWithExternalData(pContentInfo,
+                                                                 RTCRPKCS7VERIFY_SD_F_COUNTER_SIGNATURE_SIGNING_TIME_ONLY
+                                                                 | RTCRPKCS7VERIFY_SD_F_ALWAYS_USE_SIGNING_TIME_IF_PRESENT
+                                                                 | RTCRPKCS7VERIFY_SD_F_ALWAYS_USE_MS_TIMESTAMP_IF_PRESENT,
+                                                                 pState->hAdditionalStore, pState->hRootStore, &ValidationTime,
+                                                                 VerifyExecCertVerifyCallback, pState,
+                                                                 pvExternalData, cbExternalData, pErrInfo);
             return RTCrPkcs7VerifySignedData(pContentInfo,
                                              RTCRPKCS7VERIFY_SD_F_COUNTER_SIGNATURE_SIGNING_TIME_ONLY
                                              | RTCRPKCS7VERIFY_SD_F_ALWAYS_USE_SIGNING_TIME_IF_PRESENT
@@ -1408,7 +1452,9 @@ static DECLCALLBACK(int) VerifyExeCallback(RTLDRMOD hLdrMod, RTLDRSIGNATURETYPE 
     }
 }
 
-/** Worker for HandleVerifyExe. */
+/**
+ * Worker for HandleVerifyExe.
+ */
 static RTEXITCODE HandleVerifyExeWorker(VERIFYEXESTATE *pState, const char *pszFilename, PRTERRINFOSTATIC pStaticErrInfo)
 {
     /*
@@ -1420,15 +1466,22 @@ static RTEXITCODE HandleVerifyExeWorker(VERIFYEXESTATE *pState, const char *pszF
         return RTMsgErrorExit(RTEXITCODE_FAILURE, "Error opening executable image '%s': %Rrc", pszFilename, rc);
 
 
+    RTTIMESPEC Now;
+    bool       fTriedNow = false;
     rc = RTLdrQueryProp(hLdrMod, RTLDRPROP_TIMESTAMP_SECONDS, &pState->uTimestamp, sizeof(pState->uTimestamp));
+    if (rc == VERR_NOT_FOUND)
+    {
+        fTriedNow = true;
+        pState->uTimestamp = RTTimeSpecGetSeconds(RTTimeNow(&Now));
+        rc = VINF_SUCCESS;
+    }
     if (RT_SUCCESS(rc))
     {
         rc = RTLdrVerifySignature(hLdrMod, VerifyExeCallback, pState, RTErrInfoInitStatic(pStaticErrInfo));
         if (RT_SUCCESS(rc))
             RTMsgInfo("'%s' is valid.\n", pszFilename);
-        else if (rc == VERR_CR_X509_CPV_NOT_VALID_AT_TIME)
+        else if (rc == VERR_CR_X509_CPV_NOT_VALID_AT_TIME && !fTriedNow)
         {
-            RTTIMESPEC Now;
             pState->uTimestamp = RTTimeSpecGetSeconds(RTTimeNow(&Now));
             rc = RTLdrVerifySignature(hLdrMod, VerifyExeCallback, pState, RTErrInfoInitStatic(pStaticErrInfo));
             if (RT_SUCCESS(rc))
@@ -1529,15 +1582,12 @@ static RTEXITCODE HandleVerifyExe(int cArgs, char **papszArgs)
     /*
      * Populate the certificate stores according to the signing type.
      */
-#ifdef VBOX
+# ifdef VBOX
     unsigned          cSets = 0;
     struct STSTORESET aSets[6];
-#endif
-
     switch (State.enmSignType)
     {
         case VERIFYEXESTATE::kSignType_Windows:
-#ifdef VBOX
             aSets[cSets].hStore  = State.hRootStore;
             aSets[cSets].paTAs   = g_aSUPTimestampTAs;
             aSets[cSets].cTAs    = g_cSUPTimestampTAs;
@@ -1554,14 +1604,15 @@ static RTEXITCODE HandleVerifyExe(int cArgs, char **papszArgs)
             aSets[cSets].paTAs   = g_aSUPNtKernelRootTAs;
             aSets[cSets].cTAs    = g_cSUPNtKernelRootTAs;
             cSets++;
-#endif
             break;
 
         case VERIFYEXESTATE::kSignType_OSX:
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "Mac OS X executable signing is not implemented.");
+            aSets[cSets].hStore  = State.hRootStore;
+            aSets[cSets].paTAs   = g_aSUPAppleRootTAs;
+            aSets[cSets].cTAs    = g_cSUPAppleRootTAs;
+            cSets++;
+            break;
     }
-
-#ifdef VBOX
     for (unsigned i = 0; i < cSets; i++)
         for (unsigned j = 0; j < aSets[i].cTAs; j++)
         {
@@ -1571,7 +1622,7 @@ static RTEXITCODE HandleVerifyExe(int cArgs, char **papszArgs)
                 return RTMsgErrorExit(RTEXITCODE_FAILURE, "RTCrStoreCertAddEncoded failed (%u/%u): %s",
                                       i, j, StaticErrInfo.szMsg);
         }
-#endif
+# endif /* VBOX */
 
     /*
      * Do it.
@@ -1751,8 +1802,16 @@ static int HandleShowExeWorkerPkcs7DisplayAttrib(PSHOWEXEPKCS7 pThis, size_t off
 
         /* Signing time (PKCS \#9), use pSigningTime. */
         case RTCRPKCS7ATTRIBUTETYPE_SIGNING_TIME:
-            RTPrintf("%sTODO: RTCRPKCS7ATTRIBUTETYPE_SIGNING_TIME! %u bytes\n",
-                     pThis->szPrefix, pAttr->uValues.pSigningTime->SetCore.Asn1Core.cb);
+            for (uint32_t i = 0; i < pAttr->uValues.pSigningTime->cItems; i++)
+            {
+                PCRTASN1TIME pTime = pAttr->uValues.pSigningTime->papItems[i];
+                char szTS[RTTIME_STR_LEN];
+                RTTimeToString(&pTime->Time, szTS, sizeof(szTS));
+                if (pAttr->uValues.pSigningTime->cItems == 1)
+                    RTPrintf("%s %s (%.*s)\n", pThis->szPrefix, szTS, pTime->Asn1Core.cb, pTime->Asn1Core.uData.pch);
+                else
+                    RTPrintf("%s #%u: %s (%.*s)\n", pThis->szPrefix, i, szTS, pTime->Asn1Core.cb, pTime->Asn1Core.uData.pch);
+            }
             break;
 
         /* Microsoft timestamp info (RFC-3161) signed data, use pContentInfo. */
@@ -1778,6 +1837,49 @@ static int HandleShowExeWorkerPkcs7DisplayAttrib(PSHOWEXEPKCS7 pThis, size_t off
                                        pThis->szPrefix, pContentInfo->ContentType.szObjId);
                 if (RT_FAILURE(rc2) && RT_SUCCESS(rc))
                     rc = rc2;
+            }
+            break;
+
+        case RTCRPKCS7ATTRIBUTETYPE_APPLE_MULTI_CD_PLIST:
+            if (pAttr->uValues.pContentInfos->cItems != 1)
+                RTPrintf("%s%u plists, expected only 1.\n", pThis->szPrefix, pAttr->uValues.pOctetStrings->cItems);
+            for (unsigned i = 0; i < pAttr->uValues.pOctetStrings->cItems; i++)
+            {
+                PCRTASN1OCTETSTRING pOctetString = pAttr->uValues.pOctetStrings->papItems[i];
+                size_t              cbContent    = pOctetString->Asn1Core.cb;
+                char  const        *pchContent   = pOctetString->Asn1Core.uData.pch;
+                rc = RTStrValidateEncodingEx(pchContent, cbContent, RTSTR_VALIDATE_ENCODING_EXACT_LENGTH);
+                if (RT_SUCCESS(rc))
+                {
+                    while (cbContent > 0)
+                    {
+                        const char *pchNewLine = (const char *)memchr(pchContent, '\n', cbContent);
+                        size_t      cchToWrite = pchNewLine ? pchNewLine - pchContent : cbContent;
+                        if (pAttr->uValues.pOctetStrings->cItems == 1)
+                            RTPrintf("%s %.*s\n", pThis->szPrefix, cchToWrite, pchContent);
+                        else
+                            RTPrintf("%s plist[%u]: %.*s\n", pThis->szPrefix, i, cchToWrite, pchContent);
+                        if (!pchNewLine)
+                            break;
+                        pchContent = pchNewLine + 1;
+                        cbContent -= cchToWrite + 1;
+                    }
+                }
+                else
+                {
+                    if (pAttr->uValues.pContentInfos->cItems != 1)
+                        RTPrintf("%s: plist[%u]: Invalid UTF-8: %Rrc\n", pThis->szPrefix, i, rc);
+                    else
+                        RTPrintf("%s: Invalid UTF-8: %Rrc\n", pThis->szPrefix, rc);
+                    for (uint32_t off = 0; off < cbContent; off += 16)
+                    {
+                        size_t cbNow = RT_MIN(cbContent - off, 16);
+                        if (pAttr->uValues.pOctetStrings->cItems == 1)
+                            RTPrintf("%s %#06x: %.*Rhxs\n", pThis->szPrefix, off, cbNow, &pchContent[off]);
+                        else
+                            RTPrintf("%s plist[%u]: %#06x: %.*Rhxs\n", pThis->szPrefix, i, off, cbNow, &pchContent[off]);
+                    }
+                }
             }
             break;
 

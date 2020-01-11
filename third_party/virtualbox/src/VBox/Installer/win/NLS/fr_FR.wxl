@@ -69,8 +69,8 @@
 
     <!---->
 
-    <String Id="WelcomeDlg_Header">Bienvenue dans l'assistent d'installation de [ProductName]</String>
-    <String Id="WelcomeDlg_Body">Cet assistent installera [ProductName] sur votre ordinateur. Appuyez sur Suivant pour continuer ou sur Annuler pour abondonner l'installation.</String>
+    <String Id="WelcomeDlg_Header">Bienvenue dans l'assistant d'installation de [ProductName]</String>
+    <String Id="WelcomeDlg_Body">Cet assistant installera [ProductName] sur votre ordinateur. Appuyez sur Suivant pour continuer ou sur Annuler pour abondonner l'installation.</String>
 
     <!---->
 
@@ -158,21 +158,21 @@ This is default for newer versions of Windows (Vista and newer).</String>
 
     <!---->
 
-    <String Id="VerifyReadyDlg_ReadyToBegin">L'assistent est prêt à commencer l'installation [InstallMode].</String>
+    <String Id="VerifyReadyDlg_ReadyToBegin">L'assistant est prêt à commencer l'installation [InstallMode].</String>
     <String Id="VerifyReadyDlg_ClickInstall">Appuyez sur Installer pour commencer l'installation. Si vous désirez revoir ou modifier vos paramètres d'installation, appuyez sur Précédent. Appuyez sur Annuler pour abondoner l'installation.</String>
     <String Id="VerifyReadyDlg_ReadyToInstall">Prêt à installer</String>
 
     <!---->
 
-    <String Id="ExitDlg_ClickFinish">Veuillez appuyez sur Terminer pour quitter l'assistent d'installation.</String>
+    <String Id="ExitDlg_ClickFinish">Veuillez appuyez sur Terminer pour quitter l'assistant d'installation.</String>
     <String Id="ExitDlg_InstComplete">L'installation de [ProductName] est terminé.</String>
     <String Id="ExitDlg_StartVBox">Démarrer [ProductName] après l'installation</String>
 
     <!---->
 
-    <String Id="FatalErrorDlg_Header">L'assistent d'installation [ProductName] a terminé anormalement</String>
-    <String Id="FatalErrorDlg_Desc">L'installation de [ProductName] a été terminé en raison d'une erreur. Votre système n'a pas été modifié. Pour installer ce programme plus tard, veuillez relancer l'assistent.</String>
-    <String Id="FatalErrorDlg_Footer">Appuyez sur Terminer pour quitter l'assistent d'installation.</String>
+    <String Id="FatalErrorDlg_Header">L'assistant d'installation [ProductName] a terminé anormalement</String>
+    <String Id="FatalErrorDlg_Desc">L'installation de [ProductName] a été terminé en raison d'une erreur. Votre système n'a pas été modifié. Pour installer ce programme plus tard, veuillez relancer l'assistant.</String>
+    <String Id="FatalErrorDlg_Footer">Appuyez sur Terminer pour quitter l'assistant d'installation.</String>
 
     <!---->
 
@@ -182,18 +182,18 @@ This is default for newer versions of Windows (Vista and newer).</String>
 
     <!---->
 
-    <String Id="UserExitDlg_Header">L'assistent d'installation [ProductName] a été interrompu</String>
+    <String Id="UserExitDlg_Header">L'assistant d'installation [ProductName] a été interrompu</String>
     <String Id="UserExitDlg_Desc">L'installation de [ProductName] a été interrompu. Votre système n'a pas été modifié. Pour installer ce programme ultérieurement, veuillez relancer l'assistant.</String>
-    <String Id="UserExitDlg_Footer">Appuyez sur Terminer pour quitter l'assistent d'installation.</String>
+    <String Id="UserExitDlg_Footer">Appuyez sur Terminer pour quitter l'assistant d'installation.</String>
 
     <!---->
 
-    <String Id="ProgressDlg_PleaseWait">Veuillez patienter pendant que l'assistent installe [ProductName]. Ceci peut durer plusieurs minutes.</String>
+    <String Id="ProgressDlg_PleaseWait">Veuillez patienter pendant que l'assistant installe [ProductName]. Ceci peut durer plusieurs minutes.</String>
 
     <!---->
 
-    <String Id="ResumeDlg_Header">Continuant l'assistent d'installation [ProductName]</String>
-    <String Id="ResumeDlg_Desc">L'assistent d'installation completera l'installation de [ProductName] sur votre ordinateur. Appuyez sur Installer pour continuer ou sur Annuler pour abondonner l'assistent.</String>
+    <String Id="ResumeDlg_Header">Continuant l'assistant d'installation [ProductName]</String>
+    <String Id="ResumeDlg_Desc">L'assistant d'installation completera l'installation de [ProductName] sur votre ordinateur. Appuyez sur Installer pour continuer ou sur Annuler pour abondonner l'assistant.</String>
 
     <!---->
 
@@ -212,8 +212,8 @@ This is default for newer versions of Windows (Vista and newer).</String>
 
     <!---->
 
-    <String Id="MaintenanceWelcomeDlg_Header">Bienvenue dans l'assistent d'installation [ProductName]</String>
-    <String Id="MaintenanceWelcomeDlg_Desc">L'assistent d'installation vous permettra de réparer ou de supprimer de votre ordinateur l'installation actuelle de [ProductName]. Appuyez sur Suivant pour continuer ou sur Annuler pour abondonner l'assistant.</String>
+    <String Id="MaintenanceWelcomeDlg_Header">Bienvenue dans l'assistant d'installation [ProductName]</String>
+    <String Id="MaintenanceWelcomeDlg_Desc">L'assistant d'installation vous permettra de réparer ou de supprimer de votre ordinateur l'installation actuelle de [ProductName]. Appuyez sur Suivant pour continuer ou sur Annuler pour abondonner l'assistant.</String>
 
     <!---->
 
@@ -232,13 +232,13 @@ This is default for newer versions of Windows (Vista and newer).</String>
 
     <String Id="VerifyRemoveDlg_Header">Supprimer [ProductName]</String>
     <String Id="VerifyRemoveDlg_Desc">Vous avez choisi de supprimer l'application de votre ordinateur.</String>
-    <String Id="VerifyRemoveDlg_ClickRemove">Appuyez sur Désinstaller pour supprimer [ProductName] de votre ordinateur. Si vous désirez revoir ou modifier vos paramètres d'installation, appuyez sur Précédent. Appuyez sur Annuler pour quitter l'assistent.</String>
+    <String Id="VerifyRemoveDlg_ClickRemove">Appuyez sur Désinstaller pour supprimer [ProductName] de votre ordinateur. Si vous désirez revoir ou modifier vos paramètres d'installation, appuyez sur Précédent. Appuyez sur Annuler pour quitter l'assistant.</String>
 
     <!---->
 
     <String Id="VerifyRepairDlg_Header">Réparer [ProductName]</String>
-    <String Id="VerifyRepairDlg_ReadyToBegin">L'assistent d'installation est prêt à commencer la réparation de [ProductName].</String>
-    <String Id="VerifyRepairDlg_ClickRepair">Appuyez sur Réparer pour réparer l'installation de [ProductName]. Si vous désirez revoir ou modifier vos paramètres d'installation, appuyez sur Précédent. Appuyez sur Annuler pour quitter l'assistent.</String>
+    <String Id="VerifyRepairDlg_ReadyToBegin">L'assistant d'installation est prêt à commencer la réparation de [ProductName].</String>
+    <String Id="VerifyRepairDlg_ClickRepair">Appuyez sur Réparer pour réparer l'installation de [ProductName]. Si vous désirez revoir ou modifier vos paramètres d'installation, appuyez sur Précédent. Appuyez sur Annuler pour quitter l'assistant.</String>
 
     <!---->
 

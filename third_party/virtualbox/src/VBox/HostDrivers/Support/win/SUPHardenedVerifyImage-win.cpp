@@ -298,7 +298,7 @@ static DECLCALLBACK(RTFOFF) supHardNtViRdrTell(PRTLDRREADER pReader)
 
 
 /** @copydoc RTLDRREADER::pfnSize */
-static DECLCALLBACK(RTFOFF) supHardNtViRdrSize(PRTLDRREADER pReader)
+static DECLCALLBACK(uint64_t) supHardNtViRdrSize(PRTLDRREADER pReader)
 {
     PSUPHNTVIRDR pNtViRdr = (PSUPHNTVIRDR)pReader;
     Assert(pNtViRdr->Core.uMagic == RTLDRREADER_MAGIC);
@@ -436,7 +436,7 @@ DECLHIDDEN(int) supHardNtViRdrCreate(HANDLE hFile, PCRTUTF16 pwszName, uint32_t 
     pNtViRdr->hFile           = hFile;
     pNtViRdr->hEvent          = hEvent;
     pNtViRdr->off             = 0;
-    pNtViRdr->cbFile          = StdInfo.EndOfFile.QuadPart;
+    pNtViRdr->cbFile          = (uint64_t)StdInfo.EndOfFile.QuadPart;
     pNtViRdr->fFlags          = fFlags;
     *ppNtViRdr = pNtViRdr;
     return VINF_SUCCESS;
@@ -1052,9 +1052,10 @@ static DECLCALLBACK(int) supHardNtViCertVerifyCallback(PCRTCRX509CERTIFICATE pCe
 
 static DECLCALLBACK(int) supHardNtViCallback(RTLDRMOD hLdrMod, RTLDRSIGNATURETYPE enmSignature,
                                              void const *pvSignature, size_t cbSignature,
+                                             void const *pvExternalData, size_t cbExternalData,
                                              PRTERRINFO pErrInfo, void *pvUser)
 {
-    RT_NOREF2(hLdrMod, enmSignature);
+    RT_NOREF(hLdrMod, enmSignature, pvExternalData, cbExternalData);
 
     /*
      * Check out the input.
@@ -1067,6 +1068,8 @@ static DECLCALLBACK(int) supHardNtViCallback(RTLDRMOD hLdrMod, RTLDRSIGNATURETYP
     AssertReturn(RTCrPkcs7ContentInfo_IsSignedData(pContentInfo), VERR_INTERNAL_ERROR_5);
     AssertReturn(pContentInfo->u.pSignedData->SignerInfos.cItems == 1, VERR_INTERNAL_ERROR_5);
     PCRTCRPKCS7SIGNERINFO pSignerInfo = pContentInfo->u.pSignedData->SignerInfos.papItems[0];
+
+    AssertReturn(!pvExternalData, VERR_INTERNAL_ERROR_5);
 
     /*
      * If special certificate requirements, check them out before validating

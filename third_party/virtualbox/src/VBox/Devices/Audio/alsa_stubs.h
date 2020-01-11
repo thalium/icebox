@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,11 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef AUDIO_ALSA_STUBS_H
-# define AUDIO_ALSA_STUBS_H
-extern int audioLoadAlsaLib(void);
+#ifndef VBOX_INCLUDED_SRC_Audio_alsa_stubs_h
+#define VBOX_INCLUDED_SRC_Audio_alsa_stubs_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
 #endif
+extern int audioLoadAlsaLib(void);
+#endif /* !VBOX_INCLUDED_SRC_Audio_alsa_stubs_h */
 

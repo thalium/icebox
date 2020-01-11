@@ -324,6 +324,11 @@ private:
     /** Holds whether the warning about inaccessible media shown. */
     bool m_fWarningAboutInaccessibleMediaShown : 1;
 
+    /** Holds whether the toolbar is visible. Cached during visibility change and used during extra-data save. */
+    bool m_fToolBarVisible;
+    /** Holds whether the status bar is visible. Cached during visibility change and used during extra-data save. */
+    bool m_fStatusBarVisible;
+
     /** Holds the action-pool instance. */
     UIActionPool *m_pActionPool;
 
@@ -379,4 +384,3 @@ private:
 #define gpSelectorWindow UISelectorWindow::instance()
 
 #endif /* !___UISelectorWindow_h___ */
-

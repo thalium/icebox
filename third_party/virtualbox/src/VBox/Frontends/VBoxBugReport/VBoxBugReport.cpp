@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
         if (!g_pszVBoxManage)
             throw RTCError("Out of memory\n");
 
-        handleComError(com::Initialize(), "Failed to initialize COM");
+        handleComError(com::Initialize(VBOX_COM_INIT_F_DEFAULT | VBOX_COM_INIT_F_NO_COM_PATCHING), "Failed to initialize COM");
 
         MachineInfoList list;
 

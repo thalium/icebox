@@ -20,10 +20,6 @@
 
 #ifdef DARWIN
 # include <OpenGL/OpenGL.h>
-# ifdef VBOX_WITH_COCOA_QT
-# else
-#  include <AGL/agl.h>
-# endif
 #endif
 
 #define SPU_ENTRY_POINT_NAME "SPULoad"
@@ -55,30 +51,6 @@ typedef struct {
     SPUNamedFunctionTable *table;
 } SPUFunctions;
 
-/**
- * SPU Option callback
- * \param spu
- * \param response
- */
-typedef void (*SPUOptionCB)( void *spu, const char *response );
-
-typedef enum { CR_BOOL, CR_INT, CR_FLOAT, CR_STRING, CR_ENUM } cr_type;
-
-/**
- * SPU Options table
- */
-typedef struct {
-    const char *option; /**< Name of the option */
-    cr_type type;       /**< Type of option */
-    int numValues;  /**< usually 1 */
-    const char *deflt;  /**< comma-separated string of [numValues] defaults */
-    const char *min;    /**< comma-separated string of [numValues] minimums */
-    const char *max;    /**< comma-separated string of [numValues] maximums */
-    const char *description; /**< Textual description of the option */
-    SPUOptionCB cb;     /**< Callback function */
-} SPUOptions, *SPUOptionsPtr;
-
-
 /** Init spu */
 typedef SPUFunctions *(*SPUInitFuncPtr)(int id, SPU *child,
         SPU *super, unsigned int, unsigned int );
@@ -86,8 +58,7 @@ typedef void (*SPUSelfDispatchFuncPtr)(SPUDispatchTable *);
 /** Cleanup spu */
 typedef int (*SPUCleanupFuncPtr)(void);
 /** Load spu */
-typedef int (*SPULoadFunction)(char **, char **, void *, void *, void *,
-                   SPUOptionsPtr *, int *);
+typedef int (*SPULoadFunction)(char **, char **, void *, void *, void *, int *);
 
 
 /**
@@ -104,6 +75,28 @@ typedef int (*SPULoadFunction)(char **, char **, void *, void *, void *,
 #define SPU_MAX_SERVERS_ONE       0x4
 #define SPU_MAX_SERVERS_UNLIMITED 0x8
 
+/**
+ * SPU registration restructure.
+ */
+typedef struct SPUREG
+{
+    /** SPU name. */
+    const char             *pszName;
+    /** Name of the SPU super class. */
+    const char             *pszSuperName;
+    /** SPU flags. */
+    uint32_t               fFlags;
+    /** Init function. */
+    SPUInitFuncPtr         pfnInit;
+    /** Dispatch function. */
+    SPUSelfDispatchFuncPtr pfnDispatch; 
+    /** Cleanup function. */
+    SPUCleanupFuncPtr      pfnCleanup;
+} SPUREG;
+/** Pointer to a SPU registration structure. */
+typedef SPUREG *PSPUREG;
+/** Pointer to a const SPU registration structure. */
+typedef const SPUREG *PCSPUREG;
 
 /**
  * SPU descriptor
@@ -120,7 +113,6 @@ struct _SPUSTRUCT {
     SPUSelfDispatchFuncPtr self;    /**< */
     SPUCleanupFuncPtr cleanup;  /**< SPU cleanup func */
     SPUFunctions *function_table;   /**< Function table for spu */
-    SPUOptions *options;        /**< Options table */
     SPUDispatchTable dispatch_table;
     void *privatePtr;       /**< pointer to SPU-private data */
 };
@@ -143,59 +135,16 @@ typedef int (WGL_APIENTRY *wglChoosePixelFormatFunc_t)(HDC, CONST PIXELFORMATDES
 typedef BOOL (WGL_APIENTRY *wglChoosePixelFormatEXTFunc_t)(HDC, const int *, const FLOAT *, UINT, int *, UINT *);
 typedef int (WGL_APIENTRY *wglDescribePixelFormatFunc_t)(HDC, int, UINT, CONST PIXELFORMATDESCRIPTOR *);
 typedef int (WGL_APIENTRY *wglSetPixelFormatFunc_t)(HDC, int, CONST PIXELFORMATDESCRIPTOR *);
-typedef HGLRC (WGL_APIENTRY *wglGetCurrentContextFunc_t)();
-typedef PROC (WGL_APIENTRY *wglGetProcAddressFunc_t)();
+typedef HGLRC (WGL_APIENTRY *wglGetCurrentContextFunc_t)(void);
+typedef PROC (WGL_APIENTRY *wglGetProcAddressFunc_t)(LPCSTR Arg1);
 typedef BOOL (WGL_APIENTRY *wglChoosePixelFormatEXTFunc_t)(HDC, const int *, const FLOAT *, UINT, int *, UINT *);
 typedef BOOL (WGL_APIENTRY *wglGetPixelFormatAttribivEXTFunc_t)(HDC, int, int, UINT, int *, int *);
 typedef BOOL (WGL_APIENTRY *wglGetPixelFormatAttribfvEXTFunc_t)(HDC, int, int, UINT, int *, float *);
 typedef const GLubyte *(WGL_APIENTRY *glGetStringFunc_t)( GLenum );
-typedef const GLubyte *(WGL_APIENTRY *wglGetExtensionsStringEXTFunc_t)();
+typedef const GLubyte *(WGL_APIENTRY *wglGetExtensionsStringEXTFunc_t)(void);
 typedef const GLubyte *(WGL_APIENTRY *wglGetExtensionsStringARBFunc_t)(HDC);
 /*@}*/
 #elif defined(DARWIN)
-# ifndef VBOX_WITH_COCOA_QT
-/**
- * Apple/AGL
- */
-/*@{*/
-typedef AGLContext (*aglCreateContextFunc_t)( AGLPixelFormat, AGLContext );
-typedef GLboolean (*aglDestroyContextFunc_t)( AGLContext );
-typedef GLboolean (*aglSetCurrentContextFunc_t)( AGLContext );
-typedef void (*aglSwapBuffersFunc_t)( AGLContext );
-typedef AGLPixelFormat (*aglChoosePixelFormatFunc_t) (const AGLDevice *, GLint, const GLint *);
-typedef GLboolean (*aglDescribePixelFormatFunc_t)( AGLPixelFormat, GLint, GLint * );
-/* <--set pixel format */
-typedef AGLContext (*aglGetCurrentContextFunc_t)();
-/* <--get proc address -- none exists */
-typedef void* (*aglGetProcAddressFunc_t)( const GLubyte *name );
-
-/* These are here just in case */
-typedef GLboolean (*aglDescribeRendererFunc_t)( AGLRendererInfo, GLint, GLint * );
-typedef void (*aglDestroyPixelFormatFunc_t)( AGLPixelFormat );
-typedef void (*aglDestroyRendererInfoFunc_t)( AGLRendererInfo );
-typedef AGLDevice* (*aglDevicesOfPixelFormatFunc_t)( AGLPixelFormat, GLint );
-typedef GLboolean (*aglDisableFunc_t)( AGLContext, GLenum );
-typedef GLboolean (*aglEnableFunc_t)( AGLContext, GLenum );
-typedef const GLubyte* (*aglErrorStringFunc_t)( GLenum );
-typedef AGLDrawable (*aglGetDrawableFunc_t)( AGLContext );
-typedef GLenum (*aglGetErrorFunc_t)();
-typedef GLboolean (*aglGetIntegerFunc_t)( AGLContext, GLenum, GLint* );
-typedef void (*aglGetVersionFunc_t)( GLint *, GLint * );
-typedef GLint (*aglGetVirtualScreenFunc_t)( AGLContext );
-typedef GLboolean (*aglIsEnabledFunc_t)( AGLContext, GLenum );
-typedef AGLPixelFormat (*aglNextPixelFormatFunc_t)( AGLPixelFormat );
-typedef AGLRendererInfo (*aglNextRendererInfoFunc_t)( AGLRendererInfo );
-typedef AGLRendererInfo (*aglQueryRendererInfoFunc_t)( const AGLDevice *, GLint );
-typedef void (*aglReserLibraryFunc_t)();
-typedef GLboolean (*aglSetDrawableFunc_t)( AGLContext, AGLDrawable );
-typedef GLboolean (*aglSetFullScreenFunc_t)( AGLContext, GLsizei, GLsizei, GLsizei, GLint );
-typedef GLboolean (*aglSetIntegerFunc_t)( AGLContext, GLenum, const GLint * );
-typedef GLboolean (*aglSetOffScreenFunc_t)( AGLContext, GLsizei, GLsizei, GLsizei, void * );
-typedef GLboolean (*aglSetVirtualScreenFunc_t)( AGLContext, GLint );
-typedef GLboolean (*aglUpdateContextFunc_t)( AGLContext );
-typedef GLboolean (*aglUseFontFunc_t)( AGLContext, GLint, Style, GLint, GLint, GLint, GLint );
-# endif
-
 typedef const GLubyte *(*glGetStringFunc_t)( GLenum );
 /*@}*/
 
@@ -327,28 +276,6 @@ typedef struct {
     wglGetPixelFormatAttribfvEXTFunc_t wglGetPixelFormatAttribfvEXT;
     wglGetExtensionsStringEXTFunc_t wglGetExtensionsStringEXT;
 #elif defined(DARWIN)
-# ifndef VBOX_WITH_COCOA_QT
-    aglCreateContextFunc_t          aglCreateContext;
-    aglDestroyContextFunc_t         aglDestroyContext;
-    aglSetCurrentContextFunc_t      aglSetCurrentContext;
-    aglSwapBuffersFunc_t            aglSwapBuffers;
-    aglChoosePixelFormatFunc_t      aglChoosePixelFormat;
-    aglDestroyPixelFormatFunc_t     aglDestroyPixelFormat;
-    aglDescribePixelFormatFunc_t    aglDescribePixelFormat;
-    aglGetCurrentContextFunc_t      aglGetCurrentContext;
-    aglSetDrawableFunc_t            aglSetDrawable;
-    aglGetDrawableFunc_t            aglGetDrawable;
-    aglSetFullScreenFunc_t          aglSetFullScreen;
-    aglGetProcAddressFunc_t         aglGetProcAddress;
-    aglUpdateContextFunc_t          aglUpdateContext;
-    aglUseFontFunc_t                aglUseFont;
-    aglSetIntegerFunc_t             aglSetInteger;
-    aglGetErrorFunc_t               aglGetError;
-    aglGetIntegerFunc_t             aglGetInteger;
-    aglEnableFunc_t                 aglEnable;
-    aglDisableFunc_t                aglDisable;
-# endif
-
     CGLChoosePixelFormatFunc_t      CGLChoosePixelFormat;
     CGLDestroyPixelFormatFunc_t     CGLDestroyPixelFormat;
     CGLDescribePixelFormatFunc_t    CGLDescribePixelFormat;
@@ -434,19 +361,18 @@ typedef struct {
 /** This is the one required function in _all_ SPUs */
 DECLEXPORT(int) SPULoad( char **name, char **super, SPUInitFuncPtr *init,
                     SPUSelfDispatchFuncPtr *self, SPUCleanupFuncPtr *cleanup,
-                    SPUOptionsPtr *options, int *flags );
+                    int *flags );
 
 DECLEXPORT(SPU *) crSPULoad( SPU *child, int id, char *name, char *dir, void *server);
 DECLEXPORT(SPU *) crSPULoadChain( int count, int *ids, char **names, char *dir, void *server );
 DECLEXPORT(void) crSPUUnloadChain(SPU *headSPU);
 
+DECLEXPORT(SPU *) crSPUInitFromReg(SPU *pSpuChild, int iId, const char *pszName, void *pvServer, PCSPUREG *papSpuReg);
+DECLEXPORT(SPU *) crSPUInitChainFromReg(int cSpus, int *paIds, const char * const *papszNames, void *server, PCSPUREG *papSpuReg);
+
 DECLEXPORT(void) crSPUInitDispatchTable( SPUDispatchTable *table );
 DECLEXPORT(void) crSPUCopyDispatchTable( SPUDispatchTable *dst, SPUDispatchTable *src );
 DECLEXPORT(void) crSPUChangeInterface( SPUDispatchTable *table, void *origFunc, void *newFunc );
-
-
-DECLEXPORT(void) crSPUSetDefaultParams( void *spu, SPUOptions *options );
-DECLEXPORT(int) crSPUGetEnumIndex( const SPUOptions *option, const char *optName, const char *value );
 
 
 DECLEXPORT(SPUGenericFunction) crSPUFindFunction( const SPUNamedFunctionTable *table, const char *fname );
@@ -474,6 +400,15 @@ crLoadOSMesa( OSMesaContext (**createContext)( GLenum format, OSMesaContext shar
               GLboolean (**makeCurrent)( OSMesaContext ctx, GLubyte *buffer,
                          GLenum type, GLsizei width, GLsizei height ),
               void (**destroyContext)( OSMesaContext ctx ));
+#endif
+
+extern DECLHIDDEN(const SPUREG) g_ErrorSpuReg;
+#ifdef IN_GUEST
+extern DECLHIDDEN(const SPUREG) g_FeedbackSpuReg;
+extern DECLHIDDEN(const SPUREG) g_PassthroughSpuReg;
+extern DECLHIDDEN(const SPUREG) g_PackSpuReg;
+#else
+extern DECLHIDDEN(const SPUREG) g_RenderSpuReg;
 #endif
 
 #ifdef __cplusplus

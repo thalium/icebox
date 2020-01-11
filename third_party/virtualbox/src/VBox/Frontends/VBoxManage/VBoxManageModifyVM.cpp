@@ -79,6 +79,8 @@ enum
     MODIFYVM_SPEC_CTRL,
     MODIFYVM_L1D_FLUSH_ON_SCHED,
     MODIFYVM_L1D_FLUSH_ON_VM_ENTRY,
+    MODIFYVM_MDS_CLEAR_ON_SCHED,
+    MODIFYVM_MDS_CLEAR_ON_VM_ENTRY,
     MODIFYVM_CPUS,
     MODIFYVM_CPUHOTPLUG,
     MODIFYVM_CPU_PROFILE,
@@ -264,6 +266,8 @@ static const RTGETOPTDEF g_aModifyVMOptions[] =
     { "--spec-ctrl",                MODIFYVM_SPEC_CTRL,                 RTGETOPT_REQ_BOOL_ONOFF },
     { "--l1d-flush-on-sched",       MODIFYVM_L1D_FLUSH_ON_SCHED,        RTGETOPT_REQ_BOOL_ONOFF },
     { "--l1d-flush-on-vm-entry",    MODIFYVM_L1D_FLUSH_ON_VM_ENTRY,     RTGETOPT_REQ_BOOL_ONOFF },
+    { "--mds-clear-on-sched",       MODIFYVM_MDS_CLEAR_ON_SCHED,        RTGETOPT_REQ_BOOL_ONOFF },
+    { "--mds-clear-on-vm-entry",    MODIFYVM_MDS_CLEAR_ON_VM_ENTRY,     RTGETOPT_REQ_BOOL_ONOFF },
     { "--cpuid-set",                MODIFYVM_SETCPUID,                  RTGETOPT_REQ_UINT32_OPTIONAL_PAIR | RTGETOPT_FLAG_HEX },
     { "--cpuid-remove",             MODIFYVM_DELCPUID,                  RTGETOPT_REQ_UINT32_OPTIONAL_PAIR | RTGETOPT_FLAG_HEX },
     { "--cpuidset",                 MODIFYVM_SETCPUID_OLD,              RTGETOPT_REQ_UINT32 | RTGETOPT_FLAG_HEX },
@@ -820,6 +824,14 @@ RTEXITCODE handleModifyVM(HandlerArg *a)
 
             case MODIFYVM_L1D_FLUSH_ON_VM_ENTRY:
                 CHECK_ERROR(sessionMachine, SetCPUProperty(CPUPropertyType_L1DFlushOnVMEntry, ValueUnion.f));
+                break;
+
+            case MODIFYVM_MDS_CLEAR_ON_SCHED:
+                CHECK_ERROR(sessionMachine, SetCPUProperty(CPUPropertyType_MDSClearOnEMTScheduling, ValueUnion.f));
+                break;
+
+            case MODIFYVM_MDS_CLEAR_ON_VM_ENTRY:
+                CHECK_ERROR(sessionMachine, SetCPUProperty(CPUPropertyType_MDSClearOnVMEntry, ValueUnion.f));
                 break;
 
             case MODIFYVM_CPUS:

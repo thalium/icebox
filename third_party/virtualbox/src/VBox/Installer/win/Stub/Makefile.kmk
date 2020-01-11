@@ -62,12 +62,12 @@ if "$(KBUILD_TARGET_ARCH)" == "x86"
 	$(VBOX_RTSIGNTOOL) extract-exe-signer-cert --signature-index 0 --exe "$(PATH_STAGE_SYS)/VBoxDrv.sys" --output "$@.cer0" --der
 	$(VBOX_BIN2C) -ascii --append VBoxStubTrustedCert0 "$@.cer0" $@
 	$(APPEND) "$@.array" "    { g_abVBoxStubTrustedCert0, sizeof(g_abVBoxStubTrustedCert0) }, "
-  if defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) && (!defined(VBOX_WITH_CORP_CODE_SIGNING) || "$(VBOX_WITH_CORP_CODE_SIGNING)" != "all")
+  if defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) || $(intersects win all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
 	$(VBOX_RTSIGNTOOL) extract-exe-signer-cert --signature-index 1 --exe "$(PATH_STAGE_SYS)/VBoxDrv.sys" --output "$@.cer1" --der
 	$(VBOX_BIN2C) -ascii --append VBoxStubTrustedCert1 "$@.cer1" $@
 	$(APPEND) "$@.array" "    { g_abVBoxStubTrustedCert1, sizeof(g_abVBoxStubTrustedCert1) }, "
   endif
-  if defined(VBOX_WITH_CORP_CODE_SIGNING) && "$(VBOX_WITH_CORP_CODE_SIGNING)" != "all" && "$(VBOX_SIGNING_MODE)" == "release"
+  if $(intersects win_planb,$(VBOX_WITH_CORP_CODE_SIGNING))
 	$(VBOX_RTSIGNTOOL) extract-exe-signer-cert --signature-index 1 --exe "$(VBOX_RTSIGNTOOL)" --output "$@.cer2" --der
 	$(VBOX_BIN2C) -ascii --append VBoxStubTrustedCert2 "$@.cer2" $@
 	$(APPEND) "$@.array" "    { g_abVBoxStubTrustedCert2, sizeof(g_abVBoxStubTrustedCert2) }, "

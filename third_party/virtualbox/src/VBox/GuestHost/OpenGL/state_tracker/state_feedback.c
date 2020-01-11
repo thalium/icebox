@@ -119,9 +119,8 @@ interpolate_vertex(GLfloat t,
  *          non-zero - clip code mask (or of above CLIP_ bits)
  */
 static GLuint
-clip_point(const CRVertex *v)
+clip_point(CRContext *g, const CRVertex *v)
 {
-	CRContext *g = GetCurrentContext();
 	GLuint mask = 0;
 	GLuint i;
 
@@ -164,7 +163,7 @@ clip_point(const CRVertex *v)
  *          GL_FALSE: totally clipped
  */
 static GLboolean
-clip_line(const CRVertex *v0in, const CRVertex *v1in,
+clip_line(CRContext *g, const CRVertex *v0in, const CRVertex *v1in,
 					CRVertex *v0new, CRVertex *v1new)
 {
 	CRVertex v0, v1, vNew;
@@ -173,8 +172,8 @@ clip_line(const CRVertex *v0in, const CRVertex *v1in,
 
 	/* XXX need to do user-clip planes */
 
-	code0 = clip_point(v0in);
-	code1 = clip_point(v1in);
+	code0 = clip_point(g, v0in);
+	code1 = clip_point(g, v1in);
 	if (code0 & code1)
 		return GL_FALSE;  /* totally clipped */
 
@@ -461,9 +460,8 @@ clip_polygon(const CRVertex *vIn, unsigned int inCount,
  * Put a vertex into the feedback buffer.
  */
 static void
-feedback_vertex(const CRVertex *v)
+feedback_vertex(CRContext *g, const CRVertex *v)
 {
-	CRContext *g = GetCurrentContext();
 	CRFeedbackState *f = &(g->feedback);
 	CRTransformState *t = &(g->transform);
 
@@ -513,9 +511,8 @@ feedback_vertex(const CRVertex *v)
 
 
 static void
-feedback_rasterpos(void)
+feedback_rasterpos(CRContext *g)
 {
-	CRContext *g = GetCurrentContext();
 	CRVertex *tv = g->vBuffer + g->vCount;
 	CRVertex v;
 
@@ -534,32 +531,30 @@ feedback_rasterpos(void)
 	/* So we do this instead, and pluck it from the current vertex */
 	COPY_4V(v.attrib[VERT_ATTRIB_TEX0] , tv->attrib[VERT_ATTRIB_TEX0]);
 
-	feedback_vertex(&v);
+	feedback_vertex(g, &v);
 }
 
 
 static void
-feedback_point(const CRVertex *v)
+feedback_point(CRContext *g, const CRVertex *v)
 {
-	CRContext *g = GetCurrentContext();
 	CRFeedbackState *f = &(g->feedback);
-	if (clip_point(v) == 0)
+	if (clip_point(g, v) == 0)
 	{
 		CRVertex c = *v;
 		MAP_POINT(c.winPos, c.clipPos, g->viewport);
 		FEEDBACK_TOKEN((GLfloat) GL_POINT_TOKEN);
-		feedback_vertex(&c);
+		feedback_vertex(g, &c);
 	}
 }
 
 
 static void
-feedback_line(const CRVertex *v0, const CRVertex *v1, GLboolean reset)
+feedback_line(CRContext *g, const CRVertex *v0, const CRVertex *v1, GLboolean reset)
 {
-	CRContext *g = GetCurrentContext();
 	CRFeedbackState *f = &(g->feedback);
 	CRVertex c0, c1;
-	if (clip_line(v0, v1, &c0, &c1))
+	if (clip_line(g, v0, v1, &c0, &c1))
 	{
 		MAP_POINT(c0.winPos, c0.clipPos, g->viewport);
 		MAP_POINT(c1.winPos, c1.clipPos, g->viewport);
@@ -567,16 +562,15 @@ feedback_line(const CRVertex *v0, const CRVertex *v1, GLboolean reset)
 			FEEDBACK_TOKEN((GLfloat) GL_LINE_RESET_TOKEN);
 		else
 			FEEDBACK_TOKEN((GLfloat) GL_LINE_TOKEN);
-		feedback_vertex(&c0);
-		feedback_vertex(&c1);
+		feedback_vertex(g, &c0);
+		feedback_vertex(g, &c1);
 	}
 }
 
 
 static void
-feedback_triangle(const CRVertex *v0, const CRVertex *v1, const CRVertex *v2)
+feedback_triangle(CRContext *g, const CRVertex *v0, const CRVertex *v1, const CRVertex *v2)
 {
-	CRContext *g = GetCurrentContext();
 	CRFeedbackState *f = &(g->feedback);
 	CRVertex vlist[3], vclipped[8];
 	GLuint i, n;
@@ -589,15 +583,15 @@ feedback_triangle(const CRVertex *v0, const CRVertex *v1, const CRVertex *v2)
 	FEEDBACK_TOKEN( (GLfloat) n );
 	for (i = 0; i < n; i++) {
 		MAP_POINT(vclipped[i].winPos, vclipped[i].clipPos, g->viewport);
-		feedback_vertex(vclipped + i);
+		feedback_vertex(g, vclipped + i);
 	}
 }
 
 
 void STATE_APIENTRY
-crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+crStateFeedbackVertex4f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRTransformState *t = &(g->transform);
 	CRPolygonState *p = &(g->polygon);
 	CRVertex *v = g->vBuffer + g->vCount;
@@ -620,7 +614,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 	switch (g->current.mode) {
 	case GL_POINTS:
 		CRASSERT(g->vCount == 0);
-		feedback_point(v);
+		feedback_point(g, v);
 		break;
 	case GL_LINES:
 		if (g->vCount == 0)
@@ -630,7 +624,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 1);
-			feedback_line(g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
+			feedback_line(g, g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
 			g->vCount = 0;
 		}
 		break;
@@ -642,7 +636,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 1);
-			feedback_line(g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
+			feedback_line(g, g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
 			g->vBuffer[0] = g->vBuffer[1];
 			g->lineReset = GL_FALSE;
 			/* leave g->vCount at 1 */
@@ -656,7 +650,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		}
 		else if (g->vCount == 1)
 		{
-			feedback_line(g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
+			feedback_line(g, g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
 			g->lineReset = GL_FALSE;
 			g->lineLoop = GL_TRUE;
 			g->vCount = 2;
@@ -666,7 +660,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 			CRASSERT(g->vCount == 2);
 			CRASSERT(g->lineReset == GL_FALSE);
 			g->lineLoop = GL_FALSE;
-			feedback_line(g->vBuffer + 1, g->vBuffer + 2, g->lineReset);
+			feedback_line(g, g->vBuffer + 1, g->vBuffer + 2, g->lineReset);
 			g->vBuffer[1] = g->vBuffer[2];
 			/* leave g->vCount at 2 */
 		}
@@ -679,7 +673,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 2);
-			feedback_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			feedback_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 			g->vCount = 0;
 		}
 		break;
@@ -690,13 +684,13 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		}
 		else if (g->vCount == 2)
 		{
-			feedback_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			feedback_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 			g->vCount = 3;
 		}
 		else
 		{
 			CRASSERT(g->vCount == 3);
-			feedback_triangle(g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
+			feedback_triangle(g, g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
 			g->vBuffer[0] = g->vBuffer[2];
 			g->vBuffer[1] = g->vBuffer[3];
 			g->vCount = 2;
@@ -710,7 +704,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 2);
-			feedback_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			feedback_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 			g->vBuffer[1] = g->vBuffer[2];
 			/* leave g->vCount = 2 */
 		}
@@ -723,8 +717,8 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 3);
-			feedback_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
-			feedback_triangle(g->vBuffer + 0, g->vBuffer + 2, g->vBuffer + 3);
+			feedback_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			feedback_triangle(g, g->vBuffer + 0, g->vBuffer + 2, g->vBuffer + 3);
 			g->vCount = 0;
 		}
 		break;		
@@ -736,8 +730,8 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 3);
-			feedback_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
-			feedback_triangle(g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
+			feedback_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			feedback_triangle(g, g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
 			g->vBuffer[0] = g->vBuffer[2];
 			g->vBuffer[1] = g->vBuffer[3];
 			g->vCount = 2;
@@ -748,7 +742,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		switch (p->frontMode) {
 		case GL_POINT:
 			CRASSERT(g->vCount == 0);
-			feedback_point(v);
+			feedback_point(g, v);
 			break;
 		case GL_LINE:
 			if (g->vCount == 0)
@@ -758,7 +752,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 			}
 			else if (g->vCount == 1)
 			{
-				feedback_line(g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
+				feedback_line(g, g->vBuffer + 0, g->vBuffer + 1, g->lineReset);
 				g->lineReset = GL_FALSE;
 				g->lineLoop = GL_TRUE;
 				g->vCount = 2;
@@ -768,7 +762,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 				CRASSERT(g->vCount == 2);
 				CRASSERT(g->lineReset == GL_FALSE);
 				g->lineLoop = GL_FALSE;
-				feedback_line(g->vBuffer + 1, g->vBuffer + 2, g->lineReset);
+				feedback_line(g, g->vBuffer + 1, g->vBuffer + 2, g->lineReset);
 				g->vBuffer[1] = g->vBuffer[2];
 				/* leave g->vCount at 2 */
 			}
@@ -782,7 +776,7 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 			else
 			{
 				CRASSERT(g->vCount == 2);
-				feedback_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+				feedback_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 				g->vBuffer[1] = g->vBuffer[2];
 				/* leave g->vCount = 2 */
 			}
@@ -798,11 +792,11 @@ crStateFeedbackVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 
 
 void STATE_APIENTRY
-crStateFeedbackBegin(GLenum mode)
+crStateFeedbackBegin(PCRStateTracker pState, GLenum mode)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
-	crStateBegin(mode);
+	crStateBegin(pState, mode);
 
 	g->vCount = 0;
 	g->lineReset = GL_TRUE;
@@ -811,9 +805,9 @@ crStateFeedbackBegin(GLenum mode)
 
 
 void STATE_APIENTRY
-crStateFeedbackEnd(void)
+crStateFeedbackEnd(PCRStateTracker pState)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	if ( (g->current.mode == GL_LINE_LOOP ||
 	     (g->current.mode == GL_POLYGON && g->polygon.frontMode == GL_LINE))
@@ -821,43 +815,43 @@ crStateFeedbackEnd(void)
 	{
 		/* draw the last line segment */
 		if (g->lineLoop)
-			feedback_line(g->vBuffer + 1, g->vBuffer + 0, GL_FALSE);
+			feedback_line(g, g->vBuffer + 1, g->vBuffer + 0, GL_FALSE);
 		else
-			feedback_line(g->vBuffer + 2, g->vBuffer + 0, GL_FALSE);
+			feedback_line(g, g->vBuffer + 2, g->vBuffer + 0, GL_FALSE);
 	}
 
-	crStateEnd();
+	crStateEnd(pState);
 }
 
 
 void STATE_APIENTRY
-crStateFeedbackBuffer(GLsizei size, GLenum type, GLfloat * buffer)
+crStateFeedbackBuffer(PCRStateTracker pState, GLsizei size, GLenum type, GLfloat * buffer)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRFeedbackState *f = &(g->feedback);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "FeedbackBuffer called in begin/end");
 		return;
 	}
 
 	if (g->renderMode == GL_FEEDBACK)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "Invalid Operation GL_FEEDBACK");
 		return;
 	}
 	if (size < 0)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
 								 "Invalid Value size < 0");
 		return;
 	}
 	if (!buffer)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
 								 "Invalid Value buffer = NULL");
 		f->bufferSize = 0;
 		return;
@@ -883,7 +877,7 @@ crStateFeedbackBuffer(GLsizei size, GLenum type, GLfloat * buffer)
 		f->mask = (FB_3D | FB_4D | FB_COLOR | FB_TEXTURE);	/* FB_INDEX ?? */
 		break;
 	default:
-		crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "invalid type");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "invalid type");
 		return;
 	}
 
@@ -895,14 +889,14 @@ crStateFeedbackBuffer(GLsizei size, GLenum type, GLfloat * buffer)
 
 
 void STATE_APIENTRY
-crStatePassThrough(GLfloat token)
+crStatePassThrough(PCRStateTracker pState, GLfloat token)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRFeedbackState *f = &(g->feedback);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "PassThrough called in begin/end");
 		return;
 	}
@@ -922,9 +916,9 @@ crStatePassThrough(GLfloat token)
  * I've left them here as they interface to the other functions.....
  */
 void STATE_APIENTRY
-crStateFeedbackGetBooleanv(GLenum pname, GLboolean * params)
+crStateFeedbackGetBooleanv(PCRStateTracker pState, GLenum pname, GLboolean * params)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	switch (pname)
 	{
@@ -945,9 +939,9 @@ crStateFeedbackGetBooleanv(GLenum pname, GLboolean * params)
 
 
 void STATE_APIENTRY
-crStateFeedbackGetDoublev(GLenum pname, GLdouble * params)
+crStateFeedbackGetDoublev(PCRStateTracker pState, GLenum pname, GLdouble * params)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	switch (pname)
 	{
@@ -968,9 +962,9 @@ crStateFeedbackGetDoublev(GLenum pname, GLdouble * params)
 
 
 void STATE_APIENTRY
-crStateFeedbackGetFloatv(GLenum pname, GLfloat * params)
+crStateFeedbackGetFloatv(PCRStateTracker pState, GLenum pname, GLfloat * params)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	switch (pname)
 	{
@@ -991,9 +985,9 @@ crStateFeedbackGetFloatv(GLenum pname, GLfloat * params)
 
 
 void STATE_APIENTRY
-crStateFeedbackGetIntegerv(GLenum pname, GLint * params)
+crStateFeedbackGetIntegerv(PCRStateTracker pState, GLenum pname, GLint * params)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	switch (pname)
 	{
@@ -1014,10 +1008,10 @@ crStateFeedbackGetIntegerv(GLenum pname, GLint * params)
 
 
 void STATE_APIENTRY
-crStateFeedbackDrawPixels(GLsizei width, GLsizei height, GLenum format,
+crStateFeedbackDrawPixels(PCRStateTracker pState, GLsizei width, GLsizei height, GLenum format,
 													GLenum type, const GLvoid * pixels)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRFeedbackState *f = &(g->feedback);
 
 	(void) width;
@@ -1028,14 +1022,14 @@ crStateFeedbackDrawPixels(GLsizei width, GLsizei height, GLenum format,
 
 	FEEDBACK_TOKEN((GLfloat) (GLint) GL_DRAW_PIXEL_TOKEN);
 
-	feedback_rasterpos();
+	feedback_rasterpos(g);
 }
 
 void STATE_APIENTRY
-crStateFeedbackCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height,
+crStateFeedbackCopyPixels(PCRStateTracker pState, GLint x, GLint y, GLsizei width, GLsizei height,
 													GLenum type)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRFeedbackState *f = &(g->feedback);
 
 	(void) x;
@@ -1045,15 +1039,15 @@ crStateFeedbackCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height,
 	(void) type;
 
 	FEEDBACK_TOKEN((GLfloat) (GLint) GL_COPY_PIXEL_TOKEN);
-	feedback_rasterpos();
+	feedback_rasterpos(g);
 }
 
 void STATE_APIENTRY
-crStateFeedbackBitmap(GLsizei width, GLsizei height, GLfloat xorig,
+crStateFeedbackBitmap(PCRStateTracker pState, GLsizei width, GLsizei height, GLfloat xorig,
 											GLfloat yorig, GLfloat xmove, GLfloat ymove,
 											const GLubyte * bitmap)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRFeedbackState *f = &(g->feedback);
 
 	(void) width;
@@ -1064,7 +1058,7 @@ crStateFeedbackBitmap(GLsizei width, GLsizei height, GLfloat xorig,
 
 	FEEDBACK_TOKEN((GLfloat) (GLint) GL_BITMAP_TOKEN);
 
-	feedback_rasterpos();
+	feedback_rasterpos(g);
 
 	if (g->current.rasterValid)
 	{
@@ -1075,155 +1069,155 @@ crStateFeedbackBitmap(GLsizei width, GLsizei height, GLfloat xorig,
 
 
 void STATE_APIENTRY
-crStateFeedbackVertex4fv(const GLfloat * v)
+crStateFeedbackVertex4fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateFeedbackVertex4f(v[0], v[1], v[2], v[3]);
+	crStateFeedbackVertex4f(pState, v[0], v[1], v[2], v[3]);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex4s(GLshort v0, GLshort v1, GLshort v2, GLshort v3)
+crStateFeedbackVertex4s(PCRStateTracker pState, GLshort v0, GLshort v1, GLshort v2, GLshort v3)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, (GLfloat) v2,
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, (GLfloat) v2,
 													(GLfloat) v3);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex4sv(const GLshort * v)
+crStateFeedbackVertex4sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
 													(GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex4i(GLint v0, GLint v1, GLint v2, GLint v3)
+crStateFeedbackVertex4i(PCRStateTracker pState, GLint v0, GLint v1, GLint v2, GLint v3)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, (GLfloat) v2,
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, (GLfloat) v2,
 													(GLfloat) v3);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex4iv(const GLint * v)
+crStateFeedbackVertex4iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
 													(GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex4d(GLdouble v0, GLdouble v1, GLdouble v2, GLdouble v3)
+crStateFeedbackVertex4d(PCRStateTracker pState, GLdouble v0, GLdouble v1, GLdouble v2, GLdouble v3)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, (GLfloat) v2,
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, (GLfloat) v2,
 													(GLfloat) v3);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex4dv(const GLdouble * v)
+crStateFeedbackVertex4dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
 													(GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2i(GLint v0, GLint v1)
+crStateFeedbackVertex2i(PCRStateTracker pState, GLint v0, GLint v1)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2iv(const GLint * v)
+crStateFeedbackVertex2iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2s(GLshort v0, GLshort v1)
+crStateFeedbackVertex2s(PCRStateTracker pState, GLshort v0, GLshort v1)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2sv(const GLshort * v)
+crStateFeedbackVertex2sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2f(GLfloat v0, GLfloat v1)
+crStateFeedbackVertex2f(PCRStateTracker pState, GLfloat v0, GLfloat v1)
 {
-	crStateFeedbackVertex4f(v0, v1, 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, v0, v1, 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2fv(const GLfloat * v)
+crStateFeedbackVertex2fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateFeedbackVertex4f(v[0], v[1], 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, v[0], v[1], 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2d(GLdouble v0, GLdouble v1)
+crStateFeedbackVertex2d(PCRStateTracker pState, GLdouble v0, GLdouble v1)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex2dv(const GLdouble * v)
+crStateFeedbackVertex2dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3i(GLint v0, GLint v1, GLint v2)
+crStateFeedbackVertex3i(PCRStateTracker pState, GLint v0, GLint v1, GLint v2)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, (GLfloat) v2, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, (GLfloat) v2, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3iv(const GLint * v)
+crStateFeedbackVertex3iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3s(GLshort v0, GLshort v1, GLshort v2)
+crStateFeedbackVertex3s(PCRStateTracker pState, GLshort v0, GLshort v1, GLshort v2)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, (GLfloat) v2, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, (GLfloat) v2, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3sv(const GLshort * v)
+crStateFeedbackVertex3sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
 													1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3f(GLfloat v0, GLfloat v1, GLfloat v2)
+crStateFeedbackVertex3f(PCRStateTracker pState, GLfloat v0, GLfloat v1, GLfloat v2)
 {
-	crStateFeedbackVertex4f(v0, v1, v2, 1.0f);
+	crStateFeedbackVertex4f(pState, v0, v1, v2, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3fv(const GLfloat * v)
+crStateFeedbackVertex3fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateFeedbackVertex4f(v[0], v[1], v[2], 1.0f);
+	crStateFeedbackVertex4f(pState, v[0], v[1], v[2], 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3d(GLdouble v0, GLdouble v1, GLdouble v2)
+crStateFeedbackVertex3d(PCRStateTracker pState, GLdouble v0, GLdouble v1, GLdouble v2)
 {
-	crStateFeedbackVertex4f((GLfloat) v0, (GLfloat) v1, (GLfloat) v2, 1.0f);
+	crStateFeedbackVertex4f(pState, (GLfloat) v0, (GLfloat) v1, (GLfloat) v2, 1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackVertex3dv(const GLdouble * v)
+crStateFeedbackVertex3dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateFeedbackVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
+	crStateFeedbackVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2],
 													1.0f);
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord4f( GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 )
+crStateFeedbackTexCoord4f(PCRStateTracker pState, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 )
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRVertex *v = g->vBuffer + g->vCount;
 
 	/* store the texCoord in the current vertex */
@@ -1234,242 +1228,242 @@ crStateFeedbackTexCoord4f( GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 )
 }
  
 void STATE_APIENTRY
-crStateFeedbackTexCoord4fv( const GLfloat *v )
+crStateFeedbackTexCoord4fv(PCRStateTracker pState, const GLfloat *v )
 {
-	crStateFeedbackTexCoord4f( v[0], v[1], v[2], v[3] );
+	crStateFeedbackTexCoord4f(pState, v[0], v[1], v[2], v[3] );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord4s( GLshort v0, GLshort v1, GLshort v2, GLshort v3 )
+crStateFeedbackTexCoord4s(PCRStateTracker pState, GLshort v0, GLshort v1, GLshort v2, GLshort v3 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, (GLfloat)v3 );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, (GLfloat)v3 );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord4sv( const GLshort *v )
+crStateFeedbackTexCoord4sv(PCRStateTracker pState, const GLshort *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], (GLfloat)v[3] );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], (GLfloat)v[3] );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord4i( GLint v0, GLint v1, GLint v2, GLint v3 )
+crStateFeedbackTexCoord4i(PCRStateTracker pState, GLint v0, GLint v1, GLint v2, GLint v3 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, (GLfloat)v3 );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, (GLfloat)v3 );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord4iv( const GLint *v )
+crStateFeedbackTexCoord4iv(PCRStateTracker pState, const GLint *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], (GLfloat)v[3] );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], (GLfloat)v[3] );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord4d( GLdouble v0, GLdouble v1, GLdouble v2, GLdouble v3 )
+crStateFeedbackTexCoord4d(PCRStateTracker pState, GLdouble v0, GLdouble v1, GLdouble v2, GLdouble v3 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, (GLfloat)v3 );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, (GLfloat)v3 );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord4dv( const GLdouble *v )
+crStateFeedbackTexCoord4dv(PCRStateTracker pState, const GLdouble *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], (GLfloat)v[3] );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], (GLfloat)v[3] );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1i( GLint v0 )
+crStateFeedbackTexCoord1i(PCRStateTracker pState, GLint v0 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1iv( const GLint *v )
+crStateFeedbackTexCoord1iv(PCRStateTracker pState, const GLint *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1s( GLshort v0 )
+crStateFeedbackTexCoord1s(PCRStateTracker pState, GLshort v0 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1sv( const GLshort *v )
+crStateFeedbackTexCoord1sv(PCRStateTracker pState, const GLshort *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1f( GLfloat v0 )
+crStateFeedbackTexCoord1f(PCRStateTracker pState, GLfloat v0 )
 {
-	crStateFeedbackTexCoord4f( v0, 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, v0, 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1fv( const GLfloat *v )
+crStateFeedbackTexCoord1fv(PCRStateTracker pState, const GLfloat *v )
 {
-	crStateFeedbackTexCoord4f( v[0], 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, v[0], 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1d( GLdouble v0 )
+crStateFeedbackTexCoord1d(PCRStateTracker pState, GLdouble v0 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord1dv( const GLdouble *v )
+crStateFeedbackTexCoord1dv(PCRStateTracker pState, const GLdouble *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], 0.0f, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], 0.0f, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2i( GLint v0, GLint v1 )
+crStateFeedbackTexCoord2i(PCRStateTracker pState, GLint v0, GLint v1 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2iv( const GLint *v )
+crStateFeedbackTexCoord2iv(PCRStateTracker pState, const GLint *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2s( GLshort v0, GLshort v1 )
+crStateFeedbackTexCoord2s(PCRStateTracker pState, GLshort v0, GLshort v1 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2sv( const GLshort *v )
+crStateFeedbackTexCoord2sv(PCRStateTracker pState, const GLshort *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2f( GLfloat v0, GLfloat v1 )
+crStateFeedbackTexCoord2f(PCRStateTracker pState, GLfloat v0, GLfloat v1 )
 {
-	crStateFeedbackTexCoord4f( v0, v1, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, v0, v1, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2fv( const GLfloat *v )
+crStateFeedbackTexCoord2fv(PCRStateTracker pState, const GLfloat *v )
 {
-	crStateFeedbackTexCoord4f( v[0], v[1], 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, v[0], v[1], 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2d( GLdouble v0, GLdouble v1 )
+crStateFeedbackTexCoord2d(PCRStateTracker pState, GLdouble v0, GLdouble v1 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord2dv( const GLdouble *v )
+crStateFeedbackTexCoord2dv(PCRStateTracker pState, const GLdouble *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3i( GLint v0, GLint v1, GLint v2 )
+crStateFeedbackTexCoord3i(PCRStateTracker pState, GLint v0, GLint v1, GLint v2 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3iv( const GLint *v )
+crStateFeedbackTexCoord3iv(PCRStateTracker pState, const GLint *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], 0.0f, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3s( GLshort v0, GLshort v1, GLshort v2 )
+crStateFeedbackTexCoord3s(PCRStateTracker pState, GLshort v0, GLshort v1, GLshort v2 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3sv( const GLshort *v )
+crStateFeedbackTexCoord3sv(PCRStateTracker pState, const GLshort *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3f( GLfloat v0, GLfloat v1, GLfloat v2 )
+crStateFeedbackTexCoord3f(PCRStateTracker pState, GLfloat v0, GLfloat v1, GLfloat v2 )
 {
-	crStateFeedbackTexCoord4f( v0, v1, v2, 1.0f );
+	crStateFeedbackTexCoord4f(pState, v0, v1, v2, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3fv( const GLfloat *v )
+crStateFeedbackTexCoord3fv(PCRStateTracker pState, const GLfloat *v )
 {
-	crStateFeedbackTexCoord4f( v[0], v[1], v[2], 1.0f );
+	crStateFeedbackTexCoord4f(pState, v[0], v[1], v[2], 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3d( GLdouble v0, GLdouble v1, GLdouble v2 )
+crStateFeedbackTexCoord3d(PCRStateTracker pState, GLdouble v0, GLdouble v1, GLdouble v2 )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v0, (GLfloat)v1, (GLfloat)v2, 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackTexCoord3dv( const GLdouble *v )
+crStateFeedbackTexCoord3dv(PCRStateTracker pState, const GLdouble *v )
 {
-	crStateFeedbackTexCoord4f( (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], 1.0f );
+	crStateFeedbackTexCoord4f(pState, (GLfloat)v[0], (GLfloat)v[1], (GLfloat)v[2], 1.0f );
 }
 
 void STATE_APIENTRY
-crStateFeedbackRectf(GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1)
+crStateFeedbackRectf(PCRStateTracker pState, GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1)
 {
-   crStateFeedbackBegin(GL_QUADS);
-   crStateFeedbackVertex2f(x0, y0);
-   crStateFeedbackVertex2f(x0, y1);
-   crStateFeedbackVertex2f(x1, y1);
-   crStateFeedbackVertex2f(x1, y0);
-   crStateFeedbackEnd();
+   crStateFeedbackBegin(pState, GL_QUADS);
+   crStateFeedbackVertex2f(pState, x0, y0);
+   crStateFeedbackVertex2f(pState, x0, y1);
+   crStateFeedbackVertex2f(pState, x1, y1);
+   crStateFeedbackVertex2f(pState, x1, y0);
+   crStateFeedbackEnd(pState);
 }
 
 void STATE_APIENTRY
-crStateFeedbackRecti(GLint x0, GLint y0, GLint x1, GLint y1)
+crStateFeedbackRecti(PCRStateTracker pState, GLint x0, GLint y0, GLint x1, GLint y1)
 {
-   crStateFeedbackRectf((GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
+   crStateFeedbackRectf(pState, (GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
 }
 
 void STATE_APIENTRY
-crStateFeedbackRectd(GLdouble x0, GLdouble y0, GLdouble x1, GLdouble y1)
+crStateFeedbackRectd(PCRStateTracker pState, GLdouble x0, GLdouble y0, GLdouble x1, GLdouble y1)
 {
-   crStateFeedbackRectf((GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
+   crStateFeedbackRectf(pState, (GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
 }
 
 void STATE_APIENTRY
-crStateFeedbackRects(GLshort x0, GLshort y0, GLshort x1, GLshort y1)
+crStateFeedbackRects(PCRStateTracker pState, GLshort x0, GLshort y0, GLshort x1, GLshort y1)
 {
-   crStateFeedbackRectf((GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
+   crStateFeedbackRectf(pState, (GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
 }
 
 void STATE_APIENTRY
-crStateFeedbackRectiv(const GLint *v0, const GLint *v1)
+crStateFeedbackRectiv(PCRStateTracker pState, const GLint *v0, const GLint *v1)
 {
-   crStateFeedbackRectf((GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
+   crStateFeedbackRectf(pState, (GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
 }
 
 void STATE_APIENTRY
-crStateFeedbackRectfv(const GLfloat *v0, const GLfloat *v1)
+crStateFeedbackRectfv(PCRStateTracker pState, const GLfloat *v0, const GLfloat *v1)
 {
-   crStateFeedbackRectf(v0[0], v0[1], v1[0], v1[1]);
+   crStateFeedbackRectf(pState, v0[0], v0[1], v1[0], v1[1]);
 }
 
 void STATE_APIENTRY
-crStateFeedbackRectdv(const GLdouble *v0, const GLdouble *v1)
+crStateFeedbackRectdv(PCRStateTracker pState, const GLdouble *v0, const GLdouble *v1)
 {
-   crStateFeedbackRectf((GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
+   crStateFeedbackRectf(pState, (GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
 }
 
 void STATE_APIENTRY
-crStateFeedbackRectsv(const GLshort *v0, const GLshort *v1)
+crStateFeedbackRectsv(PCRStateTracker pState, const GLshort *v0, const GLshort *v1)
 {
-   crStateFeedbackRectf((GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
+   crStateFeedbackRectf(pState, (GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
 }
 
 /**********************************************************************/
@@ -1478,21 +1472,21 @@ crStateFeedbackRectsv(const GLshort *v0, const GLshort *v1)
 
 
 void STATE_APIENTRY
-crStateSelectBuffer(GLsizei size, GLuint * buffer)
+crStateSelectBuffer(PCRStateTracker pState, GLsizei size, GLuint * buffer)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRSelectionState *se = &(g->selection);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "SelectBuffer called in begin/end");
 		return;
 	}
 
 	if (g->renderMode == GL_SELECT)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "SelectBuffer called with RenderMode = GL_SELECT");
 		return;
 	}
@@ -1544,14 +1538,14 @@ write_hit_record(CRSelectionState * se)
 
 
 void STATE_APIENTRY
-crStateInitNames(void)
+crStateInitNames(PCRStateTracker pState)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRSelectionState *se = &(g->selection);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "InitNames called in begin/end");
 		return;
 	}
@@ -1575,14 +1569,14 @@ crStateInitNames(void)
 
 
 void STATE_APIENTRY
-crStateLoadName(GLuint name)
+crStateLoadName(PCRStateTracker pState, GLuint name)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRSelectionState *se = &(g->selection);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "LoadName called in begin/end");
 		return;
 	}
@@ -1595,7 +1589,7 @@ crStateLoadName(GLuint name)
 
 	if (se->nameStackDepth == 0)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "nameStackDepth = 0");
 		return;
 	}
@@ -1618,14 +1612,14 @@ crStateLoadName(GLuint name)
 
 
 void STATE_APIENTRY
-crStatePushName(GLuint name)
+crStatePushName(PCRStateTracker pState, GLuint name)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRSelectionState *se = &(g->selection);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "PushName called in begin/end");
 		return;
 	}
@@ -1644,7 +1638,7 @@ crStatePushName(GLuint name)
 	}
 	if (se->nameStackDepth >= MAX_NAME_STACK_DEPTH)
 	{
-		crStateError(__LINE__, __FILE__, GL_STACK_OVERFLOW,
+		crStateError(pState, __LINE__, __FILE__, GL_STACK_OVERFLOW,
 								 "nameStackDepth overflow");
 	}
 	else
@@ -1652,14 +1646,14 @@ crStatePushName(GLuint name)
 }
 
 void STATE_APIENTRY
-crStatePopName(void)
+crStatePopName(PCRStateTracker pState)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRSelectionState *se = &(g->selection);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "PopName called in begin/end");
 		return;
 	}
@@ -1678,7 +1672,7 @@ crStatePopName(void)
 
 	if (se->nameStackDepth == 0)
 	{
-		crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW,
+		crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW,
 								 "nameStackDepth underflow");
 	}
 	else
@@ -1687,9 +1681,8 @@ crStatePopName(void)
 
 
 static void
-update_hitflag(GLfloat z)
+update_hitflag(CRContext *g, GLfloat z)
 {
-	CRContext *g = GetCurrentContext();
 	CRSelectionState *se = &(g->selection);
 
 	se->hitFlag = GL_TRUE;
@@ -1703,48 +1696,43 @@ update_hitflag(GLfloat z)
 
 
 static void
-select_rasterpos(void)
+select_rasterpos(CRContext *g)
 {
-	CRContext *g = GetCurrentContext();
-   
 	if (g->current.rasterValid)
-		update_hitflag(g->current.rasterAttrib[VERT_ATTRIB_POS][2]);
+		update_hitflag(g, g->current.rasterAttrib[VERT_ATTRIB_POS][2]);
 }
 
 static void
-select_point(const CRVertex *v)
+select_point(CRContext *g, const CRVertex *v)
 {
-	CRContext *g = GetCurrentContext();
-	if (clip_point(v) == 0)
+	if (clip_point(g, v) == 0)
 	{
 		CRVertex c = *v;
 		MAP_POINT(c.winPos, c.clipPos, g->viewport);
-		update_hitflag(c.winPos.z);
+		update_hitflag(g, c.winPos.z);
 	}
 }
 
 
 static void
-select_line(const CRVertex *v0, const CRVertex *v1)
+select_line(CRContext *g, const CRVertex *v0, const CRVertex *v1)
 {
-	CRContext *g = GetCurrentContext();
 	CRVertex c0, c1;
-	if (clip_line(v0, v1, &c0, &c1))
+	if (clip_line(g, v0, v1, &c0, &c1))
 	{
 		MAP_POINT(c0.winPos, c0.clipPos, g->viewport);
 		MAP_POINT(c1.winPos, c1.clipPos, g->viewport);
-		update_hitflag(c0.winPos.z);
-		update_hitflag(c1.winPos.z);
+		update_hitflag(g, c0.winPos.z);
+		update_hitflag(g, c1.winPos.z);
 	}
 }
 
 
 static void
-select_triangle(const CRVertex *v0,
+select_triangle(CRContext *g, const CRVertex *v0,
 								const CRVertex *v1,
 								const CRVertex *v2)
 {
-	CRContext *g = GetCurrentContext();
 	CRVertex vlist[3], vclipped[8];
 	GLuint i, n;
 
@@ -1754,15 +1742,15 @@ select_triangle(const CRVertex *v0,
 	n = clip_polygon(vlist, 3, vclipped);
 	for (i = 0; i < n; i++) {
 		MAP_POINT(vclipped[i].winPos, vclipped[i].clipPos, g->viewport);
-		update_hitflag(vclipped[i].winPos.z);
+		update_hitflag(g, vclipped[i].winPos.z);
 	}
 }
 
 
 void STATE_APIENTRY
-crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+crStateSelectVertex4f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRTransformState *t = &(g->transform);
 	CRVertex *v = g->vBuffer + g->vCount;
 
@@ -1784,7 +1772,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 	switch (g->current.mode) {
 	case GL_POINTS:
 		CRASSERT(g->vCount == 0);
-		select_point(v);
+		select_point(g, v);
 		break;
 	case GL_LINES:
 		if (g->vCount == 0)
@@ -1794,7 +1782,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 1);
-			select_line(g->vBuffer + 0, g->vBuffer + 1);
+			select_line(g, g->vBuffer + 0, g->vBuffer + 1);
 			g->vCount = 0;
 		}
 		break;
@@ -1806,7 +1794,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 1);
-			select_line(g->vBuffer + 0, g->vBuffer + 1);
+			select_line(g, g->vBuffer + 0, g->vBuffer + 1);
 			g->vBuffer[0] = g->vBuffer[1];
 			/* leave g->vCount at 1 */
 		}
@@ -1819,7 +1807,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		}
 		else if (g->vCount == 1)
 		{
-			select_line(g->vBuffer + 0, g->vBuffer + 1);
+			select_line(g, g->vBuffer + 0, g->vBuffer + 1);
 			g->lineLoop = GL_TRUE;
 			g->vCount = 2;
 		}
@@ -1827,7 +1815,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		{
 			CRASSERT(g->vCount == 2);
 			g->lineLoop = GL_FALSE;
-			select_line(g->vBuffer + 1, g->vBuffer + 2);
+			select_line(g, g->vBuffer + 1, g->vBuffer + 2);
 			g->vBuffer[1] = g->vBuffer[2];
 			/* leave g->vCount at 2 */
 		}
@@ -1840,7 +1828,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 2);
-			select_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 			g->vCount = 0;
 		}
 		break;
@@ -1851,13 +1839,13 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		}
 		else if (g->vCount == 2)
 		{
-			select_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 			g->vCount = 3;
 		}
 		else
 		{
 			CRASSERT(g->vCount == 3);
-			select_triangle(g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
 			g->vBuffer[0] = g->vBuffer[2];
 			g->vBuffer[1] = g->vBuffer[3];
 			g->vCount = 2;
@@ -1871,7 +1859,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 2);
-			select_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 			g->vBuffer[1] = g->vBuffer[2];
 			/* leave g->vCount = 2 */
 		}
@@ -1884,8 +1872,8 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 3);
-			select_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
-			select_triangle(g->vBuffer + 0, g->vBuffer + 2, g->vBuffer + 3);
+			select_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 0, g->vBuffer + 2, g->vBuffer + 3);
 			g->vCount = 0;
 		}
 		break;		
@@ -1897,8 +1885,8 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 3);
-			select_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
-			select_triangle(g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 1, g->vBuffer + 3, g->vBuffer + 2);
 			g->vBuffer[0] = g->vBuffer[2];
 			g->vBuffer[1] = g->vBuffer[3];
 			g->vCount = 2;
@@ -1913,7 +1901,7 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 		else
 		{
 			CRASSERT(g->vCount == 2);
-			select_triangle(g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
+			select_triangle(g, g->vBuffer + 0, g->vBuffer + 1, g->vBuffer + 2);
 			g->vBuffer[1] = g->vBuffer[2];
 			/* leave g->vCount = 2 */
 		}
@@ -1924,19 +1912,20 @@ crStateSelectVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+crStateSelectRasterPos4f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-	crStateRasterPos4f( x, y, z, w );
+	CRContext *g = GetCurrentContext(pState);
+	crStateRasterPos4f(pState, x, y, z, w );
 
-	select_rasterpos();
+	select_rasterpos(g);
 }
 
 void STATE_APIENTRY
-crStateSelectBegin(GLenum mode)
+crStateSelectBegin(PCRStateTracker pState, GLenum mode)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
-	crStateBegin(mode);
+	crStateBegin(pState, mode);
 
 	g->vCount = 0;
 	g->lineReset = GL_TRUE;
@@ -1945,360 +1934,360 @@ crStateSelectBegin(GLenum mode)
 
 
 void STATE_APIENTRY
-crStateSelectEnd(void)
+crStateSelectEnd(PCRStateTracker pState)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	if (g->current.mode == GL_LINE_LOOP && g->vCount == 2)
 	{
 		/* draw the last line segment */
-		select_line(g->vBuffer + 1, g->vBuffer + 0);
+		select_line(g, g->vBuffer + 1, g->vBuffer + 0);
 	}
 
-	crStateEnd();
+	crStateEnd(pState);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2d(GLdouble x, GLdouble y)
+crStateSelectVertex2d(PCRStateTracker pState, GLdouble x, GLdouble y)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, 0.0, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2dv(const GLdouble * v)
+crStateSelectVertex2dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2f(GLfloat x, GLfloat y)
+crStateSelectVertex2f(PCRStateTracker pState, GLfloat x, GLfloat y)
 {
-	crStateSelectVertex4f(x, y, 0.0, 1.0);
+	crStateSelectVertex4f(pState, x, y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2fv(const GLfloat * v)
+crStateSelectVertex2fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateSelectVertex4f(v[0], v[1], 0.0, 1.0);
+	crStateSelectVertex4f(pState, v[0], v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2i(GLint x, GLint y)
+crStateSelectVertex2i(PCRStateTracker pState, GLint x, GLint y)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, 0.0, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2iv(const GLint * v)
+crStateSelectVertex2iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2s(GLshort x, GLshort y)
+crStateSelectVertex2s(PCRStateTracker pState, GLshort x, GLshort y)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, 0.0, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex2sv(const GLshort * v)
+crStateSelectVertex2sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3d(GLdouble x, GLdouble y, GLdouble z)
+crStateSelectVertex3d(PCRStateTracker pState, GLdouble x, GLdouble y, GLdouble z)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3dv(const GLdouble * v)
+crStateSelectVertex3dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3f(GLfloat x, GLfloat y, GLfloat z)
+crStateSelectVertex3f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z)
 {
-	crStateSelectVertex4f(x, y, z, 1.0);
+	crStateSelectVertex4f(pState, x, y, z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3fv(const GLfloat * v)
+crStateSelectVertex3fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateSelectVertex4f(v[0], v[1], v[2], 1.0);
+	crStateSelectVertex4f(pState, v[0], v[1], v[2], 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3i(GLint x, GLint y, GLint z)
+crStateSelectVertex3i(PCRStateTracker pState, GLint x, GLint y, GLint z)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3iv(const GLint * v)
+crStateSelectVertex3iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3s(GLshort x, GLshort y, GLshort z)
+crStateSelectVertex3s(PCRStateTracker pState, GLshort x, GLshort y, GLshort z)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex3sv(const GLshort * v)
+crStateSelectVertex3sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w)
+crStateSelectVertex4d(PCRStateTracker pState, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex4dv(const GLdouble * v)
+crStateSelectVertex4dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex4fv(const GLfloat * v)
+crStateSelectVertex4fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateSelectVertex4f(v[0], v[1], v[2], v[3]);
+	crStateSelectVertex4f(pState, v[0], v[1], v[2], v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex4i(GLint x, GLint y, GLint z, GLint w)
+crStateSelectVertex4i(PCRStateTracker pState, GLint x, GLint y, GLint z, GLint w)
 {
-	crStateSelectVertex4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	crStateSelectVertex4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex4iv(const GLint * v)
+crStateSelectVertex4iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex4s(GLshort x, GLshort y, GLshort z, GLshort w)
+crStateSelectVertex4s(PCRStateTracker pState, GLshort x, GLshort y, GLshort z, GLshort w)
 {
-	crStateSelectVertex4f(x, y, z, w);
+	crStateSelectVertex4f(pState, x, y, z, w);
 }
 
 void STATE_APIENTRY
-crStateSelectVertex4sv(const GLshort * v)
+crStateSelectVertex4sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateSelectVertex4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+	crStateSelectVertex4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2d(GLdouble x, GLdouble y)
+crStateSelectRasterPos2d(PCRStateTracker pState, GLdouble x, GLdouble y)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2dv(const GLdouble * v)
+crStateSelectRasterPos2dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2f(GLfloat x, GLfloat y)
+crStateSelectRasterPos2f(PCRStateTracker pState, GLfloat x, GLfloat y)
 {
-	crStateSelectRasterPos4f(x, y, 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, x, y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2fv(const GLfloat * v)
+crStateSelectRasterPos2fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateSelectRasterPos4f(v[0], v[1], 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, v[0], v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2i(GLint x, GLint y)
+crStateSelectRasterPos2i(PCRStateTracker pState, GLint x, GLint y)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2iv(const GLint * v)
+crStateSelectRasterPos2iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2s(GLshort x, GLshort y)
+crStateSelectRasterPos2s(PCRStateTracker pState, GLshort x, GLshort y)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos2sv(const GLshort * v)
+crStateSelectRasterPos2sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3d(GLdouble x, GLdouble y, GLdouble z)
+crStateSelectRasterPos3d(PCRStateTracker pState, GLdouble x, GLdouble y, GLdouble z)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3dv(const GLdouble * v)
+crStateSelectRasterPos3dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3f(GLfloat x, GLfloat y, GLfloat z)
+crStateSelectRasterPos3f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z)
 {
-	crStateSelectRasterPos4f(x, y, z, 1.0);
+	crStateSelectRasterPos4f(pState, x, y, z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3fv(const GLfloat * v)
+crStateSelectRasterPos3fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3i(GLint x, GLint y, GLint z)
+crStateSelectRasterPos3i(PCRStateTracker pState, GLint x, GLint y, GLint z)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3iv(const GLint * v)
+crStateSelectRasterPos3iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3s(GLshort x, GLshort y, GLshort z)
+crStateSelectRasterPos3s(PCRStateTracker pState, GLshort x, GLshort y, GLshort z)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos3sv(const GLshort * v)
+crStateSelectRasterPos3sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , 1.0);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w)
+crStateSelectRasterPos4d(PCRStateTracker pState, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4dv(const GLdouble * v)
+crStateSelectRasterPos4dv(PCRStateTracker pState, const GLdouble * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , (GLfloat) v[3]);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , (GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4fv(const GLfloat * v)
+crStateSelectRasterPos4fv(PCRStateTracker pState, const GLfloat * v)
 {
-	crStateSelectRasterPos4f(v[0], v[1], v[2], v[3]);
+	crStateSelectRasterPos4f(pState, v[0], v[1], v[2], v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4i(GLint x, GLint y, GLint z, GLint w)
+crStateSelectRasterPos4i(PCRStateTracker pState, GLint x, GLint y, GLint z, GLint w)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4iv(const GLint * v)
+crStateSelectRasterPos4iv(PCRStateTracker pState, const GLint * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4s(GLshort x, GLshort y, GLshort z, GLshort w)
+crStateSelectRasterPos4s(PCRStateTracker pState, GLshort x, GLshort y, GLshort z, GLshort w)
 {
-	crStateSelectRasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	crStateSelectRasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
 void STATE_APIENTRY
-crStateSelectRasterPos4sv(const GLshort * v)
+crStateSelectRasterPos4sv(PCRStateTracker pState, const GLshort * v)
 {
-	crStateSelectRasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , (GLfloat) v[3]);
+	crStateSelectRasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2] , (GLfloat) v[3]);
 }
 
 void STATE_APIENTRY
-crStateSelectRectf(GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1)
+crStateSelectRectf(PCRStateTracker pState, GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1)
 {
-   crStateSelectBegin(GL_QUADS);
-   crStateSelectVertex2f(x0, y0);
-   crStateSelectVertex2f(x0, y1);
-   crStateSelectVertex2f(x1, y1);
-   crStateSelectVertex2f(x1, y0);
-   crStateSelectEnd();
+   crStateSelectBegin(pState, GL_QUADS);
+   crStateSelectVertex2f(pState, x0, y0);
+   crStateSelectVertex2f(pState, x0, y1);
+   crStateSelectVertex2f(pState, x1, y1);
+   crStateSelectVertex2f(pState, x1, y0);
+   crStateSelectEnd(pState);
 }
 
 void STATE_APIENTRY
-crStateSelectRecti(GLint x0, GLint y0, GLint x1, GLint y1)
+crStateSelectRecti(PCRStateTracker pState, GLint x0, GLint y0, GLint x1, GLint y1)
 {
-   crStateSelectRectf((GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
+   crStateSelectRectf(pState, (GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
 }
 
 void STATE_APIENTRY
-crStateSelectRectd(GLdouble x0, GLdouble y0, GLdouble x1, GLdouble y1)
+crStateSelectRectd(PCRStateTracker pState, GLdouble x0, GLdouble y0, GLdouble x1, GLdouble y1)
 {
-   crStateSelectRectf((GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
+   crStateSelectRectf(pState, (GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
 }
 
 void STATE_APIENTRY
-crStateSelectRects(GLshort x0, GLshort y0, GLshort x1, GLshort y1)
+crStateSelectRects(PCRStateTracker pState, GLshort x0, GLshort y0, GLshort x1, GLshort y1)
 {
-   crStateSelectRectf((GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
+   crStateSelectRectf(pState, (GLfloat) x0, (GLfloat) y0, (GLfloat) x1, (GLfloat) y1);
 }
 
 void STATE_APIENTRY
-crStateSelectRectiv(const GLint *v0, const GLint *v1)
+crStateSelectRectiv(PCRStateTracker pState, const GLint *v0, const GLint *v1)
 {
-   crStateSelectRectf((GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
+   crStateSelectRectf(pState, (GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
 }
 
 void STATE_APIENTRY
-crStateSelectRectfv(const GLfloat *v0, const GLfloat *v1)
+crStateSelectRectfv(PCRStateTracker pState, const GLfloat *v0, const GLfloat *v1)
 {
-   crStateSelectRectf(v0[0], v0[1], v1[0], v1[1]);
+   crStateSelectRectf(pState, v0[0], v0[1], v1[0], v1[1]);
 }
 
 void STATE_APIENTRY
-crStateSelectRectdv(const GLdouble *v0, const GLdouble *v1)
+crStateSelectRectdv(PCRStateTracker pState, const GLdouble *v0, const GLdouble *v1)
 {
-   crStateSelectRectf((GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
+   crStateSelectRectf(pState, (GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
 }
 
 void STATE_APIENTRY
-crStateSelectRectsv(const GLshort *v0, const GLshort *v1)
+crStateSelectRectsv(PCRStateTracker pState, const GLshort *v0, const GLshort *v1)
 {
-   crStateSelectRectf((GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
+   crStateSelectRectf(pState, (GLfloat) v0[0], (GLfloat) v0[1], (GLfloat) v1[0], (GLfloat) v1[1]);
 }
 
 
 GLint STATE_APIENTRY
-crStateRenderMode(GLenum mode)
+crStateRenderMode(PCRStateTracker pState, GLenum mode)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRFeedbackState *f = &(g->feedback);
 	CRSelectionState *se = &(g->selection);
 	GLint result;
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 								 "RenderMode called in begin/end");
 		return 0;
 	}
@@ -2342,7 +2331,7 @@ crStateRenderMode(GLenum mode)
 		f->count = 0;
 		break;
 	default:
-		crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "invalid rendermode");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "invalid rendermode");
 		return 0;
 	}
 
@@ -2354,7 +2343,7 @@ crStateRenderMode(GLenum mode)
 		if (se->bufferSize == 0)
 		{
 			/* haven't called glSelectBuffer yet */
-			crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 									 "buffersize = 0");
 		}
 		break;
@@ -2362,12 +2351,12 @@ crStateRenderMode(GLenum mode)
 		if (f->bufferSize == 0)
 		{
 			/* haven't called glFeedbackBuffer yet */
-			crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 									 "buffersize = 0");
 		}
 		break;
 	default:
-		crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "invalid rendermode");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "invalid rendermode");
 		return 0;
 	}
 
@@ -2378,42 +2367,44 @@ crStateRenderMode(GLenum mode)
 
 
 void STATE_APIENTRY
-crStateSelectDrawPixels(GLsizei width, GLsizei height, GLenum format,
+crStateSelectDrawPixels(PCRStateTracker pState, GLsizei width, GLsizei height, GLenum format,
 												GLenum type, const GLvoid * pixels)
 {
+	CRContext *g = GetCurrentContext(pState);
 	(void) width;
 	(void) height;
 	(void) format;
 	(void) type;
 	(void) pixels;
-	select_rasterpos();
+	select_rasterpos(g);
 }
 
 void STATE_APIENTRY
-crStateSelectCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height,
+crStateSelectCopyPixels(PCRStateTracker pState, GLint x, GLint y, GLsizei width, GLsizei height,
 												GLenum type)
 {
+	CRContext *g = GetCurrentContext(pState);
 	(void) x;
 	(void) y;
 	(void) width;
 	(void) height;
 	(void) type;
-	select_rasterpos();
+	select_rasterpos(g);
 }
 
 void STATE_APIENTRY
-crStateSelectBitmap(GLsizei width, GLsizei height, GLfloat xorig,
+crStateSelectBitmap(PCRStateTracker pState, GLsizei width, GLsizei height, GLfloat xorig,
 										GLfloat yorig, GLfloat xmove, GLfloat ymove,
 										const GLubyte * bitmap)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	(void) width;
 	(void) height;
 	(void) xorig;
 	(void) yorig;
 	(void) bitmap;
 
-	select_rasterpos();
+	select_rasterpos(g);
 	if (g->current.rasterValid)
 	{
 		g->current.rasterAttrib[VERT_ATTRIB_POS][0] += xmove;

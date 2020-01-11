@@ -3,7 +3,7 @@
  */
 
 /*
- * Copyright (C) 2006-2018 Oracle Corporation
+ * Copyright (C) 2006-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -171,8 +171,11 @@
  *                                                                       +----------------------------------+
  */
 
-#ifndef ___VBox_vmm_pdmaudioifs_h
-#define ___VBox_vmm_pdmaudioifs_h
+#ifndef VBOX_INCLUDED_vmm_pdmaudioifs_h
+#define VBOX_INCLUDED_vmm_pdmaudioifs_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
+#endif
 
 #include <iprt/assertcompile.h>
 #include <iprt/circbuf.h>
@@ -470,31 +473,74 @@ typedef struct PDMAUDIOSTREAMCHANNELDATA
 {
     /** Circular buffer for the channel data. */
     PRTCIRCBUF pCircBuf;
+    /** Amount of audio data (in bytes) acquired for reading. */
     size_t     cbAcq;
     /** Channel data flags. */
     uint32_t   fFlags;
 } PDMAUDIOSTREAMCHANNELDATA, *PPDMAUDIOSTREAMCHANNELDATA;
 
 /**
- * Structure for a single channel of an audio stream.
- * An audio stream consists of one or multiple channels,
+ * Enumeration for standard speaker channel IDs.
+ * This can cover up to 11.0 surround sound.
+ *
+ * Note: Any of those channels can be marked / used as the LFE channel (played through the subwoofer).
+ */
+typedef enum PDMAUDIOSTREAMCHANNELID
+{
+    /** Unknown / not set channel ID. */
+    PDMAUDIOSTREAMCHANNELID_UNKNOWN = 0,
+    /** Front left channel. */
+    PDMAUDIOSTREAMCHANNELID_FRONT_LEFT,
+    /** Front right channel. */
+    PDMAUDIOSTREAMCHANNELID_FRONT_RIGHT,
+    /** Front center channel. */
+    PDMAUDIOSTREAMCHANNELID_FRONT_CENTER,
+    /** Low frequency effects (subwoofer) channel. */
+    PDMAUDIOSTREAMCHANNELID_LFE,
+    /** Rear left channel. */
+    PDMAUDIOSTREAMCHANNELID_REAR_LEFT,
+    /** Rear right channel. */
+    PDMAUDIOSTREAMCHANNELID_REAR_RIGHT,
+    /** Front left of center channel. */
+    PDMAUDIOSTREAMCHANNELID_FRONT_LEFT_OF_CENTER,
+    /** Front right of center channel. */
+    PDMAUDIOSTREAMCHANNELID_FRONT_RIGHT_OF_CENTER,
+    /** Rear center channel. */
+    PDMAUDIOSTREAMCHANNELID_REAR_CENTER,
+    /** Side left channel. */
+    PDMAUDIOSTREAMCHANNELID_SIDE_LEFT,
+    /** Side right channel. */
+    PDMAUDIOSTREAMCHANNELID_SIDE_RIGHT,
+    /** Left height channel. */
+    PDMAUDIOSTREAMCHANNELID_LEFT_HEIGHT,
+    /** Right height channel. */
+    PDMAUDIOSTREAMCHANNELID_RIGHT_HEIGHT,
+    /** Hack to blow the type up to 32-bit. */
+    PDMAUDIOSTREAMCHANNELID_32BIT_HACK = 0x7fffffff
+} PDMAUDIOSTREAMCHANNELID;
+
+/**
+ * Structure for mapping a single (mono) channel or dual (stereo) channels of an audio stream (aka stream profile).
+ *
+ * An audio stream consists of one or multiple channels (e.g. 1 for mono, 2 for stereo),
  * depending on the configuration.
  */
-typedef struct PDMAUDIOSTREAMCHANNEL
+typedef struct PDMAUDIOSTREAMMAP
 {
-    /** Channel ID. */
-    uint8_t                   uChannel;
+    /** Array of channel IDs being handled.
+     *  Note: The first (zero-based) index specifies the leftmost channel. */
+    PDMAUDIOSTREAMCHANNELID    aID[2];
     /** Step size (in bytes) to the channel's next frame. */
-    size_t                    cbStep;
+    size_t                     cbSize;
     /** Frame size (in bytes) of this channel. */
-    size_t                    cbFrame;
+    size_t                     cbFrame;
     /** Offset (in bytes) to first frame in the data block. */
-    size_t                    cbFirst;
-    /** Currente offset (in bytes) in the data stream. */
-    size_t                    cbOff;
+    size_t                     cbFirst;
+    /** Offset (in bytes) to the next frame in the data block. */
+    size_t                     cbOff;
     /** Associated data buffer. */
-    PDMAUDIOSTREAMCHANNELDATA Data;
-} PDMAUDIOSTREAMCHANNEL, *PPDMAUDIOSTREAMCHANNEL;
+    PDMAUDIOSTREAMCHANNELDATA  Data;
+} PDMAUDIOSTREAMMAP, *PPDMAUDIOSTREAMMAP;
 
 /**
  * Union for keeping an audio stream destination or source.
@@ -600,7 +646,7 @@ typedef struct PDMAUDIOSTREAMCFG
         uint32_t             cfBufferSize;
         /** Pre-buffering size (in audio frames). Frames needed in buffer before the stream becomes active (pre buffering).
          *  The bigger this value is, the more latency for the stream will occur.
-         *  0 if not set / available by the backend. */
+         *  0 if not set / available by the backend. UINT32_MAX if not defined (yet). */
         uint32_t             cfPreBuf;
     } Backend;
 } PDMAUDIOSTREAMCFG;
@@ -962,9 +1008,12 @@ typedef struct PDMAUDIOSTREAMIN
 #ifdef VBOX_WITH_STATISTICS
     struct
     {
-        STAMCOUNTER BytesElapsed;
-        STAMCOUNTER BytesTotalRead;
-        STAMCOUNTER FramesCaptured;
+        STAMCOUNTER TotalFramesCaptured;
+        STAMCOUNTER AvgFramesCaptured;
+        STAMCOUNTER TotalTimesCaptured;
+        STAMCOUNTER TotalFramesRead;
+        STAMCOUNTER AvgFramesRead;
+        STAMCOUNTER TotalTimesRead;
     } Stats;
 #endif
     struct
@@ -985,18 +1034,16 @@ typedef struct PDMAUDIOSTREAMOUT
 #ifdef VBOX_WITH_STATISTICS
     struct
     {
-        STAMCOUNTER BytesElapsed;
-        STAMCOUNTER BytesTotalWritten;
-        STAMCOUNTER FramesPlayed;
+        STAMCOUNTER TotalFramesPlayed;
+        STAMCOUNTER AvgFramesPlayed;
+        STAMCOUNTER TotalTimesPlayed;
+        STAMCOUNTER TotalFramesWritten;
+        STAMCOUNTER AvgFramesWritten;
+        STAMCOUNTER TotalTimesWritten;
     } Stats;
 #endif
     struct
     {
-#ifdef DEBUG
-        /** Number of audio frames written since the last playback (transfer)
-         *  to the backend. */
-        uint64_t                cfWrittenSinceLastPlay;
-#endif
         /** File for writing stream writes. */
         PPDMAUDIOFILE           pFileStreamWrite;
         /** File for writing stream playback. */
@@ -1619,5 +1666,5 @@ typedef struct PDMIHOSTAUDIO
 
 /** @} */
 
-#endif /* !___VBox_vmm_pdmaudioifs_h */
+#endif /* !VBOX_INCLUDED_vmm_pdmaudioifs_h */
 

@@ -22,88 +22,6 @@
 #define snprintf _snprintf
 #endif
 
-/**
- * Sleep/pause for the given number of seconds.
- */
-void crSleep( unsigned int seconds )
-{
-#ifdef WINDOWS
-  Sleep(seconds*1000); /* milliseconds */
-#else
-  sleep(seconds);
-#endif
-}
-
-/**
- * Sleep/pause for the given number of milliseconds.
- */
-void crMsleep( unsigned int msec )
-{
-#ifdef WINDOWS
-     Sleep(msec); 
-#else
-     usleep(msec*1000); /* usecs */
-#endif
-}
-
-
-/*
- * Spawn (i.e. fork/exec) a new process.
- */
-CRpid crSpawn( const char *command, const char *argv[] )
-{
-#ifdef WINDOWS
-	char newargv[1000];
-	int i;
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-
-	(void) command;
-
-	ZeroMemory( &si, sizeof(si) );
-	si.cb = sizeof(si);
-	ZeroMemory( &pi, sizeof(pi) );
-
-	crStrncpy(newargv, argv[0], 1000 );
-	for (i = 1; argv[i]; i++) {
-		crStrcat(newargv, " ");
-		crStrcat(newargv, argv[i]);
-	}
-
-	if ( !CreateProcess(NULL, newargv, NULL, NULL, FALSE, 0, NULL,
-				NULL, &si, &pi) )
-	{
-		crWarning("crSpawn failed, %d", GetLastError());
-		return 0;
-	}
-	return pi.hProcess;
-#else
-	pid_t pid;
-	if ((pid = fork()) == 0)
-	{
-		/* I'm the child */
-		int err = execvp(command, (char * const *) argv);
-		crWarning("crSpawn failed (return code: %d)", err);
-		return 0;
-	}
-	return (unsigned long) pid;
-#endif
-}
-
-
-/*
- * Kill the named process.
- */
-void crKill( CRpid pid )
-{
-#ifdef WINDOWS
-	TerminateProcess( pid, 0 );
-#else
-	kill((pid_t) pid, SIGKILL);
-#endif
-}
-
-
 /*
  * Return the name of the running process.
  * name[0] will be zero if anything goes wrong.
@@ -203,21 +121,6 @@ void crGetProcName( char *name, int maxLen )
 	}
 	remove(tmp);
 # endif
-#endif
-}
-
-
-/*
- * Return current directory string.
- */
-void crGetCurrentDir( char *dir, int maxLen )
-{
-#ifdef WINDOWS
-  if (!GetCurrentDirectory(maxLen, dir))
-	dir[0] = 0;
-#else
-  if (!getcwd(dir, maxLen))
-	dir[0] = 0;
 #endif
 }
 

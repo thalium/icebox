@@ -124,12 +124,6 @@ VBOX_LNX_ADD_STRIP_SBIN += \
 
 ifdef VBOX_WITH_CROGL
 VBOX_LNX_ADD_STRIP_LIB += \
-	VBoxOGLarrayspu.so \
-	VBoxOGLcrutil.so \
-	VBoxOGLerrorspu.so \
-	VBoxOGLfeedbackspu.so \
-	VBoxOGLpackspu.so \
-	VBoxOGLpassthroughspu.so \
 	VBoxOGL.so \
 	VBoxEGL.so
 endif
@@ -270,7 +264,10 @@ include $(PATH_ROOT)/src/VBox/Additions/linux/drm/files_vboxvideo_drv
 VBOX_LNX_ADD_INST_FILES_VBOXVIDEO=$(patsubst =>%,$(PATH_STAGE_BIN)/additions/src/vboxvideo/%,$(filter =>%,$(subst =>, =>,$(subst $(DQUOTE),,$(FILES_VBOXVIDEO_DRM_NOBIN)))))
 
 # special rule for the kernel modules
-$(VBOX_LNX_ADD_INST_KMOD_DIR_BASE): $(PATH_STAGE_BIN)/additions/src/ | $(dir $@)
+$(VBOX_LNX_ADD_INST_KMOD_DIR_BASE): \
+		$(PATH_STAGE_BIN)/additions/src/ \
+		$(PATH_ROOT)/Version.kmk \
+		| $(dir $@)
 	$(call MSG_INST_SYM,$<,$@)
 	$(QUIET)$(RM) -Rf $@
 	$(QUIET)$(MKDIR) $@
@@ -364,7 +361,11 @@ if   defined(VBOX_WITH_TESTCASES) \
  && "$(KBUILD_HOST_ARCH)" == "$(KBUILD_TARGET_ARCH)"
 
  ifneq ($(KERN_DIR),)
-  $(foreach module, vboxguest-src vboxsf-src vboxvideo-src, $(eval $(VBOX_LINUX_GENERATE_KMOD_TEST)))
+  save_symvers = vboxguest-src
+  use_symvers = vboxguest-src
+  $(foreach module, vboxguest-src vboxsf-src, $(eval $(VBOX_LINUX_GENERATE_KMOD_TEST)))
+  save_symvers =
+  $(foreach module, vboxvideo-src, $(eval $(VBOX_LINUX_GENERATE_KMOD_TEST)))
  endif
 
 endif

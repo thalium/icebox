@@ -82,12 +82,12 @@ copy_texunit(CRTextureUnit *dest, const CRTextureUnit *src)
 }
 
 static void
-copy_texobj(CRTextureObj *dest, CRTextureObj *src, GLboolean copyName)
+copy_texobj(PCRStateTracker pState, CRTextureObj *dest, CRTextureObj *src, GLboolean copyName)
 {
     if (copyName)
     {
         dest->id = src->id;
-        dest->hwid = crStateGetTextureObjHWID(src);
+        dest->hwid = crStateGetTextureObjHWID(pState, src);
     }
 
     dest->borderColor = src->borderColor;
@@ -108,23 +108,23 @@ copy_texobj(CRTextureObj *dest, CRTextureObj *src, GLboolean copyName)
 #endif
 }
 
-void STATE_APIENTRY crStatePushAttrib(GLbitfield mask)
+void STATE_APIENTRY crStatePushAttrib(PCRStateTracker pState, GLbitfield mask)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRAttribState *a = &(g->attrib);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRAttribBits *ab = &(sb->attrib);
     unsigned int i;
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glPushAttrib called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glPushAttrib called in Begin/End");
         return;
     }
 
     if (a->attribStackDepth == CR_MAX_ATTRIB_STACK_DEPTH - 1)
     {
-        crStateError(__LINE__, __FILE__, GL_STACK_OVERFLOW, "glPushAttrib called with a full stack!" );
+        crStateError(pState, __LINE__, __FILE__, GL_STACK_OVERFLOW, "glPushAttrib called with a full stack!" );
         return;
     }
 
@@ -461,16 +461,16 @@ void STATE_APIENTRY crStatePushAttrib(GLbitfield mask)
             /* per-unit state */
             copy_texunit(&tState->unit[i], &g->texture.unit[i]);
             /* texture object state */
-            copy_texobj(&tState->unit[i].Saved1D, g->texture.unit[i].currentTexture1D, GL_TRUE);
-            copy_texobj(&tState->unit[i].Saved2D, g->texture.unit[i].currentTexture2D, GL_TRUE);
+            copy_texobj(pState, &tState->unit[i].Saved1D, g->texture.unit[i].currentTexture1D, GL_TRUE);
+            copy_texobj(pState, &tState->unit[i].Saved2D, g->texture.unit[i].currentTexture2D, GL_TRUE);
 #ifdef CR_OPENGL_VERSION_1_2
-            copy_texobj(&tState->unit[i].Saved3D, g->texture.unit[i].currentTexture3D, GL_TRUE);
+            copy_texobj(pState, &tState->unit[i].Saved3D, g->texture.unit[i].currentTexture3D, GL_TRUE);
 #endif
 #ifdef CR_ARB_texture_cube_map
-            copy_texobj(&tState->unit[i].SavedCubeMap, g->texture.unit[i].currentTextureCubeMap, GL_TRUE);
+            copy_texobj(pState, &tState->unit[i].SavedCubeMap, g->texture.unit[i].currentTextureCubeMap, GL_TRUE);
 #endif
 #ifdef CR_NV_texture_rectangle
-            copy_texobj(&tState->unit[i].SavedRect, g->texture.unit[i].currentTextureRect, GL_TRUE);
+            copy_texobj(pState, &tState->unit[i].SavedRect, g->texture.unit[i].currentTextureRect, GL_TRUE);
 #endif
         }
         a->textureStackDepth++;
@@ -511,24 +511,24 @@ void STATE_APIENTRY crStatePushAttrib(GLbitfield mask)
     DIRTY(ab->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStatePopAttrib(void) 
+void STATE_APIENTRY crStatePopAttrib(PCRStateTracker pState) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRAttribState *a = &(g->attrib);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRAttribBits *ab = &(sb->attrib);
     CRbitvalue mask;
     unsigned int i;
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glPopAttrib called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glPopAttrib called in Begin/End");
         return;
     }
 
     if (a->attribStackDepth == 0)
     {
-        crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty stack!" );
+        crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty stack!" );
         return;
     }
 
@@ -540,7 +540,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->accumBufferStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty accum buffer stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty accum buffer stack!" );
             return;
         }
         a->accumBufferStackDepth--;
@@ -552,7 +552,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->colorBufferStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty color buffer stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty color buffer stack!" );
             return;
         }
         a->colorBufferStackDepth--;
@@ -603,7 +603,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->currentStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty current stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty current stack!" );
             return;
         }
         a->currentStackDepth--;
@@ -625,7 +625,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->depthBufferStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty depth buffer stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty depth buffer stack!" );
             return;
         }
         a->depthBufferStackDepth--;
@@ -643,7 +643,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->enableStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty enable stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty enable stack!" );
             return;
         }
         a->enableStackDepth--;
@@ -737,7 +737,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->evalStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty eval stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty eval stack!" );
             return;
         }
         a->evalStackDepth--;
@@ -786,7 +786,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->fogStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty fog stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty fog stack!" );
             return;
         }
         a->fogStackDepth--;
@@ -810,7 +810,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->hintStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty hint stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty hint stack!" );
             return;
         }
         a->hintStackDepth--;
@@ -841,7 +841,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->lightingStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty lighting stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty lighting stack!" );
             return;
         }
         a->lightingStackDepth--;
@@ -902,7 +902,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->lineStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty line stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty line stack!" );
             return;
         }
         a->lineStackDepth--;
@@ -920,7 +920,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->listStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty list stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty list stack!" );
             return;
         }
         a->listStackDepth--;
@@ -931,7 +931,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->pixelModeStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty pixel mode stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty pixel mode stack!" );
             return;
         }
         a->pixelModeStackDepth--;
@@ -954,7 +954,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->pointStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty point stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty point stack!" );
             return;
         }
         a->pointStackDepth--;
@@ -976,7 +976,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->polygonStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty polygon stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty polygon stack!" );
             return;
         }
         a->polygonStackDepth--;
@@ -1002,7 +1002,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->polygonStippleStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty polygon stipple stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty polygon stipple stack!" );
             return;
         }
         a->polygonStippleStackDepth--;
@@ -1014,7 +1014,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->scissorStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty scissor stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty scissor stack!" );
             return;
         }
         a->scissorStackDepth--;
@@ -1031,7 +1031,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->stencilBufferStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty stencil stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty stencil stack!" );
             return;
         }
         a->stencilBufferStackDepth--;
@@ -1064,7 +1064,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
         CRTextureStack *tState;
         if (a->textureStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty texture stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty texture stack!" );
             return;
         }
         a->textureStackDepth--;
@@ -1075,21 +1075,21 @@ void STATE_APIENTRY crStatePopAttrib(void)
         {
             copy_texunit(&g->texture.unit[i], &tState->unit[i]);
             /* first, restore the bindings! */
-            g->texture.unit[i].currentTexture1D = crStateTextureGet(GL_TEXTURE_1D, tState->unit[i].Saved1D.id);
-            copy_texobj(g->texture.unit[i].currentTexture1D, &tState->unit[i].Saved1D, GL_FALSE);
-            g->texture.unit[i].currentTexture2D = crStateTextureGet(GL_TEXTURE_2D, tState->unit[i].Saved2D.id);
-            copy_texobj(g->texture.unit[i].currentTexture2D, &tState->unit[i].Saved2D, GL_FALSE);
+            g->texture.unit[i].currentTexture1D = crStateTextureGet(pState, GL_TEXTURE_1D, tState->unit[i].Saved1D.id);
+            copy_texobj(pState, g->texture.unit[i].currentTexture1D, &tState->unit[i].Saved1D, GL_FALSE);
+            g->texture.unit[i].currentTexture2D = crStateTextureGet(pState, GL_TEXTURE_2D, tState->unit[i].Saved2D.id);
+            copy_texobj(pState, g->texture.unit[i].currentTexture2D, &tState->unit[i].Saved2D, GL_FALSE);
 #ifdef CR_OPENGL_VERSION_1_2
-            g->texture.unit[i].currentTexture3D = crStateTextureGet(GL_TEXTURE_3D, tState->unit[i].Saved3D.id);
-            copy_texobj(g->texture.unit[i].currentTexture3D, &tState->unit[i].Saved3D, GL_FALSE);
+            g->texture.unit[i].currentTexture3D = crStateTextureGet(pState, GL_TEXTURE_3D, tState->unit[i].Saved3D.id);
+            copy_texobj(pState, g->texture.unit[i].currentTexture3D, &tState->unit[i].Saved3D, GL_FALSE);
 #endif
 #ifdef CR_ARB_texture_cube_map
-            g->texture.unit[i].currentTextureCubeMap = crStateTextureGet(GL_TEXTURE_CUBE_MAP_ARB, tState->unit[i].SavedCubeMap.id);
-            copy_texobj(g->texture.unit[i].currentTextureCubeMap, &tState->unit[i].SavedCubeMap, GL_FALSE);
+            g->texture.unit[i].currentTextureCubeMap = crStateTextureGet(pState, GL_TEXTURE_CUBE_MAP_ARB, tState->unit[i].SavedCubeMap.id);
+            copy_texobj(pState, g->texture.unit[i].currentTextureCubeMap, &tState->unit[i].SavedCubeMap, GL_FALSE);
 #endif
 #ifdef CR_NV_texture_rectangle
-            g->texture.unit[i].currentTextureRect = crStateTextureGet(GL_TEXTURE_CUBE_MAP_ARB, tState->unit[i].SavedRect.id);
-            copy_texobj(g->texture.unit[i].currentTextureRect, &tState->unit[i].SavedRect, GL_FALSE);
+            g->texture.unit[i].currentTextureRect = crStateTextureGet(pState, GL_TEXTURE_CUBE_MAP_ARB, tState->unit[i].SavedRect.id);
+            copy_texobj(pState, g->texture.unit[i].currentTextureRect, &tState->unit[i].SavedRect, GL_FALSE);
 #endif
         }
         DIRTY(sb->texture.dirty, g->neg_bitid);
@@ -1129,12 +1129,12 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->transformStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty transform stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty transform stack!" );
             return;
         }
         a->transformStackDepth--;
         g->transform.matrixMode = a->transformStack[a->transformStackDepth].matrixMode;
-        crStateMatrixMode(g->transform.matrixMode);
+        crStateMatrixMode(pState, g->transform.matrixMode);
         for (i = 0 ; i < g->limits.maxClipPlanes ; i++)
         {
             g->transform.clip[i] = a->transformStack[a->transformStackDepth].clip[i];
@@ -1153,7 +1153,7 @@ void STATE_APIENTRY crStatePopAttrib(void)
     {
         if (a->viewportStackDepth == 0)
         {
-            crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty viewport stack!" );
+            crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "glPopAttrib called with an empty viewport stack!" );
             return;
         }
         a->viewportStackDepth--;

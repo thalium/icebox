@@ -505,10 +505,6 @@ VBOX_WITH_EFI = 1
 #VBOX_WITH_EFIFW_FROM_BUILD_SERVER = 1
 # Include the EFI firmware into the package
 VBOX_WITH_EFIFW_PACKING = 1
-# Use kStuff for MACH-O and LX binary loading.
-if1of ($(KBUILD_TARGET_ARCH), x86 amd64)
- IPRT_WITH_KSTUFF = 1
-endif
 # Enable setuid wrapper for Solaris host DVD.
 #VBOX_WITH_SUID_WRAPPER = 1
 # Enable the virtual SATA/AHCI controller
@@ -1180,14 +1176,14 @@ ifdef VBOX_OSE
  ifn1of ($(KBUILD_TARGET), darwin linux solaris win)
   VBOX_WITH_INSTALLER=
  endif
- # if1of ($(KBUILD_TARGET), win)
+ if1of ($(KBUILD_TARGET), win)
   # Undefine codec libraries which are not needed.
   VBOX_WITH_LIBVPX=
   VBOX_WITH_LIBOPUS=
   # Disable video recording (with audio support).
   VBOX_WITH_VIDEOREC=
   VBOX_WITH_AUDIO_VIDEOREC=
- # endif
+ endif
  # branding
  VBOX_BRAND_LICENSE_HTML             := $(PATH_ROOT)/doc/License-gpl-2.0.html
  VBOX_BRAND_LICENSE_RTF              := $(PATH_ROOT)/doc/License-gpl-2.0.rtf
@@ -1307,6 +1303,16 @@ endif
 ifdef VBOX_WITH_TESTSUITE
  $(warning VBOX_WITH_TESTSUITE was renamed to VBOX_WITH_VALIDATIONKIT)
  VBOX_WITH_VALIDATIONKIT = $(VBOX_WITH_TESTSUITE)
+endif
+
+
+#
+# Derived indicators.
+#
+
+## Indicates that we need the extpack openssl libs.
+if defined(VBOX_WITH_EXTPACK_PUEL_BUILD)
+ VBOX_NEED_EXTPACK_OPENSSL = 1
 endif
 
 #
@@ -2036,8 +2042,6 @@ VBOX_PATH_MSIDB     ?= $(KBUILD_DEVTOOLS)/win.x86/sdk/v7.1/Bin/MsiDb.Exe
 VBOX_PATH_WISUBSTG  ?= $(KBUILD_DEVTOOLS)/win.x86/sdk/v7.1/Samples/sysmgmt/msi/scripts/WiSubStg.vbs
 VBOX_PATH_WISUMINFO ?= $(KBUILD_DEVTOOLS)/win.x86/sdk/v7.1/Samples/sysmgmt/msi/scripts/WiSumInf.vbs
 VBOX_PATH_DIFX      ?= $(KBUILD_DEVTOOLS)/win.$(KBUILD_TARGET_ARCH)/DIFx/v2.1-r3
-VBOX_PATH_CABSDK    ?= $(KBUILD_DEVTOOLS)/win.x86/cabsdk/r1
-VBOX_PATH_MAKECAB   ?= $(VBOX_PATH_CABSDK)/BIN/MAKECAB.EXE
 
 ifdef VBOX_OSE ## @todo try get rid of this crap! People can use the latest and greatest Yasm release, no need to check in the binary for OSE.
  # We need to export YASM for OSE, but since it was converted to .zip we need to
@@ -2216,8 +2220,12 @@ ifeq ($(KBUILD_TARGET),darwin)
   endif
  endif
  ifdef VBOX_WITH_NEW_XCODE
+  if $(KBUILD_HOST_VERSION_MAJOR) >= 18 # HACK ALERT! dtrace doesn't work on Mojave if we specify our Xcode 6.2 environment.
+   override TOOL_StandardDTrace_DTRACE := dtrace "-xcpppath=$(VBOX_PATH_MACOSX_DEVEL_ROOT)/usr/bin/gcc"
+  else
    override TOOL_StandardDTrace_DTRACE := $(TOOL_$(VBOX_GCC_TOOL)_ENV_SETUP) dtrace "-xcpppath=$(VBOX_PATH_MACOSX_DEVEL_ROOT)/usr/bin/gcc"
-   export PATH:=$(VBOX_PATH_MACOSX_SDK)/usr/bin:$(PATH)
+  endif
+  export PATH:=$(VBOX_PATH_MACOSX_SDK)/usr/bin:$(PATH)
  else
   if  $(VBOX_XCODE_VERSION_MAJOR) > 4 || ($(VBOX_XCODE_VERSION_MAJOR) == 4 && $(VBOX_XCODE_VERSION_MINOR) >= 2)
    TOOL_GXX4MACHO_PREFIX ?= llvm-
@@ -2414,10 +2422,6 @@ ifdef VBOX_WITH_CROGL
   VBOX_WITH_CRHGSMI = 1
  endif
 
- if1of ($(KBUILD_TARGET),darwin)
-  #VBOX_WITH_CR_DISPLAY_LISTS = 1
- endif
-
  VBOX_PATH_CROGL_GLAPI       = $(PATH_ROOT)/src/VBox/GuestHost/OpenGL/glapi_parser
  VBOX_PATH_CROGL_GENFILES    = $(PATH_OBJ)/VBoxOGLgen
  VBOX_PATH_CROGL_INCLUDE     = $(PATH_ROOT)/src/VBox/GuestHost/OpenGL/include
@@ -2430,18 +2434,8 @@ ifdef VBOX_WITH_CROGL
   VBOX_PATH_CROGL_PYTHON_INCLUDE = $(VBOX_PATH_CROGL_GLAPI):$(PATH_ROOT)/src/VBox/GuestHost/OpenGL/packer:$(PATH_ROOT)/src/VBox/HostServices/SharedOpenGL/crserverlib
  endif
 
- ifeq ($(KBUILD_TARGET),win)
-  VBOX_LIB_OGL_CRUTIL = $(PATH_OBJ)/VBoxOGLcrutil/VBoxOGLcrutil$(VBOX_SUFF_LIB)
-  VBOX_LIB_OGL_HOSTCRUTIL = $(PATH_OBJ)/VBoxOGLhostcrutil/VBoxOGLhostcrutil$(VBOX_SUFF_LIB)
-  ifeq ($(KBUILD_TARGET),x86)
-   VBOX_LIB_OGL_CRUTIL_X86      = $(VBOX_LIB_OGL_CRUTIL)
-  else
-   VBOX_LIB_OGL_CRUTIL_X86      = $(PATH_OBJ)/VBoxOGLcrutil-x86/VBoxOGLcrutil-x86$(VBOX_SUFF_LIB)
-  endif
- else
+ ifneq ($(KBUILD_TARGET),win)
   VBOX_LIB_OGL        = $(VBOX_PATH_ADDITIONS)/VBoxOGL$(VBOX_SUFF_DLL)
-  VBOX_LIB_OGL_CRUTIL = $(VBOX_PATH_ADDITIONS)/VBoxOGLcrutil$(VBOX_SUFF_DLL)
-  VBOX_LIB_OGL_HOSTCRUTIL = $(PATH_STAGE_BIN)/VBoxOGLhostcrutil$(VBOX_SUFF_DLL)
  endif
 
  if1of ($(KBUILD_TARGET), freebsd linux solaris)
@@ -3346,8 +3340,10 @@ ifdef VBOX_SIGNING_MODE
    VBOX_CERTIFICATE_SUBJECT_NAME ?= Oracle Corporation
    VBOX_CERTIFICATE_SUBJECT_NAME_ARGS ?= /n "$(VBOX_CERTIFICATE_SUBJECT_NAME)" /a
    #VBOX_CERTIFICATE_FINGERPRINT ?= 7e 92 b6 6b e5 1b 79 d8 ce 3f f2 5c 15 c2 df 6a b8 c7 f2 f2
-   VBOX_CERTIFICATE_FINGERPRINT ?= 5b de fe 58 0a 81 66 61 cd b5 7a 57 10 7b f4 18 74 86 ef cc
-   VBOX_CROSS_CERTIFICATE_FILE ?= $(VBOX_PATH_SELFSIGN)/VeriSign Class 3 Public Primary Certification Authority - G5.cer
+   #VBOX_CERTIFICATE_FINGERPRINT ?= 5b de fe 58 0a 81 66 61 cd b5 7a 57 10 7b f4 18 74 86 ef cc
+   VBOX_CERTIFICATE_FINGERPRINT ?= 6f 47 42 06 bc bb 39 1b b8 2b a9 e5 dc 03 02 de f3 7a eb be
+   #VBOX_CROSS_CERTIFICATE_FILE ?= $(VBOX_PATH_SELFSIGN)/VeriSign Class 3 Public Primary Certification Authority - G5.cer
+   VBOX_CROSS_CERTIFICATE_FILE ?= $(VBOX_PATH_SELFSIGN)/DigiCert Assured ID Root CA.crt
    VBOX_TSA_URL ?= http://timestamp.verisign.com/scripts/timestamp.dll
   endif
   if !defined(VBOX_CROSS_CERTIFICATE_FILE_ARGS) && defined(VBOX_CROSS_CERTIFICATE_FILE)
@@ -3368,7 +3364,8 @@ ifdef VBOX_SIGNING_MODE
    VBOX_CERTIFICATE_SHA2_SUBJECT_NAME ?= Oracle Corporation
    VBOX_CERTIFICATE_SHA2_SUBJECT_NAME_ARGS ?= /n "$(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME)" /a
    #VBOX_CERTIFICATE_SHA2_FINGERPRINT ?= 31 31 bb 58 8b 19 9e 6e 85 0f d3 35 82 b0 c5 82 55 e1 6c 49
-   VBOX_CERTIFICATE_SHA2_FINGERPRINT ?= 22 05 6a 4d 46 2e 3d 2b b2 c3 2f bf b0 5b 84 c4 65 9c f7 fe
+   #VBOX_CERTIFICATE_SHA2_FINGERPRINT ?= 22 05 6a 4d 46 2e 3d 2b b2 c3 2f bf b0 5b 84 c4 65 9c f7 fe
+   VBOX_CERTIFICATE_SHA2_FINGERPRINT ?= 17 3a 19 bf 8e 62 72 be 25 04 d3 08 aa 68 b1 b0 0e 03 33 2c
    VBOX_CROSS_CERTIFICATE_SHA2_FILE ?= $(VBOX_PATH_SELFSIGN)/VeriSign Class 3 Public Primary Certification Authority - G5.cer
    VBOX_TSA_SHA2_URL ?= http://sha256timestamp.ws.symantec.com/sha256/timestamp
   endif
@@ -3382,6 +3379,13 @@ ifdef VBOX_SIGNING_MODE
   VBOX_CERTIFICATE_SHA2_STORE_ARGS ?= /s "$(VBOX_CERTIFICATE_SHA2_STORE)"
   VBOX_CERTIFICATE_SHA2_FINGERPRINT_ARGS := $(if-expr "$(VBOX_CERTIFICATE_SHA2_FINGERPRINT)" != "" \
   	,/sha1 "$(subst $(SP),,$(VBOX_CERTIFICATE_SHA2_FINGERPRINT))",) # Still using SHA-1 for fingerprinting, it's good enough for that!
+  #VBOX_CERTIFICATE_EV_SUBJECT_NAME ?= MyEvCertificate
+  VBOX_CERTIFICATE_EV_SUBJECT_NAME_ARGS ?= /n "$(VBOX_CERTIFICATE_EV_SUBJECT_NAME)"
+  VBOX_CERTIFICATE_EV_STORE ?= my
+  VBOX_CERTIFICATE_EV_STORE_ARGS ?= /s "$(VBOX_CERTIFICATE_EV_STORE)"
+  #VBOX_CERTIFICATE_EV_FINGERPRINT ?= my ev cert fingerprint
+  VBOX_CERTIFICATE_EV_FINGERPRINT_ARGS := $(if-expr "$(VBOX_CERTIFICATE_EV_FINGERPRINT)" != "" \
+  	,/sha1 "$(subst $(SP),,$(VBOX_CERTIFICATE_EV_FINGERPRINT))",) # Still using SHA-1 for fingerprinting, it's good enough for that!
 
   ## Sign a file (generic).
   # @param 1  The file to sign.
@@ -3391,8 +3395,11 @@ ifdef VBOX_SIGNING_MODE
   # @param 5  Disables dual signing if non-empty.
   # @param 6  non-zero for alternative command separator.  This is used for generating repacking scripts.
   ifndef VBOX_SIGN_FILE_FN
-   ifeq ($(VBOX_WITH_CORP_CODE_SIGNING),all)
-    VBOX_SIGN_FILE_FN     = $(call VBOX_CCS_SIGN_CMD,driver,$1,$(dir $1))
+   if $(intersects win all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
+    VBOX_SIGN_FILE_FN     = $(call VBOX_CCS_SIGN_CMD,driver$(if-expr "$3" == "/ph",_pagehash,),$1,$(dir $1),-digest_algo SHA1) \
+        $(if-expr "$5" == "",\
+         $(if-expr "$6" == "",$(if-expr "$4" == "2",$$(NLTAB),$(NLTAB)),$6) \
+         $(call VBOX_CCS_SIGN_CMD,driver$(if-expr "$3" == "/ph",_pagehash,),$1,$(dir $1),-dual_sign -digest_algo SHA2))
    else ifdef VBOX_CERTIFICATE_SHA2_SUBJECT_NAME
     VBOX_SIGN_FILE_FN     = $(VBOX_SIGNTOOL) \
     	sign /fd sha1\
@@ -3410,7 +3417,7 @@ ifdef VBOX_SIGNING_MODE
 	$(VBOX_CROSS_CERTIFICATE_SHA2_FILE_ARGS) \
 	$(VBOX_CERTIFICATE_SHA2_STORE_ARGS) \
 	$(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME_ARGS) \
-       $(VBOX_CERTIFICATE_SHA2_FINGERPRINT_ARGS) \
+	$(VBOX_CERTIFICATE_SHA2_FINGERPRINT_ARGS) \
 	$(VBOX_TSA_SHA2_URL_ARGS) \
 	$(if $(strip $(2)),/d "$(strip $(2))",) \
 	$(3) \
@@ -3420,10 +3427,27 @@ ifdef VBOX_SIGNING_MODE
 	$(VBOX_CROSS_CERTIFICATE_FILE_ARGS) \
 	$(VBOX_CERTIFICATE_STORE_ARGS) \
 	$(VBOX_CERTIFICATE_SUBJECT_NAME_ARGS) \
-       $(VBOX_CERTIFICATE_FINGERPRINT_ARGS) \
+	$(VBOX_CERTIFICATE_FINGERPRINT_ARGS) \
 	$(VBOX_TSA_URL_ARGS) \
 	$(if $(strip $(2)),/d "$(strip $(2))",) \
 	$(3) \
+	$(1)
+   endif
+  endif
+
+  ## EV sign a file (generic).
+  # @param 1  The file to sign.
+  # @param 2  The directory to put the signed file in. Defaults to $(dir $1).
+  ifndef VBOX_SIGN_EV_FILE_FN
+   if $(intersects win_ev all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
+    VBOX_SIGN_EV_FILE_FN  = $(call VBOX_CCS_SIGN_CMD,microsoftev,$1,$(if $2,$2,$(dir $1)))
+   else ifdef VBOX_CERTIFICATE_EV_SUBJECT_NAME
+    VBOX_SIGN_EV_FILE_FN  = $(VBOX_SIGNTOOL) \
+    	sign /as /fd sha256 \
+	$(VBOX_CERTIFICATE_EV_STORE_ARGS) \
+	$(VBOX_CERTIFICATE_EV_SUBJECT_NAME_ARGS) \
+	$(VBOX_CERTIFICATE_EV_FINGERPRINT_ARGS) \
+	$(VBOX_TSA_SHA2_URL_ARGS) \
 	$(1)
    endif
   endif
@@ -3470,7 +3494,7 @@ ifdef VBOX_SIGNING_MODE
   VBOX_SIGN_IMAGE_FN     ?= $(call VBOX_SIGN_FILE_FN,$(1),$(2),/ph,$(3))
 
   ## Commands for signing a driver image after link.
-  if defined(VBOX_WITH_CORP_CODE_SIGNING) && "$(VBOX_WITH_CORP_CODE_SIGNING)" != "all"
+  if $(intersects win_planb,$(VBOX_WITH_CORP_CODE_SIGNING))
    VBOX_SIGN_DRIVER_CMDS ?= $(if $(eq $(tool_do),LINK_LIBRARY),,$(call VBOX_SIGN_IMAGE_PLAN_B_FN,$(out),,/ph,2))
    VBOX_SIGN_DRIVER_ORDERDEPS ?= $(VBOX_RTSIGNTOOL)
   else
@@ -3486,7 +3510,7 @@ ifdef VBOX_SIGNING_MODE
 	$(RM) -f -- "$(2)"\
 	$(NL)$(TAB)$(VBOX_INF2CAT) "/driver:$(strip $(1))" "/os:$(strip $(subst ;,$(COMMA),$(3)))" /verbose \
 	$(NL)$(TAB)$(MV) -- "$(2)" "$(2)"
-   if defined(VBOX_WITH_CORP_CODE_SIGNING) && "$(VBOX_WITH_CORP_CODE_SIGNING)" != "all"
+   if $(intersects win_planb,$(VBOX_WITH_CORP_CODE_SIGNING))
     VBOX_MAKE_CAT_HLP_FN += $(NL)$(TAB)$(call VBOX_SIGN_IMAGE_PLAN_B_FN,$(2),,,$(NL)$(TAB))
    else
     VBOX_MAKE_CAT_HLP_FN += $(NL)$(TAB)$(call         VBOX_SIGN_FILE_FN,$(2),,,$(NL)$(TAB))
@@ -3533,41 +3557,76 @@ ifdef VBOX_SIGNING_MODE
    VBOX_DARWIN_KEXT_SIGN_FILES = CodeResources
   endif
 
-  # The above version with complicated requirements is what Xcode 5.0.1GM suggest for kexts.
-  VBOX_SIGN_BUNDLE_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(VBOX_CODESIGN) \
+  ## Sign an application bundle, framework or kernel extension.
+  # @param 1  The bundle to sign.
+  # @param 2  Identifier, optional.
+  # @param 3  Additional codesign command line parameters, optional.
+  if $(intersects darwin all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
+   ## @todo cannot handle $(2), the identifier. $(3) is hopefully either empty or --deep
+   VBOX_SIGN_BUNDLE_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB) \
+	ditto -c -k --keepParent "$(1)" "$(1).zip"$(NLTAB) \
+	$(call VBOX_CCS_SIGN_CMD,apple,$(1).zip,,$(if $(eq $(3),--deep),-deep,))$(NLTAB) \
+	ditto -x -k "$(1).zip" "$(1)/../"$(NLTAB) \
+	$(RM) -f -- "$(1).zip"
+  else
+   VBOX_SIGN_BUNDLE_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(VBOX_CODESIGN) \
 	--verbose=9 \
 	--force \
 	--file-list - \
-       $(3) \
+	$(3) \
 	$(VBOX_CERTIFICATE_SUBJECT_NAME_ARGS) \
 	$(1) $(if $(2),--identifier "$(2)",)
+  endif
 
   ## Sign a Mach-O image.
-  # @param 1  The bundle to sign.
+  # @param 1  The file to sign.
   # @param 2  Identifier, optional.
-  VBOX_SIGN_MACHO_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(VBOX_CODESIGN) \
+  if $(intersects darwin all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
+   ## @todo cannot handle $(2), the identifier.
+   VBOX_SIGN_MACHO_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(call VBOX_CCS_SIGN_CMD,binary,$(1))
+  else
+   VBOX_SIGN_MACHO_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(VBOX_CODESIGN) \
 	--verbose=9 \
 	--force \
 	--file-list - \
 	$(VBOX_CERTIFICATE_SUBJECT_NAME_ARGS) \
 	$(1) \
 	$(if $(2),--identifier "$(2)",)
+  endif
 
   ## Sign a VMM Mach-O image.
-  # @param 1  The bundle to sign.
+  # @param 1  The file to sign.
   # @param 2  Identifier, optional.
   VBOX_SIGN_VMM_MOD_FN = $(VBOX_SIGN_MACHO_FN)
 
   ## Sign a non-executable file.
-  # @param 1  The bundle to sign.
+  # @param 1  The file to sign.
   # @param 2  Identifier, optional.
-  VBOX_SIGN_FILE_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(VBOX_CODESIGN) \
+  if $(intersects darwin all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
+   ## @todo cannot handle $(2), the identifier.
+   VBOX_SIGN_FILE_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(call VBOX_CCS_SIGN_CMD,binary,$(1))
+  else
+   VBOX_SIGN_FILE_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(VBOX_CODESIGN) \
 	--verbose=9 \
 	--force \
 	--file-list - \
 	$(VBOX_CERTIFICATE_SUBJECT_NAME_ARGS) \
 	$(1) \
 	$(if $(2),--identifier "$(2)",)
+  endif
+
+  ## Sign a DMG image.
+  # @param 1  The file to sign.
+  # @param 2  Identifier, optional.
+  VBOX_SIGN_DMG_FN = $(VBOX_SIGN_FILE_FN)
+
+  ## Sign a PKG file. Used with corp code signing only.
+  # @param 1  The file to sign.
+  # @param 2  Identifier, optional.
+  if $(intersects darwin all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
+   ## @todo cannot handle $(2), the identifier.
+   VBOX_SIGN_PKG_FN = $(call MSG_TOOL,SIGNTOOL,,$(1),$(2))$(NLTAB)$(call VBOX_CCS_SIGN_CMD,mac_pkg,$(1))
+  endif
 
   ## @def VBOX_TEST_SIGN_KEXT
   # Adds test signing to a $1.kext target (the plist installer target).
@@ -3639,7 +3698,7 @@ ifdef VBOX_SIGNING_MODE
 	-e $(1)
 
   ## Commands for signing a driver image after link.
-  ifdef VBOX_WITH_CORP_CODE_SIGNING
+  if $(intersects solaris all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
    VBOX_SIGN_DRIVER_CMDS ?= $(if $(eq $(tool_do),LINK_LIBRARY),,$(call VBOX_CCS_SIGN_CMD,solaris_elf,$(out)))
   else
    VBOX_SIGN_DRIVER_CMDS ?= $(if $(eq $(tool_do),LINK_LIBRARY),,$(call VBOX_SIGN_ELF_FN,$(out)))
@@ -3911,17 +3970,26 @@ if1of ($(KBUILD_TARGET), os2 win) # Not required on solaris.
 endif
 
 SDK_VBOX_OPENSSL      = Only for VBoxRT and/or statically linked programs.
-SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS := $(PATH_OUT)/obj/crypto-1.1.0-headers/include
+SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS := $(PATH_OUT)/obj/crypto-1.1.1-headers/include
 SDK_VBOX_OPENSSL_INCS ?= $(SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS)
 SDK_VBOX_OPENSSL_ORDERDEPS ?= $(crypto-headers_1_TARGET)
+if  !defined(VBOX_ONLY_SDK) \
+ && (!defined(VBOX_ONLY_ADDITIONS) || !defined(VBOX_ONLY_ADDITIONS_WITHOUT_RTISOMAKER)) \
+ && (!defined(VBOX_ONLY_EXTPACKS) || defined(VBOX_NEED_EXTPACK_OPENSSL) || !defined(VBOX_ONLY_EXTPACKS_USE_IMPLIBS)) \
+ && ("$(SDK_VBOX_OPENSSL_INCS)" == "$(SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS)" || defined(VBOX_NEED_EXTPACK_OPENSSL))
+ SDK_VBOX_OPENSSL_DEPS ?= $(SDK_VBOX_OPENSSL_INCS)/openssl/openssl-mangling.h
+endif
 SDK_VBOX_OPENSSL_LIBS ?= \
 	$(PATH_STAGE_LIB)/VBox-libssl$(VBOX_SUFF_LIB) \
 	$(PATH_STAGE_LIB)/VBox-libcrypto$(VBOX_SUFF_LIB)
 
 SDK_VBOX_OPENSSL-x86      = Only for VBoxRT and/or statically linked programs.
-SDK_VBOX_OPENSSL-x86_VBOX_DEFAULT_INCS := $(PATH_OUT)/obj/crypto-1.1.0-headers/include
+SDK_VBOX_OPENSSL-x86_VBOX_DEFAULT_INCS := $(PATH_OUT)/obj/crypto-1.1.1-headers/include
 SDK_VBOX_OPENSSL-x86_INCS ?= $(SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS)
 SDK_VBOX_OPENSSL-x86_ORDERDEPS ?= $(crypto-headers_1_TARGET)
+if ("$(SDK_VBOX_OPENSSL_INCS)" == "$(SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS)" || defined(VBOX_NEED_EXTPACK_OPENSSL))
+ SDK_VBOX_OPENSSL-x86_DEPS ?= $(SDK_VBOX_OPENSSL_INCS)/openssl/openssl-mangling.h
+endif
 SDK_VBOX_OPENSSL-x86_LIBS ?= \
 	$(PATH_STAGE_LIB)/VBox-libssl-x86$(VBOX_SUFF_LIB) \
 	$(PATH_STAGE_LIB)/VBox-libcrypto-x86$(VBOX_SUFF_LIB)
@@ -3994,10 +4062,9 @@ endif
 TOOL_VBoxTpG = The VirtualBox Tracepoint Generator
 TOOL_VBoxTpG_DTRACE_DEPORD          = $(VBOX_VBOXTPG)
 TOOL_VBoxTpG_DTRACE_HDR_FLAGS      := \
-		$(if-expr $(intersects $(KBUILD_TARGET_ARCH),$(KBUILD_ARCHES_64)),-64,-32) \
 		-h --host-$(VBOX_HC_ARCH_BITS)-bit #-vvv
 define TOOL_VBoxTpG_DTRACE_HDR_CMDS
-	$(QUIET)$(VBOX_VBOXTPG) $(flags) -o "$(out)" -s "$(source)"
+	$(QUIET)$(VBOX_VBOXTPG) $(if-expr $(intersects $(bld_trg_arch),$(KBUILD_ARCHES_64)),-64,-32) $(flags) -o "$(out)" -s "$(source)"
 endef
 TOOL_VBoxTpG_DTRACE_OBJ_NOT_NEEDED :=
 TOOL_VBoxTpG_DTRACE_OBJ_FLAGS      := -G --host-$(VBOX_HC_ARCH_BITS)-bit #-vvv
@@ -4273,9 +4340,12 @@ TEMPLATE_VBoxR0_CFLAGS              = $(VBOX_DARWIN_DEF_SDK_CFLAGS)   -nostdinc 
 TEMPLATE_VBoxR0_CFLAGS.amd64        = -m64 -mno-red-zone -mno-sse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2  -mno-sse4a -fno-unwind-tables
 TEMPLATE_VBoxR0_CFLAGS.x86          = -m32
 TEMPLATE_VBoxR0_LDFLAGS             = $(VBOX_DARWIN_DEF_SDK_LDFLAGS) -nostdlib
-#TEMPLATE_VBoxR0_LDFLAGS.release     = -Wl,-S ???
 TEMPLATE_VBoxR0_LDFLAGS.amd64       = -m64 -static
 TEMPLATE_VBoxR0_LDFLAGS.x86         = -m32
+TEMPLATE_VBoxR0_CXXFLAGS.amd64     += -mkernel
+TEMPLATE_VBoxR0_CFLAGS.amd64       += -mkernel
+TEMPLATE_VBoxR0_LDFLAGS            += -Wl,-kext -mkernel
+TEMPLATE_VBoxR0_POST_CMDS           = $(if $(eq $(tool_do),LINK_LIBRARY),,$(call VBOX_SIGN_VMM_MOD_FN,$(out),org.virtualbox.app.r0.$(target)))
 endif
 
 ifeq ($(VBOX_LDR_FMT),lx)
@@ -4358,21 +4428,36 @@ ifeq ($(KBUILD_TARGET),linux)
 ##
 # Using the extra expansion to replace $(module) before eval, thus everything
 # else needs escaped dollars.
+ #
+ # Since Linux KBuild will not abort due to undefined symbols when building
+ # external modules we need to grep the error output ourselves.  Since vboxdrv
+ # and vboxguest respectively provide symbols that other modules use, we use
+ # the rule target (tst*.run) to save those symbols so that KBuild can do its
+ # checking.  Note in this context the (unescaped) variables $(save_symvers)
+ # and $(use_symvers).
  define VBOX_LINUX_GENERATE_KMOD_TEST
   VBOX_TARGET_$(module) = $$(PATH_TARGET)/tst$(module)$(subst /,_,$(KERN_DIR))_mod.run
+  symvers_$(module)_dep = $$(if $(use_symvers),$$(if $$(eq $(use_symvers),$(module)),,\
+$$(PATH_TARGET)/tst$(use_symvers)$(subst /,_,$(KERN_DIR))_mod.run))
   TESTING      += $$(VBOX_TARGET_$(module))
   OTHERS       += $$(VBOX_TARGET_$(module))
   OTHERS_CLEAN += $$(VBOX_TARGET_$(module))
-  $$(VBOX_TARGET_$(module)): $$$$($(module)_2_STAGE_TARGETS)
+  $$(VBOX_TARGET_$(module)): $$$$($(module)_2_STAGE_TARGETS) $$(symvers_$(module)_dep)
 	$(QUIET)$$(call MSG_L1,Doing a test build of the $(module) kernel module)
 	$(QUIET)$$(RM) -f -- "$$@"
 	$(QUIET)$$(RM) -Rf -- "$$(PATH_TARGET)/tst$(module)_mod"
 	$(QUIET)$$(MKDIR) -p -- "$$(PATH_TARGET)/tst$(module)_mod"
 	$(QUIET)$$(CP) -R -- "$$(PATH_STAGE_BIN)/../$$($(module)_INST)" "$$(PATH_TARGET)/tst$(module)_mod/"
 	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) KERN_DIR=$(KERN_DIR) -C $$(PATH_TARGET)/tst$(module)_mod clean
-	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) KERN_DIR=$(KERN_DIR) $(if-expr $(KMK_OPTS_JOBS) != 1,JOBS=$(KMK_OPTS_JOBS),) -C $$(PATH_TARGET)/tst$(module)_mod
+	$(QUIET)$$(if $$(eq $$(symvers_$(module)_dep),),,\
+$$(CP) $$(symvers_$(module)_dep) "$$(PATH_TARGET)/tst$(module)_mod/Module.symvers")
+	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) KERN_DIR=$(KERN_DIR) $(if-expr $(KMK_OPTS_JOBS) != 1,JOBS=$(KMK_OPTS_JOBS),) -C $$(PATH_TARGET)/tst$(module)_mod \
+		2> "$$(PATH_TARGET)/tst$(module)_mod/make.err"
+	$(QUIET)! grep "^WARNING: .* undefined!$$$$" "$$(PATH_TARGET)/tst$(module)_mod/make.err"
+	$(QUIET)$$(if $$(eq $(save_symvers),$(module)),\
+$$(CP) "$$(PATH_TARGET)/tst$(module)_mod/Module.symvers" "$$@",\
+$(QUIET)$$(APPEND) -t "$$@" "done")
 	$(QUIET)$$(RM) -Rf -- $$(PATH_TARGET)/tst$(module)_mod
-	$(QUIET)$$(APPEND) -t "$$@" "done"
  endef
 
 endif
@@ -5066,11 +5151,6 @@ else
 endif
 TEMPLATE_VBoxR3Static_LIBS         += \
  	$(VBOX_LIB_RUNTIME_STATIC)
-ifndef SDK_VBOX_OPENSSL_LIBS
- TEMPLATE_VBoxR3Static_LIBS        += \
- 	$(PATH_STAGE_LIB)/VBox-libcrypto$(VBOX_SUFF_LIB) \
- 	$(PATH_STAGE_LIB)/VBox-libssl$(VBOX_SUFF_LIB)
-endif
 ifndef SDK_VBOX_LIBXML2_LIBS
  TEMPLATE_VBoxR3Static_LIBS        += \
  	$(PATH_STAGE_LIB)/VBox-libxml2-static$(VBOX_SUFF_LIB)
@@ -6177,7 +6257,7 @@ ifdef VBOX_WITH_QTGUI
   TEMPLATE_VBOXQTGUIEXE_CXXFLAGS = \
 	-g $(VBOX_GCC_pipe) $(filter-out -Wno-unused,$(VBOX_GCC_WARN)) -frtti -fno-exceptions \
 	-Wno-long-long -fshort-wchar -fno-strict-aliasing \
-	$(VBOX_GCC_fvisibility-hidden) $(VBOX_GCC_fvisibility-inlines-hidden) $(VBOX_GCC_Wno-ignored-qualifiers) \
+	$(VBOX_GCC_fvisibility-hidden) $(VBOX_GCC_fvisibility-inlines-hidden) $(VBOX_GCC_Wno-multistatement-macros) $(VBOX_GCC_Wno-ignored-qualifiers) \
 	$(VBOX_GCC_Wno-return-type-c-linkage) $(VBOX_GCC_std) $(VBOX_GCC_IPRT_FMT_CHECK)
   ifdef VBOX_WITH_NO_GCC_WARNING_POLICY
    TEMPLATE_VBOXQTGUIEXE_CXXFLAGS += $(VBOX_GCC_WERR)
@@ -6508,10 +6588,6 @@ ifeq ($(KBUILD_HOST),win)
 endif
 TEMPLATE_VBoxAdvBldProg_LIBS    = \
 	$(PATH_STAGE_LIB)/RuntimeBldProg$(VBOX_HOSTSUFF_LIB) \
-	$(if-expr defined(IPRT_WITH_KSTUFF), \
-		$(PATH_STAGE_LIB)/VBox-kStuffStaticBldProg$(VBOX_HOSTSUFF_LIB) \
-		$(PATH_STAGE_LIB)/RuntimeBldProg$(VBOX_HOSTSUFF_LIB) \
-	,) \
 	$(TEMPLATE_VBoxBldProg_LIBS)
 TEMPLATE_VBoxAdvBldProg_LIBS.darwin = \
 	$(TEMPLATE_VBoxAdvBldProg_LIBS) \
@@ -6864,11 +6940,11 @@ endif
 TEMPLATE_VBOXCROGLR3HOSTDLL                  = VBox OpenGL Host DLLs
 TEMPLATE_VBOXCROGLR3HOSTDLL_EXTENDS         := $(if-expr "$(KBUILD_TARGET)" == "win",VBOXR3,VBOXR3NP)
 TEMPLATE_VBOXCROGLR3HOSTDLL_EXTENDS_BY       = prepending
-TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS             = CHROMIUM_THREADSAFE VBOX_WITH_HGCM UNPACKS
+TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS             = VBOX_WITH_HGCM UNPACKS
 TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS.win         = _WIN32_WINNT=0x0500 WINDOWS=1
 TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS.linux       = Linux=1 _GNU_SOURCE
 TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS.solaris     = SunOS=1 _GNU_SOURCE #GLEXT_64_TYPES_DEFINED
-TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS.darwin      = DARWIN=1 GL_GLEXT_LEGACY _GNU_SOURCE VBOX_WITH_COCOA_QT
+TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS.darwin      = DARWIN=1 GL_GLEXT_LEGACY _GNU_SOURCE
 TEMPLATE_VBOXCROGLR3HOSTDLL_DEFS.freebsd     = FreeBSD=1 _GNU_SOURCE
 TEMPLATE_VBOXCROGLR3HOSTDLL_INCS             = $(VBOX_PATH_CROGL_INCLUDE) $(VBOX_PATH_CROGL_GENFILES)
 TEMPLATE_VBOXCROGLR3HOSTDLL_SDKS.darwin      = DARWIN-OPENGL
@@ -6884,24 +6960,10 @@ ifeq ($(KBUILD_TARGET),darwin)
  TEMPLATE_VBOXCROGLR3HOSTDLL_CXXFLAGS        = $(TEMPLATE_VBOXR3NP_CXXFLAGS) -Wno-deprecated-declarations
  TEMPLATE_VBOXCROGLR3HOSTDLL_OBJCFLAGS       = $(TEMPLATE_VBOXR3NP_OBJCFLAGS) -Wno-deprecated-declarations
 else ifeq ($(KBUILD_TARGET),win)
- #   -wd4255: cr_spu.h(146) : warning C4255: 'wglGetCurrentContextFunc_t' : no function prototype given: converting '()' to '(void)'
- #   -wd4296: udptcpip.c(662) : warning C4296: '>=' : expression is always true
- #   -wd4245: udptcpip.c(174) : warning C4245: '=' : conversion from 'int' to 'CRSocket', signed/unsigned mismatch
- #   -wd4668: tcpip.c(961) : warning C4668: 'CRAPPFAKER_SHOULD_DIE' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
- #   -wd4005: v7.1\include\sal_supp.h(57) : warning C4005: '__useHeader' : macro redefinition
- #   -wd4057: state_lists.c(196) : warning C4057: 'function' : 'GLint *' differs in indirection to slightly different base types from 'GLenum *'
- #   -wd4389: renderspu.c(750) : warning C4389: '!=' : signed/unsigned mismatch
- #   -wd4054: renderspu_wgl.c(281) : warning C4054: 'type cast' : from function pointer 'HWND (__cdecl *)()' to data pointer 'void *'
  #   -wd4055: renderspu.c(1553) : warning C4055: 'type cast' : from data pointer 'const GLvoid *' to function pointer 'PFNVCRSERVER_CLIENT_CALLOUT'
- #   -wd4312: renderspu_wgl.c(1420) : warning C4312: 'type cast' : conversion from 'GLint' to 'HDC' of greater size [TODO: check this one out]
- #   -wd4305: renderspu_wgl.c(1118) : warning C4305: 'type cast' : truncation from 'uint64_t' to 'void *' [TODO: check this one out]
- #   -wd4306: renderspu_wgl.c(1420) : warning C4306: 'type cast' : conversion from 'GLint' to 'HDC' of greater size [TODO: check this one out]
- #   -wd4189: server_config.c(111) : warning C4189: 'my_rank' : local variable is initialized but not referenced
- #   -wd4100: vboxhgcm.c(1365) : warning C4100: 'conn' : unreferenced formal parameter
+ #   -wd4305: renderspu_wgl.c(1118) : warning C4305: 'type cast' : truncation from 'uint64_t' to 'void *'
  TEMPLATE_VBOXCROGLR3HOSTDLL_CFLAGS          = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3HOSTDLL_EXTENDS)_CFLAGS) \
- 	-wd4255 -wd4296 -wd4245 -wd4668 -wd4005 -wd4057 -wd4389 -wd4054 -wd4055 -wd4312 -wd4305 -wd4306 -wd4189 -wd4100
- TEMPLATE_VBOXCROGLR3HOSTDLL_CXXFLAGS        = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3HOSTDLL_EXTENDS)_CXXFLAGS) \
- 	-wd4245 -wd4389 -wd4189 -wd4100
+  -wd4055 -wd4305
 endif
 
 #
@@ -6920,11 +6982,11 @@ TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS          = VBoxGuestR3Dll
 else
 TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS          = VBOXGUESTR3NPDLL
 endif
-TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS             = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS) CHROMIUM_THREADSAFE VBOX_WITH_HGCM
+TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS             = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS) VBOX_WITH_HGCM
 TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS.win         = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS.win) WINDOWS=1
 TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS.linux       = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS.linux) Linux=1 _GNU_SOURCE
 TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS.solaris     = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS.solaris) SunOS=1 _GNU_SOURCE #GLEXT_64_TYPES_DEFINED
-TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS.darwin      = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS.darwin) DARWIN=1 GL_GLEXT_LEGACY _GNU_SOURCE VBOX_WITH_COCOA_QT
+TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS.darwin      = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS.darwin) DARWIN=1 GL_GLEXT_LEGACY _GNU_SOURCE
 TEMPLATE_VBOXCROGLR3GUESTDLL_DEFS.freebsd     = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_DEFS.freebsd) FreeBSD=1 _GNU_SOURCE
 TEMPLATE_VBOXCROGLR3GUESTDLL_INCS             = $(VBOX_PATH_CROGL_INCLUDE) $(VBOX_PATH_CROGL_GENFILES) $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_INCS)
 TEMPLATE_VBOXCROGLR3GUESTDLL_SDKS.darwin      = DARWIN-OPENGL $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_SDKS)
@@ -7217,7 +7279,7 @@ endif
 SVN                    ?= svn$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_FALLBACK := $(patsubst %:,,  $Rev: 126257 $  )
+ VBOX_SVN_REV_FALLBACK := $(patsubst %:,,  $Rev: 133883 $  )
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  ifeq ($(which $(SVN)),)
   VBOX_SVN_DEP         :=
@@ -7338,4 +7400,5 @@ up2 update2::
 
 st stat status:
 	$(SVN) status
+
 

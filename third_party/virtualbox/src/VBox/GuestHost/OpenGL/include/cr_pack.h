@@ -11,11 +11,13 @@
 #include "cr_error.h"
 #include "cr_protocol.h"
 #include "cr_opcodes.h"
-#include "cr_endian.h"
+#ifndef IN_RING0
+# include "cr_glstate.h"
+#endif
 #include "state/cr_statetypes.h"
 #include "state/cr_currentpointers.h"
 #include "state/cr_client.h"
-#ifdef CHROMIUM_THREADSAFE
+#ifndef IN_RING0
 #include "cr_threads.h"
 #endif
 
@@ -83,9 +85,8 @@ struct CRPackContext_t
     uint32_t u32CmdBlockState;
     GLvectorf bounds_min, bounds_max;
     int updateBBOX;
-    int swapping;
     CRPackBuffer *currentBuffer;
-#ifdef CHROMIUM_THREADSAFE
+#ifndef IN_RING0
     CRmutex mutex;
 #endif
     char *file;  /**< for debugging only */
@@ -98,17 +99,13 @@ struct CRPackContext_t
 # define CR_PACKER_CONTEXT_ARG
 # define CR_PACKER_CONTEXT_ARG_NOREF()  do {} while (0)
 # define CR_PACKER_CONTEXT_ARGCTX(C)
-# ifdef CHROMIUM_THREADSAFE
 extern CRtsd _PackerTSD;
-#  define CR_GET_PACKER_CONTEXT(C) CRPackContext *C = (CRPackContext *) crGetTSD(&_PackerTSD)
-#  define CR_LOCK_PACKER_CONTEXT(PC) crLockMutex(&((PC)->mutex))
-#  define CR_UNLOCK_PACKER_CONTEXT(PC) crUnlockMutex(&((PC)->mutex))
-# else
-extern DLLDATA(CRPackContext) cr_packer_globals;
-#  define CR_GET_PACKER_CONTEXT(C) CRPackContext *C = &cr_packer_globals
-#  define CR_LOCK_PACKER_CONTEXT(PC)
-#  define CR_UNLOCK_PACKER_CONTEXT(PC)
-# endif
+#ifndef IN_RING0
+extern DECLHIDDEN(PCRStateTracker) g_pStateTracker; /** Hack to make the state tracker available to pack_client.c which uses crStateGetCurrent(). */
+#endif
+# define CR_GET_PACKER_CONTEXT(C) CRPackContext *C = (CRPackContext *) crGetTSD(&_PackerTSD)
+# define CR_LOCK_PACKER_CONTEXT(PC) crLockMutex(&((PC)->mutex))
+# define CR_UNLOCK_PACKER_CONTEXT(PC) crUnlockMutex(&((PC)->mutex))
 extern uint32_t cr_packer_cmd_blocks_enabled;
 #else /* if defined IN_RING0 */
 # define CR_PACKER_CONTEXT_ARGSINGLEDECL CRPackContext *_pCtx
@@ -121,7 +118,7 @@ extern uint32_t cr_packer_cmd_blocks_enabled;
 # define CR_UNLOCK_PACKER_CONTEXT(PC)
 #endif
 
-extern DECLEXPORT(CRPackContext *) crPackNewContext(int swapping);
+extern DECLEXPORT(CRPackContext *) crPackNewContext(void);
 extern DECLEXPORT(void) crPackDeleteContext(CRPackContext *pc);
 extern DECLEXPORT(void) crPackSetContext( CRPackContext *pc );
 extern DECLEXPORT(CRPackContext *) crPackGetContext( void );
@@ -163,7 +160,6 @@ extern DECLEXPORT(int) crPackCanHoldBoundedBuffer( CR_PACKER_CONTEXT_ARGDECL con
 #endif
 #ifndef IN_RING0
 extern DECLEXPORT(void) crWriteUnalignedDouble( void *buffer, double d );
-extern DECLEXPORT(void) crWriteSwappedDouble( void *buffer, double d );
 #endif
 
 extern DECLEXPORT(void) *crPackAlloc( CR_PACKER_CONTEXT_ARGDECL unsigned int len );

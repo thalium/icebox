@@ -12,7 +12,7 @@
 void crStateHintInit (CRContext *ctx) 
 {
 	CRHintState *h = &ctx->hint;
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
 	CRHintBits *hb = &(sb->hint);
 
 	h->perspectiveCorrection = GL_DONT_CARE;
@@ -40,16 +40,16 @@ void crStateHintInit (CRContext *ctx)
 	RESET(hb->dirty, ctx->bitid);
 }
 
-void STATE_APIENTRY crStateHint(GLenum target, GLenum mode) 
+void STATE_APIENTRY crStateHint(PCRStateTracker pState, GLenum target, GLenum mode) 
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRHintState *h = &(g->hint);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRHintBits *hb = &(sb->hint);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 					 "glHint called in Begin/End");
 		return;
 	}
@@ -57,7 +57,7 @@ void STATE_APIENTRY crStateHint(GLenum target, GLenum mode)
 	FLUSH();
 
 	if (mode != GL_FASTEST && mode != GL_NICEST && mode != GL_DONT_CARE) {
-		crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 					 "glHint(mode)");
 		return;
 	}
@@ -90,7 +90,7 @@ void STATE_APIENTRY crStateHint(GLenum target, GLenum mode)
 			DIRTY(hb->clipVolumeClipping, g->neg_bitid);
 		}
 		else {
-			crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 						 "glHint(target)");
 			return;
 		}
@@ -103,7 +103,7 @@ void STATE_APIENTRY crStateHint(GLenum target, GLenum mode)
 			DIRTY(hb->textureCompression, g->neg_bitid);
 		}
 		else {
-			crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 						 "glHint(target)");
 			return;
 		}
@@ -116,14 +116,14 @@ void STATE_APIENTRY crStateHint(GLenum target, GLenum mode)
 			DIRTY(hb->generateMipmap, g->neg_bitid);
 		}
 		else {
-			crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 						 "glHint(target)");
 			return;
 		}
 		break;
 #endif
 	default:
-		crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 					 "glHint(target)");
 		return;
 	}

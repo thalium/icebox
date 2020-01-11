@@ -6,9 +6,10 @@
 
 
 #include "cr_error.h"
-#include "cr_environment.h"
 #include "cr_pack.h"
 #include "packer.h"
+
+#include <iprt/env.h>
 
 
 /*
@@ -31,7 +32,7 @@ void __PackError( int line, const char *file, GLenum error, const char *info)
     if (pc->Error)
         pc->Error( line, file, error, info );
 
-    if (crGetenv("CR_DEBUG"))
+    if (RTEnvExist("CR_DEBUG"))
     {
         char *glerr;
 

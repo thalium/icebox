@@ -90,6 +90,7 @@ crBufferPoolFree( CRBufferPool *pool )
         crFree(b->address);
         crFree(b);
     }
+    crFree(pool);
 }
 
 void
@@ -104,6 +105,7 @@ crBufferPoolCallbackFree(CRBufferPool *pool, CRBufferPoolDeleteCallback pfnDelet
         (*pfnDelete)(b->address);
         crFree(b);
     }
+    crFree(pool);
 }
 
 void

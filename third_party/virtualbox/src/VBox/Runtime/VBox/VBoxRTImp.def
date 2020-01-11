@@ -525,7 +525,6 @@ EXPORTS
     RTLdrLoad
     RTLdrLoadAppPriv
     RTLdrOpen
-    RTLdrOpenkLdr
     RTLdrRelocate
     RTLdrSize
     RTLinuxFindDevicePath
@@ -737,6 +736,7 @@ EXPORTS
     RTMemSaferAllocZExTag
     RTMemSaferAllocZTag
     RTMemSaferFree
+    RTMemSaferGetSize
     RTMemSaferReallocZExTag
     RTMemSaferReallocZTag
     RTMemSaferScramble

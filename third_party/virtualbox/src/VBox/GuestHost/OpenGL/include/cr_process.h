@@ -32,17 +32,7 @@ typedef unsigned long CRpid;
 #endif
 
 
-extern DECLEXPORT(void) crSleep( unsigned int seconds );
-
-extern DECLEXPORT(void) crMsleep( unsigned int msec );
-
-extern DECLEXPORT(CRpid) crSpawn( const char *command, const char *argv[] );
-
-extern DECLEXPORT(void) crKill( CRpid pid );
-
 extern DECLEXPORT(void) crGetProcName( char *name, int maxLen );
-
-extern DECLEXPORT(void) crGetCurrentDir( char *dir, int maxLen );
 
 extern DECLEXPORT(CRpid) crGetPID(void);
 

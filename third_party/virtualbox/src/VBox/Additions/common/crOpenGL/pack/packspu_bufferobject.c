@@ -30,7 +30,7 @@ packspu_MapBufferARB( GLenum target, GLenum access )
     CRBufferObject *pBufObj;
 
     CRASSERT(GL_TRUE == ctx->clientState->bufferobject.retainBufferData);
-    buffer = crStateMapBufferARB(target, access);
+    buffer = crStateMapBufferARB(&pack_spu.StateTracker, target, access);
 
 #ifdef CR_ARB_pixel_buffer_object
     if (buffer)
@@ -66,7 +66,7 @@ void PACKSPU_APIENTRY packspu_GetBufferSubDataARB( GLenum target, GLintptrARB of
     }
 #endif
 
-    crStateGetBufferSubDataARB(target, offset, size, data);
+    crStateGetBufferSubDataARB(&pack_spu.StateTracker, target, offset, size, data);
 }
 
 
@@ -85,7 +85,7 @@ packspu_UnmapBufferARB( GLenum target )
 #endif
 
     CRASSERT(GL_TRUE == ctx->clientState->bufferobject.retainBufferData);
-    crStateUnmapBufferARB( target );
+    crStateUnmapBufferARB(&pack_spu.StateTracker, target );
 
     return GL_TRUE;
 }
@@ -95,7 +95,7 @@ void PACKSPU_APIENTRY
 packspu_BufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage)
 {
     /*crDebug("packspu_BufferDataARB size:%d", size);*/
-    crStateBufferDataARB(target, size, data, usage);
+    crStateBufferDataARB(&pack_spu.StateTracker,target, size, data, usage);
     crPackBufferDataARB(target, size, data, usage);
 }
 
@@ -103,7 +103,7 @@ void PACKSPU_APIENTRY
 packspu_BufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data)
 {
     /*crDebug("packspu_BufferSubDataARB size:%d", size);*/
-    crStateBufferSubDataARB(target, offset, size, data);
+    crStateBufferSubDataARB(&pack_spu.StateTracker,target, offset, size, data);
     crPackBufferSubDataARB(target, offset, size, data);
 }
 
@@ -111,14 +111,14 @@ packspu_BufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, 
 void PACKSPU_APIENTRY
 packspu_GetBufferPointervARB(GLenum target, GLenum pname, GLvoid **params)
 {
-    crStateGetBufferPointervARB( target, pname, params );
+    crStateGetBufferPointervARB(&pack_spu.StateTracker, target, pname, params );
 }
 
 
 void PACKSPU_APIENTRY
 packspu_GetBufferParameterivARB( GLenum target, GLenum pname, GLint * params )
 {
-    crStateGetBufferParameterivARB( target, pname, params );
+    crStateGetBufferParameterivARB(&pack_spu.StateTracker, target, pname, params );
 }
 
 /*
@@ -127,7 +127,7 @@ packspu_GetBufferParameterivARB( GLenum target, GLenum pname, GLint * params )
 void PACKSPU_APIENTRY
 packspu_BindBufferARB( GLenum target, GLuint buffer )
 {
-    crStateBindBufferARB(target, buffer);
+    crStateBindBufferARB(&pack_spu.StateTracker, target, buffer);
     crPackBindBufferARB(target, buffer);
 }
 
@@ -139,22 +139,16 @@ void PACKSPU_APIENTRY packspu_GenBuffersARB( GLsizei n, GLuint * buffer )
     {
         crError( "packspu_GenBuffersARB doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!" );
     }
-    if (pack_spu.swap)
-    {
-        crPackGenBuffersARBSWAP( n, buffer, &writeback );
-    }
-    else
-    {
-        crPackGenBuffersARB( n, buffer, &writeback );
-    }
+
+    crPackGenBuffersARB( n, buffer, &writeback );
     packspuFlush( (void *) thread );
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
 
-    crStateRegBuffers(n, buffer);
+    crStateRegBuffers(&pack_spu.StateTracker,n, buffer);
 }
 
 void PACKSPU_APIENTRY packspu_DeleteBuffersARB( GLsizei n, const GLuint * buffer )
 {
-    crStateDeleteBuffersARB( n, buffer );
+    crStateDeleteBuffersARB(&pack_spu.StateTracker, n, buffer );
     crPackDeleteBuffersARB(n, buffer);
 }

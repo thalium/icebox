@@ -210,6 +210,8 @@ typedef struct CPUMDBENTRY
 
 #include "cpus/VIA_QuadCore_L4700_1_2_GHz.h"
 
+#include "cpus/ZHAOXIN_KaiXian_KX_U5581_1_8GHz.h"
+
 
 
 /**
@@ -286,6 +288,10 @@ static CPUMDBENTRY const * const g_apCpumDbEntries[] =
 #endif
 #ifdef VBOX_CPUDB_AMD_Athlon_64_3200
     &g_Entry_AMD_Athlon_64_3200,
+#endif
+
+#ifdef VBOX_CPUDB_ZHAOXIN_KaiXian_KX_U5581_1_8GHz
+    &g_Entry_ZHAOXIN_KaiXian_KX_U5581_1_8GHz,
 #endif
 
 #ifdef VBOX_CPUDB_VIA_QuadCore_L4700_1_2_GHz
@@ -585,7 +591,7 @@ int cpumR3MsrRangesInsert(PVM pVM, PCPUMMSRRANGE *ppaMsrRanges, uint32_t *pcMsrR
 int cpumR3MsrReconcileWithCpuId(PVM pVM)
 {
     PCCPUMMSRRANGE papToAdd[10];
-    uint32_t      cToAdd = 0;
+    uint32_t       cToAdd = 0;
 
     /*
      * The IA32_FLUSH_CMD MSR was introduced in MCUs for CVS-2018-3646 and associates.
@@ -606,6 +612,28 @@ int cpumR3MsrReconcileWithCpuId(PVM pVM)
             /*.szName = */      "IA32_FLUSH_CMD"
         };
         papToAdd[cToAdd++] = &s_FlushCmd;
+    }
+
+    /*
+     * The MSR_IA32_ARCH_CAPABILITIES was introduced in various spectre MCUs, or at least
+     * documented in relation to such.
+     */
+    if (pVM->cpum.s.GuestFeatures.fArchCap && !cpumLookupMsrRange(pVM, MSR_IA32_ARCH_CAPABILITIES))
+    {
+        static CPUMMSRRANGE const s_ArchCaps =
+        {
+            /*.uFirst =*/       MSR_IA32_ARCH_CAPABILITIES,
+            /*.uLast =*/        MSR_IA32_ARCH_CAPABILITIES,
+            /*.enmRdFn =*/      kCpumMsrRdFn_Ia32ArchCapabilities,
+            /*.enmWrFn =*/      kCpumMsrWrFn_ReadOnly,
+            /*.offCpumCpu =*/   UINT16_MAX,
+            /*.fReserved =*/    0,
+            /*.uValue =*/       0,
+            /*.fWrIgnMask =*/   0,
+            /*.fWrGpMask =*/    UINT64_MAX,
+            /*.szName = */      "IA32_ARCH_CAPABILITIES"
+        };
+        papToAdd[cToAdd++] = &s_ArchCaps;
     }
 
     /*

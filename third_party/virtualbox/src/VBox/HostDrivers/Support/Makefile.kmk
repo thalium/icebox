@@ -90,9 +90,11 @@ VBOX_SUP_WIN_CERTS := \
        SpcRootMicrosoft6=SpcRoot-MicrosoftDevelopmentRootCertificateAuthority2014-078f0a9d03df119e434e4fec1bf0235a.taf \
        NtRootMicrosoft7=NtRoot-MicrosoftCodeVerificationRoot-729404101f3e0ca347837fca175a8438.taf \
        TimeRootMicrosoft0=Timestamp-CopyrightC1997MicrosoftCorp-01.taf \
-       TrustedCertVBox0=Trusted-OracleCorporationVirtualBox-51ca009816fdbd80f120e015ee75823e.taf
+       TrustedCertVBox0=Trusted-OracleCorporationVirtualBox-51ca009816fdbd80f120e015ee75823e.taf \
+       AppleRoot0=AppleRoot-2bd06947947609fef46b8d2e40a6f7474d7f085e.taf \
+       AppleRoot1=AppleRoot-G2-c499136c1803c27bc0a3a00d7f72807a1c77268d.taf
 VBOX_SUP_WIN_CERT_NAMES := $(foreach cert,$(VBOX_SUP_WIN_CERTS),$(firstword $(subst =,$(SPACE) ,$(cert))))
-VBOX_PATH_SUPR3_CERTIFICATES := $(PATH_SUB_CURRENT)/win/Certificates
+VBOX_PATH_SUPR3_CERTIFICATES := $(PATH_SUB_CURRENT)/Certificates
 
 # 1=name, 2=filter, 3=buildcert?.
 if "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING)
@@ -109,7 +111,9 @@ endif
 $$(VBOX_SUP_WIN_CERTS_FILE): $(MAKEFILE_CURRENT) \
 		$(foreach cert,$(VBOX_SUP_WIN_CERTS),$(VBOX_PATH_SUPR3_CERTIFICATES)/$(lastword $(subst =,$(SPACE) ,$(cert)))) \
 		$(VBOX_BIN2C) \
-		$(if-expr  "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING),$(VBOX_RTSIGNTOOL)) \
+		$(if-expr  ("$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING)) \
+		        || ("$(KBUILD_TARGET)" == "darwin" && defined(VBOX_WITH_DARWIN_R0_DARWIN_IMAGE_VERIFICATION) && defined(VBOX_SIGNING_MODE)) \
+		,$(VBOX_RTSIGNTOOL)) \
 		| $$(dir $$@)
 	$(QUIET)$(RM) -f -- $@ $@.cer
 	$(QUIET)$(APPEND) -n "$@" \
@@ -121,18 +125,20 @@ $$(VBOX_SUP_WIN_CERTS_FILE): $(MAKEFILE_CURRENT) \
 		"$(VBOX_PATH_SUPR3_CERTIFICATES)/$(lastword $(subst =,$(SP) ,$(cert)))" \
 		"$@")
 # The build certificate.
-if "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING) && defined(VBOX_SIGNING_MODE)
+if  ("$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING) && defined(VBOX_SIGNING_MODE)) \
+ || ("$(KBUILD_TARGET)" == "darwin" && defined(VBOX_WITH_DARWIN_R0_DARWIN_IMAGE_VERIFICATION) && defined(VBOX_SIGNING_MODE))
 	$(VBOX_RTSIGNTOOL) extract-exe-signer-cert --exe $(VBOX_RTSIGNTOOL) --output "$@.cer" --der
 	$(VBOX_BIN2C) -ascii --append SUPBuildCert "$@.cer" $@
 	$(QUIET)$(RM) -f -- $@.cer
 endif
 # Generate certificate lists.
 	$(QUIET)$(APPEND) -n "$@" '' \
-               $(call VBOX_SUP_GEN_CERT_MACRO,All,%,build) \
-               $(call VBOX_SUP_GEN_CERT_MACRO,SpcRoot,SpcRoot%) \
-               $(call VBOX_SUP_GEN_CERT_MACRO,NtKernelRoot,NtRoot%) \
-               $(call VBOX_SUP_GEN_CERT_MACRO,Timestamp,TimeRoot%) \
-               $(call VBOX_SUP_GEN_CERT_MACRO,Trusted,TrustedCert%,build)
+		$(call VBOX_SUP_GEN_CERT_MACRO,All,%,build) \
+		$(call VBOX_SUP_GEN_CERT_MACRO,SpcRoot,SpcRoot%) \
+		$(call VBOX_SUP_GEN_CERT_MACRO,NtKernelRoot,NtRoot%) \
+		$(call VBOX_SUP_GEN_CERT_MACRO,Timestamp,TimeRoot%) \
+		$(call VBOX_SUP_GEN_CERT_MACRO,AppleRoot,AppleRoot%) \
+		$(call VBOX_SUP_GEN_CERT_MACRO,Trusted,TrustedCert%,build)
 
 tst: $(VBOX_SUP_WIN_CERTS_FILE)
 
@@ -610,6 +616,9 @@ if1of ($(KBUILD_TARGET), darwin freebsd solaris win)
  ifdef VBOX_WITH_RAW_MODE
   VBoxDrv_DEFS.darwin    += VBOX_WITH_RAW_MODE
  endif
+ ifdef VBOX_WITH_DARWIN_R0_DARWIN_IMAGE_VERIFICATION
+  VBoxDrv_DEFS.darwin    += VBOX_WITH_DARWIN_R0_DARWIN_IMAGE_VERIFICATION
+ endif
  ifdef VBOX_WITH_NETFLT
   VBoxDrv_DEFS.solaris   += VBOX_WITH_NETFLT
  endif
@@ -649,6 +658,10 @@ if1of ($(KBUILD_TARGET), darwin freebsd solaris win)
 
  VBoxDrv_SOURCES.darwin   = \
 	darwin/SUPDrv-darwin.cpp
+ ifdef VBOX_WITH_DARWIN_R0_DARWIN_IMAGE_VERIFICATION
+  VBoxDrv_SOURCES.darwin += \
+  	$(VBOX_SUP_WIN_CERTS_FILE)
+ endif
  VBoxDrv_SOURCES.solaris  = \
 	solaris/SUPDrv-solaris.c
  VBoxDrv_SOURCES.win      = \

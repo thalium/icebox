@@ -12,7 +12,7 @@
 void crStateFogInit (CRContext *ctx)
 {
 	CRFogState *f = &ctx->fog;
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
 	CRFogBits *fb = &(sb->fog);
 	GLcolorf black = {0.0f, 0.0f, 0.0f, 0.0f};
 
@@ -42,18 +42,18 @@ void crStateFogInit (CRContext *ctx)
 	RESET(fb->dirty, ctx->bitid);
 }
 
-void STATE_APIENTRY crStateFogf(GLenum pname, GLfloat param) 
+void STATE_APIENTRY crStateFogf(PCRStateTracker pState, GLenum pname, GLfloat param) 
 {
-	crStateFogfv( pname, &param );
+	crStateFogfv(pState, pname, &param );
 }
 
-void STATE_APIENTRY crStateFogi(GLenum pname, GLint param) 
+void STATE_APIENTRY crStateFogi(PCRStateTracker pState, GLenum pname, GLint param) 
 {
 	GLfloat f_param = (GLfloat) param;
-	crStateFogfv( pname, &f_param );
+	crStateFogfv(pState, pname, &f_param );
 }
 
-void STATE_APIENTRY crStateFogiv(GLenum pname, const GLint *param) 
+void STATE_APIENTRY crStateFogiv(PCRStateTracker pState, GLenum pname, const GLint *param) 
 {
 	GLcolor f_color;
 	GLfloat f_param;
@@ -65,43 +65,43 @@ void STATE_APIENTRY crStateFogiv(GLenum pname, const GLint *param)
 		case GL_FOG_END:
 		case GL_FOG_INDEX:
 			f_param = (GLfloat) (*param);
-			crStateFogfv( pname, &f_param );
+			crStateFogfv(pState, pname, &f_param );
 			break;
 		case GL_FOG_COLOR:
 			f_color.r = ((GLfloat) param[0]) / ((GLfloat) CR_MAXINT);
 			f_color.g = ((GLfloat) param[1]) / ((GLfloat) CR_MAXINT);
 			f_color.b = ((GLfloat) param[2]) / ((GLfloat) CR_MAXINT);
 			f_color.a = ((GLfloat) param[3]) / ((GLfloat) CR_MAXINT);
-			crStateFogfv( pname, (GLfloat *) &f_color );
+			crStateFogfv(pState, pname, (GLfloat *) &f_color );
 			break;
 #ifdef CR_NV_fog_distance
 		case GL_FOG_DISTANCE_MODE_NV:
 			f_param = (GLfloat) (*param);
-			crStateFogfv( pname, &f_param );
+			crStateFogfv(pState, pname, &f_param );
 			break;
 #endif
 #ifdef CR_EXT_fog_coord
 		case GL_FOG_COORDINATE_SOURCE_EXT:
 			f_param = (GLfloat) (*param);
-			crStateFogfv( pname, &f_param );
+			crStateFogfv(pState, pname, &f_param );
 			break;
 #endif
 		default:
-			crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: %d", param);
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: %d", param);
 			return;
 	}
 }
 
-void STATE_APIENTRY crStateFogfv(GLenum pname, const GLfloat *param) 
+void STATE_APIENTRY crStateFogfv(PCRStateTracker pState, GLenum pname, const GLfloat *param) 
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRFogState *f = &(g->fog);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRFogBits *fb = &(sb->fog);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glFogfv called in Begin/End");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glFogfv called in Begin/End");
 		return;
 	}
 
@@ -114,7 +114,7 @@ void STATE_APIENTRY crStateFogfv(GLenum pname, const GLfloat *param)
 				GLenum e = (GLenum) *param;
 				if (e != GL_LINEAR && e != GL_EXP && e != GL_EXP2)
 				{
-					crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid param for glFog: %d", e);
+					crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid param for glFog: %d", e);
 					return;
 				}
 				f->mode = e;
@@ -156,7 +156,7 @@ void STATE_APIENTRY crStateFogfv(GLenum pname, const GLfloat *param)
 					param[0] != GL_EYE_PLANE &&
 					param[0] != GL_EYE_PLANE_ABSOLUTE_NV )
 				{
-					crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+					crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 						"Fogfv: GL_FOG_DISTANCE_MODE_NV called with illegal parameter: 0x%x", (GLenum) param[0]);
 					return;
 				}
@@ -165,7 +165,7 @@ void STATE_APIENTRY crStateFogfv(GLenum pname, const GLfloat *param)
 			}
 			else
 			{
-				crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: %d", param);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: %d", param);
 				return;
 			}
 			break;
@@ -177,7 +177,7 @@ void STATE_APIENTRY crStateFogfv(GLenum pname, const GLfloat *param)
 				if ((GLenum) param[0] != GL_FOG_COORDINATE_EXT &&
 						(GLenum) param[0] != GL_FRAGMENT_DEPTH_EXT)
 				{
-					crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+					crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 						"Fogfv: GL_FOG_COORDINATE_SOURCE_EXT called with illegal parameter: 0x%x", (GLenum) param[0]);
 					return;
 				}
@@ -186,13 +186,13 @@ void STATE_APIENTRY crStateFogfv(GLenum pname, const GLfloat *param)
 			}
 			else
 			{
-				crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: 0x%x", (GLint) param[0]);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: 0x%x", (GLint) param[0]);
 				return;
 			}
 			break;
 #endif
 		default:
-			crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: %d", param);
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "Invalid glFog Param: %d", param);
 			return;
 	}
 	DIRTY(fb->dirty, g->neg_bitid);

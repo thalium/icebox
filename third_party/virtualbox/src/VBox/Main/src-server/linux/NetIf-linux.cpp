@@ -45,9 +45,10 @@
  *
  * @returns VBox status code.
  *
- * @param   pszName     The buffer of IFNAMSIZ+1 length where to put the name.
+ * @param   pszName     The buffer where to put the name.
+ * @param   cbName      Size of of the destination buffer.
  */
-static int getDefaultIfaceName(char *pszName)
+static int getDefaultIfaceName(char *pszName, size_t cbName)
 {
     FILE *fp = fopen("/proc/net/route", "r");
     char szBuf[1024];
@@ -71,9 +72,8 @@ static int getDefaultIfaceName(char *pszName)
             if (uAddr == 0 && uMask == 0)
             {
                 fclose(fp);
-                strncpy(pszName, szIfName, 16);
-                pszName[16] = 0;
-                return VINF_SUCCESS;
+                szIfName[sizeof(szIfName) - 1] = '\0';
+                return RTStrCopy(pszName, cbName, szIfName);
             }
         }
         fclose(fp);
@@ -219,11 +219,11 @@ static int getInterfaceInfo(int iSocket, const char *pszName, PNETIFINFO pInfo)
 int NetIfList(std::list <ComObjPtr<HostNetworkInterface> > &list)
 {
     char szDefaultIface[256];
-    int rc = getDefaultIfaceName(szDefaultIface);
+    int rc = getDefaultIfaceName(szDefaultIface, sizeof(szDefaultIface));
     if (RT_FAILURE(rc))
     {
         Log(("NetIfList: Failed to find default interface.\n"));
-        szDefaultIface[0] = 0;
+        szDefaultIface[0] = '\0';
     }
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock >= 0)

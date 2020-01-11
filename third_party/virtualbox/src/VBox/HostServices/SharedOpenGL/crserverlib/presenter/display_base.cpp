@@ -129,6 +129,8 @@ struct CR_FRAMEBUFFER* CrFbDisplayBase::getFramebuffer()
 
 int CrFbDisplayBase::UpdateBegin(struct CR_FRAMEBUFFER *pFb)
 {
+    RT_NOREF(pFb);
+
     ++mcUpdates;
     Assert(!mFlags.fRegionsShanged || mcUpdates > 1);
     return VINF_SUCCESS;
@@ -137,6 +139,8 @@ int CrFbDisplayBase::UpdateBegin(struct CR_FRAMEBUFFER *pFb)
 
 void CrFbDisplayBase::UpdateEnd(struct CR_FRAMEBUFFER *pFb)
 {
+    RT_NOREF(pFb);
+
     --mcUpdates;
     Assert(mcUpdates < UINT32_MAX/2);
     if (!mcUpdates)
@@ -146,6 +150,8 @@ void CrFbDisplayBase::UpdateEnd(struct CR_FRAMEBUFFER *pFb)
 
 int CrFbDisplayBase::EntryCreated(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTRY hEntry)
 {
+    RT_NOREF(pFb, hEntry);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -157,6 +163,8 @@ int CrFbDisplayBase::EntryCreated(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_EN
 
 int CrFbDisplayBase::EntryAdded(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTRY hEntry)
 {
+    RT_NOREF(pFb, hEntry);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -170,6 +178,8 @@ int CrFbDisplayBase::EntryAdded(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTR
 int CrFbDisplayBase::EntryReplaced(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTRY hNewEntry,
     HCR_FRAMEBUFFER_ENTRY hReplacedEntry)
 {
+    RT_NOREF(pFb, hNewEntry, hReplacedEntry);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -181,6 +191,8 @@ int CrFbDisplayBase::EntryReplaced(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_E
 
 int CrFbDisplayBase::EntryTexChanged(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTRY hEntry)
 {
+    RT_NOREF(pFb, hEntry);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -192,6 +204,8 @@ int CrFbDisplayBase::EntryTexChanged(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER
 
 int CrFbDisplayBase::EntryRemoved(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTRY hEntry)
 {
+    RT_NOREF(pFb, hEntry);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -204,12 +218,15 @@ int CrFbDisplayBase::EntryRemoved(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_EN
 
 int CrFbDisplayBase::EntryDestroyed(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTRY hEntry)
 {
+    RT_NOREF(pFb, hEntry);
     return VINF_SUCCESS;
 }
 
 
 int CrFbDisplayBase::EntryPosChanged(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER_ENTRY hEntry)
 {
+    RT_NOREF(pFb, hEntry);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -222,6 +239,8 @@ int CrFbDisplayBase::EntryPosChanged(struct CR_FRAMEBUFFER *pFb, HCR_FRAMEBUFFER
 
 int CrFbDisplayBase::RegionsChanged(struct CR_FRAMEBUFFER *pFb)
 {
+    RT_NOREF(pFb);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -234,6 +253,8 @@ int CrFbDisplayBase::RegionsChanged(struct CR_FRAMEBUFFER *pFb)
 
 int CrFbDisplayBase::FramebufferChanged(struct CR_FRAMEBUFFER *pFb)
 {
+    RT_NOREF(pFb);
+
     if (!mcUpdates)
     {
         WARN(("err"));
@@ -348,6 +369,7 @@ void CrFbDisplayBase::setFramebufferEnd(struct CR_FRAMEBUFFER *pFb)
 
 DECLCALLBACK(void) CrFbDisplayBase::slotEntryReleaseCB(HCR_FRAMEBUFFER hFb, HCR_FRAMEBUFFER_ENTRY hEntry, void *pvContext)
 {
+    RT_NOREF(hFb, hEntry, pvContext);
 }
 
 

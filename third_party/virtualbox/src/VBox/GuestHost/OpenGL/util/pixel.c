@@ -1694,7 +1694,7 @@ void crPixelCopy3D( GLsizei width, GLsizei height, GLsizei depth,
 
     /** @todo this should be implemented properly*/
 
-#ifndef DEBUG_misha
+#if 0 /*ndef DEBUG_misha*/
     crWarning( "crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr" );
 #endif
     if (dstFormat != srcFormat)

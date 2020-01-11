@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2015-2018 Oracle Corporation
+ * Copyright (C) 2015-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -192,7 +192,6 @@ typedef struct SB16STATE
     RTLISTANCHOR                   lstDrv;
     /** Number of active (running) SDn streams. */
     uint8_t                        cStreamsActive;
-#ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
     /** The timer for pumping data thru the attached LUN drivers. */
     PTMTIMERR3                     pTimerIO;
     /** Flag indicating whether the timer is active or not. */
@@ -203,7 +202,6 @@ typedef struct SB16STATE
     /** Timestamp of the last timer callback (sb16TimerIO).
      * Used to calculate the time actually elapsed between two timer callbacks. */
     uint64_t                       uTimerTSIO;
-#endif
     PTMTIMER                       pTimerIRQ;
     /** The base interface for LUN\#0. */
     PDMIBASE                       IBase;
@@ -222,10 +220,8 @@ typedef struct SB16STATE
 static int sb16CheckAndReOpenOut(PSB16STATE pThis);
 static int sb16OpenOut(PSB16STATE pThis, PPDMAUDIOSTREAMCFG pCfg);
 static void sb16CloseOut(PSB16STATE pThis);
-#ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
 static void sb16TimerMaybeStart(PSB16STATE pThis);
 static void sb16TimerMaybeStop(PSB16STATE pThis);
-#endif
 
 
 
@@ -312,24 +308,16 @@ static void sb16Control(PSB16STATE pThis, int hold)
 
     if (hold)
     {
-#ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
         pThis->cStreamsActive++;
         sb16TimerMaybeStart(pThis);
-#else
-# error "Implement me!"
-#endif
         PDMDevHlpDMASchedule(pThis->pDevInsR3);
     }
-#ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
     else
     {
         if (pThis->cStreamsActive)
             pThis->cStreamsActive--;
         sb16TimerMaybeStop(pThis);
     }
-#else
-# error "Implement me!"
-#endif
 }
 
 /**
@@ -1647,8 +1635,6 @@ static DECLCALLBACK(uint32_t) sb16DMARead(PPDMDEVINS pDevIns, void *opaque, unsi
     return dma_pos;
 }
 
-#ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
-
 static void sb16TimerMaybeStart(PSB16STATE pThis)
 {
     LogFlowFunc(("cStreamsActive=%RU8\n", pThis->cStreamsActive));
@@ -1756,9 +1742,6 @@ static DECLCALLBACK(void) sb16TimerIO(PPDMDEVINS pDevIns, PTMTIMER pTimer, void 
         TMTimerSet(pThis->pTimerIO, cTicksNow + cTicks);
     }
 }
-
-#endif /* !VBOX_WITH_AUDIO_SB16_CALLBACKS */
-
 
 /**
  * @callback_method_impl{FNSSMDEVLIVEEXEC}
@@ -1985,6 +1968,9 @@ static int sb16CreateDrvStream(PSB16STATE pThis, PPDMAUDIOSTREAMCFG pCfg, PSB16D
 
     AssertMsg(pDrv->Out.pStream == NULL, ("[LUN#%RU8] Driver stream already present when it must not\n", pDrv->uLUN));
 
+    /* Disable pre-buffering for SB16; not needed for that bit of data. */
+    pCfgHost->Backend.cfPreBuf = 0;
+
     int rc = pDrv->pConnector->pfnStreamCreate(pDrv->pConnector, pCfgHost, pCfg /* pCfgGuest */, &pDrv->Out.pStream);
     if (RT_SUCCESS(rc))
     {
@@ -1992,7 +1978,8 @@ static int sb16CreateDrvStream(PSB16STATE pThis, PPDMAUDIOSTREAMCFG pCfg, PSB16D
         LogFlowFunc(("LUN#%RU8: Created output \"%s\", rc=%Rrc\n", pDrv->uLUN, pCfg->szName, rc));
     }
 
-    RTMemFree(pCfgHost);
+    DrvAudioHlpStreamCfgFree(pCfgHost);
+
     return rc;
 }
 
@@ -2481,14 +2468,11 @@ static DECLCALLBACK(int) sb16Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMN
     pThis->ver     = u16Version;
     pThis->verCfg  = u16Version;
 
-#ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
     uint16_t uTimerHz;
     rc = CFGMR3QueryU16Def(pCfg, "TimerHz", &uTimerHz, 100 /* Hz */);
     if (RT_FAILURE(rc))
         return PDMDEV_SET_ERROR(pDevIns, rc,
                                 N_("SB16 configuration error: failed to read Hertz (Hz) rate as unsigned integer"));
-#endif
-
     /*
      * Setup the mixer now that we've got the irq and dma channel numbers.
      */
@@ -2589,7 +2573,6 @@ static DECLCALLBACK(int) sb16Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMN
     }
 #endif
 
-#ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
     if (RT_SUCCESS(rc))
     {
         rc = PDMDevHlpTMTimerCreate(pDevIns, TMCLOCK_VIRTUAL, sb16TimerIO, pThis,
@@ -2603,39 +2586,6 @@ static DECLCALLBACK(int) sb16Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMN
         else
             AssertMsgFailedReturn(("Error creating I/O timer, rc=%Rrc\n", rc), rc);
     }
-#else /* !VBOX_WITH_AUDIO_SB16_CALLBACKS */
-    if (RT_SUCCESS(rc))
-    {
-        /** @todo Merge this callback registration with the validation block above once
-         *  this becomes the standard. */
-        PSB16DRIVER pDrv;
-        RTListForEach(&pThis->lstDrv, pDrv, SB16DRIVER, Node)
-        {
-            /* Only register primary driver.
-             * The device emulation does the output multiplexing then. */
-            if (pDrv->fFlags != PDMAUDIODRVFLAGS_PRIMARY)
-                continue;
-
-            PDMAUDIOCBRECORD AudioCallbacks[2];
-
-            SB16CALLBACKCTX Ctx = { pThis, pDrv };
-
-            AudioCallbacks[0].enmType     = PDMAUDIOCALLBACKTYPE_INPUT;
-            AudioCallbacks[0].pfnCallback = sb16CallbackInput;
-            AudioCallbacks[0].pvCtx       = &Ctx;
-            AudioCallbacks[0].cbCtx       = sizeof(SB16CALLBACKCTX);
-
-            AudioCallbacks[1].enmType     = PDMAUDIOCALLBACKTYPE_OUTPUT;
-            AudioCallbacks[1].pfnCallback = sb16CallbackOutput;
-            AudioCallbacks[1].pvCtx       = &Ctx;
-            AudioCallbacks[1].cbCtx       = sizeof(SB16CALLBACKCTX);
-
-            rc = pDrv->pConnector->pfnRegisterCallbacks(pDrv->pConnector, AudioCallbacks, RT_ELEMENTS(AudioCallbacks));
-            if (RT_FAILURE(rc))
-                break;
-        }
-    }
-#endif /* VBOX_WITH_AUDIO_SB16_CALLBACKS */
 
 #ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
     RTFileDelete(VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "sb16WriteAudio.pcm");

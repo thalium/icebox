@@ -681,7 +681,8 @@ VMMR0_INT_DECL(int) HMR0Init(void)
 
             /* Go to CPU specific initialization code. */
             if (   ASMIsIntelCpuEx(u32VendorEBX, u32VendorECX, u32VendorEDX)
-                || ASMIsViaCentaurCpuEx(u32VendorEBX, u32VendorECX, u32VendorEDX))
+                || ASMIsViaCentaurCpuEx(u32VendorEBX, u32VendorECX, u32VendorEDX)
+                || ASMIsShanghaiCpuEx(u32VendorEBX, u32VendorECX, u32VendorEDX))
             {
                 rc = hmR0InitIntel(u32FeaturesECX, u32FeaturesEDX);
                 if (RT_FAILURE(rc))

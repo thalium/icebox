@@ -820,6 +820,16 @@ DECLCALLBACK(void) VNCServerImpl::VRDEUpdate(HVRDESERVER hServer, unsigned uScre
             }
         }
 
+        if (!instance->mScreenBuffer)
+        {
+            VRDEResize(hServer);
+            if (!instance->mScreenBuffer)
+            {
+                LogRel(("VNCServerImpl::VRDEUpdate: Cannot get frame buffer"));
+                return;
+            }
+        }
+
         uint32_t width = instance->FrameInfo.cWidth;
         uint32_t bpp = instance->FrameInfo.cBitsPerPixel / 8;
         uint32_t joff = order->y * width + order->x;

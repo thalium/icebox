@@ -12,12 +12,12 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "cr_environment.h"
 #include "cr_error.h"
 #include "cr_string.h"
 #include "renderspu.h"
 #include "cr_mem.h"
 
+#include <iprt/env.h>
 
 /* IAT patcher stuff */
 #define RVA2PTR(_t, _base, _off) ((_t*)(((uint8_t*)(_base)) + (_off)))
@@ -98,9 +98,9 @@ int renderspuIatPatcherGetImportAddress(HMODULE hModule, LPCSTR pszLib, LPCSTR p
     return VERR_NOT_FOUND;
 }
 
-int renderspuIatPatcherPatchEntry(void *pvEntry, void *pvValue, void **ppvOldVal)
+int renderspuIatPatcherPatchEntry(void *pvEntry, PFNRT pfnValue, PFNRT *ppfnOldVal)
 {
-    void **ppfn = (void**)pvEntry;
+    PFNRT *ppfn = (PFNRT *)pvEntry;
     DWORD dwOldProtect = 0;
 
     if (!VirtualProtect(pvEntry, sizeof (pvEntry), PAGE_READWRITE, &dwOldProtect))
@@ -109,9 +109,9 @@ int renderspuIatPatcherPatchEntry(void *pvEntry, void *pvValue, void **ppvOldVal
         return VERR_ACCESS_DENIED;
     }
 
-    if (ppvOldVal)
-        *ppvOldVal = *ppfn;
-    *ppfn = pvValue;
+    if (ppfnOldVal)
+        *ppfnOldVal = *ppfn;
+    *ppfn = pfnValue;
 
     if (!VirtualProtect(pvEntry, sizeof (pvEntry), dwOldProtect, &dwOldProtect))
     {
@@ -122,7 +122,7 @@ int renderspuIatPatcherPatchEntry(void *pvEntry, void *pvValue, void **ppvOldVal
 }
 
 
-int renderspuIatPatcherPatchFunction(HMODULE hModule, LPCSTR pszLib, LPCSTR pszName, void* pfn)
+int renderspuIatPatcherPatchFunction(HMODULE hModule, LPCSTR pszLib, LPCSTR pszName, PFNRT pfn)
 {
     void* pAdr;
     int rc = renderspuIatPatcherGetImportAddress(hModule, pszLib, pszName, &pAdr);
@@ -143,7 +143,7 @@ int renderspuIatPatcherPatchFunction(HMODULE hModule, LPCSTR pszLib, LPCSTR pszN
 }
 
 /* patch */
-static HWND __stdcall renderspuAtiQuirk_GetForegroundWindow()
+static HWND __stdcall renderspuAtiQuirk_GetForegroundWindow(void)
 {
     crDebug("renderspuAtiQuirk_GetForegroundWindow");
     return NULL;
@@ -278,7 +278,7 @@ static int renderspuAtiQuirk_ApplyForModule(LPCSTR pszAtiDll)
         return VERR_NOT_FOUND;
     }
 
-    rc = renderspuIatPatcherPatchFunction(hAtiDll, "user32.dll", "GetForegroundWindow", (void*)renderspuAtiQuirk_GetForegroundWindow);
+    rc = renderspuIatPatcherPatchFunction(hAtiDll, "user32.dll", "GetForegroundWindow", (PFNRT)renderspuAtiQuirk_GetForegroundWindow);
     if (RT_FAILURE(rc))
     {
         crDebug("renderspuIatPatcherPatchFunction failed, %d", rc);
@@ -310,7 +310,7 @@ static LPCSTR renderspuRegMultiSzCurVal(LPCSTR pszBuf)
 }
 
 
-static int renderspuAtiQuirk_Apply()
+static int renderspuAtiQuirk_Apply(void)
 {
     char aBuf[4096];
     DWORD cbResult = 0;
@@ -336,18 +336,18 @@ static int renderspuAtiQuirk_Apply()
     return VINF_SUCCESS;
 }
 
-static GLboolean renderspuAtiQuirk_Needed()
+static GLboolean renderspuAtiQuirk_Needed(void)
 {
-    const char * pszString = render_spu.ws.glGetString(GL_VENDOR);
+    const char * pszString = (const char *)render_spu.ws.glGetString(GL_VENDOR);
     if (pszString && strstr(pszString, "ATI"))
         return GL_TRUE;
-    pszString = render_spu.ws.glGetString(GL_RENDERER);
+    pszString = (const char *)render_spu.ws.glGetString(GL_RENDERER);
     if (pszString && strstr(pszString, "ATI"))
         return GL_TRUE;
     return GL_FALSE;
 }
 
-static void renderspuAtiQuirk_ChkApply()
+static void renderspuAtiQuirk_ChkApply(void)
 {
     static GLboolean fChecked = GL_FALSE;
     if (fChecked)
@@ -505,7 +505,7 @@ bSetupPixelFormatEXT( HDC hdc, GLbitfield visAttribs)
     int pixelFormat;
     int attribList[100];
     float fattribList[] = { 0.0, 0.0 };
-    int numFormats;
+    unsigned numFormats;
     int i = 0;
     BOOL vis;
 
@@ -663,7 +663,7 @@ bSetupPixelFormatNormal( HDC hdc, GLbitfield visAttribs )
      * versions.
      */
 #ifdef VBOX_CR_SERVER_FORCE_WGL
-    if (crGetenv( "CR_WGL_DO_NOT_USE_GDI" ) != NULL)
+    if (RTEnvGet( "CR_WGL_DO_NOT_USE_GDI" ) != NULL)
     {
         pixelformat = render_spu.ws.wglChoosePixelFormat( hdc, ppfd );
         /* doing this twice is normal Win32 magic */
@@ -1226,7 +1226,7 @@ GLboolean renderspu_SystemVBoxCreateWindow( VisualInfo *visual, GLboolean showIt
     {
         LONG_PTR oldVal = SetWindowLongPtr(window->hWnd, GWLP_USERDATA, (LONG_PTR)window);
         DWORD winEr = GetLastError();
-        Assert(!oldVal && winEr == NO_ERROR);
+        Assert(!oldVal && winEr == NO_ERROR); RT_NOREF(oldVal, winEr);
     }
 
     return GL_TRUE;
@@ -1397,6 +1397,7 @@ void renderspu_SystemMakeCurrent( WindowInfo *window, GLint nativeWindow, Contex
             renderspu_SystemVBoxCreateWindow( context->visual, window->visible, window );
         }
 
+#if 0
         if (0/*render_spu.render_to_app_window && nativeWindow*/)
         {
             /* The render_to_app_window option 
@@ -1436,6 +1437,7 @@ void renderspu_SystemMakeCurrent( WindowInfo *window, GLint nativeWindow, Contex
             render_spu.ws.wglMakeCurrent( window->nativeWindow, context->hRC );
         }
         else
+#endif
         {
             if (!context->hRC) {
                 CRASSERT(!nativeWindow);
@@ -1580,6 +1582,7 @@ void renderspu_SystemWindowPosition( WindowInfo *window, GLint x, GLint y )
 
 GLboolean renderspu_SystemWindowNeedEmptyPresent(WindowInfo *window)
 {
+    RT_NOREF(window);
     return GL_FALSE;
 }
 
@@ -1629,6 +1632,8 @@ static void renderspuHandleWindowMessages( HWND hWnd )
 void renderspu_SystemSwapBuffers( WindowInfo *w, GLint flags )
 {
     int return_value;
+
+    RT_NOREF(flags);
 
     /* peek at the windows message queue */
 //    renderspuHandleWindowMessages( w->hWnd );
@@ -1708,22 +1713,23 @@ void renderspu_SystemReparentWindow(WindowInfo *window)
     SetParent(window->hWnd, (HWND)render_spu_parent_window_id);
 }
 
-int renderspu_SystemInit()
+int renderspu_SystemInit(void)
 {
     return VINF_SUCCESS;
 }
 
-int renderspu_SystemTerm()
+int renderspu_SystemTerm(void)
 {
     return VINF_SUCCESS;
 }
 
 void renderspu_SystemDefaultSharedContextChanged(ContextInfo *fromContext, ContextInfo *toContext)
 {
-
+    RT_NOREF(fromContext, toContext);
 }
 
 uint32_t renderspu_SystemPostprocessFunctions(SPUNamedFunctionTable *aFunctions, uint32_t cFunctions, uint32_t cTable)
 {
+    RT_NOREF(aFunctions, cTable);
     return cFunctions;
 }

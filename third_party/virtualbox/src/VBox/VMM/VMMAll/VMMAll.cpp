@@ -430,6 +430,7 @@ VMM_INT_DECL(int) VMMPatchHypercall(PVM pVM, void *pvBuf, size_t cbBuf, size_t *
 
         case CPUMCPUVENDOR_INTEL:
         case CPUMCPUVENDOR_VIA:
+        case CPUMCPUVENDOR_SHANGHAI:
         {
             uint8_t abHypercall[] = { 0x0F, 0x01, 0xC1 };   /* VMCALL */
             if (RT_LIKELY(cbBuf >= sizeof(abHypercall)))

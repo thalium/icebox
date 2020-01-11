@@ -46,15 +46,47 @@
 
 
 /**
+ * Applies flags to an allocation.
+ *
+ * @param   pv              The allocation.
+ * @param   cb              The size of the allocation (page aligned).
+ * @param   fFlags          RTMEMPAGEALLOC_F_XXX.
+ */
+DECLINLINE(void) rtMemPagePosixApplyFlags(void *pv, size_t cb, uint32_t fFlags)
+{
+#ifndef RT_OS_OS2
+    if (fFlags & RTMEMPAGEALLOC_F_ADVISE_LOCKED)
+    {
+        int rc = mlock(pv, cb);
+        AssertMsg(rc == 0, ("mlock %p LB %#zx -> %d errno=%d\n", pv, cb, rc, errno));
+        NOREF(rc);
+    }
+
+# ifdef MADV_DONTDUMP
+    if (fFlags & RTMEMPAGEALLOC_F_ADVISE_NO_DUMP)
+    {
+        int rc = madvise(pv, cb, MADV_DONTDUMP);
+        AssertMsg(rc == 0, ("madvice %p LB %#zx MADV_DONTDUMP -> %d errno=%d\n", pv, cb, rc, errno));
+        NOREF(rc);
+    }
+# endif
+#endif
+
+    if (fFlags & RTMEMPAGEALLOC_F_ZERO)
+        RT_BZERO(pv, cb);
+}
+
+
+/**
  * Allocates memory from the specified heap.
  *
  * @returns Address of the allocated memory.
  * @param   cb                  The number of bytes to allocate.
  * @param   pszTag              The tag.
- * @param   fZero               Whether to zero the memory or not.
+ * @param   fFlags              RTMEMPAGEALLOC_F_XXX.
  * @param   fProtExec           PROT_EXEC or 0.
  */
-static void *rtMemPagePosixAlloc(size_t cb, const char *pszTag, bool fZero, int fProtExec)
+static void *rtMemPagePosixAlloc(size_t cb, const char *pszTag, uint32_t fFlags, int fProtExec)
 {
     /*
      * Validate & adjust the input.
@@ -72,8 +104,9 @@ static void *rtMemPagePosixAlloc(size_t cb, const char *pszTag, bool fZero, int 
     if (pv != MAP_FAILED)
     {
         AssertPtr(pv);
-        if (fZero)
-            RT_BZERO(pv, cb);
+
+        if (fFlags)
+            rtMemPagePosixApplyFlags(pv, cb, fFlags);
     }
     else
         pv = NULL;
@@ -113,13 +146,20 @@ static void rtMemPagePosixFree(void *pv, size_t cb)
 
 RTDECL(void *) RTMemPageAllocTag(size_t cb, const char *pszTag) RT_NO_THROW_DEF
 {
-    return rtMemPagePosixAlloc(cb, pszTag, false /*fZero*/, 0);
+    return rtMemPagePosixAlloc(cb, pszTag, 0, 0);
 }
 
 
 RTDECL(void *) RTMemPageAllocZTag(size_t cb, const char *pszTag) RT_NO_THROW_DEF
 {
-    return rtMemPagePosixAlloc(cb, pszTag, true /*fZero*/, 0);
+    return rtMemPagePosixAlloc(cb, pszTag, RTMEMPAGEALLOC_F_ZERO, 0);
+}
+
+
+RTDECL(void *) RTMemPageAllocExTag(size_t cb, uint32_t fFlags, const char *pszTag) RT_NO_THROW_DEF
+{
+    AssertReturn(!(fFlags & ~RTMEMPAGEALLOC_F_VALID_MASK), NULL);
+    return rtMemPagePosixAlloc(cb, pszTag, fFlags, 0);
 }
 
 
@@ -134,7 +174,7 @@ RTDECL(void) RTMemPageFree(void *pv, size_t cb) RT_NO_THROW_DEF
 
 RTDECL(void *) RTMemExecAllocTag(size_t cb, const char *pszTag) RT_NO_THROW_DEF
 {
-    return rtMemPagePosixAlloc(cb, pszTag, false /*fZero*/, PROT_EXEC);
+    return rtMemPagePosixAlloc(cb, pszTag, 0, PROT_EXEC);
 }
 
 

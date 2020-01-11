@@ -204,9 +204,14 @@ AdditionsFacilityType_T AdditionsFacility::i_getType() const
 
 /**
  * Method used by IGuest::facilityUpdate to make updates.
+ *
+ * @returns change indicator.
  */
-void AdditionsFacility::i_update(AdditionsFacilityStatus_T a_enmStatus, uint32_t a_fFlags, PCRTTIMESPEC a_pTimeSpecTS)
+bool AdditionsFacility::i_update(AdditionsFacilityStatus_T a_enmStatus, uint32_t a_fFlags, PCRTTIMESPEC a_pTimeSpecTS)
 {
+    bool const fChanged = mData.mStates.size() == 0
+                       || mData.mStates.back().mStatus != a_enmStatus;
+
     FacilityState state;
     state.mStatus    = a_enmStatus;
     state.mTimestamp = *a_pTimeSpecTS;
@@ -215,5 +220,7 @@ void AdditionsFacility::i_update(AdditionsFacilityStatus_T a_enmStatus, uint32_t
     mData.mStates.push_back(state);
     if (mData.mStates.size() > 10) /* Only keep the last 10 states. */
         mData.mStates.erase(mData.mStates.begin());
+
+    return fChanged;
 }
 

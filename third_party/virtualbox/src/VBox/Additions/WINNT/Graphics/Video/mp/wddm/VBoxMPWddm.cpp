@@ -23,6 +23,7 @@
 
 #include <iprt/asm.h>
 #include <iprt/param.h>
+#include <iprt/initterm.h>
 
 #include <VBox/VBoxGuestLib.h>
 #include <VBox/VMMDev.h> /* for VMMDevVideoSetVisibleRegion */
@@ -1145,19 +1146,16 @@ NTSTATUS DxgkDdiStartDevice(
                 {
                     pDevExt->fTexPresentEnabled = !!(VBoxMpCrGetHostCaps() & CR_VBOX_CAP_TEX_PRESENT);
                     pDevExt->fCmdVbvaEnabled = !!(VBoxMpCrGetHostCaps() & CR_VBOX_CAP_CMDVBVA);
-# if 0
-                    pDevExt->fComplexTopologiesEnabled = pDevExt->fCmdVbvaEnabled;
-# else
-                    pDevExt->fComplexTopologiesEnabled = FALSE;
-# endif
                 }
                 else
                 {
                     pDevExt->fTexPresentEnabled = FALSE;
                     pDevExt->fCmdVbvaEnabled = FALSE;
-                    pDevExt->fComplexTopologiesEnabled = FALSE;
                 }
 #endif
+                /* Always enable complex topologies; see #9372 for more information. */
+                pDevExt->fComplexTopologiesEnabled = TRUE;
+                LOGREL(("Handling complex topologies %s", pDevExt->fComplexTopologiesEnabled ? "enabled" : "disabled"));
 
                 /* Guest supports only HGSMI, the old VBVA via VMMDev is not supported.
                  * The host will however support both old and new interface to keep compatibility
@@ -4302,8 +4300,7 @@ DxgkDdiSetPointerPosition(
         pPointerAttributes->Enable |= VBOX_MOUSE_POINTER_VISIBLE;
         if (!fScreenVisState)
         {
-            fVisStateChanged = !!pGlobalPointerInfo->cVisible;
-            ++pGlobalPointerInfo->cVisible;
+            fVisStateChanged = TRUE;
         }
     }
     else
@@ -4311,8 +4308,7 @@ DxgkDdiSetPointerPosition(
         pPointerAttributes->Enable &= ~VBOX_MOUSE_POINTER_VISIBLE;
         if (fScreenVisState)
         {
-            --pGlobalPointerInfo->cVisible;
-            fVisStateChanged = !!pGlobalPointerInfo->cVisible;
+            fVisStateChanged = TRUE;
         }
     }
 
@@ -4328,11 +4324,9 @@ DxgkDdiSetPointerPosition(
                 vboxWddmHostPointerEnable(pDevExt, FALSE);
             }
         }
-        else
-        {
-            // tell the host to use the guest's pointer
-            vboxWddmHostPointerEnable(pDevExt, pSetPointerPosition->Flags.Visible);
-        }
+
+        // Always update the visibility as requested. Tell the host to use the guest's pointer.
+        vboxWddmHostPointerEnable(pDevExt, pSetPointerPosition->Flags.Visible);
     }
 
 //    LOGF(("LEAVE, hAdapter(0x%x)", hAdapter));
@@ -5197,7 +5191,8 @@ DxgkDdiIsSupportedVidPn(
         return Status;
     }
 
-    LOGF(("LEAVE, isSupported(%d), context(0x%x)", pIsSupportedVidPnArg->IsVidPnSupported, hAdapter));
+    LOGF(("LEAVE, hDesiredVidPn(0x%x), isSupported(%d), context(0x%x)",
+          pIsSupportedVidPnArg->hDesiredVidPn, pIsSupportedVidPnArg->IsVidPnSupported, hAdapter));
 
     return STATUS_SUCCESS;
 }
@@ -7586,6 +7581,13 @@ DriverEntry(
     PAGED_CODE();
 
     vboxVDbgBreakFv();
+
+    int irc = RTR0Init(0);
+    if (RT_FAILURE(irc))
+    {
+        RTLogBackdoorPrintf("VBoxWddm: RTR0Init failed: %Rrc!\n", irc);
+        return STATUS_UNSUCCESSFUL;
+    }
 
 #if 0//def DEBUG_misha
     RTLogGroupSettings(0, "+default.e.l.f.l2.l3");

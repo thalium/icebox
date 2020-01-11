@@ -37,26 +37,23 @@ static int errorSPUCleanup(void)
         return 1;
 }
 
-static SPUOptions errorSPUOptions[] = {
-   { NULL, CR_BOOL, 0, NULL, NULL, NULL, NULL, NULL },
-};
 
-
-int SPULoad( char **name, char **super, SPUInitFuncPtr *init,
-             SPUSelfDispatchFuncPtr *self, SPUCleanupFuncPtr *cleanup,
-             SPUOptionsPtr *options, int *flags )
+DECLHIDDEN(const SPUREG) g_ErrorSpuReg =
 {
+    /** pszName. */
 #ifdef IN_GUEST
-        *name = "error";
+    "error",
 #else
-        *name = "hosterror";
+    "hosterror",
 #endif
-        *super = NULL;
-        *init = errorSPUInit;
-        *self = errorSPUSelfDispatch;
-        *cleanup = errorSPUCleanup;
-        *options = errorSPUOptions;
-        *flags = (SPU_NO_PACKER|SPU_NOT_TERMINAL|SPU_MAX_SERVERS_ZERO);
-        
-        return 1;
-}
+    /** pszSuperName. */
+    NULL,
+    /** fFlags. */
+    SPU_NO_PACKER | SPU_NOT_TERMINAL | SPU_MAX_SERVERS_ZERO,
+    /** pfnInit. */
+    errorSPUInit,
+    /** pfnDispatch. */
+    errorSPUSelfDispatch, 
+    /** pfnCleanup. */
+    errorSPUCleanup
+};

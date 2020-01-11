@@ -21,10 +21,12 @@ stub_common.CopyrightC()
 
 print("""#ifndef CR_UNPACKFUNCTIONS_H
 #define CR_UNPACKFUNCTIONS_H
+
+#include "cr_unpack.h"
 """)
 
 for func_name in sorted(gl_mapping.keys()):
 	( return_type, arg_names, arg_types ) = gl_mapping[func_name]
-	print('void crUnpack%s();' %( func_name ))
-print('void crUnpackExtend();')
+	print('void crUnpack%s(PCrUnpackerState pState);' %( func_name ))
+print('void crUnpackExtend(PCrUnpackerState pState);')
 print('\n#endif /* CR_UNPACKFUNCTIONS_H */')

@@ -64,6 +64,8 @@ typedef struct VBOXSERVICECTRLFILE
     uint32_t                        uHandle;
     /** Context ID. */
     uint32_t                        uContextID;
+    /** RTFILE_O_XXX flags. */
+    uint64_t                        fOpen;
 } VBOXSERVICECTRLFILE;
 /** Pointer to thread data. */
 typedef VBOXSERVICECTRLFILE *PVBOXSERVICECTRLFILE;
@@ -288,6 +290,7 @@ RT_C_DECLS_BEGIN
 
 extern RTLISTANCHOR             g_lstControlSessionThreads;
 extern VBOXSERVICECTRLSESSION   g_Session;
+extern uint64_t                 g_fControlHostFeatures0;
 
 
 /** @name Guest session thread handling.

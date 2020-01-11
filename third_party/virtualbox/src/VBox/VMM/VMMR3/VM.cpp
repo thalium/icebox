@@ -274,8 +274,10 @@ VMMR3DECL(int)   VMR3Create(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods,
 #ifdef RT_OS_LINUX
                 case VERR_SUPDRV_COMPONENT_NOT_FOUND:
                     pszError = N_("One of the kernel modules was not successfully loaded. Make sure "
-                                  "that no kernel modules from an older version of VirtualBox exist. "
-                                  "Then try to recompile and reload the kernel modules by executing "
+                                  "that VirtualBox is correctly installed, and if you are using EFI "
+                                  "Secure Boot that the modules are signed if necessary in the right "
+                                  "way for your host system.  Then try to recompile and reload the "
+                                  "kernel modules by executing "
                                   "'/sbin/vboxconfig' as root");
                     break;
 #endif
@@ -340,8 +342,10 @@ VMMR3DECL(int)   VMR3Create(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods,
                 case VERR_VM_DRIVER_LOAD_ERROR:
 #ifdef RT_OS_LINUX
                     pszError = N_("VirtualBox kernel driver not loaded. The vboxdrv kernel module "
-                                  "was either not loaded or /dev/vboxdrv is not set up properly. "
-                                  "Re-setup the kernel module by executing "
+                                  "was either not loaded, /dev/vboxdrv is not set up properly, "
+                                  "or you are using EFI Secure Boot and the module is not signed "
+                                  "in the right way for your system.  If necessary, try setting up "
+                                  "the kernel module again by executing "
                                   "'/sbin/vboxconfig' as root");
 #else
                     pszError = N_("VirtualBox kernel driver not loaded");
@@ -381,9 +385,11 @@ VMMR3DECL(int)   VMR3Create(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods,
                 case VERR_INVALID_HANDLE: /** @todo track down and fix this error. */
                 case VERR_VM_DRIVER_NOT_INSTALLED:
 #ifdef RT_OS_LINUX
-                    pszError = N_("VirtualBox kernel driver not installed. The vboxdrv kernel module "
-                                  "was either not loaded or /dev/vboxdrv was not created for some "
-                                  "reason. Re-setup the kernel module by executing "
+                    pszError = N_("VirtualBox kernel driver not Installed. The vboxdrv kernel module "
+                                  "was either not loaded, /dev/vboxdrv is not set up properly, "
+                                  "or you are using EFI Secure Boot and the module is not signed "
+                                  "in the right way for your system.  If necessary, try setting up "
+                                  "the kernel module again by executing "
                                   "'/sbin/vboxconfig' as root");
 #else
                     pszError = N_("VirtualBox kernel driver not installed");

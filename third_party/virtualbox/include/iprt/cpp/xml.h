@@ -54,6 +54,13 @@ typedef xmlError *xmlErrorPtr;
 typedef struct _xmlAttr xmlAttr;
 typedef struct _xmlNode xmlNode;
 
+#define RT_XML_CONTENT_SMALL _8K
+#define RT_XML_CONTENT_LARGE _128K
+#define RT_XML_ATTR_TINY 64
+#define RT_XML_ATTR_SMALL _1K
+#define RT_XML_ATTR_MEDIUM _8K
+#define RT_XML_ATTR_LARGE _64K
+
 /** @} */
 
 namespace xml
@@ -249,7 +256,7 @@ public:
     /**
      * Opens a file with the given name in the given mode. If @a aMode is Read
      * or ReadWrite, the file must exist. If @a aMode is Write, the file must
-     * not exist. Otherwise, an EIPRTFailure excetion will be thrown.
+     * not exist. Otherwise, an EIPRTFailure exception will be thrown.
      *
      * @param aMode     File mode.
      * @param aFileName File name.
@@ -406,6 +413,7 @@ public:
     bool nameEqualsN(const char *pcsz, size_t cchMax, const char *pcszNamespace = NULL) const;
 
     const char *getValue() const;
+    const char *getValueN(size_t cchValueLimit) const;
     bool copyValue(int32_t &i) const;
     bool copyValue(uint32_t &i) const;
     bool copyValue(int64_t &i) const;
@@ -593,6 +601,27 @@ public:
         return NULL;
     }
 
+    /** Finds the first child with matching the give name and optionally namspace,
+     *  returning its value. Checks the length against the limit.
+     *
+     * @returns Pointer to the child string value, NULL if not found or no value.
+     * @param   pcszPath        Path to the child element.  Slashes can be used to
+     *                          make a simple path to any decendant.
+     * @param   cchValueLimit   If the length of the returned value exceeds this
+     *                          limit a EIPRTFailure exception will be thrown.
+     * @param   pcszNamespace   The namespace to match, NULL (default) match any
+     *                          namespace.  When using a path, this matches all
+     *                          elements along the way.
+     * @see     findChildElement, findChildElementP
+     */
+    const char *findChildElementValuePN(const char *pcszPath, size_t cchValueLimit, const char *pcszNamespace = NULL) const
+    {
+        const ElementNode *pElem = findChildElementP(pcszPath, pcszNamespace);
+        if (pElem)
+            return pElem->getValueN(cchValueLimit);
+        return NULL;
+    }
+
     /** Combines findChildElementP and findAttributeValue.
      *
      * @returns Pointer to attribute string value, NULL if either the element or
@@ -614,6 +643,33 @@ public:
         const ElementNode *pElem = findChildElementP(pcszPath, pcszPathNamespace);
         if (pElem)
             return pElem->findAttributeValue(pcszAttribute, pcszAttributeNamespace);
+        return NULL;
+    }
+
+    /** Combines findChildElementP and findAttributeValueN.
+     *
+     * @returns Pointer to attribute string value, NULL if either the element or
+     *          the attribute was not found.
+     * @param   pcszPath            The attribute name.  Slashes can be used to make a
+     *                              simple path to any decendant.
+     * @param   pcszAttribute       The attribute name.
+     * @param   cchValueLimit       If the length of the returned value exceeds this
+     *                              limit a EIPRTFailure exception will be thrown.
+     * @param   pcszPathNamespace   The namespace to match @a pcszPath with, NULL
+     *                              (default) match any namespace.  When using a
+     *                              path, this matches all elements along the way.
+     * @param   pcszAttributeNamespace  The namespace prefix to apply to the
+     *                              attribute, NULL (default) match any namespace.
+     * @see     findChildElementP and findAttributeValue
+     */
+    const char *findChildElementAttributeValuePN(const char *pcszPath, const char *pcszAttribute,
+                                                 size_t cchValueLimit,
+                                                 const char *pcszPathNamespace = NULL,
+                                                 const char *pcszAttributeNamespace = NULL) const
+    {
+        const ElementNode *pElem = findChildElementP(pcszPath, pcszPathNamespace);
+        if (pElem)
+            return pElem->findAttributeValueN(pcszAttribute, cchValueLimit, pcszAttributeNamespace);
         return NULL;
     }
 
@@ -706,6 +762,22 @@ public:
             return pAttr->getValue();
         return NULL;
     }
+    /** Find the first attribute with the given name, returning its value string.
+     * @returns Pointer to the attribute string value.
+     * @param   pcszName        The attribute name.
+     * @param   cchValueLimit   If the length of the returned value exceeds this
+     *                          limit a EIPRTFailure exception will be thrown.
+     * @param   pcszNamespace   The namespace name, default is NULL which means
+     *                          anything goes.
+     * @see getAttributeValue
+     */
+    const char *findAttributeValueN(const char *pcszName, size_t cchValueLimit, const char *pcszNamespace = NULL) const
+    {
+        const AttributeNode *pAttr = findAttribute(pcszName, pcszNamespace);
+        if (pAttr)
+            return pAttr->getValueN(cchValueLimit);
+        return NULL;
+    }
 
     bool getAttributeValue(const char *pcszMatch, const char *&pcsz, const char *pcszNamespace = NULL) const
     { return getAttributeValue(pcszMatch, &pcsz, pcszNamespace); }
@@ -723,6 +795,12 @@ public:
     { return getAttributeValue(pcszMatch, &u, pcszNamespace); }
     bool getAttributeValue(const char *pcszMatch, bool &f, const char *pcszNamespace = NULL) const
     { return getAttributeValue(pcszMatch, &f, pcszNamespace); }
+    bool getAttributeValueN(const char *pcszMatch, const char *&pcsz, size_t cchValueLimit, const char *pcszNamespace = NULL) const
+    { return getAttributeValueN(pcszMatch, &pcsz, cchValueLimit, pcszNamespace); }
+    bool getAttributeValueN(const char *pcszMatch, RTCString &str, size_t cchValueLimit, const char *pcszNamespace = NULL) const
+    { return getAttributeValueN(pcszMatch, &str, cchValueLimit, pcszNamespace); }
+    bool getAttributeValuePathN(const char *pcszMatch, RTCString &str, size_t cchValueLimit, const char *pcszNamespace = NULL) const
+    { return getAttributeValueN(pcszMatch, &str, cchValueLimit, pcszNamespace); }
 
     /** @name Variants that for clarity does not use references for output params.
      * @{ */
@@ -734,6 +812,9 @@ public:
     bool getAttributeValue(const char *pcszMatch, int64_t *piValue, const char *pcszNamespace = NULL) const;
     bool getAttributeValue(const char *pcszMatch, uint64_t *pu, const char *pcszNamespace = NULL) const;
     bool getAttributeValue(const char *pcszMatch, bool *pf, const char *pcszNamespace = NULL) const;
+    bool getAttributeValueN(const char *pcszMatch, const char **ppcsz, size_t cchValueLimit, const char *pcszNamespace = NULL) const;
+    bool getAttributeValueN(const char *pcszMatch, RTCString *pStr, size_t cchValueLimit, const char *pcszNamespace = NULL) const;
+    bool getAttributeValuePathN(const char *pcszMatch, RTCString *pStr, size_t cchValueLimit, const char *pcszNamespace = NULL) const;
     /** @} */
 
     /** @name Convenience methods for convering the element value.

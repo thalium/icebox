@@ -95,6 +95,33 @@ RTDECL(void *) RTMemPageAllocTag(size_t cb, const char *pszTag) RT_NO_THROW_DEF
 }
 
 
+RTDECL(void *) RTMemPageAllocExTag(size_t cb, uint32_t fFlags, const char *pszTag) RT_NO_THROW_DEF
+{
+    size_t const cbAligned = RT_ALIGN_Z(cb, PAGE_SIZE);
+    RT_NOREF_PV(pszTag);
+    AssertReturn(!(fFlags & ~RTMEMPAGEALLOC_F_VALID_MASK), NULL);
+
+#ifdef USE_VIRTUAL_ALLOC
+    void *pv = VirtualAlloc(NULL, cbAligned, MEM_COMMIT, PAGE_READWRITE);
+#else
+    void *pv = _aligned_malloc(cbAligned, PAGE_SIZE);
+#endif
+    AssertMsgReturn(pv, ("cb=%d lasterr=%d\n", cb, GetLastError()), NULL);
+
+    if (fFlags & RTMEMPAGEALLOC_F_ADVISE_LOCKED)
+    {
+        BOOL const fOkay = VirtualLock(pv, cbAligned);
+        AssertMsg(fOkay, ("pv=%p cb=%d lasterr=%d\n", pv, cb, GetLastError()));
+        NOREF(fOkay);
+    }
+
+    if (fFlags & RTMEMPAGEALLOC_F_ZERO)
+        RT_BZERO(pv, cbAligned);
+
+    return pv;
+}
+
+
 RTDECL(void *) RTMemPageAllocZTag(size_t cb, const char *pszTag) RT_NO_THROW_DEF
 {
     RT_NOREF_PV(pszTag);

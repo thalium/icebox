@@ -92,27 +92,27 @@ DECLEXPORT(void) STATE_APIENTRY crStateGLSLInit(CRContext *ctx);
 DECLEXPORT(void) STATE_APIENTRY crStateGLSLDestroy(CRContext *ctx);
 DECLEXPORT(void) STATE_APIENTRY crStateGLSLSwitch(CRContext *from, CRContext *to);
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetShaderHWID(GLuint id);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetProgramHWID(GLuint id);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLProgramHWIDtoID(GLuint hwid);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLShaderHWIDtoID(GLuint hwid);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetShaderHWID(PCRStateTracker pState, GLuint id);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetProgramHWID(PCRStateTracker pState, GLuint id);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLProgramHWIDtoID(PCRStateTracker pState, GLuint hwid);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLShaderHWIDtoID(PCRStateTracker pState, GLuint hwid);
 
-DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformSize(GLenum type);
-DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsIntUniform(GLenum type);
+DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformSize(PCRStateTracker pState, GLenum type);
+DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsIntUniform(PCRStateTracker pState, GLenum type);
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateShader(GLuint id, GLenum type);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateProgram(GLuint id);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateDeleteObjectARB( VBoxGLhandleARB obj );
+DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateShader(PCRStateTracker pState, GLuint id, GLenum type);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateProgram(PCRStateTracker pState, GLuint id);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateDeleteObjectARB(PCRStateTracker pState, VBoxGLhandleARB obj );
 
-DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramUniformsCached(GLuint program);
-DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramAttribsCached(GLuint program);
+DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramUniformsCached(PCRStateTracker pState, GLuint program);
+DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramAttribsCached(PCRStateTracker pState, GLuint program);
 
 #ifdef IN_GUEST
-DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheUniforms(GLuint program, GLsizei cbData, GLvoid *pData);
-DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheAttribs(GLuint program, GLsizei cbData, GLvoid *pData);
+DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheUniforms(PCRStateTracker pState, GLuint program, GLsizei cbData, GLvoid *pData);
+DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheAttribs(PCRStateTracker pState, GLuint program, GLsizei cbData, GLvoid *pData);
 #else
-DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData);
-DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheAttribs(GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData);
+DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheUniforms(PCRStateTracker pState, GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData);
+DECLEXPORT(void) STATE_APIENTRY crStateGLSLProgramCacheAttribs(PCRStateTracker pState, GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData);
 #endif
 
 #ifdef __cplusplus

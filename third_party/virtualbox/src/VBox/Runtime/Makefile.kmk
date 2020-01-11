@@ -260,23 +260,21 @@ endif
 # RuntimeR3 - Static Runtime for Ring-3 executables.
 #
 RuntimeR3_TEMPLATE      = VBoxR3Static
-RuntimeR3_SDKS          = VBOX_OPENSSL VBOX_LIBXML2
+RuntimeR3_SDKS          = VBOX_LIBXML2
 RuntimeR3_SDKS.win      = $(VBOX_WINPSDK) $(VBOX_WINDDK)
 RuntimeR3_DEFS          = \
 	IN_RT_R3 \
 	IN_SUP_R3 \
 	LDR_WITH_NATIVE \
 	LDR_WITH_ELF32 \
+	LDR_WITH_LX \
+	LDR_WITH_MACHO \
 	LDR_WITH_PE \
 	RT_WITH_VBOX \
  	RT_NO_GIP \
 	RT_WITHOUT_NOCRT_WRAPPERS \
-       IPRT_WITH_OPENSSL \
        NOFILEID
 #RuntimeR3_DEFS         += RTMEM_WRAP_TO_EF_APIS
-ifdef IPRT_WITH_KSTUFF
- RuntimeR3_DEFS        += LDR_WITH_KLDR
-endif
 ifdef IPRT_WITH_LZJB
  RuntimeR3_DEFS        += RTZIP_USE_LZJB
 endif
@@ -294,10 +292,6 @@ RuntimeR3_INCS          = \
 	$(SDK_VBOX_ZLIB_INCS)
 RuntimeR3_INCS         += \
 	$(PATH_ROOT)/src/libs/liblzf-3.4
-ifdef IPRT_WITH_KSTUFF
- RuntimeR3_INCS        += \
-	$(PATH_ROOT)/src/libs/kStuff/kStuff/include
-endif
 
 # RuntimeR3_INCS.solaris  = \
 #    /usr/include
@@ -439,6 +433,8 @@ RuntimeR3_SOURCES       = \
 	common/ldr/ldrELF.cpp \
 	common/ldr/ldrEx.cpp \
 	common/ldr/ldrFile.cpp \
+	common/ldr/ldrLX.cpp \
+	common/ldr/ldrMachO.cpp \
 	common/ldr/ldrMemory.cpp \
 	common/ldr/ldrNative.cpp \
 	common/ldr/ldrPE.cpp \
@@ -764,11 +760,6 @@ RuntimeR3_SOURCES.x86 += \
 	common/asm/ASMAtomicReadU64.asm	\
 	common/asm/ASMAtomicUoReadU64.asm
 
-
-ifdef IPRT_WITH_KSTUFF
- RuntimeR3_SOURCES += \
-	common/ldr/ldrkStuff.cpp
-endif
 
 # VBox specific stuff.
 RuntimeR3_SOURCES += \
@@ -1514,15 +1505,14 @@ endif
 RuntimeGuestR3_TEMPLATE                 := VBoxGuestR3Lib
 ## @todo change this to EXTEND the RuntimeR3 target.
 RuntimeGuestR3_SDKS.win                 := $(RuntimeR3_SDKS.win)
-RuntimeGuestR3_DEFS                     := $(filter-out RTCRITSECT_STRICT RT_NO_GIP IPRT_WITH_OPENSSL LDR_WITH_KLDR, $(RuntimeR3_DEFS))
-RuntimeGuestR3_DEFS                     := $(filter-out IN_SUP_R3, $(RuntimeGuestR3_DEFS)) ## @todo r=andy Needed to make cross-building with RTLdr API work.
+RuntimeGuestR3_DEFS                     := $(filter-out RTCRITSECT_STRICT RT_NO_GIP, $(RuntimeR3_DEFS))
+RuntimeGuestR3_DEFS                     := $(filter-out IN_SUP_R3, $(RuntimeGuestR3_DEFS))
 RuntimeGuestR3_DEFS.$(KBUILD_TARGET)    := $(RuntimeR3_DEFS.$(KBUILD_TARGET))
 RuntimeGuestR3_DEFS.$(KBUILD_HOST)      := $(RuntimeR3_DEFS.$(KBUILD_HOST))
 RuntimeGuestR3_INCS                     := $(RuntimeR3_INCS)
 RuntimeGuestR3_INCS.$(KBUILD_TARGET)    := $(RuntimeR3_INCS.$(KBUILD_TARGET))
 RuntimeGuestR3_INCS.$(KBUILD_HOST)      := $(RuntimeR3_INCS.$(KBUILD_HOST))
 RuntimeGuestR3_SOURCES                  := $(filter-out \
-	common/ldr/ldrkStuff.cpp \
 	common/time/timesupref.cpp \
 	common/time/timesupA.asm \
 	common/time/timesup.cpp \
@@ -1588,7 +1578,9 @@ else if1of ($(KBUILD_TARGET)$(VBOX_WITH_HARDENING), darwin win$(VBOX_WITH_HARDEN
 VBoxRT_INST                    = $(INST_DLL) $(INST_TESTCASE)
 endif
 VBoxRT_DEFS                   := $(filter-out RT_NO_GIP, $(RuntimeR3_DEFS)) \
-	IN_SUP_R3 IN_SUP_R3 IPRT_WITH_XAR \
+	IN_SUP_R3 IN_SUP_R3 \
+	IPRT_WITH_OPENSSL \
+	IPRT_WITH_XAR \
 	$(if-expr !defined(VBOX_WITH_ALT_HASH_CODE),IPRT_WITHOUT_SHA512T224 IPRT_WITHOUT_SHA512T256,)
 ifn1of ($(KBUILD_TARGET_ARCH), amd64 x86)
  VBoxRT_DEFS                  += RT_NO_GIP
@@ -1649,10 +1641,6 @@ VBoxRT_LIBS                    = \
 if1of ($(KBUILD_TARGET_ARCH), amd64 x86)
 VBoxRT_LIBS                   += \
 	$(PATH_STAGE_LIB)/SUPR3$(VBOX_SUFF_LIB)
-endif
-ifdef IPRT_WITH_KSTUFF
- VBoxRT_LIBS                  += \
-	$(PATH_STAGE_LIB)/VBox-kStuff$(VBOX_SUFF_LIB)
 endif
 ifndef SDK_VBOX_LIBXML2_LIBS
  VBoxRT_LIBS                 += \
@@ -1767,6 +1755,8 @@ ifeq ($(KBUILD_TARGET),linux)
 VBoxRT_INSTTYPE = none
 VBoxRT_DEBUG_INSTTYPE = both
 
+VBoxRT-x86_INSTTYPE = $(NO_SUCH_VARIABLE)
+
 DLLS += VBoxRTDummy
 VBoxRTDummy_TEMPLATE = VBoxR3Dll
 VBoxRTDummy_INSTTYPE = none
@@ -1801,10 +1791,6 @@ VBoxRT-x86_LIBS = \
 if1of ($(KBUILD_TARGET_ARCH), amd64 x86)
 VBoxRT-x86_LIBS += \
 	$(PATH_STAGE_LIB)/SUPR3-x86$(VBOX_SUFF_LIB)
-endif
-ifdef IPRT_WITH_KSTUFF
- VBoxRT-x86_LIBS                  += \
-	$(PATH_STAGE_LIB)/VBox-kStuff-x86$(VBOX_SUFF_LIB)
 endif
 ifndef SDK_VBOX_LIBXML2_LIBS
  VBoxRT-x86_LIBS                 += \
@@ -2105,6 +2091,7 @@ RuntimeR0Drv_TEMPLATE   = VBoxR0DrvLib
 RuntimeR0Drv_SDKS.win   = ReorderCompilerIncs $(VBOX_WINDDK) $(VBOX_WINPSDK)INCS VBOX_OPENSSL
 RuntimeR0Drv_DEFS       = IN_RT_R0 RT_WITH_VBOX RT_WITHOUT_NOCRT_WRAPPERS RT_NO_EXPORT_SYMBOL NOFILEID
 RuntimeR0Drv_DEFS.win   = IN_SUP_R0 LDR_ONLY_PE
+RuntimeR0Drv_DEFS.darwin= IN_SUP_R0 LDR_ONLY_MACHO IPRT_WITHOUT_DIGEST_MD4
 
 RuntimeR0Drv_INCS      := $(PATH_SUB_CURRENT) include
 RuntimeR0Drv_INCS.freebsd = \
@@ -2406,16 +2393,104 @@ RuntimeR0Drv_SOURCES.win.amd64 := $(RuntimeWin64ASM_SOURCES)
 RuntimeR0Drv_SOURCES.win.x86   := $(RuntimeWin32ASM_SOURCES)
 
 RuntimeR0Drv_SOURCES.darwin = \
+	common/ldr/ldr.cpp \
+	common/ldr/ldrEx.cpp \
+	common/ldr/ldrMachO.cpp \
+	common/ldr/ldrMemory.cpp \
+	common/asn1/asn1-basics.cpp \
+	common/asn1/asn1-dump.cpp \
+	common/asn1/asn1-cursor.cpp \
+	common/asn1/asn1-default-allocator.cpp \
+	common/asn1/asn1-encode.cpp \
+	common/asn1/asn1-ut-bitstring.cpp \
+	common/asn1/asn1-ut-bitstring-decode.cpp \
+	common/asn1/asn1-ut-boolean.cpp \
+	common/asn1/asn1-ut-boolean-decode.cpp \
+	common/asn1/asn1-ut-core.cpp \
+	common/asn1/asn1-ut-core-decode.cpp \
+	common/asn1/asn1-ut-dyntype.cpp \
+	common/asn1/asn1-ut-dyntype-decode.cpp \
+	common/asn1/asn1-ut-integer.cpp \
+	common/asn1/asn1-ut-integer-decode.cpp \
+	common/asn1/asn1-ut-null.cpp \
+	common/asn1/asn1-ut-null-decode.cpp \
+	common/asn1/asn1-ut-objid.cpp \
+	common/asn1/asn1-ut-objid-decode.cpp \
+	common/asn1/asn1-ut-octetstring.cpp \
+	common/asn1/asn1-ut-octetstring-decode.cpp \
+	common/asn1/asn1-ut-string.cpp \
+	common/asn1/asn1-ut-string-decode.cpp \
+	common/asn1/asn1-ut-time.cpp \
+	common/asn1/asn1-ut-time-decode.cpp \
+	common/crypto/digest-core.cpp \
+	common/crypto/digest-builtin.cpp \
+	common/crypto/rsa-asn1-decoder.cpp \
+	common/crypto/rsa-core.cpp \
+	common/crypto/rsa-init.cpp \
+	common/crypto/rsa-sanity.cpp \
+	common/crypto/pkcs7-asn1-decoder.cpp \
+	common/crypto/pkcs7-core.cpp \
+	common/crypto/pkcs7-init.cpp \
+	common/crypto/pkcs7-sanity.cpp \
+	common/crypto/pkcs7-verify.cpp \
+	common/crypto/pkix-signature-builtin.cpp \
+	common/crypto/pkix-signature-core.cpp \
+	common/crypto/pkix-signature-rsa.cpp \
+	common/crypto/pkix-util.cpp \
+	common/crypto/pkix-verify.cpp \
+	common/crypto/spc-asn1-decoder.cpp \
+	common/crypto/spc-core.cpp \
+	common/crypto/spc-init.cpp \
+	common/crypto/spc-sanity.cpp \
+	common/crypto/x509-asn1-decoder.cpp \
+	common/crypto/x509-certpaths.cpp \
+	common/crypto/x509-core.cpp \
+	common/crypto/x509-init.cpp \
+	common/crypto/x509-sanity.cpp \
+	common/crypto/x509-verify.cpp \
+	common/crypto/store.cpp \
+	common/crypto/store-inmem.cpp \
+	common/crypto/taf-asn1-decoder.cpp \
+	common/crypto/taf-core.cpp \
+	common/crypto/taf-init.cpp \
+	common/crypto/taf-sanity.cpp \
+	common/crypto/tsp-asn1-decoder.cpp \
+	common/crypto/tsp-core.cpp \
+	common/crypto/tsp-init.cpp \
+	common/crypto/tsp-sanity.cpp \
+	common/checksum/alt-md2.cpp \
+	common/checksum/alt-sha1.cpp \
+	common/checksum/alt-sha256.cpp \
+	common/checksum/alt-sha512.cpp \
+	common/checksum/md2str.cpp \
+	common/checksum/md5str.cpp \
+	common/checksum/sha1str.cpp \
+	common/checksum/sha224str.cpp \
+	common/checksum/sha256str.cpp \
+	common/checksum/sha384str.cpp \
+	common/checksum/sha512str.cpp \
+	common/checksum/sha512t224str.cpp \
+	common/checksum/sha512t256str.cpp \
+	common/err/errinfolog.cpp \
+	common/math/bignum.cpp \
 	common/misc/thread.cpp \
+	common/string/base64.cpp \
 	common/string/memchr.asm \
 	common/string/strpbrk.cpp \
+	common/string/RTStrPrintHexBytes.cpp \
 	darwin/RTErrConvertFromDarwin.cpp \
 	darwin/RTErrConvertFromDarwinIO.cpp \
 	darwin/RTErrConvertFromDarwinKern.cpp \
 	generic/RTAssertShouldPanic-generic.cpp \
-	generic/RTTimerCreate-generic.cpp \
+	generic/RTFileReadAll-generic.cpp \
+	generic/RTFileReadAllByHandle-generic.cpp \
+	generic/RTFileReadAllByHandleEx-generic.cpp \
+	generic/RTFileReadAllEx-generic.cpp \
+	generic/RTFileReadAllFree-generic.cpp \
 	generic/RTMpGetCoreCount-generic.cpp \
 	generic/RTMpOnPair-generic.cpp \
+	generic/RTTimerCreate-generic.cpp \
+	generic/memsafer-generic.cpp \
 	generic/mppresent-generic.cpp \
 	generic/timer-generic.cpp \
 	r0drv/generic/mpnotification-r0drv-generic.cpp \
@@ -2424,6 +2499,7 @@ RuntimeR0Drv_SOURCES.darwin = \
 	r0drv/darwin/assert-r0drv-darwin.cpp \
 	r0drv/darwin/initterm-r0drv-darwin.cpp \
 	r0drv/darwin/dbgkrnlinfo-r0drv-darwin.cpp \
+	r0drv/darwin/fileio-r0drv-darwin.cpp \
 	r0drv/darwin/memobj-r0drv-darwin.cpp \
 	r0drv/darwin/mp-r0drv-darwin.cpp \
 	r0drv/darwin/memuserkernel-r0drv-darwin.cpp \
@@ -3087,8 +3163,7 @@ $(IPRT_DOXYFILE_OUTPUT)/Doxyfile.iprt: \
 	$(QUIET)$(APPEND) $@.tmp 'EXCLUDE = '\
 		'$(VBOX_PATH_RUNTIME_SRC)/common/string/unidata-flags.cpp' \
        	'$(VBOX_PATH_RUNTIME_SRC)/common/string/unidata-lower.cpp' \
-       	'$(VBOX_PATH_RUNTIME_SRC)/common/string/unidata-upper.cpp' \
-       	'$(VBOX_PATH_RUNTIME_SRC)/common/ldr/ldrkStuff.cpp'
+       	'$(VBOX_PATH_RUNTIME_SRC)/common/string/unidata-upper.cpp'
 	$(QUIET)$(APPEND) $@.tmp
 	$(QUIET)$(APPEND) $@.tmp 'INPUT = $(foreach x,$(IPRT_DOXYFILE_INPUT),\$(NLTAB)$(x))'
 	$(QUIET)$(APPEND) $@.tmp

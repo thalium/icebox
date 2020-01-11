@@ -221,7 +221,27 @@ RTR3DECL(int) RTHttpSetProxy(RTHTTP hHttp, const char *pszProxyUrl, uint32_t uPo
                              const char *pszProxyUser, const char *pszProxyPwd);
 
 /**
- * Set custom headers.
+ * Set follow redirects (3xx)
+ *
+ * @returns iprt status code.
+ *
+ * @param   hHttp           The HTTP client instance.
+ * @param   cMaxRedirects   Max number of redirects to follow.  Zero if no
+ *                          redirects should be followed but instead returned
+ *                          to caller.
+ */
+RTR3DECL(int) RTHttpSetFollowRedirects(RTHTTP hHttp, uint32_t cMaxRedirects);
+
+/**
+ * Gets the follow redirect setting.
+ *
+ * @returns cMaxRedirects value, 0 means not to follow.
+ * @param   hHttp           The HTTP client handle.
+ */
+RTR3DECL(uint32_t) RTHttpGetFollowRedirects(RTHTTP hHttp);
+
+/**
+ * Set custom raw headers.
  *
  * @returns iprt status code.
  *
@@ -287,7 +307,34 @@ RTR3DECL(int) RTHttpGatherCaCertsInStore(RTCRSTORE hStore, uint32_t fFlags, PRTE
 RTR3DECL(int) RTHttpGatherCaCertsInFile(const char *pszCaFile, uint32_t fFlags, PRTERRINFO pErrInfo);
 
 /**
+<<<<<<< .working
  * Set a callback function which is called during RTHttpGet*()
+||||||| .merge-left.r129918
+ * Callback function to be called during RTHttpGet*().
+=======
+ * Set whether to verify the peer's SSL certificate.
+ *
+ * The default is to verify it.  It can however sometimes be useful or even
+ * necessary to skip this.
+ *
+ * @returns iprt status code.
+ *
+ * @param   hHttp           The HTTP client handle.
+ * @param   fVerify         Verify the certificate if @a true.
+ */
+RTR3DECL(int) RTHttpSetVerifyPeer(RTHTTP hHttp, bool fVerify);
+
+/**
+ * Get the state of the peer's SSL certificate setting.
+ *
+ * @returns  true if we verify the SSL certificate, false if not.
+ * @param   hHttp           The HTTP client handle.
+ */
+RTR3DECL(bool) RTHttpGetVerifyPeer(RTHTTP hHttp);
+
+/**
+ * Callback function to be called during RTHttpGet*().
+>>>>>>> .merge-right.r129919
  *
  * @returns IPRT status code.
  * @param   hHttp           The HTTP client instance.

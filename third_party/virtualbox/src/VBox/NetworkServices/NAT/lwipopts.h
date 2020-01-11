@@ -167,7 +167,7 @@
 
 /* MEMP_NUM_SYS_TIMEOUT: the number of simultaneously active
    timeouts. */
-#define MEMP_NUM_SYS_TIMEOUT    16
+#define MEMP_NUM_SYS_TIMEOUT    256
 
 
 /* this is required for IPv6 and IGMP needs */

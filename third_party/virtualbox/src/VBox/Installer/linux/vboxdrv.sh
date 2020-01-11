@@ -131,7 +131,7 @@ module_build_log()
 {
     setup_log
     echo "${1}" | egrep -v \
-        "^test -e include/generated/autoconf.h|^echo >&2|^/bin/false)$" \
+        "^test -e include/generated/autoconf.h|^echo >&2|^/bin/false\)$" \
         >> "${LOG}"
 }
 

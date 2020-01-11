@@ -440,7 +440,8 @@ char *PyTraceback_AsString(PyObject *exc_tb)
 #if PY_MAJOR_VERSION <= 2
 	char *tempResult = PyString_AsString(obResult);
 #else
-	char *tempResult = PyUnicode_AsUTF8(obResult);
+    /* PyUnicode_AsUTF8() is const char * as of Python 3.7, char * earlier. */
+	const char *tempResult = (const char *)PyUnicode_AsUTF8(obResult);
 #endif
 	result = (char *)PyMem_Malloc(strlen(tempResult)+1);
 	if (result==NULL)

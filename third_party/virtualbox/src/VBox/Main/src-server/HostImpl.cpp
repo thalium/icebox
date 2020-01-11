@@ -280,7 +280,7 @@ HRESULT Host::init(VirtualBox *aParent)
     /* Create the list of network interfaces so their metrics get registered. */
     i_updateNetIfList();
 
-    m->hostDnsMonitorProxy.init(HostDnsMonitor::getHostDnsMonitor(m->pParent), m->pParent);
+    m->hostDnsMonitorProxy.init(m->pParent);
 
 #if defined(RT_OS_WINDOWS)
     m->pHostPowerService = new HostPowerServiceWin(m->pParent);
@@ -327,7 +327,8 @@ HRESULT Host::init(VirtualBox *aParent)
 
             /* VT-x? */
             if (   ASMIsIntelCpuEx(uVendorEBX, uVendorECX, uVendorEDX)
-                || ASMIsViaCentaurCpuEx(uVendorEBX, uVendorECX, uVendorEDX))
+                || ASMIsViaCentaurCpuEx(uVendorEBX, uVendorECX, uVendorEDX)
+                || ASMIsShanghaiCpuEx(uVendorEBX, uVendorECX, uVendorEDX))
             {
                 if (    (fFeaturesEcx & X86_CPUID_FEATURE_ECX_VMX)
                      && (fFeaturesEdx & X86_CPUID_FEATURE_EDX_MSR)
@@ -470,6 +471,8 @@ void Host::uninit()
         pNet->uninit();
         m->llNetIfs.pop_front();
     }
+
+    m->hostDnsMonitorProxy.uninit();
 
 #ifdef VBOX_WITH_USB
     /* wait for USB proxy service to terminate before we uninit all USB

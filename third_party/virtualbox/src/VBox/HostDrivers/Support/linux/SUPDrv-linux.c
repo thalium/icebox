@@ -1,4 +1,4 @@
-/* $Rev: 118839 $ */
+/* $Rev: 129379 $ */
 /** @file
  * VBoxDrv - The VirtualBox Support Driver - Linux specifics.
  */
@@ -97,8 +97,8 @@
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
-static int  VBoxDrvLinuxInit(void);
-static void VBoxDrvLinuxUnload(void);
+static int  __init VBoxDrvLinuxInit(void);
+static void __exit VBoxDrvLinuxUnload(void);
 static int  VBoxDrvLinuxCreateSys(struct inode *pInode, struct file *pFilp);
 static int  VBoxDrvLinuxCreateUsr(struct inode *pInode, struct file *pFilp);
 static int  VBoxDrvLinuxClose(struct inode *pInode, struct file *pFilp);
@@ -848,9 +848,10 @@ int  VBOXCALL   supdrvOSLdrOpen(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, c
 }
 
 
-int  VBOXCALL   supdrvOSLdrValidatePointer(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, void *pv, const uint8_t *pbImageBits)
+int  VBOXCALL   supdrvOSLdrValidatePointer(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, void *pv,
+                                           const uint8_t *pbImageBits, const char *pszSymbol)
 {
-    NOREF(pDevExt); NOREF(pImage); NOREF(pv); NOREF(pbImageBits);
+    NOREF(pDevExt); NOREF(pImage); NOREF(pv); NOREF(pbImageBits); NOREF(pszSymbol);
     return VERR_NOT_SUPPORTED;
 }
 
@@ -1216,6 +1217,17 @@ void VBOXCALL   supdrvOSLdrNotifyUnloaded(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE
     Assert(pImage->pLnxModHack == NULL);
 #endif
     NOREF(pDevExt); NOREF(pImage);
+}
+
+
+int  VBOXCALL   supdrvOSLdrQuerySymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage,
+                                       const char *pszSymbol, size_t cchSymbol, void **ppvSymbol)
+{
+#ifdef VBOX_WITH_NON_PROD_HACK_FOR_PERF_STACKS
+# error "implement me!"
+#endif
+    RT_NOREF(pDevExt, pImage, pszSymbol, cchSymbol, ppvSymbol);
+    return VERR_WRONG_ORDER;
 }
 
 

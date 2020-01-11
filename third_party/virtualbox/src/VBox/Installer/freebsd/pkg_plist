@@ -55,9 +55,7 @@ bin/VBoxSDL
 bin/vboxwebsrv
 @mode 644
 lib/virtualbox/VBoxDDRC.rc
-lib/virtualbox/VBoxDD2RC.rc
 lib/virtualbox/VBoxDDR0.r0
-lib/virtualbox/VBoxDD2R0.r0
 lib/virtualbox/VMMRC.rc
 lib/virtualbox/VMMR0.r0
 lib/virtualbox/License-7.html

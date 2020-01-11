@@ -78,6 +78,7 @@ struc HMCPU
 
         .fGIMTrapXcptUD         resb    1
         .fHypercallsEnabled     resb    1
+        .fTrapXcptGpForLovelyMesaDrv resb 1
         alignb 8
 
         .cWorldSwitchExits      resd    1

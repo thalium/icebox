@@ -6,7 +6,6 @@
 
 #include "cr_error.h"
 #include "cr_spu.h"
-#include "cr_environment.h"
 #include "cr_mem.h"
 #include "stub.h"
 
@@ -18,6 +17,7 @@
 #include <stdio.h>
 
 #include <iprt/cdefs.h>
+#include <iprt/env.h>
 
 /* Currently host part will misbehave re-creating context with proper visual bits
  * if contexts with alternative visual bits is requested.
@@ -82,7 +82,7 @@ DECLEXPORT(int) WINAPI wglChoosePixelFormat_prox( HDC hdc, CONST PIXELFORMATDESC
      * equivalent's of ChoosePixelFormat/DescribePixelFormat etc
      * There are subtle differences in the use of these calls.
      */
-    crSetenv("CR_WGL_DO_NOT_USE_GDI", "yes");
+    RTEnvSet("CR_WGL_DO_NOT_USE_GDI", "yes");
 
     if ( pfd->nSize != sizeof(*pfd) || pfd->nVersion != 1 ) {
         crError( "wglChoosePixelFormat: bad pfd\n" );

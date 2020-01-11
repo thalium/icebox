@@ -104,9 +104,6 @@ VBOX_FBSD_STRIP_BIN = \
 		components/VBoxSVCM.so \
 		components/VBoxC.so,) \
 	$(if $(VBOX_WITH_CROGL),\
-		VBoxOGLhostcrutil.so \
-		VBoxOGLhosterrorspu.so \
-		VBoxOGLrenderspu.so \
 		VBoxTestOGL \
 		VBoxSharedCrOpenGL.so,) \
 	$(if $(VBOX_WITH_PYTHON),VBoxPython.so,) \
@@ -114,8 +111,6 @@ VBOX_FBSD_STRIP_BIN = \
 
 # Do not remove relocation information of these binaries
 VBOX_FBSD_STRIP_OBJ = \
-	VBoxDD2RC.rc \
-	VBoxDD2R0.r0 \
 	VBoxDDRC.rc \
 	VBoxDDR0.r0 \
 	VMMRC.rc \

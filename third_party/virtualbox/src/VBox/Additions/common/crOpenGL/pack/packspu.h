@@ -78,7 +78,6 @@ struct context_info_t {
 
 typedef struct {
     int id;
-    int swap;
 
     /* config options */
     int emit_GATHER_POST_SWAPBUFFERS;
@@ -106,21 +105,20 @@ typedef struct {
 
     int numContexts;
     ContextInfo context[CR_MAX_CONTEXTS];
+
+    /** State tracker state. */
+    CRStateTracker    StateTracker;
 } PackSPU;
 
 extern PackSPU pack_spu;
 
 #define THREAD_OFFSET_MAGIC 2000
 
-#ifdef CHROMIUM_THREADSAFE
 extern CRmutex _PackMutex;
 extern CRtsd _PackTSD;
 #define GET_THREAD_VAL()  (crGetTSD(&_PackTSD))
 #define GET_THREAD_IDX(_id) ((_id) - THREAD_OFFSET_MAGIC)
 #define GET_THREAD_VAL_ID(_id) (&(pack_spu.thread[GET_THREAD_IDX(_id)]))
-#else
-#define GET_THREAD_VAL()  (&(pack_spu.thread[0]))
-#endif
 #define GET_THREAD(T)  ThreadInfo *T = GET_THREAD_VAL()
 #define GET_THREAD_ID(T, _id) ThreadInfo *T = GET_THREAD_VAL_ID(_id)
 

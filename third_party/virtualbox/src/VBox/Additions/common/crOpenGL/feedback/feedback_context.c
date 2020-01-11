@@ -35,10 +35,7 @@ feedbackspu_VBoxCreateContext( GLint con, const char *dpyName, GLint visual, GLi
 {
     GLint ctx, slot;
 
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&feedback_spu.mutex);
-#endif
-
     ctx = feedback_spu.child.VBoxCreateContext(con, dpyName, visual, shareCtx);
 
     /* find an empty context slot */
@@ -52,13 +49,10 @@ feedbackspu_VBoxCreateContext( GLint con, const char *dpyName, GLint visual, GLi
         feedback_spu.numContexts++;
     }
 
-    feedback_spu.context[slot].clientState = crStateCreateContext(NULL, visual, NULL);
+    feedback_spu.context[slot].clientState = crStateCreateContext(&feedback_spu.StateTracker, NULL, visual, NULL);
     feedback_spu.context[slot].clientCtx = ctx;
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&feedback_spu.mutex);
-#endif
-
     return ctx;
 }
 
@@ -71,9 +65,7 @@ feedbackspu_CreateContext( const char *dpyName, GLint visual, GLint shareCtx )
 void FEEDBACKSPU_APIENTRY
 feedbackspu_MakeCurrent( GLint window, GLint nativeWindow, GLint ctx )
 {
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&feedback_spu.mutex);
-#endif
     feedback_spu.child.MakeCurrent(window, nativeWindow, ctx);
 
     if (ctx) {
@@ -84,9 +76,9 @@ feedbackspu_MakeCurrent( GLint window, GLint nativeWindow, GLint ctx )
             if (feedback_spu.context[slot].clientCtx == ctx) break;
         CRASSERT(slot < feedback_spu.numContexts);
 
-        crStateMakeCurrent(feedback_spu.context[slot].clientState);
+        crStateMakeCurrent(&feedback_spu.StateTracker, feedback_spu.context[slot].clientState);
 
-        crStateGetIntegerv(GL_RENDER_MODE, &oldmode);
+        crStateGetIntegerv(&feedback_spu.StateTracker, GL_RENDER_MODE, &oldmode);
 
         if (oldmode!=feedback_spu.render_mode)
         {
@@ -95,20 +87,16 @@ feedbackspu_MakeCurrent( GLint window, GLint nativeWindow, GLint ctx )
     }
     else
     {
-        crStateMakeCurrent(NULL);
+        crStateMakeCurrent(&feedback_spu.StateTracker, NULL);
     }
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&feedback_spu.mutex);
-#endif
 }
 
 void FEEDBACKSPU_APIENTRY
 feedbackspu_DestroyContext( GLint ctx )
 {
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&feedback_spu.mutex);
-#endif
     feedback_spu.child.DestroyContext(ctx);
 
     if (ctx) {
@@ -118,14 +106,12 @@ feedbackspu_DestroyContext( GLint ctx )
             if (feedback_spu.context[slot].clientCtx == ctx) break;
         CRASSERT(slot < feedback_spu.numContexts);
 
-        crStateDestroyContext(feedback_spu.context[slot].clientState);
+        crStateDestroyContext(&feedback_spu.StateTracker, feedback_spu.context[slot].clientState);
 
         feedback_spu.context[slot].clientState = NULL;
         feedback_spu.context[slot].clientCtx = 0;
     }
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&feedback_spu.mutex);
-#endif
 }
 

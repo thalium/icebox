@@ -16,7 +16,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
 
-    <?include Properties.wxi ?>
+    <?include Defines.wxi ?>
 
     <!-- Note: GUIDs in WiX *must* be uppercase! -->
     <!-- Always include an upgrade ID or otherwise upgrade installation will not be possible. When doing
@@ -50,7 +50,6 @@
 
         <?include CommonProperties.wxi ?>
         <?include PublicProperties.wxi ?>
-
 
         <Property Id="local_VBOX_REGISTERFILEEXTENSIONS" Value="Empty" />
         <Configuration Name="argRegesterExtensions" Format="Text" DefaultValue="Not passed"/>

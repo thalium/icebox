@@ -56,7 +56,7 @@ typedef struct RTLDRREADERFILE
     /** The file. */
     RTFILE          hFile;
     /** The file size. */
-    RTFOFF          cbFile;
+    uint64_t        cbFile;
     /** The current offset. */
     RTFOFF          off;
     /** Number of users or the mapping. */
@@ -108,7 +108,7 @@ static DECLCALLBACK(RTFOFF) rtldrFileTell(PRTLDRREADER pReader)
 
 
 /** @copydoc RTLDRREADER::pfnSize */
-static DECLCALLBACK(RTFOFF) rtldrFileSize(PRTLDRREADER pReader)
+static DECLCALLBACK(uint64_t) rtldrFileSize(PRTLDRREADER pReader)
 {
     PRTLDRREADERFILE pFileReader = (PRTLDRREADERFILE)pReader;
     return pFileReader->cbFile;
@@ -142,7 +142,7 @@ static DECLCALLBACK(int) rtldrFileMap(PRTLDRREADER pReader, const void **ppvBits
      * Allocate memory.
      */
     size_t cb = (size_t)pFileReader->cbFile;
-    if ((RTFOFF)cb != pFileReader->cbFile)
+    if ((uint64_t)cb != pFileReader->cbFile)
         return VERR_IMAGE_TOO_BIG;
     pFileReader->pvMapping = RTMemAlloc(cb);
     if (!pFileReader->pvMapping)
@@ -214,7 +214,7 @@ static int rtldrFileCreate(PRTLDRREADER *ppReader, const char *pszFilename)
         rc = RTFileOpen(&pFileReader->hFile, pszFilename, RTFILE_O_READ | RTFILE_O_OPEN | RTFILE_O_DENY_WRITE);
         if (RT_SUCCESS(rc))
         {
-            rc = RTFileGetSize(pFileReader->hFile, (uint64_t *)&pFileReader->cbFile);
+            rc = RTFileGetSize(pFileReader->hFile, &pFileReader->cbFile);
             if (RT_SUCCESS(rc))
             {
                 pFileReader->Core.uMagic     = RTLDRREADER_MAGIC;
@@ -294,47 +294,4 @@ RTDECL(int) RTLdrOpenEx(const char *pszFilename, uint32_t fFlags, RTLDRARCH enmA
     return rc;
 }
 RT_EXPORT_SYMBOL(RTLdrOpenEx);
-
-
-/**
- * Opens a binary image file using kLdr.
- *
- * @returns iprt status code.
- * @param   pszFilename Image filename.
- * @param   fFlags      Reserved, MBZ.
- * @param   enmArch     CPU architecture specifier for the image to be loaded.
- * @param   phLdrMod    Where to store the handle to the loaded module.
- * @remark  Primarily for testing the loader.
- */
-RTDECL(int) RTLdrOpenkLdr(const char *pszFilename, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod)
-{
-#ifdef LDR_WITH_KLDR
-    LogFlow(("RTLdrOpenkLdr: pszFilename=%p:{%s} fFlags=%#x enmArch=%d phLdrMod=%p\n",
-             pszFilename, pszFilename, fFlags, enmArch, phLdrMod));
-    AssertMsgReturn(!(fFlags & ~RTLDR_O_VALID_MASK), ("%#x\n", fFlags), VERR_INVALID_PARAMETER);
-
-    /*
-     * Create file reader & invoke worker which identifies and calls the image interpreter.
-     */
-    PRTLDRREADER pReader;
-    int rc = rtldrFileCreate(&pReader, pszFilename);
-    if (RT_SUCCESS(rc))
-    {
-        rc = rtldrkLdrOpen(pReader, fFlags, enmArch, phLdrMod, NULL);
-        if (RT_SUCCESS(rc))
-        {
-            LogFlow(("RTLdrOpenkLdr: return %Rrc *phLdrMod=%p\n", rc, *phLdrMod));
-            return rc;
-        }
-        pReader->pfnDestroy(pReader);
-    }
-    *phLdrMod = NIL_RTLDRMOD;
-    LogFlow(("RTLdrOpenkLdr: return %Rrc\n", rc));
-    return rc;
-
-#else
-    return RTLdrOpen(pszFilename, fFlags, enmArch, phLdrMod);
-#endif
-}
-RT_EXPORT_SYMBOL(RTLdrOpenkLdr);
 

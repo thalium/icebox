@@ -255,12 +255,6 @@ Function W2K_CopyFiles
     FILE "$%PATH_OUT%\bin\additions\VBoxDispD3D.dll"
 
     !if $%VBOX_WITH_CROGL% == "1"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLcrutil.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLpackspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu.dll"
-      FILE "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu.dll"
       FILE "$%PATH_OUT%\bin\additions\VBoxOGL.dll"
 
       FILE "$%PATH_OUT%\bin\additions\VBoxD3D9wddm.dll"
@@ -271,12 +265,6 @@ Function W2K_CopyFiles
       FILE "$%PATH_OUT%\bin\additions\VBoxDispD3D-x86.dll"
 
       !if $%VBOX_WITH_CROGL% == "1"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLcrutil-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLpackspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu-x86.dll"
-        FILE "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu-x86.dll"
         FILE "$%PATH_OUT%\bin\additions\VBoxOGL-x86.dll"
 
         FILE "$%PATH_OUT%\bin\additions\VBoxD3D9wddm-x86.dll"
@@ -295,12 +283,6 @@ Function W2K_CopyFiles
   !endif
   StrCpy $0 "$TEMP\VBoxGuestAdditions\VBoxOGL"
   CreateDirectory "$0"
-  !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu.dll"       "$g_strSystemDir\VBoxOGLarrayspu.dll"       "$0"
-  !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%PATH_OUT%\bin\additions\VBoxOGLcrutil.dll"         "$g_strSystemDir\VBoxOGLcrutil.dll"         "$0"
-  !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu.dll"       "$g_strSystemDir\VBoxOGLerrorspu.dll"       "$0"
-  !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%PATH_OUT%\bin\additions\VBoxOGLpackspu.dll"        "$g_strSystemDir\VBoxOGLpackspu.dll"        "$0"
-  !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu.dll" "$g_strSystemDir\VBoxOGLpassthroughspu.dll" "$0"
-  !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu.dll"    "$g_strSystemDir\VBoxOGLfeedbackspu.dll"    "$0"
   !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%PATH_OUT%\bin\additions\VBoxOGL.dll"               "$g_strSystemDir\VBoxOGL.dll"               "$0"
   !if $%BUILD_TARGET_ARCH% == "amd64"
     !undef LIBRARY_X64 ; Disable installation of 64-bit libraries
@@ -313,12 +295,6 @@ Function W2K_CopyFiles
     ; Wow64 node (32-bit sub system). Note that $SYSDIR contains the 32-bit
     ; path after calling EnableX64FSRedirection
     ${EnableX64FSRedirection}
-    !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLarrayspu.dll"       "$SYSDIR\VBoxOGLarrayspu.dll"       "$0"
-    !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLcrutil.dll"         "$SYSDIR\VBoxOGLcrutil.dll"         "$0"
-    !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLerrorspu.dll"       "$SYSDIR\VBoxOGLerrorspu.dll"       "$0"
-    !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLpackspu.dll"        "$SYSDIR\VBoxOGLpackspu.dll"        "$0"
-    !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLpassthroughspu.dll" "$SYSDIR\VBoxOGLpassthroughspu.dll" "$0"
-    !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGLfeedbackspu.dll"    "$SYSDIR\VBoxOGLfeedbackspu.dll"    "$0"
     !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "$%VBOX_PATH_ADDITIONS_WIN_X86%\VBoxOGL.dll"               "$SYSDIR\VBoxOGL.dll"               "$0"
     ${DisableX64FSRedirection}
   !endif
@@ -477,7 +453,7 @@ cropengl:
       WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\VBoxOGL" "Version" 2
       WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\VBoxOGL" "DriverVersion" 1
       WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\VBoxOGL" "Flags" 1
-      WriteRegStr   HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\VBoxOGL" "Dll" "VBoxOGL.dll"
+      WriteRegStr   HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\VBoxOGL" "Dll" "VBoxOGL-x86.dll"
     ${EndIf}
     SetRegView 64
 !endif
@@ -547,12 +523,6 @@ Function ${un}W2K_UninstallInstDir
   !endif
   Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxDispD3D.dll"
 
-    Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu.dll"
-    Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLcrutil.dll"
-    Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu.dll"
-    Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLpackspu.dll"
-    Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu.dll"
-    Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu.dll"
     Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGL.dll"
 
     Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxD3D9wddm.dll"
@@ -563,12 +533,15 @@ Function ${un}W2K_UninstallInstDir
   !if $%BUILD_TARGET_ARCH% == "amd64"
     Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxDispD3D-x86.dll"
 
+      ; Obsolete files begin (they were merged into VBoxOGL-x86.dll)
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLarrayspu-x86.dll"
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLcrutil-x86.dll"
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLerrorspu-x86.dll"
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLpackspu-x86.dll"
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLpassthroughspu-x86.dll"
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGLfeedbackspu-x86.dll"
+      ; Obsolete files end
+
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxOGL-x86.dll"
 
       Delete /REBOOTOK "$%PATH_OUT%\bin\additions\VBoxD3D9wddm-x86.dll"
@@ -637,12 +610,15 @@ Function ${un}W2K_Uninstall
     Goto d3d_uninstall_end
   ${EndIf}
 
+  ; Obsolete files begin (they were merged into VBoxOGL.dll)
   Delete /REBOOTOK "$g_strSystemDir\VBoxOGLarrayspu.dll"
   Delete /REBOOTOK "$g_strSystemDir\VBoxOGLcrutil.dll"
   Delete /REBOOTOK "$g_strSystemDir\VBoxOGLerrorspu.dll"
   Delete /REBOOTOK "$g_strSystemDir\VBoxOGLpackspu.dll"
   Delete /REBOOTOK "$g_strSystemDir\VBoxOGLpassthroughspu.dll"
   Delete /REBOOTOK "$g_strSystemDir\VBoxOGLfeedbackspu.dll"
+  ; Obsolete files end
+
   Delete /REBOOTOK "$g_strSystemDir\VBoxOGL.dll"
 
   ; Remove D3D stuff
@@ -672,13 +648,16 @@ Function ${un}W2K_Uninstall
 
   !if $%BUILD_TARGET_ARCH% == "amd64"
     ; Only 64-bit installer: Also remove 32-bit DLLs on 64-bit target arch in Wow64 node
-    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLarrayspu.dll"
-    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLcrutil.dll"
-    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLerrorspu.dll"
-    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLpackspu.dll"
-    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLpassthroughspu.dll"
-    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLfeedbackspu.dll"
-    Delete /REBOOTOK "$g_strSysWow64\VBoxOGL.dll"
+    ; Obsolete files begin (they were merged into VBoxOGL-x86.dll)
+    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLarrayspu-x86.dll"
+    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLcrutil-x86.dll"
+    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLerrorspu-x86.dll"
+    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLpackspu-x86.dll"
+    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLpassthroughspu-x86.dll"
+    Delete /REBOOTOK "$g_strSysWow64\VBoxOGLfeedbackspu-x86.dll"
+    ; Obsolete files end
+
+    Delete /REBOOTOK "$g_strSysWow64\VBoxOGL-x86.dll"
 
     ; Remove D3D stuff
     ; @todo add a feature flag to only remove if installed explicitly

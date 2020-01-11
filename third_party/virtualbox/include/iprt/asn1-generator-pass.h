@@ -489,14 +489,19 @@ RTASN1TMPL_DECL(int) RT_CONCAT(RTASN1TMPL_EXT_NAME,_DecodeAsn1)(PRTASN1CURSOR pC
         RTASN1TMPL_MEMBER_EX(a_Name, a_Type, a_Api, RT_NOTHING)
 
 # define RTASN1TMPL_END_SEQCORE() \
-   if (RT_SUCCESS(rc)) \
-       rc = RTAsn1CursorCheckEnd(&ThisCursor); \
-   if (RT_SUCCESS(rc)) \
-       return VINF_SUCCESS; \
-   RT_CONCAT(RTASN1TMPL_EXT_NAME,_Delete)(pThis); \
-   RTASN1TMPL_END_COMMON()
-# define RTASN1TMPL_END_SETCORE() RTASN1TMPL_END_SEQCORE()
-
+    if (RT_SUCCESS(rc)) \
+        rc = RTAsn1CursorCheckSeqEnd(&ThisCursor, &pThis->SeqCore); \
+    if (RT_SUCCESS(rc)) \
+        return VINF_SUCCESS; \
+    RT_CONCAT(RTASN1TMPL_EXT_NAME,_Delete)(pThis); \
+    RTASN1TMPL_END_COMMON()
+# define RTASN1TMPL_END_SETCORE() \
+    if (RT_SUCCESS(rc)) \
+        rc = RTAsn1CursorCheckSetEnd(&ThisCursor, &pThis->SetCore); \
+    if (RT_SUCCESS(rc)) \
+        return VINF_SUCCESS; \
+    RT_CONCAT(RTASN1TMPL_EXT_NAME,_Delete)(pThis); \
+    RTASN1TMPL_END_COMMON()
 
 # define RTASN1TMPL_BEGIN_PCHOICE() \
     RTASN1TMPL_BEGIN_COMMON(); \

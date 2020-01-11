@@ -125,6 +125,15 @@ typedef struct RTHTTPINTERNAL
     char               *pszProxyPassword;
     /** @} */
 
+    /** @name Cached settings.
+     * @{ */
+    /** Maximum number of redirects to follow.
+     * Zero if not automatically following (default). */
+    uint32_t            cMaxRedirects;
+    /** Whether to check if Peer lies about his SSL certificate. */
+    bool                fVerifyPeer;
+    /** @} */
+
     /** Abort the current HTTP request if true. */
     bool volatile       fAbort;
     /** Set if someone is preforming an HTTP operation. */
@@ -272,6 +281,8 @@ RTR3DECL(int) RTHttpCreate(PRTHTTP phHttp)
                 pThis->u32Magic                 = RTHTTP_MAGIC;
                 pThis->pCurl                    = pCurl;
                 pThis->fUseSystemProxySettings  = true;
+                pThis->cMaxRedirects            = 0; /* no automatic redir following */
+                pThis->fVerifyPeer              = true;
 
                 *phHttp = (RTHTTP)pThis;
 
@@ -348,6 +359,43 @@ RTR3DECL(int) RTHttpGetRedirLocation(RTHTTP hHttp, char **ppszRedirLocation)
     return RTStrDupEx(ppszRedirLocation, pThis->pszRedirLocation);
 }
 
+
+RTR3DECL(int) RTHttpSetFollowRedirects(RTHTTP hHttp, uint32_t cMaxRedirects)
+{
+    PRTHTTPINTERNAL pThis = hHttp;
+    RTHTTP_VALID_RETURN(pThis);
+    AssertReturn(!pThis->fBusy, VERR_WRONG_ORDER);
+
+    /*
+     * Update the redirection settings.
+     */
+    if (pThis->cMaxRedirects != cMaxRedirects)
+    {
+        int rcCurl = curl_easy_setopt(pThis->pCurl, CURLOPT_MAXREDIRS, (long)cMaxRedirects);
+        AssertMsgReturn(rcCurl == CURLE_OK, ("CURLOPT_MAXREDIRS=%u: %d (%#x)\n", cMaxRedirects, rcCurl, rcCurl),
+                        VERR_HTTP_CURL_ERROR);
+
+        rcCurl = curl_easy_setopt(pThis->pCurl, CURLOPT_FOLLOWLOCATION, (long)(cMaxRedirects > 0));
+        AssertMsgReturn(rcCurl == CURLE_OK, ("CURLOPT_FOLLOWLOCATION=%d: %d (%#x)\n", cMaxRedirects > 0, rcCurl, rcCurl),
+                        VERR_HTTP_CURL_ERROR);
+
+        pThis->cMaxRedirects = cMaxRedirects;
+    }
+    return VINF_SUCCESS;
+}
+
+
+RTR3DECL(uint32_t) RTHttpGetFollowRedirects(RTHTTP hHttp)
+{
+    PRTHTTPINTERNAL pThis = hHttp;
+    RTHTTP_VALID_RETURN_RC(pThis, 0);
+    return pThis->cMaxRedirects;
+}
+
+
+/*********************************************************************************************************************************
+*   Proxy handling.                                                                                                              *
+*********************************************************************************************************************************/
 
 RTR3DECL(int) RTHttpUseSystemProxySettings(RTHTTP hHttp)
 {
@@ -1960,7 +2008,6 @@ RTR3DECL(int) RTHttpGatherCaCertsInStore(RTCRSTORE hStore, uint32_t fFlags, PRTE
     AssertReturn(cBefore != UINT32_MAX, VERR_INVALID_HANDLE);
     RT_NOREF_PV(fFlags);
 
-
     /*
      * Add the user store, quitely ignoring any errors.
      */
@@ -2019,6 +2066,37 @@ RTR3DECL(int) RTHttpGatherCaCertsInFile(const char *pszCaFile, uint32_t fFlags, 
 }
 
 
+RTR3DECL(bool) RTHttpGetVerifyPeer(RTHTTP hHttp)
+{
+    PRTHTTPINTERNAL pThis = hHttp;
+    RTHTTP_VALID_RETURN_RC(pThis, false);
+    return pThis->fVerifyPeer;
+}
+
+
+RTR3DECL(int) RTHttpSetVerifyPeer(RTHTTP hHttp, bool fVerify)
+{
+    PRTHTTPINTERNAL pThis = hHttp;
+    RTHTTP_VALID_RETURN(pThis);
+    AssertReturn(!pThis->fBusy, VERR_WRONG_ORDER);
+
+    if (pThis->fVerifyPeer != fVerify)
+    {
+        int rcCurl = curl_easy_setopt(pThis->pCurl, CURLOPT_SSL_VERIFYPEER, (long)fVerify);
+        AssertMsgReturn(rcCurl == CURLE_OK, ("CURLOPT_SSL_VERIFYPEER=%RTbool: %d (%#x)\n", fVerify, rcCurl, rcCurl),
+                        VERR_HTTP_CURL_ERROR);
+        pThis->fVerifyPeer = fVerify;
+    }
+
+    return VINF_SUCCESS;
+}
+
+
+
+/*********************************************************************************************************************************
+*   .......
+*********************************************************************************************************************************/
+
 
 /**
  * Figures out the IPRT status code for a GET.
@@ -2047,11 +2125,15 @@ static int rtHttpGetCalcStatus(PRTHTTPINTERNAL pThis, int rcCurl)
                 /* empty response */
                 rc = VINF_SUCCESS;
                 break;
-            case 301:
+            case 301: /* Moved permantently. */
+            case 302: /* Found / Moved temporarily. */
+            case 303: /* See Other. */
+            case 307: /* Temporary redirect. */
+            case 308: /* Permanent redirect. */
             {
-                const char *pszRedirect;
+                const char *pszRedirect = NULL;
                 curl_easy_getinfo(pThis->pCurl, CURLINFO_REDIRECT_URL, &pszRedirect);
-                size_t cb = strlen(pszRedirect);
+                size_t cb = pszRedirect ? strlen(pszRedirect) : 0;
                 if (cb > 0 && cb < 2048)
                     pThis->pszRedirLocation = RTStrDup(pszRedirect);
                 rc = VERR_HTTP_REDIRECTED;

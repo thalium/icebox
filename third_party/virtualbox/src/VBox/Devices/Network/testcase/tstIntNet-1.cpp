@@ -607,9 +607,10 @@ static void doPacketSniffing(INTNETIFHANDLE hIf, PSUPDRVSESSION pSession, PINTNE
  *
  * @returns VBox status code.
  *
- * @param   pszName     The buffer of IFNAMSIZ+1 length where to put the name.
+ * @param   pszName     The buffer where to put the name.
+ * @param   cbName      The buffer length.
  */
-static int getDefaultIfaceName(char *pszName)
+static int getDefaultIfaceName(char *pszName, size_t cbName)
 {
     FILE *fp = fopen("/proc/net/route", "r");
     char szBuf[1024];
@@ -633,9 +634,8 @@ static int getDefaultIfaceName(char *pszName)
             if (uAddr == 0 && uMask == 0)
             {
                 fclose(fp);
-                strncpy(pszName, szIfName, 16);
-                pszName[16] = 0;
-                return VINF_SUCCESS;
+                szIfName[sizeof(szIfName) - 1] = '\0';
+                return RTStrCopy(pszName, cbName, szIfName);
             }
         }
         fclose(fp);
@@ -683,7 +683,7 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
      * Try to update the default interface by consulting the routing table.
      * If we fail we still have our reasonable default.
      */
-    getDefaultIfaceName(szIf);
+    getDefaultIfaceName(szIf, sizeof(szIf));
     const char *pszIf = szIf;
 #elif defined(RT_OS_SOLARIS)
     const char* pszIf = "rge0";
@@ -808,7 +808,7 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
                 return 1;
 
             case 'V':
-                RTPrintf("$Revision: 118839 $\n");
+                RTPrintf("$Revision: 128609 $\n");
                 return 0;
 
             default:
@@ -861,8 +861,8 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
     OpenReq.Hdr.u32Magic = SUPVMMR0REQHDR_MAGIC;
     OpenReq.Hdr.cbReq = sizeof(OpenReq);
     OpenReq.pSession = pSession;
-    strncpy(OpenReq.szNetwork, pszNetwork, sizeof(OpenReq.szNetwork));
-    strncpy(OpenReq.szTrunk, pszIf, sizeof(OpenReq.szTrunk));
+    RTStrCopy(OpenReq.szNetwork, sizeof(OpenReq.szNetwork), pszNetwork);
+    RTStrCopy(OpenReq.szTrunk, sizeof(OpenReq.szTrunk), pszIf);
     OpenReq.enmTrunkType = *pszIf ? kIntNetTrunkType_NetFlt : kIntNetTrunkType_WhateverNone;
     OpenReq.fFlags = fMacSharing ? INTNET_OPEN_FLAGS_SHARED_MAC_ON_WIRE : 0;
     OpenReq.cbSend = cbSend;

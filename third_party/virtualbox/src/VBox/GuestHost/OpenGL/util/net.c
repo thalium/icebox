@@ -21,12 +21,9 @@
 #include "cr_mem.h"
 #include "cr_error.h"
 #include "cr_string.h"
-#include "cr_url.h"
 #include "cr_net.h"
 #include "cr_netserver.h"
 #include "cr_pixeldata.h"
-#include "cr_environment.h"
-#include "cr_endian.h"
 #include "cr_bufpool.h"
 #include "cr_threads.h"
 #include "net_internals.h"
@@ -46,22 +43,11 @@ static struct {
     CRNetCloseFuncList   *close_list; /* what to do when a client goes down */
 
     /* Number of connections using each type of interface: */
-    int                  use_tcpip;
-    int                  use_ib;
-    int                  use_file;
-    int                  use_udp;
-    int                  use_gm;
-    int                  use_sdp;
-    int                  use_teac;
-    int                  use_tcscomm;
     int                  use_hgcm;
 
     int                  num_clients; /* total number of clients (unused?) */
 
-#ifdef CHROMIUM_THREADSAFE
-    CRmutex          mutex;
-#endif
-    int                  my_rank;  /* Teac/TSComm only */
+    CRmutex              mutex;
 } cr_net;
 
 
@@ -72,109 +58,21 @@ static struct {
  *
  */
 static void
-InitConnection(CRConnection *conn, const char *protocol, unsigned int mtu
+InitConnection(CRConnection *conn
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
                 , struct VBOXUHGSMI *pHgsmi
 #endif
         )
 {
-    if (!crStrcmp(protocol, "devnull"))
-    {
-        crDevnullInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crDevnullConnection(conn);
-    }
-    else if (!crStrcmp(protocol, "file"))
-    {
-        cr_net.use_file++;
-        crFileInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crFileConnection(conn);
-    }
-    else if (!crStrcmp(protocol, "swapfile"))
-    {
-        /* file with byte-swapping */
-        cr_net.use_file++;
-        crFileInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crFileConnection(conn);
-        conn->swap = 1;
-    }
-    else if (!crStrcmp(protocol, "tcpip"))
-    {
-        cr_net.use_tcpip++;
-        crTCPIPInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crTCPIPConnection(conn);
-    }
-    else if (!crStrcmp(protocol, "udptcpip"))
-    {
-        cr_net.use_udp++;
-        crUDPTCPIPInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crUDPTCPIPConnection(conn);
-    }
 #ifdef VBOX_WITH_HGCM
-    else if (!crStrcmp(protocol, "vboxhgcm"))
-    {
-        cr_net.use_hgcm++;
-        crVBoxHGCMInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crVBoxHGCMConnection(conn
+    cr_net.use_hgcm++;
+    crVBoxHGCMInit(cr_net.recv_list, cr_net.close_list);
+    crVBoxHGCMConnection(conn
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
-                    , pHgsmi
+                         , pHgsmi
 #endif
-                );
-    }
+                         );
 #endif
-#ifdef GM_SUPPORT
-    else if (!crStrcmp(protocol, "gm"))
-    {
-        cr_net.use_gm++;
-        crGmInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crGmConnection(conn);
-    }
-#endif
-#ifdef TEAC_SUPPORT
-    else if (!crStrcmp(protocol, "quadrics"))
-    {
-        cr_net.use_teac++;
-        crTeacInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crTeacConnection(conn);
-    }
-#endif
-#ifdef TCSCOMM_SUPPORT
-    else if (!crStrcmp(protocol, "quadrics-tcscomm"))
-    {
-        cr_net.use_tcscomm++;
-        crTcscommInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crTcscommConnection(conn);
-    }
-#endif
-#ifdef SDP_SUPPORT
-    else if (!crStrcmp(protocol, "sdp"))
-    {
-        cr_net.use_sdp++;
-        crSDPInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crSDPConnection(conn);
-    }
-#endif
-#ifdef IB_SUPPORT
-    else if (!crStrcmp(protocol, "ib"))
-    {
-        cr_net.use_ib++;
-        crDebug("Calling crIBInit()");
-        crIBInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crIBConnection(conn);
-        crDebug("Done Calling crIBInit()");
-    }
-#endif
-#ifdef HP_MULTICAST_SUPPORT
-    else if (!crStrcmp(protocol, "hpmc"))
-    {
-        cr_net.use_hpmc++;
-        crHPMCInit(cr_net.recv_list, cr_net.close_list, mtu);
-        crHPMCConnection(conn);
-    }
-#endif
-    else
-    {
-        crError("Unknown protocol: \"%s\"", protocol);
-    }
 }
 
 
@@ -191,18 +89,16 @@ InitConnection(CRConnection *conn, const char *protocol, unsigned int mtu
  * \param broker  either 1 or 0 to indicate if connection is brokered through
  *                the mothership
  */
-CRConnection * crNetConnectToServer( const char *server, unsigned short default_port, int mtu, int broker
+CRConnection * crNetConnectToServer( const char *server, int mtu, int broker
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
                 , struct VBOXUHGSMI *pHgsmi
 #endif
 )
 {
-    char hostname[4096], protocol[4096];
-    unsigned short port;
     CRConnection *conn;
 
-    crDebug( "In crNetConnectToServer( \"%s\", port=%d, mtu=%d, broker=%d )",
-                     server, default_port, mtu, broker );
+    crDebug( "In crNetConnectToServer( \"%s\", mtu=%d, broker=%d )",
+                     server, mtu, broker );
 
     CRASSERT( cr_net.initialized );
 
@@ -212,49 +108,6 @@ CRConnection * crNetConnectToServer( const char *server, unsigned short default_
                          "but the minimum MTU is %d", server, mtu, CR_MINIMUM_MTU );
     }
 
-    /* Tear the URL apart into relevant portions. */
-    if ( !crParseURL( server, protocol, hostname, &port, default_port ) ) {
-         crError( "Malformed URL: \"%s\"", server );
-    }
-
-    /* If the host name is "localhost" replace it with the _real_ name
-     * of the localhost.  If we don't do this, there seems to be
-     * confusion in the mothership as to whether or not "localhost" and
-     * "foo.bar.com" are the same machine.
-     */
-    if (crStrcmp(hostname, "localhost") == 0) {
-        int rv = crGetHostname(hostname, 4096);
-        CRASSERT(rv == 0);
-        (void) rv;
-    }
-
-    /* XXX why is this here???  I think it could be moved into the
-     * crTeacConnection() function with no problem. I.e. change the
-     * connection's port, teac_rank and tcscomm_rank there.  (BrianP)
-     */
-    if ( !crStrcmp( protocol, "quadrics" ) ||
-         !crStrcmp( protocol, "quadrics-tcscomm" ) ) {
-      /* For Quadrics protocols, treat "port" as "rank" */
-      if ( port > CR_QUADRICS_HIGHEST_RANK ) {
-        crWarning( "Invalid crserver rank, %d, defaulting to %d\n",
-               port, CR_QUADRICS_LOWEST_RANK );
-        port = CR_QUADRICS_LOWEST_RANK;
-      }
-    }
-    crDebug( "Connecting to %s on port %d, with protocol %s",
-                     hostname, port, protocol );
-
-#ifdef SDP_SUPPORT
-    /* This makes me ill, but we need to "fix" the hostname for sdp. MCH */
-    if (!crStrcmp(protocol, "sdp")) {
-        char* temp;
-        temp = strtok(hostname, ".");
-        crStrcat(temp, crGetSDPHostnameSuffix());
-        crStrcpy(hostname, temp);
-        crDebug("SDP rename hostname: %s", hostname);    
-    }
-#endif
-
     conn = (CRConnection *) crCalloc( sizeof(*conn) );
     if (!conn)
         return NULL;
@@ -262,24 +115,14 @@ CRConnection * crNetConnectToServer( const char *server, unsigned short default_
     /* init the non-zero fields */
     conn->type               = CR_NO_CONNECTION; /* we don't know yet */
     conn->recv_credits       = CR_INITIAL_RECV_CREDITS;
-    conn->hostname           = crStrdup( hostname );
-    conn->port               = port;
     conn->mtu                = mtu;
     conn->buffer_size        = mtu;
     conn->broker             = broker;
-    conn->endianness         = crDetermineEndianness();
-    /* XXX why are these here??? Move them into the crTeacConnection()
-     * and crTcscommConnection() functions.
-     */
-    conn->teac_id            = -1;
-    conn->teac_rank          = port;
-    conn->tcscomm_id         = -1;
-    conn->tcscomm_rank       = port;
 
     crInitMessageList(&conn->messageList);
 
     /* now, just dispatch to the appropriate protocol's initialization functions. */
-    InitConnection(conn, protocol, mtu
+    InitConnection(conn
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
                 , pHgsmi
 #endif
@@ -288,9 +131,7 @@ CRConnection * crNetConnectToServer( const char *server, unsigned short default_
     if (!crNetConnect( conn ))
     {
         crDebug("crNetConnectToServer() failed, freeing the connection");
-        #ifdef CHROMIUM_THREADSAFE
-            crFreeMutex( &conn->messageList.lock );
-        #endif
+        crFreeMutex( &conn->messageList.lock );
         conn->Disconnect(conn);
         crFree( conn );
         return NULL;
@@ -310,20 +151,6 @@ void crNetNewClient( CRNetServer *ns
 #endif
 )
 {
-    /*
-    unsigned int len = sizeof(CRMessageNewClient);
-    CRMessageNewClient msg;
-
-    CRASSERT( conn );
-
-    if (conn->swap)
-        msg.header.type = (CRMessageType) SWAP32(CR_MESSAGE_NEWCLIENT);
-    else
-        msg.header.type = CR_MESSAGE_NEWCLIENT;
-
-    crNetSend( conn, NULL, &msg, len );
-    */
-
     crNetServerConnect( ns
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
                 , pHgsmi
@@ -348,6 +175,7 @@ crNetAcceptClient( const char *protocol, const char *hostname,
 {
     CRConnection *conn;
 
+    RT_NOREF(hostname);
     CRASSERT( cr_net.initialized );
 
     conn = (CRConnection *) crCalloc( sizeof( *conn ) );
@@ -357,15 +185,9 @@ crNetAcceptClient( const char *protocol, const char *hostname,
     /* init the non-zero fields */
     conn->type               = CR_NO_CONNECTION; /* we don't know yet */
     conn->recv_credits       = CR_INITIAL_RECV_CREDITS;
-    conn->port               = port;
     conn->mtu                = mtu;
     conn->buffer_size        = mtu;
     conn->broker             = broker;
-    conn->endianness         = crDetermineEndianness();
-    conn->teac_id            = -1;
-    conn->teac_rank          = -1;
-    conn->tcscomm_id         = -1;
-    conn->tcscomm_rank       = -1;
 
     crInitMessageList(&conn->messageList);
 
@@ -373,37 +195,14 @@ crNetAcceptClient( const char *protocol, const char *hostname,
     crDebug("In crNetAcceptClient( protocol=\"%s\" port=%d mtu=%d )",
                     protocol, (int) port, (int) mtu);
 
-    /* special case */
-    if ( !crStrncmp( protocol, "file", crStrlen( "file" ) ) ||
-             !crStrncmp( protocol, "swapfile", crStrlen( "swapfile" ) ) )
-    {
-        char filename[4096];
-    char protocol_only[4096];
-
-        cr_net.use_file++;
-        if (!crParseURL(protocol, protocol_only, filename, NULL, 0))
-        {
-            crError( "Malformed URL: \"%s\"", protocol );
-        }
-        conn->hostname = crStrdup( filename );
-
-    /* call the protocol-specific init routines */  /* ktd (add) */
-    InitConnection(conn, protocol_only, mtu
-#if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
-                , NULL
-#endif
-            );       /* ktd (add) */
-    }
-    else {
     /* call the protocol-specific init routines */
-      InitConnection(conn, protocol, mtu
+      InitConnection(conn
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
                 , NULL
 #endif
               );
-    }
 
-    crNetAccept( conn, hostname, port );
+    crNetAccept(conn);
     return conn;
 }
 
@@ -415,10 +214,7 @@ void
 crNetFreeConnection(CRConnection *conn)
 {
     conn->Disconnect(conn);
-    crFree( conn->hostname );
-    #ifdef CHROMIUM_THREADSAFE
-        crFreeMutex( &conn->messageList.lock );
-    #endif
+    crFreeMutex( &conn->messageList.lock );
     crFree(conn);
 }
 
@@ -439,29 +235,9 @@ void crNetInit( CRNetReceiveFunc recvFunc, CRNetCloseFunc closeFunc )
     }
     else
     {
-#ifdef WINDOWS
-        /** @todo do we actually need that WSA stuff with VBox at all? */
-        WORD wVersionRequested = MAKEWORD(2, 0);
-        WSADATA wsaData;
-        int err;
-
-        err = WSAStartup(wVersionRequested, &wsaData);
-        if (err != 0)
-            crError("Couldn't initialize sockets on WINDOWS");
-#endif
-
-        cr_net.use_gm      = 0;
-        cr_net.use_udp     = 0;
-        cr_net.use_tcpip   = 0;
-        cr_net.use_sdp     = 0;
-        cr_net.use_tcscomm = 0;
-        cr_net.use_teac    = 0;
-        cr_net.use_file    = 0;
         cr_net.use_hgcm    = 0;
         cr_net.num_clients = 0;
-#ifdef CHROMIUM_THREADSAFE
         crInitMutex(&cr_net.mutex);
-#endif
 
         cr_net.initialized = 1;
         cr_net.recv_list = NULL;
@@ -520,9 +296,7 @@ void crNetTearDown(void)
 
     if (!cr_net.initialized) return;
 
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&cr_net.mutex);
-#endif
 
     /* Note, other protocols used by chromium should free up stuff too,
      * but VBox doesn't use them, so no other checks.
@@ -544,39 +318,16 @@ void crNetTearDown(void)
 
     cr_net.initialized = 0;
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&cr_net.mutex);
     crFreeMutex(&cr_net.mutex);
-#endif
 }
 
 CRConnection** crNetDump( int* num )
 {
     CRConnection **c;
 
-    c = crTCPIPDump( num );
-    if ( c ) return c;
-
-    c = crDevnullDump( num );
-    if ( c ) return c;
-
-    c = crFileDump( num );
-    if ( c ) return c;
-
 #ifdef VBOX_WITH_HGCM
     c = crVBoxHGCMDump( num );
-    if ( c ) return c;
-#endif
-#ifdef GM_SUPPORT
-    c = crGmDump( num );
-    if ( c ) return c;
-#endif
-#ifdef IB_SUPPORT
-    c = crIBDump( num );
-    if ( c ) return c;
-#endif
-#ifdef SDP_SUPPORT
-    c = crSDPDump( num );
     if ( c ) return c;
 #endif
 
@@ -616,10 +367,8 @@ crInitMessageList(CRMessageList *list)
 {
     list->head = list->tail = NULL;
     list->numMessages = 0;
-#ifdef CHROMIUM_THREADSAFE
     crInitMutex(&list->lock);
     crInitCondition(&list->nonEmpty);
-#endif
 }
 
 
@@ -636,9 +385,7 @@ crEnqueueMessage(CRMessageList *list, CRMessage *msg, unsigned int len,
 {
     CRMessageListNode *node;
 
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&list->lock);
-#endif
 
     node = (CRMessageListNode *) crAlloc(sizeof(CRMessageListNode));
     node->mesg = msg;
@@ -655,10 +402,8 @@ crEnqueueMessage(CRMessageList *list, CRMessage *msg, unsigned int len,
 
     list->numMessages++;
 
-#ifdef CHROMIUM_THREADSAFE
     crSignalCondition(&list->nonEmpty);
     crUnlockMutex(&list->lock);
-#endif
 }
 
 
@@ -673,9 +418,7 @@ crDequeueMessageNoBlock(CRMessageList *list, CRMessage **msg,
 {
     int retval;
 
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&list->lock);
-#endif
 
     if (list->head) {
         CRMessageListNode *node = list->head;
@@ -703,10 +446,7 @@ crDequeueMessageNoBlock(CRMessageList *list, CRMessage **msg,
         retval = 0;
     }
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&list->lock);
-#endif
-
     return retval;
 }
 
@@ -724,17 +464,11 @@ crDequeueMessage(CRMessageList *list, CRMessage **msg, unsigned int *len,
 {
     CRMessageListNode *node;
 
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&list->lock);
-#endif
 
-#ifdef CHROMIUM_THREADSAFE
     while (!list->head) {
         crWaitCondition(&list->nonEmpty, &list->lock);
     }
-#else
-    CRASSERT(list->head);
-#endif
 
     node = list->head;
 
@@ -754,10 +488,7 @@ crDequeueMessage(CRMessageList *list, CRMessage **msg, unsigned int *len,
     list->numMessages--;
 
     crFree(node);
-
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&list->lock);
-#endif
 }
 
 
@@ -865,7 +596,7 @@ void crNetServerConnect( CRNetServer *ns
 #endif
 )
 {
-    ns->conn = crNetConnectToServer( ns->name, DEFAULT_SERVER_PORT,
+    ns->conn = crNetConnectToServer( ns->name,
                                      ns->buffer_size, 0
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
                 , pHgsmi
@@ -889,10 +620,7 @@ int crNetConnect( CRConnection *conn )
 void crNetDisconnect( CRConnection *conn )
 {
     conn->Disconnect( conn );
-    crFree( conn->hostname );
-#ifdef CHROMIUM_THREADSAFE
     crFreeMutex( &conn->messageList.lock );
-#endif
     crFree( conn );
 }
 
@@ -901,9 +629,9 @@ void crNetDisconnect( CRConnection *conn )
  * Actually set up the specified connection.
  * Apparently, this is only called from the crNetConnectToServer function.
  */
-void crNetAccept( CRConnection *conn, const char *hostname, unsigned short port )
+void crNetAccept( CRConnection *conn)
 {
-    conn->Accept( conn, hostname, port );
+    conn->Accept( conn);
 }
 
 
@@ -915,10 +643,8 @@ void crNetAccept( CRConnection *conn, const char *hostname, unsigned short port 
  */
 void crNetSingleRecv( CRConnection *conn, void *buf, unsigned int len )
 {
-    if (conn->type != CR_TCPIP)
-    {
-        crError( "Can't do a crNetSingleReceive on anything other than TCPIP." );
-    }
+    /** @todo Remove after users have been identified and eliminated .*/
+    crError( "Can't do a crNetSingleReceive on anything other than TCPIP." );
     conn->Recv( conn, buf, len );
 }
 
@@ -986,7 +712,7 @@ crNetRecvFlowControl( CRConnection *conn,   CRMessageFlowControl *msg,
                                             unsigned int len )
 {
     CRASSERT( len == sizeof(CRMessageFlowControl) );
-    conn->send_credits += (conn->swap ? SWAP32(msg->credits) : msg->credits);
+    conn->send_credits += msg->credits;
     conn->InstantReclaim( conn, (CRMessage *) msg );
 }
 
@@ -1094,11 +820,6 @@ crNetDefaultRecv( CRConnection *conn, CRMessage *msg, unsigned int len )
             return;
         case CR_MESSAGE_OPCODES:
         case CR_MESSAGE_OOB:
-            {
-                /*CRMessageOpcodes *ops = (CRMessageOpcodes *) msg;
-                 *unsigned char *data_ptr = (unsigned char *) ops + sizeof( *ops) + ((ops->numOpcodes + 3 ) & ~0x03);
-                 *crDebugOpcodes( stdout, data_ptr-1, ops->numOpcodes ); */
-            }
             break;
         case CR_MESSAGE_READ_PIXELS:
             WARN(( "Can't handle read pixels" ));
@@ -1250,26 +971,13 @@ crNetGetMessage( CRConnection *conn, CRMessage **message )
  */
 void crNetReadline( CRConnection *conn, void *buf )
 {
-    char *temp, c;
+    RT_NOREF(buf);
 
     if (!conn || conn->type == CR_NO_CONNECTION)
         return;
 
-    if (conn->type != CR_TCPIP)
-    {
-        crError( "Can't do a crNetReadline on anything other than TCPIP (%d).",conn->type );
-    }
-    temp = (char*)buf;
-    for (;;)
-    {
-        conn->Recv( conn, &c, 1 );
-        if (c == '\n')
-        {
-            *temp = '\0';
-            return;
-        }
-        *(temp++) = c;
-    }
+    /** @todo Remove after users have been found and eliminated. */
+    crError( "Can't do a crNetReadline on anything other than TCPIP (%d).",conn->type );
 }
 
 #ifdef IN_GUEST
@@ -1300,8 +1008,6 @@ int crNetRecv(
 {
     int found_work = 0;
 
-    if ( cr_net.use_tcpip )
-        found_work += crTCPIPRecv();
 #ifdef VBOX_WITH_HGCM
     if ( cr_net.use_hgcm )
         found_work += crVBoxHGCMRecv(
@@ -1310,97 +1016,7 @@ int crNetRecv(
 #endif
                 );
 #endif
-#ifdef SDP_SUPPORT
-    if ( cr_net.use_sdp )
-        found_work += crSDPRecv();
-#endif
-#ifdef IB_SUPPORT
-    if ( cr_net.use_ib )
-        found_work += crIBRecv();
-#endif
-    if ( cr_net.use_udp )
-        found_work += crUDPTCPIPRecv();
-    
-    if ( cr_net.use_file )
-        found_work += crFileRecv();
-
-#ifdef GM_SUPPORT
-    if ( cr_net.use_gm )
-        found_work += crGmRecv();
-#endif
-
-#ifdef TEAC_SUPPORT
-    if ( cr_net.use_teac )
-        found_work += crTeacRecv();
-#endif
-
-#ifdef TCSCOMM_SUPPORT
-    if ( cr_net.use_tcscomm )
-        found_work += crTcscommRecv();
-#endif
 
     return found_work;
 }
 
-
-/**
- * Teac/TSComm only
- */
-void
-crNetSetRank( int my_rank )
-{
-    cr_net.my_rank = my_rank;
-#ifdef TEAC_SUPPORT
-    crTeacSetRank( cr_net.my_rank );
-#endif
-#ifdef TCSCOMM_SUPPORT
-    crTcscommSetRank( cr_net.my_rank );
-#endif
-}
-
-/**
- * Teac/TSComm only
- */
-void
-crNetSetContextRange( int low_context, int high_context )
-{
-#if !defined(TEAC_SUPPORT) && !defined(TCSCOMM_SUPPORT)
-    (void)low_context; (void)high_context;
-#endif
-#ifdef TEAC_SUPPORT
-    crTeacSetContextRange( low_context, high_context );
-#endif
-#ifdef TCSCOMM_SUPPORT
-    crTcscommSetContextRange( low_context, high_context );
-#endif
-}
-
-/**
- * Teac/TSComm only
- */
-void
-crNetSetNodeRange( const char *low_node, const char *high_node )
-{
-#if !defined(TEAC_SUPPORT) && !defined(TCSCOMM_SUPPORT)
-    (void)low_node; (void)high_node;
-#endif
-#ifdef TEAC_SUPPORT
-    crTeacSetNodeRange( low_node, high_node );
-#endif
-#ifdef TCSCOMM_SUPPORT
-    crTcscommSetNodeRange( low_node, high_node );
-#endif
-}
-
-/**
- * Teac/TSComm only
- */
-void
-crNetSetKey( const unsigned char* key, const int keyLength )
-{
-#ifdef TEAC_SUPPORT
-    crTeacSetKey( key, keyLength );
-#else
-    (void)key; (void)keyLength;
-#endif
-}

@@ -290,7 +290,7 @@ bool                        g_fSupLibHardenedDllSearchUserDirs = false;
  * @{ */
 /** Pointer to the bit of assembly code that will perform the original
  *  NtCreateSection operation. */
-static NTSTATUS (NTAPI *    g_pfnNtCreateSectionReal)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES,
+static NTSTATUS     (NTAPI *g_pfnNtCreateSectionReal)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES,
                                                       PLARGE_INTEGER, ULONG, ULONG, HANDLE);
 /** Pointer to the NtCreateSection function in NtDll (for patching purposes). */
 static uint8_t             *g_pbNtCreateSection;
@@ -298,11 +298,23 @@ static uint8_t             *g_pbNtCreateSection;
 static uint8_t              g_abNtCreateSectionPatch[16];
 /** Pointer to the bit of assembly code that will perform the original
  *  LdrLoadDll operation. */
-static NTSTATUS (NTAPI *    g_pfnLdrLoadDllReal)(PWSTR, PULONG, PUNICODE_STRING, PHANDLE);
+static NTSTATUS     (NTAPI *g_pfnLdrLoadDllReal)(PWSTR, PULONG, PUNICODE_STRING, PHANDLE);
 /** Pointer to the LdrLoadDll function in NtDll (for patching purposes). */
 static uint8_t             *g_pbLdrLoadDll;
 /** The patched LdrLoadDll bytes (for restoring). */
 static uint8_t              g_abLdrLoadDllPatch[16];
+
+/** Pointer to the bit of assembly code that will perform the original
+ *  KiUserApcDispatcher operation. */
+static VOID        (NTAPI *g_pfnKiUserApcDispatcherReal)(void);
+/** Pointer to the KiUserApcDispatcher function in NtDll (for patching
+ *  purposes). */
+static uint8_t             *g_pbKiUserApcDispatcher;
+/** The patched KiUserApcDispatcher bytes (for restoring). */
+static uint8_t              g_abKiUserApcDispatcherPatch[16];
+/** Pointer to the LdrInitializeThunk function in NtDll for
+ *  supR3HardenedMonitor_KiUserApcDispatcher_C() to use for APC vetting. */
+static uintptr_t            g_pfnLdrInitializeThunk;
 
 /** The hash table of verifier cache . */
 static PVERIFIERCACHEENTRY  volatile g_apVerifierCache[128];
@@ -375,6 +387,10 @@ static uint32_t             g_fSupAdversaries = 0;
 #define SUPHARDNT_ADVERSARY_BEYONDTRUST             RT_BIT_32(16)
 /** Avecto / Defendpoint / Privilege Guard (details from support guy, hoping to get sample copy). */
 #define SUPHARDNT_ADVERSARY_AVECTO                  RT_BIT_32(17)
+/** Sophos Endpoint Defense. */
+#define SUPHARDNT_ADVERSARY_SOPHOS                  RT_BIT_32(18)
+/** VMware horizon view agent. */
+#define SUPHARDNT_ADVERSARY_HORIZON_VIEW_AGENT      RT_BIT_32(19)
 /** Unknown adversary detected while waiting on child. */
 #define SUPHARDNT_ADVERSARY_UNKNOWN                 RT_BIT_32(31)
 /** @} */
@@ -389,6 +405,7 @@ static NTSTATUS supR3HardenedScreenImage(HANDLE hFile, bool fImage, bool fIgnore
 static void     supR3HardenedWinRegisterDllNotificationCallback(void);
 static void     supR3HardenedWinReInstallHooks(bool fFirst);
 DECLASM(void)   supR3HardenedEarlyProcessInitThunk(void);
+DECLASM(void)   supR3HardenedMonitor_KiUserApcDispatcher(void);
 
 
 #if 0 /* unused */
@@ -2457,6 +2474,64 @@ static void supR3HardenedWinRegisterDllNotificationCallback(void)
 }
 
 
+/**
+ * Dummy replacement routine we use for passifying unwanted user APC
+ * callbacks during early process initialization.
+ *
+ * @sa supR3HardenedMonitor_KiUserApcDispatcher_C
+ */
+static VOID NTAPI supR3HardenedWinDummyApcRoutine(PVOID pvArg1, PVOID pvArg2, PVOID pvArg3)
+{
+    SUP_DPRINTF(("supR3HardenedWinDummyApcRoutine: pvArg1=%p pvArg2=%p pvArg3=%p\n", pvArg1, pvArg2, pvArg3));
+    RT_NOREF(pvArg1, pvArg2, pvArg3);
+}
+
+
+/**
+ * This is called when ntdll!KiUserApcDispatcher is invoked (via
+ * supR3HardenedMonitor_KiUserApcDispatcher).
+ *
+ * The parent process hooks KiUserApcDispatcher before the guest starts
+ * executing. There should only be one APC request dispatched while the process
+ * is being initialized, and that's the one calling ntdll!LdrInitializeThunk.
+ *
+ * @returns Where to go to run the original code.
+ * @param   pvApcArgs   The APC dispatcher arguments.
+ */
+DECLASM(uintptr_t) supR3HardenedMonitor_KiUserApcDispatcher_C(void *pvApcArgs)
+{
+#ifdef RT_ARCH_AMD64
+    PCONTEXT   pCtx        = (PCONTEXT)pvApcArgs;
+    uintptr_t *ppfnRoutine = (uintptr_t *)&pCtx->P4Home;
+#else
+    struct X86APCCTX
+    {
+        uintptr_t   pfnRoutine;
+        uintptr_t   pvCtx;
+        uintptr_t   pvUser1;
+        uintptr_t   pvUser2;
+        CONTEXT     Ctx;
+    } *pCtx = (struct X86APCCTX *)pvApcArgs;
+    uintptr_t *ppfnRoutine = &pCtx->pfnRoutine;
+#endif
+    uintptr_t  pfnRoutine = *ppfnRoutine;
+
+    if (g_enmSupR3HardenedMainState < SUPR3HARDENEDMAINSTATE_HARDENED_MAIN_CALLED)
+    {
+        if (pfnRoutine == g_pfnLdrInitializeThunk) /* Note! we could use this to detect thread creation too. */
+            SUP_DPRINTF(("supR3HardenedMonitor_KiUserApcDispatcher_C: pfnRoutine=%p enmState=%d - okay\n",
+                         pfnRoutine, g_enmSupR3HardenedMainState));
+        else
+        {
+            *ppfnRoutine = (uintptr_t)supR3HardenedWinDummyApcRoutine;
+            SUP_DPRINTF(("supR3HardenedMonitor_KiUserApcDispatcher_C: pfnRoutine=%p enmState=%d -> supR3HardenedWinDummyApcRoutine\n",
+                         pfnRoutine, g_enmSupR3HardenedMainState));
+        }
+    }
+    return (uintptr_t)g_pfnKiUserApcDispatcherReal;
+}
+
+
 static void supR3HardenedWinHookFailed(const char *pszWhich, uint8_t const *pbPrologue)
 {
     supR3HardenedFatalMsg("supR3HardenedWinInstallHooks", kSupInitOp_Misc, VERR_NO_MEMORY,
@@ -2618,8 +2693,9 @@ static void supR3HardenedWinReInstallHooks(bool fFirstCall)
         const char     *pszName;
     } const s_aPatches[] =
     {
-        { sizeof(g_abNtCreateSectionPatch), g_abNtCreateSectionPatch, &g_pbNtCreateSection, "NtCreateSection" },
-        { sizeof(g_abLdrLoadDllPatch),      g_abLdrLoadDllPatch,      &g_pbLdrLoadDll,      "LdrLoadDll"      },
+        { sizeof(g_abNtCreateSectionPatch),     g_abNtCreateSectionPatch,     &g_pbNtCreateSection,     "NtCreateSection"     },
+        { sizeof(g_abLdrLoadDllPatch),          g_abLdrLoadDllPatch,          &g_pbLdrLoadDll,          "LdrLoadDll"          },
+        { sizeof(g_abKiUserApcDispatcherPatch), g_abKiUserApcDispatcherPatch, &g_pbKiUserApcDispatcher, "KiUserApcDispatcher" },
     };
 
     ULONG fAmIAlone = ~(ULONG)0;
@@ -2727,6 +2803,11 @@ static void supR3HardenedWinInstallHooks(void)
     PFNRT pfnLdrLoadDll = supR3HardenedWinGetRealDllSymbol("ntdll.dll", "LdrLoadDll");
     SUPR3HARDENED_ASSERT(pfnLdrLoadDll != NULL);
     //SUPR3HARDENED_ASSERT(pfnLdrLoadDll == (FARPROC)LdrLoadDll);
+
+    PFNRT pfnKiUserApcDispatcher = supR3HardenedWinGetRealDllSymbol("ntdll.dll", "KiUserApcDispatcher");
+    SUPR3HARDENED_ASSERT(pfnKiUserApcDispatcher != NULL);
+    g_pfnLdrInitializeThunk = (uintptr_t)supR3HardenedWinGetRealDllSymbol("ntdll.dll", "LdrInitializeThunk");
+    SUPR3HARDENED_ASSERT(g_pfnLdrInitializeThunk != NULL);
 
     /*
      * Exec page setup & management.
@@ -2886,6 +2967,94 @@ static void supR3HardenedWinInstallHooks(void)
 #endif
 
     /*
+     * Hook #3 - KiUserApcDispatcher
+     * Purpose: Prevent user APC to memory we (or our parent) has freed from
+     *          crashing the process.  Also ensures no code injection via user
+     *          APC during process init given the way we're vetting the APCs.
+     *
+     * This differs from the first function in that is no a system call and
+     * we're at the mercy of the handwritten assembly.
+     *
+     * Note! We depend on all waits up past the patching to be non-altertable,
+     *       otherwise an APC might slip by us.
+     */
+    uint8_t * const pbKiUserApcDispatcher = (uint8_t *)(uintptr_t)pfnKiUserApcDispatcher;
+    g_pbKiUserApcDispatcher = pbKiUserApcDispatcher;
+    memcpy(g_abKiUserApcDispatcherPatch, pbKiUserApcDispatcher, sizeof(g_abKiUserApcDispatcherPatch));
+
+#ifdef RT_ARCH_AMD64
+    /*
+     * Patch 64-bit hosts.
+     */
+    /* Just use the disassembler to skip 12 bytes or more. */
+    offJmpBack = 0;
+    while (offJmpBack < 12)
+    {
+        cbInstr = 1;
+        int rc = DISInstr(pbKiUserApcDispatcher + offJmpBack, DISCPUMODE_64BIT, &Dis, &cbInstr);
+        if (   RT_FAILURE(rc)
+            || (Dis.pCurInstr->fOpType & (DISOPTYPE_CONTROLFLOW))
+            || (Dis.ModRM.Bits.Mod == 0 && Dis.ModRM.Bits.Rm == 5 /* wrt RIP */) )
+            supR3HardenedWinHookFailed("KiUserApcDispatcher", pbKiUserApcDispatcher);
+        offJmpBack += cbInstr;
+    }
+
+    /* Assemble the code for resuming the call.*/
+    *(PFNRT *)&g_pfnKiUserApcDispatcherReal = (PFNRT)(uintptr_t)&g_abSupHardReadWriteExecPage[offExecPage];
+
+    memcpy(&g_abSupHardReadWriteExecPage[offExecPage], pbKiUserApcDispatcher, offJmpBack);
+    offExecPage += offJmpBack;
+
+    g_abSupHardReadWriteExecPage[offExecPage++] = 0xff; /* jmp qword [$+8 wrt RIP] */
+    g_abSupHardReadWriteExecPage[offExecPage++] = 0x25;
+    *(uint32_t *)&g_abSupHardReadWriteExecPage[offExecPage] = RT_ALIGN_32(offExecPage + 4, 8) - (offExecPage + 4);
+    offExecPage = RT_ALIGN_32(offExecPage + 4, 8);
+    *(uint64_t *)&g_abSupHardReadWriteExecPage[offExecPage] = (uintptr_t)&pbKiUserApcDispatcher[offJmpBack];
+    offExecPage = RT_ALIGN_32(offExecPage + 8, 16);
+
+    /* Assemble the KiUserApcDispatcher patch. */
+    Assert(offJmpBack >= 12);
+    g_abKiUserApcDispatcherPatch[0]  = 0x48; /* mov rax, qword */
+    g_abKiUserApcDispatcherPatch[1]  = 0xb8;
+    *(uint64_t *)&g_abKiUserApcDispatcherPatch[2] = (uint64_t)supR3HardenedMonitor_KiUserApcDispatcher;
+    g_abKiUserApcDispatcherPatch[10] = 0xff; /* jmp rax */
+    g_abKiUserApcDispatcherPatch[11] = 0xe0;
+
+#else
+    /*
+     * Patch 32-bit hosts.
+     */
+    /* Just use the disassembler to skip 5 bytes or more. */
+    offJmpBack = 0;
+    while (offJmpBack < 5)
+    {
+        cbInstr = 1;
+        int rc = DISInstr(pbKiUserApcDispatcher + offJmpBack, DISCPUMODE_32BIT, &Dis, &cbInstr);
+        if (   RT_FAILURE(rc)
+            || (Dis.pCurInstr->fOpType & (DISOPTYPE_CONTROLFLOW)) )
+            supR3HardenedWinHookFailed("KiUserApcDispatcher", pbKiUserApcDispatcher);
+        offJmpBack += cbInstr;
+    }
+
+    /* Assemble the code for resuming the call.*/
+    *(PFNRT *)&g_pfnKiUserApcDispatcherReal = (PFNRT)(uintptr_t)&g_abSupHardReadWriteExecPage[offExecPage];
+
+    memcpy(&g_abSupHardReadWriteExecPage[offExecPage], pbKiUserApcDispatcher, offJmpBack);
+    offExecPage += offJmpBack;
+
+    g_abSupHardReadWriteExecPage[offExecPage++] = 0xe9; /* jmp rel32 */
+    *(uint32_t *)&g_abSupHardReadWriteExecPage[offExecPage] = (uintptr_t)&pbKiUserApcDispatcher[offJmpBack]
+                                                            - (uintptr_t)&g_abSupHardReadWriteExecPage[offExecPage + 4];
+    offExecPage = RT_ALIGN_32(offExecPage + 4, 16);
+
+    /* Assemble the KiUserApcDispatcher patch. */
+    memcpy(g_abKiUserApcDispatcherPatch, pbKiUserApcDispatcher, sizeof(g_abKiUserApcDispatcherPatch));
+    Assert(offJmpBack >= 5);
+    g_abKiUserApcDispatcherPatch[0] = 0xe9;
+    *(uint32_t *)&g_abKiUserApcDispatcherPatch[1] = (uintptr_t)supR3HardenedMonitor_KiUserApcDispatcher - (uintptr_t)&pbKiUserApcDispatcher[1+4];
+#endif
+
+    /*
      * Seal the rwx page.
      */
     SUPR3HARDENED_ASSERT_NT_SUCCESS(supR3HardenedWinProtectMemory(g_abSupHardReadWriteExecPage, PAGE_SIZE, PAGE_EXECUTE_READ));
@@ -3014,7 +3183,7 @@ static int supR3HardNtDisableThreadCreationEx(HANDLE hProcess, void *pvLdrInitTh
 static int supR3HardNtEnableThreadCreationEx(HANDLE hProcess, void *pvLdrInitThunk, uint8_t const *pabBackup, size_t cbBackup,
                                              PRTERRINFO pErrInfo)
 {
-    SUP_DPRINTF(("supR3HardNtEnableThreadCreation:\n"));
+    SUP_DPRINTF(("supR3HardNtEnableThreadCreationEx:\n"));
     SUPR3HARDENED_ASSERT(cbBackup == 16);
 
     PVOID  pvProt   = pvLdrInitThunk;
@@ -3023,13 +3192,13 @@ static int supR3HardNtEnableThreadCreationEx(HANDLE hProcess, void *pvLdrInitThu
     NTSTATUS rcNt = NtProtectVirtualMemory(hProcess, &pvProt, &cbProt, PAGE_EXECUTE_READWRITE, &fOldProt);
     if (!NT_SUCCESS(rcNt))
         return RTErrInfoSetF(pErrInfo, VERR_GENERAL_FAILURE,
-                             "supR3HardNtDisableThreadCreationEx: NtProtectVirtualMemory/LdrInitializeThunk failed: %#x", rcNt);
+                             "supR3HardNtEnableThreadCreationEx: NtProtectVirtualMemory/LdrInitializeThunk failed: %#x", rcNt);
 
     SIZE_T cbIgnored;
     rcNt = NtWriteVirtualMemory(hProcess, pvLdrInitThunk, pabBackup, cbBackup, &cbIgnored);
     if (!NT_SUCCESS(rcNt))
         return RTErrInfoSetF(pErrInfo, VERR_GENERAL_FAILURE,
-                             "supR3HardNtEnableThreadCreation: NtWriteVirtualMemory/LdrInitializeThunk[restore] failed: %#x",
+                             "supR3HardNtEnableThreadCreationEx: NtWriteVirtualMemory/LdrInitializeThunk[restore] failed: %#x",
                              rcNt);
 
     pvProt   = pvLdrInitThunk;
@@ -3037,7 +3206,7 @@ static int supR3HardNtEnableThreadCreationEx(HANDLE hProcess, void *pvLdrInitThu
     rcNt = NtProtectVirtualMemory(hProcess, &pvProt, &cbProt, fOldProt, &fOldProt);
     if (!NT_SUCCESS(rcNt))
         return RTErrInfoSetF(pErrInfo, VERR_GENERAL_FAILURE,
-                             "supR3HardNtEnableThreadCreation: NtProtectVirtualMemory/LdrInitializeThunk[restore] failed: %#x",
+                             "supR3HardNtEnableThreadCreationEx: NtProtectVirtualMemory/LdrInitializeThunk[restore] failed: %#x",
                              rcNt);
 
     return VINF_SUCCESS;
@@ -4990,6 +5159,20 @@ DECLHIDDEN(void) supR3HardenedWinInit(uint32_t fFlags, bool fAvastKludge)
          */
         supR3HardenedWinInstallHooks();
     }
+    else if (fFlags & SUPSECMAIN_FLAGS_FIRST_PROCESS)
+    {
+        /*
+         * Try shake anyone (e.g. easyhook) patching process creation code in
+         * kernelbase, kernel32 or ntdll so they won't so easily cause the child
+         * to crash when we respawn and purify it.
+         */
+        SUP_DPRINTF(("supR3HardenedWinInit: Performing a limited self purification...\n"));
+        uint32_t cFixes = 0;
+        rc = supHardenedWinVerifyProcess(NtCurrentProcess(), NtCurrentThread(), SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED,
+                                         0 /*fFlags*/, &cFixes, NULL /*pErrInfo*/);
+        SUP_DPRINTF(("supR3HardenedWinInit: SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED -> %Rrc, cFixes=%d\n", rc, cFixes));
+        RT_NOREF(rc); /* ignored on purpose */
+    }
 
 #ifndef VBOX_WITH_VISTA_NO_SP
     /*
@@ -5804,9 +5987,14 @@ static uint32_t supR3HardenedWinFindAdversaries(void)
 
         { SUPHARDNT_ADVERSARY_CYLANCE,              "cyprotectdrv" }, /* Not verified. */
 
-        { SUPHARDNT_ADVERSARY_BEYONDTRUST,          "privman" }, /* Not verified. */
+        { SUPHARDNT_ADVERSARY_BEYONDTRUST,          "privman" },   /* Not verified. */
+        { SUPHARDNT_ADVERSARY_BEYONDTRUST,          "privmanfi" }, /* Not verified. */
 
         { SUPHARDNT_ADVERSARY_AVECTO,               "PGDriver" },
+
+        { SUPHARDNT_ADVERSARY_SOPHOS,               "SophosED" }, /* Not verified. */
+
+        { SUPHARDNT_ADVERSARY_HORIZON_VIEW_AGENT,   "vmwicpdr" },
     };
 
     static const struct
@@ -5926,10 +6114,16 @@ static uint32_t supR3HardenedWinFindAdversaries(void)
         { SUPHARDNT_ADVERSARY_CYLANCE, L"\\SystemRoot\\System32\\drivers\\cyprotectdrv64.sys" },
 
         { SUPHARDNT_ADVERSARY_BEYONDTRUST, L"\\SystemRoot\\System32\\drivers\\privman.sys" },
+        { SUPHARDNT_ADVERSARY_BEYONDTRUST, L"\\SystemRoot\\System32\\drivers\\privmanfi.sys" },
         { SUPHARDNT_ADVERSARY_BEYONDTRUST, L"\\SystemRoot\\System32\\privman64.dll" },
         { SUPHARDNT_ADVERSARY_BEYONDTRUST, L"\\SystemRoot\\System32\\privman32.dll" },
 
         { SUPHARDNT_ADVERSARY_AVECTO, L"\\SystemRoot\\System32\\drivers\\PGDriver.sys" },
+
+        { SUPHARDNT_ADVERSARY_SOPHOS, L"\\SystemRoot\\System32\\drivers\\SophosED.sys" }, // not verified
+
+        { SUPHARDNT_ADVERSARY_HORIZON_VIEW_AGENT, L"\\SystemRoot\\System32\\drivers\\vmwicpdr.sys" },
+        { SUPHARDNT_ADVERSARY_HORIZON_VIEW_AGENT, L"\\SystemRoot\\System32\\drivers\\ftsjail.sys" },
     };
 
     uint32_t fFound = 0;
@@ -6198,6 +6392,12 @@ extern "C" void __stdcall suplibHardenedWindowsMain(void)
     {
         supR3HardenedWinRegisterDllNotificationCallback();
         supR3HardenedWinReInstallHooks(false /*fFirstCall */);
+
+        /*
+         * Flush user APCs before the g_enmSupR3HardenedMainState changes
+         * and disables the APC restrictions.
+         */
+        NtTestAlert();
     }
 
     /*
@@ -6317,7 +6517,7 @@ DECLASM(uintptr_t) supR3HardenedEarlyProcessInit(void)
     /* Wait up to 2 mins for the parent to exorcise evil. */
     LARGE_INTEGER Timeout;
     Timeout.QuadPart = -1200000000; /* 120 second */
-    rcNt = pfnNtWaitForSingleObject(hEvtChild, FALSE /*Alertable*/, &Timeout);
+    rcNt = pfnNtWaitForSingleObject(hEvtChild, FALSE /*Alertable (never alertable before hooking!) */, &Timeout);
     if (rcNt != STATUS_SUCCESS)
         return 0x34; /* crash */
 

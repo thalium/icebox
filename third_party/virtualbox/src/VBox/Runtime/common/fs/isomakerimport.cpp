@@ -398,7 +398,7 @@ static int rtFsIsoImportProcessIso9660AddAndNameSymlink(PRTFSISOMKIMPORTER pThis
         /*
          * Enter the object into the namespace.
          */
-        rc = RTFsIsoMakerObjSetNameAndParent(pThis->hIsoMaker, idxObj, idxParent, fNamespace, pszName);
+        rc = RTFsIsoMakerObjSetNameAndParent(pThis->hIsoMaker, idxObj, idxParent, fNamespace, pszName, true /*fNoNormalize*/);
         if (RT_SUCCESS(rc))
         {
             pThis->pResults->cAddedNames++;
@@ -452,7 +452,7 @@ static int rtFsIsoImportProcessIso9660AddAndNameDirectory(PRTFSISOMKIMPORTER pTh
         /*
          * Enter the object into the namespace.
          */
-        rc = RTFsIsoMakerObjSetNameAndParent(pThis->hIsoMaker, idxObj, idxParent, fNamespace, pszName);
+        rc = RTFsIsoMakerObjSetNameAndParent(pThis->hIsoMaker, idxObj, idxParent, fNamespace, pszName, true /*fNoNormalize*/);
         if (RT_SUCCESS(rc))
         {
             pThis->pResults->cAddedNames++;
@@ -601,7 +601,7 @@ static int rtFsIsoImportProcessIso9660AddAndNameFile(PRTFSISOMKIMPORTER pThis, P
     /*
      * Enter the object into the namespace.
      */
-    rc = RTFsIsoMakerObjSetNameAndParent(pThis->hIsoMaker, idxObj, idxParent, fNamespace, pszName);
+    rc = RTFsIsoMakerObjSetNameAndParent(pThis->hIsoMaker, idxObj, idxParent, fNamespace, pszName, true /*fNoNormalize*/);
     if (RT_SUCCESS(rc))
     {
         pThis->pResults->cAddedNames++;

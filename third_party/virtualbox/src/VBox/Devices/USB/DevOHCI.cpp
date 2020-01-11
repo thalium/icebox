@@ -932,6 +932,20 @@ DECLINLINE(int) ohciSetInterruptInt(POHCI ohci, int rcBusy, uint32_t intr, const
 # define ohciR3SetInterrupt(ohci, intr) ohciSetInterruptInt(ohci, VERR_IGNORED, intr, #intr)
 
 
+/**
+ * Sets the HC in the unrecoverable error state and raises the appropriate interrupt.
+ *
+ * @returns nothing.
+ * @param   pThis               The OHCI instance.
+ * @param   iCode               Diagnostic code.
+ */
+DECLINLINE(void) ohciR3RaiseUnrecoverableError(POHCI pThis, int iCode)
+{
+    LogRelMax(10, ("OHCI#%d: Raising unrecoverable error (%d)\n", pThis->pDevInsR3->iInstance, iCode));
+    ohciR3SetInterrupt(pThis, OHCI_INTR_UNRECOVERABLE_ERROR);
+}
+
+
 /* Carry out a hardware remote wakeup */
 static void ohci_remote_wakeup(POHCI pThis)
 {
@@ -1206,6 +1220,7 @@ static void ohciDoReset(POHCI pThis, uint32_t fNewMode, bool fResetOnLinux)
      * any more when a reset has been signaled.
      */
     pThis->RootHub.pIRhConn->pfnCancelAllUrbs(pThis->RootHub.pIRhConn);
+    Assert(pThis->cInFlight == 0);
 
     /*
      * Reset the hardware registers.
@@ -2104,11 +2119,11 @@ typedef struct OHCIBUF
 /**
  * Sets up a OHCI transport buffer.
  *
- * @param   pBuf    Ohci buffer.
+ * @param   pBuf    OHCI buffer.
  * @param   cbp     Current buffer pointer. 32-bit physical address.
  * @param   be      Last byte in buffer (BufferEnd). 32-bit physical address.
  */
-static void ohciBufInit(POHCIBUF pBuf, uint32_t cbp, uint32_t be)
+static void ohciR3BufInit(POHCIBUF pBuf, uint32_t cbp, uint32_t be)
 {
     if (!cbp || !be)
     {
@@ -2116,7 +2131,7 @@ static void ohciBufInit(POHCIBUF pBuf, uint32_t cbp, uint32_t be)
         pBuf->cbTotal = 0;
         Log2(("ohci: cbp=%#010x be=%#010x cbTotal=0 EMPTY\n", cbp, be));
     }
-    else if ((cbp & ~0xfff) == (be & ~0xfff))
+    else if ((cbp & ~0xfff) == (be & ~0xfff) && (cbp <= be))
     {
         pBuf->aVecs[0].Addr = cbp;
         pBuf->aVecs[0].cb = (be - cbp) + 1;
@@ -2683,7 +2698,7 @@ static void ohciRhXferCompleteGeneralURB(POHCI pThis, PVUSBURB pUrb, POHCIED pEd
          * Setup a ohci transfer buffer and calc the new cbp value.
          */
         OHCIBUF Buf;
-        ohciBufInit(&Buf, pTd->cbp, pTd->be);
+        ohciR3BufInit(&Buf, pTd->cbp, pTd->be);
         uint32_t NewCbp;
         if (cbLeft >= Buf.cbTotal)
             NewCbp = 0;
@@ -2706,6 +2721,16 @@ static void ohciRhXferCompleteGeneralURB(POHCI pThis, PVUSBURB pUrb, POHCIED pEd
             &&  Buf.cbTotal > 0)
         {
             Assert(Buf.cVecs > 0);
+
+            /* Be paranoid */
+            if (   Buf.aVecs[0].cb > cbLeft
+                || (   Buf.cVecs > 1
+                    && Buf.aVecs[1].cb > (cbLeft - Buf.aVecs[0].cb)))
+            {
+                ohciR3RaiseUnrecoverableError(pThis, 1);
+                return;
+            }
+
             ohciPhysWrite(pThis, Buf.aVecs[0].Addr, pb, Buf.aVecs[0].cb);
             if (Buf.cVecs > 1)
                 ohciPhysWrite(pThis, Buf.aVecs[1].Addr, pb + Buf.aVecs[0].cb, Buf.aVecs[1].cb);
@@ -2813,64 +2838,71 @@ static DECLCALLBACK(void) ohciRhXferCompletion(PVUSBIROOTHUBPORT pInterface, PVU
              pUrb->pszDesc, pUrb->pHci->EdAddr, pUrb->pHci->cTds, pUrb->paTds[0].TdAddr));
 
     ohciR3Lock(pThis);
-    pThis->fIdle = false;   /* Mark as active */
 
-    /* get the current end point descriptor. */
-    OHCIED Ed;
-    ohciReadEd(pThis, pUrb->pHci->EdAddr, &Ed);
-
-    /*
-     * Check that the URB hasn't been canceled and then try unlink the TDs.
-     *
-     * We drop the URB if the ED is marked halted/skip ASSUMING that this
-     * means the HCD has canceled the URB.
-     *
-     * If we succeed here (i.e. not dropping the URB), the TdCopy members will
-     * be updated but not yet written. We will delay the writing till we're done
-     * with the data copying, buffer pointer advancing and error handling.
-     */
     int cFmAge = ohci_in_flight_remove_urb(pThis, pUrb);
-    if (pUrb->enmStatus == VUSBSTATUS_UNDO)
+
+    /* Do nothing requiring memory access if the HC encountered an unrecoverable error. */
+    if (!(pThis->intr_status & OHCI_INTR_UNRECOVERABLE_ERROR))
     {
-        /* Leave the TD alone - the HCD doesn't want us talking to the device. */
-        Log(("%s: ohciRhXferCompletion: CANCELED {ED=%#010x cTds=%d TD0=%#010x age %d}\n",
-             pUrb->pszDesc, pUrb->pHci->EdAddr, pUrb->pHci->cTds, pUrb->paTds[0].TdAddr, cFmAge));
-        STAM_COUNTER_INC(&pThis->StatDroppedUrbs);
-        ohciR3Unlock(pThis);
-        return;
-    }
-    bool fHasBeenCanceled = false;
-    if (    (Ed.HeadP & ED_HEAD_HALTED)
-        ||  (Ed.hwinfo & ED_HWINFO_SKIP)
-        ||  cFmAge < 0
-        ||  (fHasBeenCanceled = ohciHasUrbBeenCanceled(pThis, pUrb, &Ed))
-        ||  !ohciUnlinkTds(pThis, pUrb, &Ed)
-       )
-    {
-        Log(("%s: ohciRhXferCompletion: DROPPED {ED=%#010x cTds=%d TD0=%#010x age %d} because:%s%s%s%s%s!!!\n",
-             pUrb->pszDesc, pUrb->pHci->EdAddr, pUrb->pHci->cTds, pUrb->paTds[0].TdAddr, cFmAge,
-             (Ed.HeadP & ED_HEAD_HALTED)                            ? " ep halted" : "",
-             (Ed.hwinfo & ED_HWINFO_SKIP)                           ? " ep skip" : "",
-             (Ed.HeadP & ED_PTR_MASK) != pUrb->paTds[0].TdAddr      ? " ep head-changed" : "",
-             cFmAge < 0                                             ? " td not-in-flight" : "",
-             fHasBeenCanceled                                       ? " td canceled" : ""));
-        NOREF(fHasBeenCanceled);
-        STAM_COUNTER_INC(&pThis->StatDroppedUrbs);
-        ohciR3Unlock(pThis);
-        return;
+        pThis->fIdle = false;   /* Mark as active */
+
+        /* get the current end point descriptor. */
+        OHCIED Ed;
+        ohciReadEd(pThis, pUrb->pHci->EdAddr, &Ed);
+
+        /*
+         * Check that the URB hasn't been canceled and then try unlink the TDs.
+         *
+         * We drop the URB if the ED is marked halted/skip ASSUMING that this
+         * means the HCD has canceled the URB.
+         *
+         * If we succeed here (i.e. not dropping the URB), the TdCopy members will
+         * be updated but not yet written. We will delay the writing till we're done
+         * with the data copying, buffer pointer advancing and error handling.
+         */
+        if (pUrb->enmStatus == VUSBSTATUS_UNDO)
+        {
+            /* Leave the TD alone - the HCD doesn't want us talking to the device. */
+            Log(("%s: ohciR3RhXferCompletion: CANCELED {ED=%#010x cTds=%d TD0=%#010x age %d}\n",
+                 pUrb->pszDesc, pUrb->pHci->EdAddr, pUrb->pHci->cTds, pUrb->paTds[0].TdAddr, cFmAge));
+            STAM_COUNTER_INC(&pThis->StatDroppedUrbs);
+            ohciR3Unlock(pThis);
+            return;
+        }
+        bool fHasBeenCanceled = false;
+        if (    (Ed.HeadP & ED_HEAD_HALTED)
+            ||  (Ed.hwinfo & ED_HWINFO_SKIP)
+            ||  cFmAge < 0
+            ||  (fHasBeenCanceled = ohciHasUrbBeenCanceled(pThis, pUrb, &Ed))
+            ||  !ohciUnlinkTds(pThis, pUrb, &Ed)
+           )
+        {
+            Log(("%s: ohciR3RhXferCompletion: DROPPED {ED=%#010x cTds=%d TD0=%#010x age %d} because:%s%s%s%s%s!!!\n",
+                 pUrb->pszDesc, pUrb->pHci->EdAddr, pUrb->pHci->cTds, pUrb->paTds[0].TdAddr, cFmAge,
+                 (Ed.HeadP & ED_HEAD_HALTED)                            ? " ep halted" : "",
+                 (Ed.hwinfo & ED_HWINFO_SKIP)                           ? " ep skip" : "",
+                 (Ed.HeadP & ED_PTR_MASK) != pUrb->paTds[0].TdAddr      ? " ep head-changed" : "",
+                 cFmAge < 0                                             ? " td not-in-flight" : "",
+                 fHasBeenCanceled                                       ? " td canceled" : ""));
+            NOREF(fHasBeenCanceled);
+            STAM_COUNTER_INC(&pThis->StatDroppedUrbs);
+            ohciR3Unlock(pThis);
+            return;
+        }
+
+        /*
+         * Complete the TD updating and write the back.
+         * When appropriate also copy data back to the guest memory.
+         */
+        if (pUrb->enmType == VUSBXFERTYPE_ISOC)
+            ohciRhXferCompleteIsochronousURB(pThis, pUrb /*, &Ed , cFmAge*/);
+        else
+            ohciRhXferCompleteGeneralURB(pThis, pUrb, &Ed, cFmAge);
+
+        /* finally write back the endpoint descriptor. */
+        ohciWriteEd(pThis, pUrb->pHci->EdAddr, &Ed);
     }
 
-    /*
-     * Complete the TD updating and write the back.
-     * When appropriate also copy data back to the guest memory.
-     */
-    if (pUrb->enmType == VUSBXFERTYPE_ISOC)
-        ohciRhXferCompleteIsochronousURB(pThis, pUrb /*, &Ed , cFmAge*/);
-    else
-        ohciRhXferCompleteGeneralURB(pThis, pUrb, &Ed, cFmAge);
-
-    /* finally write back the endpoint descriptor. */
-    ohciWriteEd(pThis, pUrb->pHci->EdAddr, &Ed);
     ohciR3Unlock(pThis);
 }
 
@@ -2958,7 +2990,7 @@ static bool ohciServiceTd(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pEd, uint3
     OHCITD Td;
     ohciReadTd(pThis, TdAddr, &Td);
     OHCIBUF Buf;
-    ohciBufInit(&Buf, Td.cbp, Td.be);
+    ohciR3BufInit(&Buf, Td.cbp, Td.be);
 
     *pNextTdAddr = Td.NextTD & ED_PTR_MASK;
 
@@ -2978,7 +3010,7 @@ static bool ohciServiceTd(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pEd, uint3
                 case 0:             enmDir = VUSBDIRECTION_SETUP; break;
                 default:
                     Log(("ohciServiceTd: Invalid direction!!!! Td.hwinfo=%#x Ed.hwdinfo=%#x\n", Td.hwinfo, pEd->hwinfo));
-                    /** @todo Do the correct thing here */
+                    ohciR3RaiseUnrecoverableError(pThis, 2);
                     return false;
             }
             break;
@@ -3011,6 +3043,16 @@ static bool ohciServiceTd(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pEd, uint3
         &&  Buf.cVecs > 0
         &&  enmDir != VUSBDIRECTION_IN)
     {
+        /* Be paranoid. */
+        if (   Buf.aVecs[0].cb > pUrb->cbData
+            || (   Buf.cVecs > 1
+                && Buf.aVecs[1].cb > (pUrb->cbData - Buf.aVecs[0].cb)))
+        {
+            ohciR3RaiseUnrecoverableError(pThis, 3);
+            VUSBIRhFreeUrb(pThis->RootHub.pIRhConn, pUrb);
+            return false;
+        }
+
         ohciPhysRead(pThis, Buf.aVecs[0].Addr, pUrb->abData, Buf.aVecs[0].cb);
         if (Buf.cVecs > 1)
             ohciPhysRead(pThis, Buf.aVecs[1].Addr, &pUrb->abData[Buf.aVecs[0].cb], Buf.aVecs[1].cb);
@@ -3033,6 +3075,7 @@ static bool ohciServiceTd(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pEd, uint3
     Log(("ohciServiceTd: failed submitting TdAddr=%#010x EdAddr=%#010x pUrb=%p!!\n",
          TdAddr, EdAddr, pUrb));
     ohci_in_flight_remove(pThis, TdAddr);
+    VUSBIRhFreeUrb(pThis->RootHub.pIRhConn, pUrb);
     return false;
 }
 
@@ -3084,7 +3127,8 @@ static bool ohciServiceTdMultiple(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pE
 
     /* read the head */
     ohciReadTd(pThis, TdAddr, &Head.Td);
-    ohciBufInit(&Head.Buf, Head.Td.cbp, Head.Td.be);
+    ohciR3BufInit(&Head.Buf, Head.Td.cbp, Head.Td.be);
+
     Head.TdAddr = TdAddr;
     Head.pNext = NULL;
 
@@ -3102,7 +3146,7 @@ static bool ohciServiceTdMultiple(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pE
         pCur->pNext = NULL;
         pCur->TdAddr = pTail->Td.NextTD & ED_PTR_MASK;
         ohciReadTd(pThis, pCur->TdAddr, &pCur->Td);
-        ohciBufInit(&pCur->Buf, pCur->Td.cbp, pCur->Td.be);
+        ohciR3BufInit(&pCur->Buf, pCur->Td.cbp, pCur->Td.be);
 
         /* Don't combine if the direction doesn't match up. There can't actually be
          * a mismatch for bulk/interrupt EPs unless the guest is buggy.
@@ -3136,7 +3180,7 @@ static bool ohciServiceTdMultiple(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pE
                 case TD_HWINFO_IN:  enmDir = VUSBDIRECTION_IN; break;
                 default:
                     Log(("ohciServiceTdMultiple: Invalid direction!!!! Head.Td.hwinfo=%#x Ed.hwdinfo=%#x\n", Head.Td.hwinfo, pEd->hwinfo));
-                    /** @todo Do the correct thing here */
+                    ohciR3RaiseUnrecoverableError(pThis, 4);
                     return false;
             }
             break;
@@ -3201,8 +3245,8 @@ static bool ohciServiceTdMultiple(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pE
     /* Failure cleanup. Can happen if we're still resetting the device or out of resources. */
     Log(("ohciServiceTdMultiple: failed submitting pUrb=%p cbData=%#x EdAddr=%#010x cTds=%d TdAddr0=%#010x - rc=%Rrc\n",
          pUrb, cbTotal, EdAddr, cTds, TdAddr, rc));
-    for (struct OHCITDENTRY *pCur = &Head; pCur; pCur = pCur->pNext, iTd++)
-        ohci_in_flight_remove(pThis, pCur->TdAddr);
+    ohci_in_flight_remove_urb(pThis, pUrb);
+    VUSBIRhFreeUrb(pThis->RootHub.pIRhConn, pUrb);
     return false;
 }
 
@@ -3313,7 +3357,7 @@ static bool ohciServiceIsochronousTd(POHCI pThis, POHCIITD pITd, uint32_t ITdAdd
         case ED_HWINFO_IN:  enmDir = VUSBDIRECTION_IN;  break;
         default:
             Log(("ohciServiceIsochronousTd: Invalid direction!!!! Ed.hwdinfo=%#x\n", pEd->hwinfo));
-            /* Should probably raise an unrecoverable HC error here */
+            ohciR3RaiseUnrecoverableError(pThis, 5);
             return false;
     }
 
@@ -3329,7 +3373,11 @@ static bool ohciServiceIsochronousTd(POHCI pThis, POHCIITD pITd, uint32_t ITdAdd
     /* first entry (R) */
     uint32_t cbTotal = 0;
     if (((uint32_t)pITd->aPSW[R] >> ITD_PSW_CC_SHIFT) < (OHCI_CC_NOT_ACCESSED_0 >> TD_HWINFO_CC_SHIFT))
+    {
         Log(("ITdAddr=%RX32 PSW%d.CC=%#x < 'Not Accessed'!\n", ITdAddr, R, pITd->aPSW[R] >> ITD_PSW_CC_SHIFT)); /* => Unrecoverable Error*/
+        pThis->intr_status |= OHCI_INTR_UNRECOVERABLE_ERROR;
+        return false;
+    }
     uint16_t offPrev = aPkts[0].off = (pITd->aPSW[R] & ITD_PSW_OFFSET);
 
     /* R+1..cFrames */
@@ -3340,9 +3388,17 @@ static bool ohciServiceIsochronousTd(POHCI pThis, POHCIITD pITd, uint32_t ITdAdd
         const uint16_t off = aPkts[iR - R].off = (PSW & ITD_PSW_OFFSET);
         cbTotal += aPkts[iR - R - 1].cb = off - offPrev;
         if (off < offPrev)
+        {
             Log(("ITdAddr=%RX32 PSW%d.offset=%#x < offPrev=%#x!\n", ITdAddr, iR, off, offPrev)); /* => Unrecoverable Error*/
+            ohciR3RaiseUnrecoverableError(pThis, 6);
+            return false;
+        }
         if (((uint32_t)PSW >> ITD_PSW_CC_SHIFT) < (OHCI_CC_NOT_ACCESSED_0 >> TD_HWINFO_CC_SHIFT))
+        {
             Log(("ITdAddr=%RX32 PSW%d.CC=%#x < 'Not Accessed'!\n", ITdAddr, iR, PSW >> ITD_PSW_CC_SHIFT)); /* => Unrecoverable Error*/
+            ohciR3RaiseUnrecoverableError(pThis, 7);
+            return false;
+        }
         offPrev = off;
     }
 
@@ -3351,7 +3407,11 @@ static bool ohciServiceIsochronousTd(POHCI pThis, POHCIITD pITd, uint32_t ITdAdd
                           + (((pITd->BE & ITD_BP0_MASK) != (pITd->BP0 & ITD_BP0_MASK)) << 12)
                           + 1 /* BE is inclusive */;
     if (offEnd < offPrev)
+    {
         Log(("ITdAddr=%RX32 offEnd=%#x < offPrev=%#x!\n", ITdAddr, offEnd, offPrev)); /* => Unrecoverable Error*/
+        ohciR3RaiseUnrecoverableError(pThis, 8);
+        return false;
+    }
     cbTotal += aPkts[cFrames - 1 - R].cb = offEnd - offPrev;
     Assert(cbTotal <= 0x2000);
 
@@ -3415,7 +3475,7 @@ static bool ohciServiceIsochronousTd(POHCI pThis, POHCIITD pITd, uint32_t ITdAdd
     /*
      * Submit the URB.
      */
-    ohci_in_flight_add_urb(pThis, pUrb);
+    ohci_in_flight_add(pThis, ITdAddr, pUrb);
     Log(("%s: ohciServiceIsochronousTd: submitting cbData=%#x cIsocPkts=%d EdAddr=%#010x TdAddr=%#010x SF=%#x (%#x)\n",
          pUrb->pszDesc, pUrb->cbData, pUrb->cIsocPkts, EdAddr, ITdAddr, pITd->HwInfo & ITD_HWINFO_SF, pThis->HcFmNumber));
     ohciR3Unlock(pThis);
@@ -3428,6 +3488,7 @@ static bool ohciServiceIsochronousTd(POHCI pThis, POHCIITD pITd, uint32_t ITdAdd
     Log(("ohciServiceIsochronousTd: failed submitting pUrb=%p cbData=%#x EdAddr=%#010x cTds=%d ITdAddr0=%#010x - rc=%Rrc\n",
          pUrb, cbTotal, EdAddr, 1, ITdAddr, rc));
     ohci_in_flight_remove(pThis, ITdAddr);
+    VUSBIRhFreeUrb(pThis->RootHub.pIRhConn, pUrb);
     return false;
 }
 
@@ -3606,6 +3667,11 @@ static void ohciServiceBulkList(POHCI pThis)
     while (EdAddr)
     {
         OHCIED Ed;
+
+        /* Bail if previous processing ended up in the unrecoverable error state. */
+        if (pThis->intr_status & OHCI_INTR_UNRECOVERABLE_ERROR)
+            break;
+
         ohciReadEd(pThis, EdAddr, &Ed);
         Assert(!(Ed.hwinfo & ED_HWINFO_ISO)); /* the guest is screwing us */
         if (ohciIsEdReady(&Ed))
@@ -3747,6 +3813,11 @@ static void ohciServiceCtrlList(POHCI pThis)
     while (EdAddr)
     {
         OHCIED Ed;
+
+        /* Bail if previous processing ended up in the unrecoverable error state. */
+        if (pThis->intr_status & OHCI_INTR_UNRECOVERABLE_ERROR)
+            break;
+
         ohciReadEd(pThis, EdAddr, &Ed);
         Assert(!(Ed.hwinfo & ED_HWINFO_ISO)); /* the guest is screwing us */
         if (ohciIsEdReady(&Ed))
@@ -3818,6 +3889,10 @@ static void ohciServicePeriodicList(POHCI pThis)
     while (EdAddr)
     {
         OHCIED Ed;
+
+        /* Bail if previous processing ended up in the unrecoverable error state. */
+        if (pThis->intr_status & OHCI_INTR_UNRECOVERABLE_ERROR)
+            break;
 
         ohciReadEd(pThis, EdAddr, &Ed);
         if (ohciIsEdReady(&Ed))
@@ -4167,16 +4242,19 @@ static DECLCALLBACK(bool) ohciR3StartFrame(PVUSBIROOTHUBPORT pInterface, uint32_
     physReadStatsReset(&g_PhysReadState);
 # endif
 
-    /* Frame boundary, so do EOF stuff here. */
-    bump_frame_number(pThis);
-    if ( (pThis->dqic != 0x7) && (pThis->dqic != 0))
-        pThis->dqic--;
+    if (!(pThis->intr_status & OHCI_INTR_UNRECOVERABLE_ERROR))
+    {
+        /* Frame boundary, so do EOF stuff here. */
+        bump_frame_number(pThis);
+        if ( (pThis->dqic != 0x7) && (pThis->dqic != 0))
+            pThis->dqic--;
 
-    /* Clean up any URBs that have been removed. */
-    ohciCancelOrphanedURBs(pThis);
+        /* Clean up any URBs that have been removed. */
+        ohciCancelOrphanedURBs(pThis);
 
-    /* Start the next frame. */
-    ohciStartOfFrame(pThis);
+        /* Start the next frame. */
+        ohciStartOfFrame(pThis);
+    }
 
 # ifdef VBOX_WITH_OHCI_PHYS_READ_STATS
     physReadStatsPrint(&g_PhysReadState);

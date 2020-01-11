@@ -41,7 +41,7 @@
 #include "internal/ldr.h"
 
 
-int rtldrNativeLoad(const char *pszFilename, uintptr_t *phHandle, uint32_t fFlags, PRTERRINFO pErrInfo)
+DECLHIDDEN(int) rtldrNativeLoad(const char *pszFilename, uintptr_t *phHandle, uint32_t fFlags, PRTERRINFO pErrInfo)
 {
     /*
      * Do we need to add an extension?
@@ -125,7 +125,7 @@ DECLCALLBACK(int) rtldrNativeClose(PRTLDRMODINTERNAL pMod)
 }
 
 
-int rtldrNativeLoadSystem(const char *pszFilename, const char *pszExt, uint32_t fFlags, PRTLDRMOD phLdrMod)
+DECLHIDDEN(int) rtldrNativeLoadSystem(const char *pszFilename, const char *pszExt, uint32_t fFlags, PRTLDRMOD phLdrMod)
 {
     RT_NOREF_PV(pszFilename); RT_NOREF_PV(pszExt); RT_NOREF_PV(fFlags); RT_NOREF_PV(phLdrMod);
     /** @todo implement this in some sensible fashion. */

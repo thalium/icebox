@@ -3886,6 +3886,15 @@ VBoxManage setextradata "VM name" VBoxInternal/CPUM/SSE4.2 1</screen>
             limitation may be addressed in a future VirtualBox version.</para>
         </listitem>
 
+        <listitem>
+          <para>
+            The disk encryption feature can protect the content of the
+            disks configured for a VM only. It does not cover any other
+            data related to a VM, including saved state or the
+            configuration file itself.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </sect2>

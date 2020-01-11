@@ -557,6 +557,9 @@ def ExtendedOpcodeName(funcName):
 
 #======================================================================
 
+def _needPointerOrigin(name, type):
+	return type == 'const GLvoid *' and (name == 'pointer' or name == 'NULL');
+
 def MakeCallString(params):
 	"""Given a list of (name, type, vectorSize) parameters, make a C-style
 	formal parameter string.
@@ -573,6 +576,19 @@ def MakeCallString(params):
 	#endfor
 	return result
 #enddef
+
+def MakeCallStringForDispatcher(params):
+	"""Same as MakeCallString, but with 'pointer' origin hack for bugref:9407."""
+	strResult = ''
+	fFirst    = True;
+	for (name, type, vecSize) in params:
+		if not fFirst:  strResult += ', ';
+		else:           fFirst     = False;
+		strResult += name;
+		if _needPointerOrigin(name, type):
+			if name != 'NULL': strResult += ', fRealPtr';
+			else:   		   strResult += ', 0 /*fRealPtr*/';
+	return strResult;
 
 
 def MakeDeclarationString(params):
@@ -595,6 +611,20 @@ def MakeDeclarationString(params):
 		return result
 	#endif
 #enddef
+
+def MakeDeclarationStringForDispatcher(params):
+	"""Same as MakeDeclarationString, but with 'pointer' origin hack for bugref:9407."""
+	if len(params) == 0:
+		return 'void';
+	strResult = '';
+	fFirst    = True;
+	for (name, type, vecSize) in params:
+		if not fFirst:  strResult += ', ';
+		else:           fFirst     = False;
+		strResult = strResult + type + ' ' + name;
+		if _needPointerOrigin(name, type):
+			strResult = strResult + ' CRVBOX_HOST_ONLY_PARAM(int fRealPtr)';
+	return strResult;
 
 def MakeDeclarationStringWithContext(ctx_macro_prefix, params):
 	"""Same as MakeDeclarationString, but adds a context macro
@@ -631,6 +661,20 @@ def MakePrototypeString(params):
 		return result
 	#endif
 #enddef
+
+def MakePrototypeStringForDispatcher(params):
+	"""Same as MakePrototypeString, but with 'pointer' origin hack for bugref:9407."""
+	if len(params) == 0:
+		return 'void'
+	strResult = ''
+	fFirst    = True;
+	for (name, type, vecSize) in params:
+		if not fFirst:  strResult += ', ';
+		else:           fFirst     = False;
+		strResult = strResult + type
+		if _needPointerOrigin(name, type):
+			strResult += ' CRVBOX_HOST_ONLY_PARAM(int)';
+	return strResult;
 
 
 #======================================================================

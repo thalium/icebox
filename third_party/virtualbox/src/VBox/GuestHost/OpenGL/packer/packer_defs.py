@@ -20,7 +20,6 @@ keys = apiutil.GetDispatchedFunctions(sys.argv[1]+"/APIspec.txt")
 for func_name in keys:
 	if apiutil.CanPack(func_name):
 		print "crPack%s" % func_name
-		print "crPack%sSWAP" % func_name
 
 functions = [
 	'crPackVertexAttrib1dARBBBOX',
@@ -170,7 +169,6 @@ functions = [
 
 for func_name in functions:
     print "%s" % func_name
-    print "%sSWAP" % func_name
 
 
 print """

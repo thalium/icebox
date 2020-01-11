@@ -1,4 +1,4 @@
-/* $Rev: 120349 $ */
+/* $Rev: 129379 $ */
 /** @file
  * VBoxGuest - Linux specifics.
  *
@@ -90,8 +90,8 @@
 *********************************************************************************************************************************/
 static void vgdrvLinuxTermPci(struct pci_dev *pPciDev);
 static int  vgdrvLinuxProbePci(struct pci_dev *pPciDev, const struct pci_device_id *id);
-static int  vgdrvLinuxModInit(void);
-static void vgdrvLinuxModExit(void);
+static int  __init vgdrvLinuxModInit(void);
+static void __exit vgdrvLinuxModExit(void);
 static int  vgdrvLinuxOpen(struct inode *pInode, struct file *pFilp);
 static int  vgdrvLinuxRelease(struct inode *pInode, struct file *pFilp);
 #ifdef HAVE_UNLOCKED_IOCTL
@@ -205,11 +205,7 @@ static struct miscdevice        g_MiscDeviceUser =
 
 
 /** PCI hotplug structure. */
-static const struct pci_device_id
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
-__devinitdata
-#endif
-g_VBoxGuestPciId[] =
+static const struct pci_device_id g_VBoxGuestPciId[] =
 {
     {
         vendor:     VMMDEV_VENDORID,

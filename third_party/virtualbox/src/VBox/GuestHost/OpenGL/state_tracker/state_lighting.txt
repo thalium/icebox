@@ -8,9 +8,9 @@
 :enable:colorSumEXT:GL_COLOR_SUM_EXT
 :shadeModel:shadeModel:ShadeModel
 :lightModel:lightModelAmbient|r,g,b,a:LightModelfv,GL_LIGHT_MODEL_AMBIENT
-:lightModel:lightModelLocalViewer:*diff_api.LightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, to->lightModelLocalViewer==GL_TRUE);
-:lightModel:lightModelTwoSide:*diff_api.LightModeli(GL_LIGHT_MODEL_TWO_SIDE, to->lightModelTwoSide==GL_TRUE);
-:lightModel:lightModelColorControlEXT:*diff_api.LightModeli(GL_LIGHT_MODEL_COLOR_CONTROL_EXT, to->lightModelColorControlEXT);
+:lightModel:lightModelLocalViewer:*pState->diff_api.LightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, to->lightModelLocalViewer==GL_TRUE);
+:lightModel:lightModelTwoSide:*pState->diff_api.LightModeli(GL_LIGHT_MODEL_TWO_SIDE, to->lightModelTwoSide==GL_TRUE);
+:lightModel:lightModelColorControlEXT:*pState->diff_api.LightModeli(GL_LIGHT_MODEL_COLOR_CONTROL_EXT, to->lightModelColorControlEXT);
 %flush
 :material:ambient[0]|r,g,b,a:Materialfv, GL_FRONT, GL_AMBIENT
 :material:ambient[1]|r,g,b,a:Materialfv, GL_BACK, GL_AMBIENT
@@ -40,20 +40,20 @@
 :attenuation:constantAttenuation:Lightf, GL_LIGHT0+i, GL_CONSTANT_ATTENUATION
 :attenuation:linearAttenuation:Lightf, GL_LIGHT0+i, GL_LINEAR_ATTENUATION
 :attenuation:quadraticAttenuation:Lightf, GL_LIGHT0+i, GL_QUADRATIC_ATTENUATION
-:position:*diff_api.MatrixMode(GL_MODELVIEW);
-:position:*diff_api.PushMatrix();
-:position:*diff_api.LoadIdentity();
+:position:*pState->diff_api.MatrixMode(GL_MODELVIEW);
+:position:*pState->diff_api.PushMatrix();
+:position:*pState->diff_api.LoadIdentity();
 :position:position|x,y,z,w:Lightfv, GL_LIGHT0+i, GL_POSITION
-:position:*diff_api.PopMatrix();
-:position:*diff_api.MatrixMode(toCtx->transform.matrixMode);
-:spot:*diff_api.MatrixMode(GL_MODELVIEW);
-:spot:*diff_api.PushMatrix();
-:spot:*diff_api.LoadIdentity();
+:position:*pState->diff_api.PopMatrix();
+:position:*pState->diff_api.MatrixMode(toCtx->transform.matrixMode);
+:spot:*pState->diff_api.MatrixMode(GL_MODELVIEW);
+:spot:*pState->diff_api.PushMatrix();
+:spot:*pState->diff_api.LoadIdentity();
 :spot:spotDirection|x,y,z:Lightfv, GL_LIGHT0+i, GL_SPOT_DIRECTION
 :spot:spotExponent:Lightf, GL_LIGHT0+i, GL_SPOT_EXPONENT
 :spot:spotCutoff:Lightf, GL_LIGHT0+i, GL_SPOT_CUTOFF
-:spot:*diff_api.PopMatrix();
-:spot:*diff_api.MatrixMode(toCtx->transform.matrixMode);
+:spot:*pState->diff_api.PopMatrix();
+:spot:*pState->diff_api.MatrixMode(toCtx->transform.matrixMode);
 %flush
 >CLEARDIRTY(lb->dirty, nbitID);
 >}

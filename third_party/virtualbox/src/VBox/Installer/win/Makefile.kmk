@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2006-2017 Oracle Corporation
+# Copyright (C) 2006-2018 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -55,7 +55,7 @@ VBOX_WIN_INST_REPACK_DIR   := $(PATH_OUT)/repack
 
 # Note: en_US *must* come first for the dependency file generation.
 ifndef VBOX_INSTALLER_LANGUAGES
- VBOX_INSTALLER_LANGUAGES   = en_US de_DE fr_FR it_IT zh_TW zh_CN
+ VBOX_INSTALLER_LANGUAGES   = en_US de_DE el_GR fr_FR it_IT tr_TR zh_TW zh_CN
  VBOX_INSTALLER_LANGUAGES  += $(VBOX_INSTALLER_ADD_LANGUAGES)
 endif
 
@@ -75,21 +75,27 @@ ifdef VBOX_WITH_MSM_INSTALL
 endif
 
 #
-# Language IDs.
+# Language IDs (LCID, decimal)
 #
 VBOX_BRAND_en_US_LANG_ID ?= 1033
 VBOX_BRAND_de_DE_LANG_ID ?= 1031
+VBOX_BRAND_el_GR_LANG_ID ?= 1032
+VBOX_BRAND_fa_IR_LANG_ID ?= 1065
 VBOX_BRAND_fr_FR_LANG_ID ?= 1036
 VBOX_BRAND_it_IT_LANG_ID ?= 1040
+VBOX_BRAND_tr_TR_LANG_ID ?= 1055
 VBOX_BRAND_zh_TW_LANG_ID ?= 1028
 VBOX_BRAND_zh_CN_LANG_ID ?= 2052
 
 # Standard language names (in the native language), to be extended as we go.
 # VBOX_BRAND_$(lang)_LANG_NAME must be defined for each language which occurs
 # in either VBOX_LICENSE_ADD_LANGUAGES or VBOX_MANUAL_ADD_LANGUAGES.
+VBOX_BRAND_en_US_LANG_NAME := English
 VBOX_BRAND_de_DE_LANG_NAME := Deutsch
+VBOX_BRAND_el_GR_LANG_NAME := Ελληνικά
 VBOX_BRAND_fr_FR_LANG_NAME := Français
 VBOX_BRAND_it_IT_LANG_NAME := Italiano
+VBOX_BRAND_tr_TR_LANG_NAME := Türkçe
 VBOX_BRAND_zh_TW_LANG_NAME := 正體中文
 VBOX_BRAND_zh_CN_LANG_NAME := 简体中文
 
@@ -111,8 +117,8 @@ $(foreach lang,$(sort $(VBOX_INSTALLER_LANGUAGES) $(VBOX_LICENSE_ADD_LANGUAGES) 
 # Exceptions:
 VBOX_BRAND_zh_TW_LANGUAGE_CODEPAGE := 950
 VBOX_BRAND_zh_CN_LANGUAGE_CODEPAGE := 936
-
-
+VBOX_BRAND_fa_IR_LANGUAGE_CODEPAGE := 1256
+VBOX_BRAND_tr_TR_LANGUAGE_CODEPAGE := 1254
 
 #
 # If we want to build a combined package, we separate all common stuff
@@ -155,7 +161,9 @@ endif
 BLDDIRS += \
 	$(VBOX_WIN_INST_OUT_DIR) \
 	$(VBOX_WIN_INST_REPACK_DIR)/ \
-	$(foreach lang,$(VBOX_INSTALLER_LANGUAGES),$(VBOX_WIN_INST_OUT_DIR)/$(lang)/) \
+	$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/ \
+		$(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/ )\
 	$(VBOX_WIN_INST_OUT_DIR)/NLS/
 
 OTHER_CLEAN += \
@@ -177,8 +185,12 @@ OTHER_CLEAN += \
 		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(PACKAGE_NAME_LANG)_$(lang).msi \
 		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wix \
 		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj \
-		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj.dep )\
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj.dep \
 		$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).wix \
+		$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).files \
+		$(VBOX_WIN_INST_REPACK_DIR)/2-link-$(PACKAGE_NAME_LANG).cmd \
+		$(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/Language_$(lang).wxl \
+		$(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/License_$(lang).wxl )\
 	$(VBOX_WIN_INST_OUT_DIR)/DirComponentsAndFiles_DTrace.wxi \
 	$(VBOX_WIN_INST_OUT_DIR)/Files_Main.wxi \
 	$(VBOX_WIN_INST_OUT_DIR)/Files_Doc.wxi \
@@ -207,11 +219,14 @@ ifdef VBOX_WITH_MSM_INSTALL
  OTHER_CLEAN += \
   $(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
    $(foreach lang,$(VBOX_INSTALLER_MERGE_LANGUAGES), \
-		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module).msm.dep \
-		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang)_$(KBUILD_TARGET_ARCH).msm \
 		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj.dep \
 		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixpdb \
-		$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).wix))
+		$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).wix \
+		$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).files)
+	BLDDIRS += $foreach lang,$(VBOX_INSTALLER_MERGE_LANGUAGES), \
+		$(VBOX_WIN_INST_REPACK_DIR)/files-VBoxMerge$(module)_$(lang)/)
 endif
 
 #
@@ -417,6 +432,7 @@ $(if-expr defined(VBOX_WITH_COMBINED_PACKAGE) && !defined(VBOX_WITH_MSM_INSTALL)
 		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
 		-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
 		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+		-ext $(VBOX_PATH_WIX)/WixUtilExtension.dll \
                $(if-expr defined(VBOX_WITH_MSI_HACK),-ext $(MsiHack_0_OUTDIR)/MsiHackExtension.dll,) \
 		$(VBOX_MSI_ICE_IGNORE) \
 		-out $$@ \
@@ -428,6 +444,7 @@ endif
 ifeq ($(lang),en_US)
 	$(CP) -f -- "$(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl" "$(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl" \
        	"$(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/"
+# Create repack script for this step.
 	$(APPEND) -tn "$$(VBOX_WIN_INST_REPACK_DIR)/2-link-$$(PACKAGE_NAME_LANG).cmd" \
        	'if ".%KBUILD_DEVTOOLS%" == "." (echo KBUILD_DEVTOOLS is not set & exit /b1)' \
 		$(subst $(KBUILD_DEVTOOLS),%KBUILD_DEVTOOLS%,\
@@ -436,6 +453,7 @@ ifeq ($(lang),en_US)
 		'  -loc files-VirtualBox_$(lang)/License_$(lang).wxl ^' \
 		'  -ext $(VBOX_PATH_WIX)/WixUIExtension.dll ^' \
 		'  -ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll ^' \
+		'  -ext $(VBOX_PATH_WIX)/WixUtilExtension.dll ^' \
                $(if-expr defined(VBOX_WITH_MSI_HACK),'-ext $(MsiHack_0_OUTDIR)/MsiHackExtension.dll ^',) \
 		'  $(VBOX_MSI_ICE_IGNORE) ^' \
 		'  -out $$(@F) ^' \
@@ -446,9 +464,6 @@ ifeq ($(lang),en_US)
                '@echo Created MSI installer: $$(@F)' \
 		$(if-expr defined(VBOX_WITH_COMBINED_PACKAGE) && !defined(VBOX_WITH_MSM_INSTALL),'@echo Created: common.cab',)
 
-$(eval OTHER_CLEAN += $(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/Language_$(lang).wxl \
-	$(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/License_$(lang).wxl \
-	$(VBOX_WIN_INST_REPACK_DIR)/2-link-$(PACKAGE_NAME_LANG).cmd )
 endif
 endef
 
@@ -462,7 +477,7 @@ $(foreach lang, en_US, $(eval $(def_vbox_link_msi)))
 #       filling up with old files.
 #
 define def_vbox_link_msm
-$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm: \
+$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang)_$(KBUILD_TARGET_ARCH).msm: \
 		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj \
 		$(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
 		$(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
@@ -476,13 +491,30 @@ $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm: \
 		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
 		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
 		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+		-ext $(VBOX_PATH_WIX)/WixUtilExtension.dll \
 		$(VBOX_MSI_ICE_IGNORE) \
 		-out $$@ \
 		$$< \
 		$(VBOX_PATH_WIX)/difxapp_$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86",x86,x64).wixlib
 	$(RM) -f $(VBOX_WIN_INST_OUT_DIR)/NLS/$(lang).mst
 	$(call VBOX_SIGN_FILE_FN,$$@,$(VBOX_PRODUCT) $(VBOX_VERSION_STRING)r$(VBOX_SVN_REV) ($(KBUILD_TARGET_ARCH)),,,disable-dual-signing)
-## @todo repack script and files
+# Create repack script for this step.
+	$(APPEND) -tn "$$(VBOX_WIN_INST_REPACK_DIR)/2-link-VBoxMerge$(module)_$(lang).cmd" \
+       	'if ".%KBUILD_DEVTOOLS%" == "." (echo KBUILD_DEVTOOLS is not set & exit /b1)' \
+		$(subst $(KBUILD_DEVTOOLS),%KBUILD_DEVTOOLS%,\
+		'$(VBOX_PATH_WIX)/light.exe -v -nologo ^' \
+		'  -loc files-VirtualBox_$(lang)/Language_$(lang).wxl ^' \
+		'  -loc files-VirtualBox_$(lang)/License_$(lang).wxl ^' \
+		'  -ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll ^' \
+		'  -ext $(VBOX_PATH_WIX)/WixUtilExtension.dll ^' \
+		'  $(VBOX_MSI_ICE_IGNORE) ^' \
+		'  -out $$(@F) ^' \
+		'  $$(<F) ^' \
+		'  $(VBOX_PATH_WIX)/difxapp_$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86",x86,x64).wixlib ^' \
+               '  || exit /b1' \
+		'call sign-sha1.cmd $$(@F) || exit /b1' \
+               ) \
+               '@echo Created MSM module: $$(@F)'
 endef
 
 $(if-expr defined(VBOX_WITH_MSM_INSTALL), \
@@ -535,7 +567,7 @@ $(if-expr "$(lang)" != "en_US",, \
 			$(PATH_SUB_CURRENT)/UserInterface.wxi \
 			$(if-expr defined(VBOX_WITH_MSM_INSTALL), \
 				$(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
-					$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm), \
+					$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang)_$(KBUILD_TARGET_ARCH).msm), \
 				$(VBOX_WIN_INST_OUT_DIR)/Shortcuts_StartMenu.wxi \
 				$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib.wxi \
 				$(if $(VBOX_WITH_32_ON_64_MAIN_API),$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib_x86.wxi,) \
@@ -546,7 +578,7 @@ $(if-expr "$(lang)" != "en_US",, \
 			$(VBOX_VERSION_STAMP) \
 			| $$$$(dir $$$$@) $(if-expr "$(lang)" != "en_US",, \
 			$(VBOX_WIN_INST_REPACK_DIR)/ $(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/ )
-	$(QUIET)$(RM) -f -- $@  "$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wix" "$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).wix"
+	$(QUIET)$(RM) -f -- "$$@"  "$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wix" "$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).wix"
 	$(REDIRECT) \
 		-E 'PATH_OUT=$(subst /,\,$(PATH_OUT))' \
 		-E 'PATH_TARGET=$(subst /,\,$(VBOX_WIN_INST_OUT_DIR))' \
@@ -574,7 +606,7 @@ $(if-expr "$(lang)" != "en_US",, \
 		-E 'VBOX_MIDL_PROXY_CLSID=$(VBOX_MIDL_PROXY_CLSID)' \
 		$(if-expr defined(VBOX_WITH_MSM_INSTALL), \
 			$(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
-				-E 'VBOX_WIN_INST_MERGE_$(toupper $(module))=$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm'),) \
+				-E 'VBOX_WIN_INST_MERGE_$(toupper $(module))=$(subst /,\,$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang)_$(KBUILD_TARGET_ARCH).msm')),) \
 		-E 'VBOX_WINDOWS_ICON_FILE=$(subst /,\,$(VBOX_WINDOWS_ICON_FILE))' \
 		-E 'VBOX_QT_INFIX=$(VBOX_QT_INFIX)' \
 		-E 'VBOX_WITH_32_ON_64_MAIN_API=$(if $(VBOX_WITH_32_ON_64_MAIN_API),yes,no)' \
@@ -610,10 +642,12 @@ $(if-expr "$(lang)" != "en_US",, \
 		$(VBOX_PATH_WIX)/candle.exe $(filter-out $(VBOX_VERSION_STAMP),$$<) \
 			-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
 			-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+			-ext $(VBOX_PATH_WIX)/WixUtilExtension.dll \
 			-p$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wix
 	$(VBOX_PATH_WIX)/candle.exe $(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wix \
 		-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
 		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+		-ext $(VBOX_PATH_WIX)/WixUtilExtension.dll \
 		-out $$@
  ifeq ($(lang),en_US)
 # Copy preprocessed wix and change source paths to be relative.  Stuff not in ../bin needs copying.
@@ -623,6 +657,7 @@ $(if-expr "$(lang)" != "en_US",, \
                \
 		-e 's,$(subst /,\\,$(PATH_ROOT))\\doc\\,files-VirtualBox_$(lang)\\,g' \
 		-e 's,$(subst /,\\,$(VBOX_PATH_WIN_INST_SRC))\\Binary\\,files-VirtualBox_$(lang)\\,g' \
+		-e 's,$(subst /,\\,$(VBOX_WIN_INST_OUT_DIR))\\,,g' \
 		-e 's,$(subst /,\\,$(dir $(VBOX_WINDOWS_ICON_FILE))),files-VirtualBox_$(lang)\\,g' \
 		--output "$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).wix" \
 		"$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wix"
@@ -637,7 +672,7 @@ $(if-expr "$(lang)" != "en_US",, \
 		-e 's,^.*"\($(PATH_ROOT)/doc/[^"]*\)".*$$(DOLLAR),\1,p' \
 		-e 's,^.*"\($(VBOX_PATH_WIN_INST_SRC)/Binary/[^"]*\)".*$$(DOLLAR),\1,p' \
 		-e 's,^.*"\($(dir $(VBOX_WINDOWS_ICON_FILE))[^"]*\)".*$$(DOLLAR),\1,p' \
-               --output "$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).files" \
+		--output "$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).files" \
 		"$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wix"
 	set -xe && for file in  `$(CAT_EXT) "$(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).files"`; \
 		do $(CP_EXT) -f -- "$$(DOLLAR){file}" "$(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/"; done
@@ -648,6 +683,7 @@ $(if-expr "$(lang)" != "en_US",, \
 		'$(VBOX_PATH_WIX)/candle.exe VirtualBox_$(lang).wix ^' \
 		'  -ext $(VBOX_PATH_WIX)/WixUIExtension.dll ^' \
 		'  -ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll ^' \
+		'  -ext $(VBOX_PATH_WIX)/WixUtilExtension.dll ^' \
 		'  -out $$(@F) || exit /b1' \
                ) \
                '@echo Created: $$(@F)'
@@ -663,8 +699,7 @@ $(if-expr "$(lang)" != "en_US",, \
 	$(QUIET)$(APPEND) -n '$$@.dep' '' 'endef'
  endif
 
-$(eval BLDDIRS += $(VBOX_WIN_INST_REPACK_DIR)/files-VirtualBox_$(lang)/)
-$(eval OTHER_CLEAN += $(VBOX_REPACK_FILES_VirtualBox_$(lang)) $(VBOX_WIN_INST_REPACK_DIR)/VirtualBox_$(lang).files $(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj.dep)
+$(eval OTHER_CLEAN += $(VBOX_REPACK_FILES_VirtualBox_$(lang)))
 endef
 
 $(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
@@ -674,7 +709,7 @@ $(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
 # MSM (merge module) compile.
 #
 define def_vbox_compile_msm
-includedep $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj
+includedep $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj.dep
 $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj \
 + $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wix \
 $(if-expr "$(lang)" != "en_US",, \
@@ -693,7 +728,7 @@ $(if-expr "$(lang)" != "en_US",, \
 		$(VBOX_MSI_DEPENDENCIES) \
 		$(VBOX_VERSION_STAMP) \
 		| $$$$(dir $$$$@) $(VBOX_WIN_INST_REPACK_DIR)/
-	$(QUIET)$(RM) -f -- "$@" "$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wix" "$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).wix"
+	$(QUIET)$(RM) -f -- "$$@" "$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wix" "$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).wix"
 	$(REDIRECT) \
 		-E 'PATH_OUT=$(subst /,\,$(PATH_OUT))' \
 		-E 'PATH_TARGET=$(subst /,\,$(VBOX_WIN_INST_OUT_DIR))' \
@@ -754,18 +789,24 @@ $(if-expr "$(lang)" != "en_US",, \
 		$(VBOX_PATH_WIX)/candle.exe $(filter-out $(VBOX_VERSION_STAMP),$$<) \
 			-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
 			-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+			-ext $(VBOX_PATH_WIX)/WixUtilExtension.dll \
 			-p$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wix
 	$(VBOX_PATH_WIX)/candle.exe $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wix \
 		-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
 		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+		-ext $(VBOX_PATH_WIX)/WixUtilExtension.dll \
 		-out $$@
  ifeq ($(lang),en_US)
+# Copy preprocessed wix and change source paths to be relative.  Stuff not in ../bin needs copying.
 	$(SED)	-e 's,$(subst /,\\,$(PATH_OUT))\\bin,..\\bin,g' \
-		-e 's,$(subst /,\\,$(PATH_ROOT))\\doc\\,files-VirtualBox_$(lang)\\,g' \
-		-e 's,$(subst /,\\,$(VBOX_PATH_WIN_INST_SRC))\\Binary\\,files-VirtualBox_$(lang)\\,g' \
-		-e 's,$(subst /,\\,$(dir $(VBOX_WINDOWS_ICON_FILE))),files-VirtualBox_$(lang)\\,g' \
+		-e 's,$(subst /,\\,$(PATH_OUT_BASE))\\win.amd64\\$(KBUILD_TYPE)\\bin,..\\..\\..\\win.amd64\\$(KBUILD_TYPE)\\bin,g' \
+		-e 's,$(subst /,\\,$(PATH_OUT_BASE))\\win.x86\\$(KBUILD_TYPE)\\bin,..\\..\\..\\win.x86\\$(KBUILD_TYPE)\\bin,g' \
+		-e 's,$(subst /,\\,$(PATH_ROOT))\\doc\\,files-VBoxMerge$(module)_$(lang)\\,g' \
+		-e 's,$(subst /,\\,$(VBOX_PATH_WIN_INST_SRC))\\Binary\\,files-VBoxMerge$(module)_$(lang)\\,g' \
+		-e 's,$(subst /,\\,$(dir $(VBOX_WINDOWS_ICON_FILE))),files-VBoxMerge$(module)_$(lang)\\,g' \
+		-e 's,$(subst /,\\,$(VBOX_PATH_WIN_INST_SRC))\\,,g' \
 		--output "$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).wix" \
-		"$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VBoxMerge$(module)_$(lang).wix"
+		"$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wix"
 	$(SED)	-n \
 		-e '/<\?ln /d' \
 		-e '/$(subst /,\\,$(PATH_ROOT))/p' \
@@ -777,20 +818,35 @@ $(if-expr "$(lang)" != "en_US",, \
 		-e 's,^.*"\($(PATH_ROOT)/doc/[^"]*\)".*$$(DOLLAR),\1,p' \
 		-e 's,^.*"\($(VBOX_PATH_WIN_INST_SRC)/Binary/[^"]*\)".*$$(DOLLAR),\1,p' \
 		-e 's,^.*"\($(dir $(VBOX_WINDOWS_ICON_FILE))[^"]*\)".*$$(DOLLAR),\1,p' \
-               --output "$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).files" \
-		"$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VBoxMerge$(module)_$(lang).wix"
+		--output "$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).files" \
+		"$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wix"
 	$(MKDIR) -p -- "$(VBOX_WIN_INST_REPACK_DIR)/files-VBoxMerge$(module)_$(lang)/"
 	set -xe && for file in  `$(CAT_EXT) "$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).files"`; \
 		do $(CP_EXT) -f -- "$$(DOLLAR){file}" "$(VBOX_WIN_INST_REPACK_DIR)/files-VBoxMerge$(module)_$(lang)/"; done
-## @todo repack script
+# Create repack script for this step.
+	$(APPEND) -tn "$(VBOX_WIN_INST_REPACK_DIR)/1-compile-VBoxMerge$(module)_$(lang).cmd" \
+       	'if ".%KBUILD_DEVTOOLS%" == "." (echo KBUILD_DEVTOOLS is not set & exit /b1)' \
+		$(subst $(KBUILD_DEVTOOLS),%KBUILD_DEVTOOLS%,\
+		'$(VBOX_PATH_WIX)/candle.exe VBoxMerge$(module)_$(lang).wix ^' \
+		'  -ext $(VBOX_PATH_WIX)/WixUIExtension.dll ^'\
+		'  -ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll ^' \
+		'  -ext $(VBOX_PATH_WIX)/WixUtilExtension.dll ^' \
+		'  -out $$(@F) || exit /b1' \
+               ) \
+               '@echo Created: $$(@F)'
  endif
-# Generate wxi dependencies based on the sourceLineNumber references in the output.
+# Generate wxi dependencies based on the sourceLineNumber references in the output.  Add repack file list for cleanup.
 	$(QUIET)$(APPEND) -t '$$@.dep' '$$@: \'
 	$(QUIET)$(VBOX_XSLTPROC) $(VBOX_PATH_WIN_INST_SRC)/dep.xsl "$$@" >> "$$@.dep"
 	$(QUIET)$(VBOX_XSLTPROC) $(VBOX_PATH_WIN_INST_SRC)/dep2.xsl "$$@" | sort  | $(SED) '$!N; /^\(.*\)\n\1$$$$/!P; D' >> "$$@.dep"
 	$(QUIET)$(APPEND) -n '$$@.dep' '' ''
+ ifeq ($(lang),en_US)
+	$(QUIET)$(APPEND) -n '$$@.dep' 'define VBOX_REPACK_FILES_VBoxMerge$(module)_$(lang)'
+	$(QUIET)$(CAT_EXT) "$(VBOX_WIN_INST_REPACK_DIR)/VBoxMerge$(module)_$(lang).files" >> '$$@.dep'
+	$(QUIET)$(APPEND) -n '$$@.dep' '' 'endef'
+ endif
 
-$(eval OTHER_CLEAN += $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj)
+$(eval OTHER_CLEAN += $(VBOX_REPACK_FILES_VBoxMerge$(module)_$(lang)))
 endef
 
 $(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
@@ -888,6 +944,7 @@ $(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(lang).mst \
 		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
 		-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
 		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+		-ext $(VBOX_PATH_WIX)/WixUtilExtension.dll \
                $(if-expr defined(VBOX_WITH_MSI_HACK),-ext $(MsiHack_0_OUTDIR)/MsiHackExtension.dll,) \
 		$(VBOX_MSI_ICE_IGNORE) \
 		-out $$(@D)/$(PACKAGE_NAME_LANG)_$(lang).msi \
@@ -1014,6 +1071,7 @@ RePackScripts_SOURCES = \
 	$(RePackScripts_0_OUTDIR)/PackDriversForSubmission.cmd \
 	$(RePackScripts_0_OUTDIR)/sign-dual.cmd \
 	$(RePackScripts_0_OUTDIR)/sign-sha1.cmd \
+	$(if-expr defined(VBOX_SIGN_EV_FILE_FN),$(RePackScripts_0_OUTDIR)/sign-ev.cmd,) \
 	$(RePackScripts_0_OUTDIR)/VMMR0.inf \
 	$(RePackScripts_0_OUTDIR)/VBoxExtPackPuel.inf
 if !defined(VBOX_WITH_COMBINED_PACKAGE) || "$(KBUILD_TARGET_ARCH)" == "x86"
@@ -1029,6 +1087,7 @@ RePackScripts_CLEAN = \
 	$(RePackScripts_0_OUTDIR)/PackDriversForSubmission.cmd \
 	$(RePackScripts_0_OUTDIR)/sign-dual.cmd \
 	$(RePackScripts_0_OUTDIR)/sign-sha1.cmd \
+	$(RePackScripts_0_OUTDIR)/sign-ev.cmd \
 	$(RePackScripts_0_OUTDIR)/VMMR0.inf \
 	$(RePackScripts_0_OUTDIR)/VBoxExtPackPuel.inf
 
@@ -1053,6 +1112,18 @@ $$(RePackScripts_0_OUTDIR)/sign-sha1.cmd: | $$(dir $$@)
 		'if ".%1" == "." (echo No .cat file specified & exit /b 1)' \
 		$(subst $(KBUILD_BIN_PATH),%KBUILD_BIN_PATH%,$(subst $(KBUILD_DEVTOOLS),%KBUILD_DEVTOOLS%, \
 		'( $(call VBOX_SIGN_FILE_FN,%1,$(VBOX_PRODUCT) $(VBOX_VERSION_STRING)r$(VBOX_SVN_REV) ($(KBUILD_TARGET_ARCH)),,,disable-dual-signing,&&) ) || exit /b1' \
+		) )
+
+$$(RePackScripts_0_OUTDIR)/sign-ev.cmd: | $$(dir $$@)
+	# The %~dp1\ oddity is working around otherwise ending with \" during
+	# expansion of the CCS command line which for a reason I cannot immediately
+	# understand appends a " to the path.
+	$(APPEND) -nt "$@" \
+		'if ".%KBUILD_DEVTOOLS%" == "." (echo KBUILD_DEVTOOLS is not set & exit /b 1)' \
+		'if ".%KBUILD_BIN_PATH%" == "." (echo KBUILD_BIN_PATH is not set & exit /b 1)' \
+		'if ".%1" == "." (echo No .cab file specified & exit /b 1)' \
+		$(subst $(KBUILD_BIN_PATH),%KBUILD_BIN_PATH%,$(subst $(KBUILD_DEVTOOLS),%KBUILD_DEVTOOLS%, \
+		'( $(call VBOX_SIGN_EV_FILE_FN,%1,%~dp1\) ) || exit /b1' \
 		) )
 
 $$(RePackScripts_0_OUTDIR)/VMMR0.inf: $(PATH_SUB_CURRENT)/Scripts/VMMR0.inf $(MAKEFILE_CURRENT) | $$(dir $$@)

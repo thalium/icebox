@@ -319,9 +319,10 @@ RTDECL(int) RTFsIsoMakerObjSetPath(RTFSISOMAKER hIsoMaker, uint32_t idxObj, uint
  * @param   fNamespaces         The namespaces to apply the path to
  *                              (RTFSISOMAKER_NAMESPACE_XXX).
  * @param   pszName             The name.
+ * @param   fNoNormalize        Don't normalize the name (imported or such).
  */
 RTDECL(int) RTFsIsoMakerObjSetNameAndParent(RTFSISOMAKER hIsoMaker, uint32_t idxObj, uint32_t idxParentObj,
-                                            uint32_t fNamespaces, const char *pszName);
+                                            uint32_t fNamespaces, const char *pszName, bool fNoNormalize);
 
 /**
  * Changes the rock ridge name for the object in the selected namespaces.

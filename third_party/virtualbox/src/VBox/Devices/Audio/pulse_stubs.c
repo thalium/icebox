@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2018 Oracle Corporation
+ * Copyright (C) 2006-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -19,7 +19,7 @@
 #include <iprt/assert.h>
 #include <iprt/ldr.h>
 #include <VBox/log.h>
-#include <VBox/err.h>
+#include <iprt/err.h>
 
 #include <pulse/pulseaudio.h>
 
@@ -345,4 +345,3 @@ int audioLoadPulseLib(void)
     isLibLoaded = YES;
     return rc;
 }
-

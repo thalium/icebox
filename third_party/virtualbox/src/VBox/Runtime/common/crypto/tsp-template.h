@@ -54,18 +54,23 @@ RTASN1TMPL_END_SEQCORE();
 
 /*
  * Accuracy
+ *
+ * Note! Capping second accuracy at an hour to reduce chance exploiting this
+ *       field to tinker with a signed structure.  The RFC does not specify
+ *       any upper limit.
+ *
+ * Note! Allowing a zero value for the 'millis' field because we've seen symantec
+ *       return that when 'micros' is present.  The RFC seems to want the TSA to
+ *       omit the field if its value is zero.
  */
 #define RTASN1TMPL_TYPE         RTCRTSPACCURACY
 #define RTASN1TMPL_EXT_NAME     RTCrTspAccuracy
 #define RTASN1TMPL_INT_NAME     rtCrTspAccuracy
 RTASN1TMPL_BEGIN_SEQCORE();
 RTASN1TMPL_MEMBER_OPT_ITAG_EX(  Seconds, RTASN1INTEGER, RTAsn1Integer, ASN1_TAG_INTEGER, RTASN1TMPL_ITAG_F_UP,
-                                RTASN1TMPL_MEMBER_CONSTR_U64_MIN_MAX(Seconds, 0, UINT64_MAX, RT_NOTHING));
-/** @todo The Millis and Micros fields makes no sense if Seconds > 1, while the
- *        Micros field makes no sense with Millis > 1.  Add constraints
- *        expressing this dependency. */
+                                RTASN1TMPL_MEMBER_CONSTR_U64_MIN_MAX(Seconds, 0, 3600, RT_NOTHING));
 RTASN1TMPL_MEMBER_OPT_ITAG_EX(  Millis,     RTASN1INTEGER,  RTAsn1Integer, 0, RTASN1TMPL_ITAG_F_CP,
-                                RTASN1TMPL_MEMBER_CONSTR_U64_MIN_MAX(Millis, 1, 999, RT_NOTHING));
+                                RTASN1TMPL_MEMBER_CONSTR_U64_MIN_MAX(Millis, 0, 999, RT_NOTHING));
 RTASN1TMPL_MEMBER_OPT_ITAG_EX(  Micros,     RTASN1INTEGER,  RTAsn1Integer, 1, RTASN1TMPL_ITAG_F_CP,
                                 RTASN1TMPL_MEMBER_CONSTR_U64_MIN_MAX(Micros, 1, 999, RT_NOTHING));
 RTASN1TMPL_END_SEQCORE();

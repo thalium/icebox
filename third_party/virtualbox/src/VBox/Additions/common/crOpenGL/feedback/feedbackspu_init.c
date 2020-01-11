@@ -5,7 +5,6 @@
  */
 
 #include "cr_spu.h"
-#include "cr_environment.h"
 #include "cr_string.h"
 #include "cr_error.h"
 #include "cr_mem.h"
@@ -31,10 +30,7 @@ static SPUFunctions *feedbackSPUInit( int id, SPU *child, SPU *self,
 	(void) context_id;
 	(void) num_contexts;
 
-#ifdef CHROMIUM_THREADSAFE
     crInitMutex(&feedback_spu.mutex);
-#endif
-
 	feedback_spu.id = id;
 	feedback_spu.has_child = 0;
 	if (child)
@@ -48,10 +44,10 @@ static SPUFunctions *feedbackSPUInit( int id, SPU *child, SPU *self,
 	feedbackspuGatherConfiguration();
 
 	/* create/init default state tracker */
-	crStateInit();
+	crStateInit(&feedback_spu.StateTracker);
 
-    feedback_spu.defaultctx = crStateCreateContext(NULL, 0, NULL);
-    crStateSetCurrent(feedback_spu.defaultctx);
+    feedback_spu.defaultctx = crStateCreateContext(&feedback_spu.StateTracker, NULL, 0, NULL);
+    crStateSetCurrent(&feedback_spu.StateTracker, feedback_spu.defaultctx);
 
     feedback_spu.numContexts = 0;
     crMemZero(feedback_spu.context, CR_MAX_CONTEXTS * sizeof(ContextInfo));
@@ -70,17 +66,18 @@ static int feedbackSPUCleanup(void)
 	return 1;
 }
 
-int SPULoad( char **name, char **super, SPUInitFuncPtr *init,
-	     SPUSelfDispatchFuncPtr *self, SPUCleanupFuncPtr *cleanup,
-	     SPUOptionsPtr *options, int *flags )
+DECLHIDDEN(const SPUREG) g_FeedbackSpuReg =
 {
-	*name = "feedback";
-	*super = "passthrough";
-	*init = feedbackSPUInit;
-	*self = feedbackSPUSelfDispatch;
-	*cleanup = feedbackSPUCleanup;
-	*options = feedbackSPUOptions;
-	*flags = (SPU_NO_PACKER|SPU_NOT_TERMINAL|SPU_MAX_SERVERS_ZERO);
-
-	return 1;
-}
+    /** pszName. */
+    "feedback",
+    /** pszSuperName. */
+    "passthrough",
+    /** fFlags. */
+    SPU_NO_PACKER | SPU_NOT_TERMINAL | SPU_MAX_SERVERS_ZERO,
+    /** pfnInit. */
+    feedbackSPUInit,
+    /** pfnDispatch. */
+    feedbackSPUSelfDispatch,
+    /** pfnCleanup. */
+    feedbackSPUCleanup
+};

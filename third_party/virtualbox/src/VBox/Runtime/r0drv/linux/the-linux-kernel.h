@@ -119,6 +119,9 @@
 # include <linux/cpu.h>
 # include <linux/notifier.h>
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0)
+# include <uapi/linux/mman.h>
+#endif
 /* For the basic additions module */
 #include <linux/pci.h>
 #include <linux/delay.h>
@@ -448,5 +451,13 @@ typedef struct tq_struct    RTR0LNXWORKQUEUEITEM;
 DECLHIDDEN(void) rtR0LnxWorkqueuePush(RTR0LNXWORKQUEUEITEM *pWork, void (*pfnWorker)(RTR0LNXWORKQUEUEITEM *));
 DECLHIDDEN(void) rtR0LnxWorkqueueFlush(void);
 
+/*
+ * Guest Additions changes specific to Red Hat 8.1 and later.
+ */
+#ifdef RHEL_RELEASE_CODE
+# if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8, 1)
+#  define RHEL_81
+# endif
+#endif
 
 #endif

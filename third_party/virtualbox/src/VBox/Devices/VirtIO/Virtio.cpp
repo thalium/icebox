@@ -308,17 +308,6 @@ void vqueueSync(PVPCISTATE pState, PVQUEUE pQueue)
     vqueueNotify(pState, pQueue);
 }
 
-void vpciReset(PVPCISTATE pState)
-{
-    pState->uGuestFeatures = 0;
-    pState->uQueueSelector = 0;
-    pState->uStatus        = 0;
-    pState->uISR           = 0;
-
-    for (unsigned i = 0; i < pState->nQueues; i++)
-        vqueueReset(&pState->Queues[i]);
-}
-
 
 /**
  * Raise interrupt.
@@ -354,6 +343,23 @@ static void vpciLowerInterrupt(VPCISTATE *pState)
     LogFlow(("%s vpciLowerInterrupt\n", INSTANCE(pState)));
     PDMDevHlpPCISetIrq(pState->CTX_SUFF(pDevIns), 0, 0);
 }
+
+
+void vpciReset(PVPCISTATE pState)
+{
+    /* No interrupts should survive device reset, see @bugref(9556). */
+    if (pState->uISR)
+        vpciLowerInterrupt(pState);
+
+    pState->uGuestFeatures = 0;
+    pState->uQueueSelector = 0;
+    pState->uStatus        = 0;
+    pState->uISR           = 0;
+
+    for (unsigned i = 0; i < pState->nQueues; i++)
+        vqueueReset(&pState->Queues[i]);
+}
+
 
 DECLINLINE(uint32_t) vpciGetHostFeatures(PVPCISTATE pState,
                                          PFNGETHOSTFEATURES pfnGetHostFeatures)

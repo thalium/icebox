@@ -297,8 +297,7 @@ static int vboxfb_create(struct drm_fb_helper *helper,
 	 * The last flag forces a mode set on VT switches even if the kernel
 	 * does not think it is needed.
 	 */
-	info->flags = FBINFO_DEFAULT | FBINFO_CAN_FORCE_OUTPUT |
-		      FBINFO_MISC_ALWAYS_SETPAR;
+	info->flags = FBINFO_DEFAULT | FBINFO_MISC_ALWAYS_SETPAR;
 	info->fbops = &vboxfb_ops;
 
 	ret = fb_alloc_cmap(&info->cmap, 256, 0);
@@ -317,13 +316,17 @@ static int vboxfb_create(struct drm_fb_helper *helper,
 	info->fix.smem_start = 0;
 	info->fix.smem_len = size;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+	drm_fb_helper_fill_info(info, &fbdev->helper, sizes);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
 	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
 #else
 	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->depth);
 #endif
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
 	drm_fb_helper_fill_var(info, &fbdev->helper, sizes->fb_width,
 			       sizes->fb_height);
+#endif
 
 	info->screen_base = bo->kmap.virtual;
 	info->screen_size = size;
@@ -371,7 +374,7 @@ static void vbox_fbdev_destroy(struct drm_device *dev, struct vbox_fbdev *fbdev)
 				vbox_bo_unpin(bo);
 			vbox_bo_unreserve(bo);
 		}
-		drm_gem_object_unreference_unlocked(afb->obj);
+		drm_gem_object_put_unlocked(afb->obj);
 		afb->obj = NULL;
 	}
 	drm_fb_helper_fini(&fbdev->helper);

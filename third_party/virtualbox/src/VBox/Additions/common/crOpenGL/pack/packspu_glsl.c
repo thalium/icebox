@@ -32,22 +32,10 @@ GLuint PACKSPU_APIENTRY packspu_CreateProgram(void)
     {
         crError("packspu_CreateProgram doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!");
     }
-    if (pack_spu.swap)
-    {
-        crPackCreateProgramSWAP(&return_val, &writeback);
-    }
-    else
-    {
-        crPackCreateProgram(&return_val, &writeback);
-    }
+    crPackCreateProgram(&return_val, &writeback);
     packspuFlush((void *) thread);
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
-    if (pack_spu.swap)
-    {
-        return_val = (GLuint) SWAP32(return_val);
-    }
-
-    crStateCreateProgram(return_val);
+    crStateCreateProgram(&pack_spu.StateTracker, return_val);
 
     return return_val;
 }
@@ -61,26 +49,16 @@ static GLint packspu_GetUniformLocationUncached(GLuint program, const char * nam
     {
         crError("packspu_GetUniformLocation doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!");
     }
-    if (pack_spu.swap)
-    {
-        crPackGetUniformLocationSWAP(program, name, &return_val, &writeback);
-    }
-    else
-    {
-        crPackGetUniformLocation(program, name, &return_val, &writeback);
-    }
+
+    crPackGetUniformLocation(program, name, &return_val, &writeback);
     packspuFlush((void *) thread);
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
-    if (pack_spu.swap)
-    {
-        return_val = (GLint) SWAP32(return_val);
-    }
     return return_val;
 }
 
 GLint PACKSPU_APIENTRY packspu_GetUniformLocation(GLuint program, const char * name)
 {
-    if (!crStateIsProgramUniformsCached(program))
+    if (!crStateIsProgramUniformsCached(&pack_spu.StateTracker, program))
     {
         GET_THREAD(thread);
         int writeback = 1;
@@ -103,15 +81,15 @@ GLint PACKSPU_APIENTRY packspu_GetUniformLocation(GLuint program, const char * n
         packspuFlush((void *) thread);
         CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
 
-        crStateGLSLProgramCacheUniforms(program, pData[0], &pData[1]);
+        crStateGLSLProgramCacheUniforms(&pack_spu.StateTracker, program, pData[0], &pData[1]);
 
-        CRASSERT(crStateIsProgramUniformsCached(program));
+        CRASSERT(crStateIsProgramUniformsCached(&pack_spu.StateTracker, program));
 
         crFree(pData);
     }
 
     /*crDebug("packspu_GetUniformLocation(%d, %s)=%i", program, name, crStateGetUniformLocation(program, name));*/
-    return crStateGetUniformLocation(program, name);
+    return crStateGetUniformLocation(&pack_spu.StateTracker, program, name);
 }
 
 static GLint PACKSPU_APIENTRY packspu_GetAttribLocationUnchached( GLuint program, const char * name )
@@ -123,20 +101,10 @@ static GLint PACKSPU_APIENTRY packspu_GetAttribLocationUnchached( GLuint program
     {
         crError( "packspu_GetAttribLocation doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!" );
     }
-    if (pack_spu.swap)
-    {
-        crPackGetAttribLocationSWAP( program, name, &return_val, &writeback );
-    }
-    else
-    {
-        crPackGetAttribLocation( program, name, &return_val, &writeback );
-    }
+
+    crPackGetAttribLocation( program, name, &return_val, &writeback );
     packspuFlush( (void *) thread );
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
-    if (pack_spu.swap)
-    {
-        return_val = (GLint) SWAP32(return_val);
-    }
     return return_val;
 }
 
@@ -145,7 +113,7 @@ GLint PACKSPU_APIENTRY packspu_GetAttribLocation(GLuint program, const char * na
     if (!(CR_VBOX_CAP_GETATTRIBSLOCATIONS & g_u32VBoxHostCaps))
         return packspu_GetAttribLocationUnchached(program, name);
 
-    if (!crStateIsProgramAttribsCached(program))
+    if (!crStateIsProgramAttribsCached(&pack_spu.StateTracker, program))
     {
         GET_THREAD(thread);
         int writeback = 1;
@@ -168,15 +136,15 @@ GLint PACKSPU_APIENTRY packspu_GetAttribLocation(GLuint program, const char * na
         packspuFlush((void *) thread);
         CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
 
-        crStateGLSLProgramCacheAttribs(program, pData[0], &pData[1]);
+        crStateGLSLProgramCacheAttribs(&pack_spu.StateTracker, program, pData[0], &pData[1]);
 
-        CRASSERT(crStateIsProgramAttribsCached(program));
+        CRASSERT(crStateIsProgramAttribsCached(&pack_spu.StateTracker, program));
 
         crFree(pData);
     }
 
     /*crDebug("packspu_GetAttribLocation(%d, %s)=%i", program, name, crStateGetAttribLocation(program, name));*/
-    return crStateGetAttribLocation(program, name);
+    return crStateGetAttribLocation(&pack_spu.StateTracker, program, name);
 }
 
 void PACKSPU_APIENTRY packspu_GetUniformsLocations(GLuint program, GLsizei maxcbData, GLsizei * cbData, GLvoid * pData)
@@ -199,13 +167,13 @@ void PACKSPU_APIENTRY packspu_GetAttribsLocations(GLuint program, GLsizei maxcbD
 
 void PACKSPU_APIENTRY packspu_DeleteProgram(GLuint program)
 {
-    crStateDeleteProgram(program);
+    crStateDeleteProgram(&pack_spu.StateTracker, program);
     crPackDeleteProgram(program);
 }
 
 void PACK_APIENTRY packspu_DeleteObjectARB(VBoxGLhandleARB obj)
 {
-    GLuint hwid = crStateGetProgramHWID(obj);
+    GLuint hwid = crStateGetProgramHWID(&pack_spu.StateTracker, obj);
 
     CRASSERT(obj);
 
@@ -213,7 +181,7 @@ void PACK_APIENTRY packspu_DeleteObjectARB(VBoxGLhandleARB obj)
      * this is why we only care about programs here */
     if (hwid)
     {
-        crStateDeleteProgram(obj);
+        crStateDeleteProgram(&pack_spu.StateTracker, obj);
     }
 
     crPackDeleteObjectARB(obj);
@@ -237,7 +205,7 @@ void PACKSPU_APIENTRY packspu_LinkProgram(GLuint program)
     GLint linkStatus = 0;
 #endif
 
-    crStateLinkProgram(program);
+    crStateLinkProgram(&pack_spu.StateTracker, program);
     crPackLinkProgram(program);
 
 #ifdef VBOX_WITH_CRPACKSPU_DUMPER
@@ -245,7 +213,7 @@ void PACKSPU_APIENTRY packspu_LinkProgram(GLuint program)
     Assert(linkStatus);
     if (!linkStatus)
     {
-        CRContext *ctx = crStateGetCurrent();
+        CRContext *ctx = crStateGetCurrent(&pack_spu.StateTracker);
         packspu_RecCheckInitRec();
         crRecDumpProgram(&pack_spu.Recorder, ctx, program, program);
     }
@@ -266,7 +234,7 @@ void PACKSPU_APIENTRY packspu_CompileShader(GLuint shader)
     Assert(compileStatus);
     if (!compileStatus)
     {
-        CRContext *ctx = crStateGetCurrent();
+        CRContext *ctx = crStateGetCurrent(&pack_spu.StateTracker);
         packspu_RecCheckInitRec();
         crRecDumpShader(&pack_spu.Recorder, ctx, shader, shader);
     }

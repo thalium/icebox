@@ -49,6 +49,18 @@
 #include <linux/string.h>
 
 #if defined(RHEL_MAJOR) && defined(RHEL_MINOR)
+# if RHEL_MAJOR == 8 && RHEL_MINOR >= 1
+#  define RHEL_81
+# endif
+# if RHEL_MAJOR == 8 && RHEL_MINOR >= 0
+#  define RHEL_80
+# endif
+# if RHEL_MAJOR == 7 && RHEL_MINOR >= 7
+#  define RHEL_77
+# endif
+# if RHEL_MAJOR == 7 && RHEL_MINOR >= 6
+#  define RHEL_76
+# endif
 # if RHEL_MAJOR == 7 && RHEL_MINOR >= 5
 #  define RHEL_75
 # endif
@@ -66,6 +78,12 @@
 # endif
 # if RHEL_MAJOR == 7 && RHEL_MINOR >= 0
 #  define RHEL_70
+# endif
+#endif
+
+#if defined(CONFIG_SUSE_VERSION)
+# if CONFIG_SUSE_VERSION == 15 && CONFIG_SUSE_PATCHLEVEL == 1
+#  define OPENSUSE_151
 # endif
 #endif
 
@@ -104,6 +122,20 @@
 #include "hgsmi_ch_setup.h"
 
 #include "product-generated.h"
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0) && !defined(RHEL_75)
+static inline void drm_gem_object_put_unlocked(struct drm_gem_object *obj)
+{
+	drm_gem_object_unreference_unlocked(obj);
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0) && !defined(RHEL_75)
+static inline void drm_gem_object_put(struct drm_gem_object *obj)
+{
+	drm_gem_object_unreference(obj);
+}
+#endif
 
 #define DRIVER_AUTHOR       VBOX_VENDOR
 
@@ -155,8 +187,10 @@ struct vbox_private {
 	int fb_mtrr;
 
 	struct {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0) && !defined(RHEL_77) && !defined(RHEL_81)
 		struct drm_global_reference mem_global_ref;
 		struct ttm_bo_global_ref bo_global_ref;
+#endif
 		struct ttm_bo_device bdev;
 		bool mm_initialised;
 	} ttm;

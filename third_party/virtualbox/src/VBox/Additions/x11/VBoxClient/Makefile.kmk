@@ -36,6 +36,7 @@ VBoxClient_SOURCES = \
   	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/x11-clipboard.cpp \
 	clipboard.cpp \
 	display-svga.cpp \
+	display-svga-x11.cpp \
 	seamless.cpp \
 	seamless-x11.cpp \
 	display.cpp \

@@ -32,13 +32,12 @@ typedef struct VBOXWDDM_ALLOCATION *PVBOXWDDM_ALLOCATION;
 #include "VBoxMPShgsmi.h"
 #include "VBoxMPVbva.h"
 #include "VBoxMPCr.h"
+#include "VBoxMPSa.h"
 #include "VBoxMPVModes.h"
 
 #ifdef VBOX_WITH_CROGL
 #include <cr_vreg.h>
 #endif
-
-#include <cr_sortarray.h>
 
 #if 0
 #include <iprt/avl.h>
@@ -83,7 +82,6 @@ typedef struct _VBOXWDDM_POINTER_INFO
 typedef struct _VBOXWDDM_GLOBAL_POINTER_INFO
 {
     uint32_t iLastReportedScreen;
-    uint32_t cVisible;
 } VBOXWDDM_GLOBAL_POINTER_INFO, *PVBOXWDDM_GLOBAL_POINTER_INFO;
 
 #ifdef VBOX_WITH_VIDEOHWACCEL

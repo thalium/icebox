@@ -25,6 +25,8 @@ else # ! KBUILD_EXTMOD
 
 KBUILD_VERBOSE =
 
+all: vboxguest vboxsf vboxvideo
+
 vboxguest:
 	@echo "=== Building 'vboxguest' module ==="
 	@$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxguest
@@ -64,8 +66,6 @@ vboxvideo:
 	    fi; \
 	    echo; \
 	fi
-
-all: vboxguest vboxsf vboxvideo
 
 install:
 	@$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxguest install

@@ -12,7 +12,7 @@
 void crStateLineInit (CRContext *ctx)
 {
 	CRLineState *l = &ctx->line;
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
 	CRLineBits *lb = &(sb->line);
 
 	l->lineSmooth = GL_FALSE;
@@ -34,16 +34,16 @@ void crStateLineInit (CRContext *ctx)
 	RESET(lb->dirty, ctx->bitid);
 }
 
-void STATE_APIENTRY crStateLineWidth(GLfloat width) 
+void STATE_APIENTRY crStateLineWidth(PCRStateTracker pState, GLfloat width) 
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRLineState *l = &(g->line);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRLineBits *lb = &(sb->line);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glLineWidth called in begin/end");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glLineWidth called in begin/end");
 		return;
 	}
 
@@ -51,7 +51,7 @@ void STATE_APIENTRY crStateLineWidth(GLfloat width)
 
 	if (width <= 0.0f) 
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "glLineWidth called with size <= 0.0: %f", width);
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "glLineWidth called with size <= 0.0: %f", width);
 		return;
 	}
 
@@ -60,16 +60,16 @@ void STATE_APIENTRY crStateLineWidth(GLfloat width)
 	DIRTY(lb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateLineStipple(GLint factor, GLushort pattern) 
+void STATE_APIENTRY crStateLineStipple(PCRStateTracker pState, GLint factor, GLushort pattern) 
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRLineState *l = &(g->line);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRLineBits *lb = &(sb->line);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 			"glLineStipple called in begin/end");
 		return;
 	}

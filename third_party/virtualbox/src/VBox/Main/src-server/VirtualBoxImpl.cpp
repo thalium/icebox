@@ -707,6 +707,10 @@ HRESULT VirtualBox::initMedia(const Guid &uuidRegistry,
         if (FAILED(rc)) return rc;
 
         rc = i_registerMedium(pHardDisk, &pHardDisk, treeLock);
+        // Avoid trouble with lock/refcount, before returning or not.
+        treeLock.release();
+        pHardDisk.setNull();
+        treeLock.acquire();
         if (FAILED(rc)) return rc;
     }
 
@@ -728,6 +732,10 @@ HRESULT VirtualBox::initMedia(const Guid &uuidRegistry,
         if (FAILED(rc)) return rc;
 
         rc = i_registerMedium(pImage, &pImage, treeLock);
+        // Avoid trouble with lock/refcount, before returning or not.
+        treeLock.release();
+        pImage.setNull();
+        treeLock.acquire();
         if (FAILED(rc)) return rc;
     }
 
@@ -749,6 +757,10 @@ HRESULT VirtualBox::initMedia(const Guid &uuidRegistry,
         if (FAILED(rc)) return rc;
 
         rc = i_registerMedium(pImage, &pImage, treeLock);
+        // Avoid trouble with lock/refcount, before returning or not.
+        treeLock.release();
+        pImage.setNull();
+        treeLock.acquire();
         if (FAILED(rc)) return rc;
     }
 
@@ -916,10 +928,8 @@ HRESULT VirtualBox::getAPIRevision(LONG64 *aAPIRevision)
     AssertCompile(VBOX_VERSION_MAJOR < 128 && VBOX_VERSION_MAJOR > 0);
     AssertCompile((uint64_t)VBOX_VERSION_MINOR < 256);
     uint64_t uRevision = ((uint64_t)VBOX_VERSION_MAJOR << 56)
-                       | ((uint64_t)VBOX_VERSION_MINOR << 48);
-
-    if (VBOX_VERSION_BUILD >= 51 && (VBOX_VERSION_BUILD & 1)) /* pre-release trunk */
-        uRevision |= (uint64_t)VBOX_VERSION_BUILD << 40;
+                       | ((uint64_t)VBOX_VERSION_MINOR << 48)
+                       | ((uint64_t)VBOX_VERSION_BUILD << 40);
 
     /** @todo This needs to be the same in OSE and non-OSE, preferrably
      *        only changing when actual API changes happens. */
@@ -4698,7 +4708,7 @@ void VirtualBox::i_markRegistryModified(const Guid &uuid)
         if (SUCCEEDED(rc))
         {
             AutoCaller machineCaller(pMachine);
-            if (SUCCEEDED(machineCaller.rc()))
+            if (SUCCEEDED(machineCaller.rc()) && pMachine->i_isAccessible())
                 ASMAtomicIncU64(&pMachine->uRegistryNeedsSaving);
         }
     }

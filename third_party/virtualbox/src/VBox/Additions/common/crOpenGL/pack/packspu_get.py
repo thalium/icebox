@@ -48,33 +48,12 @@ static GLboolean crPackIsPixelStoreParm(GLenum pname)
 }
 """)
 
+print('#ifdef DEBUG');
 from get_sizes import *
-
-easy_swaps = {
-    'GenTextures': '(unsigned int) n',
-    'GetClipPlane': '4',
-    'GetPolygonStipple': '0'
-}
+print('#endif');
 
 simple_funcs = [ 'GetIntegerv', 'GetFloatv', 'GetDoublev', 'GetBooleanv' ]
-simple_swaps = [ 'SWAP32', 'SWAPFLOAT', 'SWAPDOUBLE', '(GLboolean) SWAP32' ]
-
 vertattr_get_funcs = [ 'GetVertexAttribdv' 'GetVertexAttribfv' 'GetVertexAttribiv' ]
-
-hard_funcs = {
-    'GetLightfv': 'SWAPFLOAT',
-    'GetLightiv': 'SWAP32',
-    'GetMaterialfv': 'SWAPFLOAT',
-    'GetMaterialiv': 'SWAP32',
-    'GetTexEnvfv': 'SWAPFLOAT',
-    'GetTexEnviv': 'SWAP32',
-    'GetTexGendv': 'SWAPDOUBLE',
-    'GetTexGenfv': 'SWAPFLOAT',
-    'GetTexGeniv': 'SWAP32',
-    'GetTexLevelParameterfv': 'SWAPFLOAT',
-    'GetTexLevelParameteriv': 'SWAP32',
-    'GetTexParameterfv': 'SWAPFLOAT',
-    'GetTexParameteriv': 'SWAP32' }
 
 keys = apiutil.GetDispatchedFunctions(sys.argv[1]+"/APIspec.txt")
 
@@ -92,8 +71,6 @@ for func_name in keys:
         if return_type != 'void':
             print('\t%s return_val = (%s) 0;' % (return_type, return_type))
             params.append( ("&return_val", "foo", 0) )
-        if (func_name in easy_swaps and easy_swaps[func_name] != '0') or func_name in simple_funcs or func_name in hard_funcs:
-            print('\tunsigned int i;')
         print('\tif (!CRPACKSPU_IS_WDDM_CRHGSMI() && !(pack_spu.thread[pack_spu.idxThreadInUse].netServer.conn->actual_network))')
         print('\t{')
         print('\t\tcrError( "packspu_%s doesn\'t work when there\'s no actual network involved!\\nTry using the simplequery SPU in your chain!" );' % func_name)
@@ -137,9 +114,10 @@ for func_name in keys:
 #endif
                )
             {
+                unsigned int i = 0;
                 %s localparams;
                 localparams = (%s) crAlloc(__numValues(pname) * sizeof(*localparams));
-                crState%s(pname, localparams);
+                crState%s(&pack_spu.StateTracker, pname, localparams);
                 crPack%s(%s, &writeback);
                 packspuFlush( (void *) thread );
                 CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
@@ -157,7 +135,7 @@ for func_name in keys:
             else
 #endif
             {
-                crState%s(pname, params);
+                crState%s(&pack_spu.StateTracker, pname, params);
                 return;
             }
 
@@ -171,7 +149,7 @@ for func_name in keys:
 #ifdef DEBUG
         %s localparams;
         localparams = (%s) crAlloc(__numValues(pname) * sizeof(*localparams));
-        crState%s(index, pname, localparams);
+        crState%s(&pack_spu.StateTracker, index, pname, localparams);
         crPack%s(index, %s, &writeback);
         packspuFlush( (void *) thread );
         CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
@@ -185,21 +163,14 @@ for func_name in keys:
         }
         crFree(localparams);
 #else
-        crState%s(pname, params);
+        crState%s(&pack_spu.StateTracker, pname, params);
 #endif
         return;
     }
             """ % (params[-1][1], params[-1][1], func_name, func_name, apiutil.MakeCallString(params), func_name, func_name))
 
         params.append( ("&writeback", "foo", 0) )
-        print('\tif (pack_spu.swap)')
-        print('\t{')
-        print('\t\tcrPack%sSWAP(%s);' % (func_name, apiutil.MakeCallString( params ) ))
-        print('\t}')
-        print('\telse')
-        print('\t{')
-        print('\t\tcrPack%s(%s);' % (func_name, apiutil.MakeCallString( params ) ))
-        print('\t}')
+        print('\tcrPack%s(%s);' % (func_name, apiutil.MakeCallString( params ) ))
         print('\tpackspuFlush( (void *) thread );')
         print('\tCRPACKSPU_WRITEBACK_WAIT(thread, writeback);')
 
@@ -207,44 +178,5 @@ for func_name in keys:
 
         lastParamName = params[-2][0]
         if return_type != 'void':
-            print('\tif (pack_spu.swap)')
-            print('\t{')
-            print('\t\treturn_val = (%s) SWAP32(return_val);' % return_type)
-            print('\t}')
             print('\treturn return_val;')
-        if func_name in easy_swaps and easy_swaps[func_name] != '0':
-            limit = easy_swaps[func_name]
-            print('\tif (pack_spu.swap)')
-            print('\t{')
-            print('\t\tfor (i = 0; i < %s; i++)' % limit)
-            print('\t\t{')
-            if params[-2][1].find( "double" ) > -1:
-                print('\t\t\t%s[i] = SWAPDOUBLE(%s[i]);' % (lastParamName, lastParamName))
-            else:
-                print('\t\t\t%s[i] = SWAP32(%s[i]);' % (lastParamName, lastParamName))
-            print('\t\t}')
-            print('\t}')
-        for index in range(len(simple_funcs)):
-            if simple_funcs[index] == func_name:
-                print('\tif (pack_spu.swap)')
-                print('\t{')
-                print('\t\tfor (i = 0; i < __numValues(pname); i++)')
-                print('\t\t{')
-                if simple_swaps[index] == 'SWAPDOUBLE':
-                    print('\t\t\t%s[i] = %s(%s[i]);' % (lastParamName, simple_swaps[index], lastParamName))
-                else:
-                    print('\t\t\t((GLuint *) %s)[i] = %s(%s[i]);' % (lastParamName, simple_swaps[index], lastParamName))
-                print('\t\t}')
-                print('\t}')
-        if func_name in hard_funcs:
-            print('\tif (pack_spu.swap)')
-            print('\t{')
-            print('\t\tfor (i = 0; i < crStateHlpComponentsCount(pname); i++)')
-            print('\t\t{')
-            if hard_funcs[func_name] == 'SWAPDOUBLE':
-                print('\t\t\t%s[i] = %s(%s[i]);' % (lastParamName, hard_funcs[func_name], lastParamName))
-            else:
-                print('\t\t\t((GLuint *) %s)[i] = %s(%s[i]);' % (lastParamName, hard_funcs[func_name], lastParamName))
-            print('\t\t}')
-            print('\t}')
         print('}\n')

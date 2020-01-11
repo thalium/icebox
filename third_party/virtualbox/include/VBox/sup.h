@@ -1130,6 +1130,8 @@ DECLHIDDEN(int) SUPR3HardenedMain(const char *pszProgName, uint32_t fFlags, int 
 /** The binary is located in the testcase directory instead of the
  * default application binary directory. */
 #define SUPSECMAIN_FLAGS_LOC_TESTCASE       UINT32_C(0x00000010)
+/** The first process. */
+#define SUPSECMAIN_FLAGS_FIRST_PROCESS      UINT32_C(0x00000020)
 /** @} */
 
 /**
@@ -2357,6 +2359,11 @@ extern unsigned const               g_cSUPNtKernelRootTAs;
 extern SUPTAENTRY const             g_aSUPTimestampTAs[];
 /** Number of entries in g_aSUPTimestampTAs. */
 extern unsigned const               g_cSUPTimestampTAs;
+
+/** Root certificates trusted by Apple code signing. */
+extern SUPTAENTRY const             g_aSUPAppleRootTAs[];
+/** Number of entries in g_cSUPAppleRootTAs. */
+extern unsigned const               g_cSUPAppleRootTAs;
 
 /** TAs we trust (the build certificate, Oracle VirtualBox). */
 extern SUPTAENTRY const             g_aSUPTrustedTAs[];

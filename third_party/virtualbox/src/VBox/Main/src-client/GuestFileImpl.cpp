@@ -40,6 +40,7 @@
 
 #include <VBox/com/array.h>
 #include <VBox/com/listeners.h>
+#include <VBox/AssertGuest.h>
 
 
 /**
@@ -155,10 +156,13 @@ int GuestFile::init(Console *pConsole, GuestSession *pSession,
     {
         mSession = pSession;
 
-        mData.mID = uFileID;
+        mData.mID          = uFileID;
+
+        mData.mOpenInfo    = openInfo;
         mData.mInitialSize = 0;
-        mData.mStatus = FileStatus_Undefined;
-        mData.mOpenInfo = openInfo;
+        mData.mStatus      = FileStatus_Undefined;
+        mData.mLastError   = VINF_SUCCESS;
+        mData.mOffCurrent  = 0;
 
         unconst(mEventSource).createObject();
         HRESULT hr = mEventSource->init();
@@ -295,6 +299,14 @@ HRESULT GuestFile::getOffset(LONG64 *aOffset)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
+    /*
+     * This is updated by GuestFile::i_onFileNotify() when read, write and seek
+     * confirmation messages are recevied.
+     *
+     * Note! This will not be accurate with older (< 5.2.32, 6.0.0 - 6.0.9)
+     *       guest additions when using writeAt, readAt or writing to a file
+     *       opened in append mode.
+     */
     *aOffset = mData.mOffCurrent;
 
     return S_OK;
@@ -507,7 +519,7 @@ int GuestFile::i_onFileNotify(PVBOXGUESTCTRLHOSTCBCTX pCbCtx, PVBOXGUESTCTRLHOST
 
                 AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-                mData.mOffCurrent += cbRead;
+                mData.mOffCurrent += cbRead; /* Bogus for readAt, which is why we've got GUEST_FILE_NOTIFYTYPE_READ_OFFSET. */
 
                 alock.release();
 
@@ -522,6 +534,41 @@ int GuestFile::i_onFileNotify(PVBOXGUESTCTRLHOSTCBCTX pCbCtx, PVBOXGUESTCTRLHOST
             break;
         }
 
+        case GUEST_FILE_NOTIFYTYPE_READ_OFFSET:
+        {
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mParms == 5, ("mParms=%u\n", pSvcCbData->mParms),
+                                        vrc = VERR_WRONG_PARAMETER_COUNT);
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mpaParms[idx].type == VBOX_HGCM_SVC_PARM_PTR,
+                                        ("type=%u\n", pSvcCbData->mpaParms[idx].type),
+                                        vrc = VERR_WRONG_PARAMETER_TYPE);
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mpaParms[idx + 1].type == VBOX_HGCM_SVC_PARM_64BIT,
+                                        ("type=%u\n", pSvcCbData->mpaParms[idx].type),
+                                        vrc = VERR_WRONG_PARAMETER_TYPE);
+            BYTE const * const pbData = (BYTE const *)pSvcCbData->mpaParms[idx].u.pointer.addr;
+            uint32_t const     cbRead = pSvcCbData->mpaParms[idx].u.pointer.size;
+            int64_t            offNew = (int64_t)pSvcCbData->mpaParms[idx + 1].u.uint64;
+            Log3ThisFunc(("cbRead=%RU32 offNew=%RI64 (%#RX64)\n", cbRead, offNew, offNew));
+
+            AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
+            if (offNew < 0) /* non-seekable */
+                offNew = mData.mOffCurrent + cbRead;
+            mData.mOffCurrent = offNew;
+            alock.release();
+
+            try
+            {
+                com::SafeArray<BYTE> data((size_t)cbRead);
+                data.initFrom(pbData, cbRead);
+                fireGuestFileReadEvent(mEventSource, mSession, this, offNew, cbRead, ComSafeArrayAsInParam(data));
+                vrc = VINF_SUCCESS;
+            }
+            catch (std::bad_alloc &)
+            {
+                vrc = VERR_NO_MEMORY;
+            }
+            break;
+        }
+
         case GUEST_FILE_NOTIFYTYPE_WRITE:
         {
             if (pSvcCbData->mParms == 4)
@@ -530,6 +577,7 @@ int GuestFile::i_onFileNotify(PVBOXGUESTCTRLHOSTCBCTX pCbCtx, PVBOXGUESTCTRLHOST
 
                 AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
 
+                /* Bogus for writeAt and append mode, thus GUEST_FILE_NOTIFYTYPE_WRITE_OFFSET. */
                 mData.mOffCurrent += dataCb.u.write.cbWritten;
                 uint64_t uOffCurrent = mData.mOffCurrent;
 
@@ -540,6 +588,38 @@ int GuestFile::i_onFileNotify(PVBOXGUESTCTRLHOSTCBCTX pCbCtx, PVBOXGUESTCTRLHOST
             }
             else
                 vrc = VERR_NOT_SUPPORTED;
+            break;
+        }
+
+        case GUEST_FILE_NOTIFYTYPE_WRITE_OFFSET:
+        {
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mParms == 5, ("mParms=%u\n", pSvcCbData->mParms),
+                                        vrc = VERR_WRONG_PARAMETER_COUNT);
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mpaParms[idx].type == VBOX_HGCM_SVC_PARM_32BIT,
+                                        ("type=%u\n", pSvcCbData->mpaParms[idx].type),
+                                        vrc = VERR_WRONG_PARAMETER_TYPE);
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mpaParms[idx + 1].type == VBOX_HGCM_SVC_PARM_64BIT,
+                                        ("type=%u\n", pSvcCbData->mpaParms[idx].type),
+                                        vrc = VERR_WRONG_PARAMETER_TYPE);
+            uint32_t const  cbWritten = pSvcCbData->mpaParms[idx].u.uint32;
+            int64_t         offNew    = (int64_t)pSvcCbData->mpaParms[idx + 1].u.uint64;
+            Log3ThisFunc(("cbWritten=%RU32 offNew=%RI64 (%#RX64)\n", cbWritten, offNew, offNew));
+
+            AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
+            if (offNew < 0) /* non-seekable */
+                offNew = mData.mOffCurrent + cbWritten;
+            mData.mOffCurrent = offNew;
+            alock.release();
+
+            try
+            {
+                fireGuestFileWriteEvent(mEventSource, mSession, this, offNew, cbWritten);
+                vrc = VINF_SUCCESS;
+            }
+            catch (std::bad_alloc &)
+            {
+                vrc = VERR_NO_MEMORY;
+            }
             break;
         }
 
@@ -563,25 +643,19 @@ int GuestFile::i_onFileNotify(PVBOXGUESTCTRLHOSTCBCTX pCbCtx, PVBOXGUESTCTRLHOST
             break;
         }
 
-        case GUEST_FILE_NOTIFYTYPE_TELL:
-        {
-            if (pSvcCbData->mParms == 4)
-            {
-                pSvcCbData->mpaParms[idx++].getUInt64(&dataCb.u.tell.uOffActual);
 
-                AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
+        case GUEST_FILE_NOTIFYTYPE_SET_SIZE:
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mParms == 4, ("mParms=%u\n", pSvcCbData->mParms),
+                                        vrc = VERR_INVALID_PARAMETER);
+            ASSERT_GUEST_MSG_STMT_BREAK(pSvcCbData->mpaParms[idx].type == VBOX_HGCM_SVC_PARM_64BIT,
+                                        ("type=%u\n", pSvcCbData->mpaParms[idx].type),
+                                        vrc = VERR_INVALID_PARAMETER);
+            dataCb.u.SetSize.cbSize = pSvcCbData->mpaParms[idx].u.uint64;
+            Log3ThisFunc(("cbSize=%RU64\n", dataCb.u.SetSize.cbSize));
 
-                mData.mOffCurrent = dataCb.u.tell.uOffActual;
-
-                alock.release();
-
-                fireGuestFileOffsetChangedEvent(mEventSource, mSession, this,
-                                                dataCb.u.tell.uOffActual, 0 /* Processed */);
-            }
-            else
-                vrc = VERR_NOT_SUPPORTED;
+            fireGuestFileSizeChangedEvent(mEventSource, mSession, this, dataCb.u.SetSize.cbSize);
+            vrc = VINF_SUCCESS;
             break;
-        }
 
         default:
             vrc = VERR_NOT_SUPPORTED;
@@ -952,28 +1026,37 @@ int GuestFile::i_waitForRead(GuestWaitEvent *pEvent, uint32_t uTimeoutMS,
     {
         if (evtType == VBoxEventType_OnGuestFileRead)
         {
+            vrc = VINF_SUCCESS;
+
             ComPtr<IGuestFileReadEvent> pFileEvent = pIEvent;
             Assert(!pFileEvent.isNull());
 
-            HRESULT hr;
             if (pvData)
             {
                 com::SafeArray <BYTE> data;
-                hr = pFileEvent->COMGETTER(Data)(ComSafeArrayAsOutParam(data));
-                ComAssertComRC(hr);
+                HRESULT hrc1 = pFileEvent->COMGETTER(Data)(ComSafeArrayAsOutParam(data));
+                ComAssertComRC(hrc1);
                 size_t cbRead = data.size();
-                if (   cbRead
-                    && cbRead <= cbData)
+                if (cbRead)
                 {
-                    memcpy(pvData, data.raw(), data.size());
+                    if (cbRead <= cbData)
+                        memcpy(pvData, data.raw(), data.size());
+                    else
+                        vrc = VERR_BUFFER_OVERFLOW;
                 }
-                else
-                    vrc = VERR_BUFFER_OVERFLOW;
+                /* else: used to be VERR_BUFFER_OVERFLOW, but that messes stuff up. */
+
+                if (pcbRead)
+                {
+                    *pcbRead = (uint32_t)cbRead;
+                    Assert(*pcbRead == cbRead);
+                }
             }
-            if (pcbRead)
+            else if (pcbRead)
             {
-                hr = pFileEvent->COMGETTER(Processed)((ULONG*)pcbRead);
-                ComAssertComRC(hr);
+                *pcbRead = 0;
+                HRESULT hrc2 = pFileEvent->COMGETTER(Processed)((ULONG *)pcbRead);
+                ComAssertComRC(hrc2); NOREF(hrc2);
             }
         }
         else
@@ -1056,7 +1139,7 @@ int GuestFile::i_waitForWrite(GuestWaitEvent *pEvent,
     return vrc;
 }
 
-int GuestFile::i_writeData(uint32_t uTimeoutMS, void *pvData, uint32_t cbData,
+int GuestFile::i_writeData(uint32_t uTimeoutMS, const void *pvData, uint32_t cbData,
                            uint32_t *pcbWritten)
 {
     AssertPtrReturn(pvData, VERR_INVALID_POINTER);
@@ -1092,7 +1175,7 @@ int GuestFile::i_writeData(uint32_t uTimeoutMS, void *pvData, uint32_t cbData,
     paParms[i++].setUInt32(pEvent->ContextID());
     paParms[i++].setUInt32(mData.mID /* File handle */);
     paParms[i++].setUInt32(cbData /* Size (in bytes) to write */);
-    paParms[i++].setPointer(pvData, cbData);
+    paParms[i++].setPointer(unconst(pvData), cbData);
 
     alock.release(); /* Drop write lock before sending. */
 
@@ -1116,7 +1199,7 @@ int GuestFile::i_writeData(uint32_t uTimeoutMS, void *pvData, uint32_t cbData,
 }
 
 int GuestFile::i_writeDataAt(uint64_t uOffset, uint32_t uTimeoutMS,
-                             void *pvData, uint32_t cbData, uint32_t *pcbWritten)
+                             const void *pvData, uint32_t cbData, uint32_t *pcbWritten)
 {
     AssertPtrReturn(pvData, VERR_INVALID_POINTER);
     AssertReturn(cbData, VERR_INVALID_PARAMETER);
@@ -1152,7 +1235,7 @@ int GuestFile::i_writeDataAt(uint64_t uOffset, uint32_t uTimeoutMS,
     paParms[i++].setUInt32(mData.mID /* File handle */);
     paParms[i++].setUInt64(uOffset /* Offset where to starting writing */);
     paParms[i++].setUInt32(cbData /* Size (in bytes) to write */);
-    paParms[i++].setPointer(pvData, cbData);
+    paParms[i++].setPointer(unconst(pvData), cbData);
 
     alock.release(); /* Drop write lock before sending. */
 
@@ -1222,6 +1305,10 @@ HRESULT GuestFile::read(ULONG aToRead, ULONG aTimeoutMS, std::vector<BYTE> &aDat
     if (aToRead == 0)
         return setError(E_INVALIDARG, tr("The size to read is zero"));
 
+    /* Cap the read at 1MiB because that's all the guest will return anyway. */
+    if (aToRead > _1M)
+        aToRead = _1M;
+
     aData.resize(aToRead);
 
     HRESULT hr = S_OK;
@@ -1257,6 +1344,10 @@ HRESULT GuestFile::readAt(LONG64 aOffset, ULONG aToRead, ULONG aTimeoutMS, std::
 {
     if (aToRead == 0)
         return setError(E_INVALIDARG, tr("The size to read is zero"));
+
+    /* Cap the read at 1MiB because that's all the guest will return anyway. */
+    if (aToRead > _1M)
+        aToRead = _1M;
 
     aData.resize(aToRead);
 
@@ -1343,18 +1434,89 @@ HRESULT GuestFile::setACL(const com::Utf8Str &aAcl, ULONG aMode)
 
 HRESULT GuestFile::setSize(LONG64 aSize)
 {
-    RT_NOREF(aSize);
-    ReturnComNotImplemented();
+    LogFlowThisFuncEnter();
+
+    /*
+     * Validate.
+     */
+    if (aSize < 0)
+        return setError(E_INVALIDARG, tr("The size (%RI64) cannot be a negative value"), aSize);
+
+    /*
+     * Register event callbacks.
+     */
+    int             vrc;
+    GuestWaitEvent *pWaitEvent = NULL;
+    GuestEventTypes lstEventTypes;
+    try
+    {
+        lstEventTypes.push_back(VBoxEventType_OnGuestFileStateChanged);
+        lstEventTypes.push_back(VBoxEventType_OnGuestFileSizeChanged);
+    }
+    catch (std::bad_alloc &)
+    {
+        return E_OUTOFMEMORY;
+    }
+
+    AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
+
+    vrc = registerWaitEvent(lstEventTypes, &pWaitEvent);
+    if (RT_SUCCESS(vrc))
+    {
+        /*
+         * Send of the HGCM message.
+         */
+        VBOXHGCMSVCPARM aParms[3];
+        aParms[0].setUInt32(pWaitEvent->ContextID());
+        aParms[1].setUInt32(mObjectID /* File handle */);
+        aParms[2].setUInt64(aSize);
+
+        alock.release(); /* Drop write lock before sending. */
+
+        vrc = sendCommand(HOST_MSG_FILE_SET_SIZE, RT_ELEMENTS(aParms), aParms);
+        if (RT_SUCCESS(vrc))
+        {
+            /*
+             * Wait for the event.
+             */
+            VBoxEventType_T enmEvtType;
+            ComPtr<IEvent>  pIEvent;
+            vrc = waitForEvent(pWaitEvent, RT_MS_1MIN / 2, &enmEvtType, pIEvent.asOutParam());
+            if (RT_SUCCESS(vrc))
+            {
+                if (enmEvtType == VBoxEventType_OnGuestFileSizeChanged)
+                    vrc = VINF_SUCCESS;
+                else
+                    vrc = VWRN_GSTCTL_OBJECTSTATE_CHANGED;
+            }
+        }
+
+        /*
+         * Unregister the wait event and deal with error reporting if needed.
+         */
+        unregisterWaitEvent(pWaitEvent);
+    }
+    HRESULT hrc;
+    if (RT_SUCCESS(vrc))
+        hrc = S_OK;
+    else
+        hrc = setErrorBoth(VBOX_E_IPRT_ERROR, vrc, tr("Setting the file size of '%s' to %RU64 (%#RX64) bytes failed: %Rrc"),
+                           mData.mOpenInfo.mFileName.c_str(), aSize, aSize, vrc);
+    LogFlowFuncLeaveRC(vrc);
+    return hrc;
 }
 
 HRESULT GuestFile::write(const std::vector<BYTE> &aData, ULONG aTimeoutMS, ULONG *aWritten)
 {
+    if (aData.size() == 0)
+        return setError(E_INVALIDARG, tr("No data to write specified"));
+
     LogFlowThisFuncEnter();
 
     HRESULT hr = S_OK;
 
-    uint32_t cbData = (uint32_t)aData.size();
-    void *pvData = cbData > 0? (void *)&aData.front(): NULL;
+    const uint32_t cbData = (uint32_t)aData.size();
+    const void *pvData = (void *)&aData.front();
     int vrc = i_writeData(aTimeoutMS, pvData, cbData,
                           (uint32_t*)aWritten);
     if (RT_FAILURE(vrc))
@@ -1376,14 +1538,16 @@ HRESULT GuestFile::write(const std::vector<BYTE> &aData, ULONG aTimeoutMS, ULONG
 HRESULT GuestFile::writeAt(LONG64 aOffset, const std::vector<BYTE> &aData, ULONG aTimeoutMS, ULONG *aWritten)
 
 {
+    if (aData.size() == 0)
+        return setError(E_INVALIDARG, tr("No data to write at specified"));
+
     LogFlowThisFuncEnter();
 
     HRESULT hr = S_OK;
 
-    uint32_t cbData = (uint32_t)aData.size();
-    void *pvData = cbData > 0? (void *)&aData.front(): NULL;
-    int vrc = i_writeData(aTimeoutMS, pvData, cbData,
-                          (uint32_t*)aWritten);
+    const uint32_t cbData = (uint32_t)aData.size();
+    const void *pvData = (void *)&aData.front();
+    int vrc = i_writeDataAt(aOffset, aTimeoutMS, pvData, cbData, (uint32_t*)aWritten);
     if (RT_FAILURE(vrc))
     {
         switch (vrc)

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,11 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef DEV_HDA_CODEC_H
-#define DEV_HDA_CODEC_H
+#ifndef VBOX_INCLUDED_SRC_Audio_HDACodec_h
+#define VBOX_INCLUDED_SRC_Audio_HDACodec_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
+#endif
 
 #include <iprt/list.h>
 
@@ -141,5 +144,5 @@ int hdaCodecRemoveStream(PHDACODEC pThis, PDMAUDIOMIXERCTL enmMixerCtl);
 #define HDA_SSM_VERSION_2 2
 #define HDA_SSM_VERSION_1 1
 
-#endif /* !DEV_HDA_CODEC_H */
+#endif /* !VBOX_INCLUDED_SRC_Audio_HDACodec_h */
 

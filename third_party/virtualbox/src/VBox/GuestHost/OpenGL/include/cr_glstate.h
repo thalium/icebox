@@ -45,9 +45,7 @@ typedef struct CRContext CRContext;
 
 #include "spu_dispatch_table.h"
 
-#ifdef CHROMIUM_THREADSAFE
-# include <cr_threads.h>
-#endif
+#include "cr_threads.h"
 
 #include <iprt/cdefs.h>
 
@@ -131,7 +129,6 @@ typedef struct _CRSharedState {
 struct CRContext {
     int id;
 
-#ifdef CHROMIUM_THREADSAFE
     /* we keep reference counting of context's makeCurrent for different threads
      * this is primarily needed to avoid having an invalid memory reference in the TLS
      * when the context is assigned to more than one threads and then destroyed from
@@ -142,7 +139,6 @@ struct CRContext {
      * => Thread2 still refers to destroyed ctx1
      * */
     VBOXTLSREFDATA
-#endif
 
     CRbitvalue bitid[CR_MAX_BITARRAY];
     CRbitvalue neg_bitid[CR_MAX_BITARRAY];
@@ -195,6 +191,9 @@ struct CRContext {
     CRGLSLState        glsl;
 #endif
 
+    /** The state tracker the context is attached to. */
+    PCRStateTracker    pStateTracker;
+
     /** For buffering vertices for selection/feedback */
     /*@{*/
     GLuint    vCount;
@@ -205,27 +204,43 @@ struct CRContext {
 };
 
 
-DECLEXPORT(void) crStateInit(void);
-DECLEXPORT(void) crStateDestroy(void);
-DECLEXPORT(void) crStateVBoxDetachThread(void);
-DECLEXPORT(void) crStateVBoxAttachThread(void);
-DECLEXPORT(CRContext *) crStateCreateContext(const CRLimitsState *limits, GLint visBits, CRContext *share);
-DECLEXPORT(CRContext *) crStateCreateContextEx(const CRLimitsState *limits, GLint visBits, CRContext *share, GLint presetID);
-DECLEXPORT(void) crStateMakeCurrent(CRContext *ctx);
-DECLEXPORT(void) crStateSetCurrent(CRContext *ctx);
-DECLEXPORT(void) crStateCleanupCurrent(void);
-DECLEXPORT(CRContext *) crStateGetCurrent(void);
-DECLEXPORT(void) crStateDestroyContext(CRContext *ctx);
-DECLEXPORT(GLboolean) crStateEnableDiffOnMakeCurrent(GLboolean fEnable);
+/**
+ * CR state tracker.
+ */
+typedef struct CRStateTracker
+{
+    bool             fContextTLSInit;
+    CRtsd            contextTSD;
+    CRStateBits      *pCurrentBits;
+    CRContext        *apAvailableContexts[CR_MAX_CONTEXTS];
+    uint32_t         cContexts;
+    CRSharedState    *pSharedState;
+    CRContext        *pDefaultContext;
+    GLboolean        fVBoxEnableDiffOnMakeCurrent;
+    SPUDispatchTable diff_api;
+} CRStateTracker;
+
+DECLEXPORT(void) crStateInit(PCRStateTracker pState);
+DECLEXPORT(void) crStateDestroy(PCRStateTracker pState);
+DECLEXPORT(void) crStateVBoxDetachThread(PCRStateTracker pState);
+DECLEXPORT(void) crStateVBoxAttachThread(PCRStateTracker pState);
+DECLEXPORT(CRContext *) crStateCreateContext(PCRStateTracker pState, const CRLimitsState *limits, GLint visBits, CRContext *share);
+DECLEXPORT(CRContext *) crStateCreateContextEx(PCRStateTracker pState, const CRLimitsState *limits, GLint visBits, CRContext *share, GLint presetID);
+DECLEXPORT(void) crStateMakeCurrent(PCRStateTracker pState, CRContext *ctx);
+DECLEXPORT(void) crStateSetCurrent(PCRStateTracker pState, CRContext *ctx);
+DECLEXPORT(void) crStateCleanupCurrent(PCRStateTracker pState);
+DECLEXPORT(CRContext *) crStateGetCurrent(PCRStateTracker pState);
+DECLEXPORT(void) crStateDestroyContext(PCRStateTracker pState, CRContext *ctx);
+DECLEXPORT(GLboolean) crStateEnableDiffOnMakeCurrent(PCRStateTracker pState, GLboolean fEnable);
 
 void crStateSwitchPrepare(CRContext *toCtx, CRContext *fromCtx, GLuint idDrawFBO, GLuint idReadFBO);
 void crStateSwitchPostprocess(CRContext *toCtx, CRContext *fromCtx, GLuint idDrawFBO, GLuint idReadFBO);
 
 void crStateSyncHWErrorState(CRContext *ctx);
-GLenum crStateCleanHWErrorState(void);
+GLenum crStateCleanHWErrorState(PCRStateTracker pState);
 
-#define CR_STATE_CLEAN_HW_ERR_WARN(_s) do {\
-            GLenum _err = crStateCleanHWErrorState(); \
+#define CR_STATE_CLEAN_HW_ERR_WARN(a_pState, _s) do {\
+            GLenum _err = crStateCleanHWErrorState((a_pState)); \
             if (_err != GL_NO_ERROR) { \
                 static int _cErrPrints = 0; \
                 if (_cErrPrints < 5) { \
@@ -235,20 +250,20 @@ GLenum crStateCleanHWErrorState(void);
             } \
         } while (0)
 
-DECLEXPORT(void) crStateFlushFunc( CRStateFlushFunc ff );
-DECLEXPORT(void) crStateFlushArg( void *arg );
-DECLEXPORT(void) crStateDiffAPI( SPUDispatchTable *api );
-DECLEXPORT(void) crStateUpdateColorBits( void );
+DECLEXPORT(void) crStateFlushFunc(PCRStateTracker pState, CRStateFlushFunc ff);
+DECLEXPORT(void) crStateFlushArg(PCRStateTracker pState, void *arg );
+DECLEXPORT(void) crStateDiffAPI(PCRStateTracker pState, SPUDispatchTable *api);
+DECLEXPORT(void) crStateUpdateColorBits(PCRStateTracker pState);
 
-DECLEXPORT(void) crStateSetCurrentPointers( CRContext *ctx, CRCurrentStatePointers *current );
-DECLEXPORT(void) crStateResetCurrentPointers( CRCurrentStatePointers *current );
+DECLEXPORT(void) crStateSetCurrentPointers(CRContext *ctx, CRCurrentStatePointers *current);
+DECLEXPORT(void) crStateResetCurrentPointers(CRCurrentStatePointers *current);
 
-DECLEXPORT(void) crStateSetExtensionString( CRContext *ctx, const GLubyte *extensions );
+DECLEXPORT(void) crStateSetExtensionString(CRContext *ctx, const GLubyte *extensions);
 
-DECLEXPORT(void) crStateDiffContext( CRContext *from, CRContext *to );
-DECLEXPORT(void) crStateSwitchContext( CRContext *from, CRContext *to );
+DECLEXPORT(void) crStateDiffContext(CRContext *from, CRContext *to);
+DECLEXPORT(void) crStateSwitchContext(CRContext *from, CRContext *to);
 
-DECLEXPORT(unsigned int) crStateHlpComponentsCount( GLenum pname );
+DECLEXPORT(unsigned int) crStateHlpComponentsCount(GLenum pname);
 
 typedef struct CRFBDataElement
 {
@@ -280,7 +295,7 @@ DECLEXPORT(int) crStateAcquireFBImage(CRContext *to, CRFBData *data);
 DECLEXPORT(void) crStateFreeFBImageLegacy(CRContext *to);
 
 DECLEXPORT(void) crStateGetTextureObjectAndImage(CRContext *g, GLenum texTarget, GLint level,
-                                     CRTextureObj **obj, CRTextureLevel **img);
+                                                 CRTextureObj **obj, CRTextureLevel **img);
 
 
 DECLEXPORT(void) crStateReleaseTexture(CRContext *pCtx, CRTextureObj *pObj);
@@ -290,44 +305,33 @@ DECLEXPORT(int32_t) crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM);
 typedef DECLCALLBACK(CRContext*) FNCRSTATE_CONTEXT_GET(void*);
 typedef FNCRSTATE_CONTEXT_GET *PFNCRSTATE_CONTEXT_GET;
 DECLEXPORT(int32_t) crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRSTATE_CONTEXT_GET pfnCtxGet, PSSMHANDLE pSSM, uint32_t u32Version);
-DECLEXPORT(void) crStateFreeShared(CRContext *pContext, CRSharedState *s);
+DECLEXPORT(void) crStateFreeShared(PCRStateTracker pState, CRContext *pContext, CRSharedState *s);
 
-DECLEXPORT(int32_t) crStateLoadGlobals(PSSMHANDLE pSSM, uint32_t u32Version);
-DECLEXPORT(int32_t) crStateSaveGlobals(PSSMHANDLE pSSM);
+DECLEXPORT(int32_t) crStateLoadGlobals(PCRStateTracker pState, PSSMHANDLE pSSM, uint32_t u32Version);
+DECLEXPORT(int32_t) crStateSaveGlobals(PCRStateTracker pState, PSSMHANDLE pSSM);
 
-DECLEXPORT(CRSharedState *) crStateGlobalSharedAcquire(void);
-DECLEXPORT(void) crStateGlobalSharedRelease(void);
+DECLEXPORT(CRSharedState *) crStateGlobalSharedAcquire(PCRStateTracker pState);
+DECLEXPORT(void) crStateGlobalSharedRelease(PCRStateTracker pState);
 #endif
 
-DECLEXPORT(void) crStateSetTextureUsed(GLuint texture, GLboolean used);
-DECLEXPORT(void) crStatePinTexture(GLuint texture, GLboolean pin);
-DECLEXPORT(void) crStateDeleteTextureCallback(void *texObj);
+DECLEXPORT(void) crStateSetTextureUsed(PCRStateTracker pState, GLuint texture, GLboolean used);
+DECLEXPORT(void) crStatePinTexture(PCRStateTracker pState, GLuint texture, GLboolean pin);
+DECLEXPORT(void) crStateDeleteTextureCallback(void *texObj, void *pvUser);
 
    /* XXX move these! */
 
-DECLEXPORT(void) STATE_APIENTRY
-crStateChromiumParameteriCR( GLenum target, GLint value );
-
-DECLEXPORT(void) STATE_APIENTRY
-crStateChromiumParameterfCR( GLenum target, GLfloat value );
-
-DECLEXPORT(void) STATE_APIENTRY
-crStateChromiumParametervCR( GLenum target, GLenum type, GLsizei count, const GLvoid *values );
-
-DECLEXPORT(void) STATE_APIENTRY
-crStateGetChromiumParametervCR( GLenum target, GLuint index, GLenum type,
-                                GLsizei count, GLvoid *values );
-
-DECLEXPORT(void) STATE_APIENTRY
-crStateReadPixels( GLint x, GLint y, GLsizei width, GLsizei height,
-                   GLenum format, GLenum type, GLvoid *pixels );
-
-DECLEXPORT(void) STATE_APIENTRY crStateShareContext(GLboolean value);
+DECLEXPORT(void) STATE_APIENTRY crStateChromiumParameteriCR(PCRStateTracker pState, GLenum target, GLint value );
+DECLEXPORT(void) STATE_APIENTRY crStateChromiumParameterfCR(PCRStateTracker pState, GLenum target, GLfloat value );
+DECLEXPORT(void) STATE_APIENTRY crStateChromiumParametervCR(PCRStateTracker pState, GLenum target, GLenum type, GLsizei count, const GLvoid *values );
+DECLEXPORT(void) STATE_APIENTRY crStateGetChromiumParametervCR(PCRStateTracker pState, GLenum target, GLuint index, GLenum type,
+                                                               GLsizei count, GLvoid *values );
+DECLEXPORT(void) STATE_APIENTRY crStateReadPixels(PCRStateTracker pState, GLint x, GLint y, GLsizei width, GLsizei height,
+                                                  GLenum format, GLenum type, GLvoid *pixels );
+DECLEXPORT(void) STATE_APIENTRY crStateShareContext(PCRStateTracker pState, GLboolean value);
 DECLEXPORT(void) STATE_APIENTRY crStateShareLists(CRContext *pContext1, CRContext *pContext2);
 DECLEXPORT(void) STATE_APIENTRY crStateSetSharedContext(CRContext *pCtx);
 DECLEXPORT(GLboolean) STATE_APIENTRY crStateContextIsShared(CRContext *pCtx);
-
-DECLEXPORT(void) STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo);
+DECLEXPORT(void) STATE_APIENTRY crStateQueryHWState(PCRStateTracker pState, GLuint fbFbo, GLuint bbFbo);
 #ifdef __cplusplus
 }
 #endif

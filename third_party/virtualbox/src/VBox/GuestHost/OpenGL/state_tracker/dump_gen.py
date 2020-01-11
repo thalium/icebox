@@ -39,7 +39,6 @@ print("""#include "cr_blitter.h"
 #include "chromium.h"
 #include "cr_error.h"
 #include "cr_net.h"
-#include "cr_rand.h"
 #include "cr_mem.h"
 #include "cr_string.h"
 #include <cr_dump.h>

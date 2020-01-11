@@ -18,8 +18,6 @@
 # Much of this is externally licensed, but not all, sigh.
 --external-copyright --no-convert-tabs
 
-/array/arrayspu.rc:             --no-external-copyright --convert-tabs
-
 /feedback/feedbackspu.rc:       --no-external-copyright --convert-tabs
 /feedback/feedback_context.c:   --no-external-copyright --convert-tabs
 

@@ -57,12 +57,12 @@ ifdef VBOX_SIGNING_MODE
 	$(VBOX_RTSIGNTOOL) extract-exe-signer-cert --signature-index $3 --exe "$$<" --output "$$@" --der
  endef
 
- if "$(VBOX_WITH_CORP_CODE_SIGNING)" == "all" || (!defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) && !defined(VBOX_WITH_CORP_CODE_SIGNING))
+ if !defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) && !$(intersects win all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
   $(evalcall2 def_VBoxAdditionsInstCertFiles,vbox.cer,$(VBOX_PATH_ADDITIONS)/VBoxGuest.sys,0)
  else
   $(evalcall2 def_VBoxAdditionsInstCertFiles,vbox-sha1.cer,$(VBOX_PATH_ADDITIONS)/VBoxGuest.sys,0)
   $(evalcall2 def_VBoxAdditionsInstCertFiles,vbox-sha256.cer,$(VBOX_PATH_ADDITIONS)/VBoxGuest.sys,1)
-  if defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) && defined(VBOX_WITH_CORP_CODE_SIGNING)
+  if $(intersects win_planb,$(VBOX_WITH_CORP_CODE_SIGNING))
    $(evalcall2 def_VBoxAdditionsInstCertFiles,vbox-sha256-r3.cer,$(VBOX_PATH_ADDITIONS)/VBoxCertUtil.exe,1)
   endif
  endif

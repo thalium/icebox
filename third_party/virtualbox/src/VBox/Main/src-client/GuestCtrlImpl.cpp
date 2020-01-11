@@ -85,17 +85,38 @@ DECLCALLBACK(int) Guest::i_notifyCtrlDispatcher(void    *pvExtension,
     Assert(!pGuest.isNull());
 
     /*
-     * For guest control 2.0 using the legacy commands we need to do the following here:
+     * The data packet should ever be a problem, but check to be sure.
+     */
+    AssertMsgReturn(cbData == sizeof(VBOXGUESTCTRLHOSTCALLBACK),
+                    ("Guest control host callback data has wrong size (expected %zu, got %zu) - buggy host service!\n",
+                     sizeof(VBOXGUESTCTRLHOSTCALLBACK), cbData), VERR_INVALID_PARAMETER);
+    PVBOXGUESTCTRLHOSTCALLBACK pSvcCb = (PVBOXGUESTCTRLHOSTCALLBACK)pvData;
+    AssertPtrReturn(pSvcCb, VERR_INVALID_POINTER);
+
+    /*
+     * Deal with GUEST_MSG_REPORT_FEATURES here as it shouldn't be handed
+     * i_dispatchToSession() and has different parameters.
+     */
+    if (u32Function == GUEST_MSG_REPORT_FEATURES)
+    {
+        Assert(pSvcCb->mParms == 2);
+        Assert(pSvcCb->mpaParms[0].type == VBOX_HGCM_SVC_PARM_64BIT);
+        Assert(pSvcCb->mpaParms[1].type == VBOX_HGCM_SVC_PARM_64BIT);
+        Assert(pSvcCb->mpaParms[1].u.uint64 & VBOX_GUESTCTRL_GF_1_MUST_BE_ONE);
+        pGuest->mData.mfGuestFeatures0 = pSvcCb->mpaParms[0].u.uint64;
+        pGuest->mData.mfGuestFeatures1 = pSvcCb->mpaParms[1].u.uint64;
+        LogRel(("Guest Control: GUEST_MSG_REPORT_FEATURES: %#RX64, %#RX64\n",
+                pGuest->mData.mfGuestFeatures0, pGuest->mData.mfGuestFeatures1));
+        return VINF_SUCCESS;
+    }
+
+    /*
+     * For guest control 2.0 using the legacy messages we need to do the following here:
      * - Get the callback header to access the context ID
      * - Get the context ID of the callback
      * - Extract the session ID out of the context ID
      * - Dispatch the whole stuff to the appropriate session (if still exists)
      */
-    if (cbData != sizeof(VBOXGUESTCTRLHOSTCALLBACK))
-        return VERR_NOT_SUPPORTED;
-    PVBOXGUESTCTRLHOSTCALLBACK pSvcCb = (PVBOXGUESTCTRLHOSTCALLBACK)pvData;
-    AssertPtr(pSvcCb);
-
     if (!pSvcCb->mParms) /* At least context ID must be present. */
         return VERR_INVALID_PARAMETER;
 

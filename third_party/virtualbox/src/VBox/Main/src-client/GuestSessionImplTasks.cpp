@@ -191,7 +191,7 @@ HRESULT GuestSessionTask::setProgressErrorMsg(HRESULT hr, const Utf8Str &strMsg)
         HRESULT hr2 = mProgress->i_notifyComplete(hr,
                                                   COM_IIDOF(IGuestSession),
                                                   GuestSession::getStaticComponentName(),
-                                                  strMsg.c_str());
+                                                  "%s", strMsg.c_str());
         if (FAILED(hr2))
             return hr2;
     }

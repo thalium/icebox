@@ -58,22 +58,29 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
     SUPPAGE     aPages[RT_ALIGN_Z(sizeof(*pVM) + NUM_CPUS * sizeof(VMCPU), PAGE_SIZE) >> PAGE_SHIFT];
     int rc = SUPR3Init(NULL);
     if (RT_SUCCESS(rc))
-        rc = SUPR3LowAlloc(RT_ELEMENTS(aPages), (void **)&pVM, &pvR0, &aPages[0]);
+        //rc = SUPR3LowAlloc(RT_ELEMENTS(aPages), (void **)&pVM, &pvR0, &aPages[0]);
+        rc = SUPR3PageAllocEx(RT_ELEMENTS(aPages), 0, (void **)&pVM, &pvR0, &aPages[0]);
     if (RT_FAILURE(rc))
     {
         RTPrintf("Fatal error: SUP Failure! rc=%Rrc\n", rc);
-        return 1;
+        return RTEXITCODE_FAILURE;
     }
     pVM->paVMPagesR3 = aPages;
     pVM->pVMR0 = pvR0;
 
-    static UVM s_UVM;
-    PUVM pUVM = &s_UVM;
+    PUVM pUVM = (PUVM)RTMemPageAllocZ(RT_ALIGN_Z(sizeof(*pUVM), PAGE_SIZE));
+    if (!pUVM)
+    {
+        RTPrintf("Fatal error: RTMEmPageAllocZ failed\n");
+        return RTEXITCODE_FAILURE;
+    }
+    pUVM->u32Magic = UVM_MAGIC;
     pUVM->pVM = pVM;
     pVM->pUVM = pUVM;
 
     pVM->cCpus = NUM_CPUS;
     pVM->cbSelf = RT_UOFFSETOF_DYN(VM, aCpus[pVM->cCpus]);
+    pVM->fHMEnabledFixed = true;
 
     rc = STAMR3InitUVM(pUVM);
     if (RT_FAILURE(rc))
@@ -242,6 +249,8 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
 #ifdef LOG_ENABLED
     RTLogFlush(NULL);
 #endif
+    SUPR3PageFreeEx(pVM, RT_ELEMENTS(aPages));
+    RTMemPageFree(pUVM, RT_ALIGN_Z(sizeof(*pUVM), PAGE_SIZE));
     return 0;
 }
 

@@ -24,65 +24,65 @@
 void PACKSPU_APIENTRY
 packspu_FramebufferTexture1DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
-    crStateFramebufferTexture1DEXT(target, attachment, textarget, texture, level);
+    crStateFramebufferTexture1DEXT(&pack_spu.StateTracker, target, attachment, textarget, texture, level);
     crPackFramebufferTexture1DEXT(target, attachment, textarget, texture, level);
 }
 
 void PACKSPU_APIENTRY
 packspu_FramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
-    crStateFramebufferTexture2DEXT(target, attachment, textarget, texture, level);
+    crStateFramebufferTexture2DEXT(&pack_spu.StateTracker, target, attachment, textarget, texture, level);
     crPackFramebufferTexture2DEXT(target, attachment, textarget, texture, level);
 }
 
 void PACKSPU_APIENTRY
 packspu_FramebufferTexture3DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset)
 {
-    crStateFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset);
+    crStateFramebufferTexture3DEXT(&pack_spu.StateTracker, target, attachment, textarget, texture, level, zoffset);
     crPackFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset);
 }
 
 void PACKSPU_APIENTRY
 packspu_BindFramebufferEXT(GLenum target, GLuint framebuffer)
 {
-        crStateBindFramebufferEXT(target, framebuffer);
+    crStateBindFramebufferEXT(&pack_spu.StateTracker, target, framebuffer);
     crPackBindFramebufferEXT(target, framebuffer);
 }
 
 void PACKSPU_APIENTRY
 packspu_DeleteFramebuffersEXT(GLsizei n, const GLuint * framebuffers)
 {
-        crStateDeleteFramebuffersEXT(n, framebuffers);
+    crStateDeleteFramebuffersEXT(&pack_spu.StateTracker, n, framebuffers);
     crPackDeleteFramebuffersEXT(n, framebuffers);
 }
 
 void PACKSPU_APIENTRY
 packspu_DeleteRenderbuffersEXT(GLsizei n, const GLuint * renderbuffers)
 {
-        crStateDeleteRenderbuffersEXT(n, renderbuffers);
+    crStateDeleteRenderbuffersEXT(&pack_spu.StateTracker, n, renderbuffers);
     crPackDeleteRenderbuffersEXT(n, renderbuffers);
 }
 
 void PACKSPU_APIENTRY
 packspu_FramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
-        crStateFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);
+    crStateFramebufferRenderbufferEXT(&pack_spu.StateTracker, target, attachment, renderbuffertarget, renderbuffer);
     crPackFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);
 }
 
 void PACKSPU_APIENTRY
 packspu_BindRenderbufferEXT(GLenum target, GLuint renderbuffer)
 {
-    crStateBindRenderbufferEXT(target, renderbuffer);
+    crStateBindRenderbufferEXT(&pack_spu.StateTracker, target, renderbuffer);
     crPackBindRenderbufferEXT(target, renderbuffer);
 }
 
 GLenum PACKSPU_APIENTRY
 packspu_CheckFramebufferStatusEXT(GLenum target)
 {
-        GET_THREAD(thread);
-        int writeback = 1;
-    GLenum status = crStateCheckFramebufferStatusEXT(target);
+    GET_THREAD(thread);
+    int writeback = 1;
+    GLenum status = crStateCheckFramebufferStatusEXT(&pack_spu.StateTracker, target);
 
     if (status!=GL_FRAMEBUFFER_UNDEFINED)
     {
@@ -91,10 +91,10 @@ packspu_CheckFramebufferStatusEXT(GLenum target)
 
     crPackCheckFramebufferStatusEXT(target, &status, &writeback);
 
-        packspuFlush((void *) thread);
+    packspuFlush((void *) thread);
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
 
-    crStateSetFramebufferStatus(target, status);
+    crStateSetFramebufferStatus(&pack_spu.StateTracker, target, status);
     return status;
 }
 
@@ -106,18 +106,12 @@ void PACKSPU_APIENTRY packspu_GenFramebuffersEXT( GLsizei n, GLuint * framebuffe
     {
         crError( "packspu_GenFramebuffersEXT doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!" );
     }
-    if (pack_spu.swap)
-    {
-        crPackGenFramebuffersEXTSWAP( n, framebuffers, &writeback );
-    }
-    else
-    {
-        crPackGenFramebuffersEXT( n, framebuffers, &writeback );
-    }
+
+    crPackGenFramebuffersEXT( n, framebuffers, &writeback );
     packspuFlush( (void *) thread );
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
 
-    crStateRegFramebuffers(n, framebuffers);
+    crStateRegFramebuffers(&pack_spu.StateTracker, n, framebuffers);
 }
 
 void PACKSPU_APIENTRY packspu_GenRenderbuffersEXT( GLsizei n, GLuint * renderbuffers )
@@ -128,16 +122,10 @@ void PACKSPU_APIENTRY packspu_GenRenderbuffersEXT( GLsizei n, GLuint * renderbuf
     {
         crError( "packspu_GenRenderbuffersEXT doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!" );
     }
-    if (pack_spu.swap)
-    {
-        crPackGenRenderbuffersEXTSWAP( n, renderbuffers, &writeback );
-    }
-    else
-    {
-        crPackGenRenderbuffersEXT( n, renderbuffers, &writeback );
-    }
+
+    crPackGenRenderbuffersEXT( n, renderbuffers, &writeback );
     packspuFlush( (void *) thread );
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
 
-    crStateRegRenderbuffers(n, renderbuffers);
+    crStateRegRenderbuffers(&pack_spu.StateTracker, n, renderbuffers);
 }

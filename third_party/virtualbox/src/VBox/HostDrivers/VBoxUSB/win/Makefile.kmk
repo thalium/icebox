@@ -137,12 +137,13 @@ USBUninstall_LIBS = \
 # USBTest
 #
 USBTest_TEMPLATE = VBOXR3EXE
-USBTest_DEFS     = IN_RT_R3
+USBTest_DEFS     = IN_RT_R3 IN_USBLIB
 USBTest_SDKS     = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK) VBOX_NTDLL
 USBTest_CXXFLAGS = -Gz
 USBTest_CFLAGS   = -Gz
 USBTest_SOURCES  = \
-	testcase/USBTest.cpp
+	testcase/USBTest.cpp \
+	../USBFilter.cpp
 USBTest_LIBS = \
 	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/newdev.lib \
 	$(LIB_RUNTIME) \

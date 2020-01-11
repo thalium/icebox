@@ -779,6 +779,11 @@ static int vhdLoadDynamicDisk(PVHDIMAGE pImage, uint64_t uDynamicDiskHeaderOffse
     rc = vdIfIoIntFileReadSync(pImage->pIfIo, pImage->pStorage,
                                uBlockAllocationTableOffset, pBlockAllocationTable,
                                pImage->cBlockAllocationTableEntries * sizeof(uint32_t));
+    if (RT_FAILURE(rc))
+    {
+        RTMemFree(pBlockAllocationTable);
+        return rc;
+    }
 
     /*
      * Because the offset entries inside the allocation table are stored big endian
@@ -853,7 +858,10 @@ static int vhdOpenImage(PVHDIMAGE pImage, unsigned uOpenFlags)
     }
 
     if (RT_FAILURE(rc))
+    {
+        vhdFreeImage(pImage, false);
         return rc;
+    }
 
     switch (RT_BE2H_U32(vhdFooter.DiskType))
     {
@@ -868,6 +876,7 @@ static int vhdOpenImage(PVHDIMAGE pImage, unsigned uOpenFlags)
             pImage->uImageFlags &= ~VD_IMAGE_FLAGS_FIXED;
             break;
         default:
+            vhdFreeImage(pImage, false);
             return VERR_NOT_IMPLEMENTED;
     }
 

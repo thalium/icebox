@@ -1283,7 +1283,7 @@ static int dbgDiggerLinuxFindStartOfNamesAndSymbolCount(PUVM pUVM, PDBGDIGGERLIN
                 if (   uBuf.au64[i] <= LNX_MAX_KALLSYMS_SYMBOLS
                     && uBuf.au64[i] >= LNX_MIN_KALLSYMS_SYMBOLS)
                 {
-                    uint8_t *pb = (uint8_t *)&uBuf.au64[i + 1];
+                    uint8_t *pb = (uint8_t *)&uBuf.au64[i];
                     if (   pb[0] <= LNX_MAX_KALLSYMS_ENC_LENGTH
                         && pb[0] >= LNX_MIN_KALLSYMS_ENC_LENGTH)
                     {
@@ -1331,7 +1331,7 @@ static int dbgDiggerLinuxFindStartOfNamesAndSymbolCount(PUVM pUVM, PDBGDIGGERLIN
                 if (   uBuf.au32[i] <= LNX_MAX_KALLSYMS_SYMBOLS
                     && uBuf.au32[i] >= LNX_MIN_KALLSYMS_SYMBOLS)
                 {
-                    uint8_t *pb = (uint8_t *)&uBuf.au32[i + 1];
+                    uint8_t *pb = (uint8_t *)&uBuf.au32[i];
                     if (   pb[0] <= LNX_MAX_KALLSYMS_ENC_LENGTH
                         && pb[0] >= LNX_MIN_KALLSYMS_ENC_LENGTH)
                     {

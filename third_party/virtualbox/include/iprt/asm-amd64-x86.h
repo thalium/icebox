@@ -1472,6 +1472,36 @@ DECLINLINE(bool) ASMIsViaCentaurCpu(void)
 
 
 /**
+ * Tests if it a Shanghai CPU based on the ASMCpuId(0) output.
+ *
+ * @returns true/false.
+ * @param   uEBX    EBX return from ASMCpuId(0).
+ * @param   uECX    ECX return from ASMCpuId(0).
+ * @param   uEDX    EDX return from ASMCpuId(0).
+ */
+DECLINLINE(bool) ASMIsShanghaiCpuEx(uint32_t uEBX, uint32_t uECX, uint32_t uEDX)
+{
+    return uEBX == UINT32_C(0x68532020)
+        && uECX == UINT32_C(0x20206961)
+        && uEDX == UINT32_C(0x68676e61);
+}
+
+
+/**
+ * Tests if this is a Shanghai CPU.
+ *
+ * @returns true/false.
+ * @remarks ASSUMES that cpuid is supported by the CPU.
+ */
+DECLINLINE(bool) ASMIsShanghaiCpu(void)
+{
+    uint32_t uEAX, uEBX, uECX, uEDX;
+    ASMCpuId(0, &uEAX, &uEBX, &uECX, &uEDX);
+    return ASMIsShanghaiCpuEx(uEBX, uECX, uEDX);
+}
+
+
+/**
  * Checks whether ASMCpuId_EAX(0x00000000) indicates a valid range.
  *
  *

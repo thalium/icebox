@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2018 Oracle Corporation
+ * Copyright (C) 2014-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,11 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef AUDIO_MIXBUF_H
-#define AUDIO_MIXBUF_H
+#ifndef VBOX_INCLUDED_SRC_Audio_AudioMixBuffer_h
+#define VBOX_INCLUDED_SRC_Audio_AudioMixBuffer_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
+#endif
 
 #include <iprt/cdefs.h>
 #include <VBox/vmm/pdmaudioifs.h>
@@ -86,5 +89,5 @@ void AudioMixBufDbgPrint(PPDMAUDIOMIXBUF pMixBuf);
 void AudioMixBufDbgPrintChain(PPDMAUDIOMIXBUF pMixBuf);
 #endif
 
-#endif
+#endif /* !VBOX_INCLUDED_SRC_Audio_AudioMixBuffer_h */
 

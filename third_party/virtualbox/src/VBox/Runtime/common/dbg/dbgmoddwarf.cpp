@@ -944,7 +944,7 @@ static const struct RTDWARFTAGDESC
 }   g_aTagDescs[] =
 {
 #define TAGDESC(a_Name, a_pDesc)        { DW_ ## a_Name, #a_Name, a_pDesc }
-#define TAGDESC_EMPTY()                 { 0, NULL, NULL }
+#define TAGDESC_EMPTY()                 { 0, NULL, &g_CoreDieDesc }
 #define TAGDESC_CORE(a_Name)            TAGDESC(a_Name, &g_CoreDieDesc)
     TAGDESC_EMPTY(),                            /* 0x00 */
     TAGDESC_CORE(TAG_array_type),
@@ -4895,20 +4895,21 @@ static DECLCALLBACK(int) rtDbgModDwarf_TryOpen(PRTDBGMODINT pMod, RTLDRARCH enmA
                     if (RT_SUCCESS(rc))
                         rc = rtDwarfLine_ExplodeAll(pThis);
                 }
+
+                /*
+                 * Free the cached abbreviations and unload all sections.
+                 */
+                pThis->cCachedAbbrevsAlloced = 0;
+                RTMemFree(pThis->paCachedAbbrevs);
+                pThis->paCachedAbbrevs = NULL;
+
+                for (unsigned iSect = 0; iSect < RT_ELEMENTS(pThis->aSections); iSect++)
+                    if (pThis->aSections[iSect].pv)
+                        pThis->pDbgInfoMod->pImgVt->pfnUnmapPart(pThis->pDbgInfoMod, pThis->aSections[iSect].cb,
+                                                                 &pThis->aSections[iSect].pv);
+
                 if (RT_SUCCESS(rc))
                 {
-                    /*
-                     * Free the cached abbreviations and unload all sections.
-                     */
-                    pThis->cCachedAbbrevsAlloced = 0;
-                    RTMemFree(pThis->paCachedAbbrevs);
-                    pThis->paCachedAbbrevs = NULL;
-
-                    for (unsigned iSect = 0; iSect < RT_ELEMENTS(pThis->aSections); iSect++)
-                        if (pThis->aSections[iSect].pv)
-                            pThis->pDbgInfoMod->pImgVt->pfnUnmapPart(pThis->pDbgInfoMod, pThis->aSections[iSect].cb,
-                                                                     &pThis->aSections[iSect].pv);
-
                     /** @todo Kill pThis->CompileUnitList and the alloc caches. */
                     return VINF_SUCCESS;
                 }
@@ -4922,7 +4923,14 @@ static DECLCALLBACK(int) rtDbgModDwarf_TryOpen(PRTDBGMODINT pMod, RTLDRARCH enmA
             rc = VERR_DBG_NO_MATCHING_INTERPRETER;
     }
 
-    RTMemFree(pThis->paCachedAbbrevs);
+    if (pThis->paCachedAbbrevs)
+        RTMemFree(pThis->paCachedAbbrevs);
+    pThis->paCachedAbbrevs = NULL;
+
+    for (unsigned iSect = 0; iSect < RT_ELEMENTS(pThis->aSections); iSect++)
+        if (pThis->aSections[iSect].pv)
+            pThis->pDbgInfoMod->pImgVt->pfnUnmapPart(pThis->pDbgInfoMod, pThis->aSections[iSect].cb,
+                                                     &pThis->aSections[iSect].pv);
 
 #ifdef RTDBGMODDWARF_WITH_MEM_CACHE
     uint32_t i = RT_ELEMENTS(pThis->aDieAllocators);

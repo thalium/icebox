@@ -5,7 +5,6 @@
  */
 
 #include "cr_mem.h"
-#include "cr_environment.h"
 #include "cr_string.h"
 #include "cr_dll.h"
 #include "cr_error.h"
@@ -119,7 +118,6 @@ SPU * crSPULoad( SPU *child, int id, char *name, char *dir, void *server )
         if (!the_spu->entry_point( &(the_spu->name), &(the_spu->super_name),
                                    &(the_spu->init), &(the_spu->self),
                                    &(the_spu->cleanup),
-                                   &(the_spu->options),
                                    &(the_spu->spu_flags)) )
         {
                 crError( "I found the SPU \"%s\", but loading it failed!", name );
@@ -221,6 +219,156 @@ crSPULoadChain( int count, int *ids, char **names, char *dir, void *server )
 }
 
 
+/**
+ * Returns the SPU registration record for the given name.
+ *
+ * @returns Pointer to the SPU registration record on success or NULL if not found.
+ * @param   pszName             The name to look for.
+ * @param   papSpuReg           Pointer to the NULL terminated array of builtin SPU registration record pointers.
+ */
+static PCSPUREG crSPUGetRegFromName(const char *pszName, PCSPUREG *papSpuReg)
+{
+    while (*papSpuReg)
+    {
+        if (!RTStrCmp(pszName, (*papSpuReg)->pszName))
+            return *papSpuReg;
+        papSpuReg++;
+    }
+
+    return NULL;
+}
+
+
+/**
+ * Creates a SPU chain from the given SPU registration structure (VBox only).
+ *
+ * @returns Pointer to the SPU head in the chain on success.
+ * @param   pSpuChild           Pointer to the child SPU if any.
+ * @param   iId                 ID to assign to the head SPU.
+ * @param   pszName             Name of the SPU to initialize.
+ * @param   pvServer            The server owning the SPU chain.
+ * @param   papSpuReg           Pointer to the NULL terminated array of builtin SPU registration record pointers.
+ */
+SPU * crSPUInitFromReg(SPU *pSpuChild, int iId, const char *pszName, void *pvServer, PCSPUREG *papSpuReg)
+{
+    SPU *pSpu;
+    bool fNeedSuperSPU = false;
+    PCSPUREG pSpuReg = crSPUGetRegFromName(pszName, papSpuReg);
+    AssertPtrReturn(pSpuReg, NULL);
+
+    pSpu = (SPU*)crAlloc(sizeof(*pSpu));
+    crMemset(pSpu, 0, sizeof (*pSpu));
+    pSpu->id = iId;
+    pSpu->privatePtr = NULL;
+
+    /* Init the SPU structure from the SPU registration record. */
+    pSpu->name       = (char *)pSpuReg->pszName;
+    pSpu->super_name = (char *)pSpuReg->pszSuperName;
+    pSpu->init       = pSpuReg->pfnInit;
+    pSpu->self       = pSpuReg->pfnDispatch;
+    pSpu->cleanup    = pSpuReg->pfnCleanup;
+    pSpu->spu_flags  = pSpuReg->fFlags;
+
+#ifdef IN_GUEST
+    if (crStrcmp(pSpu->name,"error"))
+    {
+            /* the default super/base class for an SPU is the error SPU */
+            if (pSpu->super_name == NULL)
+                pSpu->super_name = "error";
+
+            pSpu->superSPU = crSPUInitFromReg(pSpuChild, iId, pSpu->super_name, pvServer, papSpuReg);
+            fNeedSuperSPU = true;
+    }
+#else
+    if (crStrcmp(pSpu->name,"hosterror"))
+    {
+            /* the default super/base class for an SPU is the error SPU */
+            if (pSpu->super_name == NULL)
+                pSpu->super_name = "hosterror";
+
+            pSpu->superSPU = crSPUInitFromReg(pSpuChild, iId, pSpu->super_name, pvServer, papSpuReg);
+            fNeedSuperSPU = true;
+    }
+#endif
+    else
+        pSpu->superSPU = NULL;
+
+    if (fNeedSuperSPU && !pSpu->superSPU)
+    {
+            crError( "Unable to load super SPU \"%s\" of \"%s\"!", pSpu->super_name, pSpuReg->pszName);
+            crSPUUnloadChain(pSpu);
+            return NULL;
+    }
+    crDebug("Initializing %s SPU", pSpuReg->pszName);
+    pSpu->function_table = pSpu->init(iId, pSpuChild, pSpu, 0, 1);
+    if (!pSpu->function_table) {
+            crDebug("Failed to init %s SPU", pSpuReg->pszName);
+            crSPUUnloadChain(pSpu);
+            return NULL;
+    }
+    __buildDispatch( pSpu );
+    /*crDebug( "initializing dispatch table %p (for SPU %s)", (void*)&(pSpu->dispatch_table), name );*/
+    crSPUInitDispatchTable( &(pSpu->dispatch_table) );
+    /*crDebug( "Done initializing the dispatch table for SPU %s, calling the self function", name );*/
+
+    pSpu->dispatch_table.server = pvServer;
+    pSpu->self( &(pSpu->dispatch_table) );
+    /*crDebug( "Done with the self function" );*/
+
+    return pSpu;
+}
+
+
+/**
+ * Initializes a give nchain of SPUs from the builtin SPU registration descriptors (VBox only).
+ *
+ * @returns Pointer to the Head SPU on success or NULL on failure.
+ * @param   cSpus               The number of SPUs to initialize.
+ * @param   paIds               Pointer to the array of IDs.
+ * @param   papszNames          Pointer to the array of SPU names to initalize.
+ * @param   pvServer            The server owning the SPU chain.
+ * @param   papSpuReg           Pointer to the NULL terminated array of builtin SPU registration record pointers.
+ */
+SPU *crSPUInitChainFromReg(int cSpus, int *paIds, const char * const *papszNames, void *pvServer, PCSPUREG *papSpuReg)
+{
+    int i = 0;
+    SPU *pSpuChild = NULL;
+    CRASSERT( cSpus > 0 );
+
+    for (i = cSpus - 1; i >= 0; i--)
+    {
+        int idSpu = paIds[i];
+        const char *pszSpuName = papszNames[i];
+
+        /*
+         * This call passes the previous version of spu, which is the SPU's
+         * "child" in this chain.
+         */
+        SPU *pSpu = crSPUInitFromReg( pSpuChild, idSpu, pszSpuName, pvServer, papSpuReg);
+        if (!pSpu)
+            return NULL; /** @todo Proper rollback. */
+
+        if (pSpuChild != NULL)
+        {
+            SPU *pTmp;
+
+            /* keep track of this so that people can pass functions through but
+             * still get updated when API's change on the fly. */
+            for (pTmp = pSpu ; pTmp ; pTmp = pTmp->superSPU )
+            {
+                struct _copy_list_node *node = (struct _copy_list_node *) crAlloc( sizeof( *node ) );
+                node->copy = &(pTmp->dispatch_table);
+                node->next = pSpuChild->dispatch_table.copyList;
+                pSpuChild->dispatch_table.copyList = node;
+            }
+        }
+        pSpuChild = pSpu;
+    }
+
+    return pSpuChild;
+}
+
+
 #if 00
 /* XXXX experimental code - not used at this time */
 /**
@@ -283,7 +431,8 @@ crSPUUnloadChain(SPU *headSPU)
                         the_spu->cleanup();
 
                 next_spu = the_spu->superSPU;
-                crDLLClose(the_spu->dll);
+                if (the_spu->dll != NULL)
+                    crDLLClose(the_spu->dll);
                 crFree(the_spu);
                 the_spu = next_spu;
         }

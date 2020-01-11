@@ -173,12 +173,19 @@ void crStateLimitsInit (CRLimitsState *l)
  * Given the GL version number returned from a real GL renderer,
  * compute the version number supported by Chromium.
  */
-GLfloat crStateComputeVersion(float minVersion)
+void crStateComputeVersion(uint32_t *puMajorMin, uint32_t *puMinorMin)
 {
-	const GLfloat crVersion = crStrToFloat(CR_OPENGL_VERSION_STRING);
-	if (crVersion < minVersion)
-		minVersion = crVersion;
-	return minVersion;
+	if (*puMajorMin > CR_OPENGL_VERSION_MAJOR)
+	{
+		*puMajorMin = CR_OPENGL_VERSION_MAJOR;
+		*puMinorMin = CR_OPENGL_VERSION_MINOR;
+		return;
+	}
+
+	if (*puMinorMin > CR_OPENGL_VERSION_MINOR)
+		*puMinorMin = CR_OPENGL_VERSION_MINOR;
+
+	return;
 }
 
 

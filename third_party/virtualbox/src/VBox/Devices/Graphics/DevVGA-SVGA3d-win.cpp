@@ -25,6 +25,7 @@
 #include <VBox/err.h>
 #include <VBox/log.h>
 #include <VBox/vmm/pgm.h>
+#include <VBox/AssertGuest.h>
 
 #include <iprt/assert.h>
 #include <iprt/semaphore.h>
@@ -3292,6 +3293,8 @@ int vmsvga3dSetTransform(PVGASTATE pThis, uint32_t cid, SVGA3dTransformType type
 
     Log(("vmsvga3dSetTransform %x %s\n", cid, vmsvgaTransformToString(type)));
 
+    ASSERT_GUEST_RETURN((unsigned)type < SVGA3D_TRANSFORM_MAX, VERR_INVALID_PARAMETER);
+
     if (    cid >= pState->cContexts
         ||  pState->papContexts[cid]->id != cid)
     {
@@ -3464,8 +3467,8 @@ int vmsvga3dSetRenderState(PVGASTATE pThis, uint32_t cid, uint32_t cRenderStates
 
         Log(("vmsvga3dSetRenderState: state=%s (%d) val=%x\n", vmsvga3dGetRenderStateName(pRenderState[i].state), pRenderState[i].state, pRenderState[i].uintValue));
         /* Save the render state for vm state saving. */
-        if (pRenderState[i].state < SVGA3D_RS_MAX)
-            pContext->state.aRenderState[pRenderState[i].state] = pRenderState[i];
+        ASSERT_GUEST_RETURN((unsigned)pRenderState[i].state < SVGA3D_RS_MAX, VERR_INVALID_PARAMETER);
+        pContext->state.aRenderState[pRenderState[i].state] = pRenderState[i];
 
         switch (pRenderState[i].state)
         {
@@ -4118,16 +4121,15 @@ int vmsvga3dSetRenderState(PVGASTATE pThis, uint32_t cid, uint32_t cRenderStates
 
 int vmsvga3dSetRenderTarget(PVGASTATE pThis, uint32_t cid, SVGA3dRenderTargetType type, SVGA3dSurfaceImageId target)
 {
-    HRESULT                     hr;
-    PVMSVGA3DCONTEXT            pContext;
-    PVMSVGA3DSTATE              pState = pThis->svga.p3dState;
-    PVMSVGA3DSURFACE            pRenderTarget;
+    HRESULT        hr;
+    PVMSVGA3DSTATE pState = pThis->svga.p3dState;
 
     AssertReturn(pState, VERR_NO_MEMORY);
-    AssertReturn(type < SVGA3D_RT_MAX, VERR_INVALID_PARAMETER);
+    AssertReturn((unsigned)type < SVGA3D_RT_MAX, VERR_INVALID_PARAMETER);
 
     LogFunc(("cid=%x type=%x sid=%x\n", cid, type, target.sid));
 
+    PVMSVGA3DCONTEXT pContext;
     int rc = vmsvga3dContextFromCid(pState, cid, &pContext);
     AssertRCReturn(rc, rc);
 
@@ -4190,6 +4192,7 @@ int vmsvga3dSetRenderTarget(PVGASTATE pThis, uint32_t cid, SVGA3dRenderTargetTyp
         return VINF_SUCCESS;
     }
 
+    PVMSVGA3DSURFACE pRenderTarget;
     rc = vmsvga3dSurfaceFromSid(pState, target.sid, &pRenderTarget);
     AssertRCReturn(rc, rc);
 
@@ -4499,7 +4502,7 @@ static DWORD vmsvga3dTextureArgData2D3D(uint32_t value)
         return D3DTA_SPECULAR;
     default:
         AssertFailed();
-        return 0;
+        return D3DTA_DIFFUSE;
     }
 }
 
@@ -4524,7 +4527,7 @@ static DWORD vmsvga3dTextTransformFlags2D3D(uint32_t value)
         return D3DTTFF_PROJECTED;
     default:
         AssertFailed();
-        return 0;
+        return D3DTTFF_DISABLE;
     }
 }
 
@@ -4787,7 +4790,7 @@ int vmsvga3dSetTextureState(PVGASTATE pThis, uint32_t cid, uint32_t cTextureStat
         const uint32_t currentStage = pTextureState[i].stage;
         /* Record the texture state for vm state saving. */
         if (   currentStage < RT_ELEMENTS(pContext->state.aTextureStates)
-            && pTextureState[i].name < RT_ELEMENTS(pContext->state.aTextureStates[0]))
+            && (unsigned)pTextureState[i].name < RT_ELEMENTS(pContext->state.aTextureStates[0]))
         {
             pContext->state.aTextureStates[currentStage][pTextureState[i].name] = pTextureState[i];
         }
@@ -4826,17 +4829,16 @@ int vmsvga3dSetTextureState(PVGASTATE pThis, uint32_t cid, uint32_t cTextureStat
 int vmsvga3dSetMaterial(PVGASTATE pThis, uint32_t cid, SVGA3dFace face, SVGA3dMaterial *pMaterial)
 {
     HRESULT               hr;
-    D3DMATERIAL9          material;
-    PVMSVGA3DCONTEXT      pContext;
     PVMSVGA3DSTATE        pState = pThis->svga.p3dState;
     AssertReturn(pState, VERR_NO_MEMORY);
 
     LogFunc(("cid=%x face %d\n", cid, face));
 
+    PVMSVGA3DCONTEXT      pContext;
     int rc = vmsvga3dContextFromCid(pState, cid, &pContext);
     AssertRCReturn(rc, rc);
 
-    AssertReturn(face < SVGA3D_FACE_MAX, VERR_INVALID_PARAMETER);
+    AssertReturn((unsigned)face < SVGA3D_FACE_MAX, VERR_INVALID_PARAMETER);
 
     /* Save for vm state save/restore. */
     pContext->state.aMaterial[face].fValid = true;
@@ -4849,6 +4851,7 @@ int vmsvga3dSetMaterial(PVGASTATE pThis, uint32_t cid, SVGA3dFace face, SVGA3dMa
     if (face != SVGA3D_FACE_NONE)
         Log(("Unsupported face %d!!\n", face));
 
+    D3DMATERIAL9 material;
     material.Diffuse.r     = pMaterial->diffuse[0];
     material.Diffuse.g     = pMaterial->diffuse[1];
     material.Diffuse.b     = pMaterial->diffuse[2];
@@ -4955,15 +4958,13 @@ int vmsvga3dSetLightEnabled(PVGASTATE pThis, uint32_t cid, uint32_t index, uint3
     AssertReturn(pState, VERR_NO_MEMORY);
 
     Log(("vmsvga3dSetLightEnabled %x %d -> %d\n", cid, index, enabled));
+    AssertReturn(index < SVGA3D_MAX_LIGHTS, VERR_INVALID_PARAMETER);
 
     int rc = vmsvga3dContextFromCid(pState, cid, &pContext);
     AssertRCReturn(rc, rc);
 
     /* Store for vm state save/restore */
-    if (index < SVGA3D_MAX_LIGHTS)
-        pContext->state.aLightData[index].fEnabled = !!enabled;
-    else
-        AssertFailed();
+    pContext->state.aLightData[index].fEnabled = !!enabled;
 
     hr = pContext->pDevice->LightEnable(index, (BOOL)enabled);
     AssertMsgReturn(hr == D3D_OK, ("LightEnable failed with %x\n", hr), VERR_INTERNAL_ERROR);

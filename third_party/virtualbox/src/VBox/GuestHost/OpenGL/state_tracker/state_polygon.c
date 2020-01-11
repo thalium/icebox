@@ -13,7 +13,7 @@
 void crStatePolygonInit(CRContext *ctx)
 {
     CRPolygonState *p = &ctx->polygon;
-        CRStateBits *sb = GetCurrentBits();
+        CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
     CRPolygonBits *pb = &(sb->polygon);
     int i;
 
@@ -42,16 +42,16 @@ void crStatePolygonInit(CRContext *ctx)
     RESET(pb->dirty, ctx->bitid);
 }
 
-void STATE_APIENTRY crStateCullFace(GLenum mode) 
+void STATE_APIENTRY crStateCullFace(PCRStateTracker pState, GLenum mode) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPolygonState *p = &(g->polygon);
-        CRStateBits *sb = GetCurrentBits();
+        CRStateBits *sb = GetCurrentBits(pState);
     CRPolygonBits *pb = &(sb->polygon);
 
     if (g->current.inBeginEnd) 
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                 "glCullFace called in begin/end");
         return;
     }
@@ -60,7 +60,7 @@ void STATE_APIENTRY crStateCullFace(GLenum mode)
 
     if (mode != GL_FRONT && mode != GL_BACK && mode != GL_FRONT_AND_BACK)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "glCullFace called with bogus mode: 0x%x", mode);
         return;
     }
@@ -70,16 +70,16 @@ void STATE_APIENTRY crStateCullFace(GLenum mode)
     DIRTY(pb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateFrontFace (GLenum mode) 
+void STATE_APIENTRY crStateFrontFace (PCRStateTracker pState, GLenum mode) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPolygonState *p = &(g->polygon);
-        CRStateBits *sb = GetCurrentBits();
+        CRStateBits *sb = GetCurrentBits(pState);
     CRPolygonBits *pb = &(sb->polygon);
 
     if (g->current.inBeginEnd) 
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                 "glFrontFace called in begin/end");
         return;
     }
@@ -88,7 +88,7 @@ void STATE_APIENTRY crStateFrontFace (GLenum mode)
 
     if (mode != GL_CW && mode != GL_CCW)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "glFrontFace called with bogus mode: 0x%x", mode);
         return;
     }
@@ -98,16 +98,16 @@ void STATE_APIENTRY crStateFrontFace (GLenum mode)
     DIRTY(pb->dirty, g->neg_bitid);
 }
 
-void  STATE_APIENTRY crStatePolygonMode (GLenum face, GLenum mode) 
+void  STATE_APIENTRY crStatePolygonMode (PCRStateTracker pState, GLenum face, GLenum mode) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPolygonState *p = &(g->polygon);
-        CRStateBits *sb = GetCurrentBits();
+        CRStateBits *sb = GetCurrentBits(pState);
     CRPolygonBits *pb = &(sb->polygon);
 
     if (g->current.inBeginEnd) 
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                 "glPolygonMode called in begin/end");
         return;
     }
@@ -116,7 +116,7 @@ void  STATE_APIENTRY crStatePolygonMode (GLenum face, GLenum mode)
 
     if (mode != GL_POINT && mode != GL_LINE && mode != GL_FILL)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "glPolygonMode called with bogus mode: 0x%x", mode);
         return;
     }
@@ -132,7 +132,7 @@ void  STATE_APIENTRY crStatePolygonMode (GLenum face, GLenum mode)
             p->backMode = mode;
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glPolygonMode called with bogus face: 0x%x", face);
             return;
     }
@@ -140,16 +140,16 @@ void  STATE_APIENTRY crStatePolygonMode (GLenum face, GLenum mode)
     DIRTY(pb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStatePolygonOffset (GLfloat factor, GLfloat units) 
+void STATE_APIENTRY crStatePolygonOffset (PCRStateTracker pState, GLfloat factor, GLfloat units) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPolygonState *p = &(g->polygon);
-        CRStateBits *sb = GetCurrentBits();
+        CRStateBits *sb = GetCurrentBits(pState);
     CRPolygonBits *pb = &(sb->polygon);
 
     if (g->current.inBeginEnd) 
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                 "glPolygonOffset called in begin/end");
         return;
     }
@@ -163,30 +163,30 @@ void STATE_APIENTRY crStatePolygonOffset (GLfloat factor, GLfloat units)
     DIRTY(pb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStatePolygonStipple (const GLubyte *p) 
+void STATE_APIENTRY crStatePolygonStipple (PCRStateTracker pState, const GLubyte *p) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPolygonState *poly = &(g->polygon);
-        CRStateBits *sb = GetCurrentBits();
+        CRStateBits *sb = GetCurrentBits(pState);
     CRPolygonBits *pb = &(sb->polygon);
 
     if (g->current.inBeginEnd) 
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                 "glPolygonStipple called in begin/end");
         return;
     }
 
     FLUSH();
 
-    if (!p && !crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+    if (!p && !crStateIsBufferBound(pState, GL_PIXEL_UNPACK_BUFFER_ARB))
     {
         crDebug("Void pointer passed to PolygonStipple");
         return;
     }
 
     /** @todo track mask if buffer is bound?*/
-    if (!crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+    if (!crStateIsBufferBound(pState, GL_PIXEL_UNPACK_BUFFER_ARB))
     {
         crMemcpy((char*)poly->stipple, (char*)p, 128);
     }
@@ -195,14 +195,14 @@ void STATE_APIENTRY crStatePolygonStipple (const GLubyte *p)
     DIRTY(pb->stipple, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateGetPolygonStipple( GLubyte *b )
+void STATE_APIENTRY crStateGetPolygonStipple(PCRStateTracker pState, GLubyte *b )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPolygonState *poly = &(g->polygon);
 
     if (g->current.inBeginEnd) 
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                 "glGetPolygonStipple called in begin/end");
         return;
     }

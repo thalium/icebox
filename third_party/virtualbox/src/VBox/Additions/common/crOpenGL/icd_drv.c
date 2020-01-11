@@ -28,6 +28,8 @@
 
 #include <iprt/win/windows.h>
 
+#include <stdio.h> /*sprintf*/
+
 /// @todo consider
 /* We can modify chronium dispatch table functions order to match the one required by ICD,
  * but it'd render us incompatible with other chromium SPUs and require more changes.

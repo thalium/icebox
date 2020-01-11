@@ -10,37 +10,12 @@
 #include "packspu.h"
 #include "packspu_proto.h"
 
-#if 0
-
-void PACKSPU_APIENTRY packspu_SwapBuffers( GLint window, GLint flags )
-{
-    GET_THREAD(thread);
-    if (pack_spu.swap)
-    {
-        crPackSwapBuffersSWAP( window, flags );
-    }
-    else
-    {
-        crPackSwapBuffers( window, flags );
-    }
-    packspuFlush( (void *) thread );
-}
-
-
-#else
 
 void PACKSPU_APIENTRY packspu_SwapBuffers( GLint window, GLint flags )
 {
     GET_THREAD(thread);
 
-    if (pack_spu.swap)
-    {
-        crPackSwapBuffersSWAP( window, flags );
-    }
-    else
-    {
-        crPackSwapBuffers( window, flags );
-    }
+    crPackSwapBuffers( window, flags );
     packspuFlush( (void *) thread );
 
     if (!(thread->netServer.conn->actual_network))
@@ -72,14 +47,7 @@ void PACKSPU_APIENTRY packspu_SwapBuffers( GLint window, GLint flags )
             /* Request writeback.
              */
             thread->writeback = 1;
-            if (pack_spu.swap)
-            {
-                crPackWritebackSWAP( (GLint *) &thread->writeback );
-            }
-            else
-            {
-                crPackWriteback( (GLint *) &thread->writeback );
-            }
+            crPackWriteback( (GLint *) &thread->writeback );
             break;
         case 1:
             /* Make sure writeback from previous frame has been received.
@@ -91,12 +59,6 @@ void PACKSPU_APIENTRY packspu_SwapBuffers( GLint window, GLint flags )
 
     /* want to emit a parameter here */
     if (pack_spu.emit_GATHER_POST_SWAPBUFFERS)
-    {
-        if (pack_spu.swap)
-            crPackChromiumParameteriCRSWAP(GL_GATHER_POST_SWAPBUFFERS_CR, 1);
-        else
-            crPackChromiumParameteriCR(GL_GATHER_POST_SWAPBUFFERS_CR, 1);
-    }
+        crPackChromiumParameteriCR(GL_GATHER_POST_SWAPBUFFERS_CR, 1);
 }
 
-#endif

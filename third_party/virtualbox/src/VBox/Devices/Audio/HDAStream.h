@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2017-2018 Oracle Corporation
+ * Copyright (C) 2017-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,11 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef HDA_STREAM_H
-#define HDA_STREAM_H
+#ifndef VBOX_INCLUDED_SRC_Audio_HDAStream_h
+#define VBOX_INCLUDED_SRC_Audio_HDAStream_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
+#endif
 
 #include "DevHDACommon.h"
 
@@ -60,10 +63,12 @@ typedef struct HDASTREAMDBGINFORT
      *  For input streams, this dumps data being written to the device FIFO,
      *  whereas for output streams this dumps data being read from the device FIFO. */
     R3PTRTYPE(PPDMAUDIOFILE) pFileStream;
-    /** File for dumping DMA reads / writes.
+    /** File for dumping raw DMA reads / writes.
      *  For input streams, this dumps data being written to the device DMA,
      *  whereas for output streams this dumps data being read from the device DMA. */
-    R3PTRTYPE(PPDMAUDIOFILE) pFileDMA;
+    R3PTRTYPE(PPDMAUDIOFILE) pFileDMARaw;
+    /** File for dumping mapped (that is, extracted) DMA reads / writes. */
+    R3PTRTYPE(PPDMAUDIOFILE) pFileDMAMapped;
 } HDASTREAMDBGINFORT, *PHDASTREAMDBGINFORT;
 
 /**
@@ -123,7 +128,7 @@ typedef struct HDASTREAMSTATE
     HDASTREAMSTATEAIO       AIO;
 #endif
     /** This stream's data mapping. */
-    HDASTREAMMAPPING        Mapping;
+    HDASTREAMMAP            Mapping;
     /** Current BDLE (Buffer Descriptor List Entry). */
     HDABDLE                 BDLE;
     /** Circular buffer (FIFO) for holding DMA'ed data. */
@@ -147,14 +152,20 @@ typedef struct HDASTREAMSTATE
     /** How many interrupts are pending due to
      *  BDLE interrupt-on-completion (IOC) bits set. */
     uint8_t                 cTransferPendingInterrupts;
-    /** The stream's current audio frame size (in bytes). */
-    uint32_t                cbFrameSize;
+    uint8_t                 Padding2[2];
+    /** The stream's timer Hz rate.
+     *  This value can can be different from the device's default Hz rate,
+     *  depending on the rate the stream expects (e.g. for 5.1 speaker setups).
+     *  Set in hdaR3StreamInit(). */
+    uint16_t                uTimerHz;
+    /** Number of audio data frames for the position adjustment.
+     *  0 if no position adjustment is needed. */
+    uint16_t                cfPosAdjustDefault;
     /** How many audio data frames are left to be processed
      *  for the position adjustment handling.
      *
      *  0 if position adjustment handling is done or inactive. */
-    uint16_t                cPosAdjustFramesLeft;
-    uint8_t                 Padding2[2];
+    uint16_t                cfPosAdjustLeft;
     /** (Virtual) clock ticks per byte. */
     uint64_t                cTicksPerByte;
     /** (Virtual) clock ticks per transfer. */
@@ -164,18 +175,11 @@ typedef struct HDASTREAMSTATE
     /** The stream's current configuration.
      *  Should match SDFMT. */
     PDMAUDIOSTREAMCFG       Cfg;
-    uint32_t                Padding3;
+    uint32_t                Padding4;
 #ifdef HDA_USE_DMA_ACCESS_HANDLER
     /** List of DMA handlers. */
     RTLISTANCHORR3          lstDMAHandlers;
 #endif
-    /** How much DMA data from a previous transfer is left to be processed (in bytes).
-     *  This can happen if the stream's frame size is bigger (e.g. 16 bytes) than
-     *  the current DMA FIFO can hold (e.g. 10 bytes). Mostly needed for more complex
-     *  stuff like interleaved surround streams. */
-    uint16_t                cbDMALeft;
-    /** Unused, padding. */
-    uint8_t                 abPadding4[2+4];
    /** Timestamp (in ns) of last stream update. */
     uint64_t                tsLastUpdateNs;
 } HDASTREAMSTATE;
@@ -204,20 +208,26 @@ typedef struct HDASTREAM
      *  For a stereo stream, this is u8Channel + 1. */
     uint8_t                  u8Channel;
     uint8_t                  Padding0[6];
-    /** DMA base address (SDnBDPU - SDnBDPL). */
+    /** DMA base address (SDnBDPU - SDnBDPL).
+     *  Will be updated in hdaR3StreamInit(). */
     uint64_t                 u64BDLBase;
     /** Cyclic Buffer Length (SDnCBL).
-     *  Represents the size of the ring buffer. */
+     *  Represents the size of the ring buffer.
+     *  Will be updated in hdaR3StreamInit(). */
     uint32_t                 u32CBL;
-    /** Format (SDnFMT). */
+    /** Format (SDnFMT).
+     *  Will be updated in hdaR3StreamInit(). */
     uint16_t                 u16FMT;
     /** FIFO Size (FIFOS).
      *  Maximum number of bytes that may have been DMA'd into
-     *  memory but not yet transmitted on the link. */
+     *  memory but not yet transmitted on the link.
+     *
+     *  Will be updated in hdaR3StreamInit(). */
     uint16_t                 u16FIFOS;
     /** FIFO Watermark. */
     uint16_t                 u16FIFOW;
-    /** Last Valid Index (SDnLVI). */
+    /** Last Valid Index (SDnLVI).
+     *  Will be updated in hdaR3StreamInit(). */
     uint16_t                 u16LVI;
     uint16_t                 Padding1[2];
     /** Pointer to the HDA state this stream is attached to. */
@@ -295,5 +305,5 @@ void              hdaR3StreamAsyncIOEnable(PHDASTREAM pStream, bool fEnable);
 /** @} */
 
 #endif /* IN_RING3 */
-#endif /* !HDA_STREAM_H */
+#endif /* !VBOX_INCLUDED_SRC_Audio_HDAStream_h */
 

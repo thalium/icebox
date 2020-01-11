@@ -290,7 +290,7 @@ static int rtldrPEReadPartByRva(PRTLDRMODPE pThis, const void *pvBits, uint32_t 
     *ppvMem = pbMem;
 
     /* Do the reading on a per section base. */
-    RTFOFF const cbFile = pThis->Core.pReader->pfnSize(pThis->Core.pReader);
+    uint64_t const cbFile = pThis->Core.pReader->pfnSize(pThis->Core.pReader);
     for (;;)
     {
         /* Translate the RVA into a file offset. */
@@ -358,8 +358,8 @@ static int rtldrPEReadPartByRva(PRTLDRMODPE pThis, const void *pvBits, uint32_t 
             cbToRead = 0;
         if (cbToRead)
         {
-            if ((RTFOFF)offFile + cbToRead > cbFile)
-                cbToRead = (uint32_t)(cbFile - (RTFOFF)offFile);
+            if ((uint64_t)offFile + cbToRead > cbFile)
+                cbToRead = (uint32_t)(cbFile - (uint64_t)offFile);
             int rc = pThis->Core.pReader->pfnRead(pThis->Core.pReader, pbMem, cbToRead, offFile);
             if (RT_FAILURE(rc))
             {
@@ -509,7 +509,7 @@ static int rtldrPEGetBitsNoImportsNorFixups(PRTLDRMODPE pModPe, void *pvBits)
     /*
      * Read the entire image / file.
      */
-    const RTFOFF cbRawImage = pReader->pfnSize(pReader)
+    const uint64_t cbRawImage = pReader->pfnSize(pReader)
     rc = pReader->pfnRead(pReader, pvBits, RT_MIN(pModPe->cbImage, cbRawImage), 0);
     if (RT_FAILURE(rc))
         Log(("rtldrPE: %s: Reading %#x bytes at offset %#x failed, %Rrc!!! (the entire image)\n",
@@ -2143,9 +2143,9 @@ static int rtldrPe_CalcSpecialHashPlaces(PRTLDRMODPE pModPe, PRTLDRPEHASHSPECIAL
     pPlaces->cbToHash = pModPe->SecurityDir.VirtualAddress;
     if (pPlaces->cbToHash == 0)
     {
-        RTFOFF cbFile = pModPe->Core.pReader->pfnSize(pModPe->Core.pReader);
+        uint64_t cbFile = pModPe->Core.pReader->pfnSize(pModPe->Core.pReader);
         pPlaces->cbToHash = (uint32_t)cbFile;
-        if (pPlaces->cbToHash != (RTFOFF)cbFile)
+        if (pPlaces->cbToHash != (uint64_t)cbFile)
             return RTErrInfoSetF(pErrInfo, VERR_LDRVI_FILE_LENGTH_ERROR, "File is too large: %RTfoff", cbFile);
     }
 
@@ -2520,6 +2520,9 @@ static int rtldrPE_VerifySignatureDecode(PRTLDRMODPE pModPe, PRTLDRPESIGNATURE p
                                    "Unknown pSignedData.ContentInfo.ContentType.szObjId value: %s (expected %s)",
                                    pSignature->pSignedData->ContentInfo.ContentType.szObjId, RTCRSPCINDIRECTDATACONTENT_OID);
         }
+        else
+            rc = RTErrInfoSetF(pErrInfo, VERR_LDRVI_EXPECTED_INDIRECT_DATA_CONTENT_OID, /** @todo error code*/
+                               "PKCS#7 is not 'signedData': %s", pSignature->ContentInfo.ContentType.szObjId);
     }
     return rc;
 }
@@ -2771,8 +2774,8 @@ static int rtldrPE_VerifySignatureValidateHash(PRTLDRMODPE pModPe, PRTLDRPESIGNA
              * Compare the page hashes if present.
              *
              * Seems the difference between V1 and V2 page hash attributes is
-             * that v1 uses SHA-1 while v2 uses SHA-256. The data structures to
-             * be identical otherwise.  Initially we assumed the digest
+             * that v1 uses SHA-1 while v2 uses SHA-256. The data structures
+             * seems to be identical otherwise.  Initially we assumed the digest
              * algorithm was supposed to be RTCRSPCINDIRECTDATACONTENT::DigestInfo,
              * i.e. the same as for the whole image hash.  The initial approach
              * worked just fine, but this makes more sense.
@@ -2827,6 +2830,7 @@ static DECLCALLBACK(int) rtldrPE_VerifySignature(PRTLDRMODINTERNAL pMod, PFNRTLD
             {
                 rc = pfnCallback(&pModPe->Core, RTLDRSIGNATURETYPE_PKCS7_SIGNED_DATA,
                                  &pSignature->ContentInfo, sizeof(pSignature->ContentInfo),
+                                 NULL /*pvExternalData*/, 0 /*cbExternalData*/,
                                  pErrInfo, pvUser);
             }
             rtldrPE_VerifySignatureDestroy(pModPe, pSignature);
@@ -3194,7 +3198,7 @@ static int rtldrPEValidateFileHeader(PIMAGE_FILE_HEADER pFileHdr, uint32_t fFlag
  * @param   fFlags      Loader flags, RTLDR_O_XXX.
  */
 static int rtldrPEValidateOptionalHeader(const IMAGE_OPTIONAL_HEADER64 *pOptHdr, const char *pszLogName, RTFOFF offNtHdrs,
-                                         const IMAGE_FILE_HEADER *pFileHdr, RTFOFF cbRawImage, uint32_t fFlags)
+                                         const IMAGE_FILE_HEADER *pFileHdr, uint64_t cbRawImage, uint32_t fFlags)
 {
     RT_NOREF_PV(pszLogName);
 
@@ -3307,7 +3311,7 @@ static int rtldrPEValidateOptionalHeader(const IMAGE_OPTIONAL_HEADER64 *pOptHdr,
 
             case IMAGE_DIRECTORY_ENTRY_SECURITY:      // 4
                 /* The VirtualAddress is a PointerToRawData. */
-                cb = (size_t)cbRawImage; Assert((RTFOFF)cb == cbRawImage);
+                cb = (size_t)cbRawImage; Assert((uint64_t)cb == cbRawImage);
                 Log(("rtldrPEOpen: %s: dir no. %d (SECURITY) VirtualAddress=%#x Size=%#x is not supported!!!\n",
                      pszLogName, i, pDir->VirtualAddress, pDir->Size));
                 if (pDir->Size < sizeof(WIN_CERTIFICATE))
@@ -3387,7 +3391,7 @@ static int rtldrPEValidateOptionalHeader(const IMAGE_OPTIONAL_HEADER64 *pOptHdr,
  * @param   fNoCode     Verify that the image contains no code.
  */
 static int rtldrPEValidateSectionHeaders(const IMAGE_SECTION_HEADER *paSections, unsigned cSections, const char *pszLogName,
-                                         const IMAGE_OPTIONAL_HEADER64 *pOptHdr, RTFOFF cbRawImage, uint32_t fFlags, bool fNoCode)
+                                         const IMAGE_OPTIONAL_HEADER64 *pOptHdr, uint64_t cbRawImage, uint32_t fFlags, bool fNoCode)
 {
     RT_NOREF_PV(pszLogName);
 
@@ -3458,7 +3462,7 @@ static int rtldrPEValidateSectionHeaders(const IMAGE_SECTION_HEADER *paSections,
             ||  pSH->SizeOfRawData > cbRawImage
             ||  pSH->PointerToRawData + pSH->SizeOfRawData > cbRawImage)
         {
-            Log(("rtldrPEOpen: %s: PointerToRawData=%#x SizeOfRawData=%#x - beyond end of file (%#x) - section #%d '%.*s'!!!\n",
+            Log(("rtldrPEOpen: %s: PointerToRawData=%#x SizeOfRawData=%#x - beyond end of file (%#llx) - section #%d '%.*s'!!!\n",
                  pszLogName, pSH->PointerToRawData, pSH->SizeOfRawData, cbRawImage,
                  iSH, sizeof(pSH->Name), pSH->Name));
             return VERR_BAD_EXE_FORMAT;
@@ -3883,8 +3887,8 @@ static int rtldrPEValidateDirectoriesAndRememberStuff(PRTLDRMODPE pModPe, const 
  * @param   phLdrMod    Where to store the handle.
  * @param   pErrInfo    Where to return extended error information. Optional.
  */
-int rtldrPEOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offNtHdrs,
-                PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo)
+DECLHIDDEN(int) rtldrPEOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offNtHdrs,
+                            PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo)
 {
     /*
      * Read and validate the file header.

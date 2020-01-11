@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2017 Oracle Corporation
+ * Copyright (C) 2017-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,11 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef HDA_STREAMPERIOD_H
-#define HDA_STREAMPERIOD_H
+#ifndef VBOX_INCLUDED_SRC_Audio_HDAStreamPeriod_h
+#define VBOX_INCLUDED_SRC_Audio_HDAStreamPeriod_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
+#endif
 
 #include <iprt/critsect.h>
 #ifdef DEBUG
@@ -107,5 +110,5 @@ void     hdaR3StreamPeriodInc(PHDASTREAMPERIOD pPeriod, uint32_t framesInc);
 bool     hdaR3StreamPeriodIsComplete(PHDASTREAMPERIOD pPeriod);
 #endif /* IN_RING3 */
 
-#endif /* !HDA_STREAMPERIOD_H */
+#endif /* !VBOX_INCLUDED_SRC_Audio_HDAStreamPeriod_h */
 

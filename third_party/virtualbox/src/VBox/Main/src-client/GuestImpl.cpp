@@ -861,7 +861,6 @@ void Guest::i_setAdditionsInfo(const com::Utf8Str &aInterfaceVersion, VBOXOSTYPE
 
     AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-
     /*
      * Note: The Guest Additions API (interface) version is deprecated
      * and will not be used anymore!  We might need it to at least report
@@ -896,7 +895,7 @@ void Guest::i_setAdditionsInfo(const com::Utf8Str &aInterfaceVersion, VBOXOSTYPE
              * "graphics" (feature) facility to active as soon as we got the Guest Additions
              * interface version.
              */
-            i_facilityUpdate(VBoxGuestFacilityType_Graphics, VBoxGuestFacilityStatus_Active,  0 /*fFlags*/, &TimeSpecTS);
+            i_facilityUpdate(VBoxGuestFacilityType_Graphics, VBoxGuestFacilityStatus_Active, 0 /*fFlags*/, &TimeSpecTS);
         }
     }
 
@@ -928,6 +927,14 @@ void Guest::i_setAdditionsInfo(const com::Utf8Str &aInterfaceVersion, VBOXOSTYPE
      */
     mData.mOSType = aOsType;
     mData.mOSTypeId = Global::OSTypeId(aOsType);
+
+    /*
+     * Always fire an event here.
+     */
+    AdditionsRunLevelType_T const enmRunLevel = mData.mAdditionsRunLevel;
+    alock.release();
+    fireGuestAdditionsStatusChangedEvent(mEventSource, AdditionsFacilityType_None, AdditionsFacilityStatus_Active,
+                                         enmRunLevel, RTTimeSpecGetMilli(&TimeSpecTS));
 }
 
 /**
@@ -986,17 +993,18 @@ bool Guest::i_facilityIsActive(VBoxGuestFacilityType enmFacility)
     return false;
 }
 
-void Guest::i_facilityUpdate(VBoxGuestFacilityType a_enmFacility, VBoxGuestFacilityStatus a_enmStatus,
+bool Guest::i_facilityUpdate(VBoxGuestFacilityType a_enmFacility, VBoxGuestFacilityStatus a_enmStatus,
                              uint32_t a_fFlags, PCRTTIMESPEC a_pTimeSpecTS)
 {
-    AssertReturnVoid(   a_enmFacility < VBoxGuestFacilityType_All
-                     && a_enmFacility > VBoxGuestFacilityType_Unknown);
+    AssertReturn(   a_enmFacility < VBoxGuestFacilityType_All
+                 && a_enmFacility > VBoxGuestFacilityType_Unknown, false);
 
+    bool fChanged;
     FacilityMapIter it = mData.mFacilityMap.find((AdditionsFacilityType_T)a_enmFacility);
     if (it != mData.mFacilityMap.end())
     {
         AdditionsFacility *pFac = it->second;
-        pFac->i_update((AdditionsFacilityStatus_T)a_enmStatus, a_fFlags, a_pTimeSpecTS);
+        fChanged = pFac->i_update((AdditionsFacilityStatus_T)a_enmStatus, a_fFlags, a_pTimeSpecTS);
     }
     else
     {
@@ -1004,18 +1012,20 @@ void Guest::i_facilityUpdate(VBoxGuestFacilityType a_enmFacility, VBoxGuestFacil
         {
             /* The easy way out for now. We could automatically destroy
                inactive facilities like VMMDev does if we like... */
-            AssertFailedReturnVoid();
+            AssertFailedReturn(false);
         }
 
         ComObjPtr<AdditionsFacility> ptrFac;
         ptrFac.createObject();
-        AssertReturnVoid(!ptrFac.isNull());
+        AssertReturn(!ptrFac.isNull(), false);
 
         HRESULT hrc = ptrFac->init(this, (AdditionsFacilityType_T)a_enmFacility, (AdditionsFacilityStatus_T)a_enmStatus,
                                    a_fFlags, a_pTimeSpecTS);
-        if (SUCCEEDED(hrc))
-            mData.mFacilityMap.insert(std::make_pair((AdditionsFacilityType_T)a_enmFacility, ptrFac));
+        AssertComRCReturn(hrc, false);
+        mData.mFacilityMap.insert(std::make_pair((AdditionsFacilityType_T)a_enmFacility, ptrFac));
+        fChanged = true;
     }
+    return fChanged;
 }
 
 /**
@@ -1071,15 +1081,17 @@ void Guest::i_setAdditionsStatus(VBoxGuestFacilityType a_enmFacility, VBoxGuestF
     /*
      * Set a specific facility status.
      */
+    bool fFireEvent = false;
     if (a_enmFacility == VBoxGuestFacilityType_All)
         for (FacilityMapIter it = mData.mFacilityMap.begin(); it != mData.mFacilityMap.end(); ++it)
-            i_facilityUpdate((VBoxGuestFacilityType)it->first, a_enmStatus, a_fFlags, a_pTimeSpecTS);
+            fFireEvent |= i_facilityUpdate((VBoxGuestFacilityType)it->first, a_enmStatus, a_fFlags, a_pTimeSpecTS);
     else /* Update one facility only. */
-        i_facilityUpdate(a_enmFacility, a_enmStatus, a_fFlags, a_pTimeSpecTS);
+        fFireEvent = i_facilityUpdate(a_enmFacility, a_enmStatus, a_fFlags, a_pTimeSpecTS);
 
     /*
      * Recalc the runlevel.
      */
+    AdditionsRunLevelType_T const enmOldRunLevel = mData.mAdditionsRunLevel;
     if (i_facilityIsActive(VBoxGuestFacilityType_VBoxTrayClient))
         mData.mAdditionsRunLevel = AdditionsRunLevelType_Desktop;
     else if (i_facilityIsActive(VBoxGuestFacilityType_VBoxService))
@@ -1088,6 +1100,18 @@ void Guest::i_setAdditionsStatus(VBoxGuestFacilityType a_enmFacility, VBoxGuestF
         mData.mAdditionsRunLevel = AdditionsRunLevelType_System;
     else
         mData.mAdditionsRunLevel = AdditionsRunLevelType_None;
+
+    /*
+     * Fire event if something actually changed.
+     */
+    AdditionsRunLevelType_T const enmNewRunLevel = mData.mAdditionsRunLevel;
+    if (fFireEvent || enmNewRunLevel != enmOldRunLevel)
+    {
+        alock.release();
+        fireGuestAdditionsStatusChangedEvent(mEventSource, (AdditionsFacilityType_T)a_enmFacility,
+                                             (AdditionsFacilityStatus_T)a_enmStatus, enmNewRunLevel,
+                                             RTTimeSpecGetMilli(a_pTimeSpecTS));
+    }
 }
 
 /**

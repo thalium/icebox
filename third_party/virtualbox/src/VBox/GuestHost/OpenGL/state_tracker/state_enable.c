@@ -12,6 +12,7 @@
 static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				GLenum cap, GLboolean val)
 {
+    PCRStateTracker pState = g->pStateTracker;
 	unsigned int i;
 	i = cap - GL_CLIP_PLANE0;
 	if (i < g->limits.maxClipPlanes) {
@@ -55,8 +56,8 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				 * last chance (see frame 1 of progs/kirchner
 				 * for an example of why). */
 
-				crStateCurrentRecover( );
-				crStateColorMaterialRecover( );
+				crStateCurrentRecover(pState);
+				crStateColorMaterialRecover(pState);
 			}
 			g->lighting.colorMaterial = val;
 			DIRTY(sb->lighting.enable, neg_bitid);
@@ -70,7 +71,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->lighting.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(GL_COLOR_SUM_EXT) - No support for secondary color!");
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(GL_COLOR_SUM_EXT) - No support for secondary color!");
 				return;
 			}
 			break;
@@ -163,7 +164,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->regcombiner.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(GL_REGISTER_COMBINERS_NV) - No support for NV_register_combiners");
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(GL_REGISTER_COMBINERS_NV) - No support for NV_register_combiners");
 				return;
 			}
 			break;
@@ -176,7 +177,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->regcombiner.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(GL_PER_STAGE_CONSTANTS_NV) - No support for NV_register_combiners2");
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(GL_PER_STAGE_CONSTANTS_NV) - No support for NV_register_combiners2");
 				return;
 			}
 			break;
@@ -189,7 +190,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->texture.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
 				return;
 			}
 			break;
@@ -236,7 +237,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->texture.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
 				return;
 			}
 			break;
@@ -272,7 +273,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 		case GL_MAP1_VERTEX_4 :
 			if (g->texture.curTextureUnit != 0)
 			{
-				crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION, "Map stuff was enabled while the current texture unit was not GL_TEXTURE0_ARB!" );
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "Map stuff was enabled while the current texture unit was not GL_TEXTURE0_ARB!" );
 				return;
 			}
 			g->eval.enable1D[cap - GL_MAP1_COLOR_4] = val;
@@ -334,7 +335,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->program.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
 				return;
 			}
 			break;
@@ -350,7 +351,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->program.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
 				return;
 			}
 			break;
@@ -366,7 +367,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->program.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
 				return;
 			}
 			break;
@@ -426,7 +427,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->program.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
 				return;
 			}
 			break;
@@ -439,7 +440,7 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 				DIRTY(sb->program.dirty, neg_bitid);
 			}
 			else {
-				crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
+				crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable(0x%x)", cap);
 				return;
 			}
 			break;
@@ -492,9 +493,9 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 		case GL_VERTEX_ATTRIB_ARRAY15_NV:
 #endif
 			if (val)
-				crStateEnableClientState(cap);
+				crStateEnableClientState(pState, cap);
 			else
-				crStateDisableClientState(cap);
+				crStateDisableClientState(pState, cap);
 			break;
 #ifdef CR_EXT_stencil_two_side
 		case GL_STENCIL_TEST_TWO_SIDE_EXT:
@@ -504,20 +505,20 @@ static void __enableSet (CRContext *g, CRStateBits *sb, CRbitvalue *neg_bitid,
 		    break;
 #endif
 		default:
-			crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable called with bogus cap: 0x%x", cap);
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glEnable/glDisable called with bogus cap: 0x%x", cap);
 			return;
 	}
 }
 
 
-void STATE_APIENTRY crStateEnable (GLenum cap)
+void STATE_APIENTRY crStateEnable (PCRStateTracker pState, GLenum cap)
 {
-	CRContext *g = GetCurrentContext();
-	CRStateBits *sb = GetCurrentBits();
+	CRContext *g = GetCurrentContext(pState);
+	CRStateBits *sb = GetCurrentBits(pState);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glEnable called in begin/end");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glEnable called in begin/end");
 		return;
 	}
 
@@ -527,14 +528,14 @@ void STATE_APIENTRY crStateEnable (GLenum cap)
 }
 
 
-void STATE_APIENTRY crStateDisable (GLenum cap)
+void STATE_APIENTRY crStateDisable (PCRStateTracker pState, GLenum cap)
 {
-	CRContext *g = GetCurrentContext();
-	CRStateBits *sb = GetCurrentBits();
+	CRContext *g = GetCurrentContext(pState);
+	CRStateBits *sb = GetCurrentBits(pState);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glDisable called in begin/end");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glDisable called in begin/end");
 		return;
 	}
 

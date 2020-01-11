@@ -38,17 +38,28 @@ endif
 ifneq ($(wildcard $(KBUILD_EXTMOD)/vboxpci/Makefile),)
  obj-m += vboxpci/
 endif
+
 else # ! KBUILD_EXTMOD
 
 # convenience Makefile without KBUILD_EXTMOD
 
-KBUILD_VERBOSE =
+KBUILD_VERBOSE ?=
+KERN_VER ?= $(shell uname -r)
+.PHONY: all install clean check unload load vboxdrv vboxnetflt vboxnetadp \
+    vboxpci
 
-all:
+all: vboxdrv vboxnetflt vboxnetadp vboxpci
+
+# We want to build on Linux 2.6.18 and later kernels.
+ifneq ($(filter-out 1.% 2.0.% 2.1.% 2.2.% 2.3.% 2.4.% 2.5.%,$(KERN_VER)),)
+
+vboxdrv:
 	@echo "=== Building 'vboxdrv' module ==="
 	@$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxdrv
 	@cp vboxdrv/vboxdrv.ko .
 	@echo
+
+vboxnetflt: vboxdrv
 	@if [ -d vboxnetflt ]; then \
 	    if [ -f vboxdrv/Module.symvers ]; then \
 	        cp vboxdrv/Module.symvers vboxnetflt; \
@@ -58,6 +69,8 @@ all:
 	    cp vboxnetflt/vboxnetflt.ko .; \
 	    echo; \
 	fi
+
+vboxnetadp: vboxdrv
 	@if [ -d vboxnetadp ]; then \
 	    if [ -f vboxdrv/Module.symvers ]; then \
 	        cp vboxdrv/Module.symvers vboxnetadp; \
@@ -67,6 +80,8 @@ all:
 	    cp vboxnetadp/vboxnetadp.ko .; \
 	    echo; \
 	fi
+
+vboxpci: vboxdrv
 	@if [ -d vboxpci ]; then \
 	    if [ -f vboxdrv/Module.symvers ]; then \
 	        cp vboxdrv/Module.symvers vboxpci; \
@@ -88,6 +103,16 @@ install:
 	@if [ -d vboxpci ]; then \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxpci install; \
 	fi
+
+else
+
+vboxdrv:
+vboxnetflt:
+vboxnetadp:
+vboxpci:
+install:
+
+endif
 
 clean:
 	@$(MAKE) -C vboxdrv clean

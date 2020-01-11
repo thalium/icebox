@@ -18,13 +18,13 @@
  * This used to be a macro.
  */
 static INLINE void
-LOADMATRIX( const CRmatrix *a )
+LOADMATRIX(PCRStateTracker pState, const CRmatrix *a )
 {
     if (a->m00 == 1.0F && a->m01 == 0.0F && a->m02 == 0.0F && a->m03 == 0.0F &&
             a->m10 == 0.0F && a->m11 == 1.0F && a->m12 == 0.0F && a->m13 == 0.0F &&
             a->m20 == 0.0F && a->m21 == 0.0F && a->m22 == 1.0F && a->m23 == 0.0F &&
             a->m30 == 0.0F && a->m31 == 0.0F && a->m32 == 0.0F && a->m33 == 1.0F) {
-        diff_api.LoadIdentity();
+        pState->diff_api.LoadIdentity();
     }
     else {
         GLfloat f[16];
@@ -32,7 +32,7 @@ LOADMATRIX( const CRmatrix *a )
         f[4] = a->m10;  f[5] = a->m11;  f[6] = a->m12;  f[7] = a->m13;
         f[8] = a->m20;  f[9] = a->m21;  f[10] = a->m22; f[11] = a->m23;
         f[12] = a->m30; f[13] = a->m31; f[14] = a->m32; f[15] = a->m33;
-        diff_api.LoadMatrixf(f);
+        pState->diff_api.LoadMatrixf(f);
     }
 }
 
@@ -115,7 +115,7 @@ void crStateTransformInit(CRContext *ctx)
 {
     CRLimitsState *limits = &ctx->limits;
     CRTransformState *t = &ctx->transform;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
     CRTransformBits *tb = &(sb->transform);
     unsigned int i;
 
@@ -214,11 +214,11 @@ void crStateTransformXformPointMatrixd(const CRmatrix *m, GLvectord *p)
     p->w = (GLdouble) (m->m03*x + m->m13*y + m->m23*z + m->m33*w);
 }
 
-void STATE_APIENTRY crStateClipPlane (GLenum plane, const GLdouble *equation)
+void STATE_APIENTRY crStateClipPlane (PCRStateTracker pState, GLenum plane, const GLdouble *equation)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &g->transform;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
     GLvectord e;
     unsigned int i;
@@ -231,7 +231,7 @@ void STATE_APIENTRY crStateClipPlane (GLenum plane, const GLdouble *equation)
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                      "ClipPlane called in begin/end");
         return;
     }
@@ -241,7 +241,7 @@ void STATE_APIENTRY crStateClipPlane (GLenum plane, const GLdouble *equation)
     i = plane - GL_CLIP_PLANE0;
     if (i >= g->limits.maxClipPlanes)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                      "ClipPlane called with bad enumerant: %d", plane);
         return;
     }
@@ -253,17 +253,17 @@ void STATE_APIENTRY crStateClipPlane (GLenum plane, const GLdouble *equation)
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateMatrixMode(GLenum e) 
+void STATE_APIENTRY crStateMatrixMode(PCRStateTracker pState, GLenum e) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
     CRTextureState *tex = &(g->texture);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "MatrixMode called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "MatrixMode called in begin/end");
         return;
     }
 
@@ -306,7 +306,7 @@ void STATE_APIENTRY crStateMatrixMode(GLenum e)
                 tb->currentMatrix = tb->programMatrix;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid matrix mode: %d", e);
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid matrix mode: %d", e);
                 return;
             }
             break;
@@ -328,12 +328,12 @@ void STATE_APIENTRY crStateMatrixMode(GLenum e)
                 tb->currentMatrix = tb->programMatrix;
             }
             else {
-                 crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid matrix mode: %d", e);
+                 crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid matrix mode: %d", e);
                  return;
             }
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid matrix mode: %d", e);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid matrix mode: %d", e);
             return;
     }
     DIRTY(tb->matrixMode, g->neg_bitid);
@@ -342,16 +342,16 @@ void STATE_APIENTRY crStateMatrixMode(GLenum e)
     CRASSERT(t->currentStack->top == t->currentStack->stack + t->currentStack->depth);
 }
 
-void STATE_APIENTRY crStateLoadIdentity() 
+void STATE_APIENTRY crStateLoadIdentity(PCRStateTracker pState) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "LoadIdentity called in begin/end");
         return;
     }
@@ -365,16 +365,16 @@ void STATE_APIENTRY crStateLoadIdentity()
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStatePopMatrix() 
+void STATE_APIENTRY crStatePopMatrix(PCRStateTracker pState) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &g->transform;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "PopMatrix called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "PopMatrix called in begin/end");
         return;
     }
 
@@ -382,7 +382,7 @@ void STATE_APIENTRY crStatePopMatrix()
 
     if (t->currentStack->depth == 0)
     {
-        crStateError(__LINE__, __FILE__, GL_STACK_UNDERFLOW, "PopMatrix of empty stack.");
+        crStateError(pState, __LINE__, __FILE__, GL_STACK_UNDERFLOW, "PopMatrix of empty stack.");
         return;
     }
 
@@ -397,16 +397,16 @@ void STATE_APIENTRY crStatePopMatrix()
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStatePushMatrix() 
+void STATE_APIENTRY crStatePushMatrix(PCRStateTracker pState) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &g->transform;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "PushMatrix called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "PushMatrix called in begin/end");
         return;
     }
 
@@ -414,7 +414,7 @@ void STATE_APIENTRY crStatePushMatrix()
 
     if (t->currentStack->depth + 1 >= t->currentStack->maxDepth)
     {
-        crStateError(__LINE__, __FILE__, GL_STACK_OVERFLOW, "PushMatrix pass the end of allocated stack");
+        crStateError(pState, __LINE__, __FILE__, GL_STACK_OVERFLOW, "PushMatrix pass the end of allocated stack");
         return;
     }
 
@@ -432,16 +432,16 @@ void STATE_APIENTRY crStatePushMatrix()
 
 
 /* Load a CRMatrix */
-void crStateLoadMatrix(const CRmatrix *m)
+void crStateLoadMatrix(PCRStateTracker pState, const CRmatrix *m)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "LoadMatrix called in begin/end");
         return;
     }
@@ -457,16 +457,16 @@ void crStateLoadMatrix(const CRmatrix *m)
 
 
 
-void STATE_APIENTRY crStateLoadMatrixf(const GLfloat *m1) 
+void STATE_APIENTRY crStateLoadMatrixf(PCRStateTracker pState, const GLfloat *m1) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "LoadMatrixf called in begin/end");
         return;
     }
@@ -480,16 +480,16 @@ void STATE_APIENTRY crStateLoadMatrixf(const GLfloat *m1)
 }
 
 
-void STATE_APIENTRY crStateLoadMatrixd(const GLdouble *m1) 
+void STATE_APIENTRY crStateLoadMatrixd(PCRStateTracker pState, const GLdouble *m1) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "LoadMatrixd called in begin/end");
         return;
     }
@@ -503,20 +503,20 @@ void STATE_APIENTRY crStateLoadMatrixd(const GLdouble *m1)
 }
 
 
-void STATE_APIENTRY crStateLoadTransposeMatrixfARB(const GLfloat *m1) 
+void STATE_APIENTRY crStateLoadTransposeMatrixfARB(PCRStateTracker pState, const GLfloat *m1) 
 {
    GLfloat tm[16];
    if (!m1) return;
    _math_transposef(tm, m1);
-   crStateLoadMatrixf(tm);
+   crStateLoadMatrixf(pState, tm);
 }
 
-void STATE_APIENTRY crStateLoadTransposeMatrixdARB(const GLdouble *m1) 
+void STATE_APIENTRY crStateLoadTransposeMatrixdARB(PCRStateTracker pState, const GLdouble *m1) 
 {
    GLdouble tm[16];
    if (!m1) return;
    _math_transposed(tm, m1);
-   crStateLoadMatrixd(tm);
+   crStateLoadMatrixd(pState, tm);
 }
 
 /* This code is based on the Pomegranate stuff.
@@ -526,11 +526,11 @@ void STATE_APIENTRY crStateLoadTransposeMatrixdARB(const GLdouble *m1)
  ** I'm not too sure with a PII with 4 registers
  ** that this really helps.
  */ 
-void STATE_APIENTRY crStateMultMatrixf(const GLfloat *m1) 
+void STATE_APIENTRY crStateMultMatrixf(PCRStateTracker pState, const GLfloat *m1) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
     CRmatrix *m = t->currentStack->top;
 
@@ -569,7 +569,7 @@ void STATE_APIENTRY crStateMultMatrixf(const GLfloat *m1)
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "MultMatrixf called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "MultMatrixf called in begin/end");
         return;
     }
 
@@ -598,11 +598,11 @@ void STATE_APIENTRY crStateMultMatrixf(const GLfloat *m1)
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateMultMatrixd(const GLdouble *m1) 
+void STATE_APIENTRY crStateMultMatrixd(PCRStateTracker pState, const GLdouble *m1) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
     CRmatrix *m = t->currentStack->top;
     const GLdefault lm00 = m->m00;  
@@ -640,7 +640,7 @@ void STATE_APIENTRY crStateMultMatrixd(const GLdouble *m1)
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "MultMatrixd called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "MultMatrixd called in begin/end");
         return;
     }
 
@@ -669,32 +669,32 @@ void STATE_APIENTRY crStateMultMatrixd(const GLdouble *m1)
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateMultTransposeMatrixfARB(const GLfloat *m1) 
+void STATE_APIENTRY crStateMultTransposeMatrixfARB(PCRStateTracker pState, const GLfloat *m1) 
 {
    GLfloat tm[16];
    if (!m1) return;
    _math_transposef(tm, m1);
-   crStateMultMatrixf(tm);
+   crStateMultMatrixf(pState, tm);
 }
 
-void STATE_APIENTRY crStateMultTransposeMatrixdARB(const GLdouble *m1) 
+void STATE_APIENTRY crStateMultTransposeMatrixdARB(PCRStateTracker pState, const GLdouble *m1) 
 {
    GLdouble tm[16];
    if (!m1) return;
    _math_transposed(tm, m1);
-   crStateMultMatrixd(tm);
+   crStateMultMatrixd(pState, tm);
 }
 
-void STATE_APIENTRY crStateTranslatef(GLfloat x_arg, GLfloat y_arg, GLfloat z_arg) 
+void STATE_APIENTRY crStateTranslatef(PCRStateTracker pState, GLfloat x_arg, GLfloat y_arg, GLfloat z_arg) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Translatef called in begin/end");
         return;
     }
@@ -708,16 +708,16 @@ void STATE_APIENTRY crStateTranslatef(GLfloat x_arg, GLfloat y_arg, GLfloat z_ar
 }
 
 
-void STATE_APIENTRY crStateTranslated(GLdouble x_arg, GLdouble y_arg, GLdouble z_arg) 
+void STATE_APIENTRY crStateTranslated(PCRStateTracker pState, GLdouble x_arg, GLdouble y_arg, GLdouble z_arg) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Translated called in begin/end");
         return;
     }
@@ -731,16 +731,16 @@ void STATE_APIENTRY crStateTranslated(GLdouble x_arg, GLdouble y_arg, GLdouble z
 }   
 
 
-void STATE_APIENTRY crStateRotatef(GLfloat ang, GLfloat x, GLfloat y, GLfloat z) 
+void STATE_APIENTRY crStateRotatef(PCRStateTracker pState, GLfloat ang, GLfloat x, GLfloat y, GLfloat z) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Rotatef called in begin/end");
         return;
     }
@@ -753,16 +753,16 @@ void STATE_APIENTRY crStateRotatef(GLfloat ang, GLfloat x, GLfloat y, GLfloat z)
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateRotated(GLdouble ang, GLdouble x, GLdouble y, GLdouble z) 
+void STATE_APIENTRY crStateRotated(PCRStateTracker pState, GLdouble ang, GLdouble x, GLdouble y, GLdouble z) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Rotated called in begin/end");
         return;
     }
@@ -775,16 +775,16 @@ void STATE_APIENTRY crStateRotated(GLdouble ang, GLdouble x, GLdouble y, GLdoubl
     DIRTY(tb->dirty, g->neg_bitid);
 }   
 
-void STATE_APIENTRY crStateScalef (GLfloat x_arg, GLfloat y_arg, GLfloat z_arg) 
+void STATE_APIENTRY crStateScalef (PCRStateTracker pState, GLfloat x_arg, GLfloat y_arg, GLfloat z_arg) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Scalef called in begin/end");
         return;
     }
@@ -797,16 +797,16 @@ void STATE_APIENTRY crStateScalef (GLfloat x_arg, GLfloat y_arg, GLfloat z_arg)
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateScaled (GLdouble x_arg, GLdouble y_arg, GLdouble z_arg) 
+void STATE_APIENTRY crStateScaled (PCRStateTracker pState, GLdouble x_arg, GLdouble y_arg, GLdouble z_arg) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Scaled called in begin/end");
         return;
     }
@@ -819,18 +819,18 @@ void STATE_APIENTRY crStateScaled (GLdouble x_arg, GLdouble y_arg, GLdouble z_ar
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateFrustum(GLdouble left, GLdouble right,
+void STATE_APIENTRY crStateFrustum(PCRStateTracker pState, GLdouble left, GLdouble right,
                                                                      GLdouble bottom, GLdouble top, 
                                                                      GLdouble zNear, GLdouble zFar)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Frustum called in begin/end");
         return;
     }
@@ -843,18 +843,18 @@ void STATE_APIENTRY crStateFrustum(GLdouble left, GLdouble right,
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateOrtho(GLdouble left, GLdouble right,
+void STATE_APIENTRY crStateOrtho(PCRStateTracker pState, GLdouble left, GLdouble right,
                                                                  GLdouble bottom, GLdouble top,
                                                                  GLdouble zNear, GLdouble zFar)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &(g->transform);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTransformBits *tb = &(sb->transform);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "Ortho called in begin/end");
         return;
     }
@@ -867,15 +867,15 @@ void STATE_APIENTRY crStateOrtho(GLdouble left, GLdouble right,
     DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateGetClipPlane(GLenum plane, GLdouble *equation) 
+void STATE_APIENTRY crStateGetClipPlane(PCRStateTracker pState, GLenum plane, GLdouble *equation) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTransformState *t = &g->transform;
     unsigned int i;
     
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
             "glGetClipPlane called in begin/end");
         return;
     }
@@ -883,7 +883,7 @@ void STATE_APIENTRY crStateGetClipPlane(GLenum plane, GLdouble *equation)
     i = plane - GL_CLIP_PLANE0;
     if (i >= g->limits.maxClipPlanes)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, 
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, 
             "GetClipPlane called with bad enumerant: %d", plane);
         return;
     }
@@ -897,6 +897,7 @@ void STATE_APIENTRY crStateGetClipPlane(GLenum plane, GLdouble *equation)
 void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID, 
                                                          CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     const GLuint maxTextureUnits = toCtx->limits.maxTextureUnits;
     CRTransformState *from = &(fromCtx->transform);
     CRTransformState *to = &(toCtx->transform);
@@ -904,19 +905,21 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
     unsigned int checktex = 0;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
 
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
+
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
 
     if (CHECKDIRTY(t->enable, bitID))
     {
         glAble able[2];
-        able[0] = diff_api.Disable;
-        able[1] = diff_api.Enable;
+        able[0] = pState->diff_api.Disable;
+        able[1] = pState->diff_api.Enable;
         if (from->normalize != to->normalize) {
             if (to->normalize == GL_TRUE)
-                diff_api.Enable(GL_NORMALIZE);
+                pState->diff_api.Enable(GL_NORMALIZE);
             else
-                diff_api.Disable(GL_NORMALIZE);
+                pState->diff_api.Disable(GL_NORMALIZE);
             FILLDIRTY(t->enable);
             FILLDIRTY(t->dirty);
         }
@@ -942,9 +945,9 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
     }
 
     if (CHECKDIRTY(t->clipPlane, bitID)) {
-        diff_api.MatrixMode(GL_MODELVIEW);
-        diff_api.PushMatrix();
-        diff_api.LoadIdentity();
+        pState->diff_api.MatrixMode(GL_MODELVIEW);
+        pState->diff_api.PushMatrix();
+        pState->diff_api.LoadIdentity();
         for (i=0; i<CR_MAX_CLIP_PLANES; i++) {
             if (from->clipPlane[i].x != to->clipPlane[i].x ||
                 from->clipPlane[i].y != to->clipPlane[i].y ||
@@ -957,13 +960,13 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
                 cp[2] = to->clipPlane[i].z;
                 cp[3] = to->clipPlane[i].w;
 
-                diff_api.ClipPlane(GL_CLIP_PLANE0 + i, (const GLdouble *)(cp));
+                pState->diff_api.ClipPlane(GL_CLIP_PLANE0 + i, (const GLdouble *)(cp));
 
                 FILLDIRTY(t->clipPlane);
                 FILLDIRTY(t->dirty);
             }
         }
-        diff_api.PopMatrix();
+        pState->diff_api.PopMatrix();
         CLEARDIRTY(t->clipPlane, nbitID);
     }
 
@@ -985,26 +988,26 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
         if (td != fd ||
                 !crMatrixIsEqual(to->modelViewStack.top, from->modelViewStack.top))
         {
-            diff_api.MatrixMode(GL_MODELVIEW);
+            pState->diff_api.MatrixMode(GL_MODELVIEW);
 
             if (fd > td)
             {
                 for (i = td; i < fd; i++) 
                 {
-                    diff_api.PopMatrix();
+                    pState->diff_api.PopMatrix();
                 }
                 fd = td;
             }
 
             for (i = fd; i <= td; i++)
             {
-                LOADMATRIX(to->modelViewStack.stack + i);
+                LOADMATRIX(pState, to->modelViewStack.stack + i);
                 FILLDIRTY(t->modelviewMatrix);
                 FILLDIRTY(t->dirty);
 
                 /* Don't want to push on the current matrix */
                 if (i != to->modelViewStack.depth)
-                    diff_api.PushMatrix();
+                    pState->diff_api.PushMatrix();
             }
         }
         CLEARDIRTY(t->modelviewMatrix, nbitID);
@@ -1020,26 +1023,26 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
         if (td != fd ||
                 !crMatrixIsEqual(to->projectionStack.top, from->projectionStack.top)) {
 
-            diff_api.MatrixMode(GL_PROJECTION);
+            pState->diff_api.MatrixMode(GL_PROJECTION);
 
             if (fd > td)
             {
                 for (i = td; i < fd; i++) 
                 {
-                    diff_api.PopMatrix();
+                    pState->diff_api.PopMatrix();
                 }
                 fd = td;
             }
 
             for (i = fd; i <= td; i++)
             {
-                LOADMATRIX(to->projectionStack.stack + i);
+                LOADMATRIX(pState, to->projectionStack.stack + i);
                 FILLDIRTY(t->projectionMatrix);
                 FILLDIRTY(t->dirty);
 
                 /* Don't want to push on the current matrix */
                 if (i != to->projectionStack.depth)
-                    diff_api.PushMatrix();
+                    pState->diff_api.PushMatrix();
             }
         }
         CLEARDIRTY(t->projectionMatrix, nbitID);
@@ -1060,34 +1063,34 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
             if (td != fd ||
                     !crMatrixIsEqual(to->textureStack[j].top, from->textureStack[j].top))
             {
-                diff_api.MatrixMode(GL_TEXTURE);
+                pState->diff_api.MatrixMode(GL_TEXTURE);
 
                 if (fd > td)
                 {
                     for (i = td; i < fd; i++) 
                     {
-                        diff_api.PopMatrix();
+                        pState->diff_api.PopMatrix();
                     }
                     fd = td;
                 }
 
-                diff_api.ActiveTextureARB( j + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( j + GL_TEXTURE0_ARB );
                 for (i = fd; i <= td; i++)
                 {
-                    LOADMATRIX(to->textureStack[j].stack + i);
+                    LOADMATRIX(pState, to->textureStack[j].stack + i);
                     FILLDIRTY(t->textureMatrix);
                     FILLDIRTY(t->dirty);
 
                     /* Don't want to push on the current matrix */
                     if (i != to->textureStack[j].depth)
-                        diff_api.PushMatrix();
+                        pState->diff_api.PushMatrix();
                 }
             }
         }
         /* Since we were mucking with the active texture unit above set it to the
          * proper value now.  
          */
-        diff_api.ActiveTextureARB(GL_TEXTURE0_ARB + toCtx->texture.curTextureUnit);
+        pState->diff_api.ActiveTextureARB(GL_TEXTURE0_ARB + toCtx->texture.curTextureUnit);
         CLEARDIRTY(t->textureMatrix, nbitID);
     }
 
@@ -1099,26 +1102,26 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
         GLuint fd = from->colorStack.depth;
         if (td != fd || !crMatrixIsEqual(to->colorStack.top, from->colorStack.top))
         {
-            diff_api.MatrixMode(GL_COLOR);
+            pState->diff_api.MatrixMode(GL_COLOR);
 
             if (fd > td)
             {
                 for (i = td; i < fd; i++) 
                 {
-                    diff_api.PopMatrix();
+                    pState->diff_api.PopMatrix();
                 }
                 fd = td;
             }
 
             for (i = fd; i <= td; i++)
             {
-                LOADMATRIX(to->colorStack.stack + i);
+                LOADMATRIX(pState, to->colorStack.stack + i);
                 FILLDIRTY(t->colorMatrix);
                 FILLDIRTY(t->dirty);
 
                 /* Don't want to push on the current matrix */
                 if (i != to->colorStack.depth)
-                    diff_api.PushMatrix();
+                    pState->diff_api.PushMatrix();
             }
         }
         CLEARDIRTY(t->colorMatrix, nbitID);
@@ -1130,7 +1133,7 @@ void crStateTransformSwitch( CRTransformBits *t, CRbitvalue *bitID,
     /* Since we were mucking with the current matrix above 
      * set it to the proper value now.  
      */
-    diff_api.MatrixMode(to->matrixMode);
+    pState->diff_api.MatrixMode(to->matrixMode);
 
     /* sanity tests */
     CRASSERT(from->modelViewStack.top == from->modelViewStack.stack + from->modelViewStack.depth);
@@ -1142,6 +1145,7 @@ void
 crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
                                             CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     const GLuint maxTextureUnits = toCtx->limits.maxTextureUnits;
     CRTransformState *from = &(fromCtx->transform);
     CRTransformState *to = &(toCtx->transform);
@@ -1150,27 +1154,29 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
     unsigned int checktex = 0;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
 
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
+
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
 
     if (CHECKDIRTY(t->enable, bitID)) {
         glAble able[2];
-        able[0] = diff_api.Disable;
-        able[1] = diff_api.Enable;
+        able[0] = pState->diff_api.Disable;
+        able[1] = pState->diff_api.Enable;
         for (i=0; i<CR_MAX_CLIP_PLANES; i++) {
             if (from->clip[i] != to->clip[i]) {
                 if (to->clip[i] == GL_TRUE)
-                    diff_api.Enable(GL_CLIP_PLANE0 + i);
+                    pState->diff_api.Enable(GL_CLIP_PLANE0 + i);
                 else
-                    diff_api.Disable(GL_CLIP_PLANE0 + i);
+                    pState->diff_api.Disable(GL_CLIP_PLANE0 + i);
                 from->clip[i] = to->clip[i];
             }
         }
         if (from->normalize != to->normalize) {
             if (to->normalize == GL_TRUE)
-                diff_api.Enable(GL_NORMALIZE);
+                pState->diff_api.Enable(GL_NORMALIZE);
             else
-                diff_api.Disable(GL_NORMALIZE);
+                pState->diff_api.Disable(GL_NORMALIZE);
             from->normalize = to->normalize;
         }
 #ifdef CR_OPENGL_VERSION_1_2
@@ -1193,11 +1199,11 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
 
     if (CHECKDIRTY(t->clipPlane, bitID)) {
         if (from->matrixMode != GL_MODELVIEW) {
-            diff_api.MatrixMode(GL_MODELVIEW);
+            pState->diff_api.MatrixMode(GL_MODELVIEW);
             from->matrixMode = GL_MODELVIEW;
         }
-        diff_api.PushMatrix();
-        diff_api.LoadIdentity();
+        pState->diff_api.PushMatrix();
+        pState->diff_api.LoadIdentity();
         for (i=0; i<CR_MAX_CLIP_PLANES; i++) {
             if (from->clipPlane[i].x != to->clipPlane[i].x ||
                 from->clipPlane[i].y != to->clipPlane[i].y ||
@@ -1210,11 +1216,11 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
                 cp[2] = to->clipPlane[i].z;
                 cp[3] = to->clipPlane[i].w;
 
-                diff_api.ClipPlane(GL_CLIP_PLANE0 + i, (const GLdouble *)(cp));
+                pState->diff_api.ClipPlane(GL_CLIP_PLANE0 + i, (const GLdouble *)(cp));
                 from->clipPlane[i] = to->clipPlane[i];
             }
         }
-        diff_api.PopMatrix();
+        pState->diff_api.PopMatrix();
         CLEARDIRTY(t->clipPlane, nbitID);
     }
     
@@ -1231,7 +1237,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
           CHECKDIRTY(t->modelviewMatrix, bitID) )
     {
         if (from->matrixMode != GL_MODELVIEW) {
-            diff_api.MatrixMode(GL_MODELVIEW);
+            pState->diff_api.MatrixMode(GL_MODELVIEW);
             from->matrixMode = GL_MODELVIEW;
         }
 
@@ -1239,7 +1245,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
         {
             for (i = to->modelViewStack.depth; i < from->modelViewStack.depth; i++) 
             {
-                diff_api.PopMatrix();
+                pState->diff_api.PopMatrix();
             }
 
             from->modelViewStack.depth = to->modelViewStack.depth;
@@ -1247,12 +1253,12 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
 
         for (i = from->modelViewStack.depth; i <= to->modelViewStack.depth; i++)
         {
-            LOADMATRIX(to->modelViewStack.stack + i);
+            LOADMATRIX(pState, to->modelViewStack.stack + i);
             from->modelViewStack.stack[i] = to->modelViewStack.stack[i];
 
             /* Don't want to push on the current matrix */
             if (i != to->modelViewStack.depth)
-                diff_api.PushMatrix();
+                pState->diff_api.PushMatrix();
         }
         from->modelViewStack.depth = to->modelViewStack.depth;
         from->modelViewStack.top = from->modelViewStack.stack + from->modelViewStack.depth;
@@ -1265,7 +1271,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
           CHECKDIRTY(t->projectionMatrix, bitID) )
     {
         if (from->matrixMode != GL_PROJECTION) {
-            diff_api.MatrixMode(GL_PROJECTION);
+            pState->diff_api.MatrixMode(GL_PROJECTION);
             from->matrixMode = GL_PROJECTION;
         }
 
@@ -1273,7 +1279,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
         {
             for (i = to->projectionStack.depth; i < from->projectionStack.depth; i++) 
             {
-                diff_api.PopMatrix();
+                pState->diff_api.PopMatrix();
             }
 
             from->projectionStack.depth = to->projectionStack.depth;
@@ -1281,12 +1287,12 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
 
         for (i = from->projectionStack.depth; i <= to->projectionStack.depth; i++)
         {
-            LOADMATRIX(to->projectionStack.stack + i);
+            LOADMATRIX(pState, to->projectionStack.stack + i);
             from->projectionStack.stack[i] = to->projectionStack.stack[i];
 
             /* Don't want to push on the current matrix */
             if (i != to->projectionStack.depth)
-                diff_api.PushMatrix();
+                pState->diff_api.PushMatrix();
         }
         from->projectionStack.depth = to->projectionStack.depth;
         from->projectionStack.top = from->projectionStack.stack + from->projectionStack.depth;
@@ -1302,7 +1308,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
     if (checktex || CHECKDIRTY(t->textureMatrix, bitID))
     {
         if (from->matrixMode != GL_TEXTURE) {
-            diff_api.MatrixMode(GL_TEXTURE);
+            pState->diff_api.MatrixMode(GL_TEXTURE);
             from->matrixMode = GL_TEXTURE;
         }
         for (j = 0 ; j < maxTextureUnits; j++)
@@ -1310,12 +1316,12 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
             if (from->textureStack[j].depth > to->textureStack[j].depth) 
             {
                 if (textureFrom->curTextureUnit != j) {
-                    diff_api.ActiveTextureARB( j + GL_TEXTURE0_ARB );
+                    pState->diff_api.ActiveTextureARB( j + GL_TEXTURE0_ARB );
                     textureFrom->curTextureUnit = j;
                 }
                 for (i = to->textureStack[j].depth; i < from->textureStack[j].depth; i++) 
                 {
-                    diff_api.PopMatrix();
+                    pState->diff_api.PopMatrix();
                 }
     
                 from->textureStack[j].depth = to->textureStack[j].depth;
@@ -1324,15 +1330,15 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
             for (i = from->textureStack[j].depth; i <= to->textureStack[j].depth; i++)
             {
                 if (textureFrom->curTextureUnit != j) {
-                    diff_api.ActiveTextureARB( j + GL_TEXTURE0_ARB );
+                    pState->diff_api.ActiveTextureARB( j + GL_TEXTURE0_ARB );
                     textureFrom->curTextureUnit = j;
                 }
-                LOADMATRIX(to->textureStack[j].stack + i);
+                LOADMATRIX(pState, to->textureStack[j].stack + i);
                 from->textureStack[j].stack[i] = to->textureStack[j].stack[i];
 
                 /* Don't want to push on the current matrix */
                 if (i != to->textureStack[j].depth)
-                    diff_api.PushMatrix();
+                    pState->diff_api.PushMatrix();
             }
             from->textureStack[j].depth = to->textureStack[j].depth;
             from->textureStack[j].top = from->textureStack[j].stack + from->textureStack[j].depth;
@@ -1340,7 +1346,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
         CLEARDIRTY(t->textureMatrix, nbitID);
 
         /* Restore proper active texture unit */
-        diff_api.ActiveTextureARB(GL_TEXTURE0_ARB + toCtx->texture.curTextureUnit);
+        pState->diff_api.ActiveTextureARB(GL_TEXTURE0_ARB + toCtx->texture.curTextureUnit);
     }
 
     /* Color matrix */
@@ -1348,7 +1354,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
           CHECKDIRTY(t->colorMatrix, bitID) )
     {
         if (from->matrixMode != GL_COLOR) {
-            diff_api.MatrixMode(GL_COLOR);
+            pState->diff_api.MatrixMode(GL_COLOR);
             from->matrixMode = GL_COLOR;
         }
 
@@ -1356,7 +1362,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
         {
             for (i = to->colorStack.depth; i < from->colorStack.depth; i++) 
             {
-                diff_api.PopMatrix();
+                pState->diff_api.PopMatrix();
             }
 
             from->colorStack.depth = to->colorStack.depth;
@@ -1364,12 +1370,12 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
 
         for (i = to->colorStack.depth; i <= to->colorStack.depth; i++)
         {
-            LOADMATRIX(to->colorStack.stack + i);
+            LOADMATRIX(pState, to->colorStack.stack + i);
             from->colorStack.stack[i] = to->colorStack.stack[i];
 
             /* Don't want to push on the current matrix */
             if (i != to->colorStack.depth)
-                diff_api.PushMatrix();
+                pState->diff_api.PushMatrix();
         }
         from->colorStack.depth = to->colorStack.depth;
         from->colorStack.top = from->colorStack.stack + from->colorStack.depth;
@@ -1382,7 +1388,7 @@ crStateTransformDiff( CRTransformBits *t, CRbitvalue *bitID,
 
     /* update MatrixMode now */
     if (from->matrixMode != to->matrixMode) {
-        diff_api.MatrixMode(to->matrixMode);
+        pState->diff_api.MatrixMode(to->matrixMode);
         from->matrixMode = to->matrixMode;
     }
 

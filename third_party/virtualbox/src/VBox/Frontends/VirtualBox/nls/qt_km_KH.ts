@@ -92,11 +92,11 @@
     </message>
     <message>
         <source>Read: %1</source>
-        <translation type="vanished">អាន ៖ %1</translation>
+        <translation type="vanished">អាន&#xa0;៖ %1</translation>
     </message>
     <message>
         <source>Write: %1</source>
-        <translation type="vanished">សរសេរ ៖ %1</translation>
+        <translation type="vanished">សរសេរ&#xa0;៖ %1</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -132,15 +132,15 @@
     </message>
     <message>
         <source>Look &amp;in:</source>
-        <translation type="vanished">មើល​ក្នុង ៖</translation>
+        <translation type="vanished">មើល​ក្នុង&#xa0;៖</translation>
     </message>
     <message>
         <source>File &amp;name:</source>
-        <translation type="vanished">ឈ្មោះ​ឯកសារ ៖</translation>
+        <translation type="vanished">ឈ្មោះ​ឯកសារ&#xa0;៖</translation>
     </message>
     <message>
         <source>File &amp;type:</source>
-        <translation type="vanished">ប្រភេទ​ឯកសារ ៖</translation>
+        <translation type="vanished">ប្រភេទ​ឯកសារ&#xa0;៖</translation>
     </message>
     <message>
         <source>Back</source>
@@ -280,7 +280,7 @@
     </message>
     <message>
         <source>&lt;qt&gt;Are you sure you wish to delete %1 &quot;%2&quot;?&lt;/qt&gt;</source>
-        <translation type="vanished">&lt;qt&gt;តើ​អ្នក​ប្រាកដ​ជា​ចង់​លុប %1 &quot;%2&quot; មែនឬ ?&lt;/qt&gt;</translation>
+        <translation type="vanished">&lt;qt&gt;តើ​អ្នក​ប្រាកដ​ជា​ចង់​លុប %1 &quot;%2&quot; មែនឬ&#xa0;?&lt;/qt&gt;</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -312,7 +312,7 @@
     </message>
     <message>
         <source>Directory:</source>
-        <translation type="vanished">ថត ៖</translation>
+        <translation type="vanished">ថត&#xa0;៖</translation>
     </message>
     <message>
         <source>Error</source>
@@ -322,7 +322,7 @@
         <source>%1
 File not found.
 Check path and filename.</source>
-        <translation type="vanished">%1 រក​មិនឃើញ​ទេ ។ សូម​ពិនិត្យ​មើល​ផ្លូវ និង​ឈ្មោះ​ឯកសារ ។</translation>
+        <translation type="vanished">%1 រក​មិនឃើញ​ទេ&#xa0;។ សូម​ពិនិត្យ​មើល​ផ្លូវ និង​ឈ្មោះ​ឯកសារ&#xa0;។</translation>
     </message>
     <message>
         <source>All Files (*.*)</source>
@@ -759,7 +759,7 @@ to
     </message>
     <message>
         <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
-        <translation>&apos;%1&apos; អាច​ប្រតិបត្តិ​បាន ទាមទារ Qt %2 រកឃើញ Qt %3 ។</translation>
+        <translation>&apos;%1&apos; អាច​ប្រតិបត្តិ​បាន ទាមទារ Qt %2 រកឃើញ Qt %3&#xa0;។</translation>
     </message>
     <message>
         <source>Incompatible Qt Library Error</source>
@@ -791,7 +791,7 @@ to
     </message>
     <message>
         <source>COM &amp;Object:</source>
-        <translation type="vanished">វត្ថុ COM ៖</translation>
+        <translation type="vanished">វត្ថុ COM&#xa0;៖</translation>
     </message>
 </context>
 <context>
@@ -875,31 +875,31 @@ to
     <name>QColorDialog</name>
     <message>
         <source>Hu&amp;e:</source>
-        <translation>ភាព​លាំៗ​នៃ​ពណ៌ ៖</translation>
+        <translation>ភាព​លាំៗ​នៃ​ពណ៌&#xa0;៖</translation>
     </message>
     <message>
         <source>&amp;Sat:</source>
-        <translation>តិត្ថិភាព ៖</translation>
+        <translation>តិត្ថិភាព&#xa0;៖</translation>
     </message>
     <message>
         <source>&amp;Val:</source>
-        <translation>តម្លៃ ៖</translation>
+        <translation>តម្លៃ&#xa0;៖</translation>
     </message>
     <message>
         <source>&amp;Red:</source>
-        <translation>ក្រហម ៖</translation>
+        <translation>ក្រហម&#xa0;៖</translation>
     </message>
     <message>
         <source>&amp;Green:</source>
-        <translation>បៃតង ៖</translation>
+        <translation>បៃតង&#xa0;៖</translation>
     </message>
     <message>
         <source>Bl&amp;ue:</source>
-        <translation>ខៀវ ៖</translation>
+        <translation>ខៀវ&#xa0;៖</translation>
     </message>
     <message>
         <source>A&amp;lpha channel:</source>
-        <translation>ឆានែល​អាល់ហ្វា ៖</translation>
+        <translation>ឆានែល​អាល់ហ្វា&#xa0;៖</translation>
     </message>
     <message>
         <source>&amp;Basic colors</source>
@@ -1245,7 +1245,7 @@ Press ESC to cancel</source>
     <name>QDialog</name>
     <message>
         <source>What&apos;s This?</source>
-        <translation>តើ​នេះជា​អ្វី ?</translation>
+        <translation>តើ​នេះជា​អ្វី&#xa0;?</translation>
     </message>
 </context>
 <context>
@@ -1502,15 +1502,15 @@ Press ESC to cancel</source>
     <name>QErrorMessage</name>
     <message>
         <source>Debug Message:</source>
-        <translation>សារ​បំបាត់​កំហុស ៖</translation>
+        <translation>សារ​បំបាត់​កំហុស&#xa0;៖</translation>
     </message>
     <message>
         <source>Warning:</source>
-        <translation>ការ​ព្រមាន ៖</translation>
+        <translation>ការ​ព្រមាន&#xa0;៖</translation>
     </message>
     <message>
         <source>Fatal Error:</source>
-        <translation>កំហុស​ធ្ងន់ធ្ងរ ៖</translation>
+        <translation>កំហុស​ធ្ងន់ធ្ងរ&#xa0;៖</translation>
     </message>
     <message>
         <source>&amp;Show this message again</source>
@@ -1600,15 +1600,15 @@ Press ESC to cancel</source>
     <message>
         <source>%1 already exists.
 Do you want to replace it?</source>
-        <translation>មាន %1 រួច​ហើយ ។
-តើ​អ្នក​ចង់​ជំនួស​វា​ទេ ?</translation>
+        <translation>មាន %1 រួច​ហើយ&#xa0;។
+តើ​អ្នក​ចង់​ជំនួស​វា​ទេ&#xa0;?</translation>
     </message>
     <message>
         <source>%1
 File not found.
 Please verify the correct file name was given.</source>
         <translation>រក​មិនឃើញ​ឯកសារ %1
-ទេ ។សូម​ផ្ទៀងផ្ទាត់​ឈ្មោះ​ឯកសារ​ដែល​ត្រឹមត្រូវ​ត្រូ​វបាន​ផ្ដល់ ។</translation>
+ទេ&#xa0;។សូម​ផ្ទៀងផ្ទាត់​ឈ្មោះ​ឯកសារ​ដែល​ត្រឹមត្រូវ​ត្រូ​វបាន​ផ្ដល់&#xa0;។</translation>
     </message>
     <message>
         <source>My Computer</source>
@@ -1644,32 +1644,32 @@ Please verify the correct file name was given.</source>
     </message>
     <message>
         <source>Files of type:</source>
-        <translation>ឯកសារ​ប្រភេទ ៖</translation>
+        <translation>ឯកសារ​ប្រភេទ&#xa0;៖</translation>
     </message>
     <message>
         <source>Directory:</source>
-        <translation>ថត ៖</translation>
+        <translation>ថត&#xa0;៖</translation>
     </message>
     <message>
         <source>
 File not found.
 Please verify the correct file name was given</source>
         <translation type="vanished">
-រក​មិនឃើញឯកសារ ។
+រក​មិនឃើញឯកសារ&#xa0;។
 សូម​ផ្ទៀងផ្ទាត់​ឈ្មោះ​ឯកសារ​ដែល​ត្រឹមត្រូវ​ដែល​ត្រូវ​ផ្ដល់</translation>
     </message>
     <message>
         <source>%1
 Directory not found.
 Please verify the correct directory name was given.</source>
-        <translation>រក​មិនឃើញ​ថត %1 ទេ ។
-សូម​ផ្ទៀងផ្ទាត់​ឈ្មោះ​ថត​ដែល​​ត្រឹមត្រូវ​ដែលបានផ្ដល់ ។</translation>
+        <translation>រក​មិនឃើញ​ថត %1 ទេ&#xa0;។
+សូម​ផ្ទៀងផ្ទាត់​ឈ្មោះ​ថត​ដែល​​ត្រឹមត្រូវ​ដែលបានផ្ដល់&#xa0;។</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is write protected.
 Do you want to delete it anyway?</source>
         <translation>&apos;%1&apos; &apos;%1&apos; ការ​ពារ​មិន​ឲ្យ​សរសេរ​ចូល ។
-បើ​អញ្ចឹង តើ​អ្នក​ចង់​លុប​វា​ដែរ​ឬទេ ?</translation>
+បើ​អញ្ចឹង តើ​អ្នក​ចង់​លុប​វា​ដែរ​ឬទេ&#xa0;?</translation>
     </message>
     <message>
         <source>Are sure you want to delete &apos;%1&apos;?</source>
@@ -1677,7 +1677,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Could not delete directory.</source>
-        <translation>មិនអាច​លុប​ថត​បានទេ ។</translation>
+        <translation>មិនអាច​លុប​ថត​បានទេ&#xa0;។</translation>
     </message>
     <message>
         <source>All Files (*.*)</source>
@@ -1729,11 +1729,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>File &amp;name:</source>
-        <translation>ឈ្មោះ​ឯកសារ ៖</translation>
+        <translation>ឈ្មោះ​ឯកសារ&#xa0;៖</translation>
     </message>
     <message>
         <source>Look in:</source>
-        <translation>រក​​ក្នុង ៖</translation>
+        <translation>រក​​ក្នុង&#xa0;៖</translation>
     </message>
     <message>
         <source>Create New Folder</source>
@@ -1837,7 +1837,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>&lt;b&gt;The name &quot;%1&quot; can not be used.&lt;/b&gt;&lt;p&gt;Try using another name, with fewer characters or no punctuations marks.</source>
-        <translation>&lt;b&gt;ឈ្មោះ &quot;%1&quot; មិនអាច​ត្រូវ​បាន​ប្រើ​ទេ ។&lt;/b&gt;&lt;p&gt;ព្យាយាម​ប្រើ​ឈ្មោះ​ផ្សេង ដែលមាន​តួអក្សរ​ពីរ​បី ឬ​គ្មាន​សញ្ញា​វណ្ណយុទ្ធ ។</translation>
+        <translation>&lt;b&gt;ឈ្មោះ &quot;%1&quot; មិនអាច​ត្រូវ​បាន​ប្រើ​ទេ&#xa0;។&lt;/b&gt;&lt;p&gt;ព្យាយាម​ប្រើ​ឈ្មោះ​ផ្សេង ដែលមាន​តួអក្សរ​ពីរ​បី ឬ​គ្មាន​សញ្ញា​វណ្ណយុទ្ធ&#xa0;។</translation>
     </message>
     <message>
         <source>Name</source>
@@ -2157,55 +2157,55 @@ Do you want to delete it anyway?</source>
     <message>
         <source>Connecting to host failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងការ​តភ្ជាប់​ទៅ​កាន់ ៖
+        <translation>បានបរាជ័យ​ក្នុងការ​តភ្ជាប់​ទៅ​កាន់&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Login failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងកា​រ ៖
+        <translation>បានបរាជ័យ​ក្នុងកា​រ&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Listing directory failed:
 %1</source>
-        <translation>បាន​បរាជ័យ​ក្នុង​រក​ថត ៖
+        <translation>បាន​បរាជ័យ​ក្នុង​រក​ថត&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Changing directory failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងកា​រផ្លាស់ប្ដូរ​ថត ៖
+        <translation>បានបរាជ័យ​ក្នុងកា​រផ្លាស់ប្ដូរ​ថត&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Downloading file failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងកា​រទាញ​យក​ឯកសារ ៖
+        <translation>បានបរាជ័យ​ក្នុងកា​រទាញ​យក​ឯកសារ&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Uploading file failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងការ​ផ្ទុក​ឯកសារ​ឡើង ៖
+        <translation>បានបរាជ័យ​ក្នុងការ​ផ្ទុក​ឯកសារ​ឡើង&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Removing file failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងការ​យក​ឯកសារ​ចេញ ៖
+        <translation>បានបរាជ័យ​ក្នុងការ​យក​ឯកសារ​ចេញ&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Creating directory failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងការ​បង្កើត​ថត ៖
+        <translation>បានបរាជ័យ​ក្នុងការ​បង្កើត​ថត&#xa0;៖
 %1</translation>
     </message>
     <message>
         <source>Removing directory failed:
 %1</source>
-        <translation>បានបរាជ័យ​ក្នុងការ​យក​​ថត​ចេញ ៖
+        <translation>បានបរាជ័យ​ក្នុងការ​យក​​ថត​ចេញ&#xa0;៖
 %1</translation>
     </message>
     <message>
@@ -2712,11 +2712,11 @@ Do you want to delete it anyway?</source>
     <name>QLibrary</name>
     <message>
         <source>QLibrary::load_sys: Cannot load %1 (%2)</source>
-        <translation type="vanished">QLibrary::load_sys ៖ មិន​អាច​ផ្ទុក %1 (%2) បានទេ</translation>
+        <translation type="vanished">QLibrary::load_sys&#xa0;៖ មិន​អាច​ផ្ទុក %1 (%2) បានទេ</translation>
     </message>
     <message>
         <source>QLibrary::unload_sys: Cannot unload %1 (%2)</source>
-        <translation type="vanished">QLibrary::unload_sys ៖ មិន​អាច​មិនផ្ទុក​បានទេ %1 (%2)</translation>
+        <translation type="vanished">QLibrary::unload_sys&#xa0;៖ មិន​អាច​មិនផ្ទុក​បានទេ %1 (%2)</translation>
     </message>
     <message>
         <source>QLibrary::resolve_sys: Symbol &quot;%1&quot; undefined in %2 (%3)</source>
@@ -2724,7 +2724,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Could not mmap &apos;%1&apos;: %2</source>
-        <translation type="vanished">មិនអាច mmap &apos;%1&apos; ៖ %2 បានទេ</translation>
+        <translation type="vanished">មិនអាច mmap &apos;%1&apos;&#xa0;៖ %2 បានទេ</translation>
     </message>
     <message>
         <source>Plugin verification data mismatch in &apos;%1&apos;</source>
@@ -2736,11 +2736,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. (%2.%3.%4) [%5]</source>
-        <translation>កម្មវិធី​ជំនួយ &apos;%1&apos; ប្រើ​បណ្ណាល័យ Qt មិន​ឆបគ្នា ។ (%2.%3.%4) [%5]</translation>
+        <translation>កម្មវិធី​ជំនួយ &apos;%1&apos; ប្រើ​បណ្ណាល័យ Qt មិន​ឆបគ្នា&#xa0;។ (%2.%3.%4) [%5]</translation>
     </message>
     <message>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. Expected build key &quot;%2&quot;, got &quot;%3&quot;</source>
-        <translation type="vanished">កម្មវិធី​ជំនួយ &apos;%1&apos; ប្រើ​បណ្ណាល័យ Qt មិន​ឆបគ្នា ។ សោ​ស្ថាបនា​ដែល​បាន​រំពឹង​ទុកគឺ &quot;%2&quot; បាន​ទទួល &quot;%3&quot;</translation>
+        <translation type="vanished">កម្មវិធី​ជំនួយ &apos;%1&apos; ប្រើ​បណ្ណាល័យ Qt មិន​ឆបគ្នា&#xa0;។ សោ​ស្ថាបនា​ដែល​បាន​រំពឹង​ទុកគឺ &quot;%2&quot; បាន​ទទួល &quot;%3&quot;</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -2748,15 +2748,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>The shared library was not found.</source>
-        <translation>រក​មិនឃើញ​បណ្ណាល័យ​រួម ។</translation>
+        <translation>រក​មិនឃើញ​បណ្ណាល័យ​រួម&#xa0;។</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; is not a valid Qt plugin.</source>
-        <translation>ឯកសារ &apos;%1&apos; មិនមែន​ជា​កម្មវិធី Qt ត្រឹមត្រូវ​ទេ ។</translation>
+        <translation>ឯកសារ &apos;%1&apos; មិនមែន​ជា​កម្មវិធី Qt ត្រឹមត្រូវ​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. (Cannot mix debug and release libraries.)</source>
-        <translation>កម្មវិធី​ជំនួយ &apos;%1&apos; ប្រើ​បណ្ណាល័យ Qt មិន​ឆប​គ្នា ។ (មិនអាច​បញ្ចូល​បណ្ណាល័យ​បំបាត់​កំហុស និង​ចេញផ្សាយ​បានទេ ។)</translation>
+        <translation>កម្មវិធី​ជំនួយ &apos;%1&apos; ប្រើ​បណ្ណាល័យ Qt មិន​ឆប​គ្នា&#xa0;។ (មិនអាច​បញ្ចូល​បណ្ណាល័យ​បំបាត់​កំហុស និង​ចេញផ្សាយ​បានទេ&#xa0;។)</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not an ELF object (%2)</source>
@@ -3170,11 +3170,11 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;កម្មវិធី​នេះ​ប្រើ​កំណែ Qt %1 ។&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;កម្មវិធី​នេះ​ប្រើ​កំណែ Qt %1&#xa0;។&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; for more information.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;h3&gt;អំពី Qt&lt;/h3&gt;%1&lt;p&gt;Qt គឺ​ជា​ព័ត៌មាន​ជំនួយ​ C++ សម្រាប់​កា​រអភិវឌ្ឍ​កម្មវិធី​​សម្រាប់​ប្រព័ន្ធ​ប្រតិបត្តិការ​ខុសគ្នា ។&lt;/p&gt;&lt;p&gt;Qt ផ្ដល់​នូវ​ភាព​ឆប​គ្នា​ដែល​បាន​ប្រភព​តែ​មួយ​ដែល​ប្រើបានទាំង MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux និង​ Unix ផ្នែក​ជំនួញ​ជា​ច្រើន​ទេ ។ Qt ក៏អាច​ប្រើ​បាន​សម្រាប់​ឧបករណ៍​ដែលបាន​បង្កប់​ដូចជា Qtopia ។ &lt;/p&gt;&lt;p&gt;Qt គឺជា​ផលិតផល​របស់ Trolltech ចំពោះ​ព័ត៌មាន​បន្ថែម​សូមមើល &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; ។&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;អំពី Qt&lt;/h3&gt;%1&lt;p&gt;Qt គឺ​ជា​ព័ត៌មាន​ជំនួយ​ C++ សម្រាប់​កា​រអភិវឌ្ឍ​កម្មវិធី​​សម្រាប់​ប្រព័ន្ធ​ប្រតិបត្តិការ​ខុសគ្នា&#xa0;។&lt;/p&gt;&lt;p&gt;Qt ផ្ដល់​នូវ​ភាព​ឆប​គ្នា​ដែល​បាន​ប្រភព​តែ​មួយ​ដែល​ប្រើបានទាំង MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux និង​ Unix ផ្នែក​ជំនួញ​ជា​ច្រើន​ទេ&#xa0;។ Qt ក៏អាច​ប្រើ​បាន​សម្រាប់​ឧបករណ៍​ដែលបាន​បង្កប់​ដូចជា Qtopia ។ &lt;/p&gt;&lt;p&gt;Qt គឺជា​ផលិតផល​របស់ Trolltech ចំពោះ​ព័ត៌មាន​បន្ថែម​សូមមើល &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; ។&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Show Details...</source>
@@ -3186,7 +3186,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;កម្មវិធី​នេះ​ប្រើកំណែ​កម្មវិធី​ប្រភព​កូដ​ចំហ​ Qt %1 ។&lt;/p&gt;&lt;p&gt;កំណែ​កម្មវិធី​ប្រភព​កូដ​ចំហ Qt សម្រាប់​ការ​អភិវឌ្ឍ​កម្មវិធី​ប្រភព​កូដ​ចំហ ។ អ្នក​ត្រូវការ​អាជ្ញាប័ណ្ណ Qt ផ្នែក​ជំនួញ​សម្រាប់​កម្មវិធី​មាន​​កម្មសិទ្ធិ (ប្រភព​បិទ) ។&lt;/p&gt;&lt;p&gt;ចំពោះ​ទិដ្ឋភាពទូទៅនៃ​អាជ្ញាប័ណ្ណ​របស់ Qt សូម​មើល &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; ។&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;កម្មវិធី​នេះ​ប្រើកំណែ​កម្មវិធី​ប្រភព​កូដ​ចំហ​ Qt %1&#xa0;។&lt;/p&gt;&lt;p&gt;កំណែ​កម្មវិធី​ប្រភព​កូដ​ចំហ Qt សម្រាប់​ការ​អភិវឌ្ឍ​កម្មវិធី​ប្រភព​កូដ​ចំហ&#xa0;។ អ្នក​ត្រូវការ​អាជ្ញាប័ណ្ណ Qt ផ្នែក​ជំនួញ​សម្រាប់​កម្មវិធី​មាន​​កម្មសិទ្ធិ (ប្រភព​បិទ)&#xa0;។&lt;/p&gt;&lt;p&gt;ចំពោះ​ទិដ្ឋភាពទូទៅនៃ​អាជ្ញាប័ណ្ណ​របស់ Qt សូម​មើល &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt;&#xa0;។&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
@@ -3589,7 +3589,7 @@ Do you want to delete it anyway?</source>
     <name>QODBCResult</name>
     <message>
         <source>QODBCResult::reset: Unable to set &apos;SQL_CURSOR_STATIC&apos; as statement attribute. Please check your ODBC driver configuration</source>
-        <translation>QODBCResult::reset: Unable to set &apos;SQL_CURSOR_STATIC&apos; ជា​គុណលក្ខណៈ​សេចក្ដី​ថ្លែង​ការណ៍ ។ សូម​ពិនិត្យ​មើល​ការ​កំណត់​រចនាសម្ព័ន្ធ​កម្មវិធី​បញ្ជា​នៃ ODBC របស់​អ្នក</translation>
+        <translation>QODBCResult::reset: Unable to set &apos;SQL_CURSOR_STATIC&apos; ជា​គុណលក្ខណៈ​សេចក្ដី​ថ្លែង​ការណ៍&#xa0;។ សូម​ពិនិត្យ​មើល​ការ​កំណត់​រចនាសម្ព័ន្ធ​កម្មវិធី​បញ្ជា​នៃ ODBC របស់​អ្នក</translation>
     </message>
     <message>
         <source>Unable to execute statement</source>
@@ -3681,7 +3681,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Page size:</source>
-        <translation type="unfinished">ទំហំ​ទំព័រ ៖</translation>
+        <translation type="unfinished">ទំហំ​ទំព័រ&#xa0;៖</translation>
     </message>
     <message>
         <source>Width:</source>
@@ -3693,7 +3693,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Paper source:</source>
-        <translation type="unfinished">ប្រភព​ក្រដាស ៖</translation>
+        <translation type="unfinished">ប្រភព​ក្រដាស&#xa0;៖</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -4367,7 +4367,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>The plugin was not loaded.</source>
-        <translation>កម្មវិធី​ជំនួយ​មិនត្រូវ​បានផ្ទុក​ទេ ។</translation>
+        <translation>កម្មវិធី​ជំនួយ​មិនត្រូវ​បានផ្ទុក​ទេ&#xa0;។</translation>
     </message>
 </context>
 <context>
@@ -4378,7 +4378,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Aliases: %1</source>
-        <translation type="vanished">ឈ្មោះ​ក្លែងក្លាយ ៖ %1</translation>
+        <translation type="vanished">ឈ្មោះ​ក្លែងក្លាយ&#xa0;៖ %1</translation>
     </message>
     <message>
         <source>unknown</source>
@@ -4522,15 +4522,15 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Page size:</source>
-        <translation type="vanished">ទំហំ​ទំព័រ ៖</translation>
+        <translation type="vanished">ទំហំ​ទំព័រ&#xa0;៖</translation>
     </message>
     <message>
         <source>Orientation:</source>
-        <translation type="vanished">ទិស ៖</translation>
+        <translation type="vanished">ទិស&#xa0;៖</translation>
     </message>
     <message>
         <source>Paper source:</source>
-        <translation type="vanished">ប្រភព​ក្រដាស ៖</translation>
+        <translation type="vanished">ប្រភព​ក្រដាស&#xa0;៖</translation>
     </message>
     <message>
         <source>Print</source>
@@ -4558,7 +4558,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="vanished">ទំហំ ៖</translation>
+        <translation type="vanished">ទំហំ&#xa0;៖</translation>
     </message>
     <message>
         <source>Properties</source>
@@ -4566,7 +4566,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Printer info:</source>
-        <translation type="vanished">ព័ត៌មាន​របស់​ម៉ាស៊ីន​បោះពុម្ព ៖</translation>
+        <translation type="vanished">ព័ត៌មាន​របស់​ម៉ាស៊ីន​បោះពុម្ព&#xa0;៖</translation>
     </message>
     <message>
         <source>Browse</source>
@@ -4602,7 +4602,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>Number of copies:</source>
-        <translation type="vanished">ចំនួន​ច្បាប់ចម្លង ៖</translation>
+        <translation type="vanished">ចំនួន​ច្បាប់ចម្លង&#xa0;៖</translation>
     </message>
     <message>
         <source>Collate</source>
@@ -4627,14 +4627,14 @@ Do you want to delete it anyway?</source>
     <message>
         <source>File %1 is not writable.
 Please choose a different file name.</source>
-        <translation>ឯកសារ %1 មិន​អាច​សរសេរ​បាន ។
-សូម​ជ្រើស​ឈ្មោះ​ឯកសារ​ផ្សេង ។</translation>
+        <translation>ឯកសារ %1 មិន​អាច​សរសេរ​បាន&#xa0;។
+សូម​ជ្រើស​ឈ្មោះ​ឯកសារ​ផ្សេង&#xa0;។</translation>
     </message>
     <message>
         <source>%1 already exists.
 Do you want to overwrite it?</source>
-        <translation>មាន %1 រួច​ហើយ ។
-តើ​អ្នក​ចង់​សរសេរ​ជាន់លើ​វា​ដែរឬទេ ?</translation>
+        <translation>មាន %1 រួច​ហើយ&#xa0;។
+តើ​អ្នក​ចង់​សរសេរ​ជាន់លើ​វា​ដែរឬទេ&#xa0;?</translation>
     </message>
     <message>
         <source>File exists</source>
@@ -4642,7 +4642,7 @@ Do you want to overwrite it?</source>
     </message>
     <message>
         <source>&lt;qt&gt;Do you want to overwrite it?&lt;/qt&gt;</source>
-        <translation type="vanished">&lt;qt&gt;តើ​អ្នក​ចង់​សរសេរ​ជាន់​លើ​វា​ដែរឬទេ ?&lt;/qt&gt;</translation>
+        <translation type="vanished">&lt;qt&gt;តើ​អ្នក​ចង់​សរសេរ​ជាន់​លើ​វា​ដែរឬទេ&#xa0;?&lt;/qt&gt;</translation>
     </message>
     <message>
         <source>Print selection</source>
@@ -4651,8 +4651,8 @@ Do you want to overwrite it?</source>
     <message>
         <source>%1 is a directory.
 Please choose a different file name.</source>
-        <translation>%1 គឺ​ជា​ថត ។
-សូម​ជ្រើស​ឈ្មោះ​ឯកសារ​ផ្សេង ។</translation>
+        <translation>%1 គឺ​ជា​ថត&#xa0;។
+សូម​ជ្រើស​ឈ្មោះ​ឯកសារ​ផ្សេង&#xa0;។</translation>
     </message>
     <message>
         <source>Left to Right, Top to Bottom</source>
@@ -7182,7 +7182,7 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Delete this record?</source>
-        <translation type="vanished">លុប​កំណត់​ត្រា​នេះ​ឬ ?</translation>
+        <translation type="vanished">លុប​កំណត់​ត្រា​នេះ​ឬ&#xa0;?</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -7202,7 +7202,7 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Save edits?</source>
-        <translation type="vanished">រក្សាទុក​ការ​កែសម្រួល ?</translation>
+        <translation type="vanished">រក្សាទុក​ការ​កែសម្រួល&#xa0;?</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7214,22 +7214,22 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Cancel your edits?</source>
-        <translation type="vanished">បោះបង់​ការ​កែសម្រួល​របស់​អ្នកឬ ?</translation>
+        <translation type="vanished">បោះបង់​ការ​កែសម្រួល​របស់​អ្នកឬ&#xa0;?</translation>
     </message>
 </context>
 <context>
     <name>QSslSocket</name>
     <message>
         <source>Unable to write data: %1</source>
-        <translation>មិនអាច​សរសេរ​ទិន្នន័យ ៖ %1</translation>
+        <translation>មិនអាច​សរសេរ​ទិន្នន័យ&#xa0;៖ %1</translation>
     </message>
     <message>
         <source>Error while reading: %1</source>
-        <translation>កំហុស​ខណៈពេល​អាន ៖ %1</translation>
+        <translation>កំហុស​ខណៈពេល​អាន&#xa0;៖ %1</translation>
     </message>
     <message>
         <source>Error during SSL handshake: %1</source>
-        <translation>កំហុស​កំឡុង​ពេល​ភ្ជាប់ SSL ៖ %1</translation>
+        <translation>កំហុស​កំឡុង​ពេល​ភ្ជាប់ SSL&#xa0;៖ %1</translation>
     </message>
     <message>
         <source>Error creating SSL context (%1)</source>
@@ -7245,7 +7245,7 @@ Role of an accessible object</extracomment>
     </message>
     <message>
         <source>Error creating SSL session: %1</source>
-        <translation>កំហុស​ក្នុងការ​បង្កើត​សម័យ SSL ៖ %1</translation>
+        <translation>កំហុស​ក្នុងការ​បង្កើត​សម័យ SSL&#xa0;៖ %1</translation>
     </message>
     <message>
         <source>Cannot provide a certificate with no key, %1</source>
@@ -7723,7 +7723,7 @@ Role of an accessible object</extracomment>
     <name>QWhatsThisAction</name>
     <message>
         <source>What&apos;s This?</source>
-        <translation>តើ​នេះជា​អ្វី ?</translation>
+        <translation>តើ​នេះជា​អ្វី&#xa0;?</translation>
     </message>
 </context>
 <context>
@@ -7986,19 +7986,19 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     <name>QXmlStream</name>
     <message>
         <source>Extra content at end of document.</source>
-        <translation>បរិបទ​បន្ថែម​នៅ​ចុង​ឯកសារ .</translation>
+        <translation>បរិបទ​បន្ថែម​នៅ​ចុង​ឯកសារ&#xa0;.</translation>
     </message>
     <message>
         <source>Invalid entity value.</source>
-        <translation>តម្លៃ​ធាតុ​មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>តម្លៃ​ធាតុ​មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Invalid XML character.</source>
-        <translation>តួអក្សរ XML មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>តួអក្សរ XML មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Sequence &apos;]]&gt;&apos; not allowed in content.</source>
-        <translation>លំដាប់ &apos;]]&gt;&apos; មិន​បាន​អនុញ្ញាត​នៅ​ក្នុង​មាតិកា​ទេ ។</translation>
+        <translation>លំដាប់ &apos;]]&gt;&apos; មិន​បាន​អនុញ្ញាត​នៅ​ក្នុង​មាតិកា​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Namespace prefix &apos;%1&apos; not declared</source>
@@ -8006,23 +8006,23 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     </message>
     <message>
         <source>Attribute redefined.</source>
-        <translation type="vanished">បានកំណត់​គុណលក្ខណៈ​ឡើង​វិញ ។</translation>
+        <translation type="vanished">បានកំណត់​គុណលក្ខណៈ​ឡើង​វិញ&#xa0;។</translation>
     </message>
     <message>
         <source>Unexpected character &apos;%1&apos; in public id literal.</source>
-        <translation>តួអក្សរ​ដែល​មិនបាន​រំពឹង​ទុក &apos;%1&apos; នៅ​ក្នុង​លេខសម្គាល់សាធារណៈ​​ត្រង់ៗ ។</translation>
+        <translation>តួអក្សរ​ដែល​មិនបាន​រំពឹង​ទុក &apos;%1&apos; នៅ​ក្នុង​លេខសម្គាល់សាធារណៈ​​ត្រង់ៗ&#xa0;។</translation>
     </message>
     <message>
         <source>Invalid XML version string.</source>
-        <translation>ខ្សែអក្សរ​កំណែ XML មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>ខ្សែអក្សរ​កំណែ XML មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Unsupported XML version.</source>
-        <translation>មិនគាំទ្រ​កំណែ XML នោះ​ទេ ។</translation>
+        <translation>មិនគាំទ្រ​កំណែ XML នោះ​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>%1 is an invalid encoding name.</source>
-        <translation>%1 គឺជា​ឈ្មោះ​អ៊ីន​កូដ​មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>%1 គឺជា​ឈ្មោះ​អ៊ីន​កូដ​មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Encoding %1 is unsupported</source>
@@ -8030,23 +8030,23 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     </message>
     <message>
         <source>Invalid XML encoding name.</source>
-        <translation type="vanished">ឈ្មោះ​អ៊ីនកូដ​ XML មិន​ត្រឹមត្រូវ​ទេ ។</translation>
+        <translation type="vanished">ឈ្មោះ​អ៊ីនកូដ​ XML មិន​ត្រឹមត្រូវ​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Standalone accepts only yes or no.</source>
-        <translation>ព្រម​ទទួល​យក​តែ​ឯង​ប្រសិនបើ​ បាទ/ចាស ឬ​ទេ ។</translation>
+        <translation>ព្រម​ទទួល​យក​តែ​ឯង​ប្រសិនបើ​ បាទ/ចាស ឬ​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Invalid attribute in XML declaration.</source>
-        <translation>គុណលក្ខណៈ​មិន​ត្រឹមត្រូវ​នៅ​ក្នុងកា​រប្រកាស XML​ ។</translation>
+        <translation>គុណលក្ខណៈ​មិន​ត្រឹមត្រូវ​នៅ​ក្នុងកា​រប្រកាស XML​&#xa0;។</translation>
     </message>
     <message>
         <source>Premature end of document.</source>
-        <translation>មុន​ដល់​ចុង​ឯកសារ ។</translation>
+        <translation>មុន​ដល់​ចុង​ឯកសារ&#xa0;។</translation>
     </message>
     <message>
         <source>Invalid document.</source>
-        <translation>ឯកសារ​មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>ឯកសារ​មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Expected </source>
@@ -8062,71 +8062,71 @@ The minimum Direct2D version required is %1.%2.%3.%4. The Direct2D version on th
     </message>
     <message>
         <source>Expected character data.</source>
-        <translation>ទិន្នន័យ​តួអក្សរ​មិន​រំពឹង​ទុក ។</translation>
+        <translation>ទិន្នន័យ​តួអក្សរ​មិន​រំពឹង​ទុក&#xa0;។</translation>
     </message>
     <message>
         <source>Recursive entity detected.</source>
-        <translation>បានលុប​ធាតុ​ម្ដង​ទៀង ។</translation>
+        <translation>បានលុប​ធាតុ​ម្ដង​ទៀង&#xa0;។</translation>
     </message>
     <message>
         <source>Start tag expected.</source>
-        <translation>ចាប់ផ្ដើម​ស្លាក​ដែល​រំពឹង​ទុក ។</translation>
+        <translation>ចាប់ផ្ដើម​ស្លាក​ដែល​រំពឹង​ទុក&#xa0;។</translation>
     </message>
     <message>
         <source>XML declaration not at start of document.</source>
-        <translation>កា​រប្រកាស XML មិននៅ​ដើម​​ឯកសា​រទេ ។</translation>
+        <translation>កា​រប្រកាស XML មិននៅ​ដើម​​ឯកសា​រទេ&#xa0;។</translation>
     </message>
     <message>
         <source>NDATA in parameter entity declaration.</source>
-        <translation>កា​រប្រកាស​ធាតុ​ប៉ារ៉ាម៉ែត្រ​​នៅ​ក្នុង NDATA ។</translation>
+        <translation>កា​រប្រកាស​ធាតុ​ប៉ារ៉ាម៉ែត្រ​​នៅ​ក្នុង NDATA&#xa0;។</translation>
     </message>
     <message>
         <source>%1 is an invalid processing instruction name.</source>
-        <translation>%1 មិន​មែនជា​ឈ្មោះ​សេចក្ដីណែនាំ​ដំណើរការ​ត្រឹមត្រូវ​ទេ ។</translation>
+        <translation>%1 មិន​មែនជា​ឈ្មោះ​សេចក្ដីណែនាំ​ដំណើរការ​ត្រឹមត្រូវ​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Invalid processing instruction name.</source>
-        <translation>ឈ្មោះ​សេចក្ដី​ណែនាំ​ដំណើរការ​មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>ឈ្មោះ​សេចក្ដី​ណែនាំ​ដំណើរការ​មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Illegal namespace declaration.</source>
-        <translation>ការ​ប្រកាស​ចន្លោះឈ្មោះ​មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>ការ​ប្រកាស​ចន្លោះឈ្មោះ​មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Invalid XML name.</source>
-        <translation>ឈ្មោះ XML មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>ឈ្មោះ XML មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>Opening and ending tag mismatch.</source>
-        <translation>ការ​បើក និង​បិទ​ស្លាក​មិន​ផ្គូផ្គង​គ្នាទេ ។</translation>
+        <translation>ការ​បើក និង​បិទ​ស្លាក​មិន​ផ្គូផ្គង​គ្នាទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Reference to unparsed entity &apos;%1&apos;.</source>
-        <translation>សេចក្ដី​យោង​ទៅ​កាន់​ធាតុ​ដែល​មិនបានញែក &apos;%1&apos; ។</translation>
+        <translation>សេចក្ដី​យោង​ទៅ​កាន់​ធាតុ​ដែល​មិនបានញែក &apos;%1&apos;&#xa0;។</translation>
     </message>
     <message>
         <source>Entity &apos;%1&apos; not declared.</source>
-        <translation>ធាតុ &apos;%1&apos; មិនបានប្រកាស​ទេ ។</translation>
+        <translation>ធាតុ &apos;%1&apos; មិនបានប្រកាស​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Reference to external entity &apos;%1&apos; in attribute value.</source>
-        <translation>សេចក្ដី​យោង​ទៅ​កាន់​ធាតុ​ខាង​ក្រៅ &apos;%1&apos; នៅ​ក្នុង​តម្លៃ​គុណលក្ខណៈ ។</translation>
+        <translation>សេចក្ដី​យោង​ទៅ​កាន់​ធាតុ​ខាង​ក្រៅ &apos;%1&apos; នៅ​ក្នុង​តម្លៃ​គុណលក្ខណៈ&#xa0;។</translation>
     </message>
     <message>
         <source>Invalid character reference.</source>
-        <translation>សេចក្ដី​យោង​តួអក្សរ​មិន​ត្រឹមត្រូវ​ទេ ។</translation>
+        <translation>សេចក្ដី​យោង​តួអក្សរ​មិន​ត្រឹមត្រូវ​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Encountered incorrectly encoded content.</source>
-        <translation>បាន​ជួប​មាតិកា​ដែល​បានអ៊ីនកូដ​មិន​ត្រឹមត្រូវ ។</translation>
+        <translation>បាន​ជួប​មាតិកា​ដែល​បានអ៊ីនកូដ​មិន​ត្រឹមត្រូវ&#xa0;។</translation>
     </message>
     <message>
         <source>The standalone pseudo attribute must appear after the encoding.</source>
-        <translation>គុណលក្ខណៈ pseudo តែ​ឯង​ត្រូវ​តែ​បង្ហាញ​បន្ទាប់​ពី​កា​រអ៊ីនកូដ ។</translation>
+        <translation>គុណលក្ខណៈ pseudo តែ​ឯង​ត្រូវ​តែ​បង្ហាញ​បន្ទាប់​ពី​កា​រអ៊ីនកូដ&#xa0;។</translation>
     </message>
     <message>
         <source>%1 is an invalid PUBLIC identifier.</source>
-        <translation>%1 គឺ​ជា​ឧបករណ៍​កំណត់​អត្តសញ្ញាណ PUBLIC មិន​ត្រឹមត្រូវ​ទេ ។</translation>
+        <translation>%1 គឺ​ជា​ឧបករណ៍​កំណត់​អត្តសញ្ញាណ PUBLIC មិន​ត្រឹមត្រូវ​ទេ&#xa0;។</translation>
     </message>
     <message>
         <source>Attribute &apos;%1&apos; redefined.</source>

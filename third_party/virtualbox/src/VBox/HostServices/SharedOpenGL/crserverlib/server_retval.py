@@ -30,11 +30,6 @@ void crServerReturnValue( const void *payload, unsigned int payload_len )
         if (cr_server.bIsInLoadingState)
             return;
 
-        if (cr_server.curClient->conn->type == CR_FILE)
-        {
-            return;
-        }
-
         if (payload_len >= INT32_MAX - sizeof( *rb ))
         {
             return;

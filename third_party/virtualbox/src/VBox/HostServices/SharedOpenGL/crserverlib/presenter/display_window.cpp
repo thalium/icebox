@@ -21,7 +21,7 @@
 CrFbDisplayWindow::CrFbDisplayWindow(const RTRECT *pViewportRect, uint64_t parentId) :
     mpWindow(NULL),
     mViewportRect(*pViewportRect),
-    mu32Screen(~0),
+    mu32Screen(~UINT32_C(0)),
     mParentId(parentId)
 {
     mFlags.u32Value = 0;
@@ -231,7 +231,6 @@ CrFbWindow * CrFbDisplayWindow::windowAttach(CrFbWindow * pNewWindow)
         return NULL;
     }
 
-    CrFbWindow * pOld = mpWindow;
     if (mpWindow)
         windowDetach();
 
@@ -323,7 +322,7 @@ void CrFbDisplayWindow::onUpdateEnd()
 {
     CrFbDisplayBase::onUpdateEnd();
     bool fVisible = isVisible();
-    if (mFlags.fNeVisible != fVisible || mFlags.fNeForce)
+    if (RT_BOOL(mFlags.fNeVisible) != fVisible || mFlags.fNeForce)
     {
         crVBoxServerNotifyEvent(mu32Screen,
                                 fVisible? VBOX3D_NOTIFY_EVENT_TYPE_3DDATA_VISIBLE:

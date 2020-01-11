@@ -13,9 +13,9 @@
 :mode:cullFaceMode:CullFace
 :mode:backMode:PolygonMode,GL_BACK
 :mode:frontMode:PolygonMode,GL_FRONT
--:stipple:stipple:*diff_api.PolygonStipple ((GLubyte *) to->stipple);
+-:stipple:stipple:*pState->diff_api.PolygonStipple ((GLubyte *) to->stipple);
 +:stipple:*int iStripple;
-+:stipple:*diff_api.PolygonStipple ((GLubyte *) to->stipple);
++:stipple:*pState->diff_api.PolygonStipple ((GLubyte *) to->stipple);
 +:stipple:*for (iStripple=0; iStripple<32; iStripple++)
 +:stipple:*{
 +:stipple:*	from->stipple[iStripple] = to->stipple[iStripple];

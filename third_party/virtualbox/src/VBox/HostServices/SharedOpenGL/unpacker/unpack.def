@@ -4,8 +4,6 @@
 ; See the file LICENSE.txt for information on redistributing this software.
 EXPORTS
 crUnpack
-crUnpackPush
-crUnpackPop
 crUnpackSetReturnPointer
 crUnpackSetWritebackPointer
 cr_unpackData

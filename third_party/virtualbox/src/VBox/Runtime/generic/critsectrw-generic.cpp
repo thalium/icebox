@@ -86,6 +86,7 @@ RTDECL(int) RTCritSectRwInit(PRTCRITSECTRW pThis)
 RT_EXPORT_SYMBOL(RTCritSectRwInit);
 
 
+
 RTDECL(int) RTCritSectRwInitEx(PRTCRITSECTRW pThis, uint32_t fFlags,
                                RTLOCKVALCLASS hClass, uint32_t uSubClass, const char *pszNameFmt, ...)
 {

@@ -334,7 +334,7 @@ static inline void set_bitmap_bit(DWORD *bitmap, DWORD bit)
     bitmap[idx] |= (1 << shift);
 }
 
-static void shader_record_register_usage(IWineD3DBaseShaderImpl *shader, struct shader_reg_maps *reg_maps,
+static HRESULT shader_record_register_usage(IWineD3DBaseShaderImpl *shader, struct shader_reg_maps *reg_maps,
         const struct wined3d_shader_register *reg, enum wined3d_shader_type shader_type)
 {
     switch (reg->type)
@@ -364,7 +364,15 @@ static void shader_record_register_usage(IWineD3DBaseShaderImpl *shader, struct 
                 }
                 else
                 {
-                    ((IWineD3DPixelShaderImpl *)shader)->input_reg_used[reg->idx] = TRUE;
+                    unsigned int reg_idx = reg->idx;
+                    
+                    if (reg_idx >= MAX_REG_INPUT)
+                    {
+                        ERR("Invalid input register index %d.\n", reg_idx);
+                        return E_INVALIDARG;
+                    }
+                    
+                    ((IWineD3DPixelShaderImpl *)shader)->input_reg_used[reg_idx] = TRUE;
                 }
             }
             else reg_maps->input_registers |= 1 << reg->idx;
@@ -420,6 +428,8 @@ static void shader_record_register_usage(IWineD3DBaseShaderImpl *shader, struct 
             TRACE("Not recording register of type %#x and idx %u\n", reg->type, reg->idx);
             break;
     }
+
+    return S_OK;
 }
 
 static unsigned int get_instr_extra_regcount(enum WINED3D_SHADER_INSTRUCTION_HANDLER instr, unsigned int param)
@@ -499,27 +509,44 @@ static HRESULT shader_get_registers_used(IWineD3DBaseShader *iface, const struct
         if (ins.handler_idx == WINED3DSIH_DCL)
         {
             struct wined3d_shader_semantic semantic;
+            unsigned int reg_idx;
 
             fe->shader_read_semantic(&ptr, &semantic);
+            reg_idx = semantic.reg.reg.idx;
 
             switch (semantic.reg.reg.type)
             {
                 /* Mark input registers used. */
                 case WINED3DSPR_INPUT:
-                    reg_maps->input_registers |= 1 << semantic.reg.reg.idx;
-                    shader_signature_from_semantic(&input_signature[semantic.reg.reg.idx], &semantic);
+                    if (reg_idx >= MAX_REG_INPUT)
+                    {
+                        ERR("Invalid input register index %d.\n", reg_idx);
+                        return E_INVALIDARG;
+                    }
+                    reg_maps->input_registers |= 1 << reg_idx;
+                    shader_signature_from_semantic(&input_signature[reg_idx], &semantic);
                     break;
 
                 /* Vertex shader: mark 3.0 output registers used, save token. */
                 case WINED3DSPR_OUTPUT:
-                    reg_maps->output_registers |= 1 << semantic.reg.reg.idx;
-                    shader_signature_from_semantic(&output_signature[semantic.reg.reg.idx], &semantic);
+                    if (reg_idx >= MAX_REG_OUTPUT)
+                    {
+                        ERR("Invalid output register index %d.\n", reg_idx);
+                        return E_INVALIDARG;
+                    }
+                    reg_maps->output_registers |= 1 << reg_idx;
+                    shader_signature_from_semantic(&output_signature[reg_idx], &semantic);
                     if (semantic.usage == WINED3DDECLUSAGE_FOG) reg_maps->fog = 1;
                     break;
 
                 /* Save sampler usage token. */
                 case WINED3DSPR_SAMPLER:
-                    reg_maps->sampler_type[semantic.reg.reg.idx] = semantic.sampler_type;
+                    if (reg_idx >= RT_ELEMENTS(reg_maps->sampler_type))
+                    {
+                        ERR("Invalid sampler index %d.\n", reg_idx);
+                        return E_INVALIDARG;
+                    }
+                    reg_maps->sampler_type[reg_idx] = semantic.sampler_type;
                     break;
 
                 default:
@@ -642,10 +669,16 @@ static HRESULT shader_get_registers_used(IWineD3DBaseShader *iface, const struct
             {
                 struct wined3d_shader_src_param dst_rel_addr;
                 struct wined3d_shader_dst_param dst_param;
+                HRESULT hr;
 
                 fe->shader_read_dst_param(fe_data, &ptr, &dst_param, &dst_rel_addr);
 
-                shader_record_register_usage(shader, reg_maps, &dst_param.reg, shader_version.type);
+                hr = shader_record_register_usage(shader, reg_maps, &dst_param.reg, shader_version.type);
+                if (FAILED(hr))
+                {
+                    ERR("shader_record_register_usage failed.\n");
+                    return hr;
+                }
 
                 /* WINED3DSPR_TEXCRDOUT is the same as WINED3DSPR_OUTPUT. _OUTPUT can be > MAX_REG_TEXCRD and
                  * is used in >= 3.0 shaders. Filter 3.0 shaders to prevent overflows, and also filter pixel
@@ -653,7 +686,15 @@ static HRESULT shader_get_registers_used(IWineD3DBaseShader *iface, const struct
                 if (shader_version.type == WINED3D_SHADER_TYPE_VERTEX && shader_version.major < 3
                         && dst_param.reg.type == WINED3DSPR_TEXCRDOUT)
                 {
-                    reg_maps->texcoord_mask[dst_param.reg.idx] |= dst_param.write_mask;
+                    unsigned int idx = dst_param.reg.idx;
+                    
+                    if (idx >= MAX_REG_TEXCRD)
+                    {
+                        ERR("Invalid texcoord index %d.\n", idx);
+                        return E_INVALIDARG;
+                    }
+                    
+                    reg_maps->texcoord_mask[idx] |= dst_param.write_mask;
                 }
 
                 if (shader_version.type == WINED3D_SHADER_TYPE_PIXEL)
@@ -702,6 +743,12 @@ static HRESULT shader_get_registers_used(IWineD3DBaseShader *iface, const struct
                 {
                     /* Fake sampler usage, only set reserved bit and type. */
                     DWORD sampler_code = dst_param.reg.idx;
+                    
+                    if (sampler_code >= RT_ELEMENTS(reg_maps->sampler_type))
+                    {
+                        ERR("Invalid sampler index %d.\n", sampler_code);
+                        return E_INVALIDARG;
+                    }
 
                     TRACE("Setting fake 2D sampler for 1.x pixelshader.\n");
                     reg_maps->sampler_type[sampler_code] = WINED3DSTT_2D;

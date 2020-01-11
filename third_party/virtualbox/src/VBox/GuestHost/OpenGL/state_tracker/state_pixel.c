@@ -13,7 +13,7 @@
 void crStatePixelInit(CRContext *ctx)
 {
     CRPixelState *p = &ctx->pixel;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
     CRPixelBits *pb = &(sb->pixel);
     GLcolorf zero_color = {0.0f, 0.0f, 0.0f, 0.0f};
     GLcolorf one_color = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -57,21 +57,21 @@ void crStatePixelInit(CRContext *ctx)
     RESET(pb->dirty, ctx->bitid);
 }
 
-void STATE_APIENTRY crStatePixelTransferi (GLenum pname, GLint param)
+void STATE_APIENTRY crStatePixelTransferi (PCRStateTracker pState, GLenum pname, GLint param)
 {
-    crStatePixelTransferf( pname, (GLfloat) param );
+    crStatePixelTransferf(pState, pname, (GLfloat) param );
 }
 
-void STATE_APIENTRY crStatePixelTransferf (GLenum pname, GLfloat param)
+void STATE_APIENTRY crStatePixelTransferf (PCRStateTracker pState, GLenum pname, GLfloat param)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPixelState *p = &(g->pixel);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRPixelBits *pb = &(sb->pixel);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "PixelTransfer{if} called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "PixelTransfer{if} called in Begin/End");
         return;
     }
 
@@ -122,23 +122,23 @@ void STATE_APIENTRY crStatePixelTransferf (GLenum pname, GLfloat param)
             p->depthBias = param;
             break;
         default:
-            crStateError( __LINE__, __FILE__, GL_INVALID_VALUE, "Unknown glPixelTransfer pname: %d", pname );
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "Unknown glPixelTransfer pname: %d", pname );
             return;
     }
     DIRTY(pb->transfer, g->neg_bitid);
     DIRTY(pb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStatePixelZoom (GLfloat xfactor, GLfloat yfactor) 
+void STATE_APIENTRY crStatePixelZoom (PCRStateTracker pState, GLfloat xfactor, GLfloat yfactor) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPixelState *p = &(g->pixel);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRPixelBits *pb = &(sb->pixel);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "PixelZoom called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "PixelZoom called in Begin/End");
         return;
     }
 
@@ -151,13 +151,13 @@ void STATE_APIENTRY crStatePixelZoom (GLfloat xfactor, GLfloat yfactor)
 }
 
 
-void STATE_APIENTRY crStateBitmap( GLsizei width, GLsizei height, 
+void STATE_APIENTRY crStateBitmap(PCRStateTracker pState, GLsizei width, GLsizei height, 
         GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, 
         const GLubyte *bitmap)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRCurrentState *c = &(g->current);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRCurrentBits *cb = &(sb->current);
 
     (void) xorig;
@@ -169,14 +169,14 @@ void STATE_APIENTRY crStateBitmap( GLsizei width, GLsizei height,
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, 
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, 
             "Bitmap called in begin/end");
         return;
     }
 
     if (width < 0 || height < 0)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
             "Bitmap called with neg dims: %dx%d", width, height);
         return;
     }
@@ -200,24 +200,24 @@ void STATE_APIENTRY crStateBitmap( GLsizei width, GLsizei height,
 
 #define CLAMP(x, min, max)  ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 
-void STATE_APIENTRY crStatePixelMapfv (GLenum map, GLint mapsize, const GLfloat * values)
+void STATE_APIENTRY crStatePixelMapfv (PCRStateTracker pState, GLenum map, GLint mapsize, const GLfloat * values)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPixelState *p = &(g->pixel);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRPixelBits *pb = &(sb->pixel);
     GLint i;
-    GLboolean unpackbuffer = crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    GLboolean unpackbuffer = crStateIsBufferBound(pState, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "PixelMap called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "PixelMap called in Begin/End");
         return;
     }
 
     FLUSH();
 
     if (mapsize < 0 || mapsize > CR_MAX_PIXEL_MAP_TABLE) {
-       crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "PixelMap(mapsize)");
+       crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "PixelMap(mapsize)");
        return;
     }
 
@@ -301,7 +301,7 @@ void STATE_APIENTRY crStatePixelMapfv (GLenum map, GLint mapsize, const GLfloat 
             }
         break;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "PixelMap(map)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "PixelMap(map)");
         return;
     }
 
@@ -309,7 +309,7 @@ void STATE_APIENTRY crStatePixelMapfv (GLenum map, GLint mapsize, const GLfloat 
     DIRTY(pb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStatePixelMapuiv (GLenum map, GLint mapsize, const GLuint * values)
+void STATE_APIENTRY crStatePixelMapuiv (PCRStateTracker pState, GLenum map, GLint mapsize, const GLuint * values)
 {
     if (mapsize < 0 || mapsize > CR_MAX_PIXEL_MAP_TABLE)
     {
@@ -317,7 +317,7 @@ void STATE_APIENTRY crStatePixelMapuiv (GLenum map, GLint mapsize, const GLuint 
         return;
     }
 
-    if (!crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+    if (!crStateIsBufferBound(pState, GL_PIXEL_UNPACK_BUFFER_ARB))
     {
         GLfloat fvalues[CR_MAX_PIXEL_MAP_TABLE];
         GLint i;
@@ -332,15 +332,15 @@ void STATE_APIENTRY crStatePixelMapuiv (GLenum map, GLint mapsize, const GLuint 
               fvalues[i] = values[i] / 4294967295.0F;
            }
         }
-        crStatePixelMapfv(map, mapsize, fvalues);
+        crStatePixelMapfv(pState, map, mapsize, fvalues);
     }
     else
     {
-        crStatePixelMapfv(map, mapsize, (const GLfloat*) values);
+        crStatePixelMapfv(pState, map, mapsize, (const GLfloat*) values);
     }
 }
  
-void STATE_APIENTRY crStatePixelMapusv (GLenum map, GLint mapsize, const GLushort * values)
+void STATE_APIENTRY crStatePixelMapusv (PCRStateTracker pState, GLenum map, GLint mapsize, const GLushort * values)
 {
     if (mapsize < 0 || mapsize > CR_MAX_PIXEL_MAP_TABLE)
     {
@@ -348,7 +348,7 @@ void STATE_APIENTRY crStatePixelMapusv (GLenum map, GLint mapsize, const GLushor
         return;
     }
 
-    if (!crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+    if (!crStateIsBufferBound(pState, GL_PIXEL_UNPACK_BUFFER_ARB))
     {
         GLfloat fvalues[CR_MAX_PIXEL_MAP_TABLE];
         GLint i;
@@ -363,23 +363,23 @@ void STATE_APIENTRY crStatePixelMapusv (GLenum map, GLint mapsize, const GLushor
               fvalues[i] = values[i] / 65535.0F;
            }
         }
-        crStatePixelMapfv(map, mapsize, fvalues);
+        crStatePixelMapfv(pState, map, mapsize, fvalues);
     }
     else
     {
-        crStatePixelMapfv(map, mapsize, (const GLfloat*) values);
+        crStatePixelMapfv(pState, map, mapsize, (const GLfloat*) values);
     }
 }
 
  
-void STATE_APIENTRY crStateGetPixelMapfv (GLenum map, GLfloat * values)
+void STATE_APIENTRY crStateGetPixelMapfv (PCRStateTracker pState, GLenum map, GLfloat * values)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRPixelState *p = &(g->pixel);
     GLint i;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                      "GetPixelMapfv called in Begin/End");
         return;
     }
@@ -420,20 +420,20 @@ void STATE_APIENTRY crStateGetPixelMapfv (GLenum map, GLfloat * values)
         crMemcpy(values, p->mapAtoA, p->mapAtoAsize * sizeof(GLfloat));
         break;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "GetPixelMap(map)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "GetPixelMap(map)");
         return;
     }
 }
  
-void STATE_APIENTRY crStateGetPixelMapuiv (GLenum map, GLuint * values)
+void STATE_APIENTRY crStateGetPixelMapuiv (PCRStateTracker pState, GLenum map, GLuint * values)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     const GLfloat maxUint = 4294967295.0F;
     CRPixelState *p = &(g->pixel);
     GLint i;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                      "GetPixelMapuiv called in Begin/End");
         return;
     }
@@ -490,20 +490,20 @@ void STATE_APIENTRY crStateGetPixelMapuiv (GLenum map, GLuint * values)
         }
         break;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "GetPixelMapuiv(map)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "GetPixelMapuiv(map)");
         return;
     }
 }
  
-void STATE_APIENTRY crStateGetPixelMapusv (GLenum map, GLushort * values)
+void STATE_APIENTRY crStateGetPixelMapusv (PCRStateTracker pState, GLenum map, GLushort * values)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     const GLfloat maxUshort = 65535.0F;
     CRPixelState *p = &(g->pixel);
     GLint i;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                      "GetPixelMapusv called in Begin/End");
         return;
     }
@@ -560,7 +560,7 @@ void STATE_APIENTRY crStateGetPixelMapusv (GLenum map, GLushort * values)
         }
         break;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "GetPixelMapusv(map)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "GetPixelMapusv(map)");
         return;
     }
 }
@@ -568,10 +568,14 @@ void STATE_APIENTRY crStateGetPixelMapusv (GLenum map, GLushort * values)
 void crStatePixelDiff(CRPixelBits *b, CRbitvalue *bitID,
                       CRContext *fromCtx, CRContext *toCtx)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRPixelState *from = &(fromCtx->pixel);
     CRPixelState *to = &(toCtx->pixel);
     int j, i;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
+
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
     i = 0; /* silence compiler */
@@ -579,72 +583,72 @@ void crStatePixelDiff(CRPixelBits *b, CRbitvalue *bitID,
     {
         if (from->mapColor != to->mapColor)
         {           
-            diff_api.PixelTransferi (GL_MAP_COLOR, to->mapColor);
+            pState->diff_api.PixelTransferi (GL_MAP_COLOR, to->mapColor);
             from->mapColor = to->mapColor;
         }
         if (from->mapStencil != to->mapStencil)
         {
-            diff_api.PixelTransferi (GL_MAP_STENCIL, to->mapStencil);
+            pState->diff_api.PixelTransferi (GL_MAP_STENCIL, to->mapStencil);
             from->mapStencil = to->mapStencil;
         }
         if (from->indexOffset != to->indexOffset)
         {
-            diff_api.PixelTransferi (GL_INDEX_OFFSET, to->indexOffset);
+            pState->diff_api.PixelTransferi (GL_INDEX_OFFSET, to->indexOffset);
             from->indexOffset = to->indexOffset;
         }
         if (from->indexShift != to->indexShift)
         {
-            diff_api.PixelTransferi (GL_INDEX_SHIFT, to->indexShift);
+            pState->diff_api.PixelTransferi (GL_INDEX_SHIFT, to->indexShift);
             from->indexShift = to->indexShift;
         }
         if (from->scale.r != to->scale.r)
         {
-            diff_api.PixelTransferf (GL_RED_SCALE, to->scale.r);
+            pState->diff_api.PixelTransferf (GL_RED_SCALE, to->scale.r);
             from->scale.r = to->scale.r;
         }
         if (from->scale.g != to->scale.g)
         {
-            diff_api.PixelTransferf (GL_GREEN_SCALE, to->scale.g);
+            pState->diff_api.PixelTransferf (GL_GREEN_SCALE, to->scale.g);
             from->scale.g = to->scale.g;
         }
         if (from->scale.b != to->scale.b)
         {
-            diff_api.PixelTransferf (GL_BLUE_SCALE, to->scale.b);
+            pState->diff_api.PixelTransferf (GL_BLUE_SCALE, to->scale.b);
             from->scale.b = to->scale.b;
         }
         if (from->scale.a != to->scale.a)
         {
-            diff_api.PixelTransferf (GL_ALPHA_SCALE, to->scale.a);
+            pState->diff_api.PixelTransferf (GL_ALPHA_SCALE, to->scale.a);
             from->scale.a = to->scale.a;
         }
         if (from->bias.r != to->bias.r)
         {
-            diff_api.PixelTransferf (GL_RED_BIAS, to->bias.r);
+            pState->diff_api.PixelTransferf (GL_RED_BIAS, to->bias.r);
             from->bias.r = to->bias.r;
         }
         if (from->bias.g != to->bias.g)
         {
-            diff_api.PixelTransferf (GL_GREEN_BIAS, to->bias.g);
+            pState->diff_api.PixelTransferf (GL_GREEN_BIAS, to->bias.g);
             from->bias.g = to->bias.g;
         }
         if (from->bias.b != to->bias.b)
         {
-            diff_api.PixelTransferf (GL_BLUE_BIAS, to->bias.b);
+            pState->diff_api.PixelTransferf (GL_BLUE_BIAS, to->bias.b);
             from->bias.b = to->bias.b;
         }
         if (from->bias.a != to->bias.a)
         {
-            diff_api.PixelTransferf (GL_ALPHA_BIAS, to->bias.a);
+            pState->diff_api.PixelTransferf (GL_ALPHA_BIAS, to->bias.a);
             from->bias.a = to->bias.a;
         }
         if (from->depthScale != to->depthScale)
         {
-            diff_api.PixelTransferf (GL_DEPTH_SCALE, to->depthScale);
+            pState->diff_api.PixelTransferf (GL_DEPTH_SCALE, to->depthScale);
             from->depthScale = to->depthScale;
         }
         if (from->depthBias != to->depthBias)
         {
-            diff_api.PixelTransferf (GL_DEPTH_BIAS, to->depthBias);
+            pState->diff_api.PixelTransferf (GL_DEPTH_BIAS, to->depthBias);
             from->depthBias = to->depthBias;
         }
         CLEARDIRTY(b->transfer, nbitID);
@@ -654,8 +658,7 @@ void crStatePixelDiff(CRPixelBits *b, CRbitvalue *bitID,
         if (from->xZoom != to->xZoom ||
             from->yZoom != to->yZoom)
         {
-            diff_api.PixelZoom (to->xZoom,
-                to->yZoom);
+            pState->diff_api.PixelZoom (to->xZoom, to->yZoom);
             from->xZoom = to->xZoom;
             from->yZoom = to->yZoom;
         }
@@ -664,25 +667,25 @@ void crStatePixelDiff(CRPixelBits *b, CRbitvalue *bitID,
     if (CHECKDIRTY(b->maps, bitID))
     {
         if (crMemcmp(to->mapStoS, from->mapStoS, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_S_TO_S,to->mapStoSsize,(GLfloat*)to->mapStoS);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_S_TO_S,to->mapStoSsize,(GLfloat*)to->mapStoS);
         if (crMemcmp(to->mapItoI, from->mapItoI, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_I,to->mapItoIsize,(GLfloat*)to->mapItoI);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_I,to->mapItoIsize,(GLfloat*)to->mapItoI);
         if (crMemcmp(to->mapItoR, from->mapItoR, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_R,to->mapItoRsize,(GLfloat*)to->mapItoR);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_R,to->mapItoRsize,(GLfloat*)to->mapItoR);
         if (crMemcmp(to->mapItoG, from->mapItoG, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_G,to->mapItoGsize,(GLfloat*)to->mapItoG);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_G,to->mapItoGsize,(GLfloat*)to->mapItoG);
         if (crMemcmp(to->mapItoB, from->mapItoB, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_B,to->mapItoBsize,(GLfloat*)to->mapItoB);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_B,to->mapItoBsize,(GLfloat*)to->mapItoB);
         if (crMemcmp(to->mapItoA, from->mapItoA, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_A,to->mapItoAsize,(GLfloat*)to->mapItoA);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_A,to->mapItoAsize,(GLfloat*)to->mapItoA);
         if (crMemcmp(to->mapRtoR, from->mapRtoR, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_R_TO_R,to->mapRtoRsize,(GLfloat*)to->mapRtoR);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_R_TO_R,to->mapRtoRsize,(GLfloat*)to->mapRtoR);
         if (crMemcmp(to->mapGtoG, from->mapGtoG, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_G_TO_G,to->mapGtoGsize,(GLfloat*)to->mapGtoG);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_G_TO_G,to->mapGtoGsize,(GLfloat*)to->mapGtoG);
         if (crMemcmp(to->mapBtoB, from->mapBtoB, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_B_TO_B,to->mapBtoBsize,(GLfloat*)to->mapBtoB);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_B_TO_B,to->mapBtoBsize,(GLfloat*)to->mapBtoB);
         if (crMemcmp(to->mapAtoA, from->mapAtoA, CR_MAX_PIXEL_MAP_TABLE*sizeof(GLfloat)))
-            diff_api.PixelMapfv(GL_PIXEL_MAP_A_TO_A,to->mapAtoAsize,(GLfloat*)to->mapAtoA);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_A_TO_A,to->mapAtoAsize,(GLfloat*)to->mapAtoA);
         CLEARDIRTY(b->maps, nbitID);
     }
     CLEARDIRTY(b->dirty, nbitID);
@@ -691,10 +694,14 @@ void crStatePixelDiff(CRPixelBits *b, CRbitvalue *bitID,
 void crStatePixelSwitch(CRPixelBits *b, CRbitvalue *bitID,
                       CRContext *fromCtx, CRContext *toCtx)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRPixelState *from = &(fromCtx->pixel);
     CRPixelState *to = &(toCtx->pixel);
     int j, i;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
+
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
     i = 0; /* silence compiler */
@@ -702,85 +709,85 @@ void crStatePixelSwitch(CRPixelBits *b, CRbitvalue *bitID,
     {
         if (from->mapColor != to->mapColor)
         {
-            diff_api.PixelTransferi (GL_MAP_COLOR, to->mapColor);
+            pState->diff_api.PixelTransferi (GL_MAP_COLOR, to->mapColor);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->mapStencil != to->mapStencil)
         {
-            diff_api.PixelTransferi (GL_MAP_STENCIL, to->mapStencil);
+            pState->diff_api.PixelTransferi (GL_MAP_STENCIL, to->mapStencil);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->indexOffset != to->indexOffset)
         {
-            diff_api.PixelTransferi (GL_INDEX_OFFSET, to->indexOffset);
+            pState->diff_api.PixelTransferi (GL_INDEX_OFFSET, to->indexOffset);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->indexShift != to->indexShift)
         {
-            diff_api.PixelTransferi (GL_INDEX_SHIFT, to->indexShift);
+            pState->diff_api.PixelTransferi (GL_INDEX_SHIFT, to->indexShift);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->scale.r != to->scale.r)
         {
-            diff_api.PixelTransferf (GL_RED_SCALE, to->scale.r);
+            pState->diff_api.PixelTransferf (GL_RED_SCALE, to->scale.r);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->scale.g != to->scale.g)
         {
-            diff_api.PixelTransferf (GL_GREEN_SCALE, to->scale.g);
+            pState->diff_api.PixelTransferf (GL_GREEN_SCALE, to->scale.g);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->scale.b != to->scale.b)
         {
-            diff_api.PixelTransferf (GL_BLUE_SCALE, to->scale.b);
+            pState->diff_api.PixelTransferf (GL_BLUE_SCALE, to->scale.b);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->scale.a != to->scale.a)
         {
-            diff_api.PixelTransferf (GL_ALPHA_SCALE, to->scale.a);
+            pState->diff_api.PixelTransferf (GL_ALPHA_SCALE, to->scale.a);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->bias.r != to->bias.r)
         {
-            diff_api.PixelTransferf (GL_RED_BIAS, to->bias.r);
+            pState->diff_api.PixelTransferf (GL_RED_BIAS, to->bias.r);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->bias.g != to->bias.g)
         {
-            diff_api.PixelTransferf (GL_GREEN_BIAS, to->bias.g);
+            pState->diff_api.PixelTransferf (GL_GREEN_BIAS, to->bias.g);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->bias.b != to->bias.b)
         {
-            diff_api.PixelTransferf (GL_BLUE_BIAS, to->bias.b);
+            pState->diff_api.PixelTransferf (GL_BLUE_BIAS, to->bias.b);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->bias.a != to->bias.a)
         {
-            diff_api.PixelTransferf (GL_ALPHA_BIAS, to->bias.a);
+            pState->diff_api.PixelTransferf (GL_ALPHA_BIAS, to->bias.a);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->depthScale != to->depthScale)
         {
-            diff_api.PixelTransferf (GL_DEPTH_SCALE, to->depthScale);
+            pState->diff_api.PixelTransferf (GL_DEPTH_SCALE, to->depthScale);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
         if (from->depthBias != to->depthBias)
         {
-            diff_api.PixelTransferf (GL_DEPTH_BIAS, to->depthBias);
+            pState->diff_api.PixelTransferf (GL_DEPTH_BIAS, to->depthBias);
             FILLDIRTY(b->transfer);
             FILLDIRTY(b->dirty);
         }
@@ -791,8 +798,7 @@ void crStatePixelSwitch(CRPixelBits *b, CRbitvalue *bitID,
         if (from->xZoom != to->xZoom ||
             from->yZoom != to->yZoom)
         {
-            diff_api.PixelZoom (to->xZoom,
-                to->yZoom);
+            pState->diff_api.PixelZoom (to->xZoom, to->yZoom);
             FILLDIRTY(b->zoom);
             FILLDIRTY(b->dirty);
         }
@@ -801,52 +807,52 @@ void crStatePixelSwitch(CRPixelBits *b, CRbitvalue *bitID,
     if (CHECKDIRTY(b->maps, bitID))
     {
         if (crMemcmp(to->mapStoS, from->mapStoS, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_S_TO_S,to->mapStoSsize,(GLfloat*)to->mapStoS);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_S_TO_S,to->mapStoSsize,(GLfloat*)to->mapStoS);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapItoI, from->mapItoI, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_I,to->mapItoIsize,(GLfloat*)to->mapItoI);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_I,to->mapItoIsize,(GLfloat*)to->mapItoI);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapItoR, from->mapItoR, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_R,to->mapItoRsize,(GLfloat*)to->mapItoR);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_R,to->mapItoRsize,(GLfloat*)to->mapItoR);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapItoG, from->mapItoG, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_G,to->mapItoGsize,(GLfloat*)to->mapItoG);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_G,to->mapItoGsize,(GLfloat*)to->mapItoG);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapItoB, from->mapItoB, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_B,to->mapItoBsize,(GLfloat*)to->mapItoB);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_B,to->mapItoBsize,(GLfloat*)to->mapItoB);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapItoA, from->mapItoA, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_A,to->mapItoAsize,(GLfloat*)to->mapItoA);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_I_TO_A,to->mapItoAsize,(GLfloat*)to->mapItoA);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapRtoR, from->mapRtoR, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_R_TO_R,to->mapRtoRsize,(GLfloat*)to->mapRtoR);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_R_TO_R,to->mapRtoRsize,(GLfloat*)to->mapRtoR);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapGtoG, from->mapGtoG, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_G_TO_G,to->mapGtoGsize,(GLfloat*)to->mapGtoG);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_G_TO_G,to->mapGtoGsize,(GLfloat*)to->mapGtoG);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapBtoB, from->mapBtoB, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_B_TO_B,to->mapBtoBsize,(GLfloat*)to->mapBtoB);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_B_TO_B,to->mapBtoBsize,(GLfloat*)to->mapBtoB);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }
         if (crMemcmp(to->mapAtoA, from->mapAtoA, CR_MAX_PIXEL_MAP_TABLE)) {
-            diff_api.PixelMapfv(GL_PIXEL_MAP_A_TO_A,to->mapAtoAsize,(GLfloat*)to->mapAtoA);
+            pState->diff_api.PixelMapfv(GL_PIXEL_MAP_A_TO_A,to->mapAtoAsize,(GLfloat*)to->mapAtoA);
             FILLDIRTY(b->maps);
             FILLDIRTY(b->dirty);
         }

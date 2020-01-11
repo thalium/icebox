@@ -94,16 +94,8 @@ __prependHeader( CRPackBuffer *buf, unsigned int *len, unsigned int senderID )
 
     CRASSERT( (void *) hdr >= buf->pack );
 
-    if (pack_spu.swap)
-    {
-        hdr->header.type = (CRMessageType) SWAP32(CR_MESSAGE_OPCODES);
-        hdr->numOpcodes  = SWAP32(num_opcodes);
-    }
-    else
-    {
-        hdr->header.type = CR_MESSAGE_OPCODES;
-        hdr->numOpcodes  = num_opcodes;
-    }
+    hdr->header.type = CR_MESSAGE_OPCODES;
+    hdr->numOpcodes  = num_opcodes;
 
     *len = buf->data_current - (unsigned char *) hdr;
 
@@ -125,9 +117,7 @@ void packspuFlush(void *arg )
 
     /* we should _always_ pass a valid <arg> value */
     CRASSERT(thread && thread->inUse);
-#ifdef CHROMIUM_THREADSAFE
     CR_LOCK_PACKER_CONTEXT(thread->packer);
-#endif
     ctx = thread->currentContext;
     buf = &(thread->buffer);
     CRASSERT(buf);
@@ -152,9 +142,7 @@ void packspuFlush(void *arg )
            /* XXX these calls seem to help, but might be appropriate */
            crPackSetBuffer( thread->packer, buf );
            crPackResetPointers(thread->packer);
-#ifdef CHROMIUM_THREADSAFE
            CR_UNLOCK_PACKER_CONTEXT(thread->packer);
-#endif
            return;
     }
 
@@ -181,10 +169,7 @@ void packspuFlush(void *arg )
     crPackSetBuffer( thread->packer, buf );
 
     crPackResetPointers(thread->packer);
-
-#ifdef CHROMIUM_THREADSAFE
     CR_UNLOCK_PACKER_CONTEXT(thread->packer);
-#endif
 }
 
 
@@ -205,11 +190,6 @@ void packspuHuge( CROpcode opcode, void *buf )
        includes an additional word for the opcode (with alignment) and
        a header */
     len = ((unsigned int *) buf)[-1];
-    if (pack_spu.swap)
-    {
-        /* It's already been swapped, swap it back. */
-        len = SWAP32(len);
-    }
     len += 4 + sizeof(CRMessageOpcodes);
 
     /* write the opcode in just before the length */
@@ -220,17 +200,8 @@ void packspuHuge( CROpcode opcode, void *buf )
     src = (unsigned char *) buf - 8 - sizeof(CRMessageOpcodes);
 
     msg = (CRMessageOpcodes *) src;
-
-    if (pack_spu.swap)
-    {
-        msg->header.type = (CRMessageType) SWAP32(CR_MESSAGE_OPCODES);
-        msg->numOpcodes  = SWAP32(1);
-    }
-    else
-    {
-        msg->header.type = CR_MESSAGE_OPCODES;
-        msg->numOpcodes  = 1;
-    }
+    msg->header.type = CR_MESSAGE_OPCODES;
+    msg->numOpcodes  = 1;
 
     CRASSERT( thread->netServer.conn );
     crNetSend( thread->netServer.conn, NULL, src, len );
@@ -271,7 +242,6 @@ void packspuConnectToServer( CRNetServer *server
             crError("packspuConnectToServer: no connection on first create!");
             return;
         }
-        pack_spu.swap = server->conn->swap;
     }
     else {
         /* a new pthread */

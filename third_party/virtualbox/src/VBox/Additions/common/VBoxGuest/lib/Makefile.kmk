@@ -40,8 +40,10 @@ LIBRARIES += \
 	VBoxGuestR3LibShared
 ifndef VBOX_ONLY_VALIDATIONKIT
  if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd)
+ ifndef VBOX_USE_SYSTEM_XORG_HEADERS
   LIBRARIES += \
   	VBoxGuestR3LibXFree86
+ endif
  endif
  if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris)
   LIBRARIES += \

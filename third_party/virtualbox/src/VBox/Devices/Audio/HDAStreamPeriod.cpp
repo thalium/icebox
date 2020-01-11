@@ -12,7 +12,7 @@
  */
 
 /*
- * Copyright (C) 2017 Oracle Corporation
+ * Copyright (C) 2017-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -88,7 +88,7 @@ int hdaR3StreamPeriodInit(PHDASTREAMPERIOD pPeriod,
 {
     if (   !u16LVI
         || !u32CBL
-        || !DrvAudioHlpStreamCfgIsValid(pStreamCfg))
+        || !DrvAudioHlpPCMPropsAreValid(&pStreamCfg->Props))
     {
         return VERR_INVALID_PARAMETER;
     }

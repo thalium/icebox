@@ -18,7 +18,7 @@
 void crStateCurrentInit( CRContext *ctx )
 {
     CRCurrentState *c = &ctx->current;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
     CRCurrentBits *cb = &(sb->current);
     static const GLfloat default_normal[4]         = {0.0f, 0.0f, 1.0f, 1.0f};
     static const GLfloat default_color[4]          = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -69,21 +69,21 @@ void crStateCurrentInit( CRContext *ctx )
     RESET(cb->rasterPos, ctx->bitid);
 }
 
-void STATE_APIENTRY crStateColor3f( GLfloat r, GLfloat g, GLfloat b )
+void STATE_APIENTRY crStateColor3f(PCRStateTracker pState, GLfloat r, GLfloat g, GLfloat b )
 {
-    crStateColor4f(r, g, b, 1.0F);
+    crStateColor4f(pState, r, g, b, 1.0F);
 }
 
-void STATE_APIENTRY crStateColor3fv( const GLfloat *color )
+void STATE_APIENTRY crStateColor3fv(PCRStateTracker pState, const GLfloat *color )
 {
-    crStateColor4f( color[0], color[1], color[2], 1.0F );
+    crStateColor4f(pState, color[0], color[1], color[2], 1.0F );
 }
 
-void STATE_APIENTRY crStateColor4f( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha )
+void STATE_APIENTRY crStateColor4f(PCRStateTracker pState, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRCurrentState *c = &(g->current);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRCurrentBits *cb = &(sb->current);
 
     FLUSH();
@@ -97,9 +97,9 @@ void STATE_APIENTRY crStateColor4f( GLfloat red, GLfloat green, GLfloat blue, GL
     DIRTY(cb->vertexAttrib[VERT_ATTRIB_COLOR0], g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateColor4fv( const GLfloat *color )
+void STATE_APIENTRY crStateColor4fv(PCRStateTracker pState, const GLfloat *color )
 {
-    crStateColor4f( color[0], color[1], color[2], color[3] );
+    crStateColor4f(pState, color[0], color[1], color[2], color[3] );
 }
 
 void crStateSetCurrentPointers( CRContext *ctx, CRCurrentStatePointers *current )
@@ -117,20 +117,20 @@ void crStateResetCurrentPointers( CRCurrentStatePointers *current )
     current->attribsUsedMask = attribsUsedMask;
 }
 
-void STATE_APIENTRY crStateBegin( GLenum mode )
+void STATE_APIENTRY crStateBegin(PCRStateTracker pState, GLenum mode )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRCurrentState *c = &(g->current);
 
     if (mode > GL_POLYGON)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Begin called with invalid mode: %d", mode);
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Begin called with invalid mode: %d", mode);
         return;
     }
 
     if (c->inBeginEnd)
     {
-        crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION, "glBegin called inside Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glBegin called inside Begin/End");
         return;
     }
 
@@ -140,14 +140,14 @@ void STATE_APIENTRY crStateBegin( GLenum mode )
     c->beginEndNum++;
 }
 
-void STATE_APIENTRY crStateEnd( void )
+void STATE_APIENTRY crStateEnd(PCRStateTracker pState)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRCurrentState *c = &(g->current);
 
     if (!c->inBeginEnd)
     {
-        crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION, "glEnd called outside Begin/End" );
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glEnd called outside Begin/End" );
         return;
     }
 
@@ -157,11 +157,14 @@ void STATE_APIENTRY crStateEnd( void )
 void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
                                                      CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     const CRCurrentState *from = &(fromCtx->current);
     const CRCurrentState *to = &(toCtx->current);
     const GLuint maxTextureUnits = fromCtx->limits.maxTextureUnits;
     unsigned int i, j;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
@@ -176,7 +179,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
           const GLfloat toZ = to->rasterAttrib[VERT_ATTRIB_POS][2];
           if (toX != fromX || toY != fromY || toZ != fromZ) {
                 /* Use glWindowPos (which updates raster color) */
-                diff_api.WindowPos3fvARB(to->rasterAttrib[VERT_ATTRIB_POS]);
+                pState->diff_api.WindowPos3fvARB(to->rasterAttrib[VERT_ATTRIB_POS]);
               FILLDIRTY(c->rasterPos);
               FILLDIRTY(c->dirty);
           }
@@ -194,7 +197,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
 
     if (CHECKDIRTY(c->colorIndex, bitID)) {
         if (to->colorIndex != from->colorIndex) {
-            diff_api.Indexf(to->colorIndex);
+            pState->diff_api.Indexf(to->colorIndex);
             FILLDIRTY(c->colorIndex);
             FILLDIRTY(c->dirty);
         }
@@ -203,7 +206,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
 
     if (CHECKDIRTY(c->edgeFlag, bitID)) {
         if (to->edgeFlag != from->edgeFlag) {
-            diff_api.EdgeFlag(to->edgeFlag);
+            pState->diff_api.EdgeFlag(to->edgeFlag);
             FILLDIRTY(c->edgeFlag);
             FILLDIRTY(c->dirty);
         }
@@ -222,7 +225,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
             if ((attribsUsedMask & (1 << i))
                     && CHECKDIRTY(c->vertexAttrib[i], bitID)) {
                 if (COMPARE_VECTOR (from->vertexAttrib[i], to->vertexAttribPre[i])) {
-                    diff_api.VertexAttrib4fvARB(i, &(to->vertexAttrib[i][0]));
+                    pState->diff_api.VertexAttrib4fvARB(i, &(to->vertexAttrib[i][0]));
                     FILLDIRTY(c->vertexAttrib[i]);
                     FILLDIRTY(c->dirty);
                 }
@@ -241,7 +244,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
         /* NEED TO FIX THIS!!!!!! */
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR0], bitID)) {
             if (COMPARE_COLOR(from->vertexAttrib[VERT_ATTRIB_COLOR0],to->vertexAttrib[VERT_ATTRIB_COLOR0])) {
-                diff_api.Color4fv ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_COLOR0]));
+                pState->diff_api.Color4fv ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_COLOR0]));
                 FILLDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR0]);
                 FILLDIRTY(c->dirty);
             }
@@ -252,7 +255,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
 #ifdef CR_EXT_secondary_color
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR1], bitID)) {
             if (COMPARE_COLOR(from->vertexAttrib[VERT_ATTRIB_COLOR1],to->vertexAttrib[VERT_ATTRIB_COLOR1])) {
-                diff_api.SecondaryColor3fvEXT ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_COLOR1]));
+                pState->diff_api.SecondaryColor3fvEXT ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_COLOR1]));
                 FILLDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR1]);
                 FILLDIRTY(c->dirty);
             }
@@ -264,7 +267,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
 #ifdef CR_EXT_fog_coord
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_FOG], bitID)) {
             if (from->vertexAttrib[VERT_ATTRIB_FOG][0] != to->vertexAttrib[VERT_ATTRIB_FOG][0] ) {
-                diff_api.FogCoordfvEXT ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_FOG][0] ));
+                pState->diff_api.FogCoordfvEXT ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_FOG][0] ));
                 FILLDIRTY(c->vertexAttrib[VERT_ATTRIB_FOG]);
                 FILLDIRTY(c->dirty);
             }
@@ -274,7 +277,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
 
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_NORMAL], bitID)) {
             if (COMPARE_VECTOR (from->vertexAttrib[VERT_ATTRIB_NORMAL], to->vertexAttrib[VERT_ATTRIB_NORMAL])) {
-                diff_api.Normal3fv ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_NORMAL][0]));
+                pState->diff_api.Normal3fv ((GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_NORMAL][0]));
                 FILLDIRTY(c->vertexAttrib[VERT_ATTRIB_NORMAL]);
                 FILLDIRTY(c->dirty);
             }
@@ -284,7 +287,7 @@ void crStateCurrentSwitch( CRCurrentBits *c, CRbitvalue *bitID,
         for (i = 0; i < maxTextureUnits; i++)   {
             if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_TEX0 + i], bitID)) {
                 if (COMPARE_TEXCOORD (from->vertexAttrib[VERT_ATTRIB_TEX0 + i], to->vertexAttribPre[VERT_ATTRIB_TEX0 + i])) {
-                    diff_api.MultiTexCoord4fvARB (i+GL_TEXTURE0_ARB, (GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_TEX0+ i][0]));
+                    pState->diff_api.MultiTexCoord4fvARB (i+GL_TEXTURE0_ARB, (GLfloat *) &(to->vertexAttrib[VERT_ATTRIB_TEX0+ i][0]));
                     FILLDIRTY(c->vertexAttrib[VERT_ATTRIB_TEX0 + i]);
                     FILLDIRTY(c->dirty);
                 }
@@ -300,10 +303,13 @@ void
 crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
                     CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRCurrentState *from = &(fromCtx->current);
     const CRCurrentState *to = &(toCtx->current);
     unsigned int i, j;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
@@ -319,7 +325,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
             const GLfloat toZ = to->rasterAttrib[VERT_ATTRIB_POS][2];
             if (toX != fromX || toY != fromY || toZ != fromZ) {
                 /* Use glWindowPos (which updates raster color) */
-                diff_api.WindowPos3fvARB(to->rasterAttrib[VERT_ATTRIB_POS]);
+                pState->diff_api.WindowPos3fvARB(to->rasterAttrib[VERT_ATTRIB_POS]);
                 from->rasterAttrib[VERT_ATTRIB_POS][0] = toX;
                 from->rasterAttrib[VERT_ATTRIB_POS][1] = toY;
                 from->rasterAttrib[VERT_ATTRIB_POS][2] = toZ;
@@ -341,7 +347,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
     /* edge flag */
     if (CHECKDIRTY(c->edgeFlag, bitID)) {
         if (from->edgeFlag != to->edgeFlagPre) {
-            diff_api.EdgeFlag (to->edgeFlagPre);
+            pState->diff_api.EdgeFlag (to->edgeFlagPre);
         }
         from->edgeFlag = to->edgeFlag;
         CLEARDIRTY(c->edgeFlag, nbitID);
@@ -350,7 +356,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
     /* color index */
     if (CHECKDIRTY(c->colorIndex, bitID)) {
         if (from->colorIndex != to->colorIndexPre) {
-            diff_api.Indexf (to->colorIndex);
+            pState->diff_api.Indexf (to->colorIndex);
         }
         from->colorIndex = to->colorIndex;
         CLEARDIRTY(c->colorIndex, nbitID);
@@ -369,7 +375,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
             if ((attribsUsedMask & (1 << i))
                     && CHECKDIRTY(c->vertexAttrib[i], bitID)) {
                 if (COMPARE_VECTOR (from->vertexAttrib[i], to->vertexAttribPre[i])) {
-                    diff_api.VertexAttrib4fvARB(i, &(to->vertexAttribPre[i][0]));
+                    pState->diff_api.VertexAttrib4fvARB(i, &(to->vertexAttribPre[i][0]));
                 }
                 COPY_4V(from->vertexAttrib[i] , to->vertexAttrib[i]);
                 CLEARDIRTY(c->vertexAttrib[i], nbitID);
@@ -385,7 +391,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
         /* use conventional attribute functions */
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR0], bitID)) {
             if (COMPARE_COLOR(from->vertexAttrib[VERT_ATTRIB_COLOR0],to->vertexAttribPre[VERT_ATTRIB_COLOR0])) {
-                diff_api.Color4fv ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_COLOR0]));
+                pState->diff_api.Color4fv ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_COLOR0]));
             }
             COPY_4V(from->vertexAttrib[VERT_ATTRIB_COLOR0] , to->vertexAttrib[VERT_ATTRIB_COLOR0]);
             CLEARDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR0], nbitID);
@@ -394,7 +400,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
 #ifdef CR_EXT_secondary_color
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR1], bitID)) {
             if (COMPARE_COLOR(from->vertexAttrib[VERT_ATTRIB_COLOR1],to->vertexAttribPre[VERT_ATTRIB_COLOR1])) {
-                diff_api.SecondaryColor3fvEXT ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_COLOR1]));
+                pState->diff_api.SecondaryColor3fvEXT ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_COLOR1]));
             }
             COPY_4V(from->vertexAttrib[VERT_ATTRIB_COLOR1] , to->vertexAttrib[VERT_ATTRIB_COLOR1]);
             CLEARDIRTY(c->vertexAttrib[VERT_ATTRIB_COLOR1], nbitID);
@@ -404,7 +410,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
 #ifdef CR_EXT_fog_coord
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_FOG], bitID)) {
             if (from->vertexAttrib[VERT_ATTRIB_FOG]  != to->vertexAttribPre[VERT_ATTRIB_FOG]) {
-                diff_api.FogCoordfvEXT ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_FOG]));
+                pState->diff_api.FogCoordfvEXT ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_FOG]));
             }
             COPY_4V(from->vertexAttrib[VERT_ATTRIB_FOG]  , to->vertexAttrib[VERT_ATTRIB_FOG]);
             CLEARDIRTY(c->vertexAttrib[VERT_ATTRIB_FOG], nbitID);
@@ -413,7 +419,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
 
         if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_NORMAL], bitID)) {
             if (COMPARE_VECTOR (from->vertexAttrib[VERT_ATTRIB_NORMAL], to->vertexAttribPre[VERT_ATTRIB_NORMAL])) {
-                diff_api.Normal3fv ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_NORMAL]));
+                pState->diff_api.Normal3fv ((GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_NORMAL]));
             }
             COPY_4V(from->vertexAttrib[VERT_ATTRIB_NORMAL] , to->vertexAttrib[VERT_ATTRIB_NORMAL]);
             CLEARDIRTY(c->vertexAttrib[VERT_ATTRIB_NORMAL], nbitID);
@@ -423,7 +429,7 @@ crStateCurrentDiff( CRCurrentBits *c, CRbitvalue *bitID,
         {
             if (CHECKDIRTY(c->vertexAttrib[VERT_ATTRIB_TEX0 + i], bitID)) {
                 if (COMPARE_TEXCOORD (from->vertexAttrib[VERT_ATTRIB_TEX0 + i], to->vertexAttribPre[VERT_ATTRIB_TEX0 + i])) {
-                    diff_api.MultiTexCoord4fvARB (GL_TEXTURE0_ARB + i, (GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_TEX0 + i]));
+                    pState->diff_api.MultiTexCoord4fvARB (GL_TEXTURE0_ARB + i, (GLfloat *) &(to->vertexAttribPre[VERT_ATTRIB_TEX0 + i]));
                 }
                 COPY_4V(from->vertexAttrib[VERT_ATTRIB_TEX0 + i] , to->vertexAttrib[VERT_ATTRIB_TEX0 + i]);
                 CLEARDIRTY(c->vertexAttrib[VERT_ATTRIB_TEX0 + i], nbitID);

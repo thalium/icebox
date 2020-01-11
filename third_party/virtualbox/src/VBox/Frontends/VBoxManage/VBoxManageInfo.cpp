@@ -1681,8 +1681,8 @@ HRESULT showVMInfo(ComPtr<IVirtualBox> pVirtualBox,
                     pszDrv, pszCtrl, pszCodec);
             RTPrintf("\n");
 
-            RTPrintf("Audio playback:  %s\n", fEnabledIn  ? "enabled" : "disabled");
-            RTPrintf("Audio capture: %s\n", fEnabledOut ? "enabled" : "disabled");
+            RTPrintf("Audio playback:  %s\n", fEnabledOut  ? "enabled" : "disabled");
+            RTPrintf("Audio capture:   %s\n", fEnabledIn ? "enabled" : "disabled");
         }
     }
 

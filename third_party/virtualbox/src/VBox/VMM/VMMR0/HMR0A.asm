@@ -259,9 +259,10 @@
 ; @param    1   How to address CPUMCTX.
 ; @param    2   Which IBPB flag to test for (CPUMCTX_WSF_IBPB_ENTRY or CPUMCTX_WSF_IBPB_EXIT)
 ; @param    3   Which FLUSH flag to test for (CPUMCTX_WSF_L1D_ENTRY)
-%macro INDIRECT_BRANCH_PREDICTION_AND_L1_CACHE_BARRIER 3
+; @param    4   Which MDS flag to test for (CPUMCTX_WSF_MDS_ENTRY)
+%macro INDIRECT_BRANCH_PREDICTION_AND_L1_CACHE_BARRIER 4
     ; Only one test+jmp when disabled CPUs.
-    test    byte [%1 + CPUMCTX.fWorldSwitcher], (%2 | %3)
+    test    byte [%1 + CPUMCTX.fWorldSwitcher], (%2 | %3 | %4)
     jz      %%no_barrier_needed
 
     ; The eax:edx value is the same for both.
@@ -281,7 +282,17 @@
     jz      %%no_cache_flush_barrier
     mov     ecx, MSR_IA32_FLUSH_CMD
     wrmsr
+    jmp     %%no_mds_buffer_flushing    ; MDS flushing is included in L1D_FLUSH.
 %%no_cache_flush_barrier:
+
+    ; MDS buffer flushing.
+    test    byte [%1 + CPUMCTX.fWorldSwitcher], %4
+    jz      %%no_mds_buffer_flushing
+    sub     xSP, xSP
+    mov     [xSP], ds
+    verw    [xSP]
+    add     xSP, xSP
+%%no_mds_buffer_flushing:
 
 %%no_barrier_needed:
 %endmacro
@@ -1487,7 +1498,7 @@ ALIGN(16)
     ; Don't mess with ESP anymore!!!
 
     ; Fight spectre and similar.
-    INDIRECT_BRANCH_PREDICTION_AND_L1_CACHE_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY, CPUMCTX_WSF_L1D_ENTRY
+    INDIRECT_BRANCH_PREDICTION_AND_L1_CACHE_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY, CPUMCTX_WSF_L1D_ENTRY, CPUMCTX_WSF_MDS_ENTRY
 
     ; Load guest general purpose registers.
     mov     eax, [xSI + CPUMCTX.eax]
@@ -1796,7 +1807,7 @@ ALIGN(16)
     ; Don't mess with ESP anymore!!!
 
     ; Fight spectre and similar.
-    INDIRECT_BRANCH_PREDICTION_AND_L1_CACHE_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY, CPUMCTX_WSF_L1D_ENTRY
+    INDIRECT_BRANCH_PREDICTION_AND_L1_CACHE_BARRIER xSI, CPUMCTX_WSF_IBPB_ENTRY, CPUMCTX_WSF_L1D_ENTRY, CPUMCTX_WSF_MDS_ENTRY
 
     ; Load guest general purpose registers.
     mov     rax, qword [xSI + CPUMCTX.eax]
@@ -1854,6 +1865,18 @@ ALIGNCODE(16)
     jmp     .vmstart64_end
 ENDPROC VMXR0StartVM64
 %endif ; RT_ARCH_AMD64
+
+
+;;
+; Clears the MDS buffers using VERW.
+ALIGNCODE(16)
+BEGINPROC hmR0MdsClear
+        sub     xSP, xCB
+        mov     [xSP], ds
+        verw    [xSP]
+        add     xSP, xCB
+        ret
+ENDPROC   hmR0MdsClear
 
 
 ;;

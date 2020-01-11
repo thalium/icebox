@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2017 Oracle Corporation
+ * Copyright (C) 2010-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -183,6 +183,24 @@ typedef struct GCTLCMDCTX
     ComPtr<IGuestSession> pGuestSession;
     /** The guest session ID. */
     ULONG uSessionID;
+    /** Path style, gotten lazily.   */
+    PathStyle_T enmPathStyle;
+
+    /** Gets the path style.  */
+    PathStyle_T getPathStyle()
+    {
+        if (enmPathStyle == (PathStyle_T)0)
+        {
+            HRESULT hrc = pGuestSession->COMGETTER(PathStyle)(&enmPathStyle);
+            if (FAILED(hrc))
+#if RTPATH_STYLE == RTPATH_STR_F_STYLE_DOS
+                enmPathStyle = PathStyle_DOS;
+#else
+                enmPathStyle = PathStyle_UNIX;
+#endif
+        }
+        return enmPathStyle;
+    }
 
 } GCTLCMDCTX, *PGCTLCMDCTX;
 
@@ -1556,10 +1574,14 @@ static RTEXITCODE gctlHandleRunCommon(PGCTLCMDCTX pCtx, int argc, char **argv, b
                 CHECK_ERROR_BREAK(pProcess, WaitForArray(ComSafeArrayAsInParam(aWaitFlags),
                                                          RT_MIN(500 /*ms*/, RT_MAX(cMsTimeLeft, 1 /*ms*/)),
                                                          &waitResult));
+                if (pCtx->cVerbose)
+                    RTPrintf("waitResult: %d\n", waitResult);
                 switch (waitResult)
                 {
-                    case ProcessWaitResult_Start:
+                    case ProcessWaitResult_Start: /** @todo you always wait for 'start', */
                         fCompletedStartCmd = fCompleted = !fRunCmd; /* Only wait for startup if the 'start' command. */
+                        if (!fCompleted && aWaitFlags[0] == ProcessWaitForFlag_Start)
+                            aWaitFlags[0] = ProcessWaitForFlag_Terminate;
                         break;
                     case ProcessWaitResult_StdOut:
                         fReadStdOut = true;
@@ -2666,6 +2688,7 @@ static RTEXITCODE gctlHandleCopy(PGCTLCMDCTX pCtx, int argc, char **argv, bool f
     RTGetOptInit(&GetState, argc, argv, s_aOptions, RT_ELEMENTS(s_aOptions), 1, RTGETOPTINIT_FLAGS_OPTS_FIRST);
 
     Utf8Str strSource;
+    bool fDstMustBeDir = false;
     const char *pszDst = NULL;
     enum gctlCopyFlags enmFlags = kGctlCopyFlags_None;
     /*bool fCopyRecursive = false; - unused */
@@ -2696,13 +2719,14 @@ static RTEXITCODE gctlHandleCopy(PGCTLCMDCTX pCtx, int argc, char **argv, bool f
 
             case GETOPTDEF_COPY_TARGETDIR:
                 pszDst = ValueUnion.psz;
+                fDstMustBeDir = true;
                 break;
 
             case VINF_GETOPT_NOT_OPTION:
                 /* Last argument and no destination specified with
                  * --target-directory yet? Then use the current
                  * (= last) argument as destination. */
-                if (   pCtx->pArg->argc == GetState.iNext
+                if (   GetState.argc == GetState.iNext
                     && pszDst == NULL)
                     pszDst = ValueUnion.psz;
                 else
@@ -2757,6 +2781,23 @@ static RTEXITCODE gctlHandleCopy(PGCTLCMDCTX pCtx, int argc, char **argv, bool f
     {
         RTMsgError("Unable to create copy context, rc=%Rrc\n", vrc);
         return RTEXITCODE_FAILURE;
+    }
+
+    /* If --target-directory was used, make sure it ends with a slash or the
+       API may treat it as the destination file: */
+    Utf8Str strDstBuf;
+    if (fDstMustBeDir)
+    {
+        size_t cchDst = strlen(pszDst);
+        if (   cchDst == 0
+            || (   pszDst[cchDst - 1] != '/'
+                && (   pCtx->getPathStyle() != PathStyle_DOS
+                    || (pszDst[cchDst - 1] != '\\' && pszDst[cchDst - 1] != ':'))))
+        {
+            strDstBuf = pszDst;
+            strDstBuf.append(pCtx->getPathStyle() == PathStyle_DOS ? '\\' : '/');
+            pszDst = strDstBuf.c_str();
+        }
     }
 
 /** @todo r=bird: RTPathFilename and RTPathStripFilename won't work

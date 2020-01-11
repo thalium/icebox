@@ -50,16 +50,11 @@ if  defined(VBOX_WITH_LIBCURL) \
  include $(PATH_SUB_CURRENT)/curl-7.57.0/Makefile.kmk
 endif
 
-# The kStuff lib used by IPRT and the debugger.
-if defined(IPRT_WITH_KSTUFF)
- include $(PATH_SUB_CURRENT)/kStuff/Makefile.kmk
-endif
-
 # OpenSSL.
 if  !defined(VBOX_ONLY_SDK) \
  && (   "$(SDK_VBOX_OPENSSL_INCS)" == "$(SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS)" \
      || defined(VBOX_WITH_EXTPACK_PUEL_BUILD))
- include $(PATH_SUB_CURRENT)/openssl-1.1.0i/Makefile.kmk
+ include $(PATH_SUB_CURRENT)/openssl-1.1.1d/Makefile.kmk
 endif
 
 # libjpeg for VRDP video redirection and ExtPack's DrvHostWebcam

@@ -103,7 +103,7 @@ HRESULT COMBase::InitializeCOM(bool fGui)
 {
     LogFlowFuncEnter();
 
-    HRESULT rc = com::Initialize(fGui);
+    HRESULT rc = com::Initialize(fGui ? VBOX_COM_INIT_F_DEFAULT | VBOX_COM_INIT_F_GUI : VBOX_COM_INIT_F_DEFAULT);
 
 #if defined (VBOX_WITH_XPCOM)
 

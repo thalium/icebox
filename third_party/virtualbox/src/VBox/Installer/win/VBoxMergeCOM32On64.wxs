@@ -16,7 +16,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
 
-    <?include Properties.wxi ?>
+    <?include Defines.wxi ?>
 
     <Module Id="msm_VBoxCOM32On64"
             Language="!(loc.LANG)"

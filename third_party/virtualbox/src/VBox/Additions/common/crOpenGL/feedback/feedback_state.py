@@ -28,7 +28,10 @@ for func_name in keys:
         params = apiutil.Parameters(func_name)
         print('%s FEEDBACKSPU_APIENTRY feedbackspu_%s(%s)' % (return_type, func_name, apiutil.MakeDeclarationString(params)))
         print('{')
-        print('\tcrState%s(%s);' % (func_name, apiutil.MakeCallString(params)))
+        if len(params) == 0:
+            print('\tcrState%s(&feedback_spu.StateTracker);' % (func_name,))
+        else:
+            print('\tcrState%s(&feedback_spu.StateTracker, %s);' % (func_name, apiutil.MakeCallString(params)))
         print('')
         print('\tfeedback_spu.super.%s(%s);' % (func_name, apiutil.MakeCallString(params)))
         print('}')

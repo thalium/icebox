@@ -2230,7 +2230,7 @@ static int rtBigNumMagnitudeDivideKnuth(PRTBIGNUM pQuotient, PRTBIGNUM pRemainde
      * Delete temporary variables.
      */
     RTBigNumDestroy(&NormDividend);
-    if (pDivisor == &NormDivisor)
+    if (pNormDivisor == &NormDivisor)
         RTBigNumDestroy(&NormDivisor);
     return rc;
 }
@@ -2663,6 +2663,8 @@ static int rtBigNumMagnitudeExponentiate(PRTBIGNUM pResult, PCRTBIGNUM pBase, PC
                     if (RT_FAILURE(rc))
                         break;
                 }
+
+                RTBigNumDestroy(&TmpMultiplicand);
             }
         }
         RTBigNumDestroy(&Pow2);

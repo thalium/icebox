@@ -31,6 +31,9 @@
 #include "internal/iprt.h"
 #include <iprt/path.h>
 
+#include <iprt/assert.h>
+#include <iprt/ctype.h>
+
 
 /**
  * Parses a path.
@@ -52,26 +55,57 @@
  */
 RTDECL(size_t) RTPathParseSimple(const char *pszPath, size_t *pcchDir, ssize_t *poffName, ssize_t *poffSuff)
 {
-    const char *psz = pszPath;
-    ssize_t     offRoot = 0;
-    const char *pszName = pszPath;
-    const char *pszLastDot = NULL;
+    /*
+     * First deal with the root as it is always more fun that you'd think.
+     */
+    const char *psz     = pszPath;
+    size_t      cchRoot = 0;
 
+#if RTPATH_STYLE == RTPATH_STR_F_STYLE_DOS
+    if (RT_C_IS_ALPHA(*psz) && RTPATH_IS_VOLSEP(psz[1]))
+    {
+        /* Volume specifier. */
+        cchRoot = 2;
+        psz    += 2;
+    }
+    else if (RTPATH_IS_SLASH(*psz) && RTPATH_IS_SLASH(psz[1]))
+    {
+        /* UNC - there are exactly two prefix slashes followed by a namespace
+           or computer name, which can be empty on windows.  */
+        cchRoot = 2;
+        psz += 2;
+        while (!RTPATH_IS_SLASH(*psz) && *psz)
+        {
+            cchRoot++;
+            psz++;
+        }
+    }
+#endif
+    while (RTPATH_IS_SLASH(*psz))
+    {
+        cchRoot++;
+        psz++;
+    }
+
+    /*
+     * Do the remainder.
+     */
+    const char *pszName = psz;
+    const char *pszLastDot = NULL;
     for (;; psz++)
     {
         switch (*psz)
         {
-            /* handle separators. */
-#if defined(RT_OS_WINDOWS) || defined(RT_OS_OS2)
-            case ':':
-                pszName = psz + 1;
-                offRoot = pszName - psz;
+            default:
                 break;
 
+            /* handle separators. */
+#if defined(RT_OS_WINDOWS) || defined(RT_OS_OS2)
             case '\\':
 #endif
             case '/':
                 pszName = psz + 1;
+                pszLastDot = NULL;
                 break;
 
             case '.':
@@ -90,21 +124,22 @@ RTDECL(size_t) RTPathParseSimple(const char *pszPath, size_t *pcchDir, ssize_t *
                 if (poffSuff)
                 {
                     ssize_t offSuff = -1;
-                    if (pszLastDot)
+                    if (   pszLastDot
+                        && pszLastDot != pszName
+                        && pszLastDot[1] != '\0')
                     {
                         offSuff = pszLastDot - pszPath;
-                        if (offSuff <= offName)
-                            offSuff = -1;
+                        Assert(offSuff > offName);
                     }
                     *poffSuff = offSuff;
                 }
 
                 if (pcchDir)
                 {
-                    ssize_t off = offName - 1;
-                    while (off >= offRoot && RTPATH_IS_SLASH(pszPath[off]))
-                        off--;
-                    *pcchDir = RT_MAX(off, offRoot) + 1;
+                    size_t cch = offName < 0 ? psz - pszPath : offName - 1 < (ssize_t)cchRoot ? cchRoot : offName - 1;
+                    while (cch > cchRoot && RTPATH_IS_SLASH(pszPath[cch - 1]))
+                        cch--;
+                    *pcchDir = cch;
                 }
 
                 return psz - pszPath;

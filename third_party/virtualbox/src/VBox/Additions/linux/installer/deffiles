@@ -31,8 +31,6 @@ DEFAULT_FILE_NAMES=" \
     /usr/sbin/vboxadd-service \
     /usr/sbin/VBoxService \
     /sbin/mount.vboxsf \
-    /usr/lib/VBoxOGLarrayspu.so \
-    /usr/lib64/VBoxOGLarrayspu.so \
     /usr/lib/VBoxOGLcrutil.so \
     /usr/lib64/VBoxOGLcrutil.so \
     /usr/lib/VBoxOGLerrorspu.so \

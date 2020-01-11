@@ -44,7 +44,7 @@ for func_name in keys:
 	return_type = apiutil.ReturnType(func_name)
 	params = apiutil.Parameters(func_name)
 
-	print('typedef %s (SPU_APIENTRY *%sFunc_t)(%s);' % (return_type, func_name, apiutil.MakePrototypeString(params)))
+	print('typedef %s (SPU_APIENTRY *%sFunc_t)(%s);' % (return_type, func_name, apiutil.MakePrototypeStringForDispatcher(params)))
 print('')
 
 print('struct _copy_list_node;')

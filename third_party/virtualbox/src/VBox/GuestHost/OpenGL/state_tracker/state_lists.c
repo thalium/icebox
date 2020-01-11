@@ -19,7 +19,7 @@ void crStateListsDestroy(CRContext *ctx)
 void crStateListsInit(CRContext *ctx)
 {
     CRListsState *l = &ctx->lists;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
     CRListsBits *lb = &(sb->lists);
 
     l->newEnd = GL_FALSE;
@@ -56,12 +56,12 @@ void crStateListsInit(CRContext *ctx)
     }
 #endif
 
-#define CRSTATE_SET_ENABLED(state, cap) CRSTATE_SET_CAP(state, diff_api.IsEnabled(cap), "%u")
+#define CRSTATE_SET_ENABLED(state, cap) CRSTATE_SET_CAP(state, pState->diff_api.IsEnabled(cap), "%u")
 
-#define CRSTATE_SET_ENUM(state, cap) {GLenum _e=g->state; diff_api.GetIntegerv(cap, &_e); CRSTATE_SET_CAP(state, _e, "%#x");}
-#define CRSTATE_SET_FLOAT(state, cap) {GLfloat _f=g->state; diff_api.GetFloatv(cap, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
-#define CRSTATE_SET_INT(state, cap) {GLint _i=g->state; diff_api.GetIntegerv(cap, &_i); CRSTATE_SET_CAP(state, _i, "%i");}
-#define CRSTATE_SET_BOOL(state, cap) {GLboolean _b=g->state; diff_api.GetBooleanv(cap, &_b); CRSTATE_SET_CAP(state, _b, "%u");}
+#define CRSTATE_SET_ENUM(state, cap) {GLenum _e=g->state; pState->diff_api.GetIntegerv(cap, (GLint *)&_e); CRSTATE_SET_CAP(state, _e, "%#x");}
+#define CRSTATE_SET_FLOAT(state, cap) {GLfloat _f=g->state; pState->diff_api.GetFloatv(cap, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
+#define CRSTATE_SET_INT(state, cap) {GLint _i=g->state; pState->diff_api.GetIntegerv(cap, &_i); CRSTATE_SET_CAP(state, _i, "%i");}
+#define CRSTATE_SET_BOOL(state, cap) {GLboolean _b=g->state; pState->diff_api.GetBooleanv(cap, &_b); CRSTATE_SET_CAP(state, _b, "%u");}
 
 #define CRSTATE_SET_COLORF(state, cap)              \
     {                                               \
@@ -70,7 +70,7 @@ void crStateListsInit(CRContext *ctx)
         value[1]=g->state.g;                        \
         value[2]=g->state.b;                        \
         value[3]=g->state.a;                        \
-        diff_api.GetFloatv(cap, &value[0]);         \
+        pState->diff_api.GetFloatv(cap, &value[0]); \
         CRSTATE_SET_CAP(state.r, value[0], "%f");   \
         CRSTATE_SET_CAP(state.g, value[1], "%f");   \
         CRSTATE_SET_CAP(state.b, value[2], "%f");   \
@@ -80,12 +80,12 @@ void crStateListsInit(CRContext *ctx)
 #define CRSTATE_SET_TEXTURE(state, cap, target)                                             \
     {                                                                                       \
         GLint _stex, _hwtex;                                                                \
-        _stex = _hwtex = crStateGetTextureObjHWID(g->state);                                \
-        diff_api.GetIntegerv(cap, &_hwtex);                                                 \
+        _stex = _hwtex = crStateGetTextureObjHWID(pState, g->state);                        \
+        pState->diff_api.GetIntegerv(cap, &_hwtex);                                         \
         if (_stex!=_hwtex)                                                                  \
         {                                                                                   \
             CR_STATE_SETTEX_MSG(#state, _stex, _hwtex);                                     \
-            crStateBindTexture(target, crStateTextureHWIDtoID(_hwtex));                     \
+            crStateBindTexture(pState, target, crStateTextureHWIDtoID(pState, _hwtex));     \
         }                                                                                   \
     }
 
@@ -96,7 +96,7 @@ void crStateListsInit(CRContext *ctx)
         value[1]=g->state.g;                        \
         value[2]=g->state.b;                        \
         value[3]=g->state.a;                        \
-        diff_api.func(p1, p2, &value[0]);           \
+        pState->diff_api.func(p1, p2, &value[0]);   \
         CRSTATE_SET_CAP(state.r, value[0], "%f");   \
         CRSTATE_SET_CAP(state.g, value[1], "%f");   \
         CRSTATE_SET_CAP(state.b, value[2], "%f");   \
@@ -110,7 +110,7 @@ void crStateListsInit(CRContext *ctx)
         value[1]=g->state.y;                        \
         value[2]=g->state.z;                        \
         value[3]=g->state.w;                        \
-        diff_api.func(p1, p2, &value[0]);           \
+        pState->diff_api.func(p1, p2, &value[0]);   \
         CRSTATE_SET_CAP(state.x, value[0], "%f");   \
         CRSTATE_SET_CAP(state.y, value[1], "%f");   \
         CRSTATE_SET_CAP(state.z, value[2], "%f");   \
@@ -118,17 +118,17 @@ void crStateListsInit(CRContext *ctx)
     }
 
 #define CRSTATE_SET_TEXGEN_4F(state, coord, pname) _CRSTATE_SET_4F_XYZW(state, coord, pname, GetTexGenfv)
-#define CRSTATE_SET_TEXGEN_I(state, coord, pname) {GLint _i=g->state; diff_api.GetTexGeniv(coord, pname, &_i); CRSTATE_SET_CAP(state, _i, "%i");}
+#define CRSTATE_SET_TEXGEN_I(state, coord, pname) {GLint _i=g->state; pState->diff_api.GetTexGeniv(coord, pname, &_i); CRSTATE_SET_CAP(state, _i, "%i");}
 
-#define CRSTATE_SET_TEXENV_I(state, target, pname) {GLint _i=g->state; diff_api.GetTexEnviv(target, pname, &_i); CRSTATE_SET_CAP(state, _i, "%i");}
-#define CRSTATE_SET_TEXENV_F(state, target, pname) {GLfloat _f=g->state; diff_api.GetTexEnvfv(target, pname, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
+#define CRSTATE_SET_TEXENV_I(state, target, pname) {GLint _i=g->state; pState->diff_api.GetTexEnviv(target, pname, &_i); CRSTATE_SET_CAP(state, _i, "%i");}
+#define CRSTATE_SET_TEXENV_F(state, target, pname) {GLfloat _f=g->state; pState->diff_api.GetTexEnvfv(target, pname, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
 #define CRSTATE_SET_TEXENV_COLOR(state, target, pname) _CRSTATE_SET_4F_RGBA(state, target, pname, GetTexEnvfv)
 
 #define CRSTATE_SET_MATERIAL_COLOR(state, face, pname) _CRSTATE_SET_4F_RGBA(state, face, pname, GetMaterialfv)
-#define CRSTATE_SET_MATERIAL_F(state, face, pname) {GLfloat _f=g->state; diff_api.GetMaterialfv(face, pname, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
+#define CRSTATE_SET_MATERIAL_F(state, face, pname) {GLfloat _f=g->state; pState->diff_api.GetMaterialfv(face, pname, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
 
 #define CRSTATE_SET_LIGHT_COLOR(state, light, pname) _CRSTATE_SET_4F_RGBA(state, light, pname, GetLightfv)
-#define CRSTATE_SET_LIGHT_F(state, light, pname) {GLfloat _f=g->state; diff_api.GetLightfv(light, pname, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
+#define CRSTATE_SET_LIGHT_F(state, light, pname) {GLfloat _f=g->state; pState->diff_api.GetLightfv(light, pname, &_f); CRSTATE_SET_CAP(state, _f, "%f");}
 #define CRSTATE_SET_LIGHT_4F(state, light, pname) _CRSTATE_SET_4F_XYZW(state, light, pname, GetLightfv)
 #define CRSTATE_SET_LIGHT_3F(state, light, pname)       \
     {                                                   \
@@ -136,7 +136,7 @@ void crStateListsInit(CRContext *ctx)
         value[0]=g->state.x;                            \
         value[1]=g->state.y;                            \
         value[2]=g->state.z;                            \
-        diff_api.GetLightfv(light, pname, &value[0]);   \
+        pState->diff_api.GetLightfv(light, pname, &value[0]); \
         CRSTATE_SET_CAP(state.x, value[0], "%f");       \
         CRSTATE_SET_CAP(state.y, value[1], "%f");       \
         CRSTATE_SET_CAP(state.z, value[2], "%f");       \
@@ -149,7 +149,7 @@ void crStateListsInit(CRContext *ctx)
         value[1]=g->state.y;                        \
         value[2]=g->state.z;                        \
         value[3]=g->state.w;                        \
-        diff_api.GetClipPlane(plane, &value[0]);    \
+        pState->diff_api.GetClipPlane(plane, &value[0]); \
         CRSTATE_SET_CAP(state.x, value[0], "%G");   \
         CRSTATE_SET_CAP(state.y, value[1], "%G");   \
         CRSTATE_SET_CAP(state.z, value[2], "%G");   \
@@ -161,7 +161,7 @@ void crStateListsInit(CRContext *ctx)
         GLfloat f[16], sm[16];                              \
         crMatrixGetFloats(&f[0], g->state);                 \
         crMemcpy(&sm[0], &f[0], 16*sizeof(GLfloat));        \
-        diff_api.GetFloatv(cap, &f[0]);                     \
+        pState->diff_api.GetFloatv(cap, &f[0]);             \
         if (crMemcmp(&f[0], &sm[0], 16*sizeof(GLfloat)))    \
         {                                                   \
             CR_STATE_SETMAT_MSG(#state, sm, f);             \
@@ -169,13 +169,13 @@ void crStateListsInit(CRContext *ctx)
         }                                                   \
     }
 
-void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
+void STATE_APIENTRY crStateQueryHWState(PCRStateTracker pState, GLuint fbFbo, GLuint bbFbo)
 {
-    CRContext *g = GetCurrentContext();
-    CRStateBits *sb = GetCurrentBits();
+    CRContext *g = GetCurrentContext(pState);
+    CRStateBits *sb = GetCurrentBits(pState);
     CRbitvalue /* *bitID=g->bitid, */ *negbitID=g->neg_bitid;
 
-    CRASSERT(g_bVBoxEnableDiffOnMakeCurrent);
+    CRASSERT(pState->fVBoxEnableDiffOnMakeCurrent);
 
     crStateSyncHWErrorState(g);
 
@@ -223,12 +223,12 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         if (CHECKDIRTY(sb->buffer.drawBuffer, negbitID))
         {
             GLuint buf = 0;
-            diff_api.GetIntegerv(GL_DRAW_BUFFER, &buf);
+            pState->diff_api.GetIntegerv(GL_DRAW_BUFFER, (GLint *)&buf);
 
             if (buf == GL_COLOR_ATTACHMENT0_EXT && (bbFbo || fbFbo))
             {
                 GLuint binding = 0;
-                diff_api.GetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &binding);
+                pState->diff_api.GetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&binding);
                 if (!binding)
                 {
                     crWarning("HW state synch: GL_DRAW_FRAMEBUFFER_BINDING is NULL");
@@ -256,12 +256,12 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         if (CHECKDIRTY(sb->buffer.readBuffer, negbitID))
         {
             GLuint buf = 0;
-            diff_api.GetIntegerv(GL_READ_BUFFER, &buf);
+            pState->diff_api.GetIntegerv(GL_READ_BUFFER, (GLint *)&buf);
 
             if (buf == GL_COLOR_ATTACHMENT0_EXT && (bbFbo || fbFbo))
             {
                 GLuint binding = 0;
-                diff_api.GetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &binding);
+                pState->diff_api.GetIntegerv(GL_READ_FRAMEBUFFER_BINDING, (GLint *)&binding);
                 if (!binding)
                 {
                     crWarning("HW state synch: GL_READ_FRAMEBUFFER_BINDING is NULL");
@@ -298,7 +298,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             value[1]=g->buffer.colorWriteMask.g;
             value[2]=g->buffer.colorWriteMask.b;
             value[3]=g->buffer.colorWriteMask.a;
-            diff_api.GetBooleanv(GL_COLOR_WRITEMASK, &value[0]);
+            pState->diff_api.GetBooleanv(GL_COLOR_WRITEMASK, &value[0]);
 
             CRSTATE_SET_CAP(buffer.colorWriteMask.r, value[0], "%u");
             CRSTATE_SET_CAP(buffer.colorWriteMask.g, value[1], "%u");
@@ -396,7 +396,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             /* this if branch is not needed here actually, just in case ogl drivers misbehave */
             if (activeFace == GL_BACK)
             {
-                diff_api.ActiveStencilFaceEXT(GL_FRONT);
+                pState->diff_api.ActiveStencilFaceEXT(GL_FRONT);
                 activeFace = GL_FRONT;
             }
 
@@ -408,7 +408,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         {
             if (activeFace == GL_BACK)
             {
-                diff_api.ActiveStencilFaceEXT(GL_FRONT);
+                pState->diff_api.ActiveStencilFaceEXT(GL_FRONT);
                 activeFace = GL_FRONT;
             }
             CRSTATE_SET_STENCIL_FUNC(CRSTATE_STENCIL_BUFFER_ID_FRONT, _);
@@ -419,7 +419,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         {
             if (activeFace == GL_BACK)
             {
-                diff_api.ActiveStencilFaceEXT(GL_FRONT);
+                pState->diff_api.ActiveStencilFaceEXT(GL_FRONT);
                 activeFace = GL_FRONT;
             }
             CRSTATE_SET_STENCIL_FUNC(CRSTATE_STENCIL_BUFFER_ID_FRONT, _);
@@ -439,7 +439,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             /* this if branch is not needed here actually, just in case ogl drivers misbehave */
             if (activeFace == GL_BACK)
             {
-                diff_api.ActiveStencilFaceEXT(GL_FRONT);
+                pState->diff_api.ActiveStencilFaceEXT(GL_FRONT);
                 activeFace = GL_FRONT;
             }
 
@@ -451,7 +451,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         {
             if (activeFace == GL_BACK)
             {
-                diff_api.ActiveStencilFaceEXT(GL_FRONT);
+                pState->diff_api.ActiveStencilFaceEXT(GL_FRONT);
                 activeFace = GL_FRONT;
             }
             CRSTATE_SET_STENCIL_OP(CRSTATE_STENCIL_BUFFER_ID_FRONT, _);
@@ -462,7 +462,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         {
             if (activeFace == GL_BACK)
             {
-                diff_api.ActiveStencilFaceEXT(GL_FRONT);
+                pState->diff_api.ActiveStencilFaceEXT(GL_FRONT);
                 activeFace = GL_FRONT;
             }
             CRSTATE_SET_STENCIL_OP(CRSTATE_STENCIL_BUFFER_ID_FRONT, _);
@@ -495,7 +495,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             {
                 if (i!=activeUnit)
                 {
-                    diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
+                    pState->diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
                     activeUnit=i;
                 }
                 CRSTATE_SET_ENABLED(texture.unit[i].enabled1D, GL_TEXTURE_1D);
@@ -526,7 +526,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             {
                 if (i!=activeUnit)
                 {
-                    diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
+                    pState->diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
                     activeUnit=i;
                 }
 
@@ -553,7 +553,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             {
                 if (i!=activeUnit)
                 {
-                    diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
+                    pState->diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
                     activeUnit=i;
                 }
 
@@ -567,7 +567,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             {
                 if (i!=activeUnit)
                 {
-                    diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
+                    pState->diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
                     activeUnit=i;
                 }
 
@@ -581,7 +581,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             {
                 if (i!=activeUnit)
                 {
-                    diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
+                    pState->diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
                     activeUnit=i;
                 }
 
@@ -595,7 +595,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             {
                 if (i!=activeUnit)
                 {
-                    diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
+                    pState->diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
                     activeUnit=i;
                 }
 
@@ -621,7 +621,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         }
         if (activeUnit!=g->texture.curTextureUnit)
         {
-            diff_api.ActiveTextureARB(g->texture.curTextureUnit + GL_TEXTURE0_ARB);
+            pState->diff_api.ActiveTextureARB(g->texture.curTextureUnit + GL_TEXTURE0_ARB);
         }
     }
 
@@ -753,10 +753,10 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             unsigned int i;
             for (i=0; i<g->limits.maxTextureUnits; i++)
             {
-                diff_api.ActiveTextureARB(GL_TEXTURE0_ARB+i);
+                pState->diff_api.ActiveTextureARB(GL_TEXTURE0_ARB+i);
                 CRSTATE_SET_MATRIX(transform.textureStack[i].top, GL_TEXTURE_MATRIX);
             }
-            diff_api.ActiveTextureARB(g->texture.curTextureUnit + GL_TEXTURE0_ARB);
+            pState->diff_api.ActiveTextureARB(g->texture.curTextureUnit + GL_TEXTURE0_ARB);
         }
 
         if (CHECKDIRTY(sb->transform.colorMatrix, negbitID))
@@ -784,7 +784,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             value[1] = g->viewport.scissorY;
             value[2] = g->viewport.scissorW;
             value[3] = g->viewport.scissorH;
-            diff_api.GetIntegerv(GL_SCISSOR_BOX, &value[0]);
+            pState->diff_api.GetIntegerv(GL_SCISSOR_BOX, &value[0]);
             CRSTATE_SET_CAP(viewport.scissorX, value[0], "%i");
             CRSTATE_SET_CAP(viewport.scissorY, value[1], "%i");
             CRSTATE_SET_CAP(viewport.scissorW, value[2], "%i");
@@ -798,7 +798,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             value[1] = g->viewport.viewportY;
             value[2] = g->viewport.viewportW;
             value[3] = g->viewport.viewportH;
-            diff_api.GetIntegerv(GL_VIEWPORT, &value[0]);
+            pState->diff_api.GetIntegerv(GL_VIEWPORT, &value[0]);
             CRSTATE_SET_CAP(viewport.viewportX, value[0], "%i");
             CRSTATE_SET_CAP(viewport.viewportY, value[1], "%i");
             CRSTATE_SET_CAP(viewport.viewportW, value[2], "%i");
@@ -810,7 +810,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             GLfloat value[2];
             value[0] = g->viewport.nearClip;
             value[1] = g->viewport.farClip;
-            diff_api.GetFloatv(GL_DEPTH_RANGE, &value[0]);
+            pState->diff_api.GetFloatv(GL_DEPTH_RANGE, &value[0]);
             CRSTATE_SET_CAP(viewport.nearClip, value[0], "%f");
             CRSTATE_SET_CAP(viewport.farClip, value[1], "%f");
         }
@@ -846,8 +846,8 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
                 order = g->eval.eval1D[i].order;
                 uval[0] = g->eval.eval1D[i].u1;
                 uval[1] = g->eval.eval1D[i].u2;
-                diff_api.GetMapiv(i + GL_MAP1_COLOR_4, GL_ORDER, &order);
-                diff_api.GetMapfv(i + GL_MAP1_COLOR_4, GL_DOMAIN, &uval[0]);
+                pState->diff_api.GetMapiv(i + GL_MAP1_COLOR_4, GL_ORDER, &order);
+                pState->diff_api.GetMapfv(i + GL_MAP1_COLOR_4, GL_DOMAIN, &uval[0]);
                 if (order>0)
                 {
                     coeffs = crAlloc(order * gleval_sizes_dup[i] * sizeof(GLfloat));
@@ -856,7 +856,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
                         crWarning("crStateQueryHWState: out of memory, at eval1D[%i]", i);
                         continue;
                     }
-                    diff_api.GetMapfv(i + GL_MAP1_COLOR_4, GL_COEFF, coeffs);
+                    pState->diff_api.GetMapfv(i + GL_MAP1_COLOR_4, GL_COEFF, coeffs);
                 }
 
                 CRSTATE_SET_CAP(eval.eval1D[i].order, order, "%i");
@@ -885,8 +885,8 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
                 uval[1] = g->eval.eval2D[i].u2;
                 uval[2] = g->eval.eval2D[i].v1;
                 uval[3] = g->eval.eval2D[i].v2;
-                diff_api.GetMapiv(i + GL_MAP2_COLOR_4, GL_ORDER, &order[0]);
-                diff_api.GetMapfv(i + GL_MAP2_COLOR_4, GL_DOMAIN, &uval[0]);
+                pState->diff_api.GetMapiv(i + GL_MAP2_COLOR_4, GL_ORDER, &order[0]);
+                pState->diff_api.GetMapfv(i + GL_MAP2_COLOR_4, GL_DOMAIN, &uval[0]);
                 if (order[0]>0 && order[1]>0)
                 {
                     coeffs = crAlloc(order[0] * order[1] * gleval_sizes_dup[i] * sizeof(GLfloat));
@@ -895,7 +895,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
                         crWarning("crStateQueryHWState: out of memory, at eval2D[%i]", i);
                         continue;
                     }
-                    diff_api.GetMapfv(i + GL_MAP1_COLOR_4, GL_COEFF, coeffs);
+                    pState->diff_api.GetMapfv(i + GL_MAP1_COLOR_4, GL_COEFF, coeffs);
                 }
                 CRSTATE_SET_CAP(eval.eval2D[i].uorder, order[0], "%i");
                 CRSTATE_SET_CAP(eval.eval2D[i].vorder, order[1], "%i");
@@ -926,7 +926,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             CRSTATE_SET_INT(eval.un1D, GL_MAP1_GRID_SEGMENTS);
             value[0] = g->eval.u11D;
             value[1] = g->eval.u21D;
-            diff_api.GetFloatv(GL_MAP1_GRID_DOMAIN, &value[0]);
+            pState->diff_api.GetFloatv(GL_MAP1_GRID_DOMAIN, &value[0]);
             CRSTATE_SET_CAP(eval.u11D, value[0], "%f");
             CRSTATE_SET_CAP(eval.u21D, value[1], "%f");
         }
@@ -937,14 +937,14 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             GLfloat value[4];
             iv[0] = g->eval.un2D;
             iv[1] = g->eval.vn2D;
-            diff_api.GetIntegerv(GL_MAP1_GRID_SEGMENTS, &iv[0]);
+            pState->diff_api.GetIntegerv(GL_MAP1_GRID_SEGMENTS, &iv[0]);
             CRSTATE_SET_CAP(eval.un2D, iv[0], "%i");
             CRSTATE_SET_CAP(eval.vn2D, iv[1], "%i");
             value[0] = g->eval.u12D;
             value[1] = g->eval.u22D;
             value[2] = g->eval.v12D;
             value[3] = g->eval.v22D;
-            diff_api.GetFloatv(GL_MAP2_GRID_DOMAIN, &value[0]);
+            pState->diff_api.GetFloatv(GL_MAP2_GRID_DOMAIN, &value[0]);
             CRSTATE_SET_CAP(eval.u12D, value[0], "%f");
             CRSTATE_SET_CAP(eval.u22D, value[1], "%f");
             CRSTATE_SET_CAP(eval.v12D, value[2], "%f");
@@ -1121,7 +1121,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             value[0] = g->point.distanceAttenuation[0];
             value[1] = g->point.distanceAttenuation[1];
             value[2] = g->point.distanceAttenuation[2];
-            diff_api.GetFloatv(GL_POINT_DISTANCE_ATTENUATION, &value[0]);
+            pState->diff_api.GetFloatv(GL_POINT_DISTANCE_ATTENUATION, &value[0]);
             CRSTATE_SET_CAP(point.distanceAttenuation[0], value[0], "%f");
             CRSTATE_SET_CAP(point.distanceAttenuation[1], value[1], "%f");
             CRSTATE_SET_CAP(point.distanceAttenuation[2], value[2], "%f");
@@ -1142,17 +1142,17 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
                     GLint val=g->point.coordReplacement[i];
                     if (activeUnit!=i)
                     {
-                        diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
+                        pState->diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB);
                         activeUnit=i;
                     }
-                    diff_api.GetTexEnviv(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, &val);
+                    pState->diff_api.GetTexEnviv(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, &val);
                     CRSTATE_SET_CAP(point.coordReplacement[i], val, "%i");
                 }
             }
 
             if (activeUnit!=g->texture.curTextureUnit)
             {
-                diff_api.ActiveTextureARB(g->texture.curTextureUnit + GL_TEXTURE0_ARB);
+                pState->diff_api.ActiveTextureARB(g->texture.curTextureUnit + GL_TEXTURE0_ARB);
             }
         }
 #endif
@@ -1183,7 +1183,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
             CRSTATE_SET_ENUM(polygon.cullFaceMode, GL_CULL_FACE_MODE);
             val[0] = g->polygon.frontMode;
             val[1] = g->polygon.backMode;
-            diff_api.GetIntegerv(GL_POLYGON_MODE, &val[0]);
+            pState->diff_api.GetIntegerv(GL_POLYGON_MODE, &val[0]);
             CRSTATE_SET_CAP(polygon.frontMode, val[0], "%#x");
             CRSTATE_SET_CAP(polygon.backMode, val[1], "%#x");
 
@@ -1194,7 +1194,7 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         {
             GLint stipple[32];
             crMemcpy(&stipple[0], &g->polygon.stipple[0], sizeof(stipple));
-            diff_api.GetPolygonStipple((GLubyte*) &stipple[0]);
+            pState->diff_api.GetPolygonStipple((GLubyte*) &stipple[0]);
             if (crMemcmp(&stipple[0], &g->polygon.stipple[0], sizeof(stipple)))
             {
 #ifdef CRSTATE_DEBUG_QUERY_HW_STATE
@@ -1207,36 +1207,36 @@ void STATE_APIENTRY crStateQueryHWState(GLuint fbFbo, GLuint bbFbo)
         }
     }
 
-    CR_STATE_CLEAN_HW_ERR_WARN("error on hw sync");
+    CR_STATE_CLEAN_HW_ERR_WARN(pState, "error on hw sync");
 }
 
-void STATE_APIENTRY crStateNewList (GLuint list, GLenum mode) 
+void STATE_APIENTRY crStateNewList (PCRStateTracker pState, GLuint list, GLenum mode) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRListsState *l = &(g->lists);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glNewList called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glNewList called in Begin/End");
         return;
     }
 
     if (list == 0)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "glNewList(list=0)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "glNewList(list=0)");
         return;
     }
 
     if (l->currentIndex)
     {
         /* already building a list */
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glNewList called inside display list");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glNewList called inside display list");
         return;
     }
 
     if (mode != GL_COMPILE && mode != GL_COMPILE_AND_EXECUTE)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glNewList invalid mode");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glNewList invalid mode");
         return;
     }
 
@@ -1255,20 +1255,20 @@ void STATE_APIENTRY crStateNewList (GLuint list, GLenum mode)
     l->mode = mode;
 }
 
-void STATE_APIENTRY crStateEndList (void)
+void STATE_APIENTRY crStateEndList (PCRStateTracker pState)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRListsState *l = &(g->lists);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glEndList called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glEndList called in Begin/End");
         return;
     }
 
     if (!l->currentIndex)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glEndList called outside display list");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glEndList called outside display list");
         return;
     }
 
@@ -1276,20 +1276,20 @@ void STATE_APIENTRY crStateEndList (void)
     l->mode = 0;
 }
 
-GLuint STATE_APIENTRY crStateGenLists(GLsizei range)
+GLuint STATE_APIENTRY crStateGenLists(PCRStateTracker pState, GLsizei range)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     GLuint start;
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glGenLists called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glGenLists called in Begin/End");
         return 0;
     }
 
     if (range < 0)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "Negative range passed to glGenLists: %d", range);
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "Negative range passed to glGenLists: %d", range);
         return 0;
     }
 
@@ -1299,32 +1299,32 @@ GLuint STATE_APIENTRY crStateGenLists(GLsizei range)
     return start;
 }
     
-void STATE_APIENTRY crStateDeleteLists (GLuint list, GLsizei range)
+void STATE_APIENTRY crStateDeleteLists (PCRStateTracker pState, GLuint list, GLsizei range)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glDeleteLists called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glDeleteLists called in Begin/End");
         return;
     }
 
     if (range < 0)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "Negative range passed to glDeleteLists: %d", range);
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "Negative range passed to glDeleteLists: %d", range);
         return;
     }
 
     crHashtableDeleteBlock(g->shared->dlistTable, list, range, crFree); /* call crFree to delete list data */
 }
 
-GLboolean STATE_APIENTRY crStateIsList(GLuint list)
+GLboolean STATE_APIENTRY crStateIsList(PCRStateTracker pState, GLuint list)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
             "GenLists called in Begin/End");
         return GL_FALSE;
     }
@@ -1335,16 +1335,16 @@ GLboolean STATE_APIENTRY crStateIsList(GLuint list)
     return crHashtableIsKeyUsed(g->shared->dlistTable, list);
 }
     
-void STATE_APIENTRY crStateListBase (GLuint base)
+void STATE_APIENTRY crStateListBase (PCRStateTracker pState, GLuint base)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRListsState *l = &(g->lists);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRListsBits *lb = &(sb->lists);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
             "ListBase called in Begin/End");
         return;
     }
@@ -1360,10 +1360,13 @@ void
 crStateListsDiff( CRListsBits *b, CRbitvalue *bitID, 
                                     CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRListsState *from = &(fromCtx->lists);
     CRListsState *to = &(toCtx->lists);
     unsigned int j;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
@@ -1371,7 +1374,7 @@ crStateListsDiff( CRListsBits *b, CRbitvalue *bitID,
     if (CHECKDIRTY(b->base, bitID))
     {
         if (from->base != to->base) {
-            diff_api.ListBase(to->base);
+            pState->diff_api.ListBase(to->base);
             from->base = to->base;
         }
         CLEARDIRTY(b->base, nbitID);
@@ -1385,10 +1388,13 @@ void
 crStateListsSwitch( CRListsBits *b, CRbitvalue *bitID, 
                                         CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRListsState *from = &(fromCtx->lists);
     CRListsState *to = &(toCtx->lists);
     unsigned int j;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
@@ -1396,7 +1402,7 @@ crStateListsSwitch( CRListsBits *b, CRbitvalue *bitID,
     if (CHECKDIRTY(b->base, bitID))
     {
         if (from->base != to->base) {
-            diff_api.ListBase(to->base);
+            pState->diff_api.ListBase(to->base);
             FILLDIRTY(b->base);
             FILLDIRTY(b->dirty);
         }

@@ -221,6 +221,8 @@ RTDECL(int) RTAsn1Integer_UnsignedCompare(PCRTASN1INTEGER pLeft, PCRTASN1INTEGER
                 uint32_t iRight = RTAsn1Integer_UnsignedLastBit(pRight);
                 if (iLeft != iRight)
                     return iLeft < iRight ? -1 : 1;
+                if ((int32_t)iLeft < 0)
+                    return 0; /* Both are all zeros. */
 
                 uint32_t i = iLeft / 8;
                 if (i > 8)

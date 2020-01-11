@@ -113,6 +113,8 @@ void UISelectorWindow::destroy()
 UISelectorWindow::UISelectorWindow()
     : m_fPolished(false)
     , m_fWarningAboutInaccessibleMediaShown(false)
+    , m_fToolBarVisible(true)
+    , m_fStatusBarVisible(false)
     , m_pActionPool(0)
     , m_pSlidingWidget(0)
     , m_pSplitter(0)
@@ -232,6 +234,8 @@ void UISelectorWindow::sltShowSelectorWindowContextMenu(const QPoint &position)
             m_pToolBar->show();
         else
             m_pToolBar->hide();
+        /* Cache the visibility of the tool bar: */
+        m_fToolBarVisible = m_pToolBar && m_pToolBar->isVisible();
     }
     else if (pResult == pShowToolBarText)
     {
@@ -246,6 +250,8 @@ void UISelectorWindow::sltShowSelectorWindowContextMenu(const QPoint &position)
             statusBar()->show();
         else
             statusBar()->hide();
+        /* Cache the visibility of the status bar: */
+        m_fStatusBarVisible = statusBar()->isVisible();
     }
 }
 
@@ -2159,9 +2165,9 @@ void UISelectorWindow::saveSettings()
 
     /* Save toolbar and statusbar visibility: */
     {
-        gEDataManager->setSelectorWindowToolBarVisible(!m_pToolBar->isHidden());
+        gEDataManager->setSelectorWindowToolBarVisible(m_fToolBarVisible);
         gEDataManager->setSelectorWindowToolBarTextVisible(m_pToolBar->toolButtonStyle() == Qt::ToolButtonTextUnderIcon);
-        gEDataManager->setSelectorWindowStatusBarVisible(!statusBar()->isHidden());
+        gEDataManager->setSelectorWindowStatusBarVisible(m_fStatusBarVisible);
     }
 
     /* Save splitter handle position: */
@@ -2667,4 +2673,3 @@ bool UISelectorWindow::isAtLeastOneItemRunning(const QList<UIVMItem*> &items)
             return true;
     return false;
 }
-

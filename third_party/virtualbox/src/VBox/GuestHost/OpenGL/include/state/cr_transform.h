@@ -70,7 +70,7 @@ DECLEXPORT(void) crStateTransformDestroy(CRContext *ctx);
 
 DECLEXPORT(void) crStateInitMatrixStack(CRMatrixStack *stack, int maxDepth);
 
-DECLEXPORT(void) crStateLoadMatrix(const CRmatrix *m);
+DECLEXPORT(void) crStateLoadMatrix(PCRStateTracker pState, const CRmatrix *m);
 
 DECLEXPORT(void) crStateTransformUpdateTransform(CRTransformState *t);
 DECLEXPORT(void) crStateTransformXformPoint(CRTransformState *t, GLvectorf *p);
