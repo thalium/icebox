@@ -11,6 +11,8 @@
 #include "retdec/pdbparser/pdb_types.h"
 #include "retdec/pdbparser/pdb_utils.h"
 
+#include <memory>
+
 namespace retdec {
 namespace pdbparser {
 
@@ -95,7 +97,7 @@ class PDBFunction
 };
 
 // PDB function map (key is address)
-typedef std::map<int, PDBFunction *> PDBFunctionAddressMap;
+typedef std::map<int, std::shared_ptr<PDBFunction> > PDBFunctionAddressMap;
 
 // =================================================================
 // GLOBAL VARIABLE STRUCTURES

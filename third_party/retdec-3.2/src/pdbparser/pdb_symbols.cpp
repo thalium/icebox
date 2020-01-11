@@ -328,7 +328,7 @@ void PDBSymbols::parse_symbols(void)
 	}
 
 	// Map to help find overloaded functions (key is function name)
-	std::map<std::string, PDBFunction *> func_names;
+	std::map<std::string, std::shared_ptr<PDBFunction> > func_names;
 
 	// Process all modules streams to find functions and all other information
 	for (unsigned int m = 0; m < modules.size(); m++)
@@ -338,7 +338,7 @@ void PDBSymbols::parse_symbols(void)
 		PDBStream *stream = modules[m].stream;
 		position = 4;
 		int cnt = 0;
-		PDBFunction * new_function = nullptr;
+		auto new_function = std::shared_ptr<PDBFunction>{};
 		while (position < stream->size)
 		{  // Process all symbols in module stream
 			PDBGeneralSymbol *symbol = reinterpret_cast<PDBGeneralSymbol *>(stream->data + position);
@@ -349,22 +349,18 @@ void PDBSymbols::parse_symbols(void)
 				case S_GPROC32:
 				case S_LPROC32:
 				{  // Symbol is function begin
-					new_function = new PDBFunction(m);  // Create new function
+					new_function = std::make_shared<PDBFunction>(m);  // Create new function
 					new_function->parse_symbol(symbol, types, this);
 
-					if (new_function == nullptr || new_function->type_def == nullptr || new_function->type_def->type_class != PDBTYPE_FUNCTION)
-					{
-						delete new_function;
-						new_function = nullptr;
-					}
-
+					if (!new_function || new_function->type_def == nullptr || new_function->type_def->type_class != PDBTYPE_FUNCTION)
+						new_function.reset();
 					break;
 				}
 				case S_GDATA32:
 				case S_LDATA32:
 				{  // Data symbol
 					DATASYM32 * sym = reinterpret_cast<DATASYM32 *>(symbol);
-					if (new_function != nullptr && sym->seg <= sections[0].file_address)
+					if (new_function && sym->seg <= sections[0].file_address)
 						// Data inside function's code
 						new_function->parse_symbol(symbol, types, this);
 					else
@@ -384,14 +380,14 @@ void PDBSymbols::parse_symbols(void)
 				}
 				default:
 				{  // Any other symbols
-					if (new_function != nullptr)
+					if (new_function)
 					{
 						// Let the function parse symbols between begin and end
 						bool ended = new_function->parse_symbol(symbol, types, this);
 						if (ended)
 						{  // Function definition ended
 						   // Check if function is overloaded
-							std::map<std::string, PDBFunction *>::iterator it;
+							std::map<std::string, std::shared_ptr<PDBFunction> >::iterator it;
 							it = func_names.find(new_function->name);
 							if (it != func_names.end())
 							{  // Function with this name already exists, mark both as overloaded
@@ -827,11 +823,6 @@ void PDBSymbols::print_global_variables(void)
 
 PDBSymbols::~PDBSymbols(void)
 {
-	for (PDBFunctionAddressMap::iterator it = functions.begin(); it != functions.end(); ++it)
-	{
-		if (it->second != nullptr)
-			delete it->second;
-	}
 }
 
 // =================================================================
