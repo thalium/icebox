@@ -92,7 +92,7 @@ target_include_directories(fmtlib PUBLIC
 )
 
 # loguru
-set(loguru_dir "${root_dir}/third_party/loguru-2.0.0")
+set(loguru_dir "${root_dir}/third_party/loguru")
 add_target(loguru third_party "${loguru_dir}" OPTIONS external)
 target_compile_definitions(loguru PRIVATE
     _CRT_SECURE_NO_WARNINGS
