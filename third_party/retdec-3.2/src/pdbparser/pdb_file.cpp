@@ -83,6 +83,14 @@ PDBFileState PDBFile::load_pdb_file(const char *filename)
 	return state;
 }
 
+namespace{
+	PDB_SHORT read_pdb_short(const char* ptr, size_t idx)
+	{
+		auto ret = PDB_SHORT{};
+		memcpy(&ret, ptr + idx * sizeof ret, sizeof ret);
+		return ret;
+	}
+}
 /**
  * Processes all PDB file streams and fills data containers.
  * Must be called after load_pdb_file() and before any getting and printing or dumping method.
@@ -113,12 +121,12 @@ void PDBFile::initialize()
 		dbi_header_v700 = reinterpret_cast<NewDBIHdr *>(pdb_dbi_data);
 
 		// Get debug stream numbers
-		PDB_SHORT *dbg_numbers = reinterpret_cast<PDB_SHORT *>(pdb_dbi_data + pdb_dbi_size - dbi_header_v700->cbDbgHdr);
-		pdb_fpo_num = dbg_numbers[0];
-		pdb_omap_from_num = dbg_numbers[4];
-		pdb_sec_num = dbg_numbers[5];
-		pdb_newfpo_num = dbg_numbers[9];
-		pdb_ori_sec_num = dbg_numbers[10];
+		auto dbg_numbers = pdb_dbi_data + pdb_dbi_size - dbi_header_v700->cbDbgHdr;
+		pdb_fpo_num = read_pdb_short(dbg_numbers, 0);
+		pdb_omap_from_num = read_pdb_short(dbg_numbers, 4);
+		pdb_sec_num = read_pdb_short(dbg_numbers, 5);
+		pdb_newfpo_num = read_pdb_short(dbg_numbers, 9);
+		pdb_ori_sec_num = read_pdb_short(dbg_numbers, 10);
 
 		// Initialize modules
 		parse_modules();

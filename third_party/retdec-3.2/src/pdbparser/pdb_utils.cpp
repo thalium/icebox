@@ -6,12 +6,23 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #include "retdec/pdbparser/pdb_info.h"
 #include "retdec/pdbparser/pdb_utils.h"
 
 namespace retdec {
 namespace pdbparser {
+
+namespace{
+	template<typename T>
+	PDB_LONG read_as(PDB_PBYTE ptr)
+	{
+		auto arg = T{};
+		memcpy(&arg, ptr, sizeof arg);
+		return static_cast<PDB_LONG>(arg);
+	}
+}
 
 PDB_PBYTE RecordValue(PDB_PBYTE pbData, PDB_PDWORD pdValue)
 {
@@ -32,31 +43,31 @@ PDB_PBYTE RecordValue(PDB_PBYTE pbData, PDB_PDWORD pdValue)
 			{
 				case LF_CHAR:
 				{
-					dValue = static_cast<PDB_LONG>(*reinterpret_cast<PDB_PCHAR>(pbData + WORD_));
+					dValue = read_as<PDB_CHAR>(pbData + WORD_);
 					pbText = pbData + WORD_ + CHAR_;
 					break;
 				}
 				case LF_SHORT:
 				{
-					dValue = static_cast<PDB_LONG>(*reinterpret_cast<PDB_PSHORT>(pbData + WORD_));
+					dValue = read_as<PDB_SHORT>(pbData + WORD_);
 					pbText = pbData + WORD_ + SHORT_;
 					break;
 				}
 				case LF_USHORT:
 				{
-					dValue = static_cast<PDB_LONG>(*reinterpret_cast<PDB_PUSHORT>(pbData + WORD_));
+					dValue = read_as<PDB_USHORT>(pbData + WORD_);
 					pbText = pbData + WORD_ + USHORT_;
 					break;
 				}
 				case LF_LONG:
 				{
-					dValue = *reinterpret_cast<PDB_PLONG>(pbData + WORD_);
+					dValue = read_as<PDB_LONG>(pbData + WORD_);
 					pbText = pbData + WORD_ + LONG_;
 					break;
 				}
 				case LF_ULONG:
 				{
-					dValue = static_cast<PDB_LONG>(*reinterpret_cast<PDB_PULONG>(pbData + WORD_));
+					dValue = read_as<PDB_ULONG>(pbData + WORD_);
 					pbText = pbData + WORD_ + ULONG_;
 					break;
 				}
