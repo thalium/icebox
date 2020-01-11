@@ -9,6 +9,7 @@
 
 #include "utils/hash.hpp"
 #include "utils/hex.hpp"
+#include "utils/path.hpp"
 
 #include <unordered_map>
 
@@ -138,7 +139,7 @@ namespace
     {
         auto is_lower       = false;
         auto is_upper       = false;
-        const auto stripped = fs::path(name).filename().replace_extension().generic_string();
+        const auto stripped = path::filename(name).replace_extension().generic_string();
         auto ret            = stripped;
         for(auto& c : ret)
         {

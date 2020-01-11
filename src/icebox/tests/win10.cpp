@@ -4,6 +4,7 @@
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/tracer/syscalls32.gen.hpp>
 #include <icebox/tracer/tracer.hpp>
+#include <icebox/utils/path.hpp>
 
 #include <fmt/format.h>
 
@@ -87,14 +88,14 @@ TEST_F(win10, drivers)
     EXPECT_TRUE(!!kernel);
     const auto kernel_name = drivers::name(core, *kernel);
     EXPECT_TRUE(!!kernel_name);
-    EXPECT_STRCASEEQ(fs::path(*kernel_name).filename().generic_string().data(), "ntoskrnl.exe");
+    EXPECT_STRCASEEQ(path::filename(*kernel_name).generic_string().data(), "ntoskrnl.exe");
 
     LOG(INFO, "kernel %" PRIx64, kernel->id);
     const auto hal = drivers::find_name(core, "HaL.dll");
     EXPECT_TRUE(!!hal);
     const auto hal_name = drivers::name(core, *hal);
     EXPECT_TRUE(!!hal_name);
-    EXPECT_STRCASEEQ(fs::path(*hal_name).filename().generic_string().data(), "hal.dll");
+    EXPECT_STRCASEEQ(path::filename(*hal_name).generic_string().data(), "hal.dll");
     LOG(INFO, "hal %" PRIx64, hal->id);
 }
 

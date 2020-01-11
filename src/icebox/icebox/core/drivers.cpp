@@ -6,6 +6,7 @@
 #include "core_private.hpp"
 #include "interfaces/if_os.hpp"
 #include "log.hpp"
+#include "utils/path.hpp"
 
 #ifdef _MSC_VER
 #    define stricmp _stricmp
@@ -45,7 +46,8 @@ opt<driver_t> drivers::find_name(core::Core& core, std::string_view name)
         if(!drv_path)
             return walk_e::next;
 
-        const auto drv_name = fs::path(*drv_path).filename();
+        const auto drv_name = path::filename(*drv_path);
+        LOG(WARNING, "checking %s", drv_name.generic_string().data());
         if(stricmp(drv_name.generic_string().data(), name.data()))
             return walk_e::next;
 
