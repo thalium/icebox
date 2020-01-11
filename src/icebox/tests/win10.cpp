@@ -252,7 +252,7 @@ namespace
 TEST_F(win10, unable_to_single_step_query_information_process)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
+    const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
     const auto ok = symbols::load_module(core, *proc, "wntdll");
@@ -277,7 +277,7 @@ TEST_F(win10, unable_to_single_step_query_information_process)
 TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
+    const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
     const auto ok = symbols::load_module(core, *proc, "wntdll");
@@ -546,7 +546,7 @@ TEST_F(win10, callstacks)
 TEST_F(win10, listen_module_wow64)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::wait(core, "ProcessHacker.exe", flags::x86);
+    const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
     const auto nt64 = symbols::load_module(core, *proc, "ntdll");
