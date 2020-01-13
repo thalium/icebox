@@ -11,12 +11,28 @@ bool os::is_kernel_address(core::Core& core, uint64_t ptr)
     return core.os_->is_kernel_address(ptr);
 }
 
-bool os::can_inject_fault(core::Core& core, uint64_t ptr)
+bool os::read_page(core::Core& core, void* dst, uint64_t ptr, proc_t* proc, dtb_t dtb)
 {
     if(!core.os_)
         return false;
 
-    return core.os_->can_inject_fault(ptr);
+    return core.os_->read_page(dst, ptr, proc, dtb);
+}
+
+bool os::write_page(core::Core& core, uint64_t dst, const void* src, proc_t* proc, dtb_t dtb)
+{
+    if(!core.os_)
+        return false;
+
+    return core.os_->write_page(dst, src, proc, dtb);
+}
+
+opt<phy_t> os::virtual_to_physical(core::Core& core, proc_t* proc, dtb_t dtb, uint64_t ptr)
+{
+    if(!core.os_)
+        return {};
+
+    return core.os_->virtual_to_physical(proc, dtb, ptr);
 }
 
 size_t os::unlisten(core::Core& core, bpid_t bpid)

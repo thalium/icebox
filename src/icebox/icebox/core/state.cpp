@@ -686,3 +686,8 @@ bool state::restore(core::Core& core)
 {
     return fdp::restore(core);
 }
+
+bool state::inject_interrupt(core::Core& core, uint32_t code, uint32_t error, uint64_t cr2)
+{
+    return fdp::inject_interrupt(core, code, error, cr2);
+}

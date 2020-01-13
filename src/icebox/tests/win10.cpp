@@ -323,50 +323,132 @@ TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
     run_until(core, [&] { return func_start > 4; });
 }
 
+namespace
+{
+    void dump_buffer(const std::vector<uint8_t>& data1, const std::vector<uint8_t>& data2)
+    {
+        for(size_t i = 0; i < data1.size(); i++)
+        {
+            if(data1[i] != data2[i])
+            {
+                LOG(INFO, "data differ at offset 0x%zx", i);
+                break;
+            }
+        }
+    }
+
+    bool test_memory(core::Core& core, proc_t proc)
+    {
+        os::debug_print(core);
+        auto buffer   = std::vector<uint8_t>{};
+        auto got_read = std::vector<uint8_t>{};
+        const auto io = memory::make_io(core, proc);
+        auto ret      = bool{};
+        modules::list(core, proc, [&](mod_t mod)
+        {
+            ret             = false;
+            const auto span = modules::span(core, proc, mod);
+            if(!span)
+                return FAIL(walk_e::stop, "modules::span failed");
+
+            buffer.resize(span->size);
+            auto ok = io.read_all(&buffer[0], span->addr, span->size);
+            if(!ok)
+                return FAIL(walk_e::stop, "io.read_all");
+
+            if(buffer.size() < 2 || buffer[0] != 'M' || buffer[1] != 'Z')
+                return FAIL(walk_e::stop, "invalid buffer");
+
+            got_read.resize(span->size);
+            ok = memory::read_virtual_with_dtb(core, proc.udtb, &got_read[0], span->addr, span->size);
+            if(!ok)
+                return FAIL(walk_e::stop, "read_virtual_with_dtb");
+
+            if(!!memcmp(&buffer[0], &got_read[0], span->size))
+            {
+                dump_buffer(buffer, got_read);
+                return FAIL(walk_e::stop, "buffer and got_read are different!");
+            }
+
+            const auto phy = memory::virtual_to_physical(core, proc, span->addr);
+            if(!phy)
+                return FAIL(walk_e::stop, "memory::virtual_to_physical");
+
+            const auto phyb = memory::virtual_to_physical_with_dtb(core, proc.udtb, span->addr);
+            if(!phyb)
+                return FAIL(walk_e::stop, "memory::virtual_to_physical_with_dtb");
+
+            if(phy->val != phyb->val)
+                return FAIL(walk_e::stop, "phy->val != phyb->val");
+
+            ok = memory::write_virtual(core, proc, span->addr, &buffer[0], span->size);
+            if(!ok)
+                return FAIL(walk_e::stop, "memory::write_virtual");
+
+            ok = memory::read_virtual(core, proc, &got_read[0], span->addr, span->size);
+            if(!ok)
+                return FAIL(walk_e::stop, "memory::read_virtual");
+
+            if(!!memcmp(&buffer[0], &got_read[0], span->size))
+                return FAIL(walk_e::stop, "buffer and got_read are different!");
+
+            ret = true;
+            return walk_e::next;
+        });
+        os::debug_print(core);
+        return ret;
+    }
+}
+
 TEST_F(win10, memory)
 {
-    auto& core      = *ptr_core;
-    const auto proc = process::find_name(core, "explorer.exe", {});
+    auto& core = *ptr_core;
+    auto proc  = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
-    LOG(INFO, "explorer kdtb: 0x%" PRIx64 " udtb: 0x%" PRIx64, proc->kdtb.val, proc->udtb.val);
-
     process::join(core, *proc, mode_e::user);
 
-    auto buffer   = std::vector<uint8_t>{};
-    auto got_read = std::vector<uint8_t>{};
-    const auto io = memory::make_io(core, *proc);
-    modules::list(core, *proc, [&](mod_t mod)
+    auto ok = test_memory(core, *proc);
+    EXPECT_TRUE(!!ok);
+}
+
+TEST_F(win10, memory_kernel_passive)
+{
+    auto& core          = *ptr_core;
+    const auto explorer = process::find_name(core, "explorer.exe", {});
+    while(true)
     {
-        const auto span = modules::span(core, *proc, mod);
-        EXPECT_TRUE(!!span);
+        state::run_to_cr_write(core, reg_e::cr8);
+        const auto cr8 = registers::read(core, reg_e::cr8);
+        if(cr8 != 0)
+            continue;
 
-        buffer.resize(span->size);
-        auto ok = io.read_all(&buffer[0], span->addr, span->size);
-        EXPECT_TRUE(ok);
-        EXPECT_GT(buffer.size(), 2U);
-        EXPECT_EQ(buffer[0], 'M');
-        EXPECT_EQ(buffer[1], 'Z');
+        const auto proc = process::current(core);
+        EXPECT_TRUE(!!proc);
+        if(proc->id == explorer->id)
+            break;
+    };
+    auto ok = test_memory(core, *explorer);
+    EXPECT_TRUE(!!ok);
+}
 
-        got_read.resize(span->size);
-        ok = memory::read_virtual_with_dtb(core, proc->udtb, &got_read[0], span->addr, span->size);
-        EXPECT_TRUE(ok);
-        EXPECT_EQ(0, memcmp(&buffer[0], &got_read[0], span->size));
+TEST_F(win10, memory_kernel_apc)
+{
+    auto& core          = *ptr_core;
+    const auto explorer = process::find_name(core, "explorer.exe", {});
+    while(true)
+    {
+        state::run_to_cr_write(core, reg_e::cr8);
+        const auto cr8 = registers::read(core, reg_e::cr8);
+        if(cr8 != 1)
+            continue;
 
-        const auto phy = memory::virtual_to_physical(core, *proc, span->addr);
-        EXPECT_TRUE(!!phy);
-
-        const auto phyb = memory::virtual_to_physical_with_dtb(core, proc->udtb, span->addr);
-        EXPECT_TRUE(!!phyb);
-        EXPECT_EQ(phy->val, phyb->val);
-
-        ok = memory::write_virtual(core, *proc, span->addr, &buffer[0], span->size);
-        EXPECT_TRUE(!!ok);
-
-        ok = memory::read_virtual(core, *proc, &got_read[0], span->addr, span->size);
-        EXPECT_TRUE(ok);
-        EXPECT_EQ(0, memcmp(&buffer[0], &got_read[0], span->size));
-        return walk_e::next;
-    });
+        const auto proc = process::current(core);
+        EXPECT_TRUE(!!proc);
+        if(proc->id == explorer->id)
+            break;
+    };
+    auto ok = test_memory(core, *explorer);
+    EXPECT_TRUE(!!ok);
 }
 
 TEST_F(win10, vm_area)
@@ -387,7 +469,6 @@ TEST_F(win10, vm_area)
         const auto name   = vm_area::name(core, *proc, area);
         EXPECT_TRUE(!!name);
         LOG(INFO, "0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-8x  %s", area.id, span->addr, span->size, access, name->c_str());
-
         return walk_e::next;
     });
 

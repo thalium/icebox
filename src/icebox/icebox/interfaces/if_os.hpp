@@ -14,10 +14,12 @@ namespace os
     {
         virtual ~Module() = default;
 
-        virtual bool    setup               () = 0;
-        virtual bool    is_kernel_address   (uint64_t ptr) = 0;
-        virtual bool    can_inject_fault    (uint64_t ptr) = 0;
-        virtual dtb_t   kernel_dtb          () = 0;
+        virtual bool        setup               () = 0;
+        virtual bool        is_kernel_address   (uint64_t ptr) = 0;
+        virtual bool        read_page           (void* dst, uint64_t ptr, proc_t* proc, dtb_t dtb) = 0;
+        virtual bool        write_page          (uint64_t ptr, const void* src, proc_t* proc, dtb_t dtb) = 0;
+        virtual opt<phy_t>  virtual_to_physical (proc_t* proc, dtb_t dtb, uint64_t ptr) = 0;
+        virtual dtb_t       kernel_dtb          () = 0;
 
         virtual bool                proc_list       (process::on_proc_fn on_proc) = 0;
         virtual opt<proc_t>         proc_current    () = 0;

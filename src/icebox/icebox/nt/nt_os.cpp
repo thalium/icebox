@@ -4,10 +4,13 @@
 #define FDP_MODULE "nt_os"
 #include "core.hpp"
 #include "core/core_private.hpp"
+#include "core/fdp.hpp"
 #include "interfaces/if_os.hpp"
 #include "interfaces/if_symbols.hpp"
 #include "log.hpp"
+#include "mmu.hpp"
 #include "nt.hpp"
+#include "nt_mmu.hpp"
 #include "nt_objects.hpp"
 #include "utils/hex.hpp"
 #include "utils/path.hpp"
@@ -58,6 +61,7 @@ namespace
         EWOW64PROCESS_Peb,
         EWOW64PROCESS_NtdllType,
         MMVAD_SubSection,
+        MMVAD_FirstPrototypePte,
         SUBSECTION_ControlArea,
         CONTROL_AREA_FilePointer,
         FILE_OBJECT_FileName,
@@ -106,6 +110,7 @@ namespace
         {cat_e::OPTIONAL,   EWOW64PROCESS_Peb,                            "nt", "_EWOW64PROCESS",                   "Peb"},
         {cat_e::OPTIONAL,   EWOW64PROCESS_NtdllType,                      "nt", "_EWOW64PROCESS",                   "NtdllType"},
         {cat_e::REQUIRED,   MMVAD_SubSection,                             "nt", "_MMVAD",                           "Subsection"},
+        {cat_e::REQUIRED,   MMVAD_FirstPrototypePte,                      "nt", "_MMVAD",                           "FirstPrototypePte"},
         {cat_e::REQUIRED,   SUBSECTION_ControlArea,                       "nt", "_SUBSECTION",                      "ControlArea"},
         {cat_e::REQUIRED,   CONTROL_AREA_FilePointer,                     "nt", "_CONTROL_AREA",                    "FilePointer"},
         {cat_e::REQUIRED,   FILE_OBJECT_FileName,                         "nt", "_FILE_OBJECT",                     "FileName"},
@@ -164,10 +169,12 @@ namespace
         NtOs(core::Core& core);
 
         // os::IModule
-        bool    setup               () override;
-        bool    is_kernel_address   (uint64_t ptr) override;
-        bool    can_inject_fault    (uint64_t ptr) override;
-        dtb_t   kernel_dtb          () override;
+        bool        setup               () override;
+        bool        is_kernel_address   (uint64_t ptr) override;
+        bool        read_page           (void* dst, uint64_t ptr, proc_t* proc, dtb_t dtb) override;
+        bool        write_page          (uint64_t ptr, const void* src, proc_t* proc, dtb_t dtb) override;
+        opt<phy_t>  virtual_to_physical (proc_t* proc, dtb_t dtb, uint64_t ptr) override;
+        dtb_t       kernel_dtb          () override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -225,10 +232,14 @@ namespace
         memory::Io  io_;
         bpid_t      last_bpid_;
         Breakpoints breakpoints_;
-        phy_t       LdrpInitializeProcess_;
-        phy_t       LdrpProcessMappedModule_;
-        uint32_t    NtMajorVersion_;
-        uint32_t    NtMinorVersion_;
+        size_t      num_page_faults_;
+
+        // constants
+        phy_t    LdrpInitializeProcess_;
+        phy_t    LdrpProcessMappedModule_;
+        uint32_t NtMajorVersion_;
+        uint32_t NtMinorVersion_;
+        uint64_t PhysicalMemoryLimitMask_;
     };
 }
 
@@ -237,8 +248,12 @@ NtOs::NtOs(core::Core& core)
     , kpcr_(0)
     , io_(memory::make_io_current(core))
     , last_bpid_(0)
+    , num_page_faults_(0)
     , LdrpInitializeProcess_{0}
     , LdrpProcessMappedModule_{0}
+    , NtMajorVersion_{0}
+    , NtMinorVersion_{0}
+    , PhysicalMemoryLimitMask_{0}
 {
 }
 
@@ -252,7 +267,7 @@ namespace
     opt<span_t> find_kernel_at(NtOs& os, uint64_t needle)
     {
         auto buf = std::array<uint8_t, PAGE_SIZE>{};
-        for(auto ptr = utils::align<PAGE_SIZE>(needle); ptr < needle; ptr -= PAGE_SIZE)
+        for(auto ptr = utils::align<PAGE_SIZE>(needle); ptr > PAGE_SIZE; ptr -= PAGE_SIZE)
         {
             auto ok = os.io_.read_all(&buf[0], ptr, sizeof buf);
             if(!ok)
@@ -283,6 +298,7 @@ namespace
 
             os.io_.dtb = dtb_t{registers::read(core, reg_e::cr3)};
         }
+
         return {};
     }
 
@@ -1283,12 +1299,231 @@ bool NtOs::is_kernel_address(uint64_t ptr)
     return is_kernel(ptr);
 }
 
-bool NtOs::can_inject_fault(uint64_t ptr)
+namespace
 {
-    if(is_kernel_address(ptr))
+    struct ntphy_t
+    {
+        uint64_t ptr;
+        bool     valid_page;
+        bool     zero_page;
+    };
+
+    constexpr uint64_t mask(int bits)
+    {
+        return ~(~uint64_t(0) << bits);
+    }
+
+    ntphy_t physical_page(uint64_t pfn, uint64_t offset)
+    {
+        return ntphy_t{pfn + offset, true, false};
+    }
+
+    constexpr auto page_fault_required = ntphy_t{0, false, false};
+    constexpr auto zero_page           = ntphy_t{0, false, true};
+
+    opt<MMPTE> read_pml4e(NtOs& os, const virt_t& virt, dtb_t dtb)
+    {
+        const auto pml4e_base = dtb.val & (mask(40) << 12);
+        const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
+        auto pml4e            = MMPTE{};
+        const auto ok         = memory::read_physical(os.core_, &pml4e, pml4e_ptr, sizeof pml4e);
+        if(!ok)
+            return {};
+
+        return pml4e;
+    }
+
+    opt<MMPTE> read_pdpe(NtOs& os, const virt_t& virt, const MMPTE& pml4e)
+    {
+        auto pdpe           = MMPTE{};
+        const auto pdpe_ptr = pml4e.u.hard.PageFrameNumber * PAGE_SIZE + virt.u.f.pdp * sizeof pdpe;
+        auto ok             = memory::read_physical(os.core_, &pdpe, pdpe_ptr, sizeof pdpe);
+        if(!ok)
+            return {};
+
+        return pdpe;
+    }
+
+    opt<MMPTE> read_pte(NtOs& os, const virt_t& virt, const MMPTE& pde)
+    {
+        auto pte     = MMPTE{};
+        auto pte_ptr = pde.u.hard.PageFrameNumber * PAGE_SIZE + virt.u.f.pt * sizeof pte;
+        auto ok      = memory::read_physical(os.core_, &pte, pte_ptr, sizeof pte);
+        if(!ok)
+            return {};
+
+        return pte;
+    }
+
+    opt<MMPTE> read_pde(NtOs& os, const virt_t& virt, const MMPTE& pdpe)
+    {
+        auto pde           = MMPTE{};
+        const auto pde_ptr = pdpe.u.hard.PageFrameNumber * PAGE_SIZE + virt.u.f.pd * sizeof pde;
+        auto ok            = memory::read_physical(os.core_, &pde, pde_ptr, sizeof pde);
+        if(!ok)
+            return {};
+
+        return pde;
+    }
+
+    opt<ntphy_t> virtual_to_physical(NtOs& os, uint64_t ptr, proc_t* /*proc*/, dtb_t dtb)
+    {
+        const auto virt  = virt_t{read_le64(&ptr)};
+        const auto pml4e = read_pml4e(os, virt, dtb);
+        if(!pml4e)
+            return {};
+
+        if(!pml4e->u.hard.Valid)
+            return page_fault_required;
+
+        const auto pdpe = read_pdpe(os, virt, *pml4e);
+        if(!pdpe)
+            return {};
+
+        if(!pdpe->u.hard.Valid)
+            return page_fault_required;
+
+        // 1g page
+        if(pdpe->u.hard.LargePage)
+        {
+            const auto offset = ptr & mask(30);
+            const auto base   = pdpe->u.value & (mask(22) << 30);
+            return physical_page(base, offset);
+        }
+
+        const auto pde = read_pde(os, virt, *pdpe);
+        if(!pde)
+            return {};
+
+        if(!pde->u.hard.Valid)
+            return page_fault_required;
+
+        // 2mb page
+        if(pde->u.hard.LargePage)
+        {
+            const auto offset = ptr & mask(21);
+            const auto base   = pde->u.value & (mask(31) << 21);
+            return physical_page(base, offset);
+        }
+
+        const auto pte = read_pte(os, virt, *pde);
+        if(!pte)
+            return {};
+
+        if(!pte->u.hard.Valid)
+            return page_fault_required;
+
+        return physical_page(pte->u.hard.PageFrameNumber * PAGE_SIZE, virt.u.f.offset);
+    }
+
+    enum class irql_e
+    {
+        passive  = 0,
+        apc      = 1,
+        dispatch = 2,
+    };
+
+    irql_e read_irql(core::Core& core)
+    {
+        return static_cast<irql_e>(registers::read(core, reg_e::cr8));
+    }
+
+    bool try_inject_page_fault(NtOs& os, proc_t* proc, uint64_t src)
+    {
+        // disable pf on kernel addresses
+        if(is_kernel(src))
+            return false;
+
+        // disable pf without proc
+        if(!proc)
+            return false;
+
+        // disable pf in IRQL >= dispatch
+        const auto irql = read_irql(os.core_);
+        if(irql >= irql_e::dispatch)
+            return false;
+
+        // check if input address is valid
+        const auto opt_vma = os.vm_area_find(*proc, src);
+        if(!opt_vma)
+            return false;
+
+        // check size
+        const auto vma_span = os.vm_area_span(*proc, *opt_vma);
+        if(!vma_span || src + PAGE_SIZE > vma_span->addr + vma_span->size)
+            return false;
+
+        // TODO missing vma access rights checks
+
+        ++os.num_page_faults_;
+        const auto cs       = registers::read(os.core_, reg_e::cs);
+        const auto is_user  = is_user_mode(cs);
+        const auto code     = is_user ? 1 << 2 : 0;
+        const auto injected = state::inject_interrupt(os.core_, PAGE_FAULT, code, src);
+        if(!injected)
+            return FAIL(false, "unable to inject page fault");
+
+        state::run_to_current(os.core_, "inject_pf");
+        return true;
+    }
+}
+
+bool NtOs::read_page(void* dst, uint64_t ptr, proc_t* proc, dtb_t dtb)
+{
+    const auto nt_phy = ::virtual_to_physical(*this, ptr, proc, dtb);
+    if(!nt_phy)
         return false;
 
-    return is_user_mode(registers::read(core_, reg_e::cs));
+    if(nt_phy->zero_page)
+    {
+        memset(dst, 0, PAGE_SIZE);
+        return true;
+    }
+
+    if(nt_phy->valid_page)
+        return memory::read_physical(core_, dst, nt_phy->ptr, PAGE_SIZE);
+
+    const auto ok = try_inject_page_fault(*this, proc, ptr);
+    if(!ok)
+        return false;
+
+    return memory::read_virtual_with_dtb(core_, dtb, dst, ptr, PAGE_SIZE);
+}
+
+bool NtOs::write_page(uint64_t ptr, const void* src, proc_t* proc, dtb_t dtb)
+{
+    const auto nt_phy = ::virtual_to_physical(*this, ptr, proc, dtb);
+    if(!nt_phy)
+        return false;
+
+    if(nt_phy->valid_page)
+        return memory::write_physical(core_, nt_phy->ptr, src, PAGE_SIZE);
+
+    const auto ok = try_inject_page_fault(*this, proc, ptr);
+    if(!ok)
+        return false;
+
+    return memory::write_virtual_with_dtb(core_, dtb, ptr, src, PAGE_SIZE);
+}
+
+opt<phy_t> NtOs::virtual_to_physical(proc_t* proc, dtb_t dtb, uint64_t ptr)
+{
+    auto nt_phy = ::virtual_to_physical(*this, ptr, proc, dtb);
+    if(!nt_phy)
+        return {};
+
+    if(nt_phy->valid_page)
+        return phy_t{nt_phy->ptr};
+
+    const auto ok = try_inject_page_fault(*this, proc, ptr);
+    if(!ok)
+        return {};
+
+    nt_phy = ::virtual_to_physical(*this, ptr, proc, dtb);
+    if(!nt_phy || !nt_phy->valid_page)
+        return {};
+
+    return phy_t{nt_phy->ptr};
 }
 
 opt<proc_t> NtOs::proc_parent(proc_t proc)
@@ -1447,7 +1682,8 @@ void NtOs::debug_print()
                       + (name ? " " + *name : "")
                       + (ripsym.empty() ? "" : " " + ripsym)
                       + " p:" + to_hex(proc ? proc->id : 0)
-                      + " t:" + to_hex(thread ? thread->id : 0);
+                      + " t:" + to_hex(thread ? thread->id : 0)
+                      + " pf: " + std::to_string(num_page_faults_);
     if(dump != last_dump_)
         LOG(INFO, "%s", dump.data());
     last_dump_ = dump;

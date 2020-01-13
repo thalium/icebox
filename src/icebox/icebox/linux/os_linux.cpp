@@ -222,10 +222,12 @@ namespace
         OsLinux(core::Core& core);
 
         // os::IModule
-        bool    setup               () override;
-        bool    is_kernel_address   (uint64_t ptr) override;
-        bool    can_inject_fault    (uint64_t ptr) override;
-        dtb_t   kernel_dtb          () override;
+        bool        setup               () override;
+        bool        is_kernel_address   (uint64_t ptr) override;
+        bool        read_page           (void* dst, uint64_t ptr, proc_t* proc, dtb_t dtb) override;
+        bool        write_page          (uint64_t ptr, const void* src, proc_t* proc, dtb_t dtb) override;
+        opt<phy_t>  virtual_to_physical (proc_t* proc, dtb_t dtb, uint64_t ptr) override;
+        dtb_t       kernel_dtb          () override;
 
         bool                proc_list       (process::on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -687,9 +689,19 @@ bool OsLinux::is_kernel_address(uint64_t ptr)
     return (ptr > 0x7fffffffffffffff); // middle of 64bits address space, under -> user space, upper -> kernel space
 }
 
-bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
+opt<phy_t> OsLinux::virtual_to_physical(proc_t* /*proc*/, dtb_t /*dtb*/, uint64_t /*ptr*/)
 {
-    return false;
+    return FAIL(ext::nullopt, "OsLinux::virtual_to_physical not implemented");
+}
+
+bool OsLinux::read_page(void* /*dst*/, uint64_t /*ptr*/, proc_t* /*proc*/, dtb_t /*dtb*/)
+{
+    return FAIL(false, "OsLinux::read_page not implemented");
+}
+
+bool OsLinux::write_page(uint64_t /*ptr*/, const void* /*src*/, proc_t* /*proc*/, dtb_t /*dtb*/)
+{
+    return FAIL(false, "OsLinux::write_page not implemented");
 }
 
 flags_t OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5 (06/2019)

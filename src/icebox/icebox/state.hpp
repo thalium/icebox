@@ -39,4 +39,5 @@ namespace state
     void        run_to_proc_at              (core::Core& core, std::string_view name, proc_t proc, uint64_t ptr);
     void        run_to_current              (core::Core& core, std::string_view name);
     void        run_to                      (core::Core& core, std::string_view name, std::unordered_set<uint64_t> ptrs, bp_cr3_e bp_cr3, std::function<walk_e(proc_t, thread_t)> on_bp);
+    bool        inject_interrupt            (core::Core& core, uint32_t code, uint32_t error, uint64_t cr2);
 } // namespace state

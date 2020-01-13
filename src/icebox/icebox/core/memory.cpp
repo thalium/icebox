@@ -7,7 +7,6 @@
 #include "endian.hpp"
 #include "fdp.hpp"
 #include "log.hpp"
-#include "mmu.hpp"
 #include "utils/utils.hpp"
 
 #include <array>
@@ -24,116 +23,18 @@ std::shared_ptr<memory::Memory> memory::setup()
 
 namespace
 {
-    constexpr uint64_t mask(int bits)
-    {
-        return ~(~uint64_t(0) << bits);
-    }
-
-    opt<phy_t> slow_virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb)
-    {
-        const virt_t virt     = {read_le64(&ptr)};
-        const auto pml4e_base = dtb.val & (mask(40) << 12);
-        const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
-        entry_t pml4e         = {0};
-        auto ok               = fdp::read_physical(core, &pml4e, phy_t{pml4e_ptr}, sizeof pml4e);
-        if(!ok)
-            return {};
-
-        if(!pml4e.u.f.can_read)
-            return {};
-
-        const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
-        entry_t pdpe        = {0};
-        ok                  = fdp::read_physical(core, &pdpe, phy_t{pdpe_ptr}, sizeof pdpe);
-        if(!ok)
-            return {};
-
-        if(!pdpe.u.f.can_read)
-            return {};
-
-        // 1g page
-        if(pdpe.u.f.large_page)
-        {
-            const auto offset = ptr & mask(30);
-            const auto phy    = (pdpe.u.value & (mask(22) << 30)) + offset;
-            return phy_t{phy};
-        }
-
-        const auto pde_ptr = pdpe.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pd * 8;
-        entry_t pde        = {0};
-        ok                 = fdp::read_physical(core, &pde, phy_t{pde_ptr}, sizeof pde);
-        if(!ok)
-            return {};
-
-        if(!pde.u.f.can_read)
-            return {};
-
-        // 2mb page
-        if(pde.u.f.large_page)
-        {
-            const auto offset = ptr & mask(21);
-            const auto phy    = (pde.u.value & (mask(31) << 21)) + offset;
-            return phy_t{phy};
-        }
-
-        const auto pte_ptr = pde.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pt * 8;
-        entry_t pte        = {0};
-        ok                 = fdp::read_physical(core, &pte, phy_t{pte_ptr}, sizeof pte);
-        if(!ok)
-            return {};
-
-        if(!pte.u.f.can_read)
-            return {};
-
-        const auto phy = pte.u.f.page_frame_number * PAGE_SIZE + virt.u.f.offset;
-        return phy_t{phy};
-    }
-
-    bool inject_page_fault(core::Core& core, dtb_t /*dtb*/, uint64_t src, bool user_mode)
-    {
-        const auto code     = user_mode ? 1 << 2 : 0;
-        const auto injected = fdp::inject_interrupt(core, PAGE_FAULT, code, src);
-        if(!injected)
-            return FAIL(false, "unable to inject page fault");
-
-        state::run_to_current(core, "inject_pf");
-        return true;
-    }
-
-    opt<phy_t> try_virtual_to_physical(core::Core& core, uint64_t ptr, dtb_t dtb)
-    {
-        const auto ret = fdp::virtual_to_physical(core, dtb, ptr);
-        if(ret && ret->val)
-            return ret;
-
-        return slow_virtual_to_physical(core, ptr, dtb);
-    }
-
     dtb_t dtb_select(core::Core& core, proc_t proc, uint64_t ptr)
     {
         return os::is_kernel_address(core, ptr) ? proc.kdtb : proc.udtb;
     }
 
-    opt<phy_t> virtual_to_physical(core::Core& core, proc_t* /*proc*/, dtb_t dtb, uint64_t ptr)
+    opt<phy_t> virtual_to_physical(core::Core& core, proc_t* proc, dtb_t dtb, uint64_t ptr)
     {
-        const auto ret = try_virtual_to_physical(core, ptr, dtb);
-        if(ret)
+        const auto ret = fdp::virtual_to_physical(core, dtb, ptr);
+        if(ret && ret->val)
             return ret;
 
-        if(!os::can_inject_fault(core, ptr))
-            return {};
-
-        auto& mem = *core.mem_;
-        mem.depth++;
-        if(mem.depth > 1)
-            return {};
-
-        const auto ok = inject_page_fault(core, dtb, ptr, true);
-        mem.depth--;
-        if(!ok)
-            return {};
-
-        return try_virtual_to_physical(core, ptr, dtb);
+        return os::virtual_to_physical(core, proc, dtb, ptr);
     }
 }
 
@@ -172,20 +73,16 @@ namespace
         return true;
     }
 
-    bool read_virtual_page(core::Core& core, uint8_t* pgdst, uint64_t pgsrc, dtb_t dtb, size_t pgsize)
+    bool read_virtual_page(core::Core& core, uint8_t* pgdst, uint64_t pgsrc, proc_t* proc, dtb_t dtb, size_t pgsize)
     {
         auto ok = fdp::read_virtual(core, pgdst, pgsrc, dtb, pgsize);
         if(ok)
             return true;
 
-        ok = inject_page_fault(core, dtb, pgsrc, true);
-        if(!ok)
-            return false;
-
-        return fdp::read_virtual(core, pgdst, pgsrc, dtb, pgsize);
+        return os::read_page(core, pgdst, pgsrc, proc, dtb);
     }
 
-    bool read_virtual(core::Core& core, proc_t* /*proc*/, dtb_t dtb, uint8_t* dst, uint64_t src, uint32_t size)
+    bool read_virtual(core::Core& core, proc_t* proc, dtb_t dtb, uint8_t* dst, uint64_t src, uint32_t size)
     {
         if(!size)
             return true;
@@ -194,12 +91,9 @@ namespace
         if(full)
             return true;
 
-        if(!os::can_inject_fault(core, src))
-            return false;
-
         return read_pages("virtual", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
-            return read_virtual_page(core, pgdst, pgsrc, dtb, pgsize);
+            return read_virtual_page(core, pgdst, pgsrc, proc, dtb, pgsize);
         });
     }
 
@@ -246,7 +140,7 @@ namespace
         return true;
     }
 
-    bool write_virtual(core::Core& core, proc_t* /*proc*/, dtb_t dtb, uint64_t dst, const uint8_t* src, uint32_t size)
+    bool write_virtual(core::Core& core, proc_t* proc, dtb_t dtb, uint64_t dst, const uint8_t* src, uint32_t size)
     {
         if(!size)
             return true;
@@ -255,12 +149,9 @@ namespace
         if(full)
             return true;
 
-        if(!os::can_inject_fault(core, dst))
-            return false;
-
         const auto read_virtual = [&](uint8_t* pgdst, uint64_t pgsrc, size_t pgsize)
         {
-            return read_virtual_page(core, pgdst, pgsrc, dtb, pgsize);
+            return read_virtual_page(core, pgdst, pgsrc, proc, dtb, pgsize);
         };
         const auto write_virtual = [&](uint64_t pgdst, const uint8_t* pgsrc, size_t pgsize)
         {
@@ -268,11 +159,7 @@ namespace
             if(ok)
                 return true;
 
-            ok = inject_page_fault(core, dtb, pgdst, true);
-            if(!ok)
-                return false;
-
-            return fdp::write_virtual(core, pgdst, dtb, pgsrc, pgsize);
+            return os::write_page(core, pgdst, pgsrc, proc, dtb);
         };
         return write_pages("virtual", dst, src, size, read_virtual, write_virtual);
     }
