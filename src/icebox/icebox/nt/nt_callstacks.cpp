@@ -895,6 +895,10 @@ namespace
 
     bool switch_ctx_x86(NtCallstacks& c, const memory::Io& io, span_t& stack, context_t& ctx)
     {
+        // disable this ctx switch until it is tested
+        if(true)
+            return false;
+
         const auto opt_stack = get_stack(c, io, ctx);
         if(!opt_stack)
             return false;
