@@ -1138,13 +1138,19 @@ vma_type_e NtOs::vm_area_type(proc_t /*proc*/, vm_area_t /*vm_area*/)
 
 opt<std::string> NtOs::vm_area_name(proc_t proc, vm_area_t vm_area)
 {
+    // we need pdb bitfields to check if we can read subsection
+    // _MMVAD is too different between win7 & win10
+    if(true)
+        return "";
+
     const auto io              = memory::make_io(core_, proc);
-    const auto subsection_addr = io.read(vm_area.id + offsets_[MMVAD_SubSection]);
-    if(!subsection_addr)
+    auto vad_subsection        = offsets_[MMVAD_SubSection];
+    const auto subsection_addr = io.read(vm_area.id + vad_subsection);
+    if(!subsection_addr || !*subsection_addr)
         return "";
 
     const auto control_area_addr = io.read(*subsection_addr + offsets_[SUBSECTION_ControlArea]);
-    if(!control_area_addr)
+    if(!control_area_addr || !*control_area_addr)
         return "";
 
     auto file_pointer_addr = io.read(*control_area_addr + offsets_[CONTROL_AREA_FilePointer]);
