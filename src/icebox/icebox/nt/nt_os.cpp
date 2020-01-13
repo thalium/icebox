@@ -1046,21 +1046,21 @@ namespace
         return true;
     }
 
-    uint64_t get_mmvad(NtOs& os, const memory::Io& io, uint64_t current_vad, uint64_t addr)
+    uint64_t get_mmvad(NtOs& os, const memory::Io& io, uint64_t vad_ptr, uint64_t addr)
     {
-        auto vad      = vad_t{};
-        const auto ok = read_vad(os, vad, io, current_vad);
-        if(!ok)
-            return 0;
+        auto vad = vad_t{};
+        while(vad_ptr)
+        {
+            const auto ok = read_vad(os, vad, io, vad_ptr);
+            if(!ok)
+                return 0;
 
-        if(vad.StartingVpn <= addr && addr <= vad.EndingVpn)
-            return current_vad;
+            if(vad.StartingVpn <= addr && addr <= vad.EndingVpn)
+                return vad_ptr;
 
-        const auto node = addr <= vad.StartingVpn ? vad.Left : vad.Right;
-        if(!node)
-            return 0;
-
-        return get_mmvad(os, io, node, addr);
+            vad_ptr = addr <= vad.StartingVpn ? vad.Left : vad.Right;
+        }
+        return 0;
     }
 
     opt<span_t> get_vad_span(NtOs& os, const memory::Io& io, uint64_t current_vad)
