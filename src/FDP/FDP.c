@@ -313,7 +313,6 @@ FDP_EXPORTED FDP_SHM* FDP_OpenSHM(const char* pShmName)
     void* pCpuShm = OpenShm(aCpuShmName, sizeof(FDP_CPU_CTX));
     if(pCpuShm == NULL)
     {
-        printf("Failed to OpenShm(%s)\n", aCpuShmName);
         return NULL;
     }
     FDP_SHM* pFDPSHM = (FDP_SHM*) malloc(sizeof *pFDPSHM);

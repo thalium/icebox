@@ -316,10 +316,10 @@ namespace
         return true;
     }
 
-    void break_on_any_syscall_return(NtOs& os, core::Core& core)
+    opt<mod_t> wait_for_ntdll(NtOs& os, core::Core& core)
     {
         const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
-        auto found             = false;
+        auto ntdll             = opt<mod_t>{};
         auto breakpoints       = std::vector<state::Breakpoint>{};
         auto rips              = std::unordered_set<uint64_t>{};
         const auto bp          = state::break_on(core, "KiKernelSysretExit", sysret_exit, [&]
@@ -335,31 +335,48 @@ namespace
             rips.insert(ret_addr);
             const auto ret_bp = state::break_on(core, "KiKernelSysretExit return", ret_addr, [&]
             {
-                found = true;
+                const auto proc = process::current(core);
+                if(!proc)
+                    return;
+
+                const auto proc_name = process::name(core, *proc);
+                if(!proc_name)
+                    return;
+
+                // for some reason, smss contain ntdll but is not readable
+                if(*proc_name == "smss.exe")
+                    return;
+
+                ntdll = modules::find_name(core, *proc, "ntdll.dll", flags::x64);
             });
             if(!ret_bp)
                 return;
 
             breakpoints.emplace_back(ret_bp);
         });
-        while(!found)
+        while(!ntdll)
         {
             state::resume(core);
             state::wait(core);
         }
+        return ntdll;
     }
 
     bool try_load_ntdll(NtOs& os, core::Core& core)
     {
-        break_on_any_syscall_return(os, core);
-        const auto proc = os.proc_current();
-        if(!proc)
-            return false;
-
-        const auto ntdll = modules::find_name(core, *proc, "ntdll.dll", flags::x64);
+        const auto ntdll = wait_for_ntdll(os, core);
         if(!ntdll)
             return false;
 
+        const auto proc = process::current(core);
+        if(!proc)
+            return false;
+
+        const auto proc_name = process::name(core, *proc);
+        if(!proc_name)
+            return false;
+
+        LOG(INFO, "loading ntdll from process %s", proc_name->data());
         const auto span = modules::span(core, *proc, *ntdll);
         if(!span)
             return false;
@@ -373,10 +390,12 @@ namespace
         if(!ok)
             return false;
 
+        LOG(INFO, "LdrpInitializeProcess 0x%" PRIX64, os.LdrpInitializeProcess_.val);
         ok = read_phy_symbol(os, os.LdrpProcessMappedModule_, io, "ntdll", "LdrpProcessMappedModule");
         if(!ok)
             return false;
 
+        LOG(INFO, "LdrpProcessMappedModule 0x%" PRIX64, os.LdrpProcessMappedModule_.val);
         return true;
     }
 
@@ -392,117 +411,47 @@ namespace
         os.io_.dtb = gdtb;
         return true;
     }
-}
 
-bool NtOs::setup()
-{
-    kpcr_ = registers::read_msr(core_, msr_e::gs_base);
-    if(!is_kernel(kpcr_))
-        kpcr_ = registers::read_msr(core_, msr_e::kernel_gs_base);
-    if(!is_kernel(kpcr_))
-        return FAIL(false, "unable to read KPCR");
-
-    const auto kernel = find_kernel(*this, core_);
-    if(!kernel)
-        return FAIL(false, "unable to find kernel");
-
-    LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
-        kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    const auto opt_id = symbols::identify_pdb(*kernel, io_);
-    if(!opt_id)
-        return FAIL(false, "unable to identify kernel PDB");
-
-    const auto pdb = symbols::make_pdb(opt_id->name, opt_id->id);
-    if(!pdb)
-        return FAIL(false, "unable to read kernel PDB");
-
-    auto ok = core_.symbols_->insert(symbols::kernel, "nt", *kernel, pdb);
-    if(!ok)
-        return FAIL(false, "unable to load symbols from kernel module");
-
-    bool fail = false;
-    int i     = -1;
-    memset(&symbols_[0], 0, sizeof symbols_);
-    for(const auto& sym : g_symbols)
+    void init_nt_mmu(NtOs& os)
     {
-        fail |= sym.e_id != ++i;
-        const auto addr = symbols::address(core_, symbols::kernel, sym.module, sym.name);
-        if(!addr)
-        {
-            fail |= sym.e_cat == cat_e::REQUIRED;
-            if(sym.e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read %s!%s symbol offset", sym.module, sym.name);
-            else
-                LOG(WARNING, "unable to read optional %s!%s symbol offset", sym.module, sym.name);
-            continue;
-        }
-        symbols_[i] = *addr;
+        // see MiInitNucleus
+        // PhysicalMemoryLimitMask = 1LL << ((uint8_t) KiImplementedPhysicalBits - 1);
+        const auto KiImplementedPhysicalBits = symbols::address(os.core_, symbols::kernel, "nt", "KiImplementedPhysicalBits");
+        if(!KiImplementedPhysicalBits)
+            return;
+
+        const auto physical_bits = os.io_.read(*KiImplementedPhysicalBits);
+        if(!physical_bits)
+            return;
+
+        os.PhysicalMemoryLimitMask_ = 1LL << (*physical_bits - 1);
     }
-
-    i = -1;
-    memset(&offsets_[0], 0, sizeof offsets_);
-    for(const auto& off : g_offsets)
-    {
-        fail |= off.e_id != ++i;
-        const auto offset = symbols::member_offset(core_, symbols::kernel, off.module, off.struc, off.member);
-        if(!offset)
-        {
-            fail |= off.e_cat == cat_e::REQUIRED;
-            if(off.e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read %s!%s.%s member offset", off.module, off.struc, off.member);
-            else
-                LOG(WARNING, "unable to read optional %s!%s.%s member offset", off.module, off.struc, off.member);
-            continue;
-        }
-        offsets_[i] = *offset;
-    }
-    if(fail)
-        return false;
-
-    // cr3 is same in user & kernel mode
-    if(!offsets_[KPROCESS_UserDirectoryTableBase])
-        offsets_[KPROCESS_UserDirectoryTableBase] = offsets_[KPROCESS_DirectoryTableBase];
-
-    // read current kernel dtb, just to have a good one to join system process
-    ok = update_kernel_dtb(*this);
-    if(!ok)
-        return false;
-
-    // join system process kernel side
-    constexpr auto system_pid = 4;
-    const auto proc           = proc_find(system_pid);
-    if(!proc)
-        return FAIL(false, "unable to find system process");
-
-    // read the NtMajorVersion and NtMinorVersion from the _KUSER_SHARED_DATA
-    static constexpr uint64_t user_shared_data_addr = 0xFFFFF78000000000ULL;
-
-    ok = memory::read_virtual(core_, *proc, &NtMajorVersion_, user_shared_data_addr + offsets_[KUSER_SHARED_DATA_NtMajorVersion], sizeof NtMajorVersion_);
-    if(!ok)
-        return false;
-
-    ok = memory::read_virtual(core_, *proc, &NtMinorVersion_, user_shared_data_addr + offsets_[KUSER_SHARED_DATA_NtMinorVersion], sizeof NtMinorVersion_);
-    if(!ok)
-        return false;
-
-    proc_join(*proc, mode_e::kernel);
-
-    // now update kernel dtb with the one read from system process
-    ok = update_kernel_dtb(*this);
-    if(!ok)
-        return false;
-
-    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64 " version: %d.%d", kpcr_, io_.dtb.val, NtMajorVersion_, NtMinorVersion_);
-    return try_load_ntdll(*this, core_);
-}
-
-std::unique_ptr<os::Module> os::make_nt(core::Core& core)
-{
-    return std::make_unique<NtOs>(core);
 }
 
 namespace
 {
+    bool wait_for_kernel_startup(core::Core& core, memory::Io& io)
+    {
+        // check if the kernel is initialized...
+        auto lstar = registers::read_msr(core, msr_e::lstar);
+        if(lstar)
+            return true;
+
+        while(true)
+        {
+            auto ok = state::run_to_cr_write(core, reg_e::cr3);
+            if(!ok)
+                return false;
+
+            lstar = registers::read_msr(core, msr_e::lstar);
+            if(!lstar)
+                continue;
+
+            io.dtb.val = registers::read(core, reg_e::cr3);
+            return true;
+        }
+    }
+
     opt<dtb_t> get_user_dtb(NtOs& os, uint64_t kprocess)
     {
         const auto dtb = os.io_.read(kprocess + os.offsets_[KPROCESS_UserDirectoryTableBase]);
@@ -531,6 +480,141 @@ namespace
 
         return proc_t{eproc, dtb_t{*kdtb}, *dtb};
     }
+
+    opt<proc_t> wait_for_system_process(NtOs& os)
+    {
+        const auto PsInitialSystemProcess = symbols::address(os.core_, symbols::kernel, "nt", "PsInitialSystemProcess");
+        if(!PsInitialSystemProcess)
+            return {};
+
+        while(true)
+        {
+            const auto system_process = os.io_.read(*PsInitialSystemProcess);
+            if(system_process && *system_process)
+                return make_proc(os, *system_process);
+
+            const auto ok = state::run_to_cr_write(os.core_, reg_e::cr3);
+            if(!ok)
+                return {};
+        }
+    }
+
+    bool load_nt_constants(NtOs& os)
+    {
+        bool fail = false;
+        int i     = -1;
+        memset(&os.symbols_[0], 0, sizeof os.symbols_);
+        for(const auto& sym : g_symbols)
+        {
+            fail |= sym.e_id != ++i;
+            const auto addr = symbols::address(os.core_, symbols::kernel, sym.module, sym.name);
+            if(!addr)
+            {
+                fail |= sym.e_cat == cat_e::REQUIRED;
+                if(sym.e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read %s!%s symbol offset", sym.module, sym.name);
+                else
+                    LOG(WARNING, "unable to read optional %s!%s symbol offset", sym.module, sym.name);
+                continue;
+            }
+            os.symbols_[i] = *addr;
+        }
+
+        i = -1;
+        memset(&os.offsets_[0], 0, sizeof os.offsets_);
+        for(const auto& off : g_offsets)
+        {
+            fail |= off.e_id != ++i;
+            const auto offset = symbols::member_offset(os.core_, symbols::kernel, off.module, off.struc, off.member);
+            if(!offset)
+            {
+                fail |= off.e_cat == cat_e::REQUIRED;
+                if(off.e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read %s!%s.%s member offset", off.module, off.struc, off.member);
+                else
+                    LOG(WARNING, "unable to read optional %s!%s.%s member offset", off.module, off.struc, off.member);
+                continue;
+            }
+            os.offsets_[i] = *offset;
+        }
+        return !fail;
+    }
+}
+
+bool NtOs::setup()
+{
+    auto ok = wait_for_kernel_startup(core_, io_);
+    if(!ok)
+        return false;
+
+    kpcr_ = registers::read_msr(core_, msr_e::gs_base);
+    if(!is_kernel(kpcr_))
+        kpcr_ = registers::read_msr(core_, msr_e::kernel_gs_base);
+    if(!is_kernel(kpcr_))
+        return FAIL(false, "unable to read KPCR");
+
+    const auto kernel = find_kernel(*this, core_);
+    if(!kernel)
+        return FAIL(false, "unable to find kernel");
+
+    LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
+        kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
+    const auto opt_id = symbols::identify_pdb(*kernel, io_);
+    if(!opt_id)
+        return FAIL(false, "unable to identify kernel PDB");
+
+    const auto pdb = symbols::make_pdb(opt_id->name, opt_id->id);
+    if(!pdb)
+        return FAIL(false, "unable to read kernel PDB");
+
+    ok = core_.symbols_->insert(symbols::kernel, "nt", *kernel, pdb);
+    if(!ok)
+        return FAIL(false, "unable to load symbols from kernel module");
+
+    ok = load_nt_constants(*this);
+    if(!ok)
+        return false;
+
+    // cr3 is same in user & kernel mode
+    if(!offsets_[KPROCESS_UserDirectoryTableBase])
+        offsets_[KPROCESS_UserDirectoryTableBase] = offsets_[KPROCESS_DirectoryTableBase];
+
+    // read current kernel dtb, just to have a good one to join system process
+    ok = update_kernel_dtb(*this);
+    if(!ok)
+        return false;
+
+    // now we have kernel symbols, break after the PsSystemProcess creation if required
+    const auto proc = wait_for_system_process(*this);
+    if(!proc)
+        return FAIL(false, "unable to find system process");
+
+    // now update kernel dtb with the one read from system process
+    proc_join(*proc, mode_e::kernel);
+    ok = update_kernel_dtb(*this);
+    if(!ok)
+        return false;
+
+    // read the NtMajorVersion and NtMinorVersion from the _KUSER_SHARED_DATA
+    static constexpr uint64_t user_shared_data_addr = 0xFFFFF78000000000ULL;
+
+    ok = memory::read_virtual(core_, *proc, &NtMajorVersion_, user_shared_data_addr + offsets_[KUSER_SHARED_DATA_NtMajorVersion], sizeof NtMajorVersion_);
+    if(!ok)
+        return false;
+
+    ok = memory::read_virtual(core_, *proc, &NtMinorVersion_, user_shared_data_addr + offsets_[KUSER_SHARED_DATA_NtMinorVersion], sizeof NtMinorVersion_);
+    if(!ok)
+        return false;
+
+    init_nt_mmu(*this);
+
+    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64 " version: %d.%d", kpcr_, io_.dtb.val, NtMajorVersion_, NtMinorVersion_);
+    return try_load_ntdll(*this, core_);
+}
+
+std::unique_ptr<os::Module> os::make_nt(core::Core& core)
+{
+    return std::make_unique<NtOs>(core);
 }
 
 bool NtOs::proc_list(process::on_proc_fn on_process)

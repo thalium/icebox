@@ -47,9 +47,13 @@ namespace
 
     auto setup(core::Core& core, const std::string& name)
     {
-        core.shm_ = fdp::setup(name);
-        if(!core.shm_)
-            return FAIL(false, "unable to init shm");
+        LOG(INFO, "waiting for shm...");
+        while(!core.shm_)
+        {
+            core.shm_ = fdp::setup(name);
+            std::this_thread::yield();
+        }
+        LOG(INFO, "attached");
 
         fdp::reset(core);
         core.mem_     = memory::setup();
