@@ -466,7 +466,8 @@ TEST_F(win10, vm_area)
         const auto access = vm_area::access(core, *proc, area);
         const auto name   = vm_area::name(core, *proc, area);
         EXPECT_TRUE(!!name);
-        LOG(INFO, "0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-8x  %s", area.id, span->addr, span->size, access, name->c_str());
+        if(false)
+            LOG(INFO, "0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-16" PRIx64 "  0x%-8x  %s", area.id, span->addr, span->size, access, name->c_str());
         return walk_e::next;
     });
 
