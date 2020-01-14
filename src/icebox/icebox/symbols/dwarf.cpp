@@ -147,7 +147,7 @@ namespace
             return FAIL(ext::nullopt, "libdwarf error %llu when reading attributes of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
 
         if(err == DW_DLV_NO_ENTRY)
-            return FAIL(ext::nullopt, "die member has not DW_AT_data_member_location attribute");
+            return ext::nullopt;
 
         auto form = Dwarf_Half{};
         err       = dwarf_whatform(attr, &form, &error);
@@ -267,13 +267,22 @@ namespace
             struc               = read_die_child(*dbg, struc, name.data());
             const auto opt_size = read_struc_size(struc);
             const auto size     = opt_size ? *opt_size : -1;
-            auto& idx           = indexer.add_struc(name, size);
+            auto has_members    = false;
+            // skip strucs without members
+            all_members(*dbg, struc, [&](Dwarf_Die member)
+            {
+                has_members = !!read_die_name(member);
+                return has_members ? walk_e::stop : walk_e::next;
+            });
+            if(!has_members)
+                return true;
+
+            auto& idx = indexer.add_struc(name, size);
             all_members(*dbg, struc, [&](Dwarf_Die member)
             {
                 auto mname = read_die_name(member);
                 if(mname)
                     on_member(idx, member, mname);
-
                 return walk_e::next;
             });
             return true;
