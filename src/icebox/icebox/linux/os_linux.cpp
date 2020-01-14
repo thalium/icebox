@@ -149,39 +149,39 @@ namespace
     // clang-format off
     const LinuxOffset g_offsets[] =
     {
-			{cat_e::OPTIONAL,	TASKSTRUCT_THREADINFO,		"kernel_struct",	"task_struct",		"thread_info"	},
-			{cat_e::REQUIRED,	THREADINFO_FLAGS,			"kernel_struct",	"thread_info",		"flags"			},
-			{cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"			},
-			{cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"			},
-			{cat_e::REQUIRED,	TASKSTRUCT_REALPARENT,		"kernel_struct",	"task_struct",		"real_parent"	},
-            {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"kernel_struct",	"task_struct",		"group_leader"	},
-			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"kernel_struct",	"task_struct",		"thread_group"	},
-            {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"kernel_struct",	"task_struct",		"tasks"			},
-            {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"			},
-            {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"			},
-			{cat_e::REQUIRED,	MMSTRUCT_STARTBRK,			"kernel_struct",	"mm_struct",		"start_brk"		},
-			{cat_e::REQUIRED,	MMSTRUCT_STARTSTACK,		"kernel_struct",	"mm_struct",		"start_stack"	},
-			{cat_e::REQUIRED,	MMSTRUCT_MMAPBASE,			"kernel_struct",	"mm_struct",		"mmap_base"		},
-			{cat_e::REQUIRED,	TASKSTRUCT_STACK,			"kernel_struct",	"task_struct",		"stack"			},
-			{cat_e::REQUIRED,	PTREGS_IP,					"kernel_struct",	"pt_regs",			"ip"			},
-			{cat_e::REQUIRED,	MODULE_LIST,				"kernel_struct",	"module",			"list"			},
-			{cat_e::REQUIRED,	MODULE_NAME,				"kernel_struct",	"module",			"name"			},
-			{cat_e::OPTIONAL,	MODULE_MODULECORE,			"kernel_struct",	"module",			"module_core"	},
-			{cat_e::OPTIONAL,	MODULE_CORESIZE,			"kernel_struct",	"module",			"core_size"		},
-			{cat_e::OPTIONAL,	MODULE_CORELAYOUT,			"kernel_struct",	"module",			"core_layout"	},
-			{cat_e::OPTIONAL,	MODULELAYOUT_BASE,			"kernel_struct",	"module_layout",	"base"			},
-			{cat_e::OPTIONAL,	MODULELAYOUT_SIZE,			"kernel_struct",	"module_layout",	"size"			},
-			{cat_e::REQUIRED,	MMSTRUCT_MMAP,				"kernel_struct",	"mm_struct",		"mmap"			},
-			{cat_e::REQUIRED,	VMAREASTRUCT_VMSTART,		"kernel_struct",	"vm_area_struct",	"vm_start"		},
-			{cat_e::REQUIRED,	VMAREASTRUCT_VMEND,			"kernel_struct",	"vm_area_struct",	"vm_end"		},
-			{cat_e::REQUIRED,	VMAREASTRUCT_VMNEXT,		"kernel_struct",	"vm_area_struct",	"vm_next"		},
-			{cat_e::REQUIRED,	VMAREASTRUCT_VMFILE,		"kernel_struct",	"vm_area_struct",	"vm_file"		},
-			{cat_e::REQUIRED,	VMAREASTRUCT_VMFLAGS,		"kernel_struct",	"vm_area_struct",	"vm_flags"		},
-			{cat_e::OPTIONAL,	FILE_FPATH,					"kernel_struct",	"file",				"f_path"		},
-			{cat_e::OPTIONAL,	FILE_FDENTRY,				"kernel_struct",	"file",				"f_dentry"		},
-			{cat_e::OPTIONAL,	PATH_DENTRY,				"kernel_struct",	"path",				"dentry"		},
-			{cat_e::REQUIRED,	DENTRY_DNAME,				"kernel_struct",	"dentry",			"d_name"		},
-			{cat_e::REQUIRED,	QSTR_NAME,					"kernel_struct",	"qstr",				"name"			},
+            {cat_e::OPTIONAL,   TASKSTRUCT_THREADINFO,      "kernel_struct",    "task_struct",      "thread_info"   },
+            {cat_e::REQUIRED,   THREADINFO_FLAGS,           "kernel_struct",    "thread_info",      "flags"         },
+            {cat_e::REQUIRED,   TASKSTRUCT_COMM,            "kernel_struct",    "task_struct",      "comm"          },
+            {cat_e::REQUIRED,   TASKSTRUCT_PID,             "kernel_struct",    "task_struct",      "pid"           },
+            {cat_e::REQUIRED,   TASKSTRUCT_REALPARENT,      "kernel_struct",    "task_struct",      "real_parent"   },
+            {cat_e::REQUIRED,   TASKSTRUCT_GROUPLEADER,     "kernel_struct",    "task_struct",      "group_leader"  },
+            {cat_e::REQUIRED,   TASKSTRUCT_THREADGROUP,     "kernel_struct",    "task_struct",      "thread_group"  },
+            {cat_e::REQUIRED,   TASKSTRUCT_TASKS,           "kernel_struct",    "task_struct",      "tasks"         },
+            {cat_e::REQUIRED,   TASKSTRUCT_MM,              "kernel_struct",    "task_struct",      "mm"            },
+            {cat_e::REQUIRED,   MMSTRUCT_PGD,               "kernel_struct",    "mm_struct",        "pgd"           },
+            {cat_e::REQUIRED,   MMSTRUCT_STARTBRK,          "kernel_struct",    "mm_struct",        "start_brk"     },
+            {cat_e::REQUIRED,   MMSTRUCT_STARTSTACK,        "kernel_struct",    "mm_struct",        "start_stack"   },
+            {cat_e::REQUIRED,   MMSTRUCT_MMAPBASE,          "kernel_struct",    "mm_struct",        "mmap_base"     },
+            {cat_e::REQUIRED,   TASKSTRUCT_STACK,           "kernel_struct",    "task_struct",      "stack"         },
+            {cat_e::REQUIRED,   PTREGS_IP,                  "kernel_struct",    "pt_regs",          "ip"            },
+            {cat_e::REQUIRED,   MODULE_LIST,                "kernel_struct",    "module",           "list"          },
+            {cat_e::REQUIRED,   MODULE_NAME,                "kernel_struct",    "module",           "name"          },
+            {cat_e::OPTIONAL,   MODULE_MODULECORE,          "kernel_struct",    "module",           "module_core"   },
+            {cat_e::OPTIONAL,   MODULE_CORESIZE,            "kernel_struct",    "module",           "core_size"     },
+            {cat_e::OPTIONAL,   MODULE_CORELAYOUT,          "kernel_struct",    "module",           "core_layout"   },
+            {cat_e::OPTIONAL,   MODULELAYOUT_BASE,          "kernel_struct",    "module_layout",    "base"          },
+            {cat_e::OPTIONAL,   MODULELAYOUT_SIZE,          "kernel_struct",    "module_layout",    "size"          },
+            {cat_e::REQUIRED,   MMSTRUCT_MMAP,              "kernel_struct",    "mm_struct",        "mmap"          },
+            {cat_e::REQUIRED,   VMAREASTRUCT_VMSTART,       "kernel_struct",    "vm_area_struct",   "vm_start"      },
+            {cat_e::REQUIRED,   VMAREASTRUCT_VMEND,         "kernel_struct",    "vm_area_struct",   "vm_end"        },
+            {cat_e::REQUIRED,   VMAREASTRUCT_VMNEXT,        "kernel_struct",    "vm_area_struct",   "vm_next"       },
+            {cat_e::REQUIRED,   VMAREASTRUCT_VMFILE,        "kernel_struct",    "vm_area_struct",   "vm_file"       },
+            {cat_e::REQUIRED,   VMAREASTRUCT_VMFLAGS,       "kernel_struct",    "vm_area_struct",   "vm_flags"      },
+            {cat_e::OPTIONAL,   FILE_FPATH,                 "kernel_struct",    "file",             "f_path"        },
+            {cat_e::OPTIONAL,   FILE_FDENTRY,               "kernel_struct",    "file",             "f_dentry"      },
+            {cat_e::OPTIONAL,   PATH_DENTRY,                "kernel_struct",    "path",             "dentry"        },
+            {cat_e::REQUIRED,   DENTRY_DNAME,               "kernel_struct",    "dentry",           "d_name"        },
+            {cat_e::REQUIRED,   QSTR_NAME,                  "kernel_struct",    "qstr",             "name"          },
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -205,10 +205,10 @@ namespace
     // clang-format off
     const LinuxSymbol g_symbols[] =
     {
-            {cat_e::REQUIRED,	PER_CPU_START,				"kernel_sym",	"__per_cpu_start"	},
-			{cat_e::REQUIRED,	CURRENT_TASK,				"kernel_sym",	"current_task"		},
-			{cat_e::OPTIONAL,	KASAN_INIT,					"kernel_sym",	"kasan_init"		},
-			{cat_e::REQUIRED,	MODULES,					"kernel_sym",	"modules"			},
+            {cat_e::REQUIRED,   PER_CPU_START,              "kernel_sym",   "__per_cpu_start"   },
+            {cat_e::REQUIRED,   CURRENT_TASK,               "kernel_sym",   "current_task"      },
+            {cat_e::OPTIONAL,   KASAN_INIT,                 "kernel_sym",   "kasan_init"        },
+            {cat_e::REQUIRED,   MODULES,                    "kernel_sym",   "modules"           },
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -719,9 +719,9 @@ namespace
     opt<uint64_t> pt_regs(OsLinux& p, thread_t thread)
     {
         /*
-		Offsets of this method are reliable only for an intel x86_64 CPU
-		and a stable version of kernel (e.g it will not work properly with a kernel v4.0-rc3, 3.15-rc5, ...)
-		*/
+        Offsets of this method are reliable only for an intel x86_64 CPU
+        and a stable version of kernel (e.g it will not work properly with a kernel v4.0-rc3, 3.15-rc5, ...)
+        */
 
         const auto stack_ptr = p.io_.read(thread.id + *p.offsets_[TASKSTRUCT_STACK]);
         if(!stack_ptr)
@@ -1069,9 +1069,9 @@ opt<std::string> OsLinux::mod_name(proc_t /*proc*/, mod_t mod)
 opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 {
     /*
-		The ld (loader) module for linux may be splitted by dynamically allocated areas.
-		In this case, this function returns only the size of .text section of ld module and the normal size otherwise.
-	*/
+        The ld (loader) module for linux may be splitted by dynamically allocated areas.
+        In this case, this function returns only the size of .text section of ld module and the normal size otherwise.
+    */
 
     const auto mm = proc_mm(*this, proc.id);
     if(!mm)
@@ -1140,9 +1140,9 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
 {
     /*
-		for loader module (ld), mod_find works only if addr is in the .text section
-		see comment at start of mod_span to see why
-	*/
+        for loader module (ld), mod_find works only if addr is in the .text section
+        see comment at start of mod_span to see why
+    */
 
     opt<mod_t> found = {};
     mod_list(proc, [&](mod_t mod)
