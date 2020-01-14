@@ -9,7 +9,7 @@ class Windows(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.vm = icebox.Vm("win10")
+        cls.vm = icebox.attach("win10")
 
     @classmethod
     def tearDownClass(cls):
@@ -55,13 +55,13 @@ class Windows(unittest.TestCase):
         pb = self.vm.processes.find_name(pa.name(), pa.flags())
         self.assertEqual(pa, pb)
 
-        pd = self.vm.processes.wait("explorer.exe", icebox.kFlags_x64)
+        pd = self.vm.processes.wait("explorer.exe", icebox.flags_x64)
         self.assertEqual(pd.name(), "explorer.exe")
 
         pd.join("kernel")
         pd.join("user")
 
-        pe = self.vm.processes.find_name("services.exe", icebox.kFlags_x64)
+        pe = self.vm.processes.find_name("services.exe", icebox.flags_x64)
         pf = pe.parent()
         self.assertEqual(pf.name(), "wininit.exe")
 
@@ -204,7 +204,7 @@ class Windows(unittest.TestCase):
         self.assertGreater(len(modules), 1)
 
     def test_symbols_load(self):
-        p = self.vm.processes.find_name("dwm.exe", icebox.kFlags_x64)
+        p = self.vm.processes.find_name("dwm.exe", icebox.flags_x64)
         p.join("user")
 
         kernelbase = p.modules.find_name("kernelbase")
@@ -221,7 +221,7 @@ class Windows(unittest.TestCase):
                 self.assertIsNotNone(bp)
 
     def test_breakpoints(self):
-        p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
+        p = self.vm.processes.wait("dwm.exe", icebox.flags_x64)
         name = "ntdll!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
 
@@ -290,7 +290,7 @@ class Windows(unittest.TestCase):
         self.vm.exec()
 
     def test_callstacks(self):
-        p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
+        p = self.vm.processes.wait("dwm.exe", icebox.flags_any)
         p.join("user")
         mod = p.modules.find_name("dwm")
         self.assertIsNotNone(mod)

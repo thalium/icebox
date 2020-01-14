@@ -29,8 +29,9 @@ class Flags:
             setattr(self, k, v)
 
 
-kFlags_x86 = Flags({"is_x86": True,  "is_x64": False})
-kFlags_x64 = Flags({"is_x86": False, "is_x64": True})
+flags_any = Flags({"is_x86": False,  "is_x64": False})
+flags_x86 = Flags({"is_x86": True,   "is_x64": False})
+flags_x64 = Flags({"is_x86": False,  "is_x64": True})
 
 
 def dump_bytes(buf):
@@ -502,3 +503,7 @@ class Vm:
     def break_on_physical_process(self, name, dtb, where, callback):
         bp = _icebox.break_on_physical_process(name, dtb, where, callback)
         return BreakpointId(bp, callback)
+
+
+def attach(name):
+    return Vm(name)
