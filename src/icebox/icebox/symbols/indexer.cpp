@@ -1,4 +1,5 @@
 #include "indexer.hpp"
+#include "utils/utils.hpp"
 
 #include <cstring>
 
@@ -22,8 +23,9 @@ namespace
     struct Sym
     {
         uint32_t name_idx;
-        uint32_t offset;
+        uint64_t offset;
     };
+    STATIC_ASSERT_EQ(sizeof(Sym), 16);
 
     struct Member
     {
@@ -96,7 +98,7 @@ void Data::add_symbol(std::string_view name, size_t offset)
 {
     const auto name_idx = last_name_idx++;
     save_string_data(data, name);
-    const auto sym = Sym{name_idx, static_cast<uint32_t>(offset)};
+    const auto sym = Sym{name_idx, static_cast<uint64_t>(offset)};
     symbols.emplace_back(sym);
     offsets.emplace_back(sym);
 }
