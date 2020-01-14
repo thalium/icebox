@@ -1,0 +1,500 @@
+
+.debug_info
+
+COMPILE_UNIT<header overall offset = 0x00000000>:
+< 0><0x0000000b>  DW_TAG_compile_unit
+                    DW_AT_producer              GNU C11 7.4.0 -mtune=generic -march=x86-64 -g -O2 -fstack-protector-strong
+                    DW_AT_language              DW_LANG_C99
+                    DW_AT_name                  /home/davea/dwarf/code/dwarfdump/uri.c
+                    DW_AT_comp_dir              /tmp/dwbld/dwarfdump
+                    DW_AT_low_pc                0x00000000
+                    DW_AT_high_pc               <offset-from-lowpc>618
+                    DW_AT_stmt_list             0x00000000
+
+LOCAL_SYMBOLS:
+< 1><0x0000002d>    DW_TAG_typedef
+                      DW_AT_name                  size_t
+                      DW_AT_decl_file             0x00000003 /usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h
+                      DW_AT_decl_line             0x000000d8
+                      DW_AT_type                  <0x00000038>
+< 1><0x00000038>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_encoding              DW_ATE_unsigned
+                      DW_AT_name                  long unsigned int
+< 1><0x0000003f>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000001
+                      DW_AT_encoding              DW_ATE_unsigned_char
+                      DW_AT_name                  unsigned char
+< 1><0x00000046>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000002
+                      DW_AT_encoding              DW_ATE_unsigned
+                      DW_AT_name                  short unsigned int
+< 1><0x0000004d>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000004
+                      DW_AT_encoding              DW_ATE_unsigned
+                      DW_AT_name                  unsigned int
+< 1><0x00000054>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000001
+                      DW_AT_encoding              DW_ATE_signed_char
+                      DW_AT_name                  signed char
+< 1><0x0000005b>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000002
+                      DW_AT_encoding              DW_ATE_signed
+                      DW_AT_name                  short int
+< 1><0x00000062>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000004
+                      DW_AT_encoding              DW_ATE_signed
+                      DW_AT_name                  int
+< 1><0x00000069>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_encoding              DW_ATE_signed
+                      DW_AT_name                  long int
+< 1><0x00000070>    DW_TAG_typedef
+                      DW_AT_name                  __off_t
+                      DW_AT_decl_file             0x00000004 /usr/include/x86_64-linux-gnu/bits/types.h
+                      DW_AT_decl_line             0x0000008c
+                      DW_AT_type                  <0x00000069>
+< 1><0x0000007b>    DW_TAG_typedef
+                      DW_AT_name                  __off64_t
+                      DW_AT_decl_file             0x00000004 /usr/include/x86_64-linux-gnu/bits/types.h
+                      DW_AT_decl_line             0x0000008d
+                      DW_AT_type                  <0x00000069>
+< 1><0x00000086>    DW_TAG_pointer_type
+                      DW_AT_byte_size             0x00000008
+< 1><0x00000088>    DW_TAG_pointer_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_type                  <0x0000008e>
+< 1><0x0000008e>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000001
+                      DW_AT_encoding              DW_ATE_signed_char
+                      DW_AT_name                  char
+< 1><0x00000095>    DW_TAG_const_type
+                      DW_AT_type                  <0x0000008e>
+< 1><0x0000009a>    DW_TAG_structure_type
+                      DW_AT_name                  _IO_FILE
+                      DW_AT_byte_size             0x000000d8
+                      DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                      DW_AT_decl_line             0x000000f5
+                      DW_AT_sibling               <0x0000021a>
+< 2><0x000000a6>      DW_TAG_member
+                        DW_AT_name                  _flags
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000f6
+                        DW_AT_type                  <0x00000062>
+                        DW_AT_data_member_location  0
+< 2><0x000000b2>      DW_TAG_member
+                        DW_AT_name                  _IO_read_ptr
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000fb
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  8
+< 2><0x000000be>      DW_TAG_member
+                        DW_AT_name                  _IO_read_end
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000fc
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  16
+< 2><0x000000ca>      DW_TAG_member
+                        DW_AT_name                  _IO_read_base
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000fd
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  24
+< 2><0x000000d6>      DW_TAG_member
+                        DW_AT_name                  _IO_write_base
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000fe
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  32
+< 2><0x000000e2>      DW_TAG_member
+                        DW_AT_name                  _IO_write_ptr
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000ff
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  40
+< 2><0x000000ee>      DW_TAG_member
+                        DW_AT_name                  _IO_write_end
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000100
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  48
+< 2><0x000000fb>      DW_TAG_member
+                        DW_AT_name                  _IO_buf_base
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000101
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  56
+< 2><0x00000108>      DW_TAG_member
+                        DW_AT_name                  _IO_buf_end
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000102
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  64
+< 2><0x00000115>      DW_TAG_member
+                        DW_AT_name                  _IO_save_base
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000104
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  72
+< 2><0x00000122>      DW_TAG_member
+                        DW_AT_name                  _IO_backup_base
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000105
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  80
+< 2><0x0000012f>      DW_TAG_member
+                        DW_AT_name                  _IO_save_end
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000106
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  88
+< 2><0x0000013c>      DW_TAG_member
+                        DW_AT_name                  _markers
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000108
+                        DW_AT_type                  <0x0000025d>
+                        DW_AT_data_member_location  96
+< 2><0x00000149>      DW_TAG_member
+                        DW_AT_name                  _chain
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x0000010a
+                        DW_AT_type                  <0x00000263>
+                        DW_AT_data_member_location  104
+< 2><0x00000156>      DW_TAG_member
+                        DW_AT_name                  _fileno
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x0000010c
+                        DW_AT_type                  <0x00000062>
+                        DW_AT_data_member_location  112
+< 2><0x00000163>      DW_TAG_member
+                        DW_AT_name                  _flags2
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000110
+                        DW_AT_type                  <0x00000062>
+                        DW_AT_data_member_location  116
+< 2><0x00000170>      DW_TAG_member
+                        DW_AT_name                  _old_offset
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000112
+                        DW_AT_type                  <0x00000070>
+                        DW_AT_data_member_location  120
+< 2><0x0000017d>      DW_TAG_member
+                        DW_AT_name                  _cur_column
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000116
+                        DW_AT_type                  <0x00000046>
+                        DW_AT_data_member_location  128 (-128)
+< 2><0x0000018a>      DW_TAG_member
+                        DW_AT_name                  _vtable_offset
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000117
+                        DW_AT_type                  <0x00000054>
+                        DW_AT_data_member_location  130 (-126)
+< 2><0x00000197>      DW_TAG_member
+                        DW_AT_name                  _shortbuf
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000118
+                        DW_AT_type                  <0x00000269>
+                        DW_AT_data_member_location  131 (-125)
+< 2><0x000001a4>      DW_TAG_member
+                        DW_AT_name                  _lock
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x0000011c
+                        DW_AT_type                  <0x00000279>
+                        DW_AT_data_member_location  136 (-120)
+< 2><0x000001b1>      DW_TAG_member
+                        DW_AT_name                  _offset
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000125
+                        DW_AT_type                  <0x0000007b>
+                        DW_AT_data_member_location  144 (-112)
+< 2><0x000001be>      DW_TAG_member
+                        DW_AT_name                  __pad1
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x0000012d
+                        DW_AT_type                  <0x00000086>
+                        DW_AT_data_member_location  152 (-104)
+< 2><0x000001cb>      DW_TAG_member
+                        DW_AT_name                  __pad2
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x0000012e
+                        DW_AT_type                  <0x00000086>
+                        DW_AT_data_member_location  160 (-96)
+< 2><0x000001d8>      DW_TAG_member
+                        DW_AT_name                  __pad3
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x0000012f
+                        DW_AT_type                  <0x00000086>
+                        DW_AT_data_member_location  168 (-88)
+< 2><0x000001e5>      DW_TAG_member
+                        DW_AT_name                  __pad4
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000130
+                        DW_AT_type                  <0x00000086>
+                        DW_AT_data_member_location  176 (-80)
+< 2><0x000001f2>      DW_TAG_member
+                        DW_AT_name                  __pad5
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000132
+                        DW_AT_type                  <0x0000002d>
+                        DW_AT_data_member_location  184 (-72)
+< 2><0x000001ff>      DW_TAG_member
+                        DW_AT_name                  _mode
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000133
+                        DW_AT_type                  <0x00000062>
+                        DW_AT_data_member_location  192 (-64)
+< 2><0x0000020c>      DW_TAG_member
+                        DW_AT_name                  _unused2
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x00000135
+                        DW_AT_type                  <0x0000027f>
+                        DW_AT_data_member_location  196 (-60)
+< 1><0x0000021a>    DW_TAG_typedef
+                      DW_AT_name                  FILE
+                      DW_AT_decl_file             0x00000006 /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+                      DW_AT_decl_line             0x00000007
+                      DW_AT_type                  <0x0000009a>
+< 1><0x00000225>    DW_TAG_typedef
+                      DW_AT_name                  _IO_lock_t
+                      DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                      DW_AT_decl_line             0x0000009a
+< 1><0x0000022c>    DW_TAG_structure_type
+                      DW_AT_name                  _IO_marker
+                      DW_AT_byte_size             0x00000018
+                      DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                      DW_AT_decl_line             0x000000a0
+                      DW_AT_sibling               <0x0000025d>
+< 2><0x00000238>      DW_TAG_member
+                        DW_AT_name                  _next
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000a1
+                        DW_AT_type                  <0x0000025d>
+                        DW_AT_data_member_location  0
+< 2><0x00000244>      DW_TAG_member
+                        DW_AT_name                  _sbuf
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000a2
+                        DW_AT_type                  <0x00000263>
+                        DW_AT_data_member_location  8
+< 2><0x00000250>      DW_TAG_member
+                        DW_AT_name                  _pos
+                        DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                        DW_AT_decl_line             0x000000a6
+                        DW_AT_type                  <0x00000062>
+                        DW_AT_data_member_location  16
+< 1><0x0000025d>    DW_TAG_pointer_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_type                  <0x0000022c>
+< 1><0x00000263>    DW_TAG_pointer_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_type                  <0x0000009a>
+< 1><0x00000269>    DW_TAG_array_type
+                      DW_AT_type                  <0x0000008e>
+                      DW_AT_sibling               <0x00000279>
+< 2><0x00000272>      DW_TAG_subrange_type
+                        DW_AT_type                  <0x00000038>
+                        DW_AT_upper_bound           0
+< 1><0x00000279>    DW_TAG_pointer_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_type                  <0x00000225>
+< 1><0x0000027f>    DW_TAG_array_type
+                      DW_AT_type                  <0x0000008e>
+                      DW_AT_sibling               <0x0000028f>
+< 2><0x00000288>      DW_TAG_subrange_type
+                        DW_AT_type                  <0x00000038>
+                        DW_AT_upper_bound           19
+< 1><0x0000028f>    DW_TAG_structure_type
+                      DW_AT_name                  _IO_FILE_plus
+                      DW_AT_declaration           yes(1)
+< 1><0x00000294>    DW_TAG_variable
+                      DW_AT_name                  _IO_2_1_stdin_
+                      DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                      DW_AT_decl_line             0x0000013f
+                      DW_AT_type                  <0x0000028f>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000002a0>    DW_TAG_variable
+                      DW_AT_name                  _IO_2_1_stdout_
+                      DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                      DW_AT_decl_line             0x00000140
+                      DW_AT_type                  <0x0000028f>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000002ac>    DW_TAG_variable
+                      DW_AT_name                  _IO_2_1_stderr_
+                      DW_AT_decl_file             0x00000005 /usr/include/x86_64-linux-gnu/bits/libio.h
+                      DW_AT_decl_line             0x00000141
+                      DW_AT_type                  <0x0000028f>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000002b8>    DW_TAG_pointer_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_type                  <0x00000095>
+< 1><0x000002be>    DW_TAG_const_type
+                      DW_AT_type                  <0x000002b8>
+< 1><0x000002c3>    DW_TAG_restrict_type
+                      DW_AT_type                  <0x000002b8>
+< 1><0x000002c8>    DW_TAG_variable
+                      DW_AT_name                  stdin
+                      DW_AT_decl_file             0x00000007 /usr/include/stdio.h
+                      DW_AT_decl_line             0x00000087
+                      DW_AT_type                  <0x00000263>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000002d3>    DW_TAG_variable
+                      DW_AT_name                  stdout
+                      DW_AT_decl_file             0x00000007 /usr/include/stdio.h
+                      DW_AT_decl_line             0x00000088
+                      DW_AT_type                  <0x00000263>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000002de>    DW_TAG_variable
+                      DW_AT_name                  stderr
+                      DW_AT_decl_file             0x00000007 /usr/include/stdio.h
+                      DW_AT_decl_line             0x00000089
+                      DW_AT_type                  <0x00000263>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000002e9>    DW_TAG_variable
+                      DW_AT_name                  sys_nerr
+                      DW_AT_decl_file             0x00000008 /usr/include/x86_64-linux-gnu/bits/sys_errlist.h
+                      DW_AT_decl_line             0x0000001a
+                      DW_AT_type                  <0x00000062>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000002f4>    DW_TAG_array_type
+                      DW_AT_type                  <0x000002be>
+                      DW_AT_sibling               <0x000002ff>
+< 2><0x000002fd>      DW_TAG_subrange_type
+< 1><0x000002ff>    DW_TAG_const_type
+                      DW_AT_type                  <0x000002f4>
+< 1><0x00000304>    DW_TAG_variable
+                      DW_AT_name                  sys_errlist
+                      DW_AT_decl_file             0x00000008 /usr/include/x86_64-linux-gnu/bits/sys_errlist.h
+                      DW_AT_decl_line             0x0000001b
+                      DW_AT_type                  <0x000002ff>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x0000030f>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_encoding              DW_ATE_signed
+                      DW_AT_name                  long long int
+< 1><0x00000316>    DW_TAG_base_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_encoding              DW_ATE_unsigned
+                      DW_AT_name                  long long unsigned int
+< 1><0x0000031d>    DW_TAG_typedef
+                      DW_AT_name                  Dwarf_Unsigned
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x0000004a
+                      DW_AT_type                  <0x00000316>
+< 1><0x00000328>    DW_TAG_typedef
+                      DW_AT_name                  Dwarf_Off
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x0000004c
+                      DW_AT_type                  <0x00000316>
+< 1><0x00000333>    DW_TAG_typedef
+                      DW_AT_name                  Dwarf_Addr
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x0000004d
+                      DW_AT_type                  <0x00000316>
+< 1><0x0000033e>    DW_TAG_typedef
+                      DW_AT_name                  Dwarf_Bool
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x0000004e
+                      DW_AT_type                  <0x00000062>
+< 1><0x00000349>    DW_TAG_typedef
+                      DW_AT_name                  Dwarf_Die
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x00000218
+                      DW_AT_type                  <0x00000355>
+< 1><0x00000355>    DW_TAG_pointer_type
+                      DW_AT_byte_size             0x00000008
+                      DW_AT_type                  <0x0000035b>
+< 1><0x0000035b>    DW_TAG_structure_type
+                      DW_AT_name                  Dwarf_Die_s
+                      DW_AT_declaration           yes(1)
+< 1><0x00000360>    DW_TAG_structure_type
+                      DW_AT_byte_size             0x00000004
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x00001391
+                      DW_AT_sibling               <0x00000377>
+< 2><0x00000369>      DW_TAG_member
+                        DW_AT_name                  check_verbose_mode
+                        DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                        DW_AT_decl_line             0x00001392
+                        DW_AT_type                  <0x0000033e>
+                        DW_AT_data_member_location  0
+< 1><0x00000377>    DW_TAG_typedef
+                      DW_AT_name                  Dwarf_Cmdline_Options
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x00001393
+                      DW_AT_type                  <0x00000360>
+< 1><0x00000383>    DW_TAG_variable
+                      DW_AT_name                  dwarf_cmdline_options
+                      DW_AT_decl_file             0x00000009 /tmp/dwbld/dwarfdump/../libdwarf/libdwarf.h
+                      DW_AT_decl_line             0x00001394
+                      DW_AT_type                  <0x00000377>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x0000038f>    DW_TAG_typedef
+                      DW_AT_name                  reg_syntax_t
+                      DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                      DW_AT_decl_line             0x0000002a
+                      DW_AT_type                  <0x00000038>
+< 1><0x0000039a>    DW_TAG_variable
+                      DW_AT_name                  re_syntax_options
+                      DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                      DW_AT_decl_line             0x000000b5
+                      DW_AT_type                  <0x0000038f>
+                      DW_AT_external              yes(1)
+                      DW_AT_declaration           yes(1)
+< 1><0x000003a5>    DW_TAG_structure_type
+                      DW_AT_name                  re_pattern_buffer
+                      DW_AT_byte_size             0x00000040
+                      DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                      DW_AT_decl_line             0x00000165
+                      DW_AT_sibling               <0x0000047e>
+< 2><0x000003b2>      DW_TAG_member
+                        DW_AT_name                  __buffer
+                        DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                        DW_AT_decl_line             0x0000016a
+                        DW_AT_type                  <0x0000047e>
+                        DW_AT_data_member_location  0
+< 2><0x000003bf>      DW_TAG_member
+                        DW_AT_name                  __allocated
+                        DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                        DW_AT_decl_line             0x0000016d
+                        DW_AT_type                  <0x00000038>
+                        DW_AT_data_member_location  8
+< 2><0x000003cc>      DW_TAG_member
+                        DW_AT_name                  __used
+                        DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                        DW_AT_decl_line             0x00000170
+                        DW_AT_type                  <0x00000038>
+                        DW_AT_data_member_location  16
+< 2><0x000003d9>      DW_TAG_member
+                        DW_AT_name                  __syntax
+                        DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                        DW_AT_decl_line             0x00000173
+                        DW_AT_type                  <0x0000038f>
+                        DW_AT_data_member_location  24
+< 2><0x000003e6>      DW_TAG_member
+                        DW_AT_name                  __fastmap
+                        DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                        DW_AT_decl_line             0x00000178
+                        DW_AT_type                  <0x00000088>
+                        DW_AT_data_member_location  32
+< 2><0x000003f3>      DW_TAG_member
+                        DW_AT_name                  __translate
+                        DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                        DW_AT_decl_line             0x0000017e
+                        DW_AT_type                  <0x0000047e>
+                        DW_AT_data_member_location  40
+< 2><0x00000400>      DW_TAG_member
+                        DW_AT_name                  re_nsub
+                        DW_AT_decl_file             0x0000000a /usr/include/regex.h
+                        DW_AT_decl_line             0x00000181
+                        DW_AT_type                  <0x0000002d>
+                        DW_AT_data_member_location  48

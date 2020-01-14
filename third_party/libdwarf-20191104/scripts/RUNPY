@@ -1,0 +1,19 @@
+# Run in the libdwarf directory
+# These enable simple checking that the source, header,
+# and documentation match up.  No need to peruse
+# long lists of function names.
+
+# example:
+#  fldiff junknonhdr junknonmm
+#  fldiff junknonhdr junknonsrc
+
+d=../scripts
+# These versions show original line numbers. Sometimes useful.
+$d/funcfinderhdr.py >junknhdr
+$d/funcfindermm.py  >junknmm
+$d/funcfindersrcs.py  >junknsrc
+
+$d/funcfinderhdr.py --nonumbers >junknonhdr
+$d/funcfindermm.py  --nonumbers >junknonmm
+$d/funcfindersrcs.py  --nonumbers >junknonsrc
+

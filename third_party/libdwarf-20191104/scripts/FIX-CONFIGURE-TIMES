@@ -1,0 +1,92 @@
+#/bin/sh
+
+# After doing  a copy of the source tree (as by 'cp -r')
+# the timestamps are not always
+# such that a build will work. File timestamps matter
+# with the new configure.  
+# If the 'configure ; make' ends in failure with a message about
+# aclocal-1.15 being missing then this script
+# will likely fix that problem.
+# With 'cp -rp' the problem should not arise.  
+# Note that one user found the command:
+#  touch aclocal.m4 Makefile.am configure Makefile.in
+# sufficient to avoid the problem.
+
+l=`pwd`
+echo $l
+lb=`basename $l`
+ld=`dirname $l`
+cdtarg=.
+sloc=$l/scripts
+
+rightplace() {
+for i in dwarfdump dwarfgen libdwarf dwarfexample m4 scripts
+do
+  if [ ! -d $i ] 
+  then
+    echo "$i is not a directory of $1."
+    echo "we are not in the right place to touch configure etc"
+    echo "to fix the missing aclocal-1.15 problem."
+    echo "No action taken"
+    exit 1
+  fi
+done
+}
+
+if [ x$lb = "xscripts" ]
+then
+  #echo "ld: $ld"
+  ldb=`basename $ld`
+  #echo "ldb: $ldb"
+  echo "We appear to start in libdwarf scripts directory"
+  echo "Change directory .."
+  cd  ..
+  echo "Are we in the right directory now?" `pwd`
+  rightplace `pwd`
+  echo "Yes, we are in the right directory."
+else
+  echo "Are we in the right directory?"
+  rightplace `pwd`
+  echo "Yes, we are in the right directory."
+fi
+l=`pwd`
+echo "Now touch files to get timestamps usable."
+
+for i in                 \
+m4/ax_prog_cc_for_build.m4 \
+m4/dw_compiler.m4 \
+dwarfexample/Makefile.am \
+dwarfdump/Makefile.am \
+Makefile.am \
+dwarfgen/Makefile.am \
+libdwarf/Makefile.am \
+configure.ac \
+ltmain.sh \
+m4/libtool.m4 \
+m4/ltoptions.m4 \
+m4/ltsugar.m4 \
+m4/ltversion.m4 \
+m4/lt~obsolete.m4 \
+aclocal.m4 \
+configure \
+config.h.in \
+ar-lib \
+compile \
+config.guess \
+config.sub \
+install-sh \
+missing \
+INSTALL \
+Makefile.in \
+dwarfdump/Makefile.in \
+dwarfexample/Makefile.in \
+dwarfgen/Makefile.in \
+depcomp \
+test-driver \
+libdwarf/Makefile.in 
+do
+   sleep 1
+   #echo "now touch $i"
+   touch $i
+done
+

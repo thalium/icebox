@@ -1,0 +1,6 @@
+# This uses GNU options, and is not intended to
+# work on other than Linux. 
+# Not something to use except in special undefined circumstances.
+
+find . -type f -printf '%T@ %P\n' | sort -n | awk '{print $2}' |grep -v '^.git'
+
