@@ -563,7 +563,10 @@ bool OsLinux::setup()
             return walk_e::next;
         LOG(INFO, "debug profile found");
 
-        if(!load_offsets(core_, offsets_) | !load_symbols(core_, symbols_))
+        if(!load_symbols(core_, symbols_))
+            return walk_e::next;
+
+        if(!load_offsets(core_, offsets_))
             return walk_e::next;
 
         if(!check_setup(*this))
