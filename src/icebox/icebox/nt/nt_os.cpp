@@ -224,6 +224,31 @@ namespace
                 return {};
         }
     }
+
+    bool force_winpe_mode(core::Core& core, memory::Io& io)
+    {
+        const auto InitWinPEModeType = symbols::address(core, symbols::kernel, "nt", "InitWinPEModeType");
+        if(!InitWinPEModeType)
+            return false;
+
+        const auto mode_type = io.le32(*InitWinPEModeType);
+        if(!mode_type)
+            return false;
+
+        constexpr auto INIT_WINPEMODE_INRAM = 0x80000000;
+        if(*mode_type & INIT_WINPEMODE_INRAM)
+        {
+            LOG(INFO, "ram-only mode detected");
+            return true;
+        }
+
+        const auto ok = io.write_le32(*InitWinPEModeType, *mode_type | INIT_WINPEMODE_INRAM);
+        if(!ok)
+            FAIL(false, "unable to set the global InitWinPEModeType to INIT_WINPEMODE_INRAM");
+
+        LOG(INFO, "ram-only mode enabled");
+        return true;
+    }
 }
 
 bool nt::Os::setup()
@@ -290,6 +315,11 @@ bool nt::Os::setup()
         return false;
 
     init_nt_mmu(*this);
+
+    ok = force_winpe_mode(core_, io_);
+    if(!ok)
+        return false;
+
     LOG(WARNING, "kernel: kpcr:0x%" PRIx64 " kdtb:0x%" PRIx64 " version:%d.%d", kpcr_, io_.dtb.val, NtMajorVersion_, NtMinorVersion_);
     return try_load_ntdll(*this, core_);
 }
