@@ -107,7 +107,7 @@ symbols::Struc& Data::add_struc(std::string_view name, size_t size)
     save_string_data(data, name);
     const auto usize      = static_cast<uint32_t>(size);
     const auto member_idx = static_cast<uint32_t>(members.size());
-    strucs.emplace_back(symbols::Struc{name_idx, usize, member_idx, 0});
+    strucs.emplace_back(symbols::Struc{name_idx, usize, member_idx, member_idx});
     return strucs.back();
 }
 
