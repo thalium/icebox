@@ -932,13 +932,14 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
     if(!proc_id)
         return FAIL(ext::nullopt, "unable to find the leader of thread 0x%" PRIx64, thread.id);
 
-    const auto mm = proc_mm(*this, *proc_id);
+    const auto kdtb = kernel_dtb();
+    const auto mm   = proc_mm(*this, *proc_id);
     if(!mm)
-        return FAIL(ext::nullopt, "unable to read proc_mm of thread 0x%" PRIx64, thread.id);
+        return proc_t{*proc_id, kdtb, kdtb};
 
     const auto pgd = mm_pgd(*this, *mm);
     if(!pgd)
-        return FAIL(ext::nullopt, "unable to read mm_pgd of thread 0x%" PRIx64, thread.id);
+        return proc_t{*proc_id, kdtb, kdtb};
 
     return proc_t{*proc_id, dtb_t{*pgd}, dtb_t{*pgd}};
 }
