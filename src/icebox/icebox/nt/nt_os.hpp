@@ -31,6 +31,9 @@ enum offset_e
     KPCR_Prcb,
     KPRCB_CurrentThread,
     KPRCB_KernelDirectoryTableBase,
+    KPRCB_RspBase,
+    KPRCB_RspBaseShadow,
+    KPRCB_UserRspShadow,
     KPROCESS_DirectoryTableBase,
     KPROCESS_UserDirectoryTableBase,
     KTHREAD_Process,
@@ -56,7 +59,10 @@ enum offset_e
 enum symbol_e
 {
     KiKernelSysretExit,
+    KiKvaShadow,
     KiSwapThread,
+    KiSystemCall64,
+    KiSystemCall64Shadow,
     MiProcessLoaderEntry,
     ObHeaderCookie,
     ObpInfoMaskToOffset,

@@ -51,6 +51,9 @@ namespace
         {KPCR_Prcb,                                    cat_e::REQUIRED, "nt", "_KPCR",                            "Prcb"},
         {KPRCB_CurrentThread,                          cat_e::REQUIRED, "nt", "_KPRCB",                           "CurrentThread"},
         {KPRCB_KernelDirectoryTableBase,               cat_e::OPTIONAL, "nt", "_KPRCB",                           "KernelDirectoryTableBase"},
+        {KPRCB_RspBase,                                cat_e::REQUIRED, "nt", "_KPRCB",                           "RspBase"},
+        {KPRCB_RspBaseShadow,                          cat_e::OPTIONAL, "nt", "_KPRCB",                           "RspBaseShadow"},
+        {KPRCB_UserRspShadow,                          cat_e::OPTIONAL, "nt", "_KPRCB",                           "UserRspShadow"},
         {KPROCESS_DirectoryTableBase,                  cat_e::REQUIRED, "nt", "_KPROCESS",                        "DirectoryTableBase"},
         {KPROCESS_UserDirectoryTableBase,              cat_e::OPTIONAL, "nt", "_KPROCESS",                        "UserDirectoryTableBase"},
         {KTHREAD_Process,                              cat_e::REQUIRED, "nt", "_KTHREAD",                         "Process"},
@@ -85,7 +88,10 @@ namespace
     const NtSymbol g_symbols[] =
     {
         {KiKernelSysretExit,                    cat_e::OPTIONAL, "nt", "KiKernelSysretExit"},
+        {KiKvaShadow,                           cat_e::OPTIONAL, "nt", "KiKvaShadow"},
         {KiSwapThread,                          cat_e::REQUIRED, "nt", "KiSwapThread"},
+        {KiSystemCall64,                        cat_e::REQUIRED, "nt", "KiSystemCall64"},
+        {KiSystemCall64Shadow,                  cat_e::OPTIONAL, "nt", "KiSystemCall64Shadow"},
         {MiProcessLoaderEntry,                  cat_e::REQUIRED, "nt", "MiProcessLoaderEntry"},
         {ObHeaderCookie,                        cat_e::OPTIONAL, "nt", "ObHeaderCookie"},
         {ObpInfoMaskToOffset,                   cat_e::REQUIRED, "nt", "ObpInfoMaskToOffset"},

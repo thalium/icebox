@@ -1,10 +1,13 @@
 #include "callstacks.hpp"
 
 #define FDP_MODULE "unwind"
+#define PRIVATE_CORE__
 #include "core.hpp"
+#include "core/core_private.hpp"
 #include "endian.hpp"
 #include "interfaces/if_callstacks.hpp"
 #include "log.hpp"
+#include "nt_os.hpp"
 #include "nt_types.hpp"
 #include "utils/path.hpp"
 #include "utils/pe.hpp"
@@ -123,65 +126,6 @@ namespace
     // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_user_offsets), OFFSET_COUNT);
 
-    enum class cat_e
-    {
-        REQUIRED,
-        OPTIONAL,
-    };
-
-    enum kernel_offset_e
-    {
-        KPCR_Prcb,
-        KPRCB_RspBase,
-        KPRCB_RspBaseShadow,
-        KPRCB_UserRspShadow,
-        KERNEL_OFFSET_COUNT,
-    };
-
-    struct NtKernelOffset
-    {
-        cat_e           e_cat;
-        kernel_offset_e e_id;
-        const char*     module;
-        const char*     struc;
-        const char*     member;
-    };
-    // clang-format off
-    const NtKernelOffset g_kernel_offsets[] =
-    {
-        {cat_e::REQUIRED,   KPCR_Prcb,                      "nt", "_KPCR", "Prcb"},
-        {cat_e::REQUIRED,   KPRCB_RspBase,                  "nt", "_KPRCB", "RspBase"},
-        {cat_e::OPTIONAL,   KPRCB_RspBaseShadow,                  "nt", "_KPRCB", "RspBaseShadow"},
-        {cat_e::OPTIONAL,   KPRCB_UserRspShadow,                  "nt", "_KPRCB", "UserRspShadow"},
-    };
-    // clang-format on
-    STATIC_ASSERT_EQ(COUNT_OF(g_kernel_offsets), KERNEL_OFFSET_COUNT);
-
-    enum symbol_e
-    {
-        KiSystemCall64,
-        KiSystemCall64Shadow,
-        KiKvaShadow,
-        SYMBOL_COUNT,
-    };
-
-    struct NtSymbol
-    {
-        cat_e       e_cat;
-        symbol_e    e_id;
-        const char* module;
-        const char* name;
-    };
-    // clang-format off
-    const NtSymbol g_symbols[] =
-    {
-        {cat_e::REQUIRED, KiSystemCall64,                  "nt", "KiSystemCall64"},
-        {cat_e::OPTIONAL, KiSystemCall64Shadow,                  "nt", "KiSystemCall64Shadow"},
-        {cat_e::OPTIONAL, KiKvaShadow,                  "nt", "KiKvaShadow"},
-    };
-    // clang-format on
-    STATIC_ASSERT_EQ(COUNT_OF(g_symbols), SYMBOL_COUNT);
-
     const auto UNWIND_CHAINED_FLAG_MASK = 0b00100000;
 
     using UnwindInfo = std::array<uint8_t, 4>;
@@ -193,16 +137,14 @@ namespace
         uint32_t unwind_info;
     };
 
-    using Modules         = std::map<uint64_t, mod_t>;
-    using Drivers         = std::map<uint64_t, driver_t>;
-    using AllModules      = std::unordered_map<proc_t, Modules>;
-    using ExceptionDirs   = std::unordered_map<std::string, FunctionTable>;
-    using UserOffsets     = std::array<uint64_t, OFFSET_COUNT>;
-    using NtKernelOffsets = std::array<uint64_t, KERNEL_OFFSET_COUNT>;
-    using NtSymbols       = std::array<uint64_t, SYMBOL_COUNT>;
-    using Buffer          = std::vector<uint8_t>;
-    using caller_t        = callstacks::caller_t;
-    using context_t       = callstacks::context_t;
+    using Modules       = std::map<uint64_t, mod_t>;
+    using Drivers       = std::map<uint64_t, driver_t>;
+    using AllModules    = std::unordered_map<proc_t, Modules>;
+    using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
+    using UserOffsets   = std::array<uint64_t, OFFSET_COUNT>;
+    using Buffer        = std::vector<uint8_t>;
+    using caller_t      = callstacks::caller_t;
+    using context_t     = callstacks::context_t;
 
     struct NtCallstacks
         : public callstacks::Module
@@ -215,15 +157,13 @@ namespace
         bool    preload     (proc_t proc, const std::string& name, span_t span) override;
 
         // members
-        core::Core&          core_;
-        Drivers              all_drivers_;
-        AllModules           all_modules_;
-        ExceptionDirs        exception_dirs_;
-        opt<UserOffsets>     user_offsets64_;
-        opt<UserOffsets>     user_offsets32_;
-        opt<NtKernelOffsets> kernel_offsets_;
-        opt<NtSymbols>       symbols_;
-        Buffer               buffer_;
+        core::Core&      core_;
+        Drivers          all_drivers_;
+        AllModules       all_modules_;
+        ExceptionDirs    exception_dirs_;
+        opt<UserOffsets> user_offsets64_;
+        opt<UserOffsets> user_offsets32_;
+        Buffer           buffer_;
     };
 }
 
@@ -637,79 +577,14 @@ namespace
         return span_t{*base, *base - *limit};
     }
 
-    bool read_kernel_offsets(NtCallstacks& c)
-    {
-        if(c.kernel_offsets_)
-            return true;
-
-        bool fail    = false;
-        auto offsets = NtKernelOffsets{};
-        memset(&offsets[0], 0, sizeof offsets);
-        for(size_t i = 0; i < KERNEL_OFFSET_COUNT; ++i)
-        {
-            fail |= g_kernel_offsets[i].e_id != i;
-            const auto opt_member = symbols::read_member(c.core_, symbols::kernel, g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
-            if(!opt_member)
-            {
-                fail |= g_kernel_offsets[i].e_cat == cat_e::REQUIRED;
-                if(g_kernel_offsets[i].e_cat == cat_e::REQUIRED)
-                    LOG(ERROR, "unable to read %s!%s.%s member offset", g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
-                else
-                    LOG(WARNING, "unable to read optional %s!%s.%s member offset", g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
-                continue;
-            }
-            offsets[i] = opt_member->offset;
-        }
-        if(fail)
-            return false;
-
-        c.kernel_offsets_ = offsets;
-        return true;
-    }
-
-    bool read_symbols(NtCallstacks& c)
-    {
-        if(c.symbols_)
-            return true;
-
-        auto& symbols = *c.symbols_;
-        bool fail     = false;
-        memset(&symbols[0], 0, sizeof symbols);
-        for(size_t i = 0; i < SYMBOL_COUNT; ++i)
-        {
-            fail |= g_symbols[i].e_id != i;
-            const auto addr = symbols::address(c.core_, symbols::kernel, g_symbols[i].module, g_symbols[i].name);
-            if(!addr)
-            {
-                fail |= g_symbols[i].e_cat == cat_e::REQUIRED;
-                if(g_symbols[i].e_cat == cat_e::REQUIRED)
-                    LOG(ERROR, "unable to read %s!%s symbol offset", g_symbols[i].module, g_symbols[i].name);
-                else
-                    LOG(WARNING, "unable to read optional %s!%s symbol offset", g_symbols[i].module, g_symbols[i].name);
-                continue;
-            }
-            symbols[i] = *addr;
-        }
-        if(fail)
-            return false;
-
-        return true;
-    }
-
     opt<span_t> get_kernel_stack(NtCallstacks& c, const memory::Io& io, const context_t& ctx)
     {
-        if(!read_kernel_offsets(c))
-            return FAIL(ext::nullopt, "unable to read nt offsets");
-
-        if(!read_symbols(c))
-            return FAIL(ext::nullopt, "unable to read nt symbols");
-
-        const auto is_kernel_ctx   = !(ctx.cs & 0x03);
-        const auto msr_read        = is_kernel_ctx ? msr_e::gs_base : msr_e::kernel_gs_base;
-        const auto kernel_gs_base  = registers::read_msr(c.core_, msr_read);
-        const auto& kernel_offsets = *c.kernel_offsets_;
-        const auto rsp_base        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + kernel_offsets[KPRCB_RspBase];
-        auto base                  = io.read(rsp_base);
+        const auto is_kernel_ctx  = !(ctx.cs & 0x03);
+        const auto msr_read       = is_kernel_ctx ? msr_e::gs_base : msr_e::kernel_gs_base;
+        const auto kernel_gs_base = registers::read_msr(c.core_, msr_read);
+        const auto& koffsets      = c.core_.nt_->offsets_;
+        const auto rsp_base       = kernel_gs_base + koffsets[KPCR_Prcb] + koffsets[KPRCB_RspBase];
+        auto base                 = io.read(rsp_base);
         if(!base)
             return {};
 
@@ -934,18 +809,18 @@ namespace
 
     opt<uint64_t> switch_bp_x64(NtCallstacks& c, proc_t proc, const memory::Io& io)
     {
-        const auto kernel_gs_base  = registers::read_msr(c.core_, msr_e::gs_base);
-        const auto& kernel_offsets = *c.kernel_offsets_;
-        const auto& symbols        = *c.symbols_;
-        const auto shadow          = symbols[KiKvaShadow] ? io.read(symbols[KiKvaShadow]) : 0;
-        const auto rsp_base_off    = shadow ? kernel_offsets[KPRCB_RspBaseShadow] : kernel_offsets[KPRCB_RspBase];
-        const auto rsp_base        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + rsp_base_off;
-        auto base                  = io.read(rsp_base);
+        const auto kernel_gs_base = registers::read_msr(c.core_, msr_e::gs_base);
+        const auto& koffsets      = c.core_.nt_->offsets_;
+        const auto& symbols       = c.core_.nt_->symbols_;
+        const auto shadow         = symbols[KiKvaShadow] ? io.read(*symbols[KiKvaShadow]) : 0;
+        const auto rsp_base_off   = shadow ? koffsets[KPRCB_RspBaseShadow] : koffsets[KPRCB_RspBase];
+        const auto rsp_base       = kernel_gs_base + koffsets[KPCR_Prcb] + rsp_base_off;
+        auto base                 = io.read(rsp_base);
         if(!base)
             return {};
 
         auto fake_ctx    = context_t{};
-        fake_ctx.ip      = shadow ? symbols[KiSystemCall64Shadow] : symbols[KiSystemCall64];
+        fake_ctx.ip      = shadow ? *symbols[KiSystemCall64Shadow] : *symbols[KiSystemCall64];
         const auto tuple = get_name_span(c, proc, fake_ctx);
         if(!tuple)
             return {};
@@ -969,13 +844,13 @@ namespace
 
     opt<uint64_t> switch_sp_x64(NtCallstacks& c, const memory::Io& io)
     {
-        const auto& symbols = *c.symbols_;
-        const auto shadow   = symbols[KiKvaShadow] ? io.read(symbols[KiKvaShadow]) : 0;
+        const auto& symbols = c.core_.nt_->symbols_;
+        const auto shadow   = symbols[KiKvaShadow] ? io.read(*symbols[KiKvaShadow]) : 0;
         if(shadow)
         {
-            const auto kernel_gs_base  = registers::read_msr(c.core_, msr_e::gs_base);
-            const auto& kernel_offsets = *c.kernel_offsets_;
-            const auto user_rsp        = kernel_gs_base + kernel_offsets[KPCR_Prcb] + kernel_offsets[KPRCB_UserRspShadow];
+            const auto kernel_gs_base = registers::read_msr(c.core_, msr_e::gs_base);
+            const auto& koffsets      = c.core_.nt_->offsets_;
+            const auto user_rsp       = kernel_gs_base + koffsets[KPCR_Prcb] + koffsets[KPRCB_UserRspShadow];
             return io.read(user_rsp);
         }
 
