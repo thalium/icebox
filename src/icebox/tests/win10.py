@@ -84,12 +84,10 @@ class Windows(unittest.TestCase):
                 global num_delete
                 num_delete += 1
 
-            bpa = self.vm.processes.break_on_create(on_create)
-            bpb = self.vm.processes.break_on_delete(on_delete)
-            while num_create < 2 or num_delete < 2:
-                self.vm.exec()
-            del bpa
-            del bpb
+            with self.vm.processes.break_on_create(on_create):
+                with self.vm.processes.break_on_delete(on_delete):
+                    while num_create < 2 or num_delete < 2:
+                        self.vm.exec()
 
     def test_threads(self):
         p = self.vm.processes.current()
@@ -219,8 +217,8 @@ class Windows(unittest.TestCase):
 
         if False:  # too slow
             p.symbols.load_modules()
-            bp = p.symbols.autoload_modules()
-            self.assertIsNotNone(bp)
+            with p.symbols.autoload_modules() as bp:
+                self.assertIsNotNone(bp)
 
     def test_breakpoints(self):
         p = self.vm.processes.wait("dwm.exe", icebox.kFlags_x64)
@@ -240,40 +238,31 @@ class Windows(unittest.TestCase):
             while hit == 0:
                 self.vm.exec()
 
-        bp = self.vm.break_on("break_on " + name, addr, on_break)
-        run_until_hit()
+        with self.vm.break_on("break_on " + name, addr, on_break):
+            run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
-        del bp
 
-        bp = self.vm.break_on_process(
-            "break_on_process " + name, p, addr, on_break)
-        run_until_hit()
+        with self.vm.break_on_process("break_on_process " + name, p, addr, on_break):
+            run_until_hit()
         dtb = self.vm.registers.cr3
         t = self.vm.threads.current()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.processes.current(), p)
-        del bp
 
-        bp = self.vm.break_on_thread(
-            "break_on_thread " + name, t, addr, on_break)
-        run_until_hit()
+        with self.vm.break_on_thread("break_on_thread " + name, t, addr, on_break):
+            run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.threads.current(), t)
-        del bp
 
         phy = p.memory.physical_address(addr)
-        bp = self.vm.break_on_physical(
-            "break_on_physical " + name, phy, on_break)
-        run_until_hit()
+        with self.vm.break_on_physical("break_on_physical " + name, phy, on_break):
+            run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
-        del bp
 
-        bp = self.vm.break_on_physical_process(
-            "break_on_physical_process " + name, dtb, phy, on_break)
-        run_until_hit()
+        with self.vm.break_on_physical_process("break_on_physical_process " + name, dtb, phy, on_break):
+            run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.processes.current(), p)
-        del bp
 
     def test_drivers(self):
         drivers = []
@@ -290,9 +279,8 @@ class Windows(unittest.TestCase):
         name = "nt!SwapContext"
         p = self.vm.processes.current()
         addr = p.symbols.address(name)
-        bp = self.vm.break_on(name, addr, lambda: None)
-        self.vm.exec()
-        del bp
+        with self.vm.break_on(name, addr, lambda: None):
+            self.vm.exec()
         stack_0 = self.vm.functions.read_stack(0)
         self.assertIsNotNone(stack_0)
         arg_0 = self.vm.functions.read_arg(0)
@@ -312,9 +300,8 @@ class Windows(unittest.TestCase):
         p.callstacks.load_module(mod)
         name = "nt!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
-        bp = self.vm.break_on_process(name, p, addr, lambda: None)
-        self.vm.exec()
-        del bp
+        with self.vm.break_on_process(name, p, addr, lambda: None):
+            self.vm.exec()
 
         p = self.vm.processes.current()
         addrs = []

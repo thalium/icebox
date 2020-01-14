@@ -40,47 +40,13 @@ PyObject* py::state::wait(core::Core& core, PyObject* /*args*/)
 
 namespace
 {
-    template <typename T>
-    PyObject* wrap(const T& value)
+    PyObject* from_breakpoint(core::Core& core, const state::Breakpoint& bp)
     {
-        struct Data
-        {
-            Data(T value)
-                : value(std::move(value))
-            {
-            }
-            T value;
-        };
-        auto ptr = new Data(value);
-        if(!ptr)
-            return py::fail_with(nullptr, PyExc_RuntimeError, "unable to allocate data");
+        const auto bpid = state::save_breakpoint(core, bp);
+        if(!bpid.id)
+            return py::fail_with(nullptr, PyExc_RuntimeError, "cannot save breakpoint");
 
-        const auto destroy = [](PyObject* py_obj)
-        {
-            auto vptr = PyCapsule_GetPointer(py_obj, nullptr);
-            if(!vptr)
-                return;
-
-            auto ptr = static_cast<Data*>(vptr);
-            delete ptr;
-        };
-        const auto py_obj = PyCapsule_New(ptr, nullptr, destroy);
-        if(py_obj)
-            return py_obj;
-
-        delete ptr;
-        return nullptr;
-    }
-
-    template <typename T>
-    opt<T> unwrap(PyObject* py_obj)
-    {
-        auto vptr = PyCapsule_GetPointer(py_obj, nullptr);
-        if(!vptr)
-            return py::fail_with(ext::nullopt, PyExc_RuntimeError, "unable to unwrap capsule");
-
-        const auto& ret = *reinterpret_cast<const T*>(vptr);
-        return ret;
+        return py::to_bytes(bpid);
     }
 }
 
@@ -108,10 +74,7 @@ PyObject* py::state::break_on(core::Core& core, PyObject* args)
         if(ret)
             PY_DEFER_DECREF(ret);
     });
-    if(!bp)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "cannot set breakpoint");
-
-    return wrap(bp);
+    return from_breakpoint(core, bp);
 }
 
 PyObject* py::state::break_on_process(core::Core& core, PyObject* args)
@@ -143,10 +106,7 @@ PyObject* py::state::break_on_process(core::Core& core, PyObject* args)
         if(ret)
             PY_DEFER_DECREF(ret);
     });
-    if(!bp)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "cannot set breakpoint");
-
-    return wrap(bp);
+    return from_breakpoint(core, bp);
 }
 
 PyObject* py::state::break_on_thread(core::Core& core, PyObject* args)
@@ -178,10 +138,7 @@ PyObject* py::state::break_on_thread(core::Core& core, PyObject* args)
         if(ret)
             PY_DEFER_DECREF(ret);
     });
-    if(!bp)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "cannot set breakpoint");
-
-    return wrap(bp);
+    return from_breakpoint(core, bp);
 }
 
 PyObject* py::state::break_on_physical(core::Core& core, PyObject* args)
@@ -208,10 +165,7 @@ PyObject* py::state::break_on_physical(core::Core& core, PyObject* args)
         if(ret)
             PY_DEFER_DECREF(ret);
     });
-    if(!bp)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "cannot set breakpoint");
-
-    return wrap(bp);
+    return from_breakpoint(core, bp);
 }
 
 PyObject* py::state::break_on_physical_process(core::Core& core, PyObject* args)
@@ -239,8 +193,20 @@ PyObject* py::state::break_on_physical_process(core::Core& core, PyObject* args)
         if(ret)
             PY_DEFER_DECREF(ret);
     });
-    if(!bp)
-        return py::fail_with(nullptr, PyExc_RuntimeError, "cannot set breakpoint");
+    return from_breakpoint(core, bp);
+}
 
-    return wrap(bp);
+PyObject* py::state::drop_breakpoint(core::Core& core, PyObject* args)
+{
+    auto py_bpid  = static_cast<PyObject*>(nullptr);
+    const auto ok = PyArg_ParseTuple(args, "O", &py_bpid);
+    if(!ok)
+        return nullptr;
+
+    const auto bpid = from_bytes<bpid_t>(py_bpid);
+    if(!bpid)
+        return nullptr;
+
+    ::state::drop_breakpoint(core, *bpid);
+    Py_RETURN_NONE;
 }

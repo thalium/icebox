@@ -23,6 +23,7 @@ namespace py
         PyObject*   break_on_thread             (core::Core& core, PyObject* args);
         PyObject*   break_on_physical           (core::Core& core, PyObject* args);
         PyObject*   break_on_physical_process   (core::Core& core, PyObject* args);
+        PyObject*   drop_breakpoint             (core::Core& core, PyObject* args);
     } // namespace state
 
     namespace registers

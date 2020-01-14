@@ -46,6 +46,19 @@ def dump_bytes(buf):
         return dump_bytes(buf[:8]) + " " + dump_bytes(buf[8:])
     return binascii.hexlify(buf).decode()
 
+class BreakpointId:
+    def __init__(self, bpid, callback):
+        self.bpid = bpid
+        self.callback = callback
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        _icebox.drop_breakpoint(self.bpid)
+        del self.bpid
+        del self.callback
+
 
 class Symbols:
     def __init__(self, py_proc):
@@ -91,7 +104,8 @@ class Symbols:
         return _icebox.symbols_load_modules(self.proc)
 
     def autoload_modules(self):
-        return _icebox.symbols_autoload_modules(self.proc)
+        bpid = _icebox.symbols_autoload_modules(self.proc)
+        return BreakpointId(bpid, None)
 
     def dump_type(self, name, ptr):
         struc = self.struc(name)
@@ -183,7 +197,7 @@ class Modules:
     def break_on_create(self, flags, callback):
         def fmod(mod): return callback(Module(self.proc, mod))
         bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
-        return Callback(bpid, fmod)
+        return BreakpointId(bpid, fmod)
 
 
 class Callstacks:
@@ -201,7 +215,8 @@ class Callstacks:
         return _icebox.callstacks_load_driver(self.proc, drv.drv)
 
     def autoload_modules(self):
-        return _icebox.callstacks_autoload_modules(self.proc)
+        bpid = _icebox.callstacks_autoload_modules(self.proc)
+        return BreakpointId(bpid, None)
 
 
 class VmArea:
@@ -264,12 +279,6 @@ class Process:
             yield Thread(x)
 
 
-class Callback:
-    def __init__(self, bpid, callback):
-        self.bpid = bpid
-        self.callback = callback
-
-
 class Processes:
     def __init__(self):
         pass
@@ -309,12 +318,12 @@ class Processes:
     def break_on_create(self, callback):
         def fproc(proc): return callback(Process(proc))
         bpid = _icebox.process_listen_create(fproc)
-        return Callback(bpid, fproc)
+        return BreakpointId(bpid, fproc)
 
     def break_on_delete(self, callback):
         def fproc(proc): return callback(Process(proc))
         bpid = _icebox.process_listen_delete(fproc)
-        return Callback(bpid, fproc)
+        return BreakpointId(bpid, fproc)
 
 
 class Thread:
@@ -347,12 +356,12 @@ class Threads:
     def break_on_create(self, callback):
         def fthread(thread): return callback(Thread(thread))
         bpid = _icebox.thread_listen_create(fthread)
-        return Callback(bpid, fthread)
+        return BreakpointId(bpid, fthread)
 
     def break_on_delete(self, callback):
         def fthread(thread): return callback(Thread(thread))
         bpid = _icebox.thread_listen_delete(fthread)
-        return Callback(bpid, fthread)
+        return BreakpointId(bpid, fthread)
 
 
 class Physical:
@@ -394,6 +403,7 @@ class Functions:
         return _icebox.functions_write_arg(idx, arg)
 
     def break_on_return(self, name, callback):
+        # TODO do we need to keep ref on callback ?
         return _icebox.functions_break_on_return(name, callback)
 
 
@@ -438,7 +448,7 @@ class Drivers:
     def break_on(self, callback):
         def fdrv(drv, load): return callback(Driver(drv), load)
         bpid = _icebox.drivers_listen(fdrv)
-        return Callback(bpid, fdrv)
+        return BreakpointId(bpid, fdrv)
 
 
 class Vm:
@@ -475,20 +485,20 @@ class Vm:
 
     def break_on(self, name, where, callback):
         bp = _icebox.break_on(name, where, callback)
-        return Callback(bp, callback)
+        return BreakpointId(bp, callback)
 
     def break_on_process(self, name, proc, where, callback):
         bp = _icebox.break_on_process(name, proc.proc, where, callback)
-        return Callback(bp, callback)
+        return BreakpointId(bp, callback)
 
     def break_on_thread(self, name, thread, where, callback):
         bp = _icebox.break_on_thread(name, thread.thread, where, callback)
-        return Callback(bp, callback)
+        return BreakpointId(bp, callback)
 
     def break_on_physical(self, name, where, callback):
         bp = _icebox.break_on_physical(name, where, callback)
-        return Callback(bp, callback)
+        return BreakpointId(bp, callback)
 
     def break_on_physical_process(self, name, dtb, where, callback):
         bp = _icebox.break_on_physical_process(name, dtb, where, callback)
-        return Callback(bp, callback)
+        return BreakpointId(bp, callback)

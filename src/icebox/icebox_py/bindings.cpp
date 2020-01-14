@@ -111,6 +111,7 @@ namespace
         {"break_on_thread", &core_exec<&py::state::break_on_thread>, METH_VARARGS, "break thread on address"},
         {"break_on_physical", &core_exec<&py::state::break_on_physical>, METH_VARARGS, "break on physical address"},
         {"break_on_physical_process", &core_exec<&py::state::break_on_physical_process>, METH_VARARGS, "break process on physical address"},
+        {"drop_breakpoint", &core_exec<&py::state::drop_breakpoint>, METH_VARARGS, "drop breakpoint"},
         // registers
         {"msr_list", &core_exec<&py::registers::msr_list>, METH_NOARGS, "list available msr registers"},
         {"msr_read", &core_exec<&py::registers::msr_read>, METH_VARARGS, "read msr register"},
