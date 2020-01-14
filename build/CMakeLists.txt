@@ -116,10 +116,13 @@ target_include_directories(libelf PUBLIC
 )
 
 # libdwarf
-set(libdwarf_dir "${root_dir}/third_party/libdwarf-20190110/libdwarf")
+set(libdwarf_dir "${root_dir}/third_party/libdwarf-20191104/libdwarf")
 set(zlib_dir "${root_dir}/third_party/virtualbox/src/libs/zlib-1.2.8")
 get_files(libdwarf_files "${libdwarf_dir}" ${zlib_dir})
-filter_out(libdwarf_files "dwarf_test_errmsg_list\.c")
+filter_out(libdwarf_files
+    "_test[.]c"
+    "test_.+[.]c"
+)
 make_target(libdwarf third_party ${libdwarf_files} OPTIONS external)
 target_link_libraries(libdwarf PRIVATE libelf)
 target_compile_definitions(libdwarf PRIVATE

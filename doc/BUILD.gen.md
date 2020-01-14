@@ -28,7 +28,7 @@ cmd /C ""c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd" /x64 /Rele
 cd third_party/virtualbox/include
 mklink /J FDP ..\..\..\src\FDP
 cd ..
-cscript configure.vbs --with-MinGW-w64=c:/mingw64 --with-libSDL=c:/SDL-1.2.15 --with-openssl=%OPENSSL_DIR% --with-openssl32=c:/OpenSSL-Win32 --with-qt5=%QT_DIR%/qtbase --with-python=c:/Python37-32 --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
+cscript configure.vbs --with-MinGW-w64=c:/mingw64 --with-libSDL=c:/SDL-1.2.15 --with-openssl=%OPENSSL_DIR% --with-openssl32=c:/OpenSSL-Win32 --with-qt5=%QT_DIR%/qtbase --with-python=c:/Python38 --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
 call env.bat
 kmk VBoxVMM VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
 ```
@@ -128,7 +128,7 @@ cmd /C ""c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd" /x64 /Rele
 cd third_party/virtualbox/include
 mklink /J FDP ..\..\..\src\FDP
 cd ..
-cscript configure.vbs --with-MinGW-w64=c:/mingw64 --with-libSDL=c:/SDL-1.2.15 --with-openssl=%OPENSSL_DIR% --with-openssl32=c:/OpenSSL-Win32 --with-qt5=%QT_DIR%/qtbase --with-python=c:/Python37-32 --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
+cscript configure.vbs --with-MinGW-w64=c:/mingw64 --with-libSDL=c:/SDL-1.2.15 --with-openssl=%OPENSSL_DIR% --with-openssl32=c:/OpenSSL-Win32 --with-qt5=%QT_DIR%/qtbase --with-python=c:/Python38 --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
 call env.bat
 kmk VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
 cd out/win.amd64/release/bin
