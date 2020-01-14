@@ -648,8 +648,8 @@ namespace
         for(size_t i = 0; i < KERNEL_OFFSET_COUNT; ++i)
         {
             fail |= g_kernel_offsets[i].e_id != i;
-            const auto offset = symbols::member_offset(c.core_, symbols::kernel, g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
-            if(!offset)
+            const auto opt_member = symbols::read_member(c.core_, symbols::kernel, g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
+            if(!opt_member)
             {
                 fail |= g_kernel_offsets[i].e_cat == cat_e::REQUIRED;
                 if(g_kernel_offsets[i].e_cat == cat_e::REQUIRED)
@@ -658,7 +658,7 @@ namespace
                     LOG(WARNING, "unable to read optional %s!%s.%s member offset", g_kernel_offsets[i].module, g_kernel_offsets[i].struc, g_kernel_offsets[i].member);
                 continue;
             }
-            offsets[i] = *offset;
+            offsets[i] = opt_member->offset;
         }
         if(fail)
             return false;
@@ -905,12 +905,12 @@ namespace
 
         stack = *opt_stack;
         // wow64 context is stored by wow64cpu.dll
-        const auto teb          = registers::read_msr(c.core_, msr_e::gs_base); // always in kernel ctx here
-        const auto TEB_TlsSlots = symbols::member_offset(c.core_, symbols::kernel, "nt", "_TEB", "TlsSlots");
-        if(!TEB_TlsSlots)
+        const auto teb        = registers::read_msr(c.core_, msr_e::gs_base); // always in kernel ctx here
+        const auto opt_member = symbols::read_member(c.core_, symbols::kernel, "nt", "_TEB", "TlsSlots");
+        if(!opt_member)
             return false;
 
-        const auto TlsSlot       = teb + *TEB_TlsSlots + 8;
+        const auto TlsSlot       = teb + opt_member->offset + 8;
         const auto WOW64_CONTEXT = io.read(TlsSlot);
         if(!WOW64_CONTEXT)
             return false;
