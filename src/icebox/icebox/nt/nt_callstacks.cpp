@@ -161,8 +161,8 @@ namespace
         Drivers          all_drivers_;
         AllModules       all_modules_;
         ExceptionDirs    exception_dirs_;
-        opt<UserOffsets> user_offsets64_;
-        opt<UserOffsets> user_offsets32_;
+        opt<UserOffsets> offsets_x64_;
+        opt<UserOffsets> offsets_x86_;
         Buffer           buffer_;
     };
 }
@@ -373,10 +373,12 @@ namespace
                 case UWOP_SAVE_XMM128_FAR:
                     idx += 4;
                     break;
+
                 case UWOP_PUSH_MACHFRAME:
+                    // should never be 2 UWOP_PUSH_MACHFRAME in a same prolog
+                    // rip is pushed in 6th position (cf microsoft documentation)
                     function_entry.stack_frame_size += unwind_code_info ? 0x30 : 0x28;
-                    function_entry.machframe_rip_off = 0x28; // should never be 2 UWOP_PUSH_MACHFRAME in a same prolog
-                                                             // rip is pushed in 6th position (cf microsoft documentation)
+                    function_entry.machframe_rip_off = 0x28;
                     break;
 
                 default:
@@ -524,7 +526,7 @@ namespace
 
     bool read_user_offsets(NtCallstacks& c, flags_t flags)
     {
-        auto& opt_offsets = flags.is_x86 ? c.user_offsets32_ : c.user_offsets64_;
+        auto& opt_offsets = flags.is_x86 ? c.offsets_x86_ : c.offsets_x64_;
         if(opt_offsets)
             return true;
 
@@ -551,7 +553,7 @@ namespace
 
     uint64_t user_offset(const NtCallstacks& c, flags_t flags, offsets_e off)
     {
-        const auto& offsets = flags.is_x86 ? *c.user_offsets32_ : *c.user_offsets64_;
+        const auto& offsets = flags.is_x86 ? *c.offsets_x86_ : *c.offsets_x64_;
         return offsets[off];
     }
 
