@@ -52,7 +52,7 @@ opt<phy_t> memory::virtual_to_physical_with_dtb(core::Core& core, dtb_t dtb, uin
 namespace
 {
     template <typename T>
-    bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
+    bool read_pages(const char* /*where*/, uint8_t* dst, uint64_t src, size_t size, const T& operand)
     {
         auto buffer = std::array<uint8_t, PAGE_SIZE>{};
         auto fill   = size_t{};
@@ -62,7 +62,7 @@ namespace
         {
             const auto ok = operand(&buffer[0], ptr, sizeof buffer);
             if(!ok)
-                return FAIL(false, "unable to read %s mem 0x%" PRIx64 "-0x%" PRIx64 " (%zu 0x%zx bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+                return false;
 
             const auto chunk = std::min(size - fill, sizeof buffer - skip);
             memcpy(&dst[fill], &buffer[skip], chunk);
