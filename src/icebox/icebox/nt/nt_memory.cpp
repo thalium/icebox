@@ -30,7 +30,7 @@ namespace
     }
 
     constexpr auto page_fault_required = ntphy_t{0, false, false};
-    constexpr auto zero_page           = ntphy_t{0, false, true};
+    // constexpr auto zero_page        = ntphy_t{0, false, true};
 
     opt<MMPTE> read_pml4e(nt::Os& os, const virt_t& virt, dtb_t dtb)
     {

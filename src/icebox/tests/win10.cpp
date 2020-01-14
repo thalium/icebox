@@ -629,7 +629,7 @@ TEST_F(win10, listen_module_wow64)
     const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
-    const auto bp_x64 = modules::listen_create(core, *proc, flags::x64, [&](mod_t mod)
+    modules::listen_create(core, *proc, flags::x64, [&](mod_t mod)
     {
         const auto name = modules::name(core, *proc, mod);
         if(!name)
@@ -638,7 +638,7 @@ TEST_F(win10, listen_module_wow64)
         LOG(INFO, "+ x64 module %s", name->data());
     });
 
-    const auto bp_x86 = modules::listen_create(core, *proc, flags::x86, [&](mod_t mod)
+    modules::listen_create(core, *proc, flags::x86, [&](mod_t mod)
     {
         const auto name = modules::name(core, *proc, mod);
         if(!name)
