@@ -11,20 +11,25 @@ extern "C"
 #include <FDP.h>
 }
 
-namespace
+struct fdp::shm
 {
-    fdp::shm* cast(FDP_SHM* shm)
+    shm(FDP_SHM* ptr)
+        : ptr(ptr)
+        , is_running(true)
     {
-        return reinterpret_cast<fdp::shm*>(shm);
     }
 
-    FDP_SHM* cast(fdp::shm* shm)
+    ~shm()
     {
-        return reinterpret_cast<FDP_SHM*>(shm);
+        FDP_Resume(ptr);
+        FDP_ExitSHM(ptr);
     }
-}
 
-fdp::shm* fdp::setup(const std::string& name)
+    FDP_SHM* ptr;
+    bool     is_running;
+};
+
+std::shared_ptr<fdp::shm> fdp::setup(const std::string& name)
 {
     const auto ptr = FDP_OpenSHM(name.data());
     if(!ptr)
@@ -34,21 +39,29 @@ fdp::shm* fdp::setup(const std::string& name)
     if(!ok)
         return nullptr;
 
-    return cast(ptr);
+    return std::make_shared<fdp::shm>(ptr);
 }
 
-void fdp::exit(core::Core& core)
+namespace
 {
-    auto ptr = cast(core.shm_);
-    FDP_ExitSHM(ptr);
-    core.shm_ = nullptr;
+    void check_vm(core::Core& core, const char* where)
+    {
+        if(!core.shm_)
+            return;
+
+        if(!core.shm_->is_running)
+            return;
+
+        LOG(ERROR, "%s called on is_running vm", where);
+    }
 }
 
 void fdp::reset(core::Core& core)
 {
-    auto ptr = cast(core.shm_);
-    FDP_Pause(ptr);
+    fdp::pause(core);
 
+    auto ptr = core.shm_->ptr;
+    check_vm(core, "fdp::reset");
     for(int bpid = 0; bpid < FDP_MAX_BREAKPOINT; bpid++)
         FDP_UnsetBreakpoint(ptr, bpid);
 
@@ -62,8 +75,9 @@ void fdp::reset(core::Core& core)
 
 opt<FDP_State> fdp::state(core::Core& core)
 {
-    FDP_State value = 0;
-    const auto ok   = FDP_GetState(cast(core.shm_), &value);
+    // accept is_running FDP_GetState calls
+    auto value    = FDP_State{};
+    const auto ok = FDP_GetState(core.shm_->ptr, &value);
     if(!ok)
         return {};
 
@@ -72,46 +86,64 @@ opt<FDP_State> fdp::state(core::Core& core)
 
 bool fdp::state_changed(core::Core& core)
 {
-    return FDP_GetStateChanged(cast(core.shm_));
+    const auto ret = FDP_GetStateChanged(core.shm_->ptr);
+    if(!ret)
+        return false;
+
+    const auto opt_state = fdp::state(core);
+    if(!opt_state)
+        return false;
+
+    core.shm_->is_running = !(*opt_state & FDP_STATE_PAUSED);
+    return true;
 }
 
 bool fdp::pause(core::Core& core)
 {
-    return FDP_Pause(cast(core.shm_));
+    const auto ret        = FDP_Pause(core.shm_->ptr);
+    core.shm_->is_running = !ret;
+    return ret;
 }
 
 bool fdp::resume(core::Core& core)
 {
-    return FDP_Resume(cast(core.shm_));
+    const auto ret        = FDP_Resume(core.shm_->ptr);
+    core.shm_->is_running = ret;
+    return ret;
 }
 
 bool fdp::step_once(core::Core& core)
 {
-    return FDP_SingleStep(cast(core.shm_), 0);
+    check_vm(core, "fdp::step_once");
+    return FDP_SingleStep(core.shm_->ptr, 0);
 }
 
 bool fdp::unset_breakpoint(core::Core& core, int bpid)
 {
-    return FDP_UnsetBreakpoint(cast(core.shm_), bpid);
+    check_vm(core, "fdp::unset_breakpoint");
+    return FDP_UnsetBreakpoint(core.shm_->ptr, bpid);
 }
 
 int fdp::set_breakpoint(core::Core& core, FDP_BreakpointType type, int bpid, FDP_Access access, FDP_AddressType ptrtype, uint64_t ptr, uint64_t len, uint64_t cr3)
 {
-    return FDP_SetBreakpoint(cast(core.shm_), 0, type, bpid, access, ptrtype, ptr, len, cr3);
+    check_vm(core, "fdp::set_breakpoint");
+    return FDP_SetBreakpoint(core.shm_->ptr, 0, type, bpid, access, ptrtype, ptr, len, cr3);
 }
 
 bool fdp::read_physical(core::Core& core, void* vdst, phy_t src, size_t size)
 {
+    check_vm(core, "fdp::read_physical");
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    return FDP_ReadPhysicalMemory(cast(core.shm_), dst, usize, src.val);
+    return FDP_ReadPhysicalMemory(core.shm_->ptr, dst, usize, src.val);
 }
 
 bool fdp::write_physical(core::Core& core, phy_t dst, const void* vsrc, size_t size)
 {
+    check_vm(core, "fdp::write_physical");
     const auto src   = reinterpret_cast<uint8_t*>(const_cast<void*>(vsrc));
     const auto usize = static_cast<uint32_t>(size);
-    return FDP_WritePhysicalMemory(cast(core.shm_), src, usize, dst.val);
+    return FDP_WritePhysicalMemory(core.shm_->ptr, src, usize, dst.val);
 }
 
 namespace
@@ -136,7 +168,8 @@ bool fdp::read_virtual(core::Core& core, void* vdst, uint64_t src, dtb_t dtb, si
     const auto usize = static_cast<uint32_t>(size);
     return switch_dtb(core, dtb, [&]
     {
-        return FDP_ReadVirtualMemory(cast(core.shm_), 0, dst, usize, src);
+        check_vm(core, "fdp::read_virtual");
+        return FDP_ReadVirtualMemory(core.shm_->ptr, 0, dst, usize, src);
     });
 }
 
@@ -146,7 +179,8 @@ bool fdp::write_virtual(core::Core& core, uint64_t dst, dtb_t dtb, const void* v
     const auto usize = static_cast<uint32_t>(size);
     return switch_dtb(core, dtb, [&]
     {
-        return FDP_WriteVirtualMemory(cast(core.shm_), 0, src, usize, dst);
+        check_vm(core, "fdp::write_virtual");
+        return FDP_WriteVirtualMemory(core.shm_->ptr, 0, src, usize, dst);
     });
 }
 
@@ -155,7 +189,8 @@ opt<phy_t> fdp::virtual_to_physical(core::Core& core, dtb_t dtb, uint64_t ptr)
     uint64_t phy  = 0;
     const auto ok = switch_dtb(core, dtb, [&]
     {
-        return FDP_VirtualToPhysical(cast(core.shm_), 0, ptr, &phy);
+        check_vm(core, "fdp::virtual_to_physical");
+        return FDP_VirtualToPhysical(core.shm_->ptr, 0, ptr, &phy);
     });
     if(!ok)
         return {};
@@ -165,7 +200,8 @@ opt<phy_t> fdp::virtual_to_physical(core::Core& core, dtb_t dtb, uint64_t ptr)
 
 bool fdp::inject_interrupt(core::Core& core, uint32_t code, uint32_t error, uint64_t cr2)
 {
-    return FDP_InjectInterrupt(cast(core.shm_), 0, code, error, cr2);
+    check_vm(core, "fdp::inject_interrupt");
+    return FDP_InjectInterrupt(core.shm_->ptr, 0, code, error, cr2);
 }
 
 namespace
@@ -201,8 +237,9 @@ namespace
 
 opt<uint64_t> fdp::read_register(core::Core& core, reg_e reg)
 {
-    uint64_t value = 0;
-    const auto ok  = FDP_ReadRegister(cast(core.shm_), 0, cast(reg), &value);
+    check_vm(core, "fdp::read_register");
+    auto value    = uint64_t{};
+    const auto ok = FDP_ReadRegister(core.shm_->ptr, 0, cast(reg), &value);
     if(!ok)
         return {};
 
@@ -226,8 +263,9 @@ namespace
 
 opt<uint64_t> fdp::read_msr_register(core::Core& core, msr_e msr)
 {
-    uint64_t value = 0;
-    const auto ok  = FDP_ReadMsr(cast(core.shm_), 0, cast(msr), &value);
+    check_vm(core, "fdp::read_msr_register");
+    auto value    = uint64_t{};
+    const auto ok = FDP_ReadMsr(core.shm_->ptr, 0, cast(msr), &value);
     if(!ok)
         return {};
 
@@ -236,20 +274,24 @@ opt<uint64_t> fdp::read_msr_register(core::Core& core, msr_e msr)
 
 bool fdp::write_register(core::Core& core, reg_e reg, uint64_t value)
 {
-    return FDP_WriteRegister(cast(core.shm_), 0, cast(reg), value);
+    check_vm(core, "fdp::write_register");
+    return FDP_WriteRegister(core.shm_->ptr, 0, cast(reg), value);
 }
 
 bool fdp::write_msr_register(core::Core& core, msr_e msr, uint64_t value)
 {
-    return FDP_WriteMsr(cast(core.shm_), 0, cast(msr), value);
+    check_vm(core, "fdp::write_msr_register");
+    return FDP_WriteMsr(core.shm_->ptr, 0, cast(msr), value);
 }
 
 bool fdp::save(core::Core& core)
 {
-    return FDP_Save(cast(core.shm_));
+    check_vm(core, "fdp::save");
+    return FDP_Save(core.shm_->ptr);
 }
 
 bool fdp::restore(core::Core& core)
 {
-    return FDP_Restore(cast(core.shm_));
+    check_vm(core, "fdp::restore");
+    return FDP_Restore(core.shm_->ptr);
 }

@@ -7,7 +7,7 @@
 namespace fdp
 {
     struct shm;
-    shm* setup(const std::string& name);
+    std::shared_ptr<shm> setup(const std::string& name);
 } // namespace fdp
 
 namespace memory
@@ -35,6 +35,7 @@ namespace nt { struct Os; }
 
 namespace core
 {
+    using Shm        = std::shared_ptr<fdp::shm>;
     using Memory     = std::shared_ptr<memory::Memory>;
     using State      = std::shared_ptr<state::State>;
     using Functions  = std::shared_ptr<functions::Data>;
@@ -49,7 +50,7 @@ namespace core
         ~Core();
 
         const std::string name_;
-        fdp::shm*         shm_;
+        Shm               shm_;
         Memory            mem_;
         State             state_;
         Functions         func_;

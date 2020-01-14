@@ -14,14 +14,17 @@
 
 core::Core::Core(std::string name)
     : name_(std::move(name))
-    , shm_(nullptr)
     , os_(nullptr)
 {
 }
 
 core::Core::~Core()
 {
-    fdp::exit(*this);
+    if(!shm_)
+        return;
+
+    // pause before calling every destructors
+    fdp::pause(*this);
 }
 
 namespace
