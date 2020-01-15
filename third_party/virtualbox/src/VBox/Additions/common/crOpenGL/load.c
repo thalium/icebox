@@ -10,22 +10,24 @@
 #include "cr_mem.h"
 #include "cr_string.h"
 #include "cr_net.h"
-#include "cr_environment.h"
 #include "cr_process.h"
-#include "cr_rand.h"
 #include "cr_netserver.h"
 #include "stub.h"
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <stdio.h> /*swprintf*/
 #include <iprt/initterm.h>
 #include <iprt/thread.h>
 #include <iprt/err.h>
 #include <iprt/asm.h>
+#include <iprt/env.h>
 #ifndef WINDOWS
 # include <sys/types.h>
 # include <unistd.h>
 #endif
+
+#include "VBox/VBoxGuestLib.h"
 
 #ifdef VBOX_WITH_WDDM
 #include <d3d9types.h>
@@ -62,11 +64,8 @@ static CRmutex stub_init_mutex;
 /* NOTE: 'SPUDispatchTable glim' is declared in NULLfuncs.py now */
 /* NOTE: 'SPUDispatchTable stubThreadsafeDispatch' is declared in tsfuncs.c */
 Stub stub;
-#ifdef CHROMIUM_THREADSAFE
 static bool g_stubIsCurrentContextTSDInited;
 CRtsd g_stubCurrentContextTSD;
-#endif
-
 
 #ifndef VBOX_NO_NATIVEGL
 static void stubInitNativeDispatch( void )
@@ -391,17 +390,13 @@ static void stubSPUTearDown(void)
 
 static void stubSPUSafeTearDown(void)
 {
-#ifdef CHROMIUM_THREADSAFE
     CRmutex *mutex;
-#endif
 
     if (!stub_initialized) return;
     stub_initialized = 0;
 
-#ifdef CHROMIUM_THREADSAFE
     mutex = &stub.mutex;
     crLockMutex(mutex);
-#endif
     crDebug("stubSPUSafeTearDown");
 
 #ifdef WINDOWS
@@ -473,10 +468,17 @@ static void stubSPUSafeTearDown(void)
     {
         ASMAtomicWriteBool(&stub.bShutdownSyncThread, true);
         {
-            int rc = RTThreadWait(stub.hSyncThread, RT_INDEFINITE_WAIT, NULL);
-            if (RT_FAILURE(rc))
+            /* stubSPUSafeTearDown() can be called from the sync thread in case
+             * of an X11 error:
+             *     XGetGeometry() -> [...] -> _XError() -> exit() -> [...] -> stubExitHandler() -> stubSPUSafetearDown())
+             * Don't hang in that case.
+             */
+            RTTHREAD hSelf = RTThreadSelf();
+            if (hSelf != stub.hSyncThread)
             {
-                WARN(("RTThreadWait_join failed %i", rc));
+                int rc = RTThreadWait(stub.hSyncThread, RT_INDEFINITE_WAIT, NULL);
+                if (RT_FAILURE(rc))
+                    WARN(("RTThreadWait_join failed %i", rc));
             }
         }
     }
@@ -488,10 +490,8 @@ static void stubSPUSafeTearDown(void)
     crNetTearDown();
 #endif
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(mutex);
     crFreeMutex(mutex);
-#endif
     crMemset(&stub, 0, sizeof(stub));
 }
 
@@ -514,13 +514,11 @@ static void stubSignalHandler(int signo)
 }
 
 #ifndef RT_OS_WINDOWS
-# ifdef CHROMIUM_THREADSAFE
 static void stubThreadTlsDtor(void *pvValue)
 {
     ContextInfo *pCtx = (ContextInfo*)pvValue;
     VBoxTlsRefRelease(pCtx);
 }
-# endif
 #endif
 
 
@@ -531,9 +529,7 @@ static void stubInitVars(void)
 {
     WindowInfo *defaultWin;
 
-#ifdef CHROMIUM_THREADSAFE
     crInitMutex(&stub.mutex);
-#endif
 
     /* At the very least we want CR_RGB_BIT. */
     stub.haveNativeOpenGL = GL_FALSE;
@@ -558,13 +554,11 @@ static void stubInitVars(void)
     stub.freeContextNumber = MAGIC_CONTEXT_BASE;
     stub.contextTable = crAllocHashtable();
 #ifndef RT_OS_WINDOWS
-# ifdef CHROMIUM_THREADSAFE
     if (!g_stubIsCurrentContextTSDInited)
     {
         crInitTSDF(&g_stubCurrentContextTSD, stubThreadTlsDtor);
         g_stubIsCurrentContextTSDInited = true;
     }
-# endif
 #endif
     stubSetCurrentContext(NULL);
 
@@ -600,142 +594,8 @@ static void stubInitVars(void)
 }
 
 
-#if 0 /* unused */
-
-/**
- * Return a free port number for the mothership to use, or -1 if we
- * can't find one.
- */
-static int
-GenerateMothershipPort(void)
-{
-    const int MAX_PORT = 10100;
-    unsigned short port;
-
-    /* generate initial port number randomly */
-    crRandAutoSeed();
-    port = (unsigned short) crRandInt(10001, MAX_PORT);
-
-#ifdef WINDOWS
-    /* XXX should implement a free port check here */
-    return port;
-#else
-    /*
-     * See if this port number really is free, try another if needed.
-     */
-    {
-        struct sockaddr_in servaddr;
-        int so_reuseaddr = 1;
-        int sock, k;
-
-        /* create socket */
-        sock = socket(AF_INET, SOCK_STREAM, 0);
-        CRASSERT(sock > 2);
-
-        /* deallocate socket/port when we exit */
-        k = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
-                                     (char *) &so_reuseaddr, sizeof(so_reuseaddr));
-        CRASSERT(k == 0);
-
-        /* initialize the servaddr struct */
-        crMemset(&servaddr, 0, sizeof(servaddr) );
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-        while (port < MAX_PORT) {
-            /* Bind to the given port number, return -1 if we fail */
-            servaddr.sin_port = htons((unsigned short) port);
-            k = bind(sock, (struct sockaddr *) &servaddr, sizeof(servaddr));
-            if (k) {
-                /* failed to create port. try next one. */
-                port++;
-            }
-            else {
-                /* free the socket/port now so mothership can make it */
-                close(sock);
-                return port;
-            }
-        }
-    }
-#endif /* WINDOWS */
-    return -1;
-}
-
-
-/**
- * Try to determine which mothership configuration to use for this program.
- */
-static char **
-LookupMothershipConfig(const char *procName)
-{
-    const int procNameLen = crStrlen(procName);
-    FILE *f;
-    const char *home;
-    char configPath[1000];
-
-    /* first, check if the CR_CONFIG env var is set */
-    {
-        const char *conf = crGetenv("CR_CONFIG");
-        if (conf && crStrlen(conf) > 0)
-            return crStrSplit(conf, " ");
-    }
-
-    /* second, look up config name from config file */
-    home = crGetenv("HOME");
-    if (home)
-        sprintf(configPath, "%s/%s", home, CONFIG_LOOKUP_FILE);
-    else
-        crStrcpy(configPath, CONFIG_LOOKUP_FILE); /* from current dir */
-    /* Check if the CR_CONFIG_PATH env var is set. */
-    {
-        const char *conf = crGetenv("CR_CONFIG_PATH");
-        if (conf)
-            crStrcpy(configPath, conf); /* from env var */
-    }
-
-    f = fopen(configPath, "r");
-    if (!f) {
-        return NULL;
-    }
-
-    while (!feof(f)) {
-        char line[1000];
-        char **args;
-        fgets(line, 999, f);
-        line[crStrlen(line) - 1] = 0; /* remove trailing newline */
-        if (crStrncmp(line, procName, procNameLen) == 0 &&
-            (line[procNameLen] == ' ' || line[procNameLen] == '\t'))
-        {
-            crWarning("Using Chromium configuration for %s from %s",
-                                procName, configPath);
-            args = crStrSplit(line + procNameLen + 1, " ");
-            return args;
-        }
-    }
-    fclose(f);
-    return NULL;
-}
-
-
-static int Mothership_Awake = 0;
-
-
-/**
- * Signal handler to determine when mothership is ready.
- */
-static void
-MothershipPhoneHome(int signo)
-{
-    crDebug("Got signal %d: mothership is awake!", signo);
-    Mothership_Awake = 1;
-}
-
-#endif /* 0 */
-
 static void stubSetDefaultConfigurationOptions(void)
 {
-    unsigned char key[16]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
     stub.appDrawCursor = 0;
     stub.minChromiumWindowWidth = 0;
     stub.minChromiumWindowHeight = 0;
@@ -751,10 +611,6 @@ static void stubSetDefaultConfigurationOptions(void)
     stub.trackWindowVisibleRgn = 1;
     stub.matchChromiumWindowCount = 0;
     stub.spu_dir = NULL;
-    crNetSetRank(0);
-    crNetSetContextRange(32, 35);
-    crNetSetNodeRange("iam0", "iamvis20");
-    crNetSetKey(key,sizeof(key));
     stub.force_pbuffers = 0;
 
 #ifdef WINDOWS
@@ -934,12 +790,10 @@ stubInitLocked(void)
      */
 
     char response[1024];
-    char **spuchain;
-    int num_spus;
-    int *spu_ids;
-    char **spu_names;
+    int aSpuIds[] = {0, 1};
+    const char *apszSpuNames[] = {"feedback", "pack"};
+    PCSPUREG apSpuReg[] = { &g_ErrorSpuReg, &g_FeedbackSpuReg, &g_PassthroughSpuReg,&g_PackSpuReg};
     const char *app_id;
-    int i;
     int disable_sync = 0;
 #if defined(WINDOWS) && defined(VBOX_WITH_WDDM)
     HMODULE hVBoxD3D = NULL;
@@ -962,7 +816,7 @@ stubInitLocked(void)
 #endif
 
     /** @todo check if it'd be of any use on other than guests, no use for windows */
-    app_id = crGetenv( "CR_APPLICATION_ID_NUMBER" );
+    app_id = RTEnvGet( "CR_APPLICATION_ID_NUMBER" );
 
     crNetInit( NULL, NULL );
 
@@ -993,18 +847,6 @@ stubInitLocked(void)
     }
 #endif
 
-    strcpy(response, "2 0 feedback 1 pack");
-    spuchain = crStrSplit( response, " " );
-    num_spus = crStrToInt( spuchain[0] );
-    spu_ids = (int *) crAlloc( num_spus * sizeof( *spu_ids ) );
-    spu_names = (char **) crAlloc( num_spus * sizeof( *spu_names ) );
-    for (i = 0 ; i < num_spus ; i++)
-    {
-        spu_ids[i] = crStrToInt( spuchain[2*i+1] );
-        spu_names[i] = crStrdup( spuchain[2*i+2] );
-        crDebug( "SPU %d/%d: (%d) \"%s\"", i+1, num_spus, spu_ids[i], spu_names[i] );
-    }
-
     stubSetDefaultConfigurationOptions();
 
 #if defined(WINDOWS) && defined(VBOX_WITH_WDDM)
@@ -1028,13 +870,7 @@ stubInitLocked(void)
     }
 #endif
 
-    stub.spu = crSPULoadChain( num_spus, spu_ids, spu_names, stub.spu_dir, NULL );
-
-    crFree( spuchain );
-    crFree( spu_ids );
-    for (i = 0; i < num_spus; ++i)
-        crFree(spu_names[i]);
-    crFree( spu_names );
+    stub.spu = crSPUInitChainFromReg(RT_ELEMENTS(aSpuIds), &aSpuIds[0], &apszSpuNames[0], NULL, &apSpuReg[0]);
 
     // spu chain load failed somewhere
     if (!stub.spu) {
@@ -1334,19 +1170,16 @@ BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
 
         GetModuleFileNameA(hDLLInst, aName, RT_ELEMENTS(aName));
         crDbgCmdSymLoadPrint(aName, hDLLInst);
-
-        hCrUtil = GetModuleHandleA("VBoxOGLcrutil.dll");
-        Assert(hCrUtil);
-        crDbgCmdSymLoadPrint("VBoxOGLcrutil.dll", hCrUtil);
 #endif
-#ifdef CHROMIUM_THREADSAFE
+
+        int rc = RTR3InitDll(RTR3INIT_FLAGS_UNOBTRUSIVE); CRASSERT(rc==0);
+        rc = VbglR3Init();
+
         crInitTSD(&g_stubCurrentContextTSD);
-#endif
-
         crInitMutex(&stub_init_mutex);
 
 #ifdef VDBG_VEHANDLER
-        env = crGetenv("CR_DBG_VEH_ENABLE");
+        env = RTEnvGet("CR_DBG_VEH_ENABLE");
         g_VBoxVehEnable = crStrParseI32(env,
 # ifdef DEBUG_misha
                 1
@@ -1361,7 +1194,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
             size_t cProcName;
             size_t cChars;
 
-            env = crGetenv("CR_DBG_VEH_FLAGS");
+            env = RTEnvGet("CR_DBG_VEH_FLAGS");
             g_VBoxVehFlags = crStrParseI32(env,
                     0
 # ifdef DEBUG_misha
@@ -1371,7 +1204,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
 # endif
                     );
 
-            env = crGetenv("CR_DBG_VEH_DUMP_DIR");
+            env = RTEnvGet("CR_DBG_VEH_DUMP_DIR");
             if (!env)
                 env = VBOXMD_DUMP_DIR_DEFAULT;
 
@@ -1409,7 +1242,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
             /* sanity */
             g_aszwVBoxMdFilePrefix[g_cVBoxMdFilePrefixLen] = L'\0';
 
-            env = crGetenv("CR_DBG_VEH_DUMP_TYPE");
+            env = RTEnvGet("CR_DBG_VEH_DUMP_TYPE");
 
             g_enmVBoxMdDumpType = crStrParseI32(env,
                     MiniDumpNormal
@@ -1484,15 +1317,13 @@ BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
 #endif
 
         stubSPUSafeTearDown();
-
-#ifdef CHROMIUM_THREADSAFE
         crFreeTSD(&g_stubCurrentContextTSD);
-#endif
 
 #ifdef VDBG_VEHANDLER
         if (g_VBoxVehEnable)
             vboxVDbgVEHandlerUnregister();
 #endif
+        VbglR3Term();
         break;
     }
 

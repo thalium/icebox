@@ -241,6 +241,17 @@ static bool rtR0NtTryMatchSymSet(PCRTNTSDBSET pSet, uint8_t *pbPrcb, const char 
 DECLHIDDEN(int) rtR0InitNative(void)
 {
     /*
+     * Preinitialize g_uRtNtVersion so RTMemAlloc uses the right kind of pool
+     * when RTR0DbgKrnlInfoOpen calls it.
+     */
+    RTNTSDBOSVER OsVerInfo;
+    rtR0NtGetOsVersionInfo(&OsVerInfo);
+    g_uRtNtVersion  = RTNT_MAKE_VERSION(OsVerInfo.uMajorVer, OsVerInfo.uMinorVer);
+    g_uRtNtMinorVer = OsVerInfo.uMinorVer;
+    g_uRtNtMajorVer = OsVerInfo.uMajorVer;
+    g_uRtNtBuildNo  = OsVerInfo.uBuildNo;
+
+    /*
      * Initialize the function pointers.
      */
 #ifdef IPRT_TARGET_NT4
@@ -294,7 +305,17 @@ DECLHIDDEN(int) rtR0InitNative(void)
 #endif
 
     /*
-     * HACK ALERT! (and déjà vu warning - remember win32k.sys?)
+     * Get and publish the definitive NT version.
+     */
+    rtR0NtGetOsVersionInfo(&OsVerInfo);
+    g_uRtNtVersion  = RTNT_MAKE_VERSION(OsVerInfo.uMajorVer, OsVerInfo.uMinorVer);
+    g_uRtNtMinorVer = OsVerInfo.uMinorVer;
+    g_uRtNtMajorVer = OsVerInfo.uMajorVer;
+    g_uRtNtBuildNo  = OsVerInfo.uBuildNo;
+
+
+    /*
+     * HACK ALERT! (and déjà vu warning - remember win32k.sys on OS/2?)
      *
      * Try find _KPRCB::QuantumEnd and _KPRCB::[DpcData.]DpcQueueDepth.
      * For purpose of verification we use the VendorString member (12+1 chars).
@@ -311,15 +332,6 @@ DECLHIDDEN(int) rtR0InitNative(void)
      * exception of some of the w2k packages which requires a 'w2k' prefix to
      * be distinguishable from another.
      */
-
-    RTNTSDBOSVER OsVerInfo;
-    rtR0NtGetOsVersionInfo(&OsVerInfo);
-
-    /* Publish the version info in globals. */
-    g_uRtNtVersion  = RTNT_MAKE_VERSION(OsVerInfo.uMajorVer, OsVerInfo.uMinorVer);
-    g_uRtNtMinorVer = OsVerInfo.uMinorVer;
-    g_uRtNtMajorVer = OsVerInfo.uMajorVer;
-    g_uRtNtBuildNo  = OsVerInfo.uBuildNo;
 
     /*
      * Gather consistent CPU vendor string and PRCB pointers.

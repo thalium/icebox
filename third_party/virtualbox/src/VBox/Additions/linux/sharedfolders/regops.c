@@ -437,7 +437,9 @@ static int sf_reg_release(struct inode *inode, struct file *file)
     return 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
+static vm_fault_t sf_reg_fault(struct vm_fault *vmf)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
 static int sf_reg_fault(struct vm_fault *vmf)
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 25)
 static int sf_reg_fault(struct vm_area_struct *vma, struct vm_fault *vmf)

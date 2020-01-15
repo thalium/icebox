@@ -8,10 +8,10 @@
 #include "cr_spu.h"
 #include "cr_error.h"
 #include "cr_string.h"
-#include "cr_url.h"
-#include "cr_environment.h"
 #include "renderspu.h"
 #include <stdio.h>
+
+#include <iprt/env.h>
 
 #ifdef RT_OS_DARWIN
 # include <iprt/semaphore.h>
@@ -27,44 +27,7 @@ SPUFunctions render_functions = {
 
 RenderSPU render_spu;
 uint64_t render_spu_parent_window_id = 0;
-
-#ifdef CHROMIUM_THREADSAFE
 CRtsd _RenderTSD;
-#endif
-
-static void swapsyncConnect(void)
-{
-    char hostname[4096], protocol[4096];
-    unsigned short port;
-
-    crNetInit(NULL, NULL);
-
-    if (!crParseURL( render_spu.swap_master_url, protocol, hostname,
-                    &port, 9876))
-        crError( "Bad URL: %s", render_spu.swap_master_url );
-
-    if (render_spu.is_swap_master)
-    {
-        int a;
-
-        render_spu.swap_conns = (CRConnection **)crAlloc(
-                        render_spu.num_swap_clients*sizeof(CRConnection *));
-        for (a=0; a<render_spu.num_swap_clients; a++)
-        {
-            render_spu.swap_conns[a] = crNetAcceptClient( protocol, hostname, port,
-                                                        render_spu.swap_mtu, 1);
-        }
-    }
-    else
-    {
-        render_spu.swap_conns = (CRConnection **)crAlloc(sizeof(CRConnection *));
-
-        render_spu.swap_conns[0] = crNetConnectToServer(render_spu.swap_master_url,
-                                    port, render_spu.swap_mtu, 1);
-        if (!render_spu.swap_conns[0])
-            crError("Failed connection");
-    }
-}
 
 #ifdef RT_OS_WINDOWS
 static DWORD WINAPI renderSPUWindowThreadProc(void* unused)
@@ -133,7 +96,7 @@ static DWORD WINAPI renderSPUWindowThreadProc(void* unused)
 }
 #endif
 
-int renderspuDefaultCtxInit()
+int renderspuDefaultCtxInit(void)
 {
     GLint defaultWin, defaultCtx;
     WindowInfo *windowInfo;
@@ -184,19 +147,13 @@ renderSPUInit( int id, SPU *child, SPU *self,
 
     self->privatePtr = (void *) &render_spu;
 
-#ifdef CHROMIUM_THREADSAFE
     crDebug("Render SPU: thread-safe");
     crInitTSD(&_RenderTSD);
-#endif
 
     crMemZero(&render_spu, sizeof(render_spu));
 
     render_spu.id = id;
     renderspuSetVBoxConfiguration(&render_spu);
-
-    if (render_spu.swap_master_url)
-        swapsyncConnect();
-
 
     /* Get our special functions. */
     numSpecial = renderspuCreateFunctions( _cr_render_table );
@@ -233,7 +190,7 @@ renderSPUInit( int id, SPU *child, SPU *self,
 
     render_spu.dummyWindowTable = crAllocHashtable();
 
-    pcpwSetting = crGetenv("CR_RENDER_ENABLE_SINGLE_PRESENT_CONTEXT");
+    pcpwSetting = RTEnvGet("CR_RENDER_ENABLE_SINGLE_PRESENT_CONTEXT");
     if (pcpwSetting)
     {
         if (pcpwSetting[0] == '0')
@@ -261,46 +218,6 @@ renderSPUInit( int id, SPU *child, SPU *self,
         crError("renderspu_SystemInit failed rc %d", rc);
         return NULL;
     }
-#ifdef USE_OSMESA
-    if (render_spu.use_osmesa) {
-        if (!crLoadOSMesa(&render_spu.OSMesaCreateContext,
-                          &render_spu.OSMesaMakeCurrent,
-                          &render_spu.OSMesaDestroyContext)) {
-            crError("Unable to load OSMesa library");
-        }
-    }
-#endif
-
-#ifdef DARWIN
-# ifdef VBOX_WITH_COCOA_QT
-# else /* VBOX_WITH_COCOA_QT */
-    render_spu.hRootVisibleRegion = 0;
-    render_spu.currentBufferName = 1;
-    render_spu.uiDockUpdateTS = 0;
-    /* Create a mutex for synchronizing events from the main Qt thread & this
-       thread */
-    RTSemFastMutexCreate(&render_spu.syncMutex);
-    /* Create our window groups */
-    CreateWindowGroup(kWindowGroupAttrMoveTogether | kWindowGroupAttrLayerTogether | kWindowGroupAttrSharedActivation | kWindowGroupAttrHideOnCollapse | kWindowGroupAttrFixedLevel, &render_spu.pMasterGroup);
-    CreateWindowGroup(kWindowGroupAttrMoveTogether | kWindowGroupAttrLayerTogether | kWindowGroupAttrSharedActivation | kWindowGroupAttrHideOnCollapse | kWindowGroupAttrFixedLevel, &render_spu.pParentGroup);
-    /* Make the correct z-layering */
-    SendWindowGroupBehind (render_spu.pParentGroup, render_spu.pMasterGroup);
-    /* and set the gParentGroup as parent for gMasterGroup. */
-    SetWindowGroupParent (render_spu.pMasterGroup, render_spu.pParentGroup);
-    /* Install the event handlers */
-    EventTypeSpec eventList[] =
-    {
-        {kEventClassVBox, kEventVBoxUpdateContext}, /* Update the context after show/size/move events */
-        {kEventClassVBox, kEventVBoxBoundsChanged}  /* Clip/Pos the OpenGL windows when the main window is changed in pos/size */
-    };
-    /* We need to process events from our main window */
-    render_spu.hParentEventHandler = NewEventHandlerUPP(windowEvtHndlr);
-    InstallApplicationEventHandler (render_spu.hParentEventHandler,
-                                    GetEventTypeCount(eventList), eventList,
-                                    NULL, NULL);
-    render_spu.fInit = true;
-# endif /* VBOX_WITH_COCOA_QT */
-#endif /* DARWIN */
 
     rc = renderspuDefaultCtxInit();
     if (!RT_SUCCESS(rc))
@@ -444,6 +361,8 @@ static void renderspuBlitterCleanupCB(unsigned long key, void *data1, void *data
     WindowInfo *window = (WindowInfo *) data1;
     CRASSERT(window);
 
+    RT_NOREF(key, data2);
+
     renderspuVBoxPresentBlitterCleanup( window );
 }
 
@@ -535,24 +454,6 @@ static int renderSPUCleanup(void)
 {
     renderspuCleanupBase(true);
 
-#ifdef RT_OS_DARWIN
-# ifndef VBOX_WITH_COCOA_QT
-    render_spu.fInit = false;
-    DisposeEventHandlerUPP(render_spu.hParentEventHandler);
-    ReleaseWindowGroup(render_spu.pMasterGroup);
-    ReleaseWindowGroup(render_spu.pParentGroup);
-    if (render_spu.hRootVisibleRegion)
-    {
-        DisposeRgn(render_spu.hRootVisibleRegion);
-        render_spu.hRootVisibleRegion = 0;
-    }
-    render_spu.currentBufferName = 1;
-    render_spu.uiDockUpdateTS = 0;
-    RTSemFastMutexDestroy(render_spu.syncMutex);
-# else /* VBOX_WITH_COCOA_QT */
-# endif /* VBOX_WITH_COCOA_QT */
-#endif /* RT_OS_DARWIN */
-
 #ifdef RT_OS_WINDOWS
     if (render_spu.dwWinThreadId)
     {
@@ -591,33 +492,29 @@ static int renderSPUCleanup(void)
 
     crUnloadOpenGL();
 
-#ifdef CHROMIUM_THREADSAFE
     crFreeTSD(&_RenderTSD);
-#endif
-
     return 1;
 }
 
 
-extern SPUOptions renderSPUOptions[];
-
-int SPULoad( char **name, char **super, SPUInitFuncPtr *init,
-         SPUSelfDispatchFuncPtr *self, SPUCleanupFuncPtr *cleanup,
-         SPUOptionsPtr *options, int *flags )
-{
-    *name = "render";
-    *super = NULL;
-    *init = renderSPUInit;
-    *self = renderSPUSelfDispatch;
-    *cleanup = renderSPUCleanup;
-    *options = renderSPUOptions;
-    *flags = (SPU_NO_PACKER|SPU_IS_TERMINAL|SPU_MAX_SERVERS_ZERO);
-
-    return 1;
-}
-
-DECLEXPORT(void) renderspuSetWindowId(uint64_t winId)
+DECLHIDDEN(void) renderspuSetWindowId(uint64_t winId)
 {
     render_spu_parent_window_id = winId;
     crDebug("Set new parent window %p (no actual reparent performed)", winId);
 }
+
+DECLHIDDEN(const SPUREG) g_RenderSpuReg =
+{
+    /** pszName. */
+    "render",
+    /** pszSuperName. */
+    NULL,
+    /** fFlags. */
+    SPU_NO_PACKER | SPU_IS_TERMINAL | SPU_MAX_SERVERS_ZERO,
+    /** pfnInit. */
+    renderSPUInit,
+    /** pfnDispatch. */
+    renderSPUSelfDispatch, 
+    /** pfnCleanup. */
+    renderSPUCleanup
+};

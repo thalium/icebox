@@ -50,6 +50,8 @@ void crServerCheckMuralGeometry(CRMuralInfo *mural)
 
 static void crServerCheckMuralGeometryCB(unsigned long key, void *data1, void *data2)
 {
+    RT_NOREF(key);
+
     CRMuralInfo *pMI = (CRMuralInfo*) data1;
 
     if (!pMI->fRedirected || pMI == data2)
@@ -313,6 +315,8 @@ end:
 
 static void crVBoxServerMuralFbCleanCB(unsigned long key, void *data1, void *data2)
 {
+    RT_NOREF(key);
+
     CRMuralInfo *pMI = (CRMuralInfo*) data1;
     HCR_FRAMEBUFFER hFb = (HCR_FRAMEBUFFER)data2;
     uint32_t i;
@@ -329,6 +333,8 @@ static void crVBoxServerMuralFbCleanCB(unsigned long key, void *data1, void *dat
 
 static void crVBoxServerMuralFbSetCB(unsigned long key, void *data1, void *data2)
 {
+    RT_NOREF(key);
+
     CRMuralInfo *pMI = (CRMuralInfo*) data1;
     HCR_FRAMEBUFFER hFb = (HCR_FRAMEBUFFER)data2;
     uint32_t i;
@@ -470,34 +476,38 @@ void crServerRedirMuralFBO(CRMuralInfo *mural, bool fEnabled)
 
         if (cr_server.curClient && cr_server.curClient->currentMural == mural)
         {
-            if (!crStateGetCurrent()->framebufferobject.drawFB)
+            CRContext *ctx = crStateGetCurrent(&cr_server.StateTracker);
+
+            if (!ctx->framebufferobject.drawFB)
             {
                 cr_server.head_spu->dispatch_table.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, CR_SERVER_FBO_FOR_IDX(mural, mural->iCurDrawBuffer));
             }
-            if (!crStateGetCurrent()->framebufferobject.readFB)
+            if (!ctx->framebufferobject.readFB)
             {
                 cr_server.head_spu->dispatch_table.BindFramebufferEXT(GL_READ_FRAMEBUFFER, CR_SERVER_FBO_FOR_IDX(mural, mural->iCurReadBuffer));
             }
 
-            crStateGetCurrent()->buffer.width = 0;
-            crStateGetCurrent()->buffer.height = 0;
+            ctx->buffer.width = 0;
+            ctx->buffer.height = 0;
         }
     }
     else
     {
         if (cr_server.curClient && cr_server.curClient->currentMural == mural)
         {
-            if (!crStateGetCurrent()->framebufferobject.drawFB)
+            CRContext *ctx = crStateGetCurrent(&cr_server.StateTracker);
+
+            if (!ctx->framebufferobject.drawFB)
             {
                 cr_server.head_spu->dispatch_table.BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
             }
-            if (!crStateGetCurrent()->framebufferobject.readFB)
+            if (!ctx->framebufferobject.readFB)
             {
                 cr_server.head_spu->dispatch_table.BindFramebufferEXT(GL_READ_FRAMEBUFFER, 0);
             }
 
-            crStateGetCurrent()->buffer.width = mural->width;
-            crStateGetCurrent()->buffer.height = mural->height;
+            ctx->buffer.width = mural->width;
+            ctx->buffer.height = mural->height;
         }
     }
 
@@ -506,7 +516,7 @@ void crServerRedirMuralFBO(CRMuralInfo *mural, bool fEnabled)
 
 static void crServerCreateMuralFBO(CRMuralInfo *mural)
 {
-    CRContext *ctx = crStateGetCurrent();
+    CRContext *ctx = crStateGetCurrent(&cr_server.StateTracker);
     GLuint uid, i;
     GLenum status;
     SPUDispatchTable *gl = &cr_server.head_spu->dispatch_table;
@@ -533,7 +543,7 @@ static void crServerCreateMuralFBO(CRMuralInfo *mural)
     mural->iBbBuffer = 0;
     /*Color texture*/
 
-    if (crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+    if (crStateIsBufferBound(&cr_server.StateTracker, GL_PIXEL_UNPACK_BUFFER_ARB))
     {
         gl->BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
     }
@@ -598,12 +608,12 @@ static void crServerCreateMuralFBO(CRMuralInfo *mural)
     uid = ctx->framebufferobject.readFB ? ctx->framebufferobject.readFB->hwid:0;
     gl->BindFramebufferEXT(GL_READ_FRAMEBUFFER, uid);
 
-    if (crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+    if (crStateIsBufferBound(&cr_server.StateTracker, GL_PIXEL_UNPACK_BUFFER_ARB))
     {
         gl->BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, ctx->bufferobject.unpackBuffer->hwid);
     }
 
-    if (crStateIsBufferBound(GL_PIXEL_PACK_BUFFER_ARB))
+    if (crStateIsBufferBound(&cr_server.StateTracker, GL_PIXEL_PACK_BUFFER_ARB))
     {
         gl->BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, ctx->bufferobject.packBuffer->hwid);
     }
@@ -656,6 +666,7 @@ static GLboolean crServerIntersectRect(CRrecti *a, CRrecti *b, CRrecti *rect)
 
 DECLEXPORT(void) crServerVBoxCompositionSetEnableStateGlobal(GLboolean fEnable)
 {
+    RT_NOREF(fEnable);
 }
 
 DECLEXPORT(void) crServerVBoxScreenshotRelease(CR_SCREENSHOT *pScreenshot)
@@ -817,9 +828,9 @@ GLint crServerMuralFBOIdxFromBufferName(CRMuralInfo *mural, GLenum buffer)
 
 void crServerMuralFBOSwapBuffers(CRMuralInfo *mural)
 {
-    CRContext *ctx = crStateGetCurrent();
-    GLuint iOldCurDrawBuffer = mural->iCurDrawBuffer;
-    GLuint iOldCurReadBuffer = mural->iCurReadBuffer;
+    CRContext *ctx = crStateGetCurrent(&cr_server.StateTracker);
+    GLint iOldCurDrawBuffer = mural->iCurDrawBuffer;
+    GLint iOldCurReadBuffer = mural->iCurReadBuffer;
     mural->iBbBuffer = ((mural->iBbBuffer + 1) % (mural->cBuffers));
     if (mural->iCurDrawBuffer >= 0)
         mural->iCurDrawBuffer = ((mural->iCurDrawBuffer + 1) % (mural->cBuffers));

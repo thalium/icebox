@@ -260,8 +260,10 @@ static void acpiEventHandler(int fd, void *pvData)
 
 void vbvxSetUpLinuxACPI(ScreenPtr pScreen)
 {
-    VBOXPtr pVBox = VBOXGetRec(xf86Screens[pScreen->myNum]);
+    static const char s_szDevInput[] = "/dev/input/";
     struct dirent *pDirent;
+    char szFile[sizeof(s_szDevInput) + sizeof(pDirent->d_name) + 16];
+    VBOXPtr pVBox = VBOXGetRec(xf86Screens[pScreen->myNum]);
     DIR *pDir;
     int fd = -1;
 
@@ -270,16 +272,18 @@ void vbvxSetUpLinuxACPI(ScreenPtr pScreen)
     pDir = opendir("/dev/input");
     if (pDir == NULL)
         return;
+    memcpy(szFile, s_szDevInput, sizeof(s_szDevInput));
     for (pDirent = readdir(pDir); pDirent != NULL; pDirent = readdir(pDir))
     {
         if (strncmp(pDirent->d_name, "event", sizeof("event") - 1) == 0)
         {
 #define BITS_PER_BLOCK (sizeof(unsigned long) * 8)
-            char szFile[64] = "/dev/input/";
             char szDevice[64] = "";
             unsigned long afKeys[KEY_MAX / BITS_PER_BLOCK];
-
-            strncat(szFile, pDirent->d_name, sizeof(szFile) - sizeof("/dev/input/"));
+            size_t const cchName = strlen(pDirent->d_name);
+            if (cchName + sizeof(s_szDevInput) > sizeof(szFile))
+                continue;
+            memcpy(&szFile[sizeof(s_szDevInput) - 1], pDirent->d_name, cchName + 1);
             if (fd != -1)
                 close(fd);
             fd = open(szFile, O_RDONLY | O_NONBLOCK);

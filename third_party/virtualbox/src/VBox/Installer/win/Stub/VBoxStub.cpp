@@ -584,7 +584,11 @@ static RTEXITCODE ProcessMsiPackage(const char *pszMsi, const char *pszMsiArgs, 
     if (uStatus == ERROR_SUCCESS)
         return RTEXITCODE_SUCCESS;
     if (uStatus == ERROR_SUCCESS_REBOOT_REQUIRED)
-        return RTEXITCODE_SUCCESS; /* we currently don't indicate this */
+    {
+        if (g_fSilent)
+            RTMsgInfo("Reboot required (by %s)\n", pszMsi);
+        return (RTEXITCODE)uStatus;
+    }
 
     /*
      * Installation failed. Figure out what to say.
@@ -876,6 +880,7 @@ int WINAPI WinMain(HINSTANCE  hInstance,
 #ifdef VBOX_WITH_CODE_SIGNING
     bool fEnableSilentCert         = true;
 #endif
+    bool fIgnoreReboot             = false;
     char szExtractPath[RTPATH_MAX] = {0};
     char szMSIArgs[_4K]            = {0};
 
@@ -906,6 +911,7 @@ int WINAPI WinMain(HINSTANCE  hInstance,
         { "--reinstall",        'f', RTGETOPT_REQ_NOTHING },
         { "-reinstall",         'f', RTGETOPT_REQ_NOTHING },
         { "/reinstall",         'f', RTGETOPT_REQ_NOTHING },
+        { "--ignore-reboot",    'r', RTGETOPT_REQ_NOTHING },
         { "--verbose",          'v', RTGETOPT_REQ_NOTHING },
         { "-verbose",           'v', RTGETOPT_REQ_NOTHING },
         { "/verbose",           'v', RTGETOPT_REQ_NOTHING },
@@ -975,6 +981,10 @@ int WINAPI WinMain(HINSTANCE  hInstance,
                     rcExit = ShowError("MSI parameters are too long.");
                 break;
 
+            case 'r':
+                fIgnoreReboot = true;
+                break;
+
             case 'V':
                 ShowInfo("Version: %d.%d.%d.%d",
                          VBOX_VERSION_MAJOR, VBOX_VERSION_MINOR, VBOX_VERSION_BUILD,
@@ -997,8 +1007,10 @@ int WINAPI WinMain(HINSTANCE  hInstance,
                          "--no-silent-cert         - Do not install VirtualBox Certificate automatically when --silent option is specified\n"
                          "--path                   - Sets the path of the extraction directory\n"
                          "--reinstall              - Forces VirtualBox to get re-installed\n"
+                         "--ignore-reboot          - Don't set exit code to 3010 if a reboot is required\n"
                          "--silent                 - Enables silent mode installation\n"
-                         "--version                - Print version number and exit\n\n"
+                         "--version                - Print version number and exit\n"
+                         "\n"
                          "Examples:\n"
                          "%s --msiparams INSTALLDIR=C:\\VBox\n"
                          "%s --extract -path C:\\VBox",
@@ -1141,10 +1153,11 @@ int WINAPI WinMain(HINSTANCE  hInstance,
 #endif
                     unsigned iPackage = 0;
                     while (   iPackage < pHeader->byCntPkgs
-                           && rcExit == RTEXITCODE_SUCCESS)
+                           && (rcExit == RTEXITCODE_SUCCESS || rcExit == (RTEXITCODE)ERROR_SUCCESS_REBOOT_REQUIRED))
                     {
-                        rcExit = ProcessPackage(iPackage, szExtractPath,
-                                                szMSIArgs, fEnableLogging);
+                        RTEXITCODE rcExit2 = ProcessPackage(iPackage, szExtractPath, szMSIArgs, fEnableLogging);
+                        if (rcExit2 != RTEXITCODE_SUCCESS)
+                            rcExit = rcExit2;
                         iPackage++;
                     }
 
@@ -1182,6 +1195,6 @@ int WINAPI WinMain(HINSTANCE  hInstance,
         hMutexAppRunning = NULL;
     }
 
-    return rcExit;
+    return rcExit != (RTEXITCODE)ERROR_SUCCESS_REBOOT_REQUIRED || !fIgnoreReboot ? rcExit : RTEXITCODE_SUCCESS;
 }
 

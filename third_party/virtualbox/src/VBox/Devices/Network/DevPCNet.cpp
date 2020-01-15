@@ -1773,7 +1773,7 @@ static int pcnetCalcPacketLen(PPCNETSTATE pThis, unsigned cb)
 /**
  * Write data into guest receive buffers.
  */
-static void pcnetReceiveNoSync(PPCNETSTATE pThis, const uint8_t *buf, size_t cbToRecv, bool fAddFCS)
+static void pcnetReceiveNoSync(PPCNETSTATE pThis, const uint8_t *buf, size_t cbToRecv, bool fAddFCS, bool fLoopback)
 {
     PPDMDEVINS pDevIns = PCNETSTATE_2_DEVINS(pThis);
     int is_padr = 0, is_bcast = 0, is_ladr = 0;
@@ -1858,8 +1858,8 @@ static void pcnetReceiveNoSync(PPCNETSTATE pThis, const uint8_t *buf, size_t cbT
             memcpy(src, buf, cbToRecv);
 
             if (!fStrip) {
-                while (cbToRecv < 60)
-                    src[cbToRecv++] = 0;
+                    while (cbToRecv < 60)
+                        src[cbToRecv++] = 0;
 
                 if (fAddFCS)
                 {
@@ -2008,7 +2008,8 @@ static void pcnetReceiveNoSync(PPCNETSTATE pThis, const uint8_t *buf, size_t cbT
 
     /* see description of TXDPOLL:
      * ``transmit polling will take place following receive activities'' */
-    pcnetPollRxTx(pThis);
+    if (!fLoopback)
+        pcnetPollRxTx(pThis);
     pcnetUpdateIrq(pThis);
 }
 
@@ -2133,7 +2134,7 @@ DECLINLINE(int) pcnetXmitSendBuf(PPCNETSTATE pThis, bool fLoopback, PPDMSCATTERG
         if (HOST_IS_OWNER(CSR_CRST(pThis)))
             pcnetRdtePoll(pThis);
 
-        pcnetReceiveNoSync(pThis, pThis->abLoopBuf, pSgBuf->cbUsed, true /* fAddFCS */);
+        pcnetReceiveNoSync(pThis, pThis->abLoopBuf, pSgBuf->cbUsed, true /* fAddFCS */, fLoopback);
         pThis->Led.Actual.s.fReading = 0;
         rc = VINF_SUCCESS;
     }
@@ -3241,6 +3242,13 @@ static void pcnetR3HardReset(PPCNETSTATE pThis)
     int      i;
     uint16_t checksum;
 
+    /* Lower any raised interrupts, see @bugref(9556) */
+    if (RT_UNLIKELY(pThis->iISR))
+    {
+        pThis->iISR = 0;
+        Log(("#%d INTA=%d\n", PCNET_INST_NR, pThis->iISR));
+        PDMDevHlpPCISetIrq(PCNETSTATE_2_DEVINS(pThis), 0, pThis->iISR);
+    }
     /* Initialize the PROM */
     Assert(sizeof(pThis->MacConfigured) == 6);
     memcpy(pThis->aPROM, &pThis->MacConfigured, sizeof(pThis->MacConfigured));
@@ -4532,7 +4540,7 @@ static DECLCALLBACK(int) pcnetNetworkDown_Receive(PPDMINETWORKDOWN pInterface, c
                           && ((PCRTNETETHERHDR)pvBuf)->EtherType == RT_H2BE_U16_C(RTNET_ETHERTYPE_VLAN));
         if (cb > 70) /* unqualified guess */
             pThis->Led.Asserted.s.fReading = pThis->Led.Actual.s.fReading = 1;
-        pcnetReceiveNoSync(pThis, (const uint8_t *)pvBuf, cb, fAddFCS);
+        pcnetReceiveNoSync(pThis, (const uint8_t *)pvBuf, cb, fAddFCS, false);
         pThis->Led.Actual.s.fReading = 0;
     }
 #ifdef LOG_ENABLED

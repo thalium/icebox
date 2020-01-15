@@ -807,6 +807,7 @@ static int rtDbgCfgTryDownloadAndOpen(PRTDBGCFGINT pThis, const char *pszServer,
         "User-Agent: Microsoft-Symbol-Server/6.6.0999.9",
         "Pragma: no-cache",
     };
+            RTHttpSetFollowRedirects(hHttp, 8);
 
     rc = RTHttpSetHeaders(hHttp, RT_ELEMENTS(s_apszHeaders), s_apszHeaders);
     if (RT_SUCCESS(rc))

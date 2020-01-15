@@ -35,4 +35,5 @@ elif test -z "${SSH_CONNECTION}"; then
   /usr/bin/VBoxClient --display
   /usr/bin/VBoxClient --seamless
   /usr/bin/VBoxClient --draganddrop
+  /usr/bin/VBoxClient --vmsvga-x11  # In case VMSVGA emulation is enabled
 fi

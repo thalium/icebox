@@ -84,10 +84,7 @@ void PACKSPU_APIENTRY packspu_ChromiumParametervCR(GLenum target, GLenum type, G
             break;
     }
 
-    if (pack_spu.swap)
-        crPackChromiumParametervCRSWAP(target, type, count, values);
-    else
-        crPackChromiumParametervCR(target, type, count, values);
+    crPackChromiumParametervCR(target, type, count, values);
 
     if (fFlush)
         packspuFlush( (void *) thread );
@@ -100,7 +97,7 @@ GLboolean packspuSyncOnFlushes(void)
 #else
     GLint buffer;
 
-    crStateGetIntegerv(GL_DRAW_BUFFER, &buffer);
+    crStateGetIntegerv(&pack_spu.StateTracker, GL_DRAW_BUFFER, &buffer);
     /*Usually buffer==GL_BACK, so put this extra check to simplify boolean eval on runtime*/
     return  (buffer != GL_BACK)
             && (buffer == GL_FRONT_LEFT
@@ -118,7 +115,7 @@ void PACKSPU_APIENTRY packspu_DrawBuffer(GLenum mode)
 
     hadtoflush = packspuSyncOnFlushes();
 
-    crStateDrawBuffer(mode);
+    crStateDrawBuffer(&pack_spu.StateTracker, mode);
     crPackDrawBuffer(mode);
 
     if (hadtoflush && !packspuSyncOnFlushes())
@@ -130,23 +127,12 @@ void PACKSPU_APIENTRY packspu_Finish( void )
     GET_THREAD(thread);
     GLint writeback = CRPACKSPU_IS_WDDM_CRHGSMI() ? 1 : pack_spu.thread[pack_spu.idxThreadInUse].netServer.conn->actual_network;
 
-    if (pack_spu.swap)
-    {
-        crPackFinishSWAP();
-    }
-    else
-    {
-        crPackFinish();
-    }
-
+    crPackFinish();
     if (packspuSyncOnFlushes())
     {
         if (writeback)
         {
-            if (pack_spu.swap)
-                crPackWritebackSWAP(&writeback);
-            else
-                crPackWriteback(&writeback);
+            crPackWriteback(&writeback);
 
             packspuFlush( (void *) thread );
 
@@ -210,13 +196,13 @@ void PACKSPU_APIENTRY packspu_Flush( void )
 
 void PACKSPU_APIENTRY packspu_NewList(GLuint list, GLenum mode)
 {
-    crStateNewList(list, mode);
+    crStateNewList(&pack_spu.StateTracker, list, mode);
     crPackNewList(list, mode);
 }
 
 void PACKSPU_APIENTRY packspu_EndList()
 {
-    crStateEndList();
+    crStateEndList(&pack_spu.StateTracker);
     crPackEndList();
 }
 
@@ -276,15 +262,7 @@ GLint PACKSPU_APIENTRY packspu_VBoxWindowCreate( GLint con, const char *dpyName,
     CRASSERT(crPackGetContext() == (curThread ? curThread->packer : NULL));
 
     crPackSetContext(thread->packer);
-
-    if (pack_spu.swap)
-    {
-        crPackWindowCreateSWAP( dpyName, visBits, &return_val, &writeback );
-    }
-    else
-    {
-        crPackWindowCreate( dpyName, visBits, &return_val, &writeback );
-    }
+    crPackWindowCreate( dpyName, visBits, &return_val, &writeback );
     packspuFlush(thread);
     if (!(thread->netServer.conn->actual_network))
     {
@@ -293,10 +271,6 @@ GLint PACKSPU_APIENTRY packspu_VBoxWindowCreate( GLint con, const char *dpyName,
     else
     {
         CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
-        if (pack_spu.swap)
-        {
-            return_val = (GLint) SWAP32(return_val);
-        }
         retVal = return_val;
     }
 
@@ -333,14 +307,7 @@ packspu_AreTexturesResident( GLsizei n, const GLuint * textures,
         crError( "packspu_AreTexturesResident doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!" );
     }
 
-    if (pack_spu.swap)
-    {
-        crPackAreTexturesResidentSWAP( n, textures, residences, &return_val, &writeback );
-    }
-    else
-    {
-        crPackAreTexturesResident( n, textures, residences, &return_val, &writeback );
-    }
+    crPackAreTexturesResident( n, textures, residences, &return_val, &writeback );
     packspuFlush( (void *) thread );
 
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
@@ -372,14 +339,8 @@ packspu_AreProgramsResidentNV( GLsizei n, const GLuint * ids,
     {
         crError( "packspu_AreProgramsResidentNV doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!" );
     }
-    if (pack_spu.swap)
-    {
-        crPackAreProgramsResidentNVSWAP( n, ids, residences, &return_val, &writeback );
-    }
-    else
-    {
-        crPackAreProgramsResidentNV( n, ids, residences, &return_val, &writeback );
-    }
+
+    crPackAreProgramsResidentNV( n, ids, residences, &return_val, &writeback );
     packspuFlush( (void *) thread );
 
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
@@ -402,17 +363,9 @@ void PACKSPU_APIENTRY packspu_GetPolygonStipple( GLubyte * mask )
     GET_THREAD(thread);
     int writeback = 1;
 
-    if (pack_spu.swap)
-    {
-        crPackGetPolygonStippleSWAP( mask, &writeback );
-    }
-    else
-    {
-        crPackGetPolygonStipple( mask, &writeback );
-    }
-
+    crPackGetPolygonStipple( mask, &writeback );
 #ifdef CR_ARB_pixel_buffer_object
-    if (!crStateIsBufferBound(GL_PIXEL_PACK_BUFFER_ARB))
+    if (!crStateIsBufferBound(&pack_spu.StateTracker, GL_PIXEL_PACK_BUFFER_ARB))
 #endif
     {
         packspuFlush( (void *) thread );
@@ -425,17 +378,9 @@ void PACKSPU_APIENTRY packspu_GetPixelMapfv( GLenum map, GLfloat * values )
     GET_THREAD(thread);
     int writeback = 1;
 
-    if (pack_spu.swap)
-    {
-        crPackGetPixelMapfvSWAP( map, values, &writeback );
-    }
-    else
-    {
-        crPackGetPixelMapfv( map, values, &writeback );
-    }
-
+    crPackGetPixelMapfv( map, values, &writeback );
 #ifdef CR_ARB_pixel_buffer_object
-    if (!crStateIsBufferBound(GL_PIXEL_PACK_BUFFER_ARB))
+    if (!crStateIsBufferBound(&pack_spu.StateTracker, GL_PIXEL_PACK_BUFFER_ARB))
 #endif
     {
         packspuFlush( (void *) thread );
@@ -448,17 +393,10 @@ void PACKSPU_APIENTRY packspu_GetPixelMapuiv( GLenum map, GLuint * values )
     GET_THREAD(thread);
     int writeback = 1;
 
-    if (pack_spu.swap)
-    {
-        crPackGetPixelMapuivSWAP( map, values, &writeback );
-    }
-    else
-    {
-        crPackGetPixelMapuiv( map, values, &writeback );
-    }
+    crPackGetPixelMapuiv( map, values, &writeback );
 
 #ifdef CR_ARB_pixel_buffer_object
-    if (!crStateIsBufferBound(GL_PIXEL_PACK_BUFFER_ARB))
+    if (!crStateIsBufferBound(&pack_spu.StateTracker, GL_PIXEL_PACK_BUFFER_ARB))
 #endif
     {
         packspuFlush( (void *) thread );
@@ -471,17 +409,9 @@ void PACKSPU_APIENTRY packspu_GetPixelMapusv( GLenum map, GLushort * values )
     GET_THREAD(thread);
     int writeback = 1;
 
-    if (pack_spu.swap)
-    {
-        crPackGetPixelMapusvSWAP( map, values, &writeback );
-    }
-    else
-    {
-        crPackGetPixelMapusv( map, values, &writeback );
-    }
-
+    crPackGetPixelMapusv( map, values, &writeback );
 #ifdef CR_ARB_pixel_buffer_object
-    if (!crStateIsBufferBound(GL_PIXEL_PACK_BUFFER_ARB))
+    if (!crStateIsBufferBound(&pack_spu.StateTracker, GL_PIXEL_PACK_BUFFER_ARB))
 #endif
     {
         packspuFlush( (void *) thread );
@@ -518,12 +448,12 @@ void PACKSPU_APIENTRY packspu_ChromiumParameteriCR(GLenum target, GLint value)
             packspuCheckZerroVertAttr(value);
             return;
         case GL_SHARE_CONTEXT_RESOURCES_CR:
-            crStateShareContext(value);
+            crStateShareContext(&pack_spu.StateTracker, value);
             break;
         case GL_RCUSAGE_TEXTURE_SET_CR:
         {
             Assert(value);
-            crStateSetTextureUsed(value, GL_TRUE);
+            crStateSetTextureUsed(&pack_spu.StateTracker, value, GL_TRUE);
             break;
         }
         case GL_RCUSAGE_TEXTURE_CLEAR_CR:
@@ -531,12 +461,12 @@ void PACKSPU_APIENTRY packspu_ChromiumParameteriCR(GLenum target, GLint value)
             Assert(value);
 #ifdef DEBUG
             {
-                CRContext *pCurState = crStateGetCurrent();
+                CRContext *pCurState = crStateGetCurrent(&pack_spu.StateTracker);
                 CRTextureObj *tobj = (CRTextureObj*)crHashtableSearch(pCurState->shared->textureTable, value);
                 Assert(tobj);
             }
 #endif
-            crStateSetTextureUsed(value, GL_FALSE);
+            crStateSetTextureUsed(&pack_spu.StateTracker, value, GL_FALSE);
             break;
         }
         default:
@@ -550,34 +480,20 @@ GLenum PACKSPU_APIENTRY packspu_GetError( void )
     GET_THREAD(thread);
     int writeback = 1;
     GLenum return_val = (GLenum) 0;
-    CRContext *pCurState = crStateGetCurrent();
+    CRContext *pCurState = crStateGetCurrent(&pack_spu.StateTracker);
     NOREF(pCurState); /* it's unused, but I don't know about side effects.. */
 
     if (!CRPACKSPU_IS_WDDM_CRHGSMI() && !(pack_spu.thread[pack_spu.idxThreadInUse].netServer.conn->actual_network))
     {
         crError( "packspu_GetError doesn't work when there's no actual network involved!\nTry using the simplequery SPU in your chain!" );
     }
-    if (pack_spu.swap)
-    {
-        crPackGetErrorSWAP( &return_val, &writeback );
-    }
-    else
-    {
-        crPackGetError( &return_val, &writeback );
-    }
 
+    crPackGetError( &return_val, &writeback );
     packspuFlush( (void *) thread );
     CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
-
-    if (pack_spu.swap)
-    {
-        return_val = (GLenum) SWAP32(return_val);
-    }
-
     return return_val;
 }
 
-#ifdef CHROMIUM_THREADSAFE
 GLint PACKSPU_APIENTRY packspu_VBoxPackSetInjectThread(struct VBOXUHGSMI *pHgsmi)
 {
     GLint con = 0;
@@ -618,7 +534,7 @@ GLint PACKSPU_APIENTRY packspu_VBoxPackSetInjectThread(struct VBOXUHGSMI *pHgsmi
         CRASSERT(thread->netServer.conn);
 
         CRASSERT(thread->packer == NULL);
-        thread->packer = crPackNewContext( pack_spu.swap );
+        thread->packer = crPackNewContext();
         CRASSERT(thread->packer);
         crPackInitBuffer(&(thread->buffer), crNetAlloc(thread->netServer.conn),
                          thread->netServer.conn->buffer_size, thread->netServer.conn->mtu);
@@ -703,7 +619,7 @@ void PACKSPU_APIENTRY packspu_VBoxAttachThread()
 
     crSetTSD(&_PackTSD, NULL);
 
-    crStateVBoxAttachThread();
+    crStateVBoxAttachThread(&pack_spu.StateTracker);
 }
 
 void PACKSPU_APIENTRY packspu_VBoxDetachThread()
@@ -784,64 +700,8 @@ void PACKSPU_APIENTRY packspu_VBoxDetachThread()
         }
     }
 
-    crStateVBoxDetachThread();
+    crStateVBoxDetachThread(&pack_spu.StateTracker);
 }
-
-#ifdef WINDOWS
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
-{
-    (void) lpvReserved;
-
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-        {
-            crInitMutex(&_PackMutex);
-            break;
-        }
-
-        case DLL_PROCESS_DETACH:
-        {
-            crFreeMutex(&_PackMutex);
-            crNetTearDown();
-            break;
-        }
-
-        case DLL_THREAD_ATTACH:
-        case DLL_THREAD_DETACH:
-        default:
-            break;
-    }
-
-    return TRUE;
-}
-#endif
-
-#else  /*ifdef CHROMIUM_THREADSAFE*/
-GLint PACKSPU_APIENTRY packspu_VBoxPackSetInjectThread(struct VBOXUHGSMI *pHgsmi)
-{
-}
-
-GLuint PACKSPU_APIENTRY packspu_VBoxPackGetInjectID(GLint con)
-{
-    return 0;
-}
-
-void PACKSPU_APIENTRY packspu_VBoxPackSetInjectID(GLuint id)
-{
-    (void) id;
-}
-
-void PACKSPU_APIENTRY packspu_VBoxPackAttachThread()
-{
-}
-
-void PACKSPU_APIENTRY packspu_VBoxPackDetachThread()
-{
-}
-#endif /*CHROMIUM_THREADSAFE*/
 
 void PACKSPU_APIENTRY packspu_VBoxPresentComposition(GLint win, const struct VBOXVR_SCR_COMPOSITOR * pCompositor,
                                                      const struct VBOXVR_SCR_COMPOSITOR_ENTRY *pChangedEntry)

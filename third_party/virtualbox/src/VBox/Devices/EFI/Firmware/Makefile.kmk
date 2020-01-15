@@ -241,7 +241,7 @@ VBOX_EFI_BUILD_CMD += \
 #
 VBOX_EFI_MAX_THREADS := 1
 if defined(KMK_OPTS_JOBS) && "$(KBUILD_HOST)" == "win"
- VBOX_EFI_MAX_THREADS := $(expr $(KMK_OPTS_JOBS) / 2)
+ VBOX_EFI_MAX_THREADS := $(if-expr $(KMK_OPTS_JOBS) > 0,$(expr $(KMK_OPTS_JOBS) / 2),$(NUMBER_OF_PROCESSORS))
 endif
 
 #

@@ -12,7 +12,7 @@
 void crStateViewportInit(CRContext *ctx)
 {
 	CRViewportState *v = &ctx->viewport;
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
 	CRViewportBits *vb = &(sb->viewport);
 	CRTransformBits *tb = &(sb->transform);
 
@@ -55,18 +55,18 @@ void crStateViewportApply(CRViewportState *v, GLvectorf *p)
    	p->z = (GLfloat) ((p->z+1.0f)*((v->farClip - v->nearClip) / 2.0f) + v->nearClip);
 }
 
-void STATE_APIENTRY crStateViewport(GLint x, GLint y, GLsizei width, 
+void STATE_APIENTRY crStateViewport(PCRStateTracker pState, GLint x, GLint y, GLsizei width, 
 			GLsizei height) 
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRViewportState *v = &(g->viewport);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRViewportBits *vb = &(sb->viewport);
 	CRTransformBits *tb = &(sb->transform);
 	
 	if (g->current.inBeginEnd)
 	{
-		crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 									"calling glViewport() between glBegin/glEnd" );
 		return;
 	}
@@ -75,7 +75,7 @@ void STATE_APIENTRY crStateViewport(GLint x, GLint y, GLsizei width,
 	
 	if (width < 0 || height < 0)
 	{
-		crStateError( __LINE__, __FILE__, GL_INVALID_VALUE,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
 									"glViewport(bad width or height)" );
 		return;
 	}
@@ -101,17 +101,17 @@ void STATE_APIENTRY crStateViewport(GLint x, GLint y, GLsizei width,
 	DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateDepthRange(GLclampd znear, GLclampd zfar) 
+void STATE_APIENTRY crStateDepthRange(PCRStateTracker pState, GLclampd znear, GLclampd zfar) 
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRViewportState *v = &(g->viewport);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRViewportBits *vb = &(sb->viewport);
 	CRTransformBits *tb = &(sb->transform);
 
 	if (g->current.inBeginEnd)
 	{	
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glDepthRange called in Begin/End");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glDepthRange called in Begin/End");
 		return;
 	}
 
@@ -129,17 +129,17 @@ void STATE_APIENTRY crStateDepthRange(GLclampd znear, GLclampd zfar)
 	DIRTY(tb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateScissor (GLint x, GLint y, 
+void STATE_APIENTRY crStateScissor (PCRStateTracker pState, GLint x, GLint y, 
 					 GLsizei width, GLsizei height) 
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRViewportState *v = &(g->viewport);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRViewportBits *vb = &(sb->viewport);
 
 	if (g->current.inBeginEnd) 
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 			"glScissor called in begin/end");
 		return;
 	}
@@ -148,7 +148,7 @@ void STATE_APIENTRY crStateScissor (GLint x, GLint y,
 
 	if (width < 0 || height < 0)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
 			"glScissor called with negative width/height: %d,%d",
 			width, height);
 		return;

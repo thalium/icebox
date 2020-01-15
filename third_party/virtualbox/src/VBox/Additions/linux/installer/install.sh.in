@@ -59,14 +59,23 @@ create_log "$LOGFILE"
 #        to the user.
 usage()
 {
-    info ""
-    info "Usage: $SELF install [<installation directory>]"
-    info "       [--with-<module>] |"
-    info "       uninstall"
-    info "       [--force] [--no-setup]"
-    info ""
-    info "Example:"
-    info "$SELF install"
+    catinfo << EOF
+
+Usage: $SELF install [<installation directory>]
+       [--with-<module>]
+       [--package-base <base> |
+       uninstall
+       [--force] [--no-setup]
+
+Options:
+  --package-base <base>    For use when building distribution packages.
+                           Installs relative to <base> instead of to "/",
+                           does not run setup, installs to "<base>/usr/lib"
+                           instead of to "/opt" and does not create uninstall.
+
+Example:
+$SELF install
+EOF
     exit 1
 }
 
@@ -158,6 +167,11 @@ EOF
             return 1
         fi
     fi
+    # Inhibit rebuilding of any installed kernels.
+    for i in /lib/modules/*; do
+        ver="${i##*/}"
+        test ! -d "$i"/build || touch /var/lib/VBoxGuestAdditions/skip-"$ver"
+    done
     # Stop what we can in the way of services and remove them from the
     # system
     for i in $UNINSTALL_SCRIPTS; do
@@ -194,45 +208,12 @@ EOF
 
 info "$PACKAGE_NAME installer"
 
-# Check architecture
-cpu=`uname -m`;
-case "$cpu" in
-  i[3456789]86|x86)
-    cpu="x86"
-    lib_candidates="/usr/lib/i386-linux-gnu /usr/lib /lib"
-    ;;
-  x86_64|amd64)
-    cpu="amd64"
-    lib_candidates="/usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib /lib64 /lib"
-    ;;
-  *)
-    cpu="unknown"
-esac
-ARCH_PACKAGE="$PACKAGE-$cpu.tar.bz2"
-if [ ! -r "$ARCH_PACKAGE" ]; then
-  info "Detected unsupported $cpu machine type."
-  exit 1
-fi
-# Find the most appropriate libary folder by seeing which of the candidate paths
-# are actually in the shared linker path list and choosing the first.  We look
-# for Debian-specific paths first, then LSB ones, then the new RedHat ones.
-libs=`ldconfig -v 2>/dev/null | grep -v ^$'\t'`
-for i in $lib_candidates; do
-  if echo $libs | grep -q $i; then
-    lib_path=$i
-    break
-  fi
-done
-if [ ! -x "$lib_path" ]; then
-  info "Unable to determine correct library path."
-  exit 1
-fi
-
 # Sensible default actions
 ACTION="install"
 DO_SETUP="true"
 NO_CLEANUP=""
 FORCE_UPGRADE=""
+PACKAGE_BASE=""
 
 while [ $# -ge 2 ];
 do
@@ -248,6 +229,18 @@ do
 
             uninstall)
                 ACTION="uninstall"
+                ;;
+
+            package)
+                ACTION="package"
+                INSTALLATION_DIR=/usr/lib
+                PACKAGE_BASE="$2"
+                DO_SETUP=""
+                shift
+                if test ! -d "${PACKAGE_BASE}"; then
+                    info "Package base directory not found."
+                    usage
+                fi
                 ;;
 
             ## @todo Add per-module options handling, e.g. --lightdm-greeter-dir
@@ -313,6 +306,40 @@ do
         esac
     fi
 done
+
+# Check architecture
+cpu=`uname -m`;
+case "$cpu" in
+  i[3456789]86|x86)
+    cpu="x86"
+    lib_candidates="/usr/lib/i386-linux-gnu /usr/lib /lib"
+    ;;
+  x86_64|amd64)
+    cpu="amd64"
+    lib_candidates="/usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib /lib64 /lib"
+    ;;
+  *)
+    cpu="unknown"
+esac
+ARCH_PACKAGE="$PACKAGE-$cpu.tar.bz2"
+if [ ! -r "$ARCH_PACKAGE" ]; then
+  info "Detected unsupported $cpu machine type."
+  exit 1
+fi
+# Find the most appropriate libary folder by seeing which of the candidate paths
+# are actually in the shared linker path list and choosing the first.  We look
+# for Debian-specific paths first, then LSB ones, then the new RedHat ones.
+libs=`ldconfig -v 2>/dev/null | grep -v ^$'\t'`
+for i in $lib_candidates; do
+  if echo $libs | grep -q $i; then
+    lib_path=$i
+    break
+  fi
+done
+if [ ! -x "$lib_path" ]; then
+  info "Unable to determine correct library path."
+  exit 1
+fi
 
 # uninstall any previous installation
 # If the currently installed Additions have provided an uninstallation hook, try
@@ -386,11 +413,10 @@ bzip2 -d -c "$ARCH_PACKAGE" | tar -tf - |
 bzip2 -d -c "$ARCH_PACKAGE" | tar -xf - -C "$INSTALLATION_DIR" || exit 1
 
 # Set symlinks into /usr and /sbin
-link_into_fs "bin" "/usr/bin"
-link_into_fs "sbin" "/usr/sbin"
+link_into_fs "bin" "${PACKAGE_BASE}/usr/bin"
+link_into_fs "sbin" "${PACKAGE_BASE}/usr/sbin"
 link_into_fs "lib" "$lib_path"
-add_symlink "$INSTALLATION_DIR/lib/$PACKAGE" /usr/lib/"$PACKAGE"
-link_into_fs "src" "/usr/src"
+link_into_fs "src" "${PACKAGE_BASE}/usr/src"
 
 if [ -d "$INSTALLATION_MODULES_DIR" ]; then
   info "Installing additional modules ..."
@@ -444,11 +470,14 @@ fi
 "$INSTALLATION_DIR/init/vboxadd" setup 1>&2 2>> "${LOGFILE}"
 
 # Install, set up and start init scripts
-for i in "$INSTALLATION_DIR/init/vboxadd" "$INSTALLATION_DIR/init/vboxadd-service"; do
-    install_init_script "$i" "`basename "$i"`" 2>> "${LOGFILE}"
-    addrunlevel "`basename "$i"`" 2>> "${LOGFILE}"
-    start_init_script "`basename "$i"`" 2>> "${LOGFILE}"
-done
+install_init_script "$INSTALLATION_DIR"/init/vboxadd vboxadd 2>> "$LOGFILE"
+install_init_script "$INSTALLATION_DIR"/init/vboxadd-service vboxadd-service \
+    2>> "$LOGFILE"
+finish_init_script_install
+addrunlevel vboxadd 2>> "$LOGFILE"
+addrunlevel vboxadd-service 2>> "$LOGFILE"
+start_init_script vboxadd 2>> "$LOGFILE"
+start_init_script vboxadd-service 2>> "$LOGFILE"
 
 cp $ROUTINES $INSTALLATION_DIR
 echo $INSTALLATION_DIR/$ROUTINES >> "$CONFIG_DIR/$CONFIG_FILES"
@@ -482,14 +511,18 @@ fi
 test -r "$CONFIG_DIR/$CONFIG_FILES" || abort "Required file $CONFIG_FILES not found.  Aborting..."
 
 # Stop and clean up all services
-for i in "$INSTALLATION_DIR/init/vboxadd-service" "$INSTALLATION_DIR/init/vboxadd"; do
-    if test -r "\$i"; then
-        stop_init_script "\`basename "\$i"\`" 2>> "${LOGFILE}"
-        test -z "\${NO_CLEANUP}" && grep -q '^# *cleanup_script *$' "\${i}" && "\${i}" cleanup 2>> "\$LOGFILE"
-        delrunlevel "\`basename "\$i"\`" 2>> "${LOGFILE}"
-        remove_init_script "\`basename "\$i"\`" 2>> "${LOGFILE}"
-    fi
-done
+if test -r "$INSTALLATION_DIR"/init/vboxadd-service; then
+    stop_init_script vboxadd-service 2>> "\$LOGFILE"
+    delrunlevel vboxadd-service 2>> "\$LOGFILE"
+    remove_init_script vboxadd-service 2>> "\$LOGFILE"
+fi
+if test -r "$INSTALLATION_DIR"/init/vboxadd; then
+    stop_init_script vboxadd 2>> "\$LOGFILE"
+    test -n "\$NO_CLEANUP" || "$INSTALLATION_DIR"/init/vboxadd cleanup 2>> "\$LOGFILE"
+    delrunlevel vboxadd 2>> "\$LOGFILE"
+    remove_init_script vboxadd 2>> "\$LOGFILE"
+fi
+finish_init_script_install
 
 # Load all modules
 # Important: This needs to be done before loading the configuration

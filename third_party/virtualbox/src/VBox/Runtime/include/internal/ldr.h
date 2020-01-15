@@ -72,6 +72,7 @@ RT_C_DECLS_BEGIN
 /* These two may clash with winnt.h. */
 #undef IMAGE_DOS_SIGNATURE
 #undef IMAGE_NT_SIGNATURE
+#undef IMAGE_LX_SIGNATURE
 
 
 /** Little endian uint32_t ELF signature ("\x7fELF"). */
@@ -86,6 +87,53 @@ RT_C_DECLS_BEGIN
 #define IMAGE_NE_SIGNATURE  ('N' | ('E' << 8))
 /** Little endian uint16_t MZ signature ("MZ"). */
 #define IMAGE_DOS_SIGNATURE ('M' | ('Z' << 8))
+
+
+/** Kind of missing flag. */
+#define RTMEM_PROT_WRITECOPY        RTMEM_PROT_WRITE
+
+
+/** @name Load symbol kind flags (from kStuff, expose later).
+ * @{ */
+/** The bitness doesn't matter. */
+#define RTLDRSYMKIND_NO_BIT                 UINT32_C(0x00000000)
+/** 16-bit symbol. */
+#define RTLDRSYMKIND_16BIT                  UINT32_C(0x00000001)
+/** 32-bit symbol. */
+#define RTLDRSYMKIND_32BIT                  UINT32_C(0x00000002)
+/** 64-bit symbol. */
+#define RTLDRSYMKIND_64BIT                  UINT32_C(0x00000003)
+/** Mask out the bit.*/
+#define RTLDRSYMKIND_BIT_MASK               UINT32_C(0x00000003)
+/** We don't know the type of symbol. */
+#define RTLDRSYMKIND_NO_TYPE                UINT32_C(0x00000000)
+/** The symbol is a code object (method/function/procedure/whateveryouwannacallit). */
+#define RTLDRSYMKIND_CODE                   UINT32_C(0x00000010)
+/** The symbol is a data object. */
+#define RTLDRSYMKIND_DATA                   UINT32_C(0x00000020)
+/** Mask out the symbol type. */
+#define RTLDRSYMKIND_TYPE_MASK              UINT32_C(0x00000030)
+/** Valid symbol kind mask. */
+#define RTLDRSYMKIND_MASK                   UINT32_C(0x00000033)
+/** Weak symbol. */
+#define RTLDRSYMKIND_WEAK                   UINT32_C(0x00000100)
+/** Forwarder symbol. */
+#define RTLDRSYMKIND_FORWARDER              UINT32_C(0x00000200)
+/** Request a flat symbol address. */
+#define RTLDRSYMKIND_REQ_FLAT               UINT32_C(0x00000000)
+/** Request a segmented symbol address. */
+#define RTLDRSYMKIND_REQ_SEGMENTED          UINT32_C(0x40000000)
+/** Request type mask. */
+#define RTLDRSYMKIND_REQ_TYPE_MASK          UINT32_C(0x40000000)
+/** @} */
+
+/** Align a RTLDRADDR value. */
+#define RTLDR_ALIGN_ADDR(val, align) ( ((val) + ((align) - 1)) & ~(RTLDRADDR)((align) - 1) )
+
+/** Special base address value alias for the link address.
+ * Consider propagating...  */
+#define RTLDR_BASEADDRESS_LINK              (~(RTLDRADDR)1)
+
 
 
 /*******************************************************************************
@@ -107,6 +155,68 @@ typedef enum RTLDRSTATE
     /** The usual 32-bit hack. */
     LDR_STATE_32BIT_HACK = 0x7fffffff
 } RTLDRSTATE;
+
+
+/**
+ * CPU models (from kStuff, expose later some time).
+ */
+typedef enum RTLDRCPU
+{
+    /** The usual invalid cpu. */
+    RTLDRCPU_INVALID = 0,
+
+    /** @name K_ARCH_X86_16
+     * @{ */
+    RTLDRCPU_I8086,
+    RTLDRCPU_I8088,
+    RTLDRCPU_I80186,
+    RTLDRCPU_I80286,
+    RTLDRCPU_I386_16,
+    RTLDRCPU_I486_16,
+    RTLDRCPU_I486SX_16,
+    RTLDRCPU_I586_16,
+    RTLDRCPU_I686_16,
+    RTLDRCPU_P4_16,
+    RTLDRCPU_CORE2_16,
+    RTLDRCPU_K6_16,
+    RTLDRCPU_K7_16,
+    RTLDRCPU_K8_16,
+    RTLDRCPU_FIRST_X86_16 = RTLDRCPU_I8086,
+    RTLDRCPU_LAST_X86_16 = RTLDRCPU_K8_16,
+    /** @} */
+
+    /** @name K_ARCH_X86_32
+     * @{ */
+    RTLDRCPU_X86_32_BLEND,
+    RTLDRCPU_I386,
+    RTLDRCPU_I486,
+    RTLDRCPU_I486SX,
+    RTLDRCPU_I586,
+    RTLDRCPU_I686,
+    RTLDRCPU_P4,
+    RTLDRCPU_CORE2_32,
+    RTLDRCPU_K6,
+    RTLDRCPU_K7,
+    RTLDRCPU_K8_32,
+    RTLDRCPU_FIRST_X86_32 = RTLDRCPU_I386,
+    RTLDRCPU_LAST_X86_32 = RTLDRCPU_K8_32,
+    /** @} */
+
+    /** @name K_ARCH_AMD64
+     * @{ */
+    RTLDRCPU_AMD64_BLEND,
+    RTLDRCPU_K8,
+    RTLDRCPU_P4_64,
+    RTLDRCPU_CORE2,
+    RTLDRCPU_FIRST_AMD64 = RTLDRCPU_K8,
+    RTLDRCPU_LAST_AMD64 = RTLDRCPU_CORE2,
+    /** @} */
+
+    /** The end of the valid cpu values (exclusive). */
+    RTLDRCPU_END,
+    /** Hack to blow the type up to 32-bit. */
+    RTLDRCPU_32BIT_HACK = 0x7fffffff
+} RTLDRCPU;
 
 
 /** Pointer to a loader item. */
@@ -475,7 +585,7 @@ DECLCALLBACK(int) rtldrNativeClose(PRTLDRMODINTERNAL pMod);
  * @param   fFlags          RTLDRLOAD_FLAGS_XXX.
  * @param   pErrInfo        Where to return extended error information. Optional.
  */
-int rtldrNativeLoad(const char *pszFilename, uintptr_t *phHandle, uint32_t fFlags, PRTERRINFO pErrInfo);
+DECLHIDDEN(int) rtldrNativeLoad(const char *pszFilename, uintptr_t *phHandle, uint32_t fFlags, PRTERRINFO pErrInfo);
 
 /**
  * Load a system library.
@@ -486,13 +596,14 @@ int rtldrNativeLoad(const char *pszFilename, uintptr_t *phHandle, uint32_t fFlag
  * @param   fFlags          RTLDRLOAD_FLAGS_XXX.
  * @param   phLdrMod        Where to return the module handle on success.
  */
-int rtldrNativeLoadSystem(const char *pszFilename, const char *pszExt, uint32_t fFlags, PRTLDRMOD phLdrMod);
+DECLHIDDEN(int) rtldrNativeLoadSystem(const char *pszFilename, const char *pszExt, uint32_t fFlags, PRTLDRMOD phLdrMod);
 
-int rtldrPEOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offNtHdrs, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
-int rtldrELFOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
-int rtldrkLdrOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
-/*int rtldrLXOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offLX, PRTLDRMOD phLdrMod);
-int rtldrMachoOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offSomething, PRTLDRMOD phLdrMod);*/
+DECLHIDDEN(int) rtldrPEOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offNtHdrs, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
+DECLHIDDEN(int) rtldrELFOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
+DECLHIDDEN(int) rtldrLXOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offLxHdr, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
+DECLHIDDEN(int) rtldrMachOOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, RTFOFF offImage, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
+DECLHIDDEN(int) rtldrFatOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
+DECLHIDDEN(int) rtldrkLdrOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
 
 
 DECLHIDDEN(int) rtLdrReadAt(RTLDRMOD hLdrMod, void *pvBuf, uint32_t iDbgInfo, RTFOFF off, size_t cb);

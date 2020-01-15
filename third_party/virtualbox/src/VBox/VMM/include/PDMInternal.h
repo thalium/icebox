@@ -1076,8 +1076,11 @@ typedef struct PDM
 
     /** Pending reset flags (PDMVMRESET_F_XXX). */
     uint32_t volatile               fResetFlags;
+
+    /** Set by pdmR3LoadExec for use in assertions. */
+    bool                            fStateLoaded;
     /** Alignment padding. */
-    uint32_t volatile               u32Padding;
+    bool                            afPadding[3];
 
     /** The tracing ID of the next device instance.
      *

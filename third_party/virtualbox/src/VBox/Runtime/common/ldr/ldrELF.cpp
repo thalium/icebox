@@ -118,7 +118,7 @@ static const char *rtldrElfGetShdrType(uint32_t iType)
  * @param   phLdrMod    Where to store the handle.
  * @param   pErrInfo    Where to return extended error information. Optional.
  */
-int rtldrELFOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo)
+DECLHIDDEN(int) rtldrELFOpen(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo)
 {
     const char *pszLogName = pReader->pfnLogName(pReader); NOREF(pszLogName);
 

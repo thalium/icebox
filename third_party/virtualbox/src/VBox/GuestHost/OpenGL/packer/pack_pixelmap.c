@@ -10,7 +10,7 @@
 
 static unsigned char * __gl_HandlePixelMapData(GLenum map, GLsizei mapsize, int size_of_value, const GLvoid *values)
 {
-    int nodata = (values == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int nodata = (values == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
     int packet_length = 
         sizeof( map ) + 
         sizeof( mapsize ) + sizeof(int) + sizeof(GLint);

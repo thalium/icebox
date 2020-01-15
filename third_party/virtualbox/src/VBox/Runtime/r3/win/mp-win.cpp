@@ -418,7 +418,7 @@ static DECLCALLBACK(int32_t) rtMpWinInitOnceGip(void *pvUser)
             g_aidRtMpWinByCpuSetIdx[i] = NIL_RTCPUID;
 
         unsigned const cbGip = pGip->cPages * PAGE_SIZE;
-        for (uint32_t idxGroup = 0; idxGroup < g_cRtMpWinMaxCpus; idxGroup++)
+        for (uint32_t idxGroup = 0; idxGroup < g_cRtMpWinMaxCpuGroups; idxGroup++)
         {
             uint32_t idxMember;
             unsigned offCpuGroup = pGip->aoffCpuGroup[idxGroup];
@@ -426,8 +426,8 @@ static DECLCALLBACK(int32_t) rtMpWinInitOnceGip(void *pvUser)
             {
                 PSUPGIPCPUGROUP pGipCpuGrp  = (PSUPGIPCPUGROUP)((uintptr_t)pGip + offCpuGroup);
                 uint32_t        cMaxMembers = pGipCpuGrp->cMaxMembers;
-                AssertStmt(cMaxMembers < RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers),
-                           cMaxMembers = RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers));
+                AssertStmt(cMaxMembers <= RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers),
+                           cMaxMembers  = RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers));
                 g_aRtMpWinCpuGroups[idxGroup].cMaxCpus     = cMaxMembers;
                 g_aRtMpWinCpuGroups[idxGroup].cActiveCpus  = RT_MIN(pGipCpuGrp->cMembers, cMaxMembers);
 
@@ -477,15 +477,15 @@ static void rtMpWinRefreshGip(void)
             uint32_t const cMyActiveCpus  = ASMAtomicReadU32(&g_cRtMpWinActiveCpus);
             ASMCompilerBarrier();
 
-            for (uint32_t idxGroup = 0; idxGroup < g_cRtMpWinMaxCpus; idxGroup++)
+            for (uint32_t idxGroup = 0; idxGroup < g_cRtMpWinMaxCpuGroups; idxGroup++)
             {
                 unsigned offCpuGroup = pGip->aoffCpuGroup[idxGroup];
                 if (offCpuGroup < cbGip)
                 {
                     PSUPGIPCPUGROUP pGipCpuGrp  = (PSUPGIPCPUGROUP)((uintptr_t)pGip + offCpuGroup);
                     uint32_t        cMaxMembers = pGipCpuGrp->cMaxMembers;
-                    AssertStmt(cMaxMembers < RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers),
-                               cMaxMembers = RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers));
+                    AssertStmt(cMaxMembers <= RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers),
+                               cMaxMembers  = RT_ELEMENTS(g_aRtMpWinCpuGroups[0].aidxCpuSetMembers));
                     for (uint32_t idxMember = g_aRtMpWinCpuGroups[idxGroup].cActiveCpus; idxMember < cMaxMembers; idxMember++)
                     {
                         int16_t idxSet = pGipCpuGrp->aiCpuSetIdxs[idxMember];

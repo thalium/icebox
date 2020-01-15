@@ -135,7 +135,6 @@ int CrFbDisplayWindowRootVr::EntryDestroyed(struct CR_FRAMEBUFFER *pFb, HCR_FRAM
         return rc;
     }
 
-    const VBOXVR_SCR_COMPOSITOR_ENTRY* pSrcEntry = CrFbEntryGetCompositorEntry(hEntry);
     VBOXVR_SCR_COMPOSITOR_ENTRY *pMyEntry = (VBOXVR_SCR_COMPOSITOR_ENTRY*)CrFbDDataEntryGet(hEntry, slotGet());
     CrVrScrCompositorEntryCleanup(pMyEntry);
     entryFree(pMyEntry);
@@ -321,7 +320,6 @@ int CrFbDisplayWindowRootVr::clearCompositor()
 
 void CrFbDisplayWindowRootVr::rootVrTranslateForPos()
 {
-    const RTRECT *pRect = getViewportRect();
     const struct VBVAINFOSCREEN* pScreen = CrFbGetScreenInfo(getFramebuffer());
     int32_t x = pScreen->i32OriginX;
     int32_t y = pScreen->i32OriginY;

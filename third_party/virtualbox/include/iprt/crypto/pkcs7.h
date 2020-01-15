@@ -40,6 +40,19 @@ struct RTCRPKCS7CONTENTINFO;
  * @{
  */
 
+/** PKCS \#7 data object ID.*/
+#define RTCR_PKCS7_DATA_OID                         "1.2.840.113549.1.7.1"
+/** PKCS \#7 signedData object ID. */
+#define RTCR_PKCS7_SIGNED_DATA_OID                  "1.2.840.113549.1.7.2"
+/** PKCS \#7 envelopedData object ID. */
+#define RTCR_PKCS7_ENVELOPED_DATA_OID               "1.2.840.113549.1.7.3"
+/** PKCS \#7 signedAndEnvelopedData object ID.  */
+#define RTCR_PKCS7_SIGNED_AND_ENVELOPED_DATA_OID    "1.2.840.113549.1.7.4"
+/** PKCS \#7 digestedData object ID. */
+#define RTCR_PKCS7_DIGESTED_DATA_OID                "1.2.840.113549.1.7.5"
+/** PKCS \#7 encryptedData object ID. */
+#define RTCR_PKCS7_ENCRYPTED_DATA_OID               "1.2.840.113549.1.7.6"
+
 
 /**
  * PKCS \#7 IssuerAndSerialNumber (IPRT representation).
@@ -93,6 +106,8 @@ typedef enum RTCRPKCS7ATTRIBUTETYPE
     RTCRPKCS7ATTRIBUTETYPE_MS_NESTED_SIGNATURE,
     /** Microsoft statement type, use pObjIdSeqs. */
     RTCRPKCS7ATTRIBUTETYPE_MS_STATEMENT_TYPE,
+    /** Apple plist with the all code directory digests, use pOctetStrings. */
+    RTCRPKCS7ATTRIBUTETYPE_APPLE_MULTI_CD_PLIST,
     /** Blow the type up to 32-bits. */
     RTCRPKCS7ATTRIBUTETYPE_32BIT_HACK = 0x7fffffff
 } RTCRPKCS7ATTRIBUTETYPE;
@@ -198,6 +213,9 @@ RTASN1TYPE_STANDARD_PROTOTYPES(RTCRPKCS7SIGNERINFO, RTDECL, RTCrPkcs7SignerInfo,
 /** Microsoft opus info.
  * @remarks This isn't defined by PKCS \#9, but lumped in here for convenience. It's actually listed as SPC by MS. */
 #define RTCR_PKCS9_ID_MS_SP_OPUS_INFO       "1.3.6.1.4.1.311.2.1.12"
+/** Apple code signing multi-code-directory plist.
+ * @remarks This isn't defined by PKCS \#9, but lumped in here for convenience. */
+#define RTCR_PKCS9_ID_APPLE_MULTI_CD_PLIST  "1.2.840.113635.100.9.1"
 /** @} */
 
 
@@ -379,7 +397,7 @@ RTASN1TYPE_STANDARD_PROTOTYPES(RTCRPKCS7SIGNEDDATA, RTDECL, RTCrPkcs7SignedData,
 RTASN1_IMPL_GEN_SET_OF_TYPEDEFS_AND_PROTOS(RTCRPKCS7SETOFSIGNEDDATA, RTCRPKCS7SIGNEDDATA, RTDECL, RTCrPkcs7SetOfSignedData);
 
 /** PKCS \#7 SignedData object ID.  */
-#define RTCRPKCS7SIGNEDDATA_OID "1.2.840.113549.1.7.2"
+#define RTCRPKCS7SIGNEDDATA_OID   RTCR_PKCS7_SIGNED_DATA_OID
 
 /** PKCS \#7 SignedData version number 1.  */
 #define RTCRPKCS7SIGNEDDATA_V1    1
@@ -493,11 +511,42 @@ RTDECL(int) RTCrPkcs7VerifyCertCallbackCodeSigning(PCRTCRX509CERTIFICATE pCert, 
  *                              for signing the data is suitable.
  * @param   pvUser              User argument for the callback.
  * @param   pErrInfo            Optional error info buffer.
+ * @sa      RTCrPkcs7VerifySignedDataWithExternalData
  */
 RTDECL(int) RTCrPkcs7VerifySignedData(PCRTCRPKCS7CONTENTINFO pContentInfo, uint32_t fFlags,
                                       RTCRSTORE hAdditionalCerts, RTCRSTORE hTrustedCerts,
                                       PCRTTIMESPEC pValidationTime, PFNRTCRPKCS7VERIFYCERTCALLBACK pfnVerifyCert, void *pvUser,
                                       PRTERRINFO pErrInfo);
+
+
+/**
+ * Verifies PKCS \#7 SignedData with external data.
+ *
+ * For compatability with alternative crypto providers, the user must work on
+ * the top level PKCS \#7 structure instead directly on the SignedData.
+ *
+ * @returns IPRT status code.
+ * @param   pContentInfo        PKCS \#7 content info structure.
+ * @param   fFlags              RTCRPKCS7VERIFY_SD_F_XXX.
+ * @param   hAdditionalCerts    Store containing additional certificates to
+ *                              supplement those mentioned in the signed data.
+ * @param   hTrustedCerts       Store containing trusted certificates.
+ * @param   pValidationTime     The time we're supposed to validate the
+ *                              certificates chains at.  Ignored for signatures
+ *                              with valid signing time attributes.
+ * @param   pfnVerifyCert       Callback for checking that a certificate used
+ *                              for signing the data is suitable.
+ * @param   pvUser              User argument for the callback.
+ * @param   pvData              The signed external data.
+ * @param   cbData              The size of the signed external data.
+ * @param   pErrInfo            Optional error info buffer.
+ * @sa      RTCrPkcs7VerifySignedData
+ */
+RTDECL(int) RTCrPkcs7VerifySignedDataWithExternalData(PCRTCRPKCS7CONTENTINFO pContentInfo, uint32_t fFlags,
+                                                      RTCRSTORE hAdditionalCerts, RTCRSTORE hTrustedCerts,
+                                                      PCRTTIMESPEC pValidationTime,
+                                                      PFNRTCRPKCS7VERIFYCERTCALLBACK pfnVerifyCert, void *pvUser,
+                                                      void const *pvData, size_t cbData, PRTERRINFO pErrInfo);
 
 /** @name RTCRPKCS7VERIFY_SD_F_XXX - Flags for RTCrPkcs7VerifySignedData
  * @{ */

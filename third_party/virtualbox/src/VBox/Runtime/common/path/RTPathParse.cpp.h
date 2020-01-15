@@ -207,13 +207,13 @@ static int RTPATH_STYLE_FN(rtPathParse)(const char *pszPath, PRTPATHPARSED pPars
                 {
                     fProps |= RTPATH_PROP_FILENAME;
 
-                    /* look for an ? */
+                    /* Look for a suffix: */
                     uint32_t offSuffix = offStart + cchComp;
-                    while (offSuffix-- > offStart)
+                    while (--offSuffix > offStart)
                         if (pszPath[offSuffix] == '.')
                         {
                             uint32_t cchSuffix = offStart + cchComp - offSuffix;
-                            if (cchSuffix > 1 && offStart != offSuffix)
+                            if (cchSuffix > 1)
                             {
                                 pParsed->cchSuffix = cchSuffix;
                                 pParsed->offSuffix = offSuffix;

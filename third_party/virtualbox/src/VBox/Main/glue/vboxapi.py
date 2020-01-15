@@ -25,7 +25,7 @@ CDDL are applicable instead of those of the GPL.
 You may elect to license modified versions of this file under the
 terms and conditions of either the GPL or the CDDL or both.
 """
-__version__ = "$Revision: 118906 $"
+__version__ = "$Revision: 131698 $"
 
 
 # Note! To set Python bitness on OSX use 'export VERSIONER_PYTHON_PREFER_32_BIT=yes'
@@ -1005,6 +1005,10 @@ class VirtualBoxManager(object):
         ## Dictionary for errToString, built on demand.
         self._dErrorValToName = None
 
+        ## Dictionary for resolving enum values to names, two levels of dictionaries.
+        ## First level is indexed by enum name, the next by value.
+        self._ddEnumValueToName = {};
+
         ## The exception class for the selected platform.
         self.oXcptClass = self.platform.xcptGetBaseXcpt()
         global CurXcptClass
@@ -1145,6 +1149,34 @@ class VirtualBoxManager(object):
         global VBoxSdkDir
         return VBoxSdkDir
 
+    def getEnumValueName(self, sEnumTypeNm, oEnumValue, fTypePrefix = False):
+        """
+        Returns the name (string) for the corresponding enum value.
+        """
+        # Cache lookup:
+        dValueNames = self._ddEnumValueToName.get(sEnumTypeNm);
+        if dValueNames is not None:
+            sValueName = dValueNames.get(oEnumValue);
+            if sValueName:
+                return sValueName if not fTypePrefix else '%s_%s' % (sEnumTypeNm, sValueName);
+        else:
+            # Cache miss. Build the reverse lookup dictionary and add it to the cache:
+            dNamedValues = self.constants.all_values(sEnumTypeNm);
+            if len(dNamedValues) > 0:
+
+                dValueNames = dict();
+                for sName in dNamedValues:
+                    dValueNames[dNamedValues[sName]] = sName;
+                self._ddEnumValueToName[sEnumTypeNm] = dValueNames;
+
+                # Lookup the value:
+                sValueName = dValueNames.get(oEnumValue);
+                if sValueName:
+                    return sValueName if not fTypePrefix else '%s_%s' % (sEnumTypeNm, sValueName);
+
+        # Fallback:
+        return '%s_Unknown_%s' % (sEnumTypeNm, oEnumValue);
+
     #
     # Error code utilities.
     #
@@ -1220,8 +1252,8 @@ class VirtualBoxManager(object):
             for sKey in dir(self.statuses):
                 if sKey[0].isupper():
                     oValue = getattr(self.statuses, sKey)
-                    if type(oValue) is int:
-                        dErrorValToName[oValue] = sKey
+                    if isinstance(oValue, (int, long)):
+                        dErrorValToName[int(oValue)] = sKey
             self._dErrorValToName = dErrorValToName
 
         # Do the lookup, falling back on formatting the status number.
@@ -1229,7 +1261,7 @@ class VirtualBoxManager(object):
             sStr = self._dErrorValToName[int(hrStatus)]
         except KeyError:
             hrLong = long(hrStatus)
-            sStr = '%#x (%d)' % (hrLong, hrLong)
+            sStr = '%#x (%d)' % (hrLong & 0xffffffff, hrLong)
         return sStr
 
     def xcptGetMessage(self, oXcpt=None):
@@ -1243,10 +1275,4 @@ class VirtualBoxManager(object):
         if sRet is None:
             sRet = self.xcptToString(oXcpt)
         return sRet
-
-    # Legacy, remove in a day or two.
-    errGetStatus = xcptGetStatus
-    errIsDeadInterface = xcptIsDeadInterface
-    errIsOurXcptKind = xcptIsOurXcptKind
-    errGetMessage = xcptGetMessage
 

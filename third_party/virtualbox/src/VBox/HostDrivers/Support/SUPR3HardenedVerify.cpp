@@ -121,12 +121,10 @@ static SUPINSTFILE const    g_aSupInstallFiles[] =
     /* ---------------------------------------------------------------------- */
     {   kSupIFT_Dll,  kSupID_AppPrivArch,       false, "VMMR0.r0" },
     {   kSupIFT_Dll,  kSupID_AppPrivArch,       false, "VBoxDDR0.r0" },
-    {   kSupIFT_Dll,  kSupID_AppPrivArch,       false, "VBoxDD2R0.r0" },
 
 #ifdef VBOX_WITH_RAW_MODE
     {   kSupIFT_Rc,   kSupID_AppPrivArch,       false, "VMMRC.rc" },
     {   kSupIFT_Rc,   kSupID_AppPrivArch,       false, "VBoxDDRC.rc" },
-    {   kSupIFT_Rc,   kSupID_AppPrivArch,       false, "VBoxDD2RC.rc" },
 #endif
 
     {   kSupIFT_Dll,  kSupID_AppSharedLib,      false, "VBoxRT" SUPLIB_DLL_SUFF },

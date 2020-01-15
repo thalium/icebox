@@ -53,17 +53,19 @@ typedef struct {
     CRBufferObject *unpackBuffer;
 
 	CRBufferObject *nullBuffer;  /* name = 0 */
+    /** Attached state tracker. */
+    PCRStateTracker pStateTracker;
 } CRBufferObjectState;
 
 DECLEXPORT(CRBufferObject *) crStateGetBoundBufferObject(GLenum target, CRBufferObjectState *b);
-DECLEXPORT(GLboolean) crStateIsBufferBound(GLenum target);
+DECLEXPORT(GLboolean) crStateIsBufferBound(PCRStateTracker pState, GLenum target);
 struct CRContext;
 DECLEXPORT(GLboolean) crStateIsBufferBoundForCtx(struct CRContext *g, GLenum target);
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateBufferHWIDtoID(GLuint hwid);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetBufferHWID(GLuint id);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateBufferHWIDtoID(PCRStateTracker pState, GLuint hwid);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetBufferHWID(PCRStateTracker pState, GLuint id);
 
-DECLEXPORT(void) crStateRegBuffers(GLsizei n, GLuint *buffers);
+DECLEXPORT(void) crStateRegBuffers(PCRStateTracker pState, GLsizei n, GLuint *buffers);
 #ifdef __cplusplus
 }
 #endif

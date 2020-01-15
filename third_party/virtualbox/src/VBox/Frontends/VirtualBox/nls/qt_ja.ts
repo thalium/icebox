@@ -2648,7 +2648,7 @@ Do you want to delete it anyway?</source>
     </message>
     <message>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. Expected build key &quot;%2&quot;, got &quot;%3&quot;</source>
-        <translation type="vanished">プラグイン &apos;%1&apos; は、互換性のない Qt ライブラリを使用しています。ビルドキー　&quot;%2&quot;　が必要ですが、&quot;%3&quot; しかありません </translation>
+        <translation type="vanished">プラグイン &apos;%1&apos; は、互換性のない Qt ライブラリを使用しています。ビルドキー&#x3000;&quot;%2&quot;&#x3000;が必要ですが、&quot;%3&quot; しかありません </translation>
     </message>
     <message>
         <source>Unknown error</source>

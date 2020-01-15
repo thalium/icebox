@@ -74,31 +74,31 @@ DECLEXPORT(void) STATE_APIENTRY crStateFramebufferObjectSwitch(CRContext *from, 
 DECLEXPORT(void) STATE_APIENTRY crStateFramebufferObjectDisableHW(CRContext *ctx, GLuint idDrawFBO, GLuint idReadFBO);
 DECLEXPORT(void) STATE_APIENTRY crStateFramebufferObjectReenableHW(CRContext *fromCtx, CRContext *toCtx, GLuint idDrawFBO, GLuint idReadFBO);
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetFramebufferHWID(GLuint id);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetRenderbufferHWID(GLuint id);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetFramebufferHWID(PCRStateTracker pState, GLuint id);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetRenderbufferHWID(PCRStateTracker pState, GLuint id);
 
-DECLEXPORT(void) STATE_APIENTRY crStateBindRenderbufferEXT(GLenum target, GLuint renderbuffer);
-DECLEXPORT(void) STATE_APIENTRY crStateDeleteRenderbuffersEXT(GLsizei n, const GLuint *renderbuffers);
-DECLEXPORT(void) STATE_APIENTRY crStateRenderbufferStorageEXT(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-DECLEXPORT(void) STATE_APIENTRY crStateGetRenderbufferParameterivEXT(GLenum target, GLenum pname, GLint *params);
-DECLEXPORT(void) STATE_APIENTRY crStateBindFramebufferEXT(GLenum target, GLuint framebuffer);
-DECLEXPORT(void) STATE_APIENTRY crStateDeleteFramebuffersEXT(GLsizei n, const GLuint *framebuffers);
-DECLEXPORT(void) STATE_APIENTRY crStateFramebufferTexture1DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-DECLEXPORT(void) STATE_APIENTRY crStateFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-DECLEXPORT(void) STATE_APIENTRY crStateFramebufferTexture3DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
-DECLEXPORT(void) STATE_APIENTRY crStateFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-DECLEXPORT(void) STATE_APIENTRY crStateGetFramebufferAttachmentParameterivEXT(GLenum target, GLenum attachment, GLenum pname, GLint *params);
-DECLEXPORT(void) STATE_APIENTRY crStateGenerateMipmapEXT(GLenum target);
+DECLEXPORT(void) STATE_APIENTRY crStateBindRenderbufferEXT(PCRStateTracker pState, GLenum target, GLuint renderbuffer);
+DECLEXPORT(void) STATE_APIENTRY crStateDeleteRenderbuffersEXT(PCRStateTracker pState, GLsizei n, const GLuint *renderbuffers);
+DECLEXPORT(void) STATE_APIENTRY crStateRenderbufferStorageEXT(PCRStateTracker pState, GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+DECLEXPORT(void) STATE_APIENTRY crStateGetRenderbufferParameterivEXT(PCRStateTracker pState, GLenum target, GLenum pname, GLint *params);
+DECLEXPORT(void) STATE_APIENTRY crStateBindFramebufferEXT(PCRStateTracker pState, GLenum target, GLuint framebuffer);
+DECLEXPORT(void) STATE_APIENTRY crStateDeleteFramebuffersEXT(PCRStateTracker pState, GLsizei n, const GLuint *framebuffers);
+DECLEXPORT(void) STATE_APIENTRY crStateFramebufferTexture1DEXT(PCRStateTracker pState, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+DECLEXPORT(void) STATE_APIENTRY crStateFramebufferTexture2DEXT(PCRStateTracker pState, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+DECLEXPORT(void) STATE_APIENTRY crStateFramebufferTexture3DEXT(PCRStateTracker pState, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
+DECLEXPORT(void) STATE_APIENTRY crStateFramebufferRenderbufferEXT(PCRStateTracker pState, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+DECLEXPORT(void) STATE_APIENTRY crStateGetFramebufferAttachmentParameterivEXT(PCRStateTracker pState, GLenum target, GLenum attachment, GLenum pname, GLint *params);
+DECLEXPORT(void) STATE_APIENTRY crStateGenerateMipmapEXT(PCRStateTracker pState, GLenum target);
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateFBOHWIDtoID(GLuint hwid);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateRBOHWIDtoID(GLuint hwid);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateFBOHWIDtoID(PCRStateTracker pState, GLuint hwid);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateRBOHWIDtoID(PCRStateTracker pState, GLuint hwid);
 
-DECLEXPORT(void) crStateRegFramebuffers(GLsizei n, GLuint *buffers);
-DECLEXPORT(void) crStateRegRenderbuffers(GLsizei n, GLuint *buffers);
+DECLEXPORT(void) crStateRegFramebuffers(PCRStateTracker pState, GLsizei n, GLuint *buffers);
+DECLEXPORT(void) crStateRegRenderbuffers(PCRStateTracker pState, GLsizei n, GLuint *buffers);
 
 #ifdef IN_GUEST
-DECLEXPORT(GLenum) STATE_APIENTRY crStateCheckFramebufferStatusEXT(GLenum target);
-DECLEXPORT(GLenum) STATE_APIENTRY crStateSetFramebufferStatus(GLenum target, GLenum status);
+DECLEXPORT(GLenum) STATE_APIENTRY crStateCheckFramebufferStatusEXT(PCRStateTracker pState, GLenum target);
+DECLEXPORT(GLenum) STATE_APIENTRY crStateSetFramebufferStatus(PCRStateTracker pState, GLenum target, GLenum status);
 #endif
 
 #ifdef __cplusplus

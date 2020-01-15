@@ -660,6 +660,25 @@ int main()
 #endif
 
     /*
+     * Test some string formatting too, while we're here...
+     */
+    RTTestSub(hTest, "Formatting");
+    char szValue[256];
+#define RTTESTI_CHECK_FMT(a_FmtCall, a_szExpect) \
+        do { \
+            ssize_t cchResult = a_FmtCall; \
+            if (cchResult != sizeof(a_szExpect) - 1 || strcmp(szValue, a_szExpect) != 0) \
+                RTTestFailed(hTest, "Got %s (%zd bytes) expected %s (%zu bytes); line " RT_XSTR(__LINE__), \
+                             szValue, cchResult, a_szExpect, sizeof(a_szExpect) - 1); \
+        } while (0)
+    SET_TIME(&T1, 1969,12,31, 23,59,58,999995000, 365, 2, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    RTTESTI_CHECK_FMT(RTTimeToRfc2822(&T1, szValue, sizeof(szValue),                    0), "Wed, 31 Dec 1969 23:59:58 -0000");
+    RTTESTI_CHECK_FMT(RTTimeToRfc2822(&T1, szValue, sizeof(szValue), RTTIME_RFC2822_F_GMT), "Wed, 31 Dec 1969 23:59:58 GMT");
+    SET_TIME(&T1, 2018, 9, 6,  4, 9, 8,        0, 249, 3, 0, RTTIME_FLAGS_TYPE_UTC | RTTIME_FLAGS_COMMON_YEAR);
+    RTTESTI_CHECK_FMT(RTTimeToRfc2822(&T1, szValue, sizeof(szValue),                    0), "Thu, 6 Sep 2018 04:09:08 -0000");
+    RTTESTI_CHECK_FMT(RTTimeToRfc2822(&T1, szValue, sizeof(szValue), RTTIME_RFC2822_F_GMT), "Thu, 6 Sep 2018 04:09:08 GMT");
+
+    /*
      * Summary
      */
     return RTTestSummaryAndDestroy(hTest);

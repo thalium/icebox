@@ -2523,7 +2523,7 @@ DECLINLINE(void) ASMAtomicWritePtrVoid(void RT_FAR * volatile RT_FAR *ppv, const
  *
  * @remarks This is relatively type safe on GCC platforms.
  */
-#ifdef __GNUC__
+#if RT_GNUC_PREREQ(4, 2)
 # define ASMAtomicWriteNullPtr(ppv) \
     do \
     { \
@@ -2554,7 +2554,7 @@ DECLINLINE(void) ASMAtomicWritePtrVoid(void RT_FAR * volatile RT_FAR *ppv, const
  * @remarks This is relatively type safe on GCC platforms when @a pv isn't
  *          NULL.
  */
-#ifdef __GNUC__
+#if RT_GNUC_PREREQ(4, 2)
 # define ASMAtomicUoWritePtr(ppv, pv) \
     do \
     { \

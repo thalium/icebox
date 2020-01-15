@@ -2483,7 +2483,7 @@ private:</xsl:text>
  - - - - - - - - - - - - - - - - - - - - - - -->
 
 <xsl:template match="interface">
-    <xsl:if test="not(@internal='yes') and not(@supportsErrorInfo='no')">
+    <xsl:if test="not(@internal='yes') and not(@autogen='VBoxEvent') and not(@supportsErrorInfo='no')">
         <xsl:call-template name="emitInterface"/>
     </xsl:if>
 </xsl:template>

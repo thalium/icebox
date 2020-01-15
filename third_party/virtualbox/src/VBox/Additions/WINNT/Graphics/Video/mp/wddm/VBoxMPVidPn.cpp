@@ -1688,6 +1688,14 @@ static BOOLEAN vboxVidPnIsPathSupported(PVBOXMP_DEVEXT pDevExt, const D3DKMDT_VI
 
 NTSTATUS VBoxVidPnIsSupported(PVBOXMP_DEVEXT pDevExt, D3DKMDT_HVIDPN hVidPn, BOOLEAN *pfSupported)
 {
+    /* According Microsoft Docs we must return pfSupported = TRUE here if hVidPn is NULL, as
+     * the display adapter can always be configured to display nothing. */
+    if (hVidPn == NULL)
+    {
+        *pfSupported = TRUE;
+        return STATUS_SUCCESS;
+    }
+
     *pfSupported = FALSE;
 
     const DXGK_VIDPN_INTERFACE* pVidPnInterface = NULL;

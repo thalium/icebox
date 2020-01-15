@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -215,8 +215,8 @@ typedef struct VBOXNETFLTNOTIFIER *PVBOXNETFLTNOTIFIER;
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
-static int      VBoxNetFltLinuxInit(void);
-static void     VBoxNetFltLinuxUnload(void);
+static int      __init VBoxNetFltLinuxInit(void);
+static void     __exit VBoxNetFltLinuxUnload(void);
 static void     vboxNetFltLinuxForwardToIntNet(PVBOXNETFLTINS pThis, struct sk_buff *pBuf);
 
 
@@ -688,7 +688,9 @@ static struct sk_buff *vboxNetFltLinuxSkBufFromSG(PVBOXNETFLTINS pThis, PINTNETS
 {
     struct sk_buff *pPkt;
     struct net_device *pDev;
+#if defined(VBOXNETFLT_WITH_GSO_XMIT_WIRE) || defined(VBOXNETFLT_WITH_GSO_XMIT_HOST)
     unsigned fGsoType = 0;
+#endif
 
     if (pSG->cbTotal == 0)
     {
@@ -1781,6 +1783,18 @@ static bool vboxNetFltNeedsLinkState(PVBOXNETFLTINS pThis, struct net_device *pD
     return false;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 18)
+DECLINLINE(void) netif_tx_lock_bh(struct net_device *pDev)
+{
+    spin_lock_bh(&pDev->xmit_lock);
+}
+
+DECLINLINE(void) netif_tx_unlock_bh(struct net_device *pDev)
+{
+    spin_unlock_bh(&pDev->xmit_lock);
+}
+#endif
+
 /**
  * Some devices need link state change when filter attaches/detaches
  * since the filter is their link in a sense.
@@ -2131,7 +2145,9 @@ static int vboxNetFltLinuxEnumeratorCallback(struct notifier_block *self, unsign
 #endif
     if (in_dev != NULL)
     {
-        for_ifa(in_dev) {
+        struct in_ifaddr *ifa;
+
+        for (ifa = in_dev->ifa_list; ifa; ifa = ifa->ifa_next) {
             if (VBOX_IPV4_IS_LOOPBACK(ifa->ifa_address))
                 return NOTIFY_OK;
 
@@ -2145,7 +2161,7 @@ static int vboxNetFltLinuxEnumeratorCallback(struct notifier_block *self, unsign
 
             pThis->pSwitchPort->pfnNotifyHostAddress(pThis->pSwitchPort,
                 /* :fAdded */ true, kIntNetAddrType_IPv4, &ifa->ifa_address);
-        } endfor_ifa(in_dev);
+        }
     }
 
     /*

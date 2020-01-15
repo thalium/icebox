@@ -36,11 +36,11 @@
 *********************************************************************************************************************************/
 #include <VBox/dis.h>
 #include <VBox/disopcode.h>
+#include <VBox/sup.h>
 #include <iprt/string.h>
 
-#if defined(IN_RING0) && !defined(RT_OS_WINDOWS) /* Too lazy to make import libs. */
-extern "C" DECLIMPORT(int) MyPrintf(const char *pszFormat, ...);
-# define MY_PRINTF(a) MyPrintf a
+#if defined(IN_RING0)
+# define MY_PRINTF(a) SUPR0Printf a
 #else
 # define MY_PRINTF(a) do {} while (0)
 #endif
@@ -114,6 +114,20 @@ extern "C" DECLEXPORT(int) DisasmTest1(void)
     uint32_t cb;
     int rc;
     MY_PRINTF(("DisasmTest1: %p\n", &DisasmTest1));
+
+#if defined(IN_RING0)
+    MY_PRINTF(("GIP: g_pSUPGlobalInfoPage=%p\n", g_pSUPGlobalInfoPage));
+    MY_PRINTF(("GIP: magic=%#x version=%#x mode=%d cCpus=%d\n", g_pSUPGlobalInfoPage->u32Magic, g_pSUPGlobalInfoPage->u32Version,
+               g_pSUPGlobalInfoPage->u32Mode, g_pSUPGlobalInfoPage->cCpus));
+    if (g_pSUPGlobalInfoPage->u32Magic != SUPGLOBALINFOPAGE_MAGIC)
+        return 0xc001;
+    if (g_pSUPGlobalInfoPage->u32Version != SUPGLOBALINFOPAGE_VERSION)
+        return 0xc002;
+    if (g_pSUPGlobalInfoPage->u32Mode != SUPGIPMODE_INVARIANT_TSC)
+        return 0xc003;
+    if (g_pSUPGlobalInfoPage->cCpus != 42)
+        return 0xc004;
+#endif
 
     memset(&Cpu, 0, sizeof(Cpu));
 

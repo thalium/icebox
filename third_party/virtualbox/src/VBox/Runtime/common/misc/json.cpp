@@ -713,6 +713,19 @@ static int rtJsonTokenizerInit(PRTJSONTOKENIZER pTokenizer, PFNRTJSONTOKENIZERRE
 }
 
 /**
+ * Cleans up any resources still in control of the given token.
+ *
+ * @returns nothing.
+ * @param   pToken              The toke nto clean up.
+ */
+static void rtJsonTokenizerTokenCleanup(PRTJSONTOKEN pToken)
+{
+    if (   pToken->enmClass == RTJSONTOKENCLASS_STRING
+        && pToken->Class.String.pszStr)
+        RTStrFree(pToken->Class.String.pszStr);
+}
+
+/**
  * Destroys a given tokenizer state.
  *
  * @returns nothing.
@@ -720,7 +733,8 @@ static int rtJsonTokenizerInit(PRTJSONTOKENIZER pTokenizer, PFNRTJSONTOKENIZERRE
  */
 static void rtJsonTokenizerDestroy(PRTJSONTOKENIZER pTokenizer)
 {
-    RT_NOREF_PV(pTokenizer);
+    rtJsonTokenizerTokenCleanup(pTokenizer->pTokenCurr);
+    rtJsonTokenizerTokenCleanup(pTokenizer->pTokenNext);
 }
 
 /**
@@ -928,6 +942,7 @@ static int rtJsonParseObject(PRTJSONTOKENIZER pTokenizer, PRTJSONVALINT pJsonVal
            && pToken->enmClass == RTJSONTOKENCLASS_STRING)
     {
         char *pszName = pToken->Class.String.pszStr;
+        pToken->Class.String.pszStr = NULL;
 
         rtJsonTokenizerConsume(pTokenizer);
         if (rtJsonTokenizerConsumeIfMatched(pTokenizer, RTJSONTOKENCLASS_NAME_SEPARATOR))
@@ -949,6 +964,7 @@ static int rtJsonParseObject(PRTJSONTOKENIZER pTokenizer, PRTJSONVALINT pJsonVal
                             RTMemFree(papValuesNew);
                         if (papszNamesNew)
                             RTMemFree(papszNamesNew);
+                        RTStrFree(pszName);
                         rc = VERR_NO_MEMORY;
                         break;
                     }
@@ -971,9 +987,14 @@ static int rtJsonParseObject(PRTJSONTOKENIZER pTokenizer, PRTJSONVALINT pJsonVal
                     && pToken->enmClass != RTJSONTOKENCLASS_END_OBJECT)
                     rc = VERR_JSON_MALFORMED;
             }
+            else
+                RTStrFree(pszName);
         }
         else
+        {
+            RTStrFree(pszName);
             rc = VERR_JSON_MALFORMED;
+        }
     }
 
     if (RT_SUCCESS(rc))

@@ -928,6 +928,17 @@ VBOXGLXTAG(glXChooseFBConfig)(Display *dpy, int screen, ATTRIB_TYPE *attrib_list
                 attrib++;
                 break;
 
+            case GLX_SAMPLE_BUFFERS_SGIS: /* aka GLX_SAMPLES_ARB */
+                if (attrib[1] > 0)
+                    goto err_exit;
+                attrib++;
+                break;
+            case GLX_SAMPLES_SGIS: /* aka GLX_SAMPLES_ARB */
+                if (attrib[1] > 0)
+                    goto err_exit;
+                attrib++;
+                break;
+
             case GLX_X_VISUAL_TYPE:
             case GLX_TRANSPARENT_TYPE_EXT:
             case GLX_TRANSPARENT_INDEX_VALUE_EXT:
@@ -936,13 +947,11 @@ VBOXGLXTAG(glXChooseFBConfig)(Display *dpy, int screen, ATTRIB_TYPE *attrib_list
             case GLX_TRANSPARENT_BLUE_VALUE_EXT:
             case GLX_TRANSPARENT_ALPHA_VALUE_EXT:
                 /* ignore */
-                crWarning("glXChooseVisual: ignoring attribute 0x%x", *attrib);
+                crWarning("glXChooseFBConfig: ignoring attribute 0x%x", *attrib);
                 attrib++;
                 break;
-
-                break;
             default:
-                crWarning( "glXChooseVisual: bad attrib=0x%x, ignoring", *attrib );
+                crWarning( "glXChooseFBConfig: bad attrib=0x%x, ignoring", *attrib );
                 attrib++;
                 break;
         }

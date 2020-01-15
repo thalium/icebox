@@ -167,9 +167,6 @@ VBOX_LNX_STRIP_BIN = \
 		components/VBoxSVCM.so \
 		components/VBoxC.so,) \
 	$(if $(VBOX_WITH_CROGL),\
-		VBoxOGLhostcrutil.so \
-		VBoxOGLhosterrorspu.so \
-		VBoxOGLrenderspu.so \
 		$(if $(VBOX_WITH_QTGUI),VBoxTestOGL,) \
 		VBoxSharedCrOpenGL.so,) \
 	$(if $(VBOX_WITH_VMSVGA3D),VBoxSVGA3D.so,) \
@@ -183,34 +180,28 @@ VBOX_LNX_STRIP_BIN = \
 
 # Do not remove relocation information of these binaries
 VBOX_LNX_STRIP_OBJ = \
-	VBoxDD2R0.r0 \
 	VBoxDDR0.r0 \
 	VMMR0.r0
 ifdef VBOX_NO_LINUX_RUN_INSTALLER
  VBOX_LNX_STRIP_OBJ += \
-	VBoxDD2R0.debug \
 	VBoxDDR0.debug \
 	VMMR0.debug
 else
  VBOX_LNX_DBG_BIN = \
-	VBoxDD2R0.debug \
 	VBoxDDR0.debug \
 	VMMR0.debug
 endif
 
 ifdef VBOX_WITH_RAW_MODE
  VBOX_LNX_STRIP_OBJ += \
-	VBoxDD2RC.rc \
 	VBoxDDRC.rc \
 	VMMRC.rc
  ifdef VBOX_NO_LINUX_RUN_INSTALLER
   VBOX_LNX_STRIP_OBJ += \
-	VBoxDD2RC.debug \
 	VBoxDDRC.debug \
 	VMMRC.debug
  else
   VBOX_LNX_DBG_BIN += \
-	VBoxDD2RC.debug \
 	VBoxDDRC.debug \
 	VMMRC.debug
  endif

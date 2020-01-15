@@ -189,7 +189,8 @@ static void vboxClientUsage(const char *pcszFileName)
              "--checkhostversion|"
 #endif
              "--seamless|check3d|"
-             "--vmsvga [-d|--nodaemon]\n", pcszFileName);
+             "--vmsvga|--vmsvga-x11"
+             "[-d|--nodaemon]\n", pcszFileName);
     RTPrintf("Starts the VirtualBox DRM/X Window System guest services.\n\n");
     RTPrintf("Options:\n");
     RTPrintf("  --clipboard        starts the shared clipboard service\n");
@@ -202,7 +203,8 @@ static void vboxClientUsage(const char *pcszFileName)
 #endif
     RTPrintf("  --check3d          tests whether 3D pass-through is enabled\n");
     RTPrintf("  --seamless         starts the seamless windows service\n");
-    RTPrintf("  --vmsvga           starts VMSVGA dynamic resizing for DRM or for X11\n");
+    RTPrintf("  --vmsvga           starts VMSVGA dynamic resizing for DRM\n");
+    RTPrintf("  --vmsvga-x11       starts VMSVGA dynamic resizing for X11\n");
     RTPrintf("  -f, --foreground   run in the foreground (no daemonizing)\n");
     RTPrintf("  -d, --nodaemon     continues running as a system service\n");
     RTPrintf("  -h, --help         shows this help text\n");
@@ -317,6 +319,12 @@ int main(int argc, char *argv[])
             if (g_pService)
                 return vbclSyntaxOnlyOneService();
             g_pService = VBClDisplaySVGAService();
+        }
+        else if (!strcmp(argv[i], "--vmsvga-x11"))
+        {
+            if (g_pService)
+                break;
+            g_pService = VBClDisplaySVGAX11Service();
         }
         /* bird: this is just a quick hack to get something out of the LogRel statements in the code. */
         else if (!strcmp(argv[i], "--init-vbgl-user"))

@@ -1169,7 +1169,10 @@ PDMBOTHCBDECL(int) vmsvgaReadPort(PVGASTATE pThis, uint32_t *pu32)
 
     case SVGA_REG_NUM_DISPLAYS:        /* (Deprecated) */
         STAM_REL_COUNTER_INC(&pThis->svga.StatRegNumDisplaysRd);
-        *pu32 = 1;  /* Must return something sensible here otherwise the Linux driver will take a legacy code path without 3d support. */
+        /* We must return something sensible here otherwise the Linux driver
+         * will take a legacy code path without 3d support.  This number also
+         * limits how many screens Linux guests will allow. */
+        *pu32 = 32;
         break;
 
     default:
@@ -3221,7 +3224,7 @@ static DECLCALLBACK(int) vmsvgaFIFOLoop(PPDMDEVINS pDevIns, PPDMTHREAD pThread)
         {
             STAM_REL_COUNTER_INC(&pSVGAState->StatFifoErrors);
             LogRelMax(8, ("vmsvgaFIFOLoop: Misaligned offCurrentCmd=%#x?\n", offCurrentCmd));
-            offCurrentCmd = ~UINT32_C(3);
+            offCurrentCmd &= ~UINT32_C(3);
         }
 
 /** @def VMSVGAFIFO_GET_CMD_BUFFER_BREAK
@@ -3826,9 +3829,10 @@ static DECLCALLBACK(int) vmsvgaFIFOLoop(PPDMDEVINS pDevIns, PPDMTHREAD pThread)
  * header.  Will break out of the switch if it doesn't.
  */
 #  define VMSVGAFIFO_CHECK_3D_CMD_MIN_SIZE_BREAK(a_cbMin) \
-     do { AssertMsgBreak(pHdr->size >= (a_cbMin), ("size=%#x a_cbMin=%#zx\n", pHdr->size, (size_t)(a_cbMin))); \
+     if (1) { \
+          AssertMsgBreak(pHdr->size >= (a_cbMin), ("size=%#x a_cbMin=%#zx\n", pHdr->size, (size_t)(a_cbMin))); \
           RT_UNTRUSTED_VALIDATED_FENCE(); \
-     } while (0)
+     } else do {} while (0)
                     switch ((int)enmCmdId)
                     {
                     case SVGA_3D_CMD_SURFACE_DEFINE:

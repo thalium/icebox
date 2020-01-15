@@ -23,7 +23,7 @@ Recommends: ${alsa}, ${pulse}, ${sdlttf}, kmod | kldutils | module-init-tools,
   pdf-viewer, libgl1
 Provides: virtualbox
 Replaces: virtualbox
-Conflicts: virtualbox, virtualbox-ose, virtualbox-guest-additions-iso
+Conflicts: virtualbox, virtualbox-ose, virtualbox-qt, virtualbox-guest-additions-iso
 Description: Oracle VM VirtualBox
  VirtualBox is a powerful PC virtualization solution allowing you to run a
  wide range of PC operating systems on your Linux system. This includes
@@ -37,7 +37,7 @@ Architecture: i386 amd64
 Depends: virtualbox-5.2 (= ${binary:Version})
 Provides: virtualbox-dbg
 Replaces: virtualbox-dbg
-Conflicts: virtualbox-dbg, virtualbox-ose-dbg
+Conflicts: virtualbox-dbg, virtualbox-ose-dbg, virtualbox-qt-dbg
 Description: Oracle VM VirtualBox debugging symbols
  VirtualBox is a powerful PC virtualization solution allowing you to run a
  wide range of PC operating systems on your Linux system. This includes

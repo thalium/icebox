@@ -27,7 +27,314 @@ are ordered as follows:
 <chapter> <!-- HACK ALERT! Seems we must have a single top level element for xi:include to work.
                            So, we use chapter and xpointer="xpointer(/chapter/)" with xi:include. -->
 
-   <sect1>
+  <sect1>
+
+    <title>Version 5.2.33 (2019-xx-xx)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>Virtualization core: some fixes for systems with lots of
+          processors</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: relaxed VRM / VRA (variable rate audio) bit checks to
+          provide more compatibility for guests running ALSA setups with the
+          AC'97 emulation</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: Fixed "double buffering" size of a stream's internal ring
+          buffer, adjusted logging).</para>
+      </listitem>
+
+      <listitem>
+        <para>USB: made device capturing for passthrough more accurate and
+          reliable on Windows host</para>
+      </listitem>
+
+      <listitem>
+        <para>Network: fixed potential issue with interrupt signalling for
+          network adapters in UEFI guests</para>
+      </listitem>
+
+      <listitem>
+        <para>3D: fixed crash with some applications when using VBoxSVGA or
+          VMSVGA graphics adapter (bug #18638)</para>
+      </listitem>
+
+      <listitem>
+        <para>3D: fixed state saving and loading when the VBoxVGA graphics
+          adapter is used with 3D enabled (bug #18802, 5.2.32 regression)</para>
+      </listitem>
+
+      <listitem>
+        <para>Multiple fixes in 3D/Graphics including Chromium</para>
+      </listitem>
+
+      <listitem>
+        <para>macOS host: fix crash of GUI VM process which showed up
+          frequently with 10.15 Catalina (bug #18990)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows host: fixed crashes on startup with software trying to
+          inject code into a VM process</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host: improve python version detection during rpm
+          package creation, can change package dependencies and fix some
+          installation problems</para>
+      </listitem>
+
+      <listitem>
+        <para>VBoxManage: copyto --target-directory now requires an ending
+          slash for guests (bug #18724)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows host installer: Fixes for access permissions for installed files</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host and guest: fix kernel module build for SLES 12 SP4 kernel</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows guests: fixed mouse cursor visibility updating</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: VBox Guest Additions fail to compile on Red
+          Hat/CentOS/OL 7.7 and Red Hat 8.1 Beta (bug #18917)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: improve compatibility of vboxvideo.ko kernel module
+          build logic (bug #18869)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+
+    <title>Version 5.2.32 (2019-07-16)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>USB: Fixed "unrecoverable error" problems in OHCI emulation (bug
+           #18593, 6.0.6 regression)</para>
+      </listitem>
+
+      <listitem>
+        <para>USB: improve captured device identification</para>
+      </listitem>
+
+      <listitem>
+        <para>VBoxManage: fix reversed reporting of audio input and output
+          (thank you Socratis Kalogrianitis)</para>
+      </listitem>
+
+      <listitem>
+        <para>Guest control service: various fixes</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux hosts: fix focus grabbing problems with recent Qt versions
+           (builds from source only; thank you Fabian Vogt (SUSE) and Larry Finger;
+           bug #18745)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: kernel module build fixes for various kernels
+           (bugs #18677 and #18697; fixes by Larry Finger and Gianfranco
+           Costamagna)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: udev rules for guest kernel modules did not always
+           take effect in time</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+
+    <title>Version 5.2.30 (2019-05-13)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>Core: fix saved state resume failures (bugs #18265 and #18331)</para>
+      </listitem>
+
+      <listitem>
+        <para>API: partial fix for dealing with VM config conflicting with
+          other VMs related to medium UUIDs, now correctly flags VM as
+          inaccessible (bug #17908)</para>
+      </listitem>
+
+      <listitem>
+        <para>Solaris guests: fix an error message from VBoxClient
+           (bug #18428)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+
+    <title>Version 5.2.28 (2019-04-17)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>User interface: do not change the file and path name when
+           changing the export file format (bug #18476)</para>
+      </listitem>
+
+      <listitem>
+        <para>User interface: fixed operation progress when deleting
+           snapshots</para>
+      </listitem>
+
+      <listitem>
+        <para>Network: fixed unwanted padding bytes in Windows host adaptor
+           network packets (bug #18202 and bug #18355)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows host: fix unwanted wake-ups from standby, thank you
+           Daniel Karsubka (bug #18549)
+           </para>
+      </listitem>
+
+      <listitem>
+        <para>Windows host: disallow Pause as a host key (bug #18482)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host and guest: support Linux 5.0 and 5.1, thank you
+           Valdis Kletnieks (see also bug #18515)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host: support kernel 4.4.169 (bug #18315)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host: fix logging when building Linux kernel modules
+           (bug #18226)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host: clarified building Linux host drivers with secure
+           boot (bug #18312)</para>
+      </listitem>
+
+     <listitem>
+        <para>Windows guests: fixed running applications which use complex
+          display topologies with WDDM driver, fixed Skype for Business
+          hangs (bug #17092)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.26 (2019-01-28)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>Virtualization core: support Shanghai/Zhaoxin CPUs.</para>
+      </listitem>
+
+      <listitem>
+        <para>Network: fix occasional NATNet crashes (bug #13899)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux hosts: Skip device enumeration if PulseAudio interface is
+          not available</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux hosts and guests: fix for building kernel modules
+           against Linux 5.0.  Thank you Kyle Laker</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.24 (2019-01-15)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>USB: fixed a problem causing failures attaching SuperSpeed
+          devices which report USB version 3.1 (rather than 3.0) on Windows
+          hosts</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: added support for surround speaker setups used by
+          Windows 10 Build 1809</para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Linux hosts: fixed conflict between Debian and Oracle build desktop
+            files (bug #18264)
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guests: fix for building vboxvideo on EL 7.6 standard
+           kernel, contributed by Robert Conde (bug #18093)</para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Linux guests: fixed building drivers on SLES 12.4 (bug #18213)
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Linux guests: fixed building shared folder driver with older
+            kernels (bug #18238)
+        </para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
     <title>Version 5.2.22 (2018-11-09)</title>
 
     <para>This is a maintenance release. The following items were fixed and/or
@@ -42,7 +349,8 @@ are ordered as follows:
 
       <listitem>
         <para>Audio: fixed a potential crash in the HDA emulation if a stream has
-          no valid mixer sink attached -- thanks to Rink Springer (rink@rink.nu)</para>
+          no valid mixer sink attached -- thanks to Rink Springer (rink@rink.nu)
+          (bug #17664)</para>
       </listitem>
 
       <listitem>
@@ -51,7 +359,7 @@ are ordered as follows:
       </listitem>
 
       <listitem>
-        <para>Windows hosts: fixed a number of brigded networking driver
+        <para>Windows hosts: fixed a number of bridged networking driver
            crashes (bug #18046)</para>
       </listitem>
 
@@ -71,7 +379,7 @@ are ordered as follows:
 
       <listitem>
         <para>Linux Additions: fixed errors rebuilding initrd files
-           with dracut on EL 6 (bug 18055#)</para>
+           with dracut on EL 6 (bug #18055)</para>
       </listitem>
 
       <listitem>

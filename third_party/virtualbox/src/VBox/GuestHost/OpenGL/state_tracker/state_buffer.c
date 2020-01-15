@@ -12,7 +12,7 @@
 void crStateBufferInit (CRContext *ctx)
 {
     CRBufferState *b = &ctx->buffer;
-    CRStateBits *sb          = GetCurrentBits();
+    CRStateBits *sb          = GetCurrentBits(ctx->pStateTracker);
     CRBufferBits *bb = &(sb->buffer);
     GLcolorf zero_colorf = {0.0f, 0.0f, 0.0f, 0.0f};
 
@@ -82,16 +82,16 @@ void crStateBufferInit (CRContext *ctx)
     RESET(bb->dirty, ctx->bitid);
 }
 
-void STATE_APIENTRY crStateAlphaFunc (GLenum func, GLclampf ref) 
+void STATE_APIENTRY crStateAlphaFunc (PCRStateTracker pState, GLenum func, GLclampf ref) 
 {
-    CRContext *g             = GetCurrentContext();
+    CRContext *g             = GetCurrentContext(pState);
     CRBufferState *b         = &(g->buffer);
-    CRStateBits *sb          = GetCurrentBits();
+    CRStateBits *sb          = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glAlphaFunc called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glAlphaFunc called in begin/end");
         return;
     }
 
@@ -109,7 +109,7 @@ void STATE_APIENTRY crStateAlphaFunc (GLenum func, GLclampf ref)
         case GL_ALWAYS:
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glAlphaFunc:  Invalid func: %d", func);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glAlphaFunc:  Invalid func: %d", func);
             return;
     }
 
@@ -122,16 +122,16 @@ void STATE_APIENTRY crStateAlphaFunc (GLenum func, GLclampf ref)
     DIRTY(bb->alphaFunc, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateDepthFunc (GLenum func) 
+void STATE_APIENTRY crStateDepthFunc (PCRStateTracker pState, GLenum func) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glDepthFunc called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glDepthFunc called in begin/end");
         return;
     }
 
@@ -149,7 +149,7 @@ void STATE_APIENTRY crStateDepthFunc (GLenum func)
         case GL_ALWAYS:
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glDepthFunc:  Invalid func: %d", func);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glDepthFunc:  Invalid func: %d", func);
             return;
     }
 
@@ -159,16 +159,16 @@ void STATE_APIENTRY crStateDepthFunc (GLenum func)
     DIRTY(bb->depthFunc, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateBlendFunc (GLenum sfactor, GLenum dfactor) 
+void STATE_APIENTRY crStateBlendFunc (PCRStateTracker pState, GLenum sfactor, GLenum dfactor) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glBlendFunc called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glBlendFunc called in begin/end");
         return;
     }
 
@@ -196,7 +196,7 @@ void STATE_APIENTRY crStateBlendFunc (GLenum sfactor, GLenum dfactor)
 #endif
         RT_FALL_THRU();
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid sfactor passed to glBlendFunc: %d", sfactor);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid sfactor passed to glBlendFunc: %d", sfactor);
             return;
     }
 
@@ -221,7 +221,7 @@ void STATE_APIENTRY crStateBlendFunc (GLenum sfactor, GLenum dfactor)
 #endif
         RT_FALL_THRU();
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid dfactor passed to glBlendFunc: %d", dfactor);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid dfactor passed to glBlendFunc: %d", dfactor);
             return;
     }
 
@@ -233,16 +233,16 @@ void STATE_APIENTRY crStateBlendFunc (GLenum sfactor, GLenum dfactor)
     DIRTY(bb->blendFunc, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateBlendColorEXT( GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha )
+void STATE_APIENTRY crStateBlendColorEXT(PCRStateTracker pState, GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION, "BlendColorEXT called inside a Begin/End" );
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "BlendColorEXT called inside a Begin/End" );
         return;
     }
 
@@ -255,16 +255,16 @@ void STATE_APIENTRY crStateBlendColorEXT( GLclampf red, GLclampf green, GLclampf
 }
 
 #ifdef CR_EXT_blend_func_separate
-void STATE_APIENTRY crStateBlendFuncSeparateEXT( GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorA, GLenum dfactorA )
+void STATE_APIENTRY crStateBlendFuncSeparateEXT(PCRStateTracker pState, GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorA, GLenum dfactorA )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION, "BlendFuncSeparateEXT called inside a Begin/End" );
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "BlendFuncSeparateEXT called inside a Begin/End" );
         return;
     }
 
@@ -292,7 +292,7 @@ void STATE_APIENTRY crStateBlendFuncSeparateEXT( GLenum sfactorRGB, GLenum dfact
 #endif
         RT_FALL_THRU();
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid sfactorRGB passed to glBlendFuncSeparateEXT: %d", sfactorRGB);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid sfactorRGB passed to glBlendFuncSeparateEXT: %d", sfactorRGB);
             return;
     }
 
@@ -318,7 +318,7 @@ void STATE_APIENTRY crStateBlendFuncSeparateEXT( GLenum sfactorRGB, GLenum dfact
 #endif
         RT_FALL_THRU();
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid sfactorA passed to glBlendFuncSeparateEXT: %d", sfactorA);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid sfactorA passed to glBlendFuncSeparateEXT: %d", sfactorA);
             return;
     }
 
@@ -346,7 +346,7 @@ void STATE_APIENTRY crStateBlendFuncSeparateEXT( GLenum sfactorRGB, GLenum dfact
 #endif
         RT_FALL_THRU();
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid dfactorRGB passed to glBlendFuncSeparateEXT: %d", dfactorRGB);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid dfactorRGB passed to glBlendFuncSeparateEXT: %d", dfactorRGB);
             return;
     }
 
@@ -374,7 +374,7 @@ void STATE_APIENTRY crStateBlendFuncSeparateEXT( GLenum sfactorRGB, GLenum dfact
 #endif
         RT_FALL_THRU();
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid dfactorA passed to glBlendFuncSeparateEXT: %d", dfactorA);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid dfactorA passed to glBlendFuncSeparateEXT: %d", dfactorA);
             return;
     }
 
@@ -387,16 +387,16 @@ void STATE_APIENTRY crStateBlendFuncSeparateEXT( GLenum sfactorRGB, GLenum dfact
 }
 #endif
 
-void STATE_APIENTRY crStateBlendEquationEXT( GLenum mode )
+void STATE_APIENTRY crStateBlendEquationEXT(PCRStateTracker pState, GLenum mode )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if( g->current.inBeginEnd )
     {
-        crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION, "BlendEquationEXT called inside a Begin/End" );
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "BlendEquationEXT called inside a Begin/End" );
         return;
     }
     switch( mode )
@@ -418,7 +418,7 @@ void STATE_APIENTRY crStateBlendEquationEXT( GLenum mode )
             break;
 #endif /* defined(CR_EXT_blend_minmax) || defined(CR_EXT_blend_subtract) || defined(CR_EXT_blend_logic_op) */
         default:
-            crStateError( __LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "BlendEquationEXT: mode called with illegal parameter: 0x%x", (GLenum) mode );
             return;
     }
@@ -426,16 +426,16 @@ void STATE_APIENTRY crStateBlendEquationEXT( GLenum mode )
     DIRTY(bb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateLogicOp (GLenum opcode) 
+void STATE_APIENTRY crStateLogicOp (PCRStateTracker pState, GLenum opcode) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glLogicOp called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glLogicOp called in begin/end");
         return;
     }
 
@@ -461,7 +461,7 @@ void STATE_APIENTRY crStateLogicOp (GLenum opcode)
         case GL_OR_INVERTED:
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glLogicOp called with bogus opcode: %d", opcode);
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glLogicOp called with bogus opcode: %d", opcode);
             return;
     }
 
@@ -471,16 +471,16 @@ void STATE_APIENTRY crStateLogicOp (GLenum opcode)
     DIRTY(bb->indexLogicOp, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateDrawBuffer (GLenum mode) 
+void STATE_APIENTRY crStateDrawBuffer (PCRStateTracker pState, GLenum mode) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glDrawBuffer called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glDrawBuffer called in begin/end");
         return;
     }
 
@@ -505,7 +505,7 @@ void STATE_APIENTRY crStateDrawBuffer (GLenum mode)
         case GL_AUX3:
             if (g->framebufferobject.drawFB)
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glDrawBuffer invalid mode while fbo is active");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glDrawBuffer invalid mode while fbo is active");
                 return;
             }
             break;
@@ -514,13 +514,13 @@ void STATE_APIENTRY crStateDrawBuffer (GLenum mode)
             {
                 if (!g->framebufferobject.drawFB)
                 {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glDrawBuffer invalid mode while fbo is inactive");
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glDrawBuffer invalid mode while fbo is inactive");
                     return;
                 }
             }
             else
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glDrawBuffer called with bogus mode: %d", mode);
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glDrawBuffer called with bogus mode: %d", mode);
                 return;
             }
     }
@@ -537,16 +537,16 @@ void STATE_APIENTRY crStateDrawBuffer (GLenum mode)
     }
 }
 
-void STATE_APIENTRY crStateReadBuffer (GLenum mode) 
+void STATE_APIENTRY crStateReadBuffer (PCRStateTracker pState, GLenum mode) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferBits *bb = &(sb->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer called in begin/end");
         return;
     }
 
@@ -571,7 +571,7 @@ void STATE_APIENTRY crStateReadBuffer (GLenum mode)
         case GL_AUX3:
             if (g->framebufferobject.readFB)
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer invalid mode while fbo is active");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer invalid mode while fbo is active");
                 return;
             }
             break;
@@ -580,7 +580,7 @@ void STATE_APIENTRY crStateReadBuffer (GLenum mode)
             {
                 if (!g->framebufferobject.readFB)
                 {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer invalid mode while fbo is inactive");
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer invalid mode while fbo is inactive");
                     return;
                 }
                 else
@@ -590,7 +590,7 @@ void STATE_APIENTRY crStateReadBuffer (GLenum mode)
             }
             else
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glReadBuffer called with bogus mode: %d", mode);
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glReadBuffer called with bogus mode: %d", mode);
                 return;
             }
     }
@@ -607,16 +607,16 @@ void STATE_APIENTRY crStateReadBuffer (GLenum mode)
     }
 }
 
-void STATE_APIENTRY crStateIndexMask (GLuint mask) 
+void STATE_APIENTRY crStateIndexMask (PCRStateTracker pState, GLuint mask) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sp = GetCurrentBits();
+    CRStateBits *sp = GetCurrentBits(pState);
     CRBufferBits *bb = &(sp->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer called in begin/end");
         return;
     }
 
@@ -627,16 +627,16 @@ void STATE_APIENTRY crStateIndexMask (GLuint mask)
     DIRTY(bb->indexMask, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) 
+void STATE_APIENTRY crStateColorMask (PCRStateTracker pState, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sp = GetCurrentBits();
+    CRStateBits *sp = GetCurrentBits(pState);
     CRBufferBits *bb = &(sp->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glReadBuffer called in begin/end");
         return;
     }
 
@@ -650,16 +650,16 @@ void STATE_APIENTRY crStateColorMask (GLboolean red, GLboolean green, GLboolean 
     DIRTY(bb->colorWriteMask, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) 
+void STATE_APIENTRY crStateClearColor (PCRStateTracker pState, GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sp = GetCurrentBits();
+    CRStateBits *sp = GetCurrentBits(pState);
     CRBufferBits *bb = &(sp->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glClearColor called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glClearColor called in begin/end");
         return;
     }
 
@@ -682,16 +682,16 @@ void STATE_APIENTRY crStateClearColor (GLclampf red, GLclampf green, GLclampf bl
     DIRTY(bb->clearColor, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateClearIndex (GLfloat c) 
+void STATE_APIENTRY crStateClearIndex (PCRStateTracker pState, GLfloat c) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sp = GetCurrentBits();
+    CRStateBits *sp = GetCurrentBits(pState);
     CRBufferBits *bb = &(sp->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glClearIndex called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glClearIndex called in begin/end");
         return;
     }
 
@@ -700,16 +700,16 @@ void STATE_APIENTRY crStateClearIndex (GLfloat c)
     DIRTY(bb->clearIndex, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateClearDepth (GLclampd depth) 
+void STATE_APIENTRY crStateClearDepth (PCRStateTracker pState, GLclampd depth) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sp = GetCurrentBits();
+    CRStateBits *sp = GetCurrentBits(pState);
     CRBufferBits *bb = &(sp->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glClearDepth called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glClearDepth called in begin/end");
         return;
     }
 
@@ -723,16 +723,16 @@ void STATE_APIENTRY crStateClearDepth (GLclampd depth)
     DIRTY(bb->clearDepth, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateClearAccum (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) 
+void STATE_APIENTRY crStateClearAccum (PCRStateTracker pState, GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *b = &(g->buffer);
-    CRStateBits *sp = GetCurrentBits();
+    CRStateBits *sp = GetCurrentBits(pState);
     CRBufferBits *bb = &(sp->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glClearAccum called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glClearAccum called in begin/end");
         return;
     }
     
@@ -755,16 +755,16 @@ void STATE_APIENTRY crStateClearAccum (GLclampf red, GLclampf green, GLclampf bl
     DIRTY(bb->clearAccum, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateDepthMask (GLboolean b) 
+void STATE_APIENTRY crStateDepthMask (PCRStateTracker pState, GLboolean b) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferState *bs = &(g->buffer);
-    CRStateBits *sp = GetCurrentBits();
+    CRStateBits *sp = GetCurrentBits(pState);
     CRBufferBits *bb = &(sp->buffer);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "DepthMask called in begin/end");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "DepthMask called in begin/end");
         return;
     }
 

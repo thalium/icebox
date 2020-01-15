@@ -18,8 +18,14 @@
 
 #if !defined(VBOX_WITH_XPCOM)
 
+# if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x600
+#  undef  _WIN32_WINNT
+#  define _WIN32_WINNT 0x600 /* GetModuleHandleExW */
+# endif
 # include <iprt/nt/nt-and-windows.h>
 # include <iprt/win/objbase.h>
+# include <iprt/win/rpcproxy.h>
+# include <rpcasync.h>
 
 #else /* !defined(VBOX_WITH_XPCOM) */
 
@@ -50,6 +56,7 @@
 #include <iprt/param.h>
 #include <iprt/path.h>
 #include <iprt/string.h>
+#include <iprt/system.h>
 #include <iprt/thread.h>
 
 #include <VBox/err.h>
@@ -191,6 +198,140 @@ static unsigned int gXPCOMInitCount = 0;
 #else /* !defined(VBOX_WITH_XPCOM) */
 
 /**
+ * Replacement function for the InvokeStub method for the IRundown stub.
+ */
+static HRESULT STDMETHODCALLTYPE Rundown_InvokeStub(IRpcStubBuffer *pThis, RPCOLEMESSAGE *pMsg, IRpcChannelBuffer *pBuf)
+{
+    /*
+     * Our mission here is to prevent remote calls to methods #8 and #9,
+     * as these contain raw pointers to callback functions.
+     *
+     * Note! APIs like I_RpcServerInqTransportType, I_RpcBindingInqLocalClientPID
+     *       and RpcServerInqCallAttributesW are not usable in this context without
+     *       a rpc binding handle (latter two).
+     *
+     * P.S.  In more recent windows versions, the buffer implements a interface
+     *       IID_IRpcChannelBufferMarshalingContext (undocumented) which has a
+     *       GetIMarshallingContextAttribute() method that will return the client PID
+     *       when asking for attribute #0x8000000e.
+     */
+    uint32_t const iMethod = pMsg->iMethod & 0xffff; /* Uncertain, but there are hints that the upper bits are flags. */
+    HRESULT        hrc;
+    if (   (   iMethod != 8
+            && iMethod != 9)
+        || (pMsg->rpcFlags & RPCFLG_LOCAL_CALL) )
+        hrc = CStdStubBuffer_Invoke(pThis, pMsg, pBuf);
+    else
+    {
+        LogRel(("Rundown_InvokeStub: Rejected call to CRundown::%s: rpcFlags=%#x cbBuffer=%#x dataRepresentation=%d buffer=%p:{%.*Rhxs} reserved1=%p reserved2={%p,%p,%p,%p,%p}\n",
+                pMsg->iMethod == 8 ? "DoCallback" : "DoNonreentrantCallback", pMsg->rpcFlags, pMsg->cbBuffer,
+                pMsg->dataRepresentation, pMsg->Buffer, RT_VALID_PTR(pMsg->Buffer) ? pMsg->cbBuffer : 0, pMsg->Buffer,
+                pMsg->reserved1, pMsg->reserved2[0], pMsg->reserved2[1], pMsg->reserved2[2], pMsg->reserved2[3], pMsg->reserved2[4]));
+        hrc = E_ACCESSDENIED;
+    }
+    return hrc;
+}
+
+/**
+ * Replaces the IRundown InvokeStub method with Rundown_InvokeStub so we can
+ * reject remote calls to a couple of misdesigned methods.
+ */
+void PatchComBugs(void)
+{
+    static volatile bool s_fPatched = false;
+    if (s_fPatched)
+        return;
+
+    /*
+     * The combase.dll / ole32.dll is exporting a DllGetClassObject function
+     * that is implemented using NdrDllGetClassObject just like our own
+     * proxy/stub DLL.  This means we can get at the stub interface lists,
+     * since what NdrDllGetClassObject has CStdPSFactoryBuffer as layout.
+     *
+     * Note! Tried using CoRegisterPSClsid instead of this mess, but no luck.
+     */
+    /* Locate the COM DLL, it must be loaded by now: */
+    HMODULE hmod = GetModuleHandleW(L"COMBASE.DLL");
+    if (!hmod)
+        hmod = GetModuleHandleW(L"OLE32.DLL"); /* w7 */
+    AssertReturnVoid(hmod != NULL);
+
+    /* Resolve the class getter: */
+    LPFNGETCLASSOBJECT pfnGetClassObject = (LPFNGETCLASSOBJECT)GetProcAddress(hmod, "DllGetClassObject");
+    AssertReturnVoid(pfnGetClassObject != NULL);
+
+    /* Get the factory instance: */
+    static const CLSID   s_PSOlePrx32ClsId = {0x00000320,0x0000,0x0000,{0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x46}};
+    CStdPSFactoryBuffer *pFactoryBuffer = NULL;
+    HRESULT hrc = pfnGetClassObject(s_PSOlePrx32ClsId, IID_IPSFactoryBuffer, (void **)&pFactoryBuffer);
+    AssertMsgReturnVoid(SUCCEEDED(hrc),  ("hrc=%Rhrc\n",  hrc));
+    AssertReturnVoid(pFactoryBuffer != NULL);
+
+    /*
+     * Search thru the file list for the interface we want to patch.
+     */
+    static const IID s_IID_Rundown = {0x00000134,0x0000,0x0000,{0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x46}};
+    decltype(CStdStubBuffer_Invoke) *pfnInvoke = (decltype(pfnInvoke))GetProcAddress(hmod, "CStdStubBuffer_Invoke");
+    if (!pfnInvoke)
+        pfnInvoke = (decltype(pfnInvoke))GetProcAddress(GetModuleHandleW(L"RPCRT4.DLL"), "CStdStubBuffer_Invoke");
+
+    unsigned cPatched = 0;
+    unsigned cAlreadyPatched = 0;
+    Assert(pFactoryBuffer->pProxyFileList != NULL);
+    for (ProxyFileInfo const **ppCur = pFactoryBuffer->pProxyFileList; *ppCur != NULL; ppCur++)
+    {
+        ProxyFileInfo const *pCur = *ppCur;
+
+        if (pCur->pStubVtblList)
+        {
+            for (PCInterfaceStubVtblList const *ppCurStub = pCur->pStubVtblList; *ppCurStub != NULL; ppCurStub++)
+            {
+                PCInterfaceStubVtblList const pCurStub = *ppCurStub;
+                IID const *piid = pCurStub->header.piid;
+                if (piid)
+                {
+                    if (IsEqualIID(*piid, s_IID_Rundown))
+                    {
+                        if (pCurStub->Vtbl.Invoke == pfnInvoke)
+                        {
+                            DWORD fOld = 0;
+                            if (VirtualProtect(&pCurStub->Vtbl.Invoke, sizeof(pCurStub->Vtbl.Invoke), PAGE_READWRITE, &fOld))
+                            {
+                                pCurStub->Vtbl.Invoke = Rundown_InvokeStub;
+                                VirtualProtect(&pCurStub->Vtbl.Invoke, sizeof(pCurStub->Vtbl.Invoke), fOld, &fOld);
+                                cPatched++;
+                            }
+                            else
+                                AssertMsgFailed(("%d\n", GetLastError()));
+                        }
+                        else
+                            cAlreadyPatched++;
+                    }
+                }
+            }
+       }
+    }
+
+    /* done */
+    pFactoryBuffer->lpVtbl->Release((IPSFactoryBuffer *)pFactoryBuffer);
+
+    /*
+     * If we patched anything we should try prevent being unloaded.
+     */
+    if (cPatched > 0)
+    {
+        s_fPatched = true;
+        HMODULE hmodSelf;
+        AssertLogRelMsg(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
+                                           (LPCWSTR)(uintptr_t)Rundown_InvokeStub, &hmodSelf),
+                        ("last error: %u; Rundown_InvokeStub=%p\n", GetLastError(), Rundown_InvokeStub));
+    }
+    else
+        AssertLogRelMsg(cAlreadyPatched > 0, ("COM patching of IRundown failed!\n"));
+}
+
+
+/**
  *  The COM main thread handle. (The first caller of com::Initialize().)
  */
 static RTTHREAD volatile gCOMMainThread = NIL_RTTHREAD;
@@ -238,10 +379,9 @@ static uint32_t gCOMMainInitCount = 0;
  *
  * @return S_OK on success and a COM result code in case of failure.
  */
-HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
+HRESULT Initialize(uint32_t fInitFlags /*=VBOX_COM_INIT_F_DEFAULT*/)
 {
     HRESULT rc = E_FAIL;
-    NOREF(fAutoRegUpdate);
 
 #if !defined(VBOX_WITH_XPCOM)
 
@@ -251,7 +391,7 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
      * registrations.   Use a global mutex to prevent updating when there are
      * API users already active, as that could lead to a bit of a mess.
      */
-    if (   fAutoRegUpdate
+    if (   (fInitFlags & VBOX_COM_INIT_F_AUTO_REG_UPDATE)
         && gCOMMainThread == NIL_RTTHREAD)
     {
         SetLastError(ERROR_SUCCESS);
@@ -302,19 +442,25 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
      * with free threaded marshaller.
      * !!!!! Please think twice before touching this code !!!!!
      */
-    DWORD flags = fGui ?
-                  COINIT_APARTMENTTHREADED
-                | COINIT_SPEED_OVER_MEMORY
-                :
-                  COINIT_MULTITHREADED
-                | COINIT_DISABLE_OLE1DDE
-                | COINIT_SPEED_OVER_MEMORY;
+    DWORD flags = fInitFlags & VBOX_COM_INIT_F_GUI
+                ?   COINIT_APARTMENTTHREADED
+                  | COINIT_SPEED_OVER_MEMORY
+                :   COINIT_MULTITHREADED
+                  | COINIT_DISABLE_OLE1DDE
+                  | COINIT_SPEED_OVER_MEMORY;
 
     rc = CoInitializeEx(NULL, flags);
 
     /* the overall result must be either S_OK or S_FALSE (S_FALSE means
      * "already initialized using the same apartment model") */
     AssertMsg(rc == S_OK || rc == S_FALSE, ("rc=%08X\n", rc));
+
+    /*
+     * IRundown has unsafe two methods we need to patch to prevent remote access.
+     * Do that before we start using COM and open ourselves to possible attacks.
+     */
+    if (!(fInitFlags & VBOX_COM_INIT_F_NO_COM_PATCHING))
+        PatchComBugs();
 
     /* To be flow compatible with the XPCOM case, we return here if this isn't
      * the main thread or if it isn't its first initialization call.
@@ -327,7 +473,7 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
     else
         fRc = false;
 
-    if (fGui)
+    if (fInitFlags & VBOX_COM_INIT_F_GUI)
         Assert(RTThreadIsMain(hSelf));
 
     if (!fRc)
@@ -349,7 +495,7 @@ HRESULT Initialize(bool fGui /*= false*/, bool fAutoRegUpdate /*= true*/)
 #else /* !defined(VBOX_WITH_XPCOM) */
 
     /* Unused here */
-    NOREF(fGui);
+    RT_NOREF(fInitFlags);
 
     if (ASMAtomicXchgBool(&gIsXPCOMInitialized, true) == true)
     {

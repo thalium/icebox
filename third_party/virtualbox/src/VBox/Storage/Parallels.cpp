@@ -263,6 +263,8 @@ static int parallelsOpenImage(PPARALLELSIMAGE pImage, unsigned uOpenFlags)
         pRegion->cbMetadata           = 0;
         pRegion->cRegionBlocksOrBytes = pImage->cbSize;
     }
+    else
+        parallelsFreeImage(pImage, false);
 
     LogFlowFunc(("returns %Rrc\n", rc));
     return rc;

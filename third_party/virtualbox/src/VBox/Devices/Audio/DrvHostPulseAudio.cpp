@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2018 Oracle Corporation
+ * Copyright (C) 2006-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -432,18 +432,22 @@ static void paStreamCbUnderflow(pa_stream *pStream, void *pvContext)
         pStrm->cUnderflows = 0;
     }
 
-# ifdef LOG_ENABLED
     pa_usec_t curLatencyUs = 0;
     pa_stream_get_latency(pStream, &curLatencyUs, NULL /* Neg */);
 
+    LogRel2(("PulseAudio: Latency now is %RU64ms\n", curLatencyUs / 1000 /* ms */));
+
+# ifdef LOG_ENABLED
     const pa_timing_info *pTInfo = pa_stream_get_timing_info(pStream);
     const pa_sample_spec *pSpec  = pa_stream_get_sample_spec(pStream);
 
     pa_usec_t curPosWritesUs = pa_bytes_to_usec(pTInfo->write_index, pSpec);
+    pa_usec_t curPosReadsUs  = pa_bytes_to_usec(pTInfo->read_index, pSpec);
     pa_usec_t curTsUs        = pa_rtclock_now() - pStrm->tsStartUs;
 
-    Log2Func(("curPosWrite=%RU64ms, curTs=%RU64ms, curDelta=%RI64ms, curLatency=%RU64ms\n",
-              curPosWritesUs / 1000, curTsUs / 1000, (((int64_t)curPosWritesUs - (int64_t)curTsUs) / 1000), curLatencyUs / 1000));
+    Log2Func(("curPosWrite=%RU64ms, curPosRead=%RU64ms, curTs=%RU64ms, curLatency=%RU64ms (%RU32Hz, %RU8 channels)\n",
+              curPosWritesUs / RT_US_1MS_64, curPosReadsUs / RT_US_1MS_64,
+              curTsUs / RT_US_1MS_64, curLatencyUs / RT_US_1MS_64, pSpec->rate, pSpec->channels));
 # endif
 }
 
@@ -1142,7 +1146,20 @@ static int paEnumerate(PDRVHOSTPULSEAUDIO pThis, PPDMAUDIOBACKENDCFG pCfg, uint3
     pa_threaded_mainloop_lock(pThis->pMainLoop);
 
     pThis->fEnumOpSuccess = false;
-    int rc = paWaitFor(pThis, pa_context_get_server_info(pThis->pContext, paEnumServerCb, &CbCtx));
+
+    LogRel(("PulseAudio: Retrieving server information ...\n"));
+
+    /* Check if server information is available and bail out early if it isn't. */
+    pa_operation *paOpServerInfo = pa_context_get_server_info(pThis->pContext, paEnumServerCb, &CbCtx);
+    if (!paOpServerInfo)
+    {
+        pa_threaded_mainloop_unlock(pThis->pMainLoop);
+
+        LogRel(("PulseAudio: Server information not available, skipping enumeration\n"));
+        return VINF_SUCCESS;
+    }
+
+    int rc = paWaitFor(pThis, paOpServerInfo);
     if (RT_SUCCESS(rc) && !pThis->fEnumOpSuccess)
         rc = VERR_AUDIO_BACKEND_INIT_FAILED; /* error code does not matter */
     if (RT_SUCCESS(rc))

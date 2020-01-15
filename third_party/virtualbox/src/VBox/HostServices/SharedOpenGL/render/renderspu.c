@@ -4,16 +4,16 @@
  * See the file LICENSE.txt for information on redistributing this software.
  */
 
-#include "cr_environment.h"
 #include "cr_string.h"
 #include "cr_error.h"
 #include "cr_mem.h"
 #include "cr_spu.h"
-#include "cr_environment.h"
 #include "renderspu.h"
 #include "cr_extstring.h"
 
 #include <iprt/asm.h>
+
+#include <stdio.h> /*sprintf*/
 
 uint32_t renderspuContextRelease(ContextInfo *context);
 uint32_t renderspuContextRetain(ContextInfo *context);
@@ -25,26 +25,10 @@ DoSync(void)
 
     out.header.type = CR_MESSAGE_OOB;
 
-    if (render_spu.is_swap_master)
-    {
-        int a;
+    crNetSend( render_spu.swap_conns[0], NULL, &out, sizeof(CRMessage));
 
-        for (a = 0; a < render_spu.num_swap_clients; a++)
-        {
-            crNetGetMessage( render_spu.swap_conns[a], &in );
-            crNetFree( render_spu.swap_conns[a], in);
-        }
-
-        for (a = 0; a < render_spu.num_swap_clients; a++)
-            crNetSend( render_spu.swap_conns[a], NULL, &out, sizeof(CRMessage));
-    }
-    else
-    {
-        crNetSend( render_spu.swap_conns[0], NULL, &out, sizeof(CRMessage));
-
-        crNetGetMessage( render_spu.swap_conns[0], &in );
-        crNetFree( render_spu.swap_conns[0], in);
-    }
+    crNetGetMessage( render_spu.swap_conns[0], &in );
+    crNetFree( render_spu.swap_conns[0], in);
 }
 
 
@@ -258,7 +242,7 @@ uint32_t renderspuContextMarkDeletedAndRelease( ContextInfo *context )
     return renderspuContextRelease( context );
 }
 
-ContextInfo * renderspuDefaultSharedContextAcquire()
+ContextInfo * renderspuDefaultSharedContextAcquire(void)
 {
     ContextInfo * pCtx = render_spu.defaultSharedContext;
     if (!pCtx)
@@ -398,6 +382,7 @@ void renderspuWinTerm( WindowInfo *window )
 void renderspuWinCleanup(WindowInfo *window)
 {
     renderspuWinTerm( window );
+    crFree(window->title);
     RTCritSectDelete(&window->CompositorLock);
 }
 
@@ -481,11 +466,7 @@ void renderspuPerformMakeCurrent(WindowInfo *window, GLint nativeWindow, Context
 {
     if (window && context)
     {
-#ifdef CHROMIUM_THREADSAFE
         crSetTSD(&_RenderTSD, context);
-#else
-        render_spu.currentContext = context;
-#endif
         context->currentWindow = window;
 
         renderspu_SystemMakeCurrent( window, nativeWindow, context );
@@ -524,11 +505,7 @@ void renderspuPerformMakeCurrent(WindowInfo *window, GLint nativeWindow, Context
     else if (!window && !context)
     {
         renderspu_SystemMakeCurrent( NULL, 0, NULL );
-#ifdef CHROMIUM_THREADSAFE
         crSetTSD(&_RenderTSD, NULL);
-#else
-        render_spu.currentContext = NULL;
-#endif
     }
     else
     {
@@ -666,6 +643,8 @@ GLint renderspuWindowCreateEx( const char *dpyName, GLint visBits, GLint id )
 {
     WindowInfo *window;
 
+    RT_NOREF(dpyName);
+
     if (id <= 0)
     {
         id = (GLint)crHashtableAllocKeys(render_spu.windowTable, 1);
@@ -746,8 +725,8 @@ renderspuWindowSize( GLint win, GLint w, GLint h )
     CRASSERT(win >= 0);
     window = (WindowInfo *) crHashtableSearch(render_spu.windowTable, win);
     if (window) {
-        if (w != window->BltInfo.width
-                || h != window->BltInfo.height)
+        if (   (GLuint)w != window->BltInfo.width
+            || (GLuint)h != window->BltInfo.height)
         {
             /* window is resized, compositor data is no longer valid
              * this set also ensures all redraw operations are done in the redraw thread
@@ -1078,6 +1057,8 @@ void renderspuVBoxPresentCompositionGeneric( WindowInfo *window, const struct VB
         bool fRedraw )
 {
     PCR_BLITTER pBlitter = renderspuVBoxPresentBlitterGetAndEnter(window, i32MakeCurrentUserData, fRedraw);
+
+    RT_NOREF(pChangedEntry);
     if (!pBlitter)
         return;
 
@@ -1126,10 +1107,12 @@ GLboolean renderspuVBoxCompositorSet( WindowInfo *window, const struct VBOXVR_SC
 static void renderspuVBoxCompositorClearAllCB(unsigned long key, void *data1, void *data2)
 {
     WindowInfo *window = (WindowInfo *) data1;
+    RT_NOREF(key, data2);
+
     renderspuVBoxCompositorSet(window, NULL);
 }
 
-void renderspuVBoxCompositorClearAll()
+void renderspuVBoxCompositorClearAll(void)
 {
     /* we need to clear window compositor, which is not that trivial though,
      * since the lock order used in presentation thread is compositor lock() -> hash table lock (aquired for id->window resolution)
@@ -1360,9 +1343,6 @@ void RENDER_APIENTRY renderspuSwapBuffers( GLint window, GLint flags )
     if (render_spu.drawCursor)
         DrawCursor( render_spu.cursorX, render_spu.cursorY );
 
-    if (render_spu.swap_master_url)
-        DoSync();
-
     renderspu_SystemSwapBuffers( w, flags );
 }
 
@@ -1524,7 +1504,7 @@ renderspuChromiumParameterfCR(GLenum target, GLfloat value)
 #endif
 }
 
-bool renderspuCalloutAvailable()
+bool renderspuCalloutAvailable(void)
 {
     return render_spu.pfnClientCallout != NULL;
 }
@@ -1569,18 +1549,6 @@ renderspuChromiumParametervCR(GLenum target, GLenum type, GLsizei count,
             {
                 switch (render_spu.server->clients[client_num]->conn->type)
                 {
-                    case CR_TCPIP:
-                        crDebug("Render SPU: AcceptClient from %s on %d",
-                            render_spu.server->clients[client_num]->conn->hostname, render_spu.gather_port);
-                        render_spu.gather_conns[client_num] =
-                                crNetAcceptClient("tcpip", NULL, port, 1024*1024,  1);
-                        break;
-
-                    case CR_GM:
-                        render_spu.gather_conns[client_num] =
-                                crNetAcceptClient("gm", NULL, port, 1024*1024,  1);
-                        break;
-
                     default:
                         crError("Render SPU: Unknown Network Type to Open Gather Connection");
                 }
@@ -1599,7 +1567,7 @@ renderspuChromiumParametervCR(GLenum target, GLenum type, GLsizei count,
 
                 if (render_spu.gather_conns[client_num])
                 {
-                    crDebug("Render SPU: success! from %s", render_spu.gather_conns[client_num]->hostname);
+                    crDebug("Render SPU: success!");
                 }
             }
 
@@ -1628,10 +1596,6 @@ renderspuChromiumParametervCR(GLenum target, GLenum type, GLsizei count,
          * call to DoSync() we really want [this one, or the one
          * in SwapBuffers above] is not necessary -- karl
          */
-
-        if (render_spu.swap_master_url)
-            DoSync();
-
         for (client_num=0; client_num< render_spu.server->numClients; client_num++)
             crNetSend(render_spu.gather_conns[client_num], NULL, &pingback,
                                         sizeof(CRMessageHeader));
@@ -1888,6 +1852,7 @@ renderspuGetString(GLenum pname)
 static void renderspuReparentWindowCB(unsigned long key, void *data1, void *data2)
 {
     WindowInfo *pWindow = (WindowInfo *)data1;
+    RT_NOREF(key, data2);
 
     renderspu_SystemReparentWindow(pWindow);
 }

@@ -1,6 +1,6 @@
 /* $Id: display-svga.cpp $ */
 /** @file
- * X11 guest client - VMSVGA emulation resize event pass-through to guest
+ * X11 guest client - VMSVGA emulation resize event pass-through to drm guest
  * driver.
  */
 
@@ -46,6 +46,8 @@
 #include <iprt/string.h>
 
 /** Maximum number of supported screens.  DRM and X11 both limit this to 32. */
+/** @todo if this ever changes, dynamically allocate resizeable arrays in the
+ *  context structure. */
 #define VMW_MAX_HEADS 32
 
 /* VMWare kernel driver control parts definitions. */
@@ -161,171 +163,6 @@ static void drmSendHints(struct DRMCONTEXT *pContext, struct DRMVMWRECT *paRects
         VBClFatalError(("Failure updating layout, rc=%Rrc\n", rc));
 }
 
-/* VMWare X.Org driver control parts definitions. */
-
-#include <X11/Xlibint.h>
-
-struct X11CONTEXT
-{
-    Display *pDisplay;
-    int hRandRMajor;
-    int hVMWMajor;
-};
-
-static void x11Connect(struct X11CONTEXT *pContext)
-{
-    int dummy;
-
-    if (pContext->pDisplay != NULL)
-        VBClFatalError(("%s called with bad argument\n", __func__));
-    pContext->pDisplay = XOpenDisplay(NULL);
-    if (pContext->pDisplay == NULL)
-        return;
-    if (   !XQueryExtension(pContext->pDisplay, "RANDR",
-                            &pContext->hRandRMajor, &dummy, &dummy)
-        || !XQueryExtension(pContext->pDisplay, "VMWARE_CTRL",
-                            &pContext->hVMWMajor, &dummy, &dummy))
-    {
-        XCloseDisplay(pContext->pDisplay);
-        pContext->pDisplay = NULL;
-    }
-}
-
-#define X11_VMW_TOPOLOGY_REQ 2
-struct X11VMWRECT /* xXineramaScreenInfo in Xlib headers. */
-{
-    int16_t x;
-    int16_t y;
-    uint16_t w;
-    uint16_t h;
-};
-AssertCompileSize(struct X11VMWRECT, 8);
-
-struct X11REQHEADER
-{
-    uint8_t hMajor;
-    uint8_t idType;
-    uint16_t cd;
-};
-
-struct X11VMWTOPOLOGYREQ
-{
-    struct X11REQHEADER header;
-    uint32_t idX11Screen;
-    uint32_t cScreens;
-    uint32_t u32Pad;
-    struct X11VMWRECT aRects[1];
-};
-AssertCompileSize(struct X11VMWTOPOLOGYREQ, 24);
-
-#define X11_VMW_TOPOLOGY_REPLY_SIZE 32
-
-#define X11_VMW_RESOLUTION_REQUEST 1
-struct X11VMWRESOLUTIONREQ
-{
-    struct X11REQHEADER header;
-    uint32_t idX11Screen;
-    uint32_t x;
-    uint32_t y;
-};
-AssertCompileSize(struct X11VMWRESOLUTIONREQ, 16);
-
-#define X11_VMW_RESOLUTION_REPLY_SIZE 32
-
-#define X11_RANDR_GET_SCREEN_REQUEST 5
-struct X11RANDRGETSCREENREQ
-{
-    struct X11REQHEADER header;
-    uint32_t hWindow;
-};
-AssertCompileSize(struct X11RANDRGETSCREENREQ, 8);
-
-#define X11_RANDR_GET_SCREEN_REPLY_SIZE 32
-
-/* This was a macro in old Xlib versions and a function in newer ones; the
- * display members touched by the macro were declared as ABI for compatibility
- * reasons.  To simplify building with different generations, we duplicate the
- * code. */
-static void x11GetRequest(struct X11CONTEXT *pContext, uint8_t hMajor,
-                          uint8_t idType, size_t cb, struct X11REQHEADER **ppReq)
-{
-    if (pContext->pDisplay->bufptr + cb > pContext->pDisplay->bufmax)
-        _XFlush(pContext->pDisplay);
-    if (pContext->pDisplay->bufptr + cb > pContext->pDisplay->bufmax)
-        VBClFatalError(("%s display buffer overflow.\n", __func__));
-    if (cb % 4 != 0)
-        VBClFatalError(("%s bad parameter.\n", __func__));
-    pContext->pDisplay->last_req = pContext->pDisplay->bufptr;
-    *ppReq = (struct X11REQHEADER *)pContext->pDisplay->bufptr;
-    (*ppReq)->hMajor = hMajor;
-    (*ppReq)->idType = idType;
-    (*ppReq)->cd = cb / 4;
-    pContext->pDisplay->bufptr += cb;
-    pContext->pDisplay->request++;
-}
-
-static void x11SendHints(struct X11CONTEXT *pContext, struct DRMVMWRECT *pRects,
-                         unsigned cRects)
-{
-    unsigned i;
-    struct X11VMWTOPOLOGYREQ     *pReqTopology;
-    uint8_t                       repTopology[X11_VMW_TOPOLOGY_REPLY_SIZE];
-    struct X11VMWRESOLUTIONREQ   *pReqResolution;
-    uint8_t                       repResolution[X11_VMW_RESOLUTION_REPLY_SIZE];
-
-    if (!VALID_PTR(pContext->pDisplay))
-        VBClFatalError(("%s bad display argument.\n", __func__));
-    if (cRects == 0)
-        return;
-    /* Try a topology (multiple screen) request. */
-    x11GetRequest(pContext, pContext->hVMWMajor, X11_VMW_TOPOLOGY_REQ,
-                    sizeof(struct X11VMWTOPOLOGYREQ)
-                  + sizeof(struct X11VMWRECT) * (cRects - 1),
-                  (struct X11REQHEADER **)&pReqTopology);
-    pReqTopology->idX11Screen = DefaultScreen(pContext->pDisplay);
-    pReqTopology->cScreens = cRects;
-    for (i = 0; i < cRects; ++i)
-    {
-        pReqTopology->aRects[i].x = pRects[i].x;
-        pReqTopology->aRects[i].y = pRects[i].y;
-        pReqTopology->aRects[i].w = pRects[i].w;
-        pReqTopology->aRects[i].h = pRects[i].h;
-    }
-    _XSend(pContext->pDisplay, NULL, 0);
-    if (_XReply(pContext->pDisplay, (xReply *)&repTopology, 0, xTrue))
-        return;
-    /* That failed, so try the old single screen set resolution.  We prefer
-     * simpler code to negligeably improved efficiency, so we just always try
-     * both requests instead of doing version checks or caching. */
-    x11GetRequest(pContext, pContext->hVMWMajor, X11_VMW_RESOLUTION_REQUEST,
-                  sizeof(struct X11VMWTOPOLOGYREQ),
-                  (struct X11REQHEADER **)&pReqResolution);
-    pReqResolution->idX11Screen = DefaultScreen(pContext->pDisplay);
-    pReqResolution->x = pRects[0].x;
-    pReqResolution->y = pRects[0].y;
-    if (_XReply(pContext->pDisplay, (xReply *)&repResolution, 0, xTrue))
-        return;
-    /* What now? */
-    VBClFatalError(("%s failed to set resolution\n", __func__));
-}
-
-/** Call RRGetScreenInfo to wake up the server to the new modes. */
-static void x11GetScreenInfo(struct X11CONTEXT *pContext)
-{
-    struct X11RANDRGETSCREENREQ *pReqGetScreen;
-    uint8_t                      repGetScreen[X11_RANDR_GET_SCREEN_REPLY_SIZE];
-
-    if (!VALID_PTR(pContext->pDisplay))
-        VBClFatalError(("%s bad display argument.\n", __func__));
-    x11GetRequest(pContext, pContext->hRandRMajor, X11_RANDR_GET_SCREEN_REQUEST,
-                    sizeof(struct X11RANDRGETSCREENREQ),
-                  (struct X11REQHEADER **)&pReqGetScreen);
-    pReqGetScreen->hWindow = DefaultRootWindow(pContext->pDisplay);
-    _XSend(pContext->pDisplay, NULL, 0);
-    if (!_XReply(pContext->pDisplay, (xReply *)&repGetScreen, 0, xTrue))
-        VBClFatalError(("%s failed to set resolution\n", __func__));
-}
-
 static const char *getPidFilePath()
 {
     return ".vboxclient-display-svga.pid";
@@ -336,7 +173,6 @@ static int run(struct VBCLSERVICE **ppInterface, bool fDaemonised)
     (void)ppInterface;
     (void)fDaemonised;
     struct DRMCONTEXT drmContext = { NIL_RTFILE };
-    struct X11CONTEXT x11Context = { NULL };
     unsigned i;
     int rc;
     uint32_t acx[VMW_MAX_HEADS] = { 0 };
@@ -349,11 +185,7 @@ static int run(struct VBCLSERVICE **ppInterface, bool fDaemonised)
 
     drmConnect(&drmContext);
     if (drmContext.hDevice == NIL_RTFILE)
-    {
-        x11Connect(&x11Context);
-        if (x11Context.pDisplay == NULL)
-            return VINF_SUCCESS;
-    }
+        return VINF_SUCCESS;
     /* Initialise the guest library. */
     rc = VbglR3InitUser();
     if (RT_FAILURE(rc))
@@ -399,24 +231,24 @@ static int run(struct VBCLSERVICE **ppInterface, bool fDaemonised)
         {
             if (afEnabled[i])
             {
-                aRects[cHeads].x = (int32_t)adx[i];
-                aRects[cHeads].y = (int32_t)ady[i];
+                if ((i == 0) || (adx[i] || ady[i]))
+                {
+                    aRects[cHeads].x = (int32_t)adx[i];
+                    aRects[cHeads].y = (int32_t)ady[i];
+                } else {
+                    aRects[cHeads].x = (int32_t)(adx[i - 1] + acx[i - 1]);
+                    aRects[cHeads].y = (int32_t)ady[i - 1];
+                }
                 aRects[cHeads].w = acx[i];
                 aRects[cHeads].h = acy[i];
                 ++cHeads;
             }
         }
-        if (drmContext.hDevice != NIL_RTFILE)
-            drmSendHints(&drmContext, aRects, cHeads);
-        else
-        {
-            x11SendHints(&x11Context, aRects, cHeads);
-            x11GetScreenInfo(&x11Context);
-        }
+        drmSendHints(&drmContext, aRects, cHeads);
     }
 }
 
-struct VBCLSERVICE interface =
+static struct VBCLSERVICE interface =
 {
     getPidFilePath,
     VBClServiceDefaultHandler, /* Init */

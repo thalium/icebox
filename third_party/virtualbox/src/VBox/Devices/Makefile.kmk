@@ -47,9 +47,9 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
  #
  LIBRARIES += ServicesR0
  DLLS      += VBoxDDU VBoxDD VBoxDD2
- SYSMODS   += VBoxDDR0 VBoxDD2R0
+ SYSMODS   += VBoxDDR0
  ifdef VBOX_WITH_RAW_MODE
-  SYSMODS   += VBoxDDRC VBoxDD2RC
+  SYSMODS   += VBoxDDRC
  endif
 
 
@@ -1192,39 +1192,6 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
  endif
 
  $(call VBOX_SET_VER_INFO_R0,VBoxDDR0,VirtualBox VMM Devices and Drivers$(COMMA) ring-0) # (last!)
-
-
- ifdef VBOX_WITH_RAW_MODE
-  #
-  # VBoxDD2RC (LGPL sysmod)
-  #
-  VBoxDD2RC_TEMPLATE       = VBoxRc
-  VBoxDD2RC_INCS           = build
-  VBoxDD2RC_SOURCES        = \
- 	build/VBoxDD2R0.cpp # Dummy to prevent linking errors.
-  if1of ($(VBOX_LDR_FMT32), pe lx)
-   VBoxDD2RC_LIBS          = \
-   	$(PATH_STAGE_LIB)/VMMRCBuiltin$(VBOX_SUFF_LIB) \
-   	$(PATH_STAGE_LIB)/VMMRCImp$(VBOX_SUFF_LIB)
-  endif
-  $(call VBOX_SET_VER_INFO_RC,VBoxDD2RC,VirtualBox VMM Devices and Drivers 2$(COMMA) raw-mode)
- endif
-
-
- #
- # VBoxDD2R0 (LGPL sysmod)
- #
- VBoxDD2R0_TEMPLATE       = VBoxR0
- VBoxDD2R0_DEFS           = IN_RT_R0
- VBoxDD2R0_INCS           = build
- VBoxDD2R0_SOURCES        = \
- 	build/VBoxDD2R0.cpp
- if1of ($(VBOX_LDR_FMT), pe lx)
-  VBoxDD2R0_LIBS          = \
-  	$(PATH_STAGE_LIB)/VMMR0Imp$(VBOX_SUFF_LIB) \
-  	$(PATH_STAGE_LIB)/SUPR0$(VBOX_SUFF_LIB)
- endif
- $(call VBOX_SET_VER_INFO_R0,VBoxDD2R0,VirtualBox VMM Devices and Drivers 2$(COMMA) ring-0) # (last!)
 
 
  #

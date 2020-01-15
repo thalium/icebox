@@ -28,11 +28,7 @@ ThreadInfo *packspuNewThread(
     ThreadInfo *thread=NULL;
     int i;
 
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&_PackMutex);
-#else
-    CRASSERT(pack_spu.numThreads == 0);
-#endif
 
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
     CRASSERT(!CRPACKSPU_IS_WDDM_CRHGSMI() == !pHgsmi);
@@ -68,7 +64,7 @@ ThreadInfo *packspuNewThread(
     CRASSERT(thread->netServer.conn);
     /* packer setup */
     CRASSERT(thread->packer == NULL);
-    thread->packer = crPackNewContext( pack_spu.swap );
+    thread->packer = crPackNewContext();
     CRASSERT(thread->packer);
     crPackInitBuffer( &(thread->buffer), crNetAlloc(thread->netServer.conn),
                 thread->netServer.conn->buffer_size, thread->netServer.conn->mtu );
@@ -84,18 +80,14 @@ ThreadInfo *packspuNewThread(
     }
 
 
-#ifdef CHROMIUM_THREADSAFE
     if (!CRPACKSPU_IS_WDDM_CRHGSMI())
     {
         crSetTSD(&_PackTSD, thread);
     }
-#endif
 
     pack_spu.numThreads++;
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&_PackMutex);
-#endif
     return thread;
 }
 
@@ -198,9 +190,7 @@ packspu_VBoxConChromiumParameteriCR(GLint con, GLenum param, GLint value)
 
     CRASSERT(!curThread == !curPacker);
     CRASSERT(!curThread || !curPacker || curThread->packer == curPacker);
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&_PackMutex);
-#endif
 
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
     CRASSERT(!con == !CRPACKSPU_IS_WDDM_CRHGSMI());
@@ -234,10 +224,7 @@ packspu_VBoxConChromiumParameteriCR(GLint con, GLenum param, GLint value)
 
     packspu_ChromiumParameteriCR(param, value);
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&_PackMutex);
-#endif
-
     if (CRPACKSPU_IS_WDDM_CRHGSMI())
     {
         /* restore the packer context to the tls */
@@ -254,9 +241,7 @@ packspu_VBoxConChromiumParametervCR(GLint con, GLenum target, GLenum type, GLsiz
 
     CRASSERT(!curThread == !curPacker);
     CRASSERT(!curThread || !curPacker || curThread->packer == curPacker);
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&_PackMutex);
-#endif
 
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
     CRASSERT(!con == !CRPACKSPU_IS_WDDM_CRHGSMI());
@@ -290,10 +275,7 @@ packspu_VBoxConChromiumParametervCR(GLint con, GLenum target, GLenum type, GLsiz
 
     packspu_ChromiumParametervCR(target, type, count, values);
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&_PackMutex);
-#endif
-
     if (CRPACKSPU_IS_WDDM_CRHGSMI())
     {
         /* restore the packer context to the tls */
@@ -313,9 +295,7 @@ packspu_VBoxCreateContext( GLint con, const char *dpyName, GLint visual, GLint s
 
     CRASSERT(!curThread == !curPacker);
     CRASSERT(!curThread || !curPacker || curThread->packer == curPacker);
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&_PackMutex);
-#endif
 
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
     CRASSERT(!con == !CRPACKSPU_IS_WDDM_CRHGSMI());
@@ -356,10 +336,7 @@ packspu_VBoxCreateContext( GLint con, const char *dpyName, GLint visual, GLint s
     crPackSetContext( thread->packer );
 
     /* Pack the command */
-    if (pack_spu.swap)
-        crPackCreateContextSWAP( dpyName, visual, shareCtx, &serverCtx, &writeback );
-    else
-        crPackCreateContext( dpyName, visual, shareCtx, &serverCtx, &writeback );
+    crPackCreateContext( dpyName, visual, shareCtx, &serverCtx, &writeback );
 
     /* Flush buffer and get return value */
     packspuFlush(thread);
@@ -384,13 +361,8 @@ packspu_VBoxCreateContext( GLint con, const char *dpyName, GLint visual, GLint s
     else {
         CRPACKSPU_WRITEBACK_WAIT(thread, writeback);
 
-        if (pack_spu.swap) {
-            serverCtx = (GLint) SWAP32(serverCtx);
-        }
         if (serverCtx < 0) {
-#ifdef CHROMIUM_THREADSAFE
             crUnlockMutex(&_PackMutex);
-#endif
             crWarning("Failure in packspu_CreateContext");
 
             if (CRPACKSPU_IS_WDDM_CRHGSMI())
@@ -421,14 +393,11 @@ packspu_VBoxCreateContext( GLint con, const char *dpyName, GLint visual, GLint s
 
     /* Fill in the new context info */
     /* XXX fix-up sharedCtx param here */
-    pack_spu.context[slot].clientState = crStateCreateContext(NULL, visual, NULL);
+    pack_spu.context[slot].clientState = crStateCreateContext(&pack_spu.StateTracker, NULL, visual, NULL);
     pack_spu.context[slot].clientState->bufferobject.retainBufferData = GL_TRUE;
     pack_spu.context[slot].serverCtx = serverCtx;
 
-#ifdef CHROMIUM_THREADSAFE
     crUnlockMutex(&_PackMutex);
-#endif
-
     if (CRPACKSPU_IS_WDDM_CRHGSMI())
     {
         /* restore the packer context to the tls */
@@ -471,12 +440,8 @@ void PACKSPU_APIENTRY packspu_DestroyContext( GLint ctx )
             }
         }
 
-        if (pack_spu.swap)
-            crPackDestroyContextSWAP( context->serverCtx );
-        else
-            crPackDestroyContext( context->serverCtx );
-
-        crStateDestroyContext( context->clientState );
+        crPackDestroyContext( context->serverCtx );
+        crStateDestroyContext(&pack_spu.StateTracker, context->clientState );
 
         context->clientState = NULL;
         context->serverCtx = 0;
@@ -497,7 +462,7 @@ void PACKSPU_APIENTRY packspu_DestroyContext( GLint ctx )
             crSetTSD(&_PackTSD, NULL);
             crPackSetContext(NULL);
         }
-        crStateMakeCurrent( NULL );
+        crStateMakeCurrent(&pack_spu.StateTracker, NULL);
     }
     else
     {
@@ -574,12 +539,12 @@ void PACKSPU_APIENTRY packspu_MakeCurrent( GLint window, GLint nativeWindow, GLi
             crPackSetContext( thread->packer );
         }
 
-        crStateMakeCurrent( newCtx->clientState );
+        crStateMakeCurrent(&pack_spu.StateTracker, newCtx->clientState );
         //crStateSetCurrentPointers(newCtx->clientState, &thread->packer->current);
         serverCtx = pack_spu.context[slot].serverCtx;
     }
     else {
-        crStateMakeCurrent( NULL );
+        crStateMakeCurrent(&pack_spu.StateTracker, NULL );
         if (CRPACKSPU_IS_WDDM_CRHGSMI())
         {
             thread = GET_THREAD_VAL();
@@ -599,11 +564,7 @@ void PACKSPU_APIENTRY packspu_MakeCurrent( GLint window, GLint nativeWindow, GLi
         serverCtx = 0;
     }
 
-    if (pack_spu.swap)
-        crPackMakeCurrentSWAP( window, nativeWindow, serverCtx );
-    else
-        crPackMakeCurrent( window, nativeWindow, serverCtx );
-
+    crPackMakeCurrent( window, nativeWindow, serverCtx );
     if (serverCtx)
     {
         packspuInitStrings();

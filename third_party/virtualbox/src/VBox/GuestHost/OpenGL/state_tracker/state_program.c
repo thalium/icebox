@@ -131,17 +131,17 @@ GetProgramSymbol(const CRProgram *prog, const char *name, GLsizei len)
  * Used by both glBindProgramNV and glBindProgramARB
  */
 static CRProgram *
-BindProgram(GLenum target, GLuint id,
+BindProgram(PCRStateTracker pState, GLenum target, GLuint id,
                         GLenum vertexTarget, GLenum fragmentTarget)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
     CRProgram *prog;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBindProgram called in Begin/End");
         return NULL;
     }
@@ -154,7 +154,7 @@ BindProgram(GLenum target, GLuint id,
             prog = p->defaultFragmentProgram;
         }
         else {
-            crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                      "glBindProgram(bad target)");
             return NULL;
         }
@@ -164,11 +164,11 @@ BindProgram(GLenum target, GLuint id,
     }
 
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_OUT_OF_MEMORY, "glBindProgram");
+        crStateError(pState, __LINE__, __FILE__, GL_OUT_OF_MEMORY, "glBindProgram");
         return NULL;
     }
     else if (prog->target != target) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBindProgram target mismatch");
         return NULL;
     }
@@ -189,9 +189,9 @@ BindProgram(GLenum target, GLuint id,
 }
 
 
-void STATE_APIENTRY crStateBindProgramNV(GLenum target, GLuint id)
+void STATE_APIENTRY crStateBindProgramNV(PCRStateTracker pState, GLenum target, GLuint id)
 {
-    CRProgram *prog = BindProgram(target, id, GL_VERTEX_PROGRAM_NV,
+    CRProgram *prog = BindProgram(pState, target, id, GL_VERTEX_PROGRAM_NV,
                                   GL_FRAGMENT_PROGRAM_NV);
     if (prog) {
         prog->isARBprogram = GL_FALSE;
@@ -199,9 +199,9 @@ void STATE_APIENTRY crStateBindProgramNV(GLenum target, GLuint id)
 }
 
 
-void STATE_APIENTRY crStateBindProgramARB(GLenum target, GLuint id)
+void STATE_APIENTRY crStateBindProgramARB(PCRStateTracker pState, GLenum target, GLuint id)
 {
-    CRProgram *prog = BindProgram(target, id, GL_VERTEX_PROGRAM_ARB,
+    CRProgram *prog = BindProgram(pState, target, id, GL_VERTEX_PROGRAM_ARB,
                                   GL_FRAGMENT_PROGRAM_ARB);
     if (prog) {
         prog->isARBprogram = GL_TRUE;
@@ -209,23 +209,23 @@ void STATE_APIENTRY crStateBindProgramARB(GLenum target, GLuint id)
 }
 
 
-void STATE_APIENTRY crStateDeleteProgramsARB(GLsizei n, const GLuint *ids)
+void STATE_APIENTRY crStateDeleteProgramsARB(PCRStateTracker pState, GLsizei n, const GLuint *ids)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
     GLint i;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glDeleteProgramsNV called in Begin/End");
         return;
     }
 
     if (n < 0)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "glDeleteProgramsNV(n)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "glDeleteProgramsNV(n)");
         return;
     }
 
@@ -252,45 +252,46 @@ void STATE_APIENTRY crStateDeleteProgramsARB(GLsizei n, const GLuint *ids)
 }
 
 
-void STATE_APIENTRY crStateExecuteProgramNV(GLenum target, GLuint id, const GLfloat *params)
+void STATE_APIENTRY crStateExecuteProgramNV(PCRStateTracker pState, GLenum target, GLuint id, const GLfloat *params)
 {
     /* Hmmm, this is really hard to do if we don't actually execute
      * the program in a software simulation.
      */
+    RT_NOREF(pState);
     (void)params;
     (void)target;
     (void)id;
 }
 
 
-void STATE_APIENTRY crStateGenProgramsNV(GLsizei n, GLuint *ids)
+void STATE_APIENTRY crStateGenProgramsNV(PCRStateTracker pState, GLsizei n, GLuint *ids)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
 
     crStateGenNames(g, p->programHash, n, ids);
 }
 
-void STATE_APIENTRY crStateGenProgramsARB(GLsizei n, GLuint *ids)
+void STATE_APIENTRY crStateGenProgramsARB(PCRStateTracker pState, GLsizei n, GLuint *ids)
 {
-    crStateGenProgramsNV(n, ids);
+    crStateGenProgramsNV(pState, n, ids);
 }
 
 
-GLboolean STATE_APIENTRY crStateIsProgramARB(GLuint id)
+GLboolean STATE_APIENTRY crStateIsProgramARB(PCRStateTracker pState, GLuint id)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     CRProgram *prog;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glIsProgram called in Begin/End");
         return GL_FALSE;
     }
 
     if (id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glIsProgram(id==0)");
         return GL_FALSE;
     }
@@ -303,15 +304,15 @@ GLboolean STATE_APIENTRY crStateIsProgramARB(GLuint id)
 }
 
 
-GLboolean STATE_APIENTRY crStateAreProgramsResidentNV(GLsizei n, const GLuint *ids, GLboolean *residences)
+GLboolean STATE_APIENTRY crStateAreProgramsResidentNV(PCRStateTracker pState, GLsizei n, const GLuint *ids, GLboolean *residences)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     int i;
     GLboolean retVal = GL_TRUE;
 
     if (n < 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glAreProgramsResidentNV(n)");
         return GL_FALSE;
     }
@@ -320,14 +321,14 @@ GLboolean STATE_APIENTRY crStateAreProgramsResidentNV(GLsizei n, const GLuint *i
         CRProgram *prog;
 
         if (ids[i] == 0) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glAreProgramsResidentNV(id)");
             return GL_FALSE;
         }
 
         prog = (CRProgram *) crHashtableSearch(p->programHash, ids[i]);
         if (!prog) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glAreProgramsResidentNV(id)");
             return GL_FALSE;
         }
@@ -350,20 +351,20 @@ GLboolean STATE_APIENTRY crStateAreProgramsResidentNV(GLsizei n, const GLuint *i
 }
 
 
-void STATE_APIENTRY crStateRequestResidentProgramsNV(GLsizei n, const GLuint *ids)
+void STATE_APIENTRY crStateRequestResidentProgramsNV(PCRStateTracker pState, GLsizei n, const GLuint *ids)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     GLint i;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glRequestResidentProgramsNV called in Begin/End");
         return;
     }
 
     if (n < 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glRequestResidentProgramsNV(n<0)");
         return;
     }
@@ -376,43 +377,50 @@ void STATE_APIENTRY crStateRequestResidentProgramsNV(GLsizei n, const GLuint *id
 }
 
 
-void STATE_APIENTRY crStateLoadProgramNV(GLenum target, GLuint id, GLsizei len,
+void STATE_APIENTRY crStateLoadProgramNV(PCRStateTracker pState, GLenum target, GLuint id, GLsizei len,
                                                                                  const GLubyte *program)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
     CRProgram *prog;
     GLubyte *progCopy;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glLoadProgramNV called in Begin/End");
         return;
     }
 
     if (id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glLoadProgramNV(id==0)");
+        return;
+    }
+
+    if (len > _1M)
+    {
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
+                                 "glLoadProgramNV(len > 1MB)");
         return;
     }
 
     prog = GetProgram(p, target, id);
 
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_OUT_OF_MEMORY, "glLoadProgramNV");
+        crStateError(pState, __LINE__, __FILE__, GL_OUT_OF_MEMORY, "glLoadProgramNV");
         return;
     }
     else if (prog && prog->target != target) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glLoadProgramNV(target)");
         return;
     }
 
     progCopy = crAlloc(len);
     if (!progCopy) {
-            crStateError(__LINE__, __FILE__, GL_OUT_OF_MEMORY, "glLoadProgramNV");
+            crStateError(pState, __LINE__, __FILE__, GL_OUT_OF_MEMORY, "glLoadProgramNV");
             return;
     }
     if (crStrncmp((const char *) program,"!!FP1.0", 7) != 0
@@ -421,8 +429,9 @@ void STATE_APIENTRY crStateLoadProgramNV(GLenum target, GLuint id, GLsizei len,
      && crStrncmp((const char *) program,"!!VP1.1", 7) != 0
      && crStrncmp((const char *) program,"!!VP2.0", 7) != 0
      && crStrncmp((const char *) program,"!!VSP1.0", 8) != 0) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "glLoadProgramNV");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "glLoadProgramNV");
             crDebug("program = (%s)\n",program);
+            crFree(progCopy);
             return;
     }
     crMemcpy(progCopy, program, len);
@@ -438,24 +447,24 @@ void STATE_APIENTRY crStateLoadProgramNV(GLenum target, GLuint id, GLsizei len,
 }
 
 
-void STATE_APIENTRY crStateProgramStringARB(GLenum target, GLenum format,
+void STATE_APIENTRY crStateProgramStringARB(PCRStateTracker pState, GLenum target, GLenum format,
                                                                                         GLsizei len, const GLvoid *string)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
     CRProgram *prog;
     GLubyte *progCopy;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramStringARB called in Begin/End");
         return;
     }
 
     if (format != GL_PROGRAM_FORMAT_ASCII_ARB) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glProgramStringARB(format)");
         return;
     }
@@ -469,7 +478,7 @@ void STATE_APIENTRY crStateProgramStringARB(GLenum target, GLenum format,
         prog = p->currentVertexProgram;
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glProgramStringARB(target)");
         return;
     }
@@ -479,12 +488,12 @@ void STATE_APIENTRY crStateProgramStringARB(GLenum target, GLenum format,
 
     progCopy = crAlloc(len);
     if (!progCopy) {
-        crStateError(__LINE__, __FILE__, GL_OUT_OF_MEMORY, "glProgramStringARB");
+        crStateError(pState, __LINE__, __FILE__, GL_OUT_OF_MEMORY, "glProgramStringARB");
         return;
     }
     if (crStrncmp(string,"!!ARBvp1.0", 10) !=  0 
      && crStrncmp(string,"!!ARBfp1.0", 10) != 0) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "glProgramStringARB");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "glProgramStringARB");
             return;
     }
     crMemcpy(progCopy, string, len);
@@ -501,27 +510,27 @@ void STATE_APIENTRY crStateProgramStringARB(GLenum target, GLenum format,
 }
 
 
-void STATE_APIENTRY crStateGetProgramivNV(GLuint id, GLenum pname, GLint *params)
+void STATE_APIENTRY crStateGetProgramivNV(PCRStateTracker pState, GLuint id, GLenum pname, GLint *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     CRProgram *prog;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramivNV called in Begin/End");
         return;
     }
 
     if (id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramivNV(bad id)");
         return;
     }
         
     prog = (CRProgram *) crHashtableSearch(p->programHash, id);
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramivNV(bad id)");
         return;
     }
@@ -537,40 +546,40 @@ void STATE_APIENTRY crStateGetProgramivNV(GLuint id, GLenum pname, GLint *params
         *params = prog->resident;
         return;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramivNV(pname)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateGetProgramStringNV(GLuint id, GLenum pname, GLubyte *program)
+void STATE_APIENTRY crStateGetProgramStringNV(PCRStateTracker pState, GLuint id, GLenum pname, GLubyte *program)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     CRProgram *prog;
 
     if (pname != GL_PROGRAM_STRING_NV) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramStringNV(pname)");
         return;
     }
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramStringNV called in Begin/End");
         return;
     }
 
     if (id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramStringNV(bad id)");
         return;
     }
         
     prog = (CRProgram *) crHashtableSearch(p->programHash, id);
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramStringNV(bad id)");
         return;
     }
@@ -579,9 +588,9 @@ void STATE_APIENTRY crStateGetProgramStringNV(GLuint id, GLenum pname, GLubyte *
 }
 
 
-void STATE_APIENTRY crStateGetProgramStringARB(GLenum target, GLenum pname, GLvoid *string)
+void STATE_APIENTRY crStateGetProgramStringARB(PCRStateTracker pState, GLenum target, GLenum pname, GLvoid *string)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     CRProgram *prog;
 
@@ -592,19 +601,19 @@ void STATE_APIENTRY crStateGetProgramStringARB(GLenum target, GLenum pname, GLvo
         prog = p->currentFragmentProgram;
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramStringNV(target)");
         return;
     }
 
     if (pname != GL_PROGRAM_STRING_NV) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramStringNV(pname)");
         return;
     }
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramStringNV called in Begin/End");
         return;
     }
@@ -613,33 +622,32 @@ void STATE_APIENTRY crStateGetProgramStringARB(GLenum target, GLenum pname, GLvo
 }
 
 
-void STATE_APIENTRY crStateProgramParameter4dNV(GLenum target, GLuint index,
-                                GLdouble x, GLdouble y, GLdouble z, GLdouble w)
+void STATE_APIENTRY crStateProgramParameter4dNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
-    crStateProgramParameter4fNV(target, index, (GLfloat) x, (GLfloat) y,
+    crStateProgramParameter4fNV(pState, target, index, (GLfloat) x, (GLfloat) y,
                                                             (GLfloat) z, (GLfloat) w);
 }
 
 
-void STATE_APIENTRY crStateProgramParameter4dvNV(GLenum target, GLuint index,
-                                 const GLdouble *params)
+void STATE_APIENTRY crStateProgramParameter4dvNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                 const GLdouble *params)
 {
-    crStateProgramParameter4fNV(target, index,
-                                                            (GLfloat) params[0], (GLfloat) params[1],
-                                                            (GLfloat) params[2], (GLfloat) params[3]);
+    crStateProgramParameter4fNV(pState, target, index, (GLfloat) params[0], (GLfloat) params[1],
+                                (GLfloat) params[2], (GLfloat) params[3]);
 }
 
 
-void STATE_APIENTRY crStateProgramParameter4fNV(GLenum target, GLuint index,
-                                                                 GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+void STATE_APIENTRY crStateProgramParameter4fNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramParameterNV called in Begin/End");
         return;
     }
@@ -655,44 +663,43 @@ void STATE_APIENTRY crStateProgramParameter4fNV(GLenum target, GLuint index,
             DIRTY(pb->vertexEnvParameters, g->neg_bitid);
         }
         else {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glProgramParameterNV(index=%d)", index);
             return;
         }
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glProgramParameterNV(target)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateProgramParameter4fvNV(GLenum target, GLuint index,
-                                 const GLfloat *params)
+void STATE_APIENTRY crStateProgramParameter4fvNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                 const GLfloat *params)
 {
-    crStateProgramParameter4fNV(target, index,
-                                                            params[0], params[1], params[2], params[3]);
+    crStateProgramParameter4fNV(pState, target, index, params[0], params[1], params[2], params[3]);
 }
 
 
-void STATE_APIENTRY crStateProgramParameters4dvNV(GLenum target, GLuint index,
-                                  GLuint num, const GLdouble *params)
+void STATE_APIENTRY crStateProgramParameters4dvNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                  GLuint num, const GLdouble *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramParameters4dvNV called in Begin/End");
         return;
     }
 
     if (target == GL_VERTEX_PROGRAM_NV) {
         if (index >= UINT32_MAX - num) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                 "glProgramParameters4dvNV(index+num) integer overflow");
             return;
         }
@@ -709,36 +716,36 @@ void STATE_APIENTRY crStateProgramParameters4dvNV(GLenum target, GLuint index,
             DIRTY(pb->vertexEnvParameters, g->neg_bitid);
         }
         else {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glProgramParameters4dvNV(index+num)");
             return;
         }
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glProgramParameterNV(target)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateProgramParameters4fvNV(GLenum target, GLuint index,
-                                  GLuint num, const GLfloat *params)
+void STATE_APIENTRY crStateProgramParameters4fvNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                  GLuint num, const GLfloat *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramParameters4dvNV called in Begin/End");
         return;
     }
 
     if (target == GL_VERTEX_PROGRAM_NV) {
         if (index >= UINT32_MAX - num) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                 "glProgramParameters4dvNV(index+num) integer overflow");
             return;
         }
@@ -755,27 +762,27 @@ void STATE_APIENTRY crStateProgramParameters4fvNV(GLenum target, GLuint index,
             DIRTY(pb->vertexEnvParameters, g->neg_bitid);
         }
         else {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glProgramParameters4dvNV(index+num)");
             return;
         }
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glProgramParameterNV(target)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateGetProgramParameterfvNV(GLenum target, GLuint index,
-                                                                        GLenum pname, GLfloat *params)
+void STATE_APIENTRY crStateGetProgramParameterfvNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                   GLenum pname, GLfloat *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramParameterfvNV called in Begin/End");
         return;
     }
@@ -789,33 +796,33 @@ void STATE_APIENTRY crStateGetProgramParameterfvNV(GLenum target, GLuint index,
                 params[3] = p->vertexParameters[index][3];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                          "glGetProgramParameterfvNV(index)");
                 return;
             }
         }
         else {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glGetProgramParameterfvNV(pname)");
             return;
         }
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramParameterfvNV(target)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateGetProgramParameterdvNV(GLenum target, GLuint index,
-                                   GLenum pname, GLdouble *params)
+void STATE_APIENTRY crStateGetProgramParameterdvNV(PCRStateTracker pState, GLenum target, GLuint index,
+                                                   GLenum pname, GLdouble *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramParameterdvNV called in Begin/End");
         return;
     }
@@ -829,42 +836,42 @@ void STATE_APIENTRY crStateGetProgramParameterdvNV(GLenum target, GLuint index,
                 params[3] = p->vertexParameters[index][3];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                          "glGetProgramParameterdvNV(index)");
                 return;
             }
         }
         else {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glGetProgramParameterdvNV(pname)");
             return;
         }
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramParameterdvNV(target)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateTrackMatrixNV(GLenum target, GLuint address,
-                         GLenum matrix, GLenum transform)
+void STATE_APIENTRY crStateTrackMatrixNV(PCRStateTracker pState, GLenum target, GLuint address,
+                                         GLenum matrix, GLenum transform)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetTrackMatrixivNV called in Begin/End");
         return;
     }
 
     if (target == GL_VERTEX_PROGRAM_NV) {
         if (address & 0x3 || address >= g->limits.maxVertexProgramEnvParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glTrackMatrixNV(address)");
             return;
         }
@@ -895,7 +902,7 @@ void STATE_APIENTRY crStateTrackMatrixNV(GLenum target, GLuint address,
             /* OK, fallthrough */
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glTrackMatrixNV(matrix = %x)",matrix);
             return;
         }
@@ -908,7 +915,7 @@ void STATE_APIENTRY crStateTrackMatrixNV(GLenum target, GLuint address,
             /* OK, fallthrough */
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glTrackMatrixNV(transform = %x)",transform);
             return;
         }
@@ -919,27 +926,27 @@ void STATE_APIENTRY crStateTrackMatrixNV(GLenum target, GLuint address,
         DIRTY(pb->dirty, g->neg_bitid);
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glTrackMatrixNV(target = %x)",target);
     }
 }
 
 
-void STATE_APIENTRY crStateGetTrackMatrixivNV(GLenum target, GLuint address,
-                                                             GLenum pname, GLint *params)
+void STATE_APIENTRY crStateGetTrackMatrixivNV(PCRStateTracker pState, GLenum target, GLuint address,
+                                              GLenum pname, GLint *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetTrackMatrixivNV called in Begin/End");
         return;
     }
 
     if (target == GL_VERTEX_PROGRAM_NV) {
         if ((address & 0x3) || address >= g->limits.maxVertexProgramEnvParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glGetTrackMatrixivNV(address)");
             return;
         }
@@ -950,24 +957,24 @@ void STATE_APIENTRY crStateGetTrackMatrixivNV(GLenum target, GLuint address,
             params[0] = (GLint) p->TrackMatrixTransform[address / 4];
         }
         else {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glGetTrackMatrixivNV(pname)");
             return;
         }
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetTrackMatrixivNV(target)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateGetVertexAttribdvNV(GLuint index, GLenum pname, GLdouble *params)
+void STATE_APIENTRY crStateGetVertexAttribdvNV(PCRStateTracker pState, GLuint index, GLenum pname, GLdouble *params)
 {
      /* init vars to prevent compiler warnings/errors */
      GLfloat floatParams[4] = { 0.0, 0.0, 0.0, 0.0 };
-     crStateGetVertexAttribfvNV(index, pname, floatParams);
+     crStateGetVertexAttribfvNV(pState, index, pname, floatParams);
      params[0] = floatParams[0];
      if (pname == GL_CURRENT_ATTRIB_NV) {
             params[1] = floatParams[1];
@@ -977,18 +984,18 @@ void STATE_APIENTRY crStateGetVertexAttribdvNV(GLuint index, GLenum pname, GLdou
 }
 
 
-void STATE_APIENTRY crStateGetVertexAttribfvNV(GLuint index, GLenum pname, GLfloat *params)
+void STATE_APIENTRY crStateGetVertexAttribfvNV(PCRStateTracker pState, GLuint index, GLenum pname, GLfloat *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetVertexAttribfvNV called in Begin/End");
         return;
     }
 
     if (index >= CR_MAX_VERTEX_ATTRIBS) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glGetVertexAttribfvNV(index)");
         return;
     }
@@ -1004,21 +1011,21 @@ void STATE_APIENTRY crStateGetVertexAttribfvNV(GLuint index, GLenum pname, GLflo
         params[0] = (GLfloat) g->client.array.a[index].type;
         break;
     case GL_CURRENT_ATTRIB_NV:
-        crStateCurrentRecover();
+        crStateCurrentRecover(pState);
         COPY_4V(params , g->current.vertexAttrib[index]);
         break;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetVertexAttribfvNV");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetVertexAttribfvNV");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateGetVertexAttribivNV(GLuint index, GLenum pname, GLint *params)
+void STATE_APIENTRY crStateGetVertexAttribivNV(PCRStateTracker pState, GLuint index, GLenum pname, GLint *params)
 {
      /* init vars to prevent compiler warnings/errors */
      GLfloat floatParams[4] = { 0.0, 0.0, 0.0, 0.0 };
-     crStateGetVertexAttribfvNV(index, pname, floatParams);
+     crStateGetVertexAttribfvNV(pState, index, pname, floatParams);
      params[0] = (GLint) floatParams[0];
      if (pname == GL_CURRENT_ATTRIB_NV) {
             params[1] = (GLint) floatParams[1];
@@ -1029,18 +1036,18 @@ void STATE_APIENTRY crStateGetVertexAttribivNV(GLuint index, GLenum pname, GLint
 
 
 
-void STATE_APIENTRY crStateGetVertexAttribfvARB(GLuint index, GLenum pname, GLfloat *params)
+void STATE_APIENTRY crStateGetVertexAttribfvARB(PCRStateTracker pState, GLuint index, GLenum pname, GLfloat *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetVertexAttribfvARB called in Begin/End");
         return;
     }
 
     if (index >= CR_MAX_VERTEX_ATTRIBS) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glGetVertexAttribfvARB(index)");
         return;
     }
@@ -1062,21 +1069,21 @@ void STATE_APIENTRY crStateGetVertexAttribfvARB(GLuint index, GLenum pname, GLfl
         params[0] = (GLfloat) g->client.array.a[index].normalized;
         break;
     case GL_CURRENT_VERTEX_ATTRIB_ARB:
-        crStateCurrentRecover();
+        crStateCurrentRecover(pState);
         COPY_4V(params , g->current.vertexAttrib[index]);
         break;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetVertexAttribfvARB");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetVertexAttribfvARB");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateGetVertexAttribivARB(GLuint index, GLenum pname, GLint *params)
+void STATE_APIENTRY crStateGetVertexAttribivARB(PCRStateTracker pState, GLuint index, GLenum pname, GLint *params)
 {
      /* init vars to prevent compiler warnings/errors */
      GLfloat floatParams[4] = { 0.0, 0.0, 0.0, 0.0 };
-     crStateGetVertexAttribfvARB(index, pname, floatParams);
+     crStateGetVertexAttribfvARB(pState, index, pname, floatParams);
      params[0] = (GLint) floatParams[0];
      if (pname == GL_CURRENT_VERTEX_ATTRIB_ARB) {
             params[1] = (GLint) floatParams[1];
@@ -1086,11 +1093,11 @@ void STATE_APIENTRY crStateGetVertexAttribivARB(GLuint index, GLenum pname, GLin
 }
 
 
-void STATE_APIENTRY crStateGetVertexAttribdvARB(GLuint index, GLenum pname, GLdouble *params)
+void STATE_APIENTRY crStateGetVertexAttribdvARB(PCRStateTracker pState, GLuint index, GLenum pname, GLdouble *params)
 {
      /* init vars to prevent compiler warnings/errors */
      GLfloat floatParams[4] = { 0.0, 0.0, 0.0, 0.0 };
-     crStateGetVertexAttribfvARB(index, pname, floatParams);
+     crStateGetVertexAttribfvARB(pState, index, pname, floatParams);
      params[0] = floatParams[0];
      if (pname == GL_CURRENT_VERTEX_ATTRIB_ARB) {
             params[1] = floatParams[1];
@@ -1106,29 +1113,29 @@ void STATE_APIENTRY crStateGetVertexAttribdvARB(GLuint index, GLenum pname, GLdo
  * Added by GL_NV_fragment_program
  */
 
-void STATE_APIENTRY crStateProgramNamedParameter4fNV(GLuint id, GLsizei len, const GLubyte *name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+void STATE_APIENTRY crStateProgramNamedParameter4fNV(PCRStateTracker pState, GLuint id, GLsizei len, const GLubyte *name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     CRProgram *prog;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramNamedParameterfNV called in Begin/End");
         return;
     }
 
     prog = (CRProgram *) crHashtableSearch(p->programHash, id);
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramNamedParameterNV(bad id %d)", id);
         return;
     }
 
     if (prog->target != GL_FRAGMENT_PROGRAM_NV) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramNamedParameterNV(target)");
         return;
     }
@@ -1139,53 +1146,53 @@ void STATE_APIENTRY crStateProgramNamedParameter4fNV(GLuint id, GLsizei len, con
 }
 
 
-void STATE_APIENTRY crStateProgramNamedParameter4dNV(GLuint id, GLsizei len, const GLubyte *name, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
+void STATE_APIENTRY crStateProgramNamedParameter4dNV(PCRStateTracker pState, GLuint id, GLsizei len, const GLubyte *name, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
-    crStateProgramNamedParameter4fNV(id, len, name, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+    crStateProgramNamedParameter4fNV(pState, id, len, name, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
 
-void STATE_APIENTRY crStateProgramNamedParameter4fvNV(GLuint id, GLsizei len, const GLubyte *name, const GLfloat v[])
+void STATE_APIENTRY crStateProgramNamedParameter4fvNV(PCRStateTracker pState, GLuint id, GLsizei len, const GLubyte *name, const GLfloat v[])
 {
-    crStateProgramNamedParameter4fNV(id, len, name, v[0], v[1], v[2], v[3]);
+    crStateProgramNamedParameter4fNV(pState, id, len, name, v[0], v[1], v[2], v[3]);
 }
 
 
-void STATE_APIENTRY crStateProgramNamedParameter4dvNV(GLuint id, GLsizei len, const GLubyte *name, const GLdouble v[])
+void STATE_APIENTRY crStateProgramNamedParameter4dvNV(PCRStateTracker pState, GLuint id, GLsizei len, const GLubyte *name, const GLdouble v[])
 {
-    crStateProgramNamedParameter4fNV(id, len, name, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+    crStateProgramNamedParameter4fNV(pState, id, len, name, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
 
-void STATE_APIENTRY crStateGetProgramNamedParameterfvNV(GLuint id, GLsizei len, const GLubyte *name, GLfloat *params)
+void STATE_APIENTRY crStateGetProgramNamedParameterfvNV(PCRStateTracker pState, GLuint id, GLsizei len, const GLubyte *name, GLfloat *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     const CRProgram *prog;
     const GLfloat *value;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramNamedParameterfNV called in Begin/End");
         return;
     }
 
     prog = (const CRProgram *) crHashtableSearch(p->programHash, id);
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramNamedParameterNV(bad id)");
         return;
     }
 
     if (prog->target != GL_FRAGMENT_PROGRAM_NV) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramNamedParameterNV(target)");
         return;
     }
 
     value = GetProgramSymbol(prog, (const char *)name, len);
     if (!value) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glGetProgramNamedParameterNV(name)");
         return;
     }
@@ -1197,10 +1204,10 @@ void STATE_APIENTRY crStateGetProgramNamedParameterfvNV(GLuint id, GLsizei len, 
 }
 
 
-void STATE_APIENTRY crStateGetProgramNamedParameterdvNV(GLuint id, GLsizei len, const GLubyte *name, GLdouble *params)
+void STATE_APIENTRY crStateGetProgramNamedParameterdvNV(PCRStateTracker pState, GLuint id, GLsizei len, const GLubyte *name, GLdouble *params)
 {
     GLfloat floatParams[4];
-    crStateGetProgramNamedParameterfvNV(id, len, name, floatParams);
+    crStateGetProgramNamedParameterfvNV(pState, id, len, name, floatParams);
     params[0] = floatParams[0];
     params[1] = floatParams[1];
     params[2] = floatParams[2];
@@ -1208,36 +1215,36 @@ void STATE_APIENTRY crStateGetProgramNamedParameterdvNV(GLuint id, GLsizei len, 
 }
 
 
-void STATE_APIENTRY crStateProgramLocalParameter4dARB(GLenum target, GLuint index, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
+void STATE_APIENTRY crStateProgramLocalParameter4dARB(PCRStateTracker pState, GLenum target, GLuint index, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
-    crStateProgramLocalParameter4fARB(target, index, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+    crStateProgramLocalParameter4fARB(pState, target, index, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
 
-void STATE_APIENTRY crStateProgramLocalParameter4dvARB(GLenum target, GLuint index, const GLdouble *params)
+void STATE_APIENTRY crStateProgramLocalParameter4dvARB(PCRStateTracker pState, GLenum target, GLuint index, const GLdouble *params)
 {
-    crStateProgramLocalParameter4fARB(target, index, (GLfloat) params[0], (GLfloat) params[1],
+    crStateProgramLocalParameter4fARB(pState, target, index, (GLfloat) params[0], (GLfloat) params[1],
                                                                         (GLfloat) params[2], (GLfloat) params[3]);
 }
 
 
-void STATE_APIENTRY crStateProgramLocalParameter4fARB(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+void STATE_APIENTRY crStateProgramLocalParameter4fARB(PCRStateTracker pState, GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     CRProgram *prog;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramLocalParameterARB called in Begin/End");
         return;
     }
 
     if (target == GL_FRAGMENT_PROGRAM_ARB || target == GL_FRAGMENT_PROGRAM_NV) {
         if (index >= CR_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMS) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glProgramLocalParameterARB(index)");
             return;
         }
@@ -1245,14 +1252,14 @@ void STATE_APIENTRY crStateProgramLocalParameter4fARB(GLenum target, GLuint inde
     }
     else if (target == GL_VERTEX_PROGRAM_ARB) {
         if (index >= CR_MAX_VERTEX_PROGRAM_LOCAL_PARAMS) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glProgramLocalParameterARB(index)");
             return;
         }
         prog = p->currentVertexProgram;
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glProgramLocalParameterARB(target)");
         return;
     }
@@ -1269,20 +1276,20 @@ void STATE_APIENTRY crStateProgramLocalParameter4fARB(GLenum target, GLuint inde
 }
 
 
-void STATE_APIENTRY crStateProgramLocalParameter4fvARB(GLenum target, GLuint index, const GLfloat *params)
+void STATE_APIENTRY crStateProgramLocalParameter4fvARB(PCRStateTracker pState, GLenum target, GLuint index, const GLfloat *params)
 {
-    crStateProgramLocalParameter4fARB(target, index, params[0], params[1], params[2], params[3]);
+    crStateProgramLocalParameter4fARB(pState, target, index, params[0], params[1], params[2], params[3]);
 }
 
 
-void STATE_APIENTRY crStateGetProgramLocalParameterfvARB(GLenum target, GLuint index, GLfloat *params)
+void STATE_APIENTRY crStateGetProgramLocalParameterfvARB(PCRStateTracker pState, GLenum target, GLuint index, GLfloat *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
     const CRProgram *prog = NULL;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramLocalParameterARB called in Begin/End");
         return;
     }
@@ -1290,7 +1297,7 @@ void STATE_APIENTRY crStateGetProgramLocalParameterfvARB(GLenum target, GLuint i
     if (target == GL_FRAGMENT_PROGRAM_ARB || target == GL_FRAGMENT_PROGRAM_NV) {
         prog = p->currentFragmentProgram;
         if (index >= g->limits.maxFragmentProgramLocalParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glGetProgramLocalParameterARB(index)");
             return;
         }
@@ -1302,24 +1309,24 @@ void STATE_APIENTRY crStateGetProgramLocalParameterfvARB(GLenum target, GLuint i
             ) {
         prog = p->currentVertexProgram;
         if (index >= g->limits.maxVertexProgramLocalParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glGetProgramLocalParameterARB(index)");
             return;
         }
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramLocalParameterARB(target)");
         return;
     }
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramLocalParameterARB(no program)");
         return;
     }
 
     if (!prog) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramLocalParameterARB(no program)");
         return;
     }
@@ -1333,10 +1340,10 @@ void STATE_APIENTRY crStateGetProgramLocalParameterfvARB(GLenum target, GLuint i
 }
 
 
-void STATE_APIENTRY crStateGetProgramLocalParameterdvARB(GLenum target, GLuint index, GLdouble *params)
+void STATE_APIENTRY crStateGetProgramLocalParameterdvARB(PCRStateTracker pState, GLenum target, GLuint index, GLdouble *params)
 {
     GLfloat floatParams[4];
-    crStateGetProgramLocalParameterfvARB(target, index, floatParams);
+    crStateGetProgramLocalParameterfvARB(pState, target, index, floatParams);
     params[0] = floatParams[0];
     params[1] = floatParams[1];
     params[2] = floatParams[2];
@@ -1345,14 +1352,14 @@ void STATE_APIENTRY crStateGetProgramLocalParameterdvARB(GLenum target, GLuint i
 
 
 
-void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *params)
+void STATE_APIENTRY crStateGetProgramivARB(PCRStateTracker pState, GLenum target, GLenum pname, GLint *params)
 {
     CRProgram *prog;
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramivARB called in Begin/End");
         return;
     }
@@ -1364,7 +1371,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
         prog = p->currentFragmentProgram;
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramivARB(target)");
         return;
     }
@@ -1501,7 +1508,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
      */
     case GL_PROGRAM_ALU_INSTRUCTIONS_ARB:
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1509,7 +1516,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
         break;
     case GL_PROGRAM_TEX_INSTRUCTIONS_ARB:
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1517,7 +1524,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
         break;
     case GL_PROGRAM_TEX_INDIRECTIONS_ARB:
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1526,7 +1533,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
     case GL_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB:
         /* XXX same as GL_PROGRAM_ALU_INSTRUCTIONS_ARB? */
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1535,7 +1542,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
     case GL_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB:
         /* XXX same as GL_PROGRAM_ALU_INSTRUCTIONS_ARB? */
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1543,7 +1550,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
         break;
     case GL_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB:
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1552,7 +1559,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
     case GL_MAX_PROGRAM_ALU_INSTRUCTIONS_ARB:
     case GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB:
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1561,7 +1568,7 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
     case GL_MAX_PROGRAM_TEX_INSTRUCTIONS_ARB:
     case GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB:
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
@@ -1570,14 +1577,14 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
     case GL_MAX_PROGRAM_TEX_INDIRECTIONS_ARB:
     case GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB:
         if (target != GL_FRAGMENT_PROGRAM_ARB || !g->extensions.ARB_fragment_program) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "crStateGetProgramivARB(target or pname)");
             return;
         }
         *params = g->limits.maxFragmentProgramTexIndirections;
         break;
     default:
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "crStateGetProgramivARB(pname)");
         return;
     }
@@ -1585,15 +1592,15 @@ void STATE_APIENTRY crStateGetProgramivARB(GLenum target, GLenum pname, GLint *p
 
 
 /* XXX maybe move these two functions into state_client.c? */
-void STATE_APIENTRY crStateDisableVertexAttribArrayARB(GLuint index)
+void STATE_APIENTRY crStateDisableVertexAttribArrayARB(PCRStateTracker pState, GLuint index)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRClientState *c = &(g->client);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRClientBits *cb = &(sb->client);
 
     if (index >= g->limits.maxVertexProgramAttribs) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glDisableVertexAttribArrayARB(index)");
         return;
     }
@@ -1603,15 +1610,15 @@ void STATE_APIENTRY crStateDisableVertexAttribArrayARB(GLuint index)
 }
 
 
-void STATE_APIENTRY crStateEnableVertexAttribArrayARB(GLuint index)
+void STATE_APIENTRY crStateEnableVertexAttribArrayARB(PCRStateTracker pState, GLuint index)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRClientState *c = &(g->client);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRClientBits *cb = &(sb->client);
 
     if (index >= g->limits.maxVertexProgramAttribs) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glEnableVertexAttribArrayARB(index)");
         return;
     }
@@ -1621,30 +1628,30 @@ void STATE_APIENTRY crStateEnableVertexAttribArrayARB(GLuint index)
 }
 
 
-void STATE_APIENTRY crStateGetProgramEnvParameterdvARB(GLenum target, GLuint index, GLdouble *params)
+void STATE_APIENTRY crStateGetProgramEnvParameterdvARB(PCRStateTracker pState, GLenum target, GLuint index, GLdouble *params)
 {
      GLfloat fparams[4];
-     crStateGetProgramEnvParameterfvARB(target, index, fparams);
+     crStateGetProgramEnvParameterfvARB(pState, target, index, fparams);
      params[0] = fparams[0];
      params[1] = fparams[1];
      params[2] = fparams[2];
      params[3] = fparams[3];
 }
 
-void STATE_APIENTRY crStateGetProgramEnvParameterfvARB(GLenum target, GLuint index, GLfloat *params)
+void STATE_APIENTRY crStateGetProgramEnvParameterfvARB(PCRStateTracker pState, GLenum target, GLuint index, GLfloat *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetProgramEnvParameterARB called in Begin/End");
         return;
     }
 
     if (target == GL_FRAGMENT_PROGRAM_ARB || target == GL_FRAGMENT_PROGRAM_NV) {
         if (index >= g->limits.maxFragmentProgramEnvParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glGetProgramEnvParameterARB(index)");
             return;
         }
@@ -1659,7 +1666,7 @@ void STATE_APIENTRY crStateGetProgramEnvParameterfvARB(GLenum target, GLuint ind
 #endif
              ) {
         if (index >= g->limits.maxVertexProgramEnvParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glGetProgramEnvParameterARB(index)");
             return;
         }
@@ -1669,39 +1676,39 @@ void STATE_APIENTRY crStateGetProgramEnvParameterfvARB(GLenum target, GLuint ind
         params[3] = p->vertexParameters[index][3];
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glGetProgramEnvParameterARB(target)");
         return;
     }
 }
 
 
-void STATE_APIENTRY crStateProgramEnvParameter4dARB(GLenum target, GLuint index, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
+void STATE_APIENTRY crStateProgramEnvParameter4dARB(PCRStateTracker pState, GLenum target, GLuint index, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
-     crStateProgramEnvParameter4fARB(target, index, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+     crStateProgramEnvParameter4fARB(pState, target, index, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
-void STATE_APIENTRY crStateProgramEnvParameter4dvARB(GLenum target, GLuint index, const GLdouble *params)
+void STATE_APIENTRY crStateProgramEnvParameter4dvARB(PCRStateTracker pState, GLenum target, GLuint index, const GLdouble *params)
 {
-     crStateProgramEnvParameter4fARB(target, index, (GLfloat) params[0], (GLfloat) params[1], (GLfloat) params[2], (GLfloat) params[3]);
+     crStateProgramEnvParameter4fARB(pState, target, index, (GLfloat) params[0], (GLfloat) params[1], (GLfloat) params[2], (GLfloat) params[3]);
 }
 
-void STATE_APIENTRY crStateProgramEnvParameter4fARB(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+void STATE_APIENTRY crStateProgramEnvParameter4fARB(PCRStateTracker pState, GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRProgramState *p = &(g->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRProgramBits *pb = &(sb->program);
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glProgramEnvParameterARB called in Begin/End");
         return;
     }
 
     if (target == GL_FRAGMENT_PROGRAM_ARB || target == GL_FRAGMENT_PROGRAM_NV) {
         if (index >= g->limits.maxFragmentProgramEnvParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glProgramEnvParameterARB(index)");
             return;
         }
@@ -1718,7 +1725,7 @@ void STATE_APIENTRY crStateProgramEnvParameter4fARB(GLenum target, GLuint index,
 #endif
              ) {
         if (index >= g->limits.maxVertexProgramEnvParams) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glProgramEnvParameterARB(index)");
             return;
         }
@@ -1730,7 +1737,7 @@ void STATE_APIENTRY crStateProgramEnvParameter4fARB(GLenum target, GLuint index,
         DIRTY(pb->vertexEnvParameters, g->neg_bitid);
     }
     else {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                  "glProgramEnvParameterARB(target)");
         return;
     }
@@ -1738,9 +1745,9 @@ void STATE_APIENTRY crStateProgramEnvParameter4fARB(GLenum target, GLuint index,
     DIRTY(pb->dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateProgramEnvParameter4fvARB(GLenum target, GLuint index, const GLfloat *params)
+void STATE_APIENTRY crStateProgramEnvParameter4fvARB(PCRStateTracker pState, GLenum target, GLuint index, const GLfloat *params)
 {
-     crStateProgramEnvParameter4fARB(target, index, params[0], params[1], params[2], params[3]);
+     crStateProgramEnvParameter4fARB(pState, target, index, params[0], params[1], params[2], params[3]);
 }
 
 
@@ -1750,7 +1757,7 @@ void STATE_APIENTRY crStateProgramEnvParameter4fvARB(GLenum target, GLuint index
 void crStateProgramInit( CRContext *ctx )
 {
     CRProgramState *p = &(ctx->program);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
     CRProgramBits *pb = &(sb->program);
     GLuint i;
 
@@ -1818,10 +1825,13 @@ void
 crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
                                      CRContext *fromCtx, CRContext *toCtx)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRProgramState *from = &(fromCtx->program);
     CRProgramState *to = &(toCtx->program);
     unsigned int i, j;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
     CRASSERT(from->currentVertexProgram);
     CRASSERT(to->currentVertexProgram);
@@ -1836,8 +1846,8 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
         glAble able[2];
         CRProgram *toProg = to->currentVertexProgram;
 
-        able[0] = diff_api.Disable;
-        able[1] = diff_api.Enable;
+        able[0] = pState->diff_api.Disable;
+        able[1] = pState->diff_api.Enable;
         if (from->vpEnabled != to->vpEnabled) {
             if (toProg->isARBprogram)
                 able[to->vpEnabled](GL_VERTEX_PROGRAM_ARB);
@@ -1859,8 +1869,8 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
     /* fragment program enable */
     if (CHECKDIRTY(b->fpEnable, bitID)) {
         glAble able[2];
-        able[0] = diff_api.Disable;
-        able[1] = diff_api.Enable;
+        able[0] = pState->diff_api.Disable;
+        able[1] = pState->diff_api.Enable;
         if (from->fpEnabled != to->fpEnabled) {
             able[to->fpEnabled](GL_FRAGMENT_PROGRAM_NV);
             from->fpEnabled = to->fpEnabled;
@@ -1878,7 +1888,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(b->trackMatrix[i], bitID))   {
                 if (from->TrackMatrix[i] != to->TrackMatrix[i] ||
                         from->TrackMatrixTransform[i] != to->TrackMatrixTransform[i])   {
-                    diff_api.TrackMatrixNV(GL_VERTEX_PROGRAM_NV, i * 4,
+                    pState->diff_api.TrackMatrixNV(GL_VERTEX_PROGRAM_NV, i * 4,
                                                                  to->TrackMatrix[i],
                                                                  to->TrackMatrixTransform[i]);
                     from->TrackMatrix[i] = to->TrackMatrix[i];
@@ -1897,9 +1907,9 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
         if (CHECKDIRTY(b->vpBinding, bitID)) {
             if (fromProg->id != toProg->id) {
                 if (toProg->isARBprogram)
-                    diff_api.BindProgramARB(GL_VERTEX_PROGRAM_ARB, toProg->id);
+                    pState->diff_api.BindProgramARB(GL_VERTEX_PROGRAM_ARB, toProg->id);
                 else
-                    diff_api.BindProgramNV(GL_VERTEX_PROGRAM_NV, toProg->id);
+                    pState->diff_api.BindProgramNV(GL_VERTEX_PROGRAM_NV, toProg->id);
                 from->currentVertexProgram = toProg;
             }
             CLEARDIRTY(b->vpBinding, nbitID);
@@ -1909,10 +1919,10 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
             /* vertex program text */
             if (CHECKDIRTY(toProg->dirtyProgram, bitID)) {
                 if (toProg->isARBprogram) {
-                    diff_api.ProgramStringARB( GL_VERTEX_PROGRAM_ARB, toProg->format, toProg->length, toProg->string );
+                    pState->diff_api.ProgramStringARB( GL_VERTEX_PROGRAM_ARB, toProg->format, toProg->length, toProg->string );
                 }
                 else {
-                    diff_api.LoadProgramNV( GL_VERTEX_PROGRAM_NV, toProg->id, toProg->length, toProg->string );
+                    pState->diff_api.LoadProgramNV( GL_VERTEX_PROGRAM_NV, toProg->id, toProg->length, toProg->string );
                 }
                 CLEARDIRTY(toProg->dirtyProgram, nbitID);
             }
@@ -1922,10 +1932,10 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
                 for (i = 0; i < toCtx->limits.maxVertexProgramEnvParams; i++) {
                     if (CHECKDIRTY(b->vertexEnvParameter[i], bitID)) {
                         if (toProg->isARBprogram)
-                            diff_api.ProgramEnvParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i,
+                            pState->diff_api.ProgramEnvParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i,
                                                                                                  to->vertexParameters[i]);
                         else
-                            diff_api.ProgramParameter4fvNV(GL_VERTEX_PROGRAM_NV, i,
+                            pState->diff_api.ProgramParameter4fvNV(GL_VERTEX_PROGRAM_NV, i,
                                                                                          to->vertexParameters[i]);
                         if (fromProg) {
                             COPY_4V(from->vertexParameters[i],
@@ -1942,9 +1952,9 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
                 for (i = 0; i < toCtx->limits.maxVertexProgramLocalParams; i++) {
                     if (CHECKDIRTY(toProg->dirtyParam[i], bitID)) {
                         if (toProg->isARBprogram)
-                            diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, toProg->parameters[i]);
+                            pState->diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, toProg->parameters[i]);
                         else
-                            diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_NV, i, toProg->parameters[i]);
+                            pState->diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_NV, i, toProg->parameters[i]);
                         CLEARDIRTY(toProg->dirtyParam[i], nbitID);
                     }
                 }
@@ -1962,7 +1972,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
         CRProgram *toProg = to->currentFragmentProgram;
         if (CHECKDIRTY(b->fpBinding, bitID)) {
             if (fromProg->id != toProg->id) {
-                diff_api.BindProgramNV(GL_FRAGMENT_PROGRAM_NV, toProg->id);
+                pState->diff_api.BindProgramNV(GL_FRAGMENT_PROGRAM_NV, toProg->id);
                 from->currentFragmentProgram = toProg;
             }
             CLEARDIRTY(b->fpBinding, nbitID);
@@ -1971,7 +1981,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
         if (toProg) {
             /* fragment program text */
             if (CHECKDIRTY(toProg->dirtyProgram, bitID)) {
-                diff_api.LoadProgramNV( GL_FRAGMENT_PROGRAM_NV, toProg->id,
+                pState->diff_api.LoadProgramNV( GL_FRAGMENT_PROGRAM_NV, toProg->id,
                                                                 toProg->length, toProg->string );
                 CLEARDIRTY(toProg->dirtyProgram, nbitID);
             }
@@ -1980,7 +1990,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(b->fragmentEnvParameters, bitID)) {
                 for (i = 0; i < toCtx->limits.maxFragmentProgramEnvParams; i++) {
                     if (CHECKDIRTY(b->fragmentEnvParameter[i], bitID)) {
-                        diff_api.ProgramParameter4fvNV(GL_FRAGMENT_PROGRAM_NV, i,
+                        pState->diff_api.ProgramParameter4fvNV(GL_FRAGMENT_PROGRAM_NV, i,
                                                                                      to->fragmentParameters[i]);
                         if (fromProg) {
                             COPY_4V(from->fragmentParameters[i],
@@ -1998,7 +2008,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
                 for (symbol = toProg->symbolTable; symbol; symbol = symbol->next) {
                     if (CHECKDIRTY(symbol->dirty, bitID)) {
                         GLint len = crStrlen(symbol->name);
-                        diff_api.ProgramNamedParameter4fvNV(toProg->id, len,
+                        pState->diff_api.ProgramNamedParameter4fvNV(toProg->id, len,
                                                             (const GLubyte *) symbol->name,
                                                             symbol->value);
                         if (fromProg) {
@@ -2016,7 +2026,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(toProg->dirtyParams, bitID)) {
                 for (i = 0; i < CR_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMS; i++) {
                     if (CHECKDIRTY(toProg->dirtyParam[i], bitID)) {
-                        diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_NV, i,
+                        pState->diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_NV, i,
                                                                                                  toProg->parameters[i]);
                         if (fromProg) {
                             COPY_4V(fromProg->parameters[i], toProg->parameters[i]);
@@ -2034,7 +2044,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
         CRProgram *toProg = to->currentFragmentProgram;
         if (CHECKDIRTY(b->fpBinding, bitID)) {
             if (fromProg->id != toProg->id) {
-                diff_api.BindProgramARB(GL_FRAGMENT_PROGRAM_ARB, toProg->id);
+                pState->diff_api.BindProgramARB(GL_FRAGMENT_PROGRAM_ARB, toProg->id);
                 from->currentFragmentProgram = toProg;
             }
             CLEARDIRTY(b->fpBinding, nbitID);
@@ -2043,7 +2053,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
         if (toProg) {
             /* fragment program text */
             if (CHECKDIRTY(toProg->dirtyProgram, bitID)) {
-                diff_api.ProgramStringARB( GL_FRAGMENT_PROGRAM_ARB, toProg->format,
+                pState->diff_api.ProgramStringARB( GL_FRAGMENT_PROGRAM_ARB, toProg->format,
                                                                          toProg->length, toProg->string );
                 CLEARDIRTY(toProg->dirtyProgram, nbitID);
             }
@@ -2052,7 +2062,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(b->fragmentEnvParameters, bitID)) {
                 for (i = 0; i < toCtx->limits.maxFragmentProgramEnvParams; i++) {
                     if (CHECKDIRTY(b->fragmentEnvParameter[i], bitID)) {
-                        diff_api.ProgramEnvParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i,
+                        pState->diff_api.ProgramEnvParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i,
                                                                                              to->fragmentParameters[i]);
                         if (fromProg) {
                             COPY_4V(from->fragmentParameters[i],
@@ -2068,7 +2078,7 @@ crStateProgramDiff(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(toProg->dirtyParams, bitID)) {
                 for (i = 0; i < CR_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMS; i++) {
                     if (CHECKDIRTY(toProg->dirtyParam[i], bitID)) {
-                        diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i,
+                        pState->diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i,
                                                                                                  toProg->parameters[i]);
                         if (fromProg) {
                             COPY_4V(fromProg->parameters[i], toProg->parameters[i]);
@@ -2089,12 +2099,14 @@ void
 crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
                                          CRContext *fromCtx, CRContext *toCtx)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRProgramState *from = &(fromCtx->program);
     CRProgramState *to = &(toCtx->program);
     unsigned int i, j;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
     GLenum whichVert = fromCtx->extensions.ARB_vertex_program && toCtx->extensions.ARB_vertex_program  ? GL_VERTEX_PROGRAM_ARB : GL_VERTEX_PROGRAM_NV;
 
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
@@ -2102,8 +2114,8 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
     /* vertex program enable */
     if (CHECKDIRTY(b->vpEnable, bitID)) {
         glAble able[2];
-        able[0] = diff_api.Disable;
-        able[1] = diff_api.Enable;
+        able[0] = pState->diff_api.Disable;
+        able[1] = pState->diff_api.Enable;
         if (from->vpEnabled != to->vpEnabled) {
             able[to->vpEnabled](whichVert);
         }
@@ -2119,8 +2131,8 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
     /* fragment program enable */
     if (CHECKDIRTY(b->fpEnable, bitID)) {
         glAble able[2];
-        able[0] = diff_api.Disable;
-        able[1] = diff_api.Enable;
+        able[0] = pState->diff_api.Disable;
+        able[1] = pState->diff_api.Enable;
         if (from->fpEnabled != to->fpEnabled) {
             able[to->fpEnabled](GL_FRAGMENT_PROGRAM_NV);
         }
@@ -2135,7 +2147,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
         for (i = 0; i < toCtx->limits.maxVertexProgramEnvParams / 4; i++) {
             if (CHECKDIRTY(b->trackMatrix[i], bitID))   {
                 if (from->TrackMatrix[i] != to->TrackMatrix[i]) {
-                    diff_api.TrackMatrixNV(GL_VERTEX_PROGRAM_NV, i * 4,
+                    pState->diff_api.TrackMatrixNV(GL_VERTEX_PROGRAM_NV, i * 4,
                                                                  to->TrackMatrix[i],
                                                                  to->TrackMatrixTransform[i]);
                 }
@@ -2151,9 +2163,9 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
         if (CHECKDIRTY(b->vpBinding, bitID)) {
             if (fromProg->id != toProg->id) {
                 if (toProg->isARBprogram)
-                    diff_api.BindProgramARB(GL_VERTEX_PROGRAM_ARB, toProg->id);
+                    pState->diff_api.BindProgramARB(GL_VERTEX_PROGRAM_ARB, toProg->id);
                 else
-                    diff_api.BindProgramNV(GL_VERTEX_PROGRAM_NV, toProg->id);
+                    pState->diff_api.BindProgramNV(GL_VERTEX_PROGRAM_NV, toProg->id);
             }
             DIRTY(b->vpBinding, nbitID);
         }
@@ -2162,9 +2174,9 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
             /* vertex program text */
             if (CHECKDIRTY(toProg->dirtyProgram, bitID)) {
                 if (toProg->isARBprogram)
-                    diff_api.ProgramStringARB(GL_VERTEX_PROGRAM_ARB, toProg->format, toProg->length, toProg->string);
+                    pState->diff_api.ProgramStringARB(GL_VERTEX_PROGRAM_ARB, toProg->format, toProg->length, toProg->string);
                 else
-                    diff_api.LoadProgramNV(GL_VERTEX_PROGRAM_NV, toProg->id, toProg->length, toProg->string);
+                    pState->diff_api.LoadProgramNV(GL_VERTEX_PROGRAM_NV, toProg->id, toProg->length, toProg->string);
 
                 DIRTY(toProg->dirtyProgram, nbitID);
             }
@@ -2174,9 +2186,9 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
                 for (i = 0; i < toCtx->limits.maxVertexProgramEnvParams; i++) {
                     if (CHECKDIRTY(b->vertexEnvParameter[i], bitID)) {
                         if (toProg->isARBprogram)
-                            diff_api.ProgramEnvParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, to->vertexParameters[i]);
+                            pState->diff_api.ProgramEnvParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, to->vertexParameters[i]);
                         else
-                            diff_api.ProgramParameter4fvNV(GL_VERTEX_PROGRAM_NV, i, to->vertexParameters[i]);
+                            pState->diff_api.ProgramParameter4fvNV(GL_VERTEX_PROGRAM_NV, i, to->vertexParameters[i]);
 
                         DIRTY(b->vertexEnvParameter[i], nbitID);
                     }
@@ -2191,9 +2203,9 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
 
 
                         if (toProg->isARBprogram)
-                            diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, toProg->parameters[i]);
+                            pState->diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, toProg->parameters[i]);
                         else
-                            diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_NV, i, toProg->parameters[i]);
+                            pState->diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_NV, i, toProg->parameters[i]);
                     }
                 }
                 DIRTY(toProg->dirtyParams, nbitID);
@@ -2210,7 +2222,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
         CRProgram *toProg = to->currentFragmentProgram;
         if (CHECKDIRTY(b->fpBinding, bitID)) {
             if (fromProg->id != toProg->id) {
-                diff_api.BindProgramNV(GL_FRAGMENT_PROGRAM_NV, toProg->id);
+                pState->diff_api.BindProgramNV(GL_FRAGMENT_PROGRAM_NV, toProg->id);
             }
             DIRTY(b->fpBinding, nbitID);
         }
@@ -2218,7 +2230,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
         if (toProg) {
             /* fragment program text */
             if (CHECKDIRTY(toProg->dirtyProgram, bitID)) {
-                diff_api.LoadProgramNV(GL_FRAGMENT_PROGRAM_NV, toProg->id, toProg->length, toProg->string);
+                pState->diff_api.LoadProgramNV(GL_FRAGMENT_PROGRAM_NV, toProg->id, toProg->length, toProg->string);
                 DIRTY(toProg->dirtyProgram, nbitID);
             }
 
@@ -2226,7 +2238,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(b->fragmentEnvParameters, bitID)) {
                 for (i = 0; i < toCtx->limits.maxFragmentProgramEnvParams; i++) {
                     if (CHECKDIRTY(b->fragmentEnvParameter[i], bitID)) {
-                        diff_api.ProgramParameter4fvNV(GL_FRAGMENT_PROGRAM_NV, i,
+                        pState->diff_api.ProgramParameter4fvNV(GL_FRAGMENT_PROGRAM_NV, i,
                                                        to->fragmentParameters[i]);
                         DIRTY(b->fragmentEnvParameter[i], nbitID);
                     }
@@ -2240,7 +2252,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
                 for (symbol = toProg->symbolTable; symbol; symbol = symbol->next) {
                     if (CHECKDIRTY(symbol->dirty, bitID)) {
                         GLint len = crStrlen(symbol->name);
-                        diff_api.ProgramNamedParameter4fvNV(toProg->id, len,
+                        pState->diff_api.ProgramNamedParameter4fvNV(toProg->id, len,
                                                             (const GLubyte *) symbol->name,
                                                             symbol->value);
                         DIRTY(symbol->dirty, nbitID);
@@ -2254,9 +2266,9 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
                 for (i = 0; i < CR_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMS; i++) {
                     if (CHECKDIRTY(toProg->dirtyParam[i], bitID)) {
                         if (toProg->isARBprogram)
-                            diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, toProg->parameters[i]);
+                            pState->diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, toProg->parameters[i]);
                         else
-                            diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_NV, i, toProg->parameters[i]);
+                            pState->diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_NV, i, toProg->parameters[i]);
                     }
                 }
                 DIRTY(toProg->dirtyParams, nbitID);
@@ -2269,7 +2281,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
         CRProgram *toProg = to->currentFragmentProgram;
         if (CHECKDIRTY(b->fpBinding, bitID)) {
             if (fromProg->id != toProg->id) {
-                diff_api.BindProgramARB(GL_FRAGMENT_PROGRAM_ARB, toProg->id);
+                pState->diff_api.BindProgramARB(GL_FRAGMENT_PROGRAM_ARB, toProg->id);
             }
             DIRTY(b->fpBinding, nbitID);
         }
@@ -2277,7 +2289,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
         if (toProg) {
             /* fragment program text */
             if (CHECKDIRTY(toProg->dirtyProgram, bitID)) {
-                diff_api.ProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, toProg->format, toProg->length, toProg->string);
+                pState->diff_api.ProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, toProg->format, toProg->length, toProg->string);
                 DIRTY(toProg->dirtyProgram, nbitID);
             }
 
@@ -2285,7 +2297,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(b->fragmentEnvParameters, bitID)) {
                 for (i = 0; i < toCtx->limits.maxFragmentProgramEnvParams; i++) {
                     if (CHECKDIRTY(b->fragmentEnvParameter[i], bitID)) {
-                        diff_api.ProgramEnvParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, to->fragmentParameters[i]);
+                        pState->diff_api.ProgramEnvParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, to->fragmentParameters[i]);
                         DIRTY(b->fragmentEnvParameter[i], nbitID);
                     }
                 }
@@ -2296,7 +2308,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
             if (CHECKDIRTY(toProg->dirtyParams, bitID)) {
                 for (i = 0; i < CR_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMS; i++) {
                     if (CHECKDIRTY(toProg->dirtyParam[i], bitID)) {
-                        diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, toProg->parameters[i]);
+                        pState->diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, toProg->parameters[i]);
                         DIRTY(toProg->dirtyParam[i], nbitID);
                     }
                 }
@@ -2321,26 +2333,27 @@ static void
 DiffProgramCallback(unsigned long key, void *pProg, void *pCtx)
 {
     CRContext *pContext = (CRContext *) pCtx;
+    PCRStateTracker pState = pContext->pStateTracker;
     CRProgram *pProgram = (CRProgram *) pProg;
     uint32_t i;
     (void)key;
 
     if (pProgram->isARBprogram)
     {
-        diff_api.BindProgramARB(pProgram->target, pProgram->id);
-        diff_api.ProgramStringARB(pProgram->target, pProgram->format, pProgram->length, pProgram->string);
+        pState->diff_api.BindProgramARB(pProgram->target, pProgram->id);
+        pState->diff_api.ProgramStringARB(pProgram->target, pProgram->format, pProgram->length, pProgram->string);
 
         if (GL_VERTEX_PROGRAM_ARB == pProgram->target)
         {
             /* vertex program global/env parameters */
             for (i = 0; i < pContext->limits.maxVertexProgramEnvParams; i++) 
             {
-                diff_api.ProgramEnvParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, pContext->program.vertexParameters[i]);
+                pState->diff_api.ProgramEnvParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, pContext->program.vertexParameters[i]);
             }
             /* vertex program local parameters */
             for (i = 0; i < pContext->limits.maxVertexProgramLocalParams; i++) 
             {
-                diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, pProgram->parameters[i]);
+                pState->diff_api.ProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i, pProgram->parameters[i]);
             }
         }
         else if (GL_FRAGMENT_PROGRAM_ARB == pProgram->target)
@@ -2348,12 +2361,12 @@ DiffProgramCallback(unsigned long key, void *pProg, void *pCtx)
             /* vertex program global/env parameters */
             for (i = 0; i < pContext->limits.maxFragmentProgramEnvParams; i++) 
             {
-                diff_api.ProgramEnvParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, pContext->program.fragmentParameters[i]);
+                pState->diff_api.ProgramEnvParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, pContext->program.fragmentParameters[i]);
             }
             /* vertex program local parameters */
             for (i = 0; i < CR_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMS; i++) 
             {
-                diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, pProgram->parameters[i]);
+                pState->diff_api.ProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, i, pProgram->parameters[i]);
             }
         }
         else
@@ -2363,12 +2376,13 @@ DiffProgramCallback(unsigned long key, void *pProg, void *pCtx)
     }
     else
     {
-        diff_api.BindProgramNV(pProgram->target, pProgram->id);
+        pState->diff_api.BindProgramNV(pProgram->target, pProgram->id);
     }
 }
 
 void crStateDiffAllPrograms(CRContext *g, CRbitvalue *bitID, GLboolean bForceUpdate)
 {
+    PCRStateTracker pState = g->pStateTracker;
     CRProgram *pOrigVP, *pOrigFP;
 
     (void) bForceUpdate; (void)bitID;
@@ -2381,12 +2395,12 @@ void crStateDiffAllPrograms(CRContext *g, CRbitvalue *bitID, GLboolean bForceUpd
 
     /* restore original bindings */
     if (pOrigVP->isARBprogram)
-        diff_api.BindProgramARB(pOrigVP->target, pOrigVP->id);
+        pState->diff_api.BindProgramARB(pOrigVP->target, pOrigVP->id);
     else
-        diff_api.BindProgramNV(pOrigVP->target, pOrigVP->id);
+        pState->diff_api.BindProgramNV(pOrigVP->target, pOrigVP->id);
 
     if (pOrigFP->isARBprogram)
-        diff_api.BindProgramARB(pOrigFP->target, pOrigFP->id);
+        pState->diff_api.BindProgramARB(pOrigFP->target, pOrigFP->id);
     else
-        diff_api.BindProgramNV(pOrigFP->target, pOrigFP->id);
+        pState->diff_api.BindProgramNV(pOrigFP->target, pOrigFP->id);
 }

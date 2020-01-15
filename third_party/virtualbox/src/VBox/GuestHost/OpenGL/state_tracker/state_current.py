@@ -78,13 +78,13 @@ for k in sorted(current_fns.keys()):
 
 print('''
 
-void crStateCurrentRecover( void )
+void crStateCurrentRecover(PCRStateTracker pState)
 {
 	const unsigned char *v;
 	convert_func convert=NULL;
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRCurrentState *c = &(g->current);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRCurrentBits *cb = &(sb->current);
 	static const GLfloat color_default[4]			= {0.0f, 0.0f, 0.0f, 1.0f};
 	static const GLfloat secondaryColor_default[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -294,9 +294,9 @@ void crStateCurrentRecoverNew(CRContext *g, CRCurrentStatePointers  *current)
 {
     const unsigned char *v;
     convert_func convert=NULL;
-    CRCurrentState *c = &(g->current);
-    CRStateBits *sb = GetCurrentBits();
-    CRCurrentBits *cb = &(sb->current);
+    CRCurrentState *c;
+    CRStateBits *sb;
+    CRCurrentBits *cb;
 
     static const GLfloat vertexAttrib_default[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
@@ -308,6 +308,10 @@ void crStateCurrentRecoverNew(CRContext *g, CRCurrentStatePointers  *current)
     /* Invalid parameters, do nothing */
     if (!g || !current)
         return;
+
+    c = &(g->current);
+    sb = GetCurrentBits(g->pStateTracker);
+    cb = &(sb->current);
 
     /* silence warnings */
     (void) __convert_b1;

@@ -65,31 +65,19 @@ GLboolean crPackGetBoundingBox(CRPackContext *pc,
 
 """)
 
-def WriteData( offset, arg_type, arg_name, is_swapped ):
+def WriteData( offset, arg_type, arg_name ):
 	if arg_type.find('*') != -1:
 		retval = "\tWRITE_NETWORK_POINTER(%d, (void *) %s);" % (offset, arg_name )
 	else:	
-		if is_swapped:
-			if arg_type == "GLfloat" or arg_type == "GLclampf":
-				retval = "\tWRITE_DATA(%d, GLuint, SWAPFLOAT(%s));" % (offset, arg_name)
-			elif arg_type == "GLdouble" or arg_type == "GLclampd":
-				retval = "\tWRITE_SWAPPED_DOUBLE(%d, %s);" % (offset, arg_name)
-			elif apiutil.sizeof(arg_type) == 1:
-				retval = "\tWRITE_DATA(%d, %s, %s);" % (offset, arg_type, arg_name)
-			elif apiutil.sizeof(arg_type) == 2:
-				retval = "\tWRITE_DATA(%d, %s, SWAP16(%s));" % (offset, arg_type, arg_name)
-			elif apiutil.sizeof(arg_type) == 4:
-				retval = "\tWRITE_DATA(%d, %s, SWAP32(%s));" % (offset, arg_type, arg_name)
+		if arg_type == "GLdouble" or arg_type == "GLclampd":
+			retval = "\tWRITE_DOUBLE(%d, %s);" % (offset, arg_name)
 		else:
-			if arg_type == "GLdouble" or arg_type == "GLclampd":
-				retval = "\tWRITE_DOUBLE(%d, %s);" % (offset, arg_name)
-			else:
-				retval = "\tWRITE_DATA(%d, %s, %s);" % (offset, arg_type, arg_name)
+			retval = "\tWRITE_DATA(%d, %s, %s);" % (offset, arg_type, arg_name)
 	return retval
 
 
 def PrintFunction( func_name, extSuffix, num_coords, argtype,
-				   do_swapped, do_count, do_vector ):
+				   do_count, do_vector ):
 	"""
 	Generate all the functions named crPackVertex[234][dfis][v]BBOX() and
 	crPackVertex[234][dfis][v]BBOX_COUNT().
@@ -101,11 +89,6 @@ def PrintFunction( func_name, extSuffix, num_coords, argtype,
 		countSuffix = "_COUNT"
 	else:
 		countSuffix = ""
-
-	if do_swapped:
-		swapSuffix = "SWAP"
-	else:
-		swapSuffix = ""
 
 	if func_name[0:12] == "VertexAttrib":
 		isVertexAttrib = 1
@@ -145,8 +128,8 @@ def PrintFunction( func_name, extSuffix, num_coords, argtype,
 
 	params = apiutil.Parameters(func_name + extSuffix)
 
-	print('void PACK_APIENTRY crPack%sBBOX%s%s(%s)' % (func_name + extSuffix, countSuffix,
-			 swapSuffix, apiutil.MakeDeclarationString(params)))
+	print('void PACK_APIENTRY crPack%sBBOX%s(%s)' % (func_name + extSuffix, countSuffix,
+			 apiutil.MakeDeclarationString(params)))
 	print('{')
 
 	if do_vector:
@@ -228,17 +211,14 @@ def PrintFunction( func_name, extSuffix, num_coords, argtype,
 
 	if do_vector:
 		if isVertexAttrib:
-			if do_swapped:
-				print("\tWRITE_DATA(0, GLuint, SWAP32(index));")
-			else:
-				print("\tWRITE_DATA(0, GLuint, index);")
+			print("\tWRITE_DATA(0, GLuint, index);")
 			counter += 4
 			argname = params[1][0]  # skip 'index' parameter
 		else:
 			argname = params[0][0]
 
 		for index in range(num_coords):
-			print(WriteData( counter, vector_type, "%s[%d]" % (argname, index), do_swapped ))
+			print(WriteData( counter, vector_type, "%s[%d]" % (argname, index)))
 			counter += apiutil.sizeof(vector_type)
 
 		if isVertexAttrib:
@@ -252,7 +232,7 @@ def PrintFunction( func_name, extSuffix, num_coords, argtype,
 	else:
 		for index in range(0,len(params)):
 			(name, type, vecSize) = params[index]
-			print(WriteData( counter, type, name, do_swapped ))
+			print(WriteData( counter, type, name))
 			counter += apiutil.sizeof(type)
 
 		if isVertexAttrib:
@@ -271,20 +251,18 @@ def PrintFunction( func_name, extSuffix, num_coords, argtype,
 for num_coords in [2,3,4]:
 	for argtype in ['d', 'f', 'i', 's']:
 		func_name = 'Vertex%d%s' % (num_coords, argtype)
-		for swap in range(0, 2):
-			for count in range(0, 2):
-				for vec in range(0, 2):
-					PrintFunction( func_name, "", num_coords, argtype, swap,
-								   count, vec )
+		for count in range(0, 2):
+			for vec in range(0, 2):
+				PrintFunction( func_name, "", num_coords, argtype,
+							   count, vec )
 
 for num_coords in [1,2,3,4]:
 	for argtype in ['d', 'f', 's']:
 		func_name = 'VertexAttrib%d%s' % (num_coords, argtype)
-		for swap in range(0, 2):
-			for count in range(0, 2):
-				for vec in range(0, 2):
-					PrintFunction( func_name, "ARB", num_coords, argtype, swap,
-								   count, vec )
+		for count in range(0, 2):
+			for vec in range(0, 2):
+				PrintFunction( func_name, "ARB", num_coords, argtype,
+							   count, vec )
 
 # Special vector functions
 moreFuncs = [ [ "VertexAttrib4ubv", "ub" ],
@@ -302,15 +280,14 @@ moreFuncs = [ [ "VertexAttrib4ubv", "ub" ],
 for (func_name, argtype) in moreFuncs:
 	vec = 2  # special, hacked value
 	num_coords = 4
-	for swap in range(0, 2):
-		for count in range(0, 2):
-			PrintFunction( func_name, "ARB", num_coords, argtype, swap, count, vec )
+	for count in range(0, 2):
+		PrintFunction( func_name, "ARB", num_coords, argtype, count, vec )
 
 # Special non-vector functions
 moreFuncs = [ [ "VertexAttrib4Nub", "Nub" ] ]
 for (func_name, argtype) in moreFuncs:
 	vec = 0
 	num_coords = 4
-	for swap in range(0, 2):
-		for count in range(0, 2):
-			PrintFunction( func_name, "ARB", num_coords, argtype, swap, count, vec )
+	for count in range(0, 2):
+		PrintFunction( func_name, "ARB", num_coords, argtype, count, vec )
+

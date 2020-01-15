@@ -20,8 +20,7 @@
 
 //#include "../../common/VBoxVideoTools.h"
 
-#include <cr_sortarray.h>
-
+#include "VBoxMPSa.h"
 
 #define _CR_TYPECAST(_Type, _pVal) ((_Type*)((void*)(_pVal)))
 

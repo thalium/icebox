@@ -7,29 +7,47 @@
 #ifndef CR_MEM_H
 #define CR_MEM_H
 
+#include "cr_error.h"
+
+#include <stdlib.h>
 #include <iprt/types.h>
+#include <iprt/mem.h>
+#include <iprt/string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DEBUG_MEM 0
+DECLINLINE(void) crMemcpy( void *dst, const void *src, unsigned int bytes )
+{
+	CRASSERT(dst || 0==bytes);
+	CRASSERT(src || 0==bytes);
+	(void) memcpy( dst, src, bytes );
+}
 
-void *crAllocDebug( unsigned int nbytes, const char *file, int line );
-void *crCallocDebug( unsigned int nbytes, const char *file, int line );
-#if DEBUG_MEM
-#define crAlloc(N) crAllocDebug(N, __FILE__, __LINE__)
-#define crCalloc(N) crCallocDebug(N, __FILE__, __LINE__)
-#else
+DECLINLINE(void) crMemset( void *ptr, int value, unsigned int bytes )
+{
+	CRASSERT(ptr);
+	memset( ptr, value, bytes );
+}
+
+DECLINLINE(void) crMemZero( void *ptr, unsigned int bytes )
+{
+	CRASSERT(ptr);
+	memset( ptr, 0, bytes );
+}
+
+DECLINLINE(int) crMemcmp( const void *p1, const void *p2, unsigned int bytes )
+{
+	CRASSERT(p1);
+	CRASSERT(p2);
+	return memcmp( p1, p2, bytes );
+}
+
 extern DECLEXPORT(void *) crAlloc( unsigned int nbytes );
 extern DECLEXPORT(void *) crCalloc( unsigned int nbytes );
-#endif
 extern DECLEXPORT(void) crRealloc( void **ptr, unsigned int bytes );
 extern DECLEXPORT(void) crFree( void *ptr );
-extern DECLEXPORT(void) crMemcpy( void *dst, const void *src, unsigned int bytes );
-extern DECLEXPORT(void) crMemset( void *ptr, int value, unsigned int bytes );
-extern DECLEXPORT(void) crMemZero( void *ptr, unsigned int bytes );
-extern DECLEXPORT(int)  crMemcmp( const void *p1, const void *p2, unsigned int bytes );
 
 #ifdef __cplusplus
 }

@@ -7,28 +7,26 @@
 #include "state.h"
 #include "cr_spu.h"
 
-SPUDispatchTable diff_api;
-
-void crStateFlushFunc( CRStateFlushFunc func )
+void crStateFlushFunc(PCRStateTracker pState, CRStateFlushFunc func )
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	g->flush_func = func;
 }
 
-void crStateFlushArg( void *arg )
+void crStateFlushArg(PCRStateTracker pState, void *arg )
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	g->flush_arg = arg;
 }
 
-void crStateDiffAPI( SPUDispatchTable *api )
+void crStateDiffAPI(PCRStateTracker pState, SPUDispatchTable *api )
 {
-	if (!diff_api.AlphaFunc) 
+	if (!pState->diff_api.AlphaFunc) 
 	{
 		/* Called when starting up Chromium */
-		crSPUInitDispatchTable( &(diff_api) );
+		crSPUInitDispatchTable( &pState->diff_api );
 	}
-	crSPUCopyDispatchTable( &(diff_api), api );
+	crSPUCopyDispatchTable( &pState->diff_api, api );
 }

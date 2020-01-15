@@ -18,7 +18,7 @@ void PACK_APIENTRY crPackDrawPixels(GLsizei width, GLsizei height,
 {
     unsigned char *data_ptr;
     int packet_length, imagesize;
-    int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     packet_length = 
         sizeof( width ) +
@@ -114,7 +114,7 @@ void PACK_APIENTRY crPackBitmap(GLsizei width, GLsizei height,
                                 GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove,
                                 const GLubyte *bitmap, const CRPixelPackState *unpack )
 {
-    const int noimagedata = (bitmap == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    const int noimagedata = (bitmap == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
     unsigned char *data_ptr;
     int data_length = 0;
     /*GLubyte *destBitmap = NULL; - unused */

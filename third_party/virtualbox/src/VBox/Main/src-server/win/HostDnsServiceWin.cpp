@@ -86,7 +86,7 @@ HostDnsServiceWin::~HostDnsServiceWin()
 }
 
 
-HRESULT HostDnsServiceWin::init(VirtualBox *virtualbox)
+HRESULT HostDnsServiceWin::init(HostDnsMonitorProxy *proxy)
 {
     if (m == NULL)
         return E_FAIL;
@@ -128,7 +128,7 @@ HRESULT HostDnsServiceWin::init(VirtualBox *virtualbox)
             return E_FAIL;
     }
 
-    HRESULT hrc = HostDnsMonitor::init(virtualbox);
+    HRESULT hrc = HostDnsMonitor::init(proxy);
     if (FAILED(hrc))
         return hrc;
 
@@ -189,7 +189,7 @@ int HostDnsServiceWin::monitorWorker()
                 delay.QuadPart = -2 * 1000 * 1000 * 10LL; /* relative: 2s */
 
                 BOOL ok = SetWaitableTimer(m->haDataEvent[DATA_TIMER], &delay,
-                                           0, NULL, NULL, TRUE);
+                                           0, NULL, NULL, FALSE);
                 if (ok)
                 {
                     m->fTimerArmed = true;

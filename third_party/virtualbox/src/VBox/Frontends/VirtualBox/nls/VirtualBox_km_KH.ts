@@ -88,11 +88,11 @@
         <translation>មិន​ស្គាល់​កំហុស​ %2 អំឡុង​ពេល​ដែលការ​ចាប់​ផ្តើមពេលវេលា​រត់​</translation>
     </message>
     <message>
-        <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.</source>
+        <source>The VirtualBox Linux kernel driver is either not loaded or not set up correctly. Please try setting it up again by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.&lt;br/&gt;&lt;br/&gt;If your system has EFI Secure Boot enabled you may also need to sign the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before you can load them. Please see your Linux system&apos;s documentation for more information.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you do not mix the OSE version and the PUEL version of VirtualBox.</source>
+        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you are not mixing builds of VirtualBox from different sources.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -250,6 +250,18 @@
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text, col.4 name: col.4 text</comment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Full</source>
+        <translation type="obsolete">ពេញលេញ</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="obsolete">បាន​តែ​អាន</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="obsolete">បាទ/ចាស</translation>
+    </message>
 </context>
 <context>
     <name>UIActionPool</name>
@@ -343,7 +355,7 @@
     </message>
     <message>
         <source>Suspend the execution of the virtual machine</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>R&amp;esume</source>
@@ -359,7 +371,7 @@
     </message>
     <message>
         <source>ACPI Sh&amp;utdown</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ACPI S&amp;hutdown</source>
@@ -379,7 +391,7 @@
     </message>
     <message>
         <source>&amp;View</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Devices</source>
@@ -450,15 +462,15 @@
     </message>
     <message>
         <source>Dock Icon</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Monitor Preview</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Application Icon</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch between normal and seamless desktop integration mode</source>
@@ -1280,6 +1292,50 @@
         <source>Enable audio input</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Find</source>
+        <translation type="obsolete">រក</translation>
+    </message>
+    <message>
+        <source>Log Viewer</source>
+        <translation type="obsolete">កម្មវិធី​មើល​កំណត់​ហេតុ</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">ធ្វើ​ឲ្យ​ស្រស់</translation>
+    </message>
+    <message>
+        <source>&amp;Save...</source>
+        <translation type="obsolete">រក្សាទុក...</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation type="obsolete">ម៉ាស៊ីន​ភ្ញៀវ</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation type="obsolete">កំណត់</translation>
+    </message>
+    <message>
+        <source>Log</source>
+        <translation type="obsolete">កំណត់​ហេតុ</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">លុប</translation>
+    </message>
+    <message>
+        <source>Take a snapshot of the current virtual machine state</source>
+        <translation type="obsolete">យក​រូបថត​របស់​ស្ថានភាព​ម៉ាស៊ីន​និម្មិត​បច្ចុប្បន្ន</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">ធ្វើ​ឲ្យ​បញ្ជី​មេឌៀ​ស្រស់</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">យកចេញ</translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -1555,6 +1611,57 @@
     </message>
 </context>
 <context>
+    <name>UIChooserItemGroup</name>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Group info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1 %2&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper, including running</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt; {1 %2&lt;?}</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileDetailsWidget</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">កំណត់​ឡើង​វិញ</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileManager</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">កំណត់​ឡើង​វិញ</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">បិទ</translation>
+    </message>
+</context>
+<context>
+    <name>UICustomFileSystemModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ឈ្មោះ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ទំហំ</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="obsolete">ផ្លូវ</translation>
+    </message>
+</context>
+<context>
     <name>UIDescriptionPagePrivate</name>
     <message>
         <source>No description. Press the Edit button below to add it.</source>
@@ -1567,6 +1674,84 @@
     <message>
         <source>Edit (Ctrl+E)</source>
         <translation type="obsolete">កែសម្រួល (បញ្ជា(Ctrl)+E)</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetails</name>
+    <message>
+        <source>Name</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">ឈ្មោះ</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">លំដាប់​ចាប់ផ្ដើម</translation>
+    </message>
+    <message>
+        <source>VT-x/AMD-V</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">VT-x/AMD-V</translation>
+    </message>
+    <message>
+        <source>PAE/NX</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">PAE/NX</translation>
+    </message>
+    <message>
+        <source>Video Memory</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">សតិ​វីដេអូ</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">មិន​បានភ្ជាប់</translation>
+    </message>
+    <message>
+        <source>Host Driver</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">កម្មវិធី​បញ្ជា​ម៉ាស៊ីន</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">វត្ថុ​បញ្ជា</translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">អាដាប់ទ័រ %1</translation>
+    </message>
+    <message>
+        <source>Port %1</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">ច្រក %1</translation>
+    </message>
+    <message>
+        <source>USB Controller</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">ឧបករណ៍​បញ្ជា​ USB</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">តម្រង​ឧបករណ៍</translation>
+    </message>
+    <message>
+        <source>%1 (%2 active)</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">%1 (%2 សកម្មភាព)</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">គ្មាន</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (description)</comment>
+        <translation type="obsolete">គ្មាន</translation>
     </message>
 </context>
 <context>
@@ -1939,6 +2124,13 @@
     </message>
 </context>
 <context>
+    <name>UIErrorPane</name>
+    <message>
+        <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
+        <translation type="obsolete">ម៉ាស៊ីន​និម្មិត​ដែល​បាន​ជ្រើស​ &lt;i&gt;មិន​អាច​ចូលដំណើរការ​បានទេ&lt;/i&gt;&#xa0;។ សូម​ពិនិត្យ​មើល​សារ​កំហុស​ដែល​បានបង្ហាញ​ខាង​ក្រោម ហើយ​ចុច​ប៊ូតុង &lt;b&gt;ធ្វើ​ឲ្យ​ស្រស់&lt;/b&gt; ប្រសិន​បើ​អ្នក​ចង់​ធ្វើការ​ពិនិត្យ​ការ​ចូលដំណើរការ​​ឡើង​វិញ&#xa0;៖</translation>
+    </message>
+</context>
+<context>
     <name>UIErrorString</name>
     <message>
         <source>Result&amp;nbsp;Code: </source>
@@ -2284,6 +2476,32 @@ p, li { white-space: pre-wrap; }
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIFDCreationDialog</name>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">ទំហំ​ ៖</translation>
+    </message>
+</context>
+<context>
+    <name>UIFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">បិទ</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">បានផ្អាក</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ឈ្មោះ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ទំហំ</translation>
     </message>
 </context>
 <context>
@@ -4143,6 +4361,32 @@ creating/removing host-only network</comment>
     </message>
 </context>
 <context>
+    <name>UIGuestControlFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">បិទ</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ឈ្មោះ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ទំហំ</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">បានផ្អាក</translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestProcessControlWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">បិទ</translation>
+    </message>
+</context>
+<context>
     <name>UIHelpButton</name>
     <message>
         <source>&amp;Help</source>
@@ -5530,6 +5774,64 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>UIItemHostNetwork</name>
+    <message>
+        <source>Enable</source>
+        <comment>DHCP Server</comment>
+        <translation type="obsolete">បើក</translation>
+    </message>
+    <message>
+        <source>Adapter</source>
+        <translation type="obsolete">អាដាប់​ទ័រ</translation>
+    </message>
+    <message>
+        <source>Automatically configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">បាន​កំណត់​រចនាសម្ព័ន្ធ​ដោយ​ស្វ័យ​ប្រវត្តិ</translation>
+    </message>
+    <message>
+        <source>Manually configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">បាន​កំណត់​រចនា​សម្ព័ន្ធ​​ដោយ​ដៃ​</translation>
+    </message>
+    <message>
+        <source>IPv4 Address</source>
+        <translation type="obsolete">អាសយ​ដ្ឋាន IPv4​</translation>
+    </message>
+    <message>
+        <source>IPv4 Network Mask</source>
+        <translation type="obsolete">របាំង​បណ្តាញ​ IPv4</translation>
+    </message>
+    <message>
+        <source>IPv6 Address</source>
+        <translation type="obsolete">អាសយ​ដ្ឋាន​ IPv6</translation>
+    </message>
+    <message>
+        <source>IPv6 Prefix Length</source>
+        <translation type="obsolete">ប្រវែង​របាំង​បណ្តាញ​ IPv6</translation>
+    </message>
+    <message>
+        <source>DHCP Server</source>
+        <translation type="obsolete">ម៉ាស៊ីន​បម្រើ​ DHCP</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="obsolete">អាសយដ្ឋាន​</translation>
+    </message>
+    <message>
+        <source>Network Mask</source>
+        <translation type="obsolete">របាំង​បណ្តាញ​</translation>
+    </message>
+    <message>
+        <source>Lower Bound</source>
+        <translation type="obsolete">ព្រំ​ដែន​ទាប​​</translation>
+    </message>
+    <message>
+        <source>Upper Bound</source>
+        <translation type="obsolete">ព្រំ​ដែន​ខ្ពស់​</translation>
+    </message>
+</context>
+<context>
     <name>UIItemNetworkNAT</name>
     <message>
         <source>%1, %2</source>
@@ -5540,6 +5842,29 @@ p, li { white-space: pre-wrap; }
         <source>%1</source>
         <comment>col.2 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UILanguageItem</name>
+    <message>
+        <source> (built-in)</source>
+        <comment>Language</comment>
+        <translation type="obsolete"> (ជាប់)</translation>
+    </message>
+    <message>
+        <source>&lt;unavailable&gt;</source>
+        <comment>Language</comment>
+        <translation type="obsolete">&lt;មិនអាច​ប្រើបាន&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>Author(s)</comment>
+        <translation type="obsolete">&lt;មិនស្គាល់&gt;</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <comment>Language</comment>
+        <translation type="obsolete">លំនាំដើម</translation>
     </message>
 </context>
 <context>
@@ -7798,6 +8123,22 @@ network adapter name</comment>
     </message>
 </context>
 <context>
+    <name>UIMediumItem</name>
+    <message>
+        <source>Attached to:</source>
+        <translation type="obsolete">បាន​​ភ្ជាប់ទៅកាន់&#xa0;៖</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;មិនបាន​ភ្ជាប់&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>--</source>
+        <comment>no info</comment>
+        <translation type="obsolete">--</translation>
+    </message>
+</context>
+<context>
     <name>UIMediumManager</name>
     <message>
         <source>&amp;Optical disks</source>
@@ -8004,6 +8345,41 @@ network adapter name</comment>
     <message>
         <source>Move selected disk image file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">ទំហំ​ ៖</translation>
+    </message>
+    <message>
+        <source>&amp;Create</source>
+        <translation type="obsolete">បង្កើត</translation>
+    </message>
+</context>
+<context>
+    <name>UIMediumSelector</name>
+    <message>
+        <source>&amp;Add...</source>
+        <translation type="obsolete">បន្ថែម...</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">ធ្វើ​ឲ្យ​ស្រស់</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">ធ្វើ​ឲ្យ​បញ្ជី​មេឌៀ​ស្រស់</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ឈ្មោះ</translation>
+    </message>
+    <message>
+        <source>Virtual Size</source>
+        <translation type="obsolete">ទំហំ​និម្មិត</translation>
+    </message>
+    <message>
+        <source>Actual Size</source>
+        <translation type="obsolete">ទំហំ​ពិតប្រាកដ</translation>
     </message>
 </context>
 <context>
@@ -10816,6 +11192,42 @@ You may wish to translate this more like &quot;Time remaining: %1&quot;</comment
     </message>
 </context>
 <context>
+    <name>UISnapshotItem</name>
+    <message>
+        <source>Current State (changed)</source>
+        <comment>Current State (Modified)</comment>
+        <translation type="obsolete">ស្ថានភាព​បច្ចុប្បន្ន (បាន​ផ្លាស់ប្ដូរ)</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <comment>Current State (Unmodified)</comment>
+        <translation type="obsolete">ស្ថានភាព​បច្ចុប្បន្ន</translation>
+    </message>
+    <message>
+        <source>The current state differs from the state stored in the current snapshot</source>
+        <translation type="obsolete">ស្ថានភាព​បច្ចុប្បន្ន​ខុសពី​ស្ថានភាព​ដែល​បាន​ទុក​នៅក្នុង​រូបថត​បច្ចុប្បន្ន</translation>
+    </message>
+    <message>
+        <source>The current state is identical to the state stored in the current snapshot</source>
+        <translation type="obsolete">ស្ថានភាព​បច្ចុប្បន្ន​គឺ​ដូច​គ្នា​នឹង​ស្ថានភាព​ដែល​បាន​ទុក​នៅ​ក្នុង​រូបថត​បច្ចុប្បន្ន</translation>
+    </message>
+    <message>
+        <source>%1 since %2</source>
+        <comment>Current State (time or date + time)</comment>
+        <translation type="obsolete">%1 តាំង​ពី %2</translation>
+    </message>
+    <message>
+        <source>Taken at %1</source>
+        <comment>Snapshot (time)</comment>
+        <translation type="obsolete">បាន​ថត​នៅ %1</translation>
+    </message>
+    <message>
+        <source>Taken on %1</source>
+        <comment>Snapshot (date + time)</comment>
+        <translation type="obsolete">បានថត​នៅ​ថ្ងៃទី %1</translation>
+    </message>
+</context>
+<context>
     <name>UISnapshotPane</name>
     <message>
         <source>Current State (changed)</source>
@@ -11013,6 +11425,13 @@ You may wish to translate this more like &quot;Time remaining: %1&quot;</comment
     </message>
 </context>
 <context>
+    <name>UIToolsModel</name>
+    <message>
+        <source>Network</source>
+        <translation type="obsolete">បណ្ដាញ</translation>
+    </message>
+</context>
+<context>
     <name>UIToolsPaneGlobal</name>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;This window represents a set of global tools which are currently opened (or can be opened). They are not related to any particular machine but to the complete VM collection. For a list of currently available tools check the corresponding menu at the right side of the main tool bar located at the top of the window. This list will be extended with new tools in future releases.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
@@ -11057,6 +11476,46 @@ You may wish to translate this more like &quot;Time remaining: %1&quot;</comment
         <source>%1</source>
         <comment>col.1 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;លេខ​សម្គាល់​អ្នក​លក់&#xa0;៖ %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product ID: %2&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;លេខសម្គាល់​ផលិតផល&#xa0;៖ %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Revision: %3&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;កា​រពិនិត្យ​ឡើង​វិញ&#xa0;៖ %3&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product: %4&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ផលិតផល&#xa0;៖ %4&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Manufacturer: %5&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ក្រុមហ៊ុន​ផលិត&#xa0;៖ %5&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Serial No.: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;លេខ​ស៊េរី&#xa0;៖ %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Port: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ច្រក&#xa0;៖ %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;State: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ស្ថានភាព&#xa0;៖ %1&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
@@ -11428,6 +11887,56 @@ You may wish to translate this more like &quot;Time remaining: %1&quot;</comment
     <message>
         <source>Fil&amp;ter</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIVMLogViewerWidget</name>
+    <message>
+        <source>Log Viewer</source>
+        <translation type="obsolete">កម្មវិធី​មើល​កំណត់​ហេតុ</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">បិទ</translation>
+    </message>
+    <message>
+        <source>Enter a search string here</source>
+        <translation type="obsolete">បញ្ចូល​ខ្សែអក្សរ​ស្វែងរក​នៅ​ទីនេះ</translation>
+    </message>
+    <message>
+        <source>C&amp;ase Sensitive</source>
+        <translation type="obsolete">ប្រកាន់​អក្សរ​តូចធំ</translation>
+    </message>
+    <message>
+        <source>String not found</source>
+        <translation type="obsolete">រក​មិនឃើញ​ខ្សែអក្សរ</translation>
+    </message>
+    <message>
+        <source>Save VirtualBox Log As</source>
+        <translation type="obsolete">រក្សាទុក​កំណត់ហេតុ VirtualBox ជា</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No log files found. Press the &lt;b&gt;Refresh&lt;/b&gt; button to rescan the log folder &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</source>
+        <translation type="obsolete">&lt;p&gt;រក​មិនឃើញ​កំណត់ហេតុទេ&#xa0;។ ចុច​ប៊ូតុង &lt;b&gt;ធ្វើ​ឲ្យ​ស្រស់&lt;/b&gt; ដើម្បី​វិភាគ​ថត​កំណត់ហេតុ​ម្ដង​ទៀត &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;&#xa0;។&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>UIVisoCreator</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ឈ្មោះ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ទំហំ</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">យកចេញ</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">កំណត់​ឡើង​វិញ</translation>
     </message>
 </context>
 <context>
@@ -14947,6 +15456,77 @@ medium</comment>
         <source>Audio</source>
         <comment>IndicatorType</comment>
         <translation type="unfinished">អូឌីយ៉ូ</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ឈ្មោះ</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="obsolete">ទីតាំង</translation>
+    </message>
+    <message>
+        <source>RAM</source>
+        <translation type="obsolete">សតិ</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <translation type="obsolete">លំដាប់​ចាប់ផ្ដើម</translation>
+    </message>
+    <message>
+        <source>Hard Disks</source>
+        <translation type="obsolete">ថាសរឹង</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <translation type="obsolete">វត្ថុ​បញ្ជា</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <translation type="obsolete">មិន​បានភ្ជាប់</translation>
+    </message>
+    <message>
+        <source>NAT</source>
+        <translation type="obsolete">NAT</translation>
+    </message>
+    <message>
+        <source>Internal Network</source>
+        <translation type="obsolete">បណ្ដាញ​អ៊ីនធឺណិត</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation type="obsolete">បានផ្ដាច់</translation>
+    </message>
+    <message>
+        <source>Host Pipe</source>
+        <translation type="obsolete">បំពង់​ម៉ាស៊ីន</translation>
+    </message>
+    <message>
+        <source>Host Device</source>
+        <translation type="obsolete">ឧបករណ៍​ម៉ាស៊ីន</translation>
+    </message>
+    <message>
+        <source>Raw File</source>
+        <translation type="obsolete">ឯកសារ​ដើម​</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <translation type="obsolete">តម្រង​ឧបករណ៍</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>GraphicsControllerType</comment>
+        <translation type="obsolete">គ្មាន</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>network adapter</comment>
+        <translation type="obsolete">មិន​បានភ្ជាប់</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <comment>serial port</comment>
+        <translation type="obsolete">បានផ្ដាច់</translation>
     </message>
 </context>
 <context>

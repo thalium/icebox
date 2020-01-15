@@ -15,6 +15,7 @@
 #include "cr_vreg.h"
 #include "cr_blitter.h"
 #include "cr_htable.h"
+#include "cr_unpack.h"
 #include "spu_dispatch_table.h"
 #include "cr_dump.h"
 
@@ -388,6 +389,12 @@ typedef struct {
 
     CRNetworkPointer return_ptr;
     CRNetworkPointer writeback_ptr;
+    /*
+     * The current active unpacker state, this hack is required for the server dispatch routines
+     * (see crServerDispatchReadPixels for example) as it needs to read data from the buffer
+     * but it is not possible to supply the state as a parameter unfortunately.
+     */
+    PCrUnpackerState pUnpackerState;
 
     CRLimitsState limits; /**< GL limits for any contexts we create */
 
@@ -400,6 +407,9 @@ typedef struct {
 
     /* visBits -> dummy mural association */
     CRHashTable *dummyMuralTable;
+
+    /** State tracker state. */
+    CRStateTracker StateTracker;
 
     GLboolean fRootVrOn;
     VBOXVR_LIST RootVr;
@@ -585,6 +595,9 @@ extern DECLEXPORT(int32_t) crVBoxServerHgcmEnable(VBOXCRCMDCTL_HGCMENABLE_DATA *
 extern DECLEXPORT(int32_t) crVBoxServerHgcmDisable(VBOXCRCMDCTL_HGCMDISABLE_DATA *pData);
 
 extern int crVBoxServerHostCtl(VBOXCRCMDCTL *pCtl, uint32_t cbCtl);
+
+extern DECLEXPORT(void) crVBoxServerDetachThread(void);
+extern DECLEXPORT(void) crVBoxServerAttachThread(void);
 
 #ifdef __cplusplus
 }

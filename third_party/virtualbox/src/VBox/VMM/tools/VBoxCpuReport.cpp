@@ -547,8 +547,8 @@ static int findMsrs(VBCPUREPMSR **ppaMsrs, uint32_t *pcMsrs, uint32_t fMsrMask)
                 uint32_t fFlags;
                 if (!fGp)
                     fFlags = 0;
-                /* VIA HACK - writing to 0x0000317e on a quad core make the core unresponsive. */
-                else if (uMsr == 0x0000317e && g_enmVendor == CPUMCPUVENDOR_VIA)
+                /* VIA/Shanghai HACK - writing to 0x0000317e on a quad core make the core unresponsive. */
+                else if (uMsr == 0x0000317e && (g_enmVendor == CPUMCPUVENDOR_VIA || g_enmVendor == CPUMCPUVENDOR_SHANGHAI))
                 {
                     uValue = 0;
                     fFlags = VBCPUREPMSR_F_WRITE_ONLY;
@@ -600,7 +600,7 @@ static int findMsrs(VBCPUREPMSR **ppaMsrs, uint32_t *pcMsrs, uint32_t fMsrMask)
                     rc = vbCpuRepMsrsAddOne(ppaMsrs, pcMsrs, uMsr, uValue, fFlags);
                     if (RT_FAILURE(rc))
                         return RTMsgErrorRc(rc, "Out of memory (uMsr=%#x).\n", uMsr);
-                    if (   g_enmVendor != CPUMCPUVENDOR_VIA
+                    if (   (g_enmVendor != CPUMCPUVENDOR_VIA && g_enmVendor != CPUMCPUVENDOR_SHANGHAI)
                         || uValue
                         || fFlags)
                         vbCpuRepDebug("%#010x: uValue=%#llx fFlags=%#x\n", uMsr, uValue, fFlags);
@@ -2514,7 +2514,7 @@ static VBCPUREPBADNESS queryMsrWriteBadness(uint32_t uMsr)
         case 0x00001436:
         case 0x00001438:
         case 0x0000317f:
-            if (g_enmVendor == CPUMCPUVENDOR_VIA)
+            if (g_enmVendor == CPUMCPUVENDOR_VIA || g_enmVendor == CPUMCPUVENDOR_SHANGHAI)
                 return VBCPUREPBADNESS_BOND_VILLAIN;
             break;
 
@@ -2601,16 +2601,16 @@ static VBCPUREPBADNESS queryMsrWriteBadness(uint32_t uMsr)
 
 
 /**
- * Checks if this might be a VIA dummy register.
+ * Checks if this might be a VIA/Shanghai dummy register.
  *
  * @returns true if it's a dummy, false if it isn't.
  * @param   uMsr                The MSR.
  * @param   uValue              The value.
  * @param   fFlags              The flags.
  */
-static bool isMsrViaDummy(uint32_t uMsr, uint64_t uValue, uint32_t fFlags)
+static bool isMsrViaShanghaiDummy(uint32_t uMsr, uint64_t uValue, uint32_t fFlags)
 {
-    if (g_enmVendor != CPUMCPUVENDOR_VIA)
+    if (g_enmVendor != CPUMCPUVENDOR_VIA && g_enmVendor != CPUMCPUVENDOR_SHANGHAI)
         return false;
 
     if (uValue)
@@ -3212,7 +3212,7 @@ static int reportMsr_GenRangeFunctionEx(VBCPUREPMSR const *paMsrs, uint32_t cMsr
             || (fIgnMaskN != fIgnMask0 && !fNoIgnMask)
             || fGpMaskN   != fGpMask0)
         {
-            if (!fEarlyEndOk && !isMsrViaDummy(uMsr, paMsrs[i].uValue, paMsrs[i].fFlags))
+            if (!fEarlyEndOk && !isMsrViaShanghaiDummy(uMsr, paMsrs[i].uValue, paMsrs[i].fFlags))
             {
                 vbCpuRepDebug("MSR %s (%#x) range ended unexpectedly early on %#x: ro=%d ign=%#llx/%#llx gp=%#llx/%#llx [N/0]\n",
                               getMsrNameHandled(uMsr), uMsr, paMsrs[i].uMsr,
@@ -3302,7 +3302,7 @@ static int reportMsr_GenFunctionEx(uint32_t uMsr, const char *pszRdWrFnName, uin
 
 
 /**
- * Reports a VIA dummy range.
+ * Reports a VIA/Shanghai dummy range.
  *
  * @returns VBox status code.
  * @param   paMsrs              Pointer to the first MSR.
@@ -3310,14 +3310,14 @@ static int reportMsr_GenFunctionEx(uint32_t uMsr, const char *pszRdWrFnName, uin
  * @param   pidxLoop            Index variable that should be advanced to the
  *                              last MSR entry in the range.
  */
-static int reportMsr_ViaDummyRange(VBCPUREPMSR const *paMsrs, uint32_t cMsrs, uint32_t *pidxLoop)
+static int reportMsr_ViaShanghaiDummyRange(VBCPUREPMSR const *paMsrs, uint32_t cMsrs, uint32_t *pidxLoop)
 {
     /* Figure how many. */
     uint32_t uMsr  = paMsrs[0].uMsr;
     uint32_t cRegs = 1;
     while (   cRegs < cMsrs
            && paMsrs[cRegs].uMsr == uMsr + cRegs
-           && isMsrViaDummy(paMsrs[cRegs].uMsr, paMsrs[cRegs].uValue, paMsrs[cRegs].fFlags))
+           && isMsrViaShanghaiDummy(paMsrs[cRegs].uMsr, paMsrs[cRegs].uValue, paMsrs[cRegs].fFlags))
     {
         cRegs++;
         if (!(cRegs % 0x80))
@@ -3457,7 +3457,7 @@ static int reportMsr_Ia32MtrrPhysBaseMaskN(VBCPUREPMSR const *paMsrs, uint32_t c
     uint32_t cRegs = 1;
     while (   cRegs < cMsrs
            && paMsrs[cRegs].uMsr == uMsr + cRegs
-           && !isMsrViaDummy(paMsrs[cRegs].uMsr, paMsrs[cRegs].uValue, paMsrs[cRegs].fFlags) )
+           && !isMsrViaShanghaiDummy(paMsrs[cRegs].uMsr, paMsrs[cRegs].uValue, paMsrs[cRegs].fFlags) )
         cRegs++;
     if (cRegs & 1)
         return RTMsgErrorRc(VERR_INVALID_PARAMETER, "MTRR variable MSR range is odd: cRegs=%#x\n", cRegs);
@@ -4199,8 +4199,9 @@ static int produceMsrReport(VBCPUREPMSR *paMsrs, uint32_t cMsrs)
          * VIA implement MSRs in a interesting way, so we have to select what we
          * want to handle there to avoid making the code below unreadable.
          */
-        else if (isMsrViaDummy(uMsr, uValue, fFlags))
-            rc = reportMsr_ViaDummyRange(&paMsrs[i], cMsrs - i, &i);
+        /** @todo r=klaus check if Shanghai CPUs really are behaving the same */
+        else if (isMsrViaShanghaiDummy(uMsr, uValue, fFlags))
+            rc = reportMsr_ViaShanghaiDummyRange(&paMsrs[i], cMsrs - i, &i);
         /*
          * This shall be sorted by uMsr as much as possible.
          */
@@ -4566,6 +4567,7 @@ static const char *cpuVendorToString(CPUMCPUVENDOR enmCpuVendor)
         case CPUMCPUVENDOR_AMD:         return "AMD";
         case CPUMCPUVENDOR_VIA:         return "VIA";
         case CPUMCPUVENDOR_CYRIX:       return "Cyrix";
+        case CPUMCPUVENDOR_SHANGHAI:    return "Shanghai";
         case CPUMCPUVENDOR_INVALID:
         case CPUMCPUVENDOR_UNKNOWN:
         case CPUMCPUVENDOR_32BIT_HACK:
@@ -4671,7 +4673,7 @@ static int produceCpuReport(void)
             size_t      cchWord = strlen(pszWord);
             char       *pszHit;
             while ((pszHit = strstr(pszName, pszWord)) != NULL)
-                memmove(pszHit, pszHit + cchWord, strlen(pszHit + cchWord) + 1);
+                memset(pszHit, ' ', cchWord);
         }
 
         RTStrStripR(pszName);
@@ -4806,7 +4808,7 @@ static int produceCpuReport(void)
                    "    /*.paMsrRanges      = */ NULL_ALONE(g_aMsrRanges_%s),\n"
                    "};\n"
                    "\n"
-                   "#endif /* !VBOX_DB_%s */\n"
+                   "#endif /* !VBOX_CPUDB_%s */\n"
                    "\n",
                    pszCpuDesc,
                    szNameC,

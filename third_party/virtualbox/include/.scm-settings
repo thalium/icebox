@@ -29,6 +29,9 @@
 /iprt/formats/elf-i386.h:   --no-update-license  --no-update-copyright-year
 /iprt/formats/elf-i386.h:   --no-update-license  --no-update-copyright-year
 
+# external copyright
+/iprt/formats/lx.h:         --external-copyright
+
 # TODO: This is using LGPL with Oracle disclaimer. Implement.
 /VBox/VBoxKeyboard.h: --external-copyright --lgpl-disclaimer
 

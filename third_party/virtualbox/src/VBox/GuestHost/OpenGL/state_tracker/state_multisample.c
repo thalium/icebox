@@ -12,7 +12,7 @@
 void crStateMultisampleInit (CRContext *ctx)
 {
 	CRMultisampleState *m = &ctx->multisample;
-	CRStateBits *sb       = GetCurrentBits();
+	CRStateBits *sb       = GetCurrentBits(ctx->pStateTracker);
 	CRMultisampleBits *mb = &(sb->multisample);
 
 	m->enabled = GL_FALSE; /* TRUE if the visual supports it */
@@ -28,16 +28,16 @@ void crStateMultisampleInit (CRContext *ctx)
 	RESET(mb->dirty, ctx->bitid);
 }
 
-void STATE_APIENTRY crStateSampleCoverageARB(GLclampf value, GLboolean invert)
+void STATE_APIENTRY crStateSampleCoverageARB(PCRStateTracker pState, GLclampf value, GLboolean invert)
 {
-	CRContext *g          = GetCurrentContext();
+	CRContext *g          = GetCurrentContext(pState);
 	CRMultisampleState *m = &(g->multisample);
-	CRStateBits *sb       = GetCurrentBits();
+	CRStateBits *sb       = GetCurrentBits(pState);
 	CRMultisampleBits *mb = &(sb->multisample);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glStateSampleCoverageARB called in begin/end");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glStateSampleCoverageARB called in begin/end");
 		return;
 	}
 

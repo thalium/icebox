@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2017 Oracle Corporation
+ * Copyright (C) 2013-2019 Oracle Corporation
  * This file is based on ast_mode.c
  * Copyright 2012 Red Hat Inc.
  * Parts based on xf86-video-ast
@@ -41,6 +41,9 @@
 #include <drm/drm_crtc_helper.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_72)
 #include <drm/drm_plane_helper.h>
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0) || defined(RHEL_81)
+#include <drm/drm_probe_helper.h>
 #endif
 
 #include "VBoxVideo.h"
@@ -173,15 +176,16 @@ static bool vbox_set_up_input_mapping(struct vbox_private *vbox)
 	if (single_framebuffer) {
 		list_for_each_entry(crtci, &vbox->dev->mode_config.crtc_list,
 				    head) {
-			if (to_vbox_crtc(crtci)->crtc_id == 0) {
-				vbox->single_framebuffer = true;
-				vbox->input_mapping_width =
-				    CRTC_FB(crtci)->width;
-				vbox->input_mapping_height =
-				    CRTC_FB(crtci)->height;
-				return old_single_framebuffer !=
-				    vbox->single_framebuffer;
-			}
+                        if (to_vbox_crtc(crtci)->crtc_id != 0)
+                                continue;
+
+                        if (!CRTC_FB(crtci))
+                                break;
+			vbox->single_framebuffer = true;
+			vbox->input_mapping_width = CRTC_FB(crtci)->width;
+			vbox->input_mapping_height = CRTC_FB(crtci)->height;
+			return old_single_framebuffer !=
+			    vbox->single_framebuffer;
 		}
 	}
 	/* Otherwise calculate the total span of all screens. */
@@ -356,7 +360,9 @@ static struct drm_encoder *vbox_best_single_encoder(struct drm_connector
 	/* pick the encoder ids */
 	if (enc_id)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0) || \
-    (defined(CONFIG_SUSE_VERSION) && CONFIG_SUSE_VERSION == 15)
+    (defined(CONFIG_SUSE_VERSION) && \
+        LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)) || \
+    defined(RHEL_76)
 		return drm_encoder_find(connector->dev, NULL, enc_id);
 #else
 		return drm_encoder_find(connector->dev, enc_id);
@@ -491,7 +497,7 @@ static void vbox_set_edid(struct drm_connector *connector, int width,
 	for (i = 0; i < EDID_SIZE - 1; ++i)
 		sum += edid[i];
 	edid[EDID_SIZE - 1] = (0x100 - (sum & 0xFF)) & 0xFF;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0) || defined(OPENSUSE_151) || defined(RHEL_77) || defined(RHEL_81)
 	drm_connector_update_edid_property(connector, (struct edid *)edid);
 #else
 	drm_mode_connector_update_edid_property(connector, (struct edid *)edid);
@@ -666,7 +672,7 @@ static int vbox_connector_init(struct drm_device *dev,
 	drm_connector_register(connector);
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0) || defined(OPENSUSE_151) || defined(RHEL_77) || defined(RHEL_81)
 	drm_connector_attach_encoder(connector, encoder);
 #else
 	drm_mode_connector_attach_encoder(connector, encoder);
@@ -823,7 +829,7 @@ static int vbox_cursor_set2(struct drm_crtc *crtc, struct drm_file *file_priv,
 			}
 			vbox_bo_unreserve(bo);
 		}
-		drm_gem_object_unreference_unlocked(obj);
+		drm_gem_object_put_unlocked(obj);
 	} else {
 		DRM_ERROR("Cannot find cursor object %x for crtc\n", handle);
 		ret = -ENOENT;

@@ -1195,6 +1195,13 @@ static DECLCALLBACK(int) apicR3LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uin
         { /* Load any new additional per-VM data. */ }
     }
 
+    /*
+     * Restore per CPU state.
+     *
+     * Note! PDM will restore the VMCPU_FF_INTERRUPT_APIC flag for us.
+     *       This code doesn't touch it.  No devices should make us touch
+     *       it later during the restore either, only during the 'done' phase.
+     */
     for (VMCPUID idCpu = 0; idCpu < pVM->cCpus; idCpu++)
     {
         PVMCPU   pVCpu    = &pVM->aCpus[idCpu];

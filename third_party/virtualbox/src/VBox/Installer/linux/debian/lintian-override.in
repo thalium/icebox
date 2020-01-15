@@ -49,9 +49,7 @@
 %VERPKG%: binary-without-manpage usr/bin/vboxwebsrv
 %VERPKG%: binary-without-manpage usr/bin/virtualbox
 %VERPKG%: unstripped-binary-or-object usr/lib/virtualbox/VBoxDDRC.rc
-%VERPKG%: unstripped-binary-or-object usr/lib/virtualbox/VBoxDD2RC.rc
 %VERPKG%: unstripped-binary-or-object usr/lib/virtualbox/VBoxDDR0.r0
-%VERPKG%: unstripped-binary-or-object usr/lib/virtualbox/VBoxDD2R0.r0
 %VERPKG%: unstripped-binary-or-object usr/lib/virtualbox/VMMRC.rc
 %VERPKG%: unstripped-binary-or-object usr/lib/virtualbox/VMMR0.r0
 %VERPKG%: no-shlibs-control-file usr/lib/virtualbox/VBoxRT.so

@@ -6,7 +6,6 @@
 
 #include "cr_mem.h"
 #include "cr_spu.h"
-#include "cr_glstate.h"
 #include "packspu.h"
 #include "cr_packfunctions.h"
 #include <stdio.h>
@@ -20,11 +19,10 @@ SPUFunctions pack_functions = {
 };
 
 PackSPU pack_spu;
+DECLHIDDEN(PCRStateTracker) g_pStateTracker;
 
-#ifdef CHROMIUM_THREADSAFE
 CRtsd _PackTSD;
 CRmutex _PackMutex;
-#endif
 
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
 # include <VBoxCrHgsmi.h>
@@ -58,14 +56,10 @@ packSPUInit( int id, SPU *child, SPU *self,
     (void) child;
     (void) self;
 
-#if defined(CHROMIUM_THREADSAFE) && !defined(WINDOWS)
     crInitMutex(&_PackMutex);
-#endif
 
-#ifdef CHROMIUM_THREADSAFE
     crInitTSD(&_PackerTSD);
     crInitTSD(&_PackTSD);
-#endif
 
     pack_spu.id = id;
 
@@ -96,7 +90,8 @@ packSPUInit( int id, SPU *child, SPU *self,
     }
 
     packspuCreateFunctions();
-    crStateInit();
+    crStateInit(&pack_spu.StateTracker);
+    g_pStateTracker = &pack_spu.StateTracker;
 
     return &pack_functions;
 }
@@ -112,9 +107,7 @@ static int
 packSPUCleanup(void)
 {
     int i;
-#ifdef CHROMIUM_THREADSAFE
     crLockMutex(&_PackMutex);
-#endif
     for (i=0; i<MAX_THREADS; ++i)
     {
         if (pack_spu.thread[i].inUse && pack_spu.thread[i].packer)
@@ -123,30 +116,26 @@ packSPUCleanup(void)
         }
     }
 
-#ifdef CHROMIUM_THREADSAFE
     crFreeTSD(&_PackerTSD);
     crFreeTSD(&_PackTSD);
     crUnlockMutex(&_PackMutex);
-# ifndef WINDOWS
     crFreeMutex(&_PackMutex);
-# endif
-#endif /* CHROMIUM_THREADSAFE */
+    crNetTearDown(); /** @todo Why here? */
     return 1;
 }
 
-extern SPUOptions packSPUOptions[];
-
-int SPULoad( char **name, char **super, SPUInitFuncPtr *init,
-         SPUSelfDispatchFuncPtr *self, SPUCleanupFuncPtr *cleanup,
-         SPUOptionsPtr *options, int *flags )
-{
-    *name = "pack";
-    *super = NULL;
-    *init = packSPUInit;
-    *self = packSPUSelfDispatch;
-    *cleanup = packSPUCleanup;
-    *options = packSPUOptions;
-    *flags = (SPU_HAS_PACKER|SPU_IS_TERMINAL|SPU_MAX_SERVERS_ONE);
-
-    return 1;
-}
+DECLHIDDEN(const SPUREG) g_PackSpuReg =
+ {
+    /** pszName. */
+    "pack",
+    /** pszSuperName. */
+    NULL,
+    /** fFlags. */
+    SPU_HAS_PACKER | SPU_IS_TERMINAL | SPU_MAX_SERVERS_ONE,
+    /** pfnInit. */
+    packSPUInit,
+    /** pfnDispatch. */
+    packSPUSelfDispatch,
+    /** pfnCleanup. */
+    packSPUCleanup
+};

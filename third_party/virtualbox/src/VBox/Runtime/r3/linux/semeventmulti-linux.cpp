@@ -39,7 +39,7 @@
  * against glibc < 2.6.
  */
 #include "../posix/semeventmulti-posix.cpp"
-asm volatile (".global epoll_pwait");
+__asm__ (".global epoll_pwait");
 
 #else /* glibc < 2.6 */
 

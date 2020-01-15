@@ -7,31 +7,8 @@
 #ifndef CR_NET_H
 #define CR_NET_H
 
-#ifdef WINDOWS
-#define WIN32_LEAN_AND_MEAN
-# ifndef VBOX
-#pragma warning( push, 3 ) /* shut up about warnings in YOUR OWN HEADER FILES!!! */
-#include <winsock.h>
-# else
+#ifdef RT_OS_WINDOWS
 # include <iprt/win/winsock.h>
-# endif /* VBOX */
-#endif
-
-#include <stdio.h>
-
-#ifndef WINDOWS
-#include <sys/socket.h>
-#ifndef DARWIN
-#ifdef AF_INET6
-/* getaddrinfo & co appeared with ipv6 */
-#define ADDRINFO
-#endif
-#endif
-#include <netinet/in.h>
-#endif
-
-#ifdef SunOS
-#include <sys/types.h>
 #endif
 
 #include "cr_protocol.h"
@@ -45,32 +22,13 @@
 extern "C" {
 #endif
 
-#define DEFAULT_SERVER_PORT 7000
-
-/* If you change this, update DefaultMothershipPort in mothership.py */
-#define DEFAULT_MOTHERSHIP_PORT 10000
-
 typedef struct CRConnection CRConnection;
 
 typedef enum {
     CR_NO_CONNECTION,
-    CR_SDP,
-    CR_TCPIP,
-    CR_UDPTCPIP,
-    CR_FILE,
-    CR_GM,
-    CR_IB,
-    CR_TEAC,
-    CR_TCSCOMM,
     CR_VBOXHGCM,
     CR_DROP_PACKETS
 } CRConnectionType;
-
-#if defined(WINDOWS)
-typedef SOCKET CRSocket;
-#else
-typedef int    CRSocket;
-#endif
 
 typedef void (*CRVoidFunc)( void );
 typedef int (*CRNetReceiveFunc)( CRConnection *conn, CRMessage *msg, unsigned int len );
@@ -142,14 +100,11 @@ struct CRConnection {
     unsigned int krecv_buf_size;
     int broker;              /* is connection brokered through mothership? */
     int threaded;            /* is this a threaded connection? */
-    int endianness, swap;
+    int swap;
     int actual_network;      /* is this a real network? */
 
     unsigned char *userbuf;
     int userbuf_len;
-
-    char *hostname;
-    int port;
 
     /* To allocate a data buffer of size conn->buffer_size bytes */
     void *(*Alloc)( CRConnection *conn );
@@ -172,7 +127,7 @@ struct CRConnection {
     /* Called when a full CR_MESSAGE_MULTI_HEAD/TAIL message has been received */
     void  (*HandleNewMessage)( CRConnection *conn, CRMessage *mess, unsigned int len );
     /* To accept a new connection from a client */
-    void  (*Accept)( CRConnection *conn, const char *hostname, unsigned short port );
+    void  (*Accept)( CRConnection *conn);
     /* To connect to a server (return 0 if error, 1 if success) */
     int  (*Connect)( CRConnection *conn );
     /* To disconnect from a server */
@@ -190,48 +145,8 @@ struct CRConnection {
     int send_credits;
     int recv_credits;
 
-    /* TCP/IP */
-    CRSocket tcp_socket;
-    int index;
-
-    CRSocket sdp_socket;
-
-    /* UDP/IP */
-    CRSocket udp_socket;
-#ifndef ADDRINFO
-    struct sockaddr_in remoteaddr;
-#else
-    struct sockaddr_storage remoteaddr;
-#endif
-
-    /* UDP/TCP/IP */
-    unsigned int seq;
-    unsigned int ack;
-    void *udp_packet;
-    int udp_packetlen;
-
-    /* FILE Tracing */
-    enum { CR_FILE_WRITE, CR_FILE_READ } file_direction;
-    char *filename;
-    int fd;
-
-    /* Myrinet GM */
-    unsigned int gm_node_id;
-    unsigned int gm_port_num;
-
-    /* Mellanox IB */
-    unsigned int ib_node_id;
-    unsigned int ib_port_num;
-
-    /* Quadrics Elan3 (teac) */
-    int teac_id;
-    int teac_rank;
-
-    /* Quadrics Elan3 (tcscomm) */
-    int tcscomm_id;
-    int tcscomm_rank;
-
     /* VBox HGCM */
+    int      index;
     uint32_t u32ClientID;
     uint8_t  *pBuffer;
     uint32_t cbBuffer;
@@ -274,11 +189,10 @@ extern DECLEXPORT(void) crNetTearDown(void);
 extern DECLEXPORT(void) *crNetAlloc( CRConnection *conn );
 extern DECLEXPORT(void) crNetFree( CRConnection *conn, void *buf );
 
-extern DECLEXPORT(void) crNetAccept( CRConnection *conn, const char *hostname, unsigned short port );
+extern DECLEXPORT(void) crNetAccept( CRConnection *conn );
 extern DECLEXPORT(int) crNetConnect( CRConnection *conn );
 extern DECLEXPORT(void) crNetDisconnect( CRConnection *conn );
 extern DECLEXPORT(void) crNetFreeConnection( CRConnection *conn );
-extern DECLEXPORT(void) crCloseSocket( CRSocket sock );
 
 extern DECLEXPORT(void) crNetSend( CRConnection *conn, void **bufp, const void *start, unsigned int len );
 extern DECLEXPORT(void) crNetBarf( CRConnection *conn, void **bufp, const void *start, unsigned int len );
@@ -317,7 +231,7 @@ extern DECLEXPORT(uint32_t) crNetHostCapsGet(void);
 extern DECLEXPORT(void) crNetDefaultRecv( CRConnection *conn, CRMessage *msg, unsigned int len );
 extern DECLEXPORT(void) crNetDispatchMessage( CRNetReceiveFuncList *rfl, CRConnection *conn, CRMessage *msg, unsigned int len );
 
-extern DECLEXPORT(CRConnection *) crNetConnectToServer( const char *server, unsigned short default_port, int mtu, int broker
+extern DECLEXPORT(CRConnection *) crNetConnectToServer( const char *server, int mtu, int broker
 #if defined(VBOX_WITH_CRHGSMI) && defined(IN_GUEST)
                 , struct VBOXUHGSMI *pHgsmi
 #endif
@@ -330,18 +244,6 @@ extern DECLEXPORT(void) crEnqueueMessage(CRMessageList *list, CRMessage *msg, un
 extern DECLEXPORT(void) crDequeueMessage(CRMessageList *list, CRMessage **msg, unsigned int *len, CRConnection **conn);
 
 extern DECLEXPORT(void) crNetRecvReadPixels( const CRMessageReadPixels *rp, unsigned int len );
-
-
-/*
- * Quadrics stuff
- */
-#define CR_QUADRICS_DEFAULT_LOW_CONTEXT  32
-#define CR_QUADRICS_DEFAULT_HIGH_CONTEXT 35
-
-extern DECLEXPORT(void) crNetSetRank( int my_rank );
-extern DECLEXPORT(void) crNetSetContextRange( int low_context, int high_context );
-extern DECLEXPORT(void) crNetSetNodeRange( const char *low_node, const char *high_node );
-extern DECLEXPORT(void) crNetSetKey( const unsigned char* key, const int keyLength );
 
 
 /*

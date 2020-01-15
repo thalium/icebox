@@ -714,6 +714,7 @@ static bool vusbMsgSetup(PVUSBPIPE pPipe, const void *pvBuf, uint32_t cbBuf)
         {
             pNew->pMsg = (PVUSBSETUP)pNew->Urb.abData;
             pExtra = pNew;
+            pPipe->pCtrl = pExtra;
         }
         pExtra->Urb.pVUsb = (PVUSBURBVUSB)&pExtra->Urb.abData[cbBuf + pSetupIn->wLength];
         pExtra->Urb.pVUsb->pUrb = &pExtra->Urb;

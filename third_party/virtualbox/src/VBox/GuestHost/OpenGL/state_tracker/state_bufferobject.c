@@ -27,15 +27,15 @@ static CRBufferObject *AllocBufferObject(GLuint name)
     return b;
 }
 
-void STATE_APIENTRY crStateGenBuffersARB(GLsizei n, GLuint *buffers)
+void STATE_APIENTRY crStateGenBuffersARB(PCRStateTracker pState, GLsizei n, GLuint *buffers)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crStateGenNames(g, g->shared->buffersTable, n, buffers);
 }
 
-void crStateRegBuffers(GLsizei n, GLuint *buffers)
+void crStateRegBuffers(PCRStateTracker pState, GLsizei n, GLuint *buffers)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crStateRegNames(g, g->shared->buffersTable, n, buffers);
 }
 
@@ -60,9 +60,9 @@ GLboolean crStateIsBufferBoundForCtx(CRContext *g, GLenum target)
     }
 }
 
-GLboolean crStateIsBufferBound(GLenum target)
+GLboolean crStateIsBufferBound(PCRStateTracker pState, GLenum target)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     return crStateIsBufferBoundForCtx(g, target);
 }
 
@@ -85,14 +85,14 @@ CRBufferObject *crStateGetBoundBufferObject(GLenum target, CRBufferObjectState *
     }
 }
 
-DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsBufferARB( GLuint buffer )
+DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsBufferARB(PCRStateTracker pState, GLuint buffer )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glIsBufferARB called in begin/end");
         return GL_FALSE;
     }
@@ -102,7 +102,7 @@ DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsBufferARB( GLuint buffer )
 
 void crStateBufferObjectInit (CRContext *ctx)
 {
-    CRStateBits *sb          = GetCurrentBits();
+    CRStateBits *sb          = GetCurrentBits(ctx->pStateTracker);
     CRBufferObjectBits *bb = &sb->bufferobject;
     CRBufferObjectState *b = &ctx->bufferobject;
 
@@ -113,6 +113,8 @@ void crStateBufferObjectInit (CRContext *ctx)
     RESET(bb->unpackBinding, ctx->bitid);
     RESET(bb->packBinding, ctx->bitid);
 #endif
+
+    b->pStateTracker = ctx->pStateTracker;
 
 #ifdef IN_GUEST
     b->retainBufferData = GL_TRUE;
@@ -133,15 +135,20 @@ void crStateBufferObjectInit (CRContext *ctx)
     ctx->shared->bVBOResyncNeeded = GL_FALSE;
 }
 
-void crStateFreeBufferObject(void *data)
+void crStateFreeBufferObject(void *data, void *pvUser)
 {
     CRBufferObject *pObj = (CRBufferObject *)data;
+#ifndef IN_GUEST
+    PCRStateTracker pState = (PCRStateTracker)pvUser;
+#else
+    RT_NOREF(pvUser);
+#endif
     if (pObj->data) crFree(pObj->data);
 
 #ifndef IN_GUEST
-    if (diff_api.DeleteBuffersARB)
+    if (pState->diff_api.DeleteBuffersARB)
     {
-        diff_api.DeleteBuffersARB(1, &pObj->hwid);
+        pState->diff_api.DeleteBuffersARB(1, &pObj->hwid);
     }
 #endif
 
@@ -164,9 +171,9 @@ static void crStateCheckBufferHWIDCB(unsigned long key, void *data1, void *data2
         pParms->id = pObj->id;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateBufferHWIDtoID(GLuint hwid)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateBufferHWIDtoID(PCRStateTracker pState, GLuint hwid)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crCheckIDHWID_t parms;
 
     parms.id = hwid;
@@ -176,25 +183,25 @@ DECLEXPORT(GLuint) STATE_APIENTRY crStateBufferHWIDtoID(GLuint hwid)
     return parms.id;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetBufferHWID(GLuint id)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetBufferHWID(PCRStateTracker pState, GLuint id)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObject *pObj = (CRBufferObject *) crHashtableSearch(g->shared->buffersTable, id);
 
     return pObj ? pObj->hwid : 0;
 }
 
 void STATE_APIENTRY
-crStateBindBufferARB (GLenum target, GLuint buffer)
+crStateBindBufferARB (PCRStateTracker pState, GLenum target, GLuint buffer)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &(g->bufferobject);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferObjectBits *bb = &(sb->bufferobject);
     CRBufferObject *oldObj, *newObj;
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBindBufferARB called in begin/end");
         return;
     }
@@ -204,7 +211,7 @@ crStateBindBufferARB (GLenum target, GLuint buffer)
     oldObj = crStateGetBoundBufferObject(target, b);
     if (!oldObj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glBindBufferARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glBindBufferARB(target)");
         return;
     }
 
@@ -218,7 +225,7 @@ crStateBindBufferARB (GLenum target, GLuint buffer)
             newObj = AllocBufferObject(buffer);
             CRSTATE_CHECKERR(!newObj, GL_OUT_OF_MEMORY, "glBindBuffer");
 #ifndef IN_GUEST
-            diff_api.GenBuffersARB(1, &newObj->hwid);
+            pState->diff_api.GenBuffersARB(1, &newObj->hwid);
             if (!newObj->hwid)
             {
                 crWarning("GenBuffersARB failed!");
@@ -267,7 +274,7 @@ crStateBindBufferARB (GLenum target, GLuint buffer)
     if (oldObj->refCount <= 0) {
         /*we shouldn't reach this point*/
         CRASSERT(false);
-        crHashtableDelete(g->shared->buffersTable, (unsigned long) oldObj->id, crStateFreeBufferObject);
+        crHashtableDeleteEx(g->shared->buffersTable, (unsigned long) oldObj->id, crStateFreeBufferObject, pState);
     }
 
 #ifdef IN_GUEST
@@ -278,10 +285,10 @@ crStateBindBufferARB (GLenum target, GLuint buffer)
 #endif
 }
 
-static void ctStateBuffersRefsCleanup(CRContext *ctx, CRBufferObject *obj, CRbitvalue *neg_bitid)
+static void ctStateBuffersRefsCleanup(PCRStateTracker pState, CRContext *ctx, CRBufferObject *obj, CRbitvalue *neg_bitid)
 {
     CRBufferObjectState *b = &(ctx->bufferobject);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferObjectBits *bb = &(sb->bufferobject);
     int j, k;
 
@@ -346,21 +353,21 @@ static void ctStateBuffersRefsCleanup(CRContext *ctx, CRBufferObject *obj, CRbit
 }
 
 void STATE_APIENTRY
-crStateDeleteBuffersARB(GLsizei n, const GLuint *buffers)
+crStateDeleteBuffersARB(PCRStateTracker pState, GLsizei n, const GLuint *buffers)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     int i;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glDeleteBuffersARB called in Begin/End");
         return;
     }
 
     if (n < 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glDeleteBuffersARB(n < 0)");
         return;
     }
@@ -372,7 +379,7 @@ crStateDeleteBuffersARB(GLsizei n, const GLuint *buffers)
             if (obj) {
                 int j;
 
-                ctStateBuffersRefsCleanup(g, obj, g->neg_bitid);
+                ctStateBuffersRefsCleanup(pState, g, obj, g->neg_bitid);
 
                 CR_STATE_SHAREDOBJ_USAGE_FOREACH_USED_IDX(obj, j)
                 {
@@ -380,41 +387,41 @@ crStateDeleteBuffersARB(GLsizei n, const GLuint *buffers)
                      * so on restore, we set mark bits as used.
                      * This is why g_pAvailableContexts[j] could be NULL
                      * also g_pAvailableContexts[0] will hold default context, which we should discard */
-                    CRContext *ctx = g_pAvailableContexts[j];
+                    CRContext *ctx = pState->apAvailableContexts[j];
                     if (j && ctx)
                     {
-                        ctStateBuffersRefsCleanup(ctx, obj, g->neg_bitid); /* <- yes, use g->neg_bitid, i.e. neg_bitid of the current context to ensure others bits get dirtified,
-                                                                            * but not the current context ones*/
+                        ctStateBuffersRefsCleanup(pState, ctx, obj, g->neg_bitid); /* <- yes, use g->neg_bitid, i.e. neg_bitid of the current context to ensure others bits get dirtified,
+                                                                                    * but not the current context ones*/
                     }
                     else
                         CR_STATE_SHAREDOBJ_USAGE_CLEAR_IDX(obj, j);
                 }
 
-                crHashtableDelete(g->shared->buffersTable, buffers[i], crStateFreeBufferObject);
+                crHashtableDeleteEx(g->shared->buffersTable, buffers[i], crStateFreeBufferObject, pState);
             }
         }
     }
 }
 
 void STATE_APIENTRY
-crStateBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage)
+crStateBufferDataARB(PCRStateTracker pState, GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &g->bufferobject;
     CRBufferObject *obj;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferObjectBits *bb = &sb->bufferobject;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBufferDataARB called in begin/end");
         return;
     }
 
     if (size < 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "glBufferDataARB(size < 0)");
         return;
     }
@@ -432,7 +439,7 @@ crStateBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLe
             /* OK */
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glBufferDataARB(usage)");
             return;
     }
@@ -440,17 +447,17 @@ crStateBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLe
     obj = crStateGetBoundBufferObject(target, b);
     if (!obj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glBufferDataARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glBufferDataARB(target)");
         return;
     }
 
     if (obj->id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glBufferDataARB");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glBufferDataARB");
         return;
     }
 
     if (obj->pointer) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBufferDataARB(buffer is mapped)");
         return;
     }
@@ -468,7 +475,7 @@ crStateBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLe
 
         obj->data = crAlloc(size);
         if (!obj->data) {
-            crStateError(__LINE__, __FILE__, GL_OUT_OF_MEMORY, "glBufferDataARB");
+            crStateError(pState, __LINE__, __FILE__, GL_OUT_OF_MEMORY, "glBufferDataARB");
             return;
         }
         if (data)
@@ -483,18 +490,18 @@ crStateBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLe
 
 
 void STATE_APIENTRY
-crStateBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data)
+crStateBufferSubDataARB(PCRStateTracker pState, GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &g->bufferobject;
     CRBufferObject *obj;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferObjectBits *bb = &sb->bufferobject;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBufferSubDataARB called in begin/end");
         return;
     }
@@ -502,24 +509,24 @@ crStateBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, c
     obj = crStateGetBoundBufferObject(target, b);
     if (!obj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glBufferSubDataARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glBufferSubDataARB(target)");
         return;
     }
 
     if (obj->id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBufferSubDataARB");
         return;
     }
 
     if (obj->pointer) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBufferSubDataARB(buffer is mapped)");
         return;
     }
 
     if (size < 0 || offset < 0 || (unsigned int)offset + size > obj->size) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glBufferSubDataARB(bad offset and/or size)");
         return;
     }
@@ -539,16 +546,16 @@ crStateBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, c
 
 
 void STATE_APIENTRY
-crStateGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, void * data)
+crStateGetBufferSubDataARB(PCRStateTracker pState, GLenum target, GLintptrARB offset, GLsizeiptrARB size, void * data)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &g->bufferobject;
     CRBufferObject *obj;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetBufferSubDataARB called in begin/end");
         return;
     }
@@ -556,24 +563,24 @@ crStateGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size
     obj = crStateGetBoundBufferObject(target, b);
     if (!obj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferSubDataARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferSubDataARB(target)");
         return;
     }
 
     if (obj->id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetBufferSubDataARB");
         return;
     }
 
     if (obj->pointer) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetBufferSubDataARB(buffer is mapped)");
         return;
     }
 
     if (size < 0 || offset < 0 || (unsigned int)offset + size > obj->size) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetBufferSubDataARB(bad offset and/or size)");
         return;
     }
@@ -585,16 +592,16 @@ crStateGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size
 
 
 void * STATE_APIENTRY
-crStateMapBufferARB(GLenum target, GLenum access)
+crStateMapBufferARB(PCRStateTracker pState, GLenum target, GLenum access)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &g->bufferobject;
     CRBufferObject *obj;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glMapBufferARB called in begin/end");
         return NULL;
     }
@@ -602,12 +609,12 @@ crStateMapBufferARB(GLenum target, GLenum access)
     obj = crStateGetBoundBufferObject(target, b);
     if (!obj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glMapBufferARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glMapBufferARB(target)");
         return NULL;
     }
 
     if (obj->id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glMapBufferARB");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glMapBufferARB");
         return GL_FALSE;
     }
 
@@ -618,7 +625,7 @@ crStateMapBufferARB(GLenum target, GLenum access)
             obj->access = access;
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glMapBufferARB(access)");
             return NULL;
     }
@@ -631,18 +638,18 @@ crStateMapBufferARB(GLenum target, GLenum access)
 
 
 GLboolean STATE_APIENTRY
-crStateUnmapBufferARB(GLenum target)
+crStateUnmapBufferARB(PCRStateTracker pState, GLenum target)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &g->bufferobject;
     CRBufferObject *obj;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRBufferObjectBits *bb = &sb->bufferobject;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glUnmapBufferARB called in begin/end");
         return GL_FALSE;
     }
@@ -650,17 +657,17 @@ crStateUnmapBufferARB(GLenum target)
     obj = crStateGetBoundBufferObject(target, b);
     if (!obj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glUnmapBufferARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glUnmapBufferARB(target)");
         return GL_FALSE;
     }
 
     if (obj->id == 0) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glUnmapBufferARB");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glUnmapBufferARB");
         return GL_FALSE;
     }
 
     if (!obj->pointer) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glUnmapBufferARB");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glUnmapBufferARB");
         return GL_FALSE;
     }
 
@@ -679,16 +686,16 @@ crStateUnmapBufferARB(GLenum target)
 
 
 void STATE_APIENTRY
-crStateGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params)
+crStateGetBufferParameterivARB(PCRStateTracker pState, GLenum target, GLenum pname, GLint *params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &g->bufferobject;
     CRBufferObject *obj;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetBufferParameterivARB called in begin/end");
         return;
     }
@@ -696,7 +703,7 @@ crStateGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params)
     obj = crStateGetBoundBufferObject(target, b);
     if (!obj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferParameterivARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferParameterivARB(target)");
         return;
     }
 
@@ -714,7 +721,7 @@ crStateGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params)
             *params = (obj->pointer != NULL);
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "glGetBufferParameterivARB(pname)");
             return;
     }
@@ -722,16 +729,16 @@ crStateGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params)
 
 
 void STATE_APIENTRY
-crStateGetBufferPointervARB(GLenum target, GLenum pname, GLvoid **params)
+crStateGetBufferPointervARB(PCRStateTracker pState, GLenum target, GLenum pname, GLvoid **params)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRBufferObjectState *b = &g->bufferobject;
     CRBufferObject *obj;
 
     FLUSH();
 
     if (g->current.inBeginEnd) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glGetBufferPointervARB called in begin/end");
         return;
     }
@@ -739,12 +746,12 @@ crStateGetBufferPointervARB(GLenum target, GLenum pname, GLvoid **params)
     obj = crStateGetBoundBufferObject(target, b);
     if (!obj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferPointervARB(target)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferPointervARB(target)");
         return;
     }
 
     if (pname != GL_BUFFER_MAP_POINTER_ARB) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferPointervARB(pname)");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetBufferPointervARB(pname)");
         return;
     }
 
@@ -762,7 +769,7 @@ crStateGetBufferPointervARB(GLenum target, GLenum pname, GLvoid **params)
  * that's a bit complicated.
  */
 static GLboolean
-HaveBufferObjectExtension(void)
+HaveBufferObjectExtension(PCRStateTracker pState)
 {
     static GLint haveBufferObjectExt = -1;
 
@@ -771,12 +778,12 @@ HaveBufferObjectExtension(void)
         /* XXX this check is temporary.  We need to make the tilesort SPU plug
          * GetString into the diff'ing table in order for this to really work.
          */
-        if (!diff_api.GetString) {
+        if (!pState->diff_api.GetString) {
             haveBufferObjectExt = 0;
             return 0;
         }
-        CRASSERT(diff_api.GetString);
-        ext = (const char *) diff_api.GetString(GL_EXTENSIONS);
+        CRASSERT(pState->diff_api.GetString);
+        ext = (const char *) pState->diff_api.GetString(GL_EXTENSIONS);
         if (crStrstr(ext, "GL_ARB_vertex_buffer_object") ||
                 crStrstr(ext, "GL_ARB_pixel_buffer_object")) {
             haveBufferObjectExt = 1;
@@ -792,8 +799,11 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
                                       CRContext *fromCtx, CRContext *toCtx,
                                       GLboolean bSwitch)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRBufferObjectState *from = &(fromCtx->bufferobject);
     const CRBufferObjectState *to = &(toCtx->bufferobject);
+
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
     /* ARRAY_BUFFER */
     if (CHECKDIRTY(bb->arrayBinding, bitID)) 
@@ -801,7 +811,7 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (from->arrayBuffer != to->arrayBuffer)
         {
             GLuint bufferID = to->arrayBuffer ? to->arrayBuffer->hwid : 0;
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
             if (bSwitch)
             {
                 FILLDIRTY(bb->arrayBinding);
@@ -824,15 +834,15 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (bufObj->dirtyStart == 0 && bufObj->dirtyLength == (int) bufObj->size) 
         {
             /* update whole buffer */
-            diff_api.BufferDataARB(GL_ARRAY_BUFFER_ARB, bufObj->size,
-                                   bufObj->data, bufObj->usage);
+            pState->diff_api.BufferDataARB(GL_ARRAY_BUFFER_ARB, bufObj->size,
+                                           bufObj->data, bufObj->usage);
         }
         else 
         {
             /* update sub buffer */
-            diff_api.BufferSubDataARB(GL_ARRAY_BUFFER_ARB,
-                                      bufObj->dirtyStart, bufObj->dirtyLength,
-                                      (char *) bufObj->data + bufObj->dirtyStart);
+            pState->diff_api.BufferSubDataARB(GL_ARRAY_BUFFER_ARB,
+                                              bufObj->dirtyStart, bufObj->dirtyLength,
+                                              (char *) bufObj->data + bufObj->dirtyStart);
         }
         if (bSwitch) FILLDIRTY(bufObj->dirty);
         CLEARDIRTY2(bufObj->dirty, bitID);
@@ -844,7 +854,7 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (from->elementsBuffer != to->elementsBuffer)
         {
             GLuint bufferID = to->elementsBuffer ? to->elementsBuffer->hwid : 0;
-            diff_api.BindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+            pState->diff_api.BindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
             if (bSwitch)
             {
                 FILLDIRTY(bb->elementsBinding);
@@ -867,15 +877,15 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (bufObj->dirtyStart == 0 && bufObj->dirtyLength == (int) bufObj->size) 
         {
             /* update whole buffer */
-            diff_api.BufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufObj->size,
-                                   bufObj->data, bufObj->usage);
+            pState->diff_api.BufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufObj->size,
+                                           bufObj->data, bufObj->usage);
         }
         else 
         {
             /* update sub buffer */
-            diff_api.BufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-                                      bufObj->dirtyStart, bufObj->dirtyLength,
-                                      (char *) bufObj->data + bufObj->dirtyStart);
+            pState->diff_api.BufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+                                              bufObj->dirtyStart, bufObj->dirtyLength,
+                                              (char *) bufObj->data + bufObj->dirtyStart);
         }
         if (bSwitch) FILLDIRTY(bufObj->dirty);
         CLEARDIRTY2(bufObj->dirty, bitID);
@@ -888,7 +898,7 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (from->packBuffer != to->packBuffer)
         {
             GLuint bufferID = to->packBuffer ? to->packBuffer->hwid : 0;
-            diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, bufferID);
+            pState->diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, bufferID);
             if (bSwitch)
             {
                 FILLDIRTY(bb->packBinding);
@@ -911,15 +921,15 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (bufObj->dirtyStart == 0 && bufObj->dirtyLength == (int) bufObj->size) 
         {
             /* update whole buffer */
-            diff_api.BufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufObj->size,
-                                   bufObj->data, bufObj->usage);
+            pState->diff_api.BufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufObj->size,
+                                           bufObj->data, bufObj->usage);
         }
         else 
         {
             /* update sub buffer */
-            diff_api.BufferSubDataARB(GL_PIXEL_PACK_BUFFER_ARB,
-                                      bufObj->dirtyStart, bufObj->dirtyLength,
-                                      (char *) bufObj->data + bufObj->dirtyStart);
+            pState->diff_api.BufferSubDataARB(GL_PIXEL_PACK_BUFFER_ARB,
+                                              bufObj->dirtyStart, bufObj->dirtyLength,
+                                              (char *) bufObj->data + bufObj->dirtyStart);
         }
         if (bSwitch) FILLDIRTY(bufObj->dirty);
         CLEARDIRTY2(bufObj->dirty, bitID);
@@ -931,7 +941,7 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (from->unpackBuffer != to->unpackBuffer)
         {
             GLuint bufferID = to->unpackBuffer ? to->unpackBuffer->hwid : 0;
-            diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, bufferID);
+            pState->diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, bufferID);
             if (bSwitch)
             {
                 FILLDIRTY(bb->unpackBinding);
@@ -954,15 +964,15 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
         if (bufObj->dirtyStart == 0 && bufObj->dirtyLength == (int) bufObj->size) 
         {
             /* update whole buffer */
-            diff_api.BufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, bufObj->size,
-                                   bufObj->data, bufObj->usage);
+            pState->diff_api.BufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, bufObj->size,
+                                           bufObj->data, bufObj->usage);
         }
         else 
         {
             /* update sub buffer */
-            diff_api.BufferSubDataARB(GL_PIXEL_UNPACK_BUFFER_ARB,
-                                      bufObj->dirtyStart, bufObj->dirtyLength,
-                                      (char *) bufObj->data + bufObj->dirtyStart);
+            pState->diff_api.BufferSubDataARB(GL_PIXEL_UNPACK_BUFFER_ARB,
+                                              bufObj->dirtyStart, bufObj->dirtyLength,
+                                              (char *) bufObj->data + bufObj->dirtyStart);
         }
         if (bSwitch) FILLDIRTY(bufObj->dirty);
         CLEARDIRTY2(bufObj->dirty, bitID);
@@ -973,10 +983,10 @@ static void crStateBufferObjectIntCmp(CRBufferObjectBits *bb, CRbitvalue *bitID,
 void crStateBufferObjectDiff(CRBufferObjectBits *bb, CRbitvalue *bitID,
                              CRContext *fromCtx, CRContext *toCtx)
 {
-    /*CRBufferObjectState *from = &(fromCtx->bufferobject); - unused
-    const CRBufferObjectState *to = &(toCtx->bufferobject); - unused */
+    PCRStateTracker pState = fromCtx->pStateTracker;
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 
-    if (!HaveBufferObjectExtension())
+    if (!HaveBufferObjectExtension(pState))
         return;
 
     crStateBufferObjectIntCmp(bb, bitID, fromCtx, toCtx, GL_FALSE);
@@ -990,7 +1000,7 @@ static void crStateBufferObjectSyncCB(unsigned long key, void *data1, void *data
 
     if (pBufferObj->id && !pBufferObj->hwid)
     {
-        diff_api.GenBuffersARB(1, &pBufferObj->hwid);
+        pState->pStateTracker->diff_api.GenBuffersARB(1, &pBufferObj->hwid);
         CRASSERT(pBufferObj->hwid);
     }
 
@@ -1003,8 +1013,8 @@ static void crStateBufferObjectSyncCB(unsigned long key, void *data1, void *data
           binding, such behavior is liable to confuse the driver and may
           hurt performance." 
          */
-        diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, pBufferObj->hwid);
-        diff_api.BufferDataARB(GL_ARRAY_BUFFER_ARB, pBufferObj->size, pBufferObj->data, pBufferObj->usage);
+        pState->pStateTracker->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, pBufferObj->hwid);
+        pState->pStateTracker->diff_api.BufferDataARB(GL_ARRAY_BUFFER_ARB, pBufferObj->size, pBufferObj->data, pBufferObj->usage);
 
         if (!pState->retainBufferData)
         {
@@ -1020,11 +1030,13 @@ static void crStateBufferObjectSyncCB(unsigned long key, void *data1, void *data
 void crStateBufferObjectSwitch(CRBufferObjectBits *bb, CRbitvalue *bitID, 
                                CRContext *fromCtx, CRContext *toCtx)
 {
-    /*const CRBufferObjectState *from = &(fromCtx->bufferobject); - unused */
     CRBufferObjectState *to = &(toCtx->bufferobject);
+    PCRStateTracker pState = fromCtx->pStateTracker;
     int i;
 
-    if (!HaveBufferObjectExtension())
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
+
+    if (!HaveBufferObjectExtension(pState))
         return;
 
     if (toCtx->shared->bVBOResyncNeeded)
@@ -1039,50 +1051,50 @@ void crStateBufferObjectSwitch(CRBufferObjectBits *bb, CRbitvalue *bitID,
         cp = &toCtx->client.array.v;
         if (cp->buffer && (cp->buffer->id || locked))
         {
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-            diff_api.VertexPointer(cp->size, cp->type, cp->stride, cp->p);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+            pState->diff_api.VertexPointer(cp->size, cp->type, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
         }
 
         cp = &toCtx->client.array.c;
         if (cp->buffer && (cp->buffer->id || locked))
         {
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-            diff_api.ColorPointer(cp->size, cp->type, cp->stride, cp->p);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+            pState->diff_api.ColorPointer(cp->size, cp->type, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
         }
 
         cp = &toCtx->client.array.f;
         if (cp->buffer && (cp->buffer->id || locked))
         {
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-            diff_api.FogCoordPointerEXT(cp->type, cp->stride, cp->p);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+            pState->diff_api.FogCoordPointerEXT(cp->type, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
         }
 
         cp = &toCtx->client.array.s;
         if (cp->buffer && (cp->buffer->id || locked))
         {
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-            diff_api.SecondaryColorPointerEXT(cp->size, cp->type, cp->stride, cp->p);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+            pState->diff_api.SecondaryColorPointerEXT(cp->size, cp->type, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
         }
 
         cp = &toCtx->client.array.e;
         if (cp->buffer && (cp->buffer->id || locked))
         {
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-            diff_api.EdgeFlagPointer(cp->stride, cp->p);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+            pState->diff_api.EdgeFlagPointer(cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
         }
 
         cp = &toCtx->client.array.i;
         if (cp->buffer && (cp->buffer->id || locked))
         {
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-            diff_api.IndexPointer(cp->type, cp->stride, cp->p);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+            pState->diff_api.IndexPointer(cp->type, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
         }
 
         cp = &toCtx->client.array.n;
         if (cp->buffer && (cp->buffer->id || locked))
         {
-            diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-            diff_api.NormalPointer(cp->type, cp->stride, cp->p);
+            pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+            pState->diff_api.NormalPointer(cp->type, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
         }
 
         for (i = 0; i < CR_MAX_TEXTURE_UNITS; i++)
@@ -1090,15 +1102,15 @@ void crStateBufferObjectSwitch(CRBufferObjectBits *bb, CRbitvalue *bitID,
             cp = &toCtx->client.array.t[i];
             if (cp->buffer && (cp->buffer->id || locked))
             {
-                if (diff_api.ActiveTextureARB)
-                    diff_api.ActiveTextureARB(i+GL_TEXTURE0_ARB);
-                diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-                diff_api.TexCoordPointer(cp->size, cp->type, cp->stride, cp->p);
+                if (pState->diff_api.ActiveTextureARB)
+                    pState->diff_api.ActiveTextureARB(i+GL_TEXTURE0_ARB);
+                pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+                pState->diff_api.TexCoordPointer(cp->size, cp->type, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
             }
         }
 
-        if (diff_api.ActiveTextureARB)
-            diff_api.ActiveTextureARB(toCtx->client.curClientTextureUnit+GL_TEXTURE0_ARB);
+        if (pState->diff_api.ActiveTextureARB)
+            pState->diff_api.ActiveTextureARB(toCtx->client.curClientTextureUnit+GL_TEXTURE0_ARB);
 
 #ifdef CR_NV_vertex_program
         for (i = 0; i < CR_MAX_VERTEX_ATTRIBS; i++)
@@ -1106,16 +1118,16 @@ void crStateBufferObjectSwitch(CRBufferObjectBits *bb, CRbitvalue *bitID,
             cp = &toCtx->client.array.a[i];
             if (cp->buffer && (cp->buffer->id || locked))
             {
-                diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
-                diff_api.VertexAttribPointerARB(i, cp->size, cp->type, cp->normalized, cp->stride, cp->p);
+                pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, cp->buffer->hwid);
+                pState->diff_api.VertexAttribPointerARB(i, cp->size, cp->type, cp->normalized, cp->stride, cp->p CRVBOX_HOST_ONLY_PARAM(-1 /*fRealPtr*/));
             }
         }
 #endif
-        diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, to->arrayBuffer->hwid);
-        diff_api.BindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, to->elementsBuffer->hwid);
+        pState->diff_api.BindBufferARB(GL_ARRAY_BUFFER_ARB, to->arrayBuffer->hwid);
+        pState->diff_api.BindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, to->elementsBuffer->hwid);
 #ifdef CR_ARB_pixel_buffer_object
-        diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, to->packBuffer->hwid);
-        diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, to->unpackBuffer->hwid);
+        pState->diff_api.BindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, to->packBuffer->hwid);
+        pState->diff_api.BindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, to->unpackBuffer->hwid);
 #endif
     }
     else

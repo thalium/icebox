@@ -67,12 +67,6 @@ VBOX_FBSD_ADD_STRIP_BIN = \
 	vboxvideo_drv_15.so \
 	vboxvideo_drv_16.so \
 	vboxvideo_drv_17.so \
-	VBoxOGLarrayspu.so \
-	VBoxOGLcrutil.so \
-	VBoxOGLerrorspu.so \
-	VBoxOGLfeedbackspu.so \
-	VBoxOGLpackspu.so \
-	VBoxOGLpassthroughspu.so \
 	VBoxOGL.so
 
 VBOX_FBSD_ADD_MODULES = \

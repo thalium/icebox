@@ -102,12 +102,6 @@ DRIVER_FILES += \
 endif
 ifdef VBOX_WITH_CROGL
 DRIVER_FILES += \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLarrayspu.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLcrutil.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLerrorspu.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLpackspu.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLpassthroughspu.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLfeedbackspu.dll \
 	$(PATH_STAGE_BIN)/additions/VBoxOGL.dll \
 	$(PATH_STAGE_BIN)/additions/wined3d.dll \
 	$(PATH_STAGE_BIN)/additions/VBoxD3D9.dll \
@@ -116,17 +110,10 @@ DRIVER_FILES += \
 	# Also include 32-bit DLLs on 64-bit guests to enable
 	# running 32-bit OpenGL apps on that.
 	DRIVER_FILES += \
-		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLarrayspu.dll \
-		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLcrutil.dll \
-		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLerrorspu.dll \
-		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLpackspu.dll \
-		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLpassthroughspu.dll \
-		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLfeedbackspu.dll \
 		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGL.dll \
 		$(VBOX_PATH_ADDITIONS.win.x86)/wined3d.dll \
 		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxD3D9.dll \
 		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxD3D8.dll
-
  endif
 endif
 ifdef VBOX_WITH_WDDM
@@ -159,17 +146,10 @@ DRIVER_FILES += \
 DRIVER_FILES += \
 	$(PATH_STAGE_BIN)/additions/wined3dwddm-x86.dll \
 	$(PATH_STAGE_BIN)/additions/VBoxD3D9wddm-x86.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGL-x86.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLarrayspu-x86.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLcrutil-x86.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLerrorspu-x86.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLfeedbackspu-x86.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLpackspu-x86.dll \
-	$(PATH_STAGE_BIN)/additions/VBoxOGLpassthroughspu-x86.dll
+	$(PATH_STAGE_BIN)/additions/VBoxOGL-x86.dll
   endif
  endif
 endif
-
 
 VB_WIN_ADD_NSIS_ENV := \
 	-E 'PATH_OUT=$(subst /,\,$(PATH_OUT))' \
@@ -209,6 +189,14 @@ OTHER_CLEAN += $(PATH_TARGET)/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH)-uninst.
 
 $(PATH_TARGET)/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH)-uninst.exe: \
 		$(PATH_SUB_CURRENT)/VBoxGuestAdditions.nsi \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsCommon.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsExternal.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsLog.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsUninstall.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsUninstallOld.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsW2KXP.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsVista.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsNT4.nsh \
 		$(DRIVER_FILES) \
 		$(VBOX_WINDOWS_ADDITIONS_ICON_FILE) \
 		$(VBOX_NSIS_ICON_FILE) \
@@ -247,6 +235,14 @@ $(PATH_STAGE_BIN)/additions/VBoxWHQLFake.exe:
 
 $(PATH_STAGE_BIN)/additions/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH).exe: \
 		$(PATH_SUB_CURRENT)/VBoxGuestAdditions.nsi \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsCommon.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsExternal.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsLog.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsUninstall.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsUninstallOld.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsW2KXP.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsVista.nsh \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditionsNT4.nsh \
 		$(DRIVER_FILES) \
 		$(VBOX_WINDOWS_ADDITIONS_ICON_FILE) \
 		$(VBOX_NSIS_ICON_FILE) \

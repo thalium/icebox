@@ -61,7 +61,6 @@ for func_name in keys:
 			args.append(("writeback", "int *", 0))
 
 		print('void PACK_APIENTRY crPack%s(%s);' % (func_name, apiutil.MakeDeclarationStringWithContext('CR_PACKER_CONTEXT', args)))
-		print('void PACK_APIENTRY crPack%sSWAP(%s);' % (func_name, apiutil.MakeDeclarationStringWithContext('CR_PACKER_CONTEXT', args)))
 
 
 
@@ -78,8 +77,6 @@ for func_name in keys:
 		args = apiutil.Parameters(func_name)
 		print('void PACK_APIENTRY crPack%sBBOX(%s);' % (func_name, apiutil.MakeDeclarationString(args)))
 		print('void PACK_APIENTRY crPack%sBBOX_COUNT(%s);' % (func_name, apiutil.MakeDeclarationString(args)))
-		print('void PACK_APIENTRY crPack%sBBOXSWAP(%s);' % (func_name, apiutil.MakeDeclarationString(args)))
-		print('void PACK_APIENTRY crPack%sBBOX_COUNTSWAP(%s);' % (func_name, apiutil.MakeDeclarationString(args)))
 
 
 print("""

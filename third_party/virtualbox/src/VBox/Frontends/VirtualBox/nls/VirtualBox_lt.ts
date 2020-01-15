@@ -93,11 +93,19 @@
     </message>
     <message>
         <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.</source>
-        <translation>VirtualBox Linux branduolio tvarkyklė (vboxdrv) neįkelta arba /dev/vboxdrv turi bėdų su leidimais. Iš naujo įdiekite branduolio modulį įvykdydami &lt;br/&gt;&lt;br/&gt; &lt;font color=blue&gt;/sbin/vboxconfig&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; administratoriaus (root) teisėmis.</translation>
+        <translation type="vanished">VirtualBox Linux branduolio tvarkyklė (vboxdrv) neįkelta arba /dev/vboxdrv turi bėdų su leidimais. Iš naujo įdiekite branduolio modulį įvykdydami &lt;br/&gt;&lt;br/&gt; &lt;font color=blue&gt;/sbin/vboxconfig&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; administratoriaus (root) teisėmis.</translation>
     </message>
     <message>
         <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you do not mix the OSE version and the PUEL version of VirtualBox.</source>
-        <translation>VirtualBox branduolio modulis neatitinka VirtualBox versijos. Panašu, kad VirtualBox diegimas nebuvo sėkmingas. Pataisyti gali pavykti įvykdžius&lt;br/&gt;&lt;br/&gt; &lt;font color=blue&gt;/sbin/vboxconfig&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; Įsitikinkite, ar nemaišote VirtualBox OSE ir PUEL versijų.</translation>
+        <translation type="vanished">VirtualBox branduolio modulis neatitinka VirtualBox versijos. Panašu, kad VirtualBox diegimas nebuvo sėkmingas. Pataisyti gali pavykti įvykdžius&lt;br/&gt;&lt;br/&gt; &lt;font color=blue&gt;/sbin/vboxconfig&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; Įsitikinkite, ar nemaišote VirtualBox OSE ir PUEL versijų.</translation>
+    </message>
+    <message>
+        <source>The VirtualBox Linux kernel driver is either not loaded or not set up correctly. Please try setting it up again by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.&lt;br/&gt;&lt;br/&gt;If your system has EFI Secure Boot enabled you may also need to sign the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before you can load them. Please see your Linux system&apos;s documentation for more information.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you are not mixing builds of VirtualBox from different sources.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -272,6 +280,18 @@
         <source>%1, %2: %3, %4: %5, %6: %7</source>
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text, col.4 name: col.4 text</comment>
         <translation>%1, %2: %3, %4: %5, %6: %7</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation type="obsolete">Visiškas</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="obsolete">Tik skaityti</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="obsolete">Taip</translation>
     </message>
 </context>
 <context>
@@ -1472,6 +1492,126 @@
         <source>Enable audio input</source>
         <translation>Įgalinti garso įėjimą</translation>
     </message>
+    <message>
+        <source>&amp;Find</source>
+        <translation type="obsolete">&amp;Ieškoti</translation>
+    </message>
+    <message>
+        <source>Log Viewer</source>
+        <translation type="obsolete">Žurnalų peržiūra</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;Atnaujinti</translation>
+    </message>
+    <message>
+        <source>&amp;Save...</source>
+        <translation type="obsolete">Į&amp;rašyti...</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation type="obsolete">Klientas</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation type="obsolete">Nuostatos</translation>
+    </message>
+    <message>
+        <source>Log</source>
+        <translation type="obsolete">Žurnalas</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">Pervadinti</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="obsolete">Kopijuoti</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">Importuoti</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="obsolete">Eksportuoti</translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation type="obsolete">&amp;Perkelti...</translation>
+    </message>
+    <message>
+        <source>&amp;Take...</source>
+        <translation type="obsolete">&amp;Sukurti...</translation>
+    </message>
+    <message>
+        <source>Take Snapshot (%1)</source>
+        <translation type="obsolete">Sukurti dabartinio būvio kopiją (%1)</translation>
+    </message>
+    <message>
+        <source>Delete selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Ištrinti pasirinktą virtualios mašinos momentinį būvį</translation>
+    </message>
+    <message>
+        <source>Delete Snapshot (%1)</source>
+        <translation type="obsolete">Pašalinti momentinį būvį (%1)</translation>
+    </message>
+    <message>
+        <source>Restore selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Sugrąžinti virtualią mašiną į pasirinktą momentinį būvį</translation>
+    </message>
+    <message>
+        <source>Restore Snapshot (%1)</source>
+        <translation type="obsolete">Atkurti momentinį būvį (%1)</translation>
+    </message>
+    <message>
+        <source>Open Snapshot Properties (%1)</source>
+        <translation type="obsolete">Atverti momentinio būvio parinkčių langą (%1)</translation>
+    </message>
+    <message>
+        <source>&amp;Clone...</source>
+        <translation type="obsolete">&amp;Klonuoti...</translation>
+    </message>
+    <message>
+        <source>Clone Virtual Machine (%1)</source>
+        <translation type="obsolete">Klonuoti virtualią mašiną (%1)</translation>
+    </message>
+    <message>
+        <source>&amp;Copy...</source>
+        <translation type="obsolete">&amp;Kopijuoti...</translation>
+    </message>
+    <message>
+        <source>Copy Disk Image File (%1)</source>
+        <translation type="obsolete">Kopijuoti disko atvaizdžio rinkmeną (%1)</translation>
+    </message>
+    <message>
+        <source>Remove selected disk image file</source>
+        <translation type="obsolete">Pašalinti pasirinktą disko atvaizdžio rinkmeną</translation>
+    </message>
+    <message>
+        <source>Remove Disk Image File (%1)</source>
+        <translation type="obsolete">Pašalinti disko atvaizdžio rinkmeną (%1)</translation>
+    </message>
+    <message>
+        <source>Re&amp;lease...</source>
+        <translation type="obsolete">At&amp;laisvinti...</translation>
+    </message>
+    <message>
+        <source>Release Disk Image File (%1)</source>
+        <translation type="obsolete">Atlaisvinti disko atvaizdžio rinkmeną (%1)</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Atnaujinti laikmenų sąrašą</translation>
+    </message>
+    <message>
+        <source>Refresh Disk Image Files (%1)</source>
+        <translation type="obsolete">Atnaujinti disko atvaizdžio rinkmeną (%1)</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Pašalinti</translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -1747,6 +1887,97 @@
     </message>
 </context>
 <context>
+    <name>UIChooserItemGroup</name>
+    <message>
+        <source>Virtual Machine group</source>
+        <translation type="obsolete">Virtualių mašinų grupė</translation>
+    </message>
+    <message>
+        <source>Enter group</source>
+        <translation type="obsolete">Įeiti į grupę</translation>
+    </message>
+    <message>
+        <source>Exit group</source>
+        <translation type="obsolete">Išeiti iš grupės</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt;</source>
+        <comment>Group item tool-tip / Group name</comment>
+        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n group(s)</source>
+        <comment>Group item tool-tip / Group info</comment>
+        <translation type="obsolete">
+            <numerusform>grupių: %n</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Group info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n machine(s)</source>
+        <comment>Group item tool-tip / Machine info</comment>
+        <translation type="obsolete">
+            <numerusform>mašinų: %n</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n running)</source>
+        <comment>Group item tool-tip / Running machine info</comment>
+        <translation type="obsolete">
+            <numerusform>(paleistų: %n)</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1 %2&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper, including running</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1 %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>Collapse group</source>
+        <translation type="obsolete">Suskleisti grupę</translation>
+    </message>
+    <message>
+        <source>Expand group</source>
+        <translation type="obsolete">Išskleisti grupę</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserItemMachine</name>
+    <message>
+        <source>Virtual Machine</source>
+        <translation type="obsolete">Virtuali mašina</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserModel</name>
+    <message>
+        <source>New group</source>
+        <translation type="obsolete">Nauja grupė</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserView</name>
+    <message>
+        <source>Contains a tree of Virtual Machines and their groups</source>
+        <translation type="obsolete">Talpina virtualių mašinų medį ir jų grupes</translation>
+    </message>
+</context>
+<context>
     <name>UICloneVMWizard</name>
     <message>
         <source>Clone a virtual machine</source>
@@ -1867,6 +2098,59 @@
     </message>
 </context>
 <context>
+    <name>UICloudProfileDetailsWidget</name>
+    <message>
+        <source>Reset Changes (%1)</source>
+        <translation type="obsolete">Atmesti pakeitimus (%1)</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="obsolete">Pritaikyti</translation>
+    </message>
+    <message>
+        <source>Apply Changes (%1)</source>
+        <translation type="obsolete">Pritaikyti pakeitimus (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileManager</name>
+    <message>
+        <source>Apply</source>
+        <translation type="obsolete">Pritaikyti</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Užverti</translation>
+    </message>
+    <message>
+        <source>Close dialog without saving</source>
+        <translation type="obsolete">Užverti neįrašant</translation>
+    </message>
+    <message>
+        <source>Reset Changes (%1)</source>
+        <translation type="obsolete">Atmesti pakeitimus (%1)</translation>
+    </message>
+    <message>
+        <source>Apply Changes (%1)</source>
+        <translation type="obsolete">Pritaikyti pakeitimus (%1)</translation>
+    </message>
+    <message>
+        <source>Close Window (%1)</source>
+        <translation type="obsolete">Užverti langą (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UICustomFileSystemModel</name>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Dydis</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="obsolete">Kelias</translation>
+    </message>
+</context>
+<context>
     <name>UIDescriptionPagePrivate</name>
     <message>
         <source>No description. Press the Edit button below to add it.</source>
@@ -1879,6 +2163,248 @@
     <message>
         <source>Edit (Ctrl+E)</source>
         <translation type="obsolete">Keisti (Vald+E)</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetails</name>
+    <message>
+        <source>Operating System</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Operacinė sistema</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Grupės</translation>
+    </message>
+    <message>
+        <source>Information Inaccessible</source>
+        <comment>details</comment>
+        <translation type="obsolete">Informacija neprieinama</translation>
+    </message>
+    <message>
+        <source>Base Memory</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Pagrindinė atmintis</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1 MB</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Procesoriai</translation>
+    </message>
+    <message>
+        <source>Execution Cap</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Vykdymo riba</translation>
+    </message>
+    <message>
+        <source>%1%</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1%</translation>
+    </message>
+    <message>
+        <source>Chipset Type</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Lustų rinkinio tipas</translation>
+    </message>
+    <message>
+        <source>EFI</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">EFI</translation>
+    </message>
+    <message>
+        <source>VT-x/AMD-V</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">VT-x/AMD-V</translation>
+    </message>
+    <message>
+        <source>Nested Paging</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Lizdinis puslapiavimas</translation>
+    </message>
+    <message>
+        <source>PAE/NX</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">PAE/NX</translation>
+    </message>
+    <message>
+        <source>Minimal Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Minimali paravirtualizacija</translation>
+    </message>
+    <message>
+        <source>Hyper-V Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Hyper-V paravirtualizacija</translation>
+    </message>
+    <message>
+        <source>KVM Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">KVM paravirtualizacija</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Spartinimas</translation>
+    </message>
+    <message>
+        <source>Video Memory</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Vaizdo atmintis</translation>
+    </message>
+    <message>
+        <source>Screens</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Ekranai</translation>
+    </message>
+    <message>
+        <source>Scale-factor</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Ekrano mastelis</translation>
+    </message>
+    <message>
+        <source>2D Video</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">2D vaizdas</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">3D</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Spartinimas</translation>
+    </message>
+    <message>
+        <source>Video Capture File</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Vaizdo įrašo rinkmena</translation>
+    </message>
+    <message>
+        <source>Frame Size: %1x%2, Frame Rate: %3fps, Bit Rate: %4kbps</source>
+        <translation type="obsolete">Kadro dydis: %1x%2, kadrų dažnis: %3 k/s, sparta: %4 kbps</translation>
+    </message>
+    <message>
+        <source>Video Capture</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Filmavimas</translation>
+    </message>
+    <message>
+        <source>[Optical Drive]</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">[Optinis diskas]</translation>
+    </message>
+    <message>
+        <source>Host Driver</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Pagr. kompiuterio tvarkyklė</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Valdiklis</translation>
+    </message>
+    <message>
+        <source>Audio Output</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Garso išvedimas</translation>
+    </message>
+    <message>
+        <source>Audio Input</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Garso įėjimas</translation>
+    </message>
+    <message>
+        <source>Bridged Adapter, %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Tinklų tiltas, %1</translation>
+    </message>
+    <message>
+        <source>Internal Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Vidinis tinklas, „%1“</translation>
+    </message>
+    <message>
+        <source>Host-only Adapter, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Plokštė prisijungimui tik prie pagr. kompiuterio, „%1“</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Bendroji tvarkyklė, „%1“</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos; { %2 }</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Bendroji tvarkyklė, „%1“ { %2 }</translation>
+    </message>
+    <message>
+        <source>NAT Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">NAT tinklas, „%1“</translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">%1 plokštė</translation>
+    </message>
+    <message>
+        <source>Port %1</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">%1 prievadas</translation>
+    </message>
+    <message>
+        <source>USB Controller</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">USB valdiklis</translation>
+    </message>
+    <message>
+        <source>USB Controller Inaccessible</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">USB valdiklis neprieinamas</translation>
+    </message>
+    <message>
+        <source>Shared Folders</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">Bendrieji aplankai</translation>
+    </message>
+    <message>
+        <source>Menu-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Meniu juosta</translation>
+    </message>
+    <message>
+        <source>Status-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Būsenos juostą</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar Position</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Mažos įrankinės padėtis</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Viršuje</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Apačioje</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Maža įrankinė</translation>
     </message>
 </context>
 <context>
@@ -2111,6 +2637,14 @@
         <source>None</source>
         <comment>details report (description)</comment>
         <translation type="obsolete">Nieko</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetailsElement</name>
+    <message>
+        <source>%1 details</source>
+        <comment>like &apos;General details&apos; or &apos;Storage details&apos;</comment>
+        <translation type="obsolete">%1 išsamiau</translation>
     </message>
 </context>
 <context>
@@ -2407,6 +2941,20 @@
         <source>Generic driver, &apos;%1&apos; {&amp;nbsp;%2&amp;nbsp;}</source>
         <comment>details report (network)</comment>
         <translation type="obsolete">Pagrindinė tvarkyklė, „%1“ {&amp;nbsp;%2&amp;nbsp;}</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetailsSet</name>
+    <message>
+        <source>Contains the details of virtual machine &apos;%1&apos;</source>
+        <translation type="obsolete">Išsamiau apie „%1“ virtualią mašiną</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetailsView</name>
+    <message>
+        <source>Contains a list of Virtual Machine details</source>
+        <translation type="obsolete">Išsami informacija apue virtualias mašinas</translation>
     </message>
 </context>
 <context>
@@ -2725,6 +3273,52 @@
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
         <translation>%1, %2: %3</translation>
+    </message>
+</context>
+<context>
+    <name>UIFDCreationDialog</name>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Dydis:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Užverti</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Atšaukti</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Pristabdyta</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Slaptažodis</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Dydis</translation>
     </message>
 </context>
 <context>
@@ -3734,6 +4328,10 @@
         <source>When checked, machine windows will be raised when the mouse pointer moves over them.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Scale Factor:</source>
+        <translation type="obsolete">Ekrano mastelis:</translation>
+    </message>
 </context>
 <context>
     <name>UIGlobalSettingsExtension</name>
@@ -4658,6 +5256,36 @@
     </message>
 </context>
 <context>
+    <name>UIGuestControlFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Užverti</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Slaptažodis</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Dydis</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Atšaukti</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Pristabdyta</translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestProcessControlWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Užverti</translation>
+    </message>
+</context>
+<context>
     <name>UIHelpButton</name>
     <message>
         <source>&amp;Help</source>
@@ -5093,6 +5721,14 @@
         <source>Close Window (%1)</source>
         <translation>Užverti langą (%1)</translation>
     </message>
+    <message>
+        <source>Adding network...</source>
+        <translation type="obsolete">Pridedamas tinklas...</translation>
+    </message>
+    <message>
+        <source>Removing network...</source>
+        <translation type="obsolete">Šalinamas tinklas...</translation>
+    </message>
 </context>
 <context>
     <name>UIHostNetworkManagerWidget</name>
@@ -5309,6 +5945,11 @@
     <message>
         <source>Shortcut</source>
         <translation>Spartusis klavišas</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <comment>scope: description</comment>
+        <translation type="obsolete">%1: %2</translation>
     </message>
 </context>
 <context>
@@ -6125,6 +6766,54 @@
     </message>
 </context>
 <context>
+    <name>UIItemHostNetwork</name>
+    <message>
+        <source>Enable</source>
+        <comment>DHCP Server</comment>
+        <translation type="obsolete">Įgalinti</translation>
+    </message>
+    <message>
+        <source>Adapter</source>
+        <translation type="obsolete">Plokštė</translation>
+    </message>
+    <message>
+        <source>IPv4 Address</source>
+        <translation type="obsolete">IPv4 adresas</translation>
+    </message>
+    <message>
+        <source>IPv4 Network Mask</source>
+        <translation type="obsolete">IPv4 tinklo kaukė</translation>
+    </message>
+    <message>
+        <source>IPv6 Address</source>
+        <translation type="obsolete">IPv6 adresas</translation>
+    </message>
+    <message>
+        <source>IPv6 Prefix Length</source>
+        <translation type="obsolete">IPv6 tinklo kaukės ilgis</translation>
+    </message>
+    <message>
+        <source>DHCP Server</source>
+        <translation type="obsolete">DHCP serveris</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="obsolete">Adresas</translation>
+    </message>
+    <message>
+        <source>Network Mask</source>
+        <translation type="obsolete">Tinklo kaukė</translation>
+    </message>
+    <message>
+        <source>Lower Bound</source>
+        <translation type="obsolete">Apatinė riba</translation>
+    </message>
+    <message>
+        <source>Upper Bound</source>
+        <translation type="obsolete">Viršutinė riba</translation>
+    </message>
+</context>
+<context>
     <name>UIItemNetworkNAT</name>
     <message>
         <source>%1, %2</source>
@@ -6135,6 +6824,68 @@
         <source>%1</source>
         <comment>col.2 text</comment>
         <translation>%1</translation>
+    </message>
+    <message>
+        <source>Network Name</source>
+        <translation type="obsolete">Tinklo pavadinimas</translation>
+    </message>
+    <message>
+        <source>[empty]</source>
+        <translation type="obsolete">[tuščia]</translation>
+    </message>
+    <message>
+        <source>%1 (renamed from %2)</source>
+        <translation type="obsolete">%1 (anksčiau buvo %2)</translation>
+    </message>
+    <message>
+        <source>Old Network Name</source>
+        <translation type="obsolete">Senas tinklo pavadinimas</translation>
+    </message>
+    <message>
+        <source>New Network Name</source>
+        <translation type="obsolete">Naujas tinklo pavadinimas</translation>
+    </message>
+    <message>
+        <source>Network CIDR</source>
+        <translation type="obsolete">Tinklo CIDR</translation>
+    </message>
+    <message>
+        <source>Supports DHCP</source>
+        <translation type="obsolete">Palaiko DHCP</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation type="obsolete">taip</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation type="obsolete">ne</translation>
+    </message>
+    <message>
+        <source>Supports IPv6</source>
+        <translation type="obsolete">Palaiko IPv6</translation>
+    </message>
+    <message>
+        <source>Default IPv6 route</source>
+        <translation type="obsolete">Numatytasis IPv6 maršrutas</translation>
+    </message>
+</context>
+<context>
+    <name>UILanguageItem</name>
+    <message>
+        <source> (built-in)</source>
+        <comment>Language</comment>
+        <translation type="obsolete"> (standartinė)</translation>
+    </message>
+    <message>
+        <source>&lt;unavailable&gt;</source>
+        <comment>Language</comment>
+        <translation type="obsolete">&lt;neprieinama&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>Author(s)</comment>
+        <translation type="obsolete">&lt;nežinoma&gt;</translation>
     </message>
 </context>
 <context>
@@ -6205,6 +6956,37 @@
     <message>
         <source>Select a filename for the screenshot ...</source>
         <translation>Nurodyti ekanvaizdžio rinkmenos pavadinimą...</translation>
+    </message>
+</context>
+<context>
+    <name>UIMachinePreview</name>
+    <message>
+        <source>No preview</source>
+        <translation type="obsolete">Be peržiūros</translation>
+    </message>
+    <message>
+        <source>Update disabled</source>
+        <translation type="obsolete">Atnaujinimas uždraustas</translation>
+    </message>
+    <message>
+        <source>Every 0.5 s</source>
+        <translation type="obsolete">Kas 0,5 s</translation>
+    </message>
+    <message>
+        <source>Every 1 s</source>
+        <translation type="obsolete">Kas 1 s</translation>
+    </message>
+    <message>
+        <source>Every 2 s</source>
+        <translation type="obsolete">Kas 2 s</translation>
+    </message>
+    <message>
+        <source>Every 5 s</source>
+        <translation type="obsolete">Kas 5 s</translation>
+    </message>
+    <message>
+        <source>Every 10 s</source>
+        <translation type="obsolete">Kas 10 s</translation>
     </message>
 </context>
 <context>
@@ -8526,6 +9308,42 @@
     </message>
 </context>
 <context>
+    <name>UIMediumItem</name>
+    <message>
+        <source>%1, %2: %3, %4: %5</source>
+        <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text</comment>
+        <translation type="obsolete">%1, %2: %3, %4: %5</translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation type="obsolete">Formatas:</translation>
+    </message>
+    <message>
+        <source>Storage details:</source>
+        <translation type="obsolete">Informacija apie atminties įtaisą:</translation>
+    </message>
+    <message>
+        <source>Attached to:</source>
+        <translation type="obsolete">Susietas su:</translation>
+    </message>
+    <message>
+        <source>UUID:</source>
+        <translation type="obsolete">UUID:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;nesusieta&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Encrypted&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;Neužšifruotas&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Removing medium...</source>
+        <translation type="obsolete">Šalinama laikmena...</translation>
+    </message>
+</context>
+<context>
     <name>UIMediumManager</name>
     <message>
         <source>&amp;Optical disks</source>
@@ -8737,6 +9555,30 @@
         <source>Move selected disk image file</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Dydis:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+    <message>
+        <source>&amp;Create</source>
+        <translation type="obsolete">Su&amp;kurti</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManagerWidget</name>
@@ -8755,6 +9597,29 @@
     <message>
         <source>Refresh Disk Image Files (%1)</source>
         <translation type="vanished">Atnaujinti disko atvaizdžio rinkmeną (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UIMediumSelector</name>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;Atnaujinti</translation>
+    </message>
+    <message>
+        <source>Refresh Disk Image Files (%1)</source>
+        <translation type="obsolete">Atnaujinti disko atvaizdžio rinkmeną (%1)</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Atnaujinti laikmenų sąrašą</translation>
+    </message>
+    <message>
+        <source>Virtual Size</source>
+        <translation type="obsolete">Virtualus dydis</translation>
+    </message>
+    <message>
+        <source>Actual Size</source>
+        <translation type="obsolete">Tikras dydis</translation>
     </message>
 </context>
 <context>
@@ -10737,6 +11602,10 @@
         <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">Importuoti</translation>
+    </message>
 </context>
 <context>
     <name>UIMiniProcessWidgetAdditions</name>
@@ -11924,6 +12793,52 @@
     </message>
 </context>
 <context>
+    <name>UISnapshotItem</name>
+    <message>
+        <source>Current State (changed)</source>
+        <comment>Current State (Modified)</comment>
+        <translation type="obsolete">Dabartinė būsena (pakeista)</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <comment>Current State (Unmodified)</comment>
+        <translation type="obsolete">Dabartinė būsena</translation>
+    </message>
+    <message>
+        <source>The current state differs from the state stored in the current snapshot</source>
+        <translation type="obsolete">Dabartinė būsena skiriasi nuo išsaugotosios momentinio būvio kopijoje</translation>
+    </message>
+    <message>
+        <source>The current state is identical to the state stored in the current snapshot</source>
+        <translation type="obsolete">Dabartinė būsena yra tokia pati kaip ir išsaugotoji momentinio būvio kopijoje</translation>
+    </message>
+    <message>
+        <source>%1 (%2 ago)</source>
+        <comment>date time (how long ago)</comment>
+        <translation type="obsolete">%1 (prieš %2)</translation>
+    </message>
+    <message>
+        <source>%1 since %2</source>
+        <comment>Current State (time or date + time)</comment>
+        <translation type="obsolete">%1 nuo %2</translation>
+    </message>
+    <message>
+        <source>current</source>
+        <comment>snapshot</comment>
+        <translation type="obsolete">dabar</translation>
+    </message>
+    <message>
+        <source>Taken at %1</source>
+        <comment>Snapshot (time)</comment>
+        <translation type="obsolete">Sukurta %1</translation>
+    </message>
+    <message>
+        <source>Taken on %1</source>
+        <comment>Snapshot (date + time)</comment>
+        <translation type="obsolete">Sukurta %1</translation>
+    </message>
+</context>
+<context>
     <name>UISnapshotPane</name>
     <message>
         <source>Current State (changed)</source>
@@ -12123,6 +13038,21 @@
     </message>
 </context>
 <context>
+    <name>UIToolsModel</name>
+    <message>
+        <source>Network</source>
+        <translation type="obsolete">Tinklas</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation type="obsolete">Išsamiau</translation>
+    </message>
+    <message>
+        <source>Snapshots</source>
+        <translation type="obsolete">Momentiniai būviai</translation>
+    </message>
+</context>
+<context>
     <name>UIToolsPaneGlobal</name>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;This window represents a set of global tools which are currently opened (or can be opened). They are not related to any particular machine but to the complete VM collection. For a list of currently available tools check the corresponding menu at the right side of the main tool bar located at the top of the window. This list will be extended with new tools in future releases.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
@@ -12167,6 +13097,46 @@
         <source>%1</source>
         <comment>col.1 text</comment>
         <translation>%1</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Gamintojo ID: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product ID: %2&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Produkto ID: %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Revision: %3&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Revizija: %3&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product: %4&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Produktas: %4&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Manufacturer: %5&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Gamintojas: %5&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Serial No.: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Serijinis numeris: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Port: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Prievadas: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;State: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Būsena: %1&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
@@ -12579,6 +13549,29 @@
     </message>
 </context>
 <context>
+    <name>UIVMLogViewerWidget</name>
+    <message>
+        <source>Log Viewer</source>
+        <translation type="obsolete">Žurnalų peržiūra</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Užverti</translation>
+    </message>
+    <message>
+        <source>C&amp;ase Sensitive</source>
+        <translation type="obsolete">&amp;Skirti raidžių dydį</translation>
+    </message>
+    <message>
+        <source>Save VirtualBox Log As</source>
+        <translation type="obsolete">VirtualBox žurnalą įrašyti kaip</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No log files found. Press the &lt;b&gt;Refresh&lt;/b&gt; button to rescan the log folder &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</source>
+        <translation type="obsolete">&lt;p&gt;Žurnalų nėra. Norėdami iš naujo nuskaityti žurnalų aplanką &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;, spauskite &lt;b&gt;Atnaujinti&lt;/b&gt;.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
     <name>UIVMPreviewWindow</name>
     <message>
         <source>Update Disabled</source>
@@ -12607,6 +13600,40 @@
     <message>
         <source>No Preview</source>
         <translation type="obsolete">Be peržiūros</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManager</name>
+    <message>
+        <source>Manager</source>
+        <comment>Note: main window title which is prepended by the product name.</comment>
+        <translation type="obsolete">Tvarkytuvė</translation>
+    </message>
+    <message>
+        <source>Virtual machine files (%1)</source>
+        <translation type="obsolete">Virtualių mašinų rinkmenos (%1)</translation>
+    </message>
+    <message>
+        <source>Show Toolbar Text</source>
+        <translation type="obsolete">Rodyti tekstą įrankių juostoje</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManagerWidget</name>
+    <message>
+        <source>Show Toolbar Text</source>
+        <translation type="obsolete">Rodyti tekstą įrankių juostoje</translation>
+    </message>
+</context>
+<context>
+    <name>UIVisoCreator</name>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Dydis</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Pašalinti</translation>
     </message>
 </context>
 <context>
@@ -13053,6 +14080,10 @@
     <message>
         <source>Write in new experimental OVF 2.0 format.</source>
         <translation type="vanished">Įrašyti nauju eksperimentiniu OVF 2.0 formatu.</translation>
+    </message>
+    <message>
+        <source>Choose a file to export the virtual appliance to...</source>
+        <translation type="obsolete">Pasirinkti rinkmeną, į kurią eksportuotina virtuali mašina...</translation>
     </message>
 </context>
 <context>
@@ -16813,6 +17844,87 @@ IPv6.</translation>
         <source>Parallel ports</source>
         <comment>InformationElementType</comment>
         <translation type="vanished">Lygiagretieji prievadai</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details report</comment>
+        <translation type="obsolete">Procesoriai</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="obsolete">Vieta</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation type="obsolete">Grupės</translation>
+    </message>
+    <message>
+        <source>RAM</source>
+        <translation type="obsolete">Laisvosios prieigos atmintis (RAM)</translation>
+    </message>
+    <message>
+        <source>Chipset Type</source>
+        <translation type="obsolete">Lustų rinkinio tipas</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <translation type="obsolete">Spartinimas</translation>
+    </message>
+    <message>
+        <source>Hard Disks</source>
+        <translation type="obsolete">Standieji diskai</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <translation type="obsolete">Valdiklis</translation>
+    </message>
+    <message>
+        <source>NAT</source>
+        <translation type="obsolete">NAT</translation>
+    </message>
+    <message>
+        <source>Internal Network</source>
+        <translation type="obsolete">Vidinis tinklas</translation>
+    </message>
+    <message>
+        <source>Generic Driver</source>
+        <translation type="obsolete">Pagrindinė tvarkyklė</translation>
+    </message>
+    <message>
+        <source>Host Pipe</source>
+        <translation type="obsolete">Pagr. kompiuterio kanalas</translation>
+    </message>
+    <message>
+        <source>Host Device</source>
+        <translation type="obsolete">Pagr. kompiuterio įtaisas</translation>
+    </message>
+    <message>
+        <source>Raw File</source>
+        <translation type="obsolete">Neapdorota rinkmena</translation>
+    </message>
+    <message>
+        <source>TCP</source>
+        <translation type="obsolete">TCP</translation>
+    </message>
+    <message>
+        <source>VDI (VirtualBox Disk Image)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VDI (VirtualBox disko atvaizdis)</translation>
+    </message>
+    <message>
+        <source>VMDK (Virtual Machine Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VMDK (virtualios mašinos diskas)</translation>
+    </message>
+    <message>
+        <source>VHD (Virtual Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VHD (virtualus standusis diskas)</translation>
+    </message>
+    <message>
+        <source>HDD (Parallels Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">HHD (lygiagretusis standusis diskas)</translation>
     </message>
 </context>
 <context>

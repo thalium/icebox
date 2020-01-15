@@ -237,6 +237,19 @@ RTDECL(void *) RTMemSaferReallocZTag(size_t cbOld, void *pvOld, size_t cbNew, co
  */
 RTDECL(void) RTMemSaferFree(void *pv, size_t cb) RT_NO_THROW_PROTO;
 
+/**
+ * Gets the amount of memory allocated at @a pv.
+ *
+ * This can be used to check if the allocation was made using an RTMemSafer API.
+ *
+ * @returns Allocation size in bytes, 0 if not a RTMemSafer allocation.
+ * @param   pv          The alleged RTMemSafer allocation.
+ *
+ * @note    Not supported in all contexts and implementations of the API.
+ */
+RTDECL(size_t) RTMemSaferGetSize(void *pv) RT_NO_THROW_PROTO;
+
+
 /** @}  */
 RT_C_DECLS_END
 

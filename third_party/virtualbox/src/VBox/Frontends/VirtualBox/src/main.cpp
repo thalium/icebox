@@ -96,11 +96,14 @@ QString g_QStrHintLinuxNoMemory = QApplication::tr(
     );
 
 QString g_QStrHintLinuxNoDriver = QApplication::tr(
-    "The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or "
-    "there is a permission problem with /dev/vboxdrv. Please reinstall the kernel "
-    "module by executing<br/><br/>"
+    "The VirtualBox Linux kernel driver is either not loaded or not set "
+    "up correctly. Please try setting it up again by executing<br/><br/>"
     "  <font color=blue>'/sbin/vboxconfig'</font><br/><br/>"
-    "as root."
+    "as root.<br/><br/>"
+    "If your system has EFI Secure Boot enabled you may also need to sign "
+    "the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before "
+    "you can load them. Please see your Linux system's documentation for "
+    "more information."
     );
 
 QString g_QStrHintOtherWrongDriverVersion = QApplication::tr(
@@ -115,8 +118,8 @@ QString g_QStrHintLinuxWrongDriverVersion = QApplication::tr(
     "VirtualBox. The installation of VirtualBox was apparently not "
     "successful. Executing<br/><br/>"
     "  <font color=blue>'/sbin/vboxconfig'</font><br/><br/>"
-    "may correct this. Make sure that you do not mix the "
-    "OSE version and the PUEL version of VirtualBox."
+    "may correct this. Make sure that you are not mixing builds "
+    "of VirtualBox from different sources."
     );
 
 QString g_QStrHintOtherNoDriver = QApplication::tr(

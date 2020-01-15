@@ -16,9 +16,9 @@
  * Do NOT set dirty state.
  */
 void
-crStateRasterPosUpdate(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+crStateRasterPosUpdate(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRCurrentState *c = &(g->current);
 	CRTransformState *t = &(g->transform);
 	CRViewportState *v = &(g->viewport);
@@ -27,14 +27,14 @@ crStateRasterPosUpdate(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "RasterPos called in Begin/End");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "RasterPos called in Begin/End");
 		return;
 	}
 
 	FLUSH();
 
 	/* update current color, texcoord, etc from the CurrentStatePointers */
-	crStateCurrentRecover();
+	crStateCurrentRecover(pState);
 
 	p.x = x;
 	p.y = y;
@@ -81,136 +81,136 @@ crStateRasterPosUpdate(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 
 
 /* As above, but set dirty flags */
-static void RasterPos4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+static void RasterPos4f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-	CRContext *g = GetCurrentContext();
-	CRStateBits *sb = GetCurrentBits();
+	CRContext *g = GetCurrentContext(pState);
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRCurrentBits *cb = &(sb->current);
 
-	crStateRasterPosUpdate(x, y, z, w);
+	crStateRasterPosUpdate(pState, x, y, z, w);
 
 	DIRTY(cb->dirty, g->neg_bitid);
 	DIRTY(cb->rasterPos, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateRasterPos2d(GLdouble x, GLdouble y)
+void STATE_APIENTRY crStateRasterPos2d(PCRStateTracker pState, GLdouble x, GLdouble y)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, 0.0f, 1.0f);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos2f(GLfloat x, GLfloat y)
+void STATE_APIENTRY crStateRasterPos2f(PCRStateTracker pState, GLfloat x, GLfloat y)
 {
-	RasterPos4f(x, y, 0.0f, 1.0f);
+	RasterPos4f(pState, x, y, 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos2i(GLint x, GLint y)
+void STATE_APIENTRY crStateRasterPos2i(PCRStateTracker pState, GLint x, GLint y)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, 0.0f, 1.0f);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos2s(GLshort x, GLshort y)
+void STATE_APIENTRY crStateRasterPos2s(PCRStateTracker pState, GLshort x, GLshort y)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, 0.0f, 1.0f);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3d(GLdouble x, GLdouble y, GLdouble z)
+void STATE_APIENTRY crStateRasterPos3d(PCRStateTracker pState, GLdouble x, GLdouble y, GLdouble z)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0f);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3f(GLfloat x, GLfloat y, GLfloat z)
+void STATE_APIENTRY crStateRasterPos3f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z)
 {
-	RasterPos4f(x, y, z, 1.0f);
+	RasterPos4f(pState, x, y, z, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3i(GLint x, GLint y, GLint z)
+void STATE_APIENTRY crStateRasterPos3i(PCRStateTracker pState, GLint x, GLint y, GLint z)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0f);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3s(GLshort x, GLshort y, GLshort z)
+void STATE_APIENTRY crStateRasterPos3s(PCRStateTracker pState, GLshort x, GLshort y, GLshort z)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0f);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w)
+void STATE_APIENTRY crStateRasterPos4d(PCRStateTracker pState, GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
-void STATE_APIENTRY crStateRasterPos4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+void STATE_APIENTRY crStateRasterPos4f(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-	RasterPos4f(x, y, z, w);
+	RasterPos4f(pState, x, y, z, w);
 }
 
-void STATE_APIENTRY crStateRasterPos4i(GLint x, GLint y, GLint z, GLint w)
+void STATE_APIENTRY crStateRasterPos4i(PCRStateTracker pState, GLint x, GLint y, GLint z, GLint w)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
-void STATE_APIENTRY crStateRasterPos4s(GLshort x, GLshort y, GLshort z, GLshort w)
+void STATE_APIENTRY crStateRasterPos4s(PCRStateTracker pState, GLshort x, GLshort y, GLshort z, GLshort w)
 {
-	RasterPos4f((GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
+	RasterPos4f(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z, (GLfloat) w);
 }
 
-void STATE_APIENTRY crStateRasterPos2dv(const GLdouble *v)
+void STATE_APIENTRY crStateRasterPos2dv(PCRStateTracker pState, const GLdouble *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos2fv(const GLfloat *v)
+void STATE_APIENTRY crStateRasterPos2fv(PCRStateTracker pState, const GLfloat *v)
 {
-	RasterPos4f(v[0], v[1], 0.0f, 1.0f);
+	RasterPos4f(pState, v[0], v[1], 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos2iv(const GLint *v)
+void STATE_APIENTRY crStateRasterPos2iv(PCRStateTracker pState, const GLint *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos2sv(const GLshort *v)
+void STATE_APIENTRY crStateRasterPos2sv(PCRStateTracker pState, const GLshort *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0f, 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3dv(const GLdouble *v)
+void STATE_APIENTRY crStateRasterPos3dv(PCRStateTracker pState, const GLdouble *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3fv(const GLfloat *v)
+void STATE_APIENTRY crStateRasterPos3fv(PCRStateTracker pState, const GLfloat *v)
 {
-	RasterPos4f(v[0], v[1], v[2], 1.0f);
+	RasterPos4f(pState, v[0], v[1], v[2], 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3iv(const GLint *v)
+void STATE_APIENTRY crStateRasterPos3iv(PCRStateTracker pState, const GLint *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos3sv(const GLshort *v)
+void STATE_APIENTRY crStateRasterPos3sv(PCRStateTracker pState, const GLshort *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], 1.0f);
 }
 
-void STATE_APIENTRY crStateRasterPos4dv(const GLdouble *v)
+void STATE_APIENTRY crStateRasterPos4dv(PCRStateTracker pState, const GLdouble *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
-void STATE_APIENTRY crStateRasterPos4fv(const GLfloat *v)
+void STATE_APIENTRY crStateRasterPos4fv(PCRStateTracker pState, const GLfloat *v)
 {
-	RasterPos4f(v[0], v[1], v[2], v[3]);
+	RasterPos4f(pState, v[0], v[1], v[2], v[3]);
 }
 
-void STATE_APIENTRY crStateRasterPos4iv(const GLint *v)
+void STATE_APIENTRY crStateRasterPos4iv(PCRStateTracker pState, const GLint *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
-void STATE_APIENTRY crStateRasterPos4sv(const GLshort *v)
+void STATE_APIENTRY crStateRasterPos4sv(PCRStateTracker pState, const GLshort *v)
 {
-	RasterPos4f((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
+	RasterPos4f(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2], (GLfloat) v[3]);
 }
 
 
@@ -218,17 +218,17 @@ void STATE_APIENTRY crStateRasterPos4sv(const GLshort *v)
 
 
 static void
-crStateWindowPosUpdate(GLfloat x, GLfloat y, GLfloat z)
+crStateWindowPosUpdate(PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	CRCurrentState *c = &(g->current);
-	CRStateBits *sb = GetCurrentBits();
+	CRStateBits *sb = GetCurrentBits(pState);
 	CRCurrentBits *cb = &(sb->current);
 	int i;
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "WindowPos called in Begin/End");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "WindowPos called in Begin/End");
 		return;
 	}
 
@@ -245,83 +245,83 @@ crStateWindowPosUpdate(GLfloat x, GLfloat y, GLfloat z)
 }
 
 
-void STATE_APIENTRY crStateWindowPos2dARB (GLdouble x, GLdouble y)
+void STATE_APIENTRY crStateWindowPos2dARB (PCRStateTracker pState, GLdouble x, GLdouble y)
 {
-	crStateWindowPosUpdate((GLfloat) x, (GLfloat) y, 0.0);
+	crStateWindowPosUpdate(pState, (GLfloat) x, (GLfloat) y, 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos2dvARB (const GLdouble *v)
+void STATE_APIENTRY crStateWindowPos2dvARB (PCRStateTracker pState, const GLdouble *v)
 {
-	crStateWindowPosUpdate((GLfloat) v[0], (GLfloat) v[1], 0.0);
+	crStateWindowPosUpdate(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos2fARB (GLfloat x, GLfloat y)
+void STATE_APIENTRY crStateWindowPos2fARB (PCRStateTracker pState, GLfloat x, GLfloat y)
 {
-	crStateWindowPosUpdate(x, y, 0.0);
+	crStateWindowPosUpdate(pState, x, y, 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos2fvARB (const GLfloat *v)
+void STATE_APIENTRY crStateWindowPos2fvARB (PCRStateTracker pState, const GLfloat *v)
 {
-	crStateWindowPosUpdate(v[0], v[1], 0.0);
+	crStateWindowPosUpdate(pState, v[0], v[1], 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos2iARB (GLint x, GLint y)
+void STATE_APIENTRY crStateWindowPos2iARB (PCRStateTracker pState, GLint x, GLint y)
 {
-	crStateWindowPosUpdate((GLfloat) x, (GLfloat) y, 0.0);
+	crStateWindowPosUpdate(pState, (GLfloat) x, (GLfloat) y, 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos2ivARB (const GLint *v)
+void STATE_APIENTRY crStateWindowPos2ivARB (PCRStateTracker pState, const GLint *v)
 {
-	crStateWindowPosUpdate((GLfloat) v[0], (GLfloat) v[1], 0.0);
+	crStateWindowPosUpdate(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos2sARB (GLshort x, GLshort y)
+void STATE_APIENTRY crStateWindowPos2sARB (PCRStateTracker pState, GLshort x, GLshort y)
 {
-	crStateWindowPosUpdate((GLfloat) x, (GLfloat) y, 0.0);
+	crStateWindowPosUpdate(pState, (GLfloat) x, (GLfloat) y, 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos2svARB (const GLshort *v)
+void STATE_APIENTRY crStateWindowPos2svARB (PCRStateTracker pState, const GLshort *v)
 {
-	crStateWindowPosUpdate((GLfloat) v[0], (GLfloat) v[1], 0.0);
+	crStateWindowPosUpdate(pState, (GLfloat) v[0], (GLfloat) v[1], 0.0);
 }
 
-void STATE_APIENTRY crStateWindowPos3dARB (GLdouble x, GLdouble y, GLdouble z)
+void STATE_APIENTRY crStateWindowPos3dARB (PCRStateTracker pState, GLdouble x, GLdouble y, GLdouble z)
 {
-	crStateWindowPosUpdate((GLfloat) x, (GLfloat) y, (GLfloat) z);
+	crStateWindowPosUpdate(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z);
 }
 
-void STATE_APIENTRY crStateWindowPos3dvARB (const GLdouble *v)
+void STATE_APIENTRY crStateWindowPos3dvARB (PCRStateTracker pState, const GLdouble *v)
 {
-	crStateWindowPosUpdate((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2]);
+	crStateWindowPosUpdate(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2]);
 }
 
-void STATE_APIENTRY crStateWindowPos3fARB (GLfloat x, GLfloat y, GLfloat z)
+void STATE_APIENTRY crStateWindowPos3fARB (PCRStateTracker pState, GLfloat x, GLfloat y, GLfloat z)
 {
-	crStateWindowPosUpdate(x, y, z);
+	crStateWindowPosUpdate(pState, x, y, z);
 }
 
-void STATE_APIENTRY crStateWindowPos3fvARB (const GLfloat *v)
+void STATE_APIENTRY crStateWindowPos3fvARB (PCRStateTracker pState, const GLfloat *v)
 {
-	crStateWindowPosUpdate(v[0], v[1], v[2]);
+	crStateWindowPosUpdate(pState, v[0], v[1], v[2]);
 }
 
-void STATE_APIENTRY crStateWindowPos3iARB (GLint x, GLint y, GLint z)
+void STATE_APIENTRY crStateWindowPos3iARB (PCRStateTracker pState, GLint x, GLint y, GLint z)
 {
-	crStateWindowPosUpdate((GLfloat) x, (GLfloat) y, (GLfloat) z);
+	crStateWindowPosUpdate(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z);
 }
 
-void STATE_APIENTRY crStateWindowPos3ivARB (const GLint *v)
+void STATE_APIENTRY crStateWindowPos3ivARB (PCRStateTracker pState, const GLint *v)
 {
-	crStateWindowPosUpdate((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2]);
+	crStateWindowPosUpdate(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2]);
 }
 
-void STATE_APIENTRY crStateWindowPos3sARB (GLshort x, GLshort y, GLshort z)
+void STATE_APIENTRY crStateWindowPos3sARB (PCRStateTracker pState, GLshort x, GLshort y, GLshort z)
 {
-	crStateWindowPosUpdate((GLfloat) x, (GLfloat) y, (GLfloat) z);
+	crStateWindowPosUpdate(pState, (GLfloat) x, (GLfloat) y, (GLfloat) z);
 }
 
-void STATE_APIENTRY crStateWindowPos3svARB (const GLshort *v)
+void STATE_APIENTRY crStateWindowPos3svARB (PCRStateTracker pState, const GLshort *v)
 {
-	crStateWindowPosUpdate((GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2]);
+	crStateWindowPosUpdate(pState, (GLfloat) v[0], (GLfloat) v[1], (GLfloat) v[2]);
 }
 

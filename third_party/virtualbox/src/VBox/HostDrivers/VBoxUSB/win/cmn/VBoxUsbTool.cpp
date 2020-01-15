@@ -403,14 +403,14 @@ VBOXUSBTOOL_DECL(NTSTATUS) VBoxUsbToolIoInternalCtlSendSync(PDEVICE_OBJECT pDevO
 
     if (Status == STATUS_PENDING)
     {
-        LOG(("VBoxUsbToolIoInternalCtlSendAsync returned pending for pDevObj(0x%x)", pDevObj));
+        LOG(("VBoxUsbToolIoInternalCtlSendAsync returned pending for pDevObj(0x%p)", pDevObj));
         KeWaitForSingleObject(&Event, Executive, KernelMode, FALSE, NULL);
         Status = IoStatus.Status;
-        LOG(("Pending VBoxUsbToolIoInternalCtlSendAsync completed with Status (0x%x) for pDevObj(0x%x)", Status, pDevObj));
+        LOG(("Pending VBoxUsbToolIoInternalCtlSendAsync completed with Status (0x%x) for pDevObj(0x%p)", Status, pDevObj));
     }
     else
     {
-        LOG(("VBoxUsbToolIoInternalCtlSendAsync completed with Status (0x%x) for pDevObj(0x%x)", Status, pDevObj));
+        LOG(("VBoxUsbToolIoInternalCtlSendAsync completed with Status (0x%x) for pDevObj(0x%p)", Status, pDevObj));
     }
 
     return Status;

@@ -4,17 +4,18 @@
  * See the file LICENSE.txt for information on redistributing this software.
  */
 
-#include "state/cr_stateerror.h"
 #include "state/cr_statetypes.h"
+#include "state/cr_stateerror.h"
 #include "state.h"
 #include "cr_error.h"
-#include "cr_environment.h"
 #include <stdarg.h>
 #include <stdio.h>
 
-void crStateError( int line, const char *file, GLenum error, const char *format, ... )
+#include <iprt/env.h>
+
+void crStateError(PCRStateTracker pState, int line, const char *file, GLenum error, const char *format, ... )
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	char errstr[8096];
 	va_list args;
 
@@ -24,7 +25,7 @@ void crStateError( int line, const char *file, GLenum error, const char *format,
 	    g->error = error;
 
 #ifndef DEBUG_misha
-	if (crGetenv("CR_DEBUG"))
+	if (RTEnvExist("CR_DEBUG"))
 #endif
 	{
 		char *glerr;
@@ -68,14 +69,14 @@ void crStateError( int line, const char *file, GLenum error, const char *format,
 }
 
 
-GLenum STATE_APIENTRY crStateGetError(void)
+GLenum STATE_APIENTRY crStateGetError(PCRStateTracker pState)
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	GLenum e = g->error;
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError( __LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 									"glStateGetError() called between glBegin/glEnd" );
 		return 0;
 	}

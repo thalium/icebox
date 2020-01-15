@@ -148,7 +148,7 @@ RTDECL(void) RTMemSaferFree(void *pv, size_t cb) RT_NO_THROW_DEF
 {
     if (pv)
     {
-        Assert(cb);
+        Assert(cb); /* does not support openssl. */
         void *pvStart = (char *)pv - RTMEMSAFER_PAD_BEFORE;
         AssertMsg(*(size_t *)pvStart == cb, ("*pvStart=%#zx cb=%#zx\n", *(size_t *)pvStart, cb));
         RTMemWipeThoroughly(pv, RT_ALIGN_Z(cb, RTMEMSAFER_ALIGN), 3);

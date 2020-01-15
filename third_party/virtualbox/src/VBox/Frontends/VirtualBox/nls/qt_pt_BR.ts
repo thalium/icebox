@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="pt">
+<TS version="2.1" language="pt">
 <context>
     <name>MAC_APPLICATION_MENU</name>
     <message>
@@ -1218,7 +1218,7 @@ Você deseja apagá-lo mesmo assim?</translation>
     </message>
     <message>
         <source>Show </source>
-        <translation>Exibir</translation>
+        <translation>Exibir </translation>
     </message>
     <message>
         <source>Forward</source>
@@ -2285,7 +2285,7 @@ Você deseja apagá-lo mesmo assim?</translation>
     </message>
     <message>
         <source>Connection timed out</source>
-        <translation>Tempo de conexão esgotado </translation>
+        <translation>Tempo de conexão esgotado</translation>
     </message>
     <message>
         <source>Connection refused</source>
@@ -2526,7 +2526,7 @@ Você deseja apagá-lo mesmo assim?</translation>
     </message>
     <message>
         <source>Unable to fetch last</source>
-        <translation>Não foi possível obter o último </translation>
+        <translation>Não foi possível obter o último</translation>
     </message>
     <message>
         <source>Unable to fetch</source>
@@ -4718,7 +4718,7 @@ Por favor escolha um nome de arquivo diferente.</translation>
     </message>
     <message>
         <source>Time 24:%1:%2.%3 is invalid. Hour is 24, but minutes, seconds, and milliseconds are not all 0; </source>
-        <translation>A hora 24:%1:%2:%3 é inválida.A hora é 24, mas os minutos, segundos e milissegundos não são todos 0;</translation>
+        <translation>A hora 24:%1:%2:%3 é inválida.A hora é 24, mas os minutos, segundos e milissegundos não são todos 0; </translation>
     </message>
     <message>
         <source>Time %1:%2:%3.%4 is invalid.</source>

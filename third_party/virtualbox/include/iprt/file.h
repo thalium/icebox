@@ -1130,10 +1130,13 @@ RTDECL(void) RTFileReadAllFree(void *pvFile, size_t cbFile);
 #define RTFILE_RDALL_O_DENY_ALL             RTFILE_O_DENY_ALL
 #define RTFILE_RDALL_O_DENY_NOT_DELETE      RTFILE_O_DENY_NOT_DELETE
 #define RTFILE_RDALL_O_DENY_MASK            RTFILE_O_DENY_MASK
+/** Fail with VERR_OUT_OF_RANGE if the file size exceeds the specified maximum
+ * size.  The default behavior is to cap the size at cbMax. */
+#define RTFILE_RDALL_F_FAIL_ON_MAX_SIZE     RT_BIT_32(30)
 /** Add a trailing zero byte to facilitate reading text files. */
 #define RTFILE_RDALL_F_TRAILING_ZERO_BYTE   RT_BIT_32(31)
 /** Mask of valid flags. */
-#define RTFILE_RDALL_VALID_MASK             (RTFILE_RDALL_O_DENY_MASK | UINT32_C(0x80000000))
+#define RTFILE_RDALL_VALID_MASK             (RTFILE_RDALL_O_DENY_MASK | UINT32_C(0xc0000000))
 /** @} */
 
 /** @name RTFileSetAllocationSize flags

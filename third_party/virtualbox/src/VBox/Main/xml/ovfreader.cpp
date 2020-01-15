@@ -97,7 +97,7 @@ void OVFReader::parse()
 
     if ((pTypeAttr = pRootElem->findAttribute("lang", "xml")))
     {
-        pcszTypeAttr = pTypeAttr->getValue();
+        pcszTypeAttr = pTypeAttr->getValueN(RT_XML_ATTR_TINY);
         m_envelopeData.lang = pcszTypeAttr;
     }
 
@@ -138,7 +138,7 @@ void OVFReader::LoopThruSections(const xml::ElementNode *pReferencesElem,
     {
         const char *pcszElemName = pElem->getName();
         const xml::AttributeNode *pTypeAttr = pElem->findAttribute("type");
-        const char *pcszTypeAttr = pTypeAttr ? pTypeAttr->getValue() : "";
+        const char *pcszTypeAttr = pTypeAttr ? pTypeAttr->getValueN(RT_XML_ATTR_TINY) : "";
 
         if (    !strcmp(pcszElemName, "DiskSection")
              || (    !strcmp(pcszElemName, "Section")
@@ -216,9 +216,9 @@ void OVFReader::HandleDiskSection(const xml::ElementNode *pReferencesElem,
         const char *pcszBad = NULL;
         const char *pcszDiskId;
         const char *pcszFormat;
-        if (!pelmDisk->getAttributeValue("diskId", pcszDiskId))
+        if (!pelmDisk->getAttributeValueN("diskId", pcszDiskId, RT_XML_ATTR_TINY))
             pcszBad = "diskId";
-        else if (!pelmDisk->getAttributeValue("format", pcszFormat))
+        else if (!pelmDisk->getAttributeValueN("format", pcszFormat, RT_XML_ATTR_SMALL))
             pcszBad = "format";
         else if (!pelmDisk->getAttributeValue("capacity", d.iCapacity))
             pcszBad = "capacity";
@@ -232,10 +232,10 @@ void OVFReader::HandleDiskSection(const xml::ElementNode *pReferencesElem,
                 d.iPopulatedSize = -1;
 
             // optional vbox:uuid attribute (if OVF was exported by VirtualBox != 3.2)
-            pelmDisk->getAttributeValue("uuid", d.uuidVBox, "vbox");
+            pelmDisk->getAttributeValueN("uuid", d.uuidVBox, RT_XML_ATTR_TINY, "vbox");
 
             const char *pcszFileRef;
-            if (pelmDisk->getAttributeValue("fileRef", pcszFileRef)) // optional
+            if (pelmDisk->getAttributeValueN("fileRef", pcszFileRef, RT_XML_ATTR_SMALL)) // optional
             {
                 // look up corresponding /References/File nodes (list built above)
                 const xml::ElementNode *pFileElem;
@@ -247,7 +247,7 @@ void OVFReader::HandleDiskSection(const xml::ElementNode *pReferencesElem,
                     // copy remaining values from file node then
                     const char *pcszBadInFile = NULL;
                     const char *pcszHref;
-                    if (!pFileElem->getAttributeValue("href", pcszHref))
+                    if (!pFileElem->getAttributeValueN("href", pcszHref, RT_XML_ATTR_SMALL))
                         pcszBadInFile = "href";
                     else if (!pFileElem->getAttributeValue("size", d.iSize))
                         d.iSize = -1;       // optional
@@ -257,7 +257,7 @@ void OVFReader::HandleDiskSection(const xml::ElementNode *pReferencesElem,
                     // if (!(pFileElem->getAttributeValue("size", d.iChunkSize))) TODO
                     d.iChunkSize = -1;       // optional
                     const char *pcszCompression;
-                    if (pFileElem->getAttributeValue("compression", pcszCompression))
+                    if (pFileElem->getAttributeValueN("compression", pcszCompression, RT_XML_ATTR_TINY))
                         d.strCompression = pcszCompression;
 
                     if (pcszBadInFile)
@@ -340,7 +340,7 @@ void OVFReader::HandleVirtualSystemContent(const xml::ElementNode *pelmVirtualSy
     // now look for real OVF
     const xml::AttributeNode *pIdAttr = pelmVirtualSystem->findAttribute("id");
     if (pIdAttr)
-        vsys.strName = pIdAttr->getValue();
+        vsys.strName = pIdAttr->getValueN(RT_XML_ATTR_SMALL);
 
     xml::NodesLoop loop(*pelmVirtualSystem);      // all child elements
     const xml::ElementNode *pelmThis;
@@ -352,7 +352,7 @@ void OVFReader::HandleVirtualSystemContent(const xml::ElementNode *pelmVirtualSy
         {
             const xml::AttributeNode *pTypeAttr = pelmThis->findAttribute("type");
             if (pTypeAttr)
-                pcszTypeAttr = pTypeAttr->getValue();
+                pcszTypeAttr = pTypeAttr->getValueN(RT_XML_ATTR_TINY);
             else
                 throw OVFLogicError(N_("Error reading \"%s\": element \"Section\" has no \"type\" attribute, line %d"),
                                     m_strPath.c_str(),
@@ -370,7 +370,7 @@ void OVFReader::HandleVirtualSystemContent(const xml::ElementNode *pelmVirtualSy
 
             const xml::ElementNode *pelmLicense;
             if ((pelmLicense = pelmThis->findChildElement("License")))
-                vsys.strLicenseText = pelmLicense->getValue();
+                vsys.strLicenseText = pelmLicense->getValueN(RT_XML_CONTENT_LARGE);
         }
         if (    !strcmp(pcszElemName, "ProductSection")
              || !strcmp(pcszTypeAttr, "ovf:ProductSection_Type")
@@ -386,19 +386,19 @@ void OVFReader::HandleVirtualSystemContent(const xml::ElementNode *pelmVirtualSy
                </Section> */
             const xml::ElementNode *pelmProduct;
             if ((pelmProduct = pelmThis->findChildElement("Product")))
-                vsys.strProduct = pelmProduct->getValue();
+                vsys.strProduct = pelmProduct->getValueN(RT_XML_CONTENT_SMALL);
             const xml::ElementNode *pelmVendor;
             if ((pelmVendor = pelmThis->findChildElement("Vendor")))
-                vsys.strVendor = pelmVendor->getValue();
+                vsys.strVendor = pelmVendor->getValueN(RT_XML_CONTENT_SMALL);
             const xml::ElementNode *pelmVersion;
             if ((pelmVersion = pelmThis->findChildElement("Version")))
-                vsys.strVersion = pelmVersion->getValue();
+                vsys.strVersion = pelmVersion->getValueN(RT_XML_CONTENT_SMALL);
             const xml::ElementNode *pelmProductUrl;
             if ((pelmProductUrl = pelmThis->findChildElement("ProductUrl")))
-                vsys.strProductUrl = pelmProductUrl->getValue();
+                vsys.strProductUrl = pelmProductUrl->getValueN(RT_XML_CONTENT_SMALL);
             const xml::ElementNode *pelmVendorUrl;
             if ((pelmVendorUrl = pelmThis->findChildElement("VendorUrl")))
-                vsys.strVendorUrl = pelmVendorUrl->getValue();
+                vsys.strVendorUrl = pelmVendorUrl->getValueN(RT_XML_CONTENT_SMALL);
         }
         else if (    !strcmp(pcszElemName, "VirtualHardwareSection")
                   || !strcmp(pcszTypeAttr, "ovf:VirtualHardwareSection_Type")
@@ -415,7 +415,7 @@ void OVFReader::HandleVirtualSystemContent(const xml::ElementNode *pelmVirtualSy
                     <vssd:VirtualSystemType>vmx-4</vssd:VirtualSystemType>
                 </System>*/
                 if ((pelmVirtualSystemType = pelmSystem->findChildElement("VirtualSystemType")))
-                    vsys.strVirtualSystemType = pelmVirtualSystemType->getValue();
+                    vsys.strVirtualSystemType = pelmVirtualSystemType->getValueN(RT_XML_CONTENT_SMALL);
             }
 
             /* Parse the items into the hardware item vector. */
@@ -782,12 +782,12 @@ void OVFReader::HandleVirtualSystemContent(const xml::ElementNode *pelmVirtualSy
             vsys.cimos = (CIMOSType_T)cimos64;
             const xml::ElementNode *pelmCIMOSDescription;
             if ((pelmCIMOSDescription = pelmThis->findChildElement("Description")))
-                vsys.strCimosDesc = pelmCIMOSDescription->getValue();
+                vsys.strCimosDesc = pelmCIMOSDescription->getValueN(RT_XML_CONTENT_SMALL);
 
             const xml::ElementNode *pelmVBoxOSType;
             if ((pelmVBoxOSType = pelmThis->findChildElementNS("vbox",            // namespace
                                                                "OSType")))        // element name
-                vsys.strTypeVBox = pelmVBoxOSType->getValue();
+                vsys.strTypeVBox = pelmVBoxOSType->getValueN(RT_XML_CONTENT_SMALL);
         }
         else if (    (!strcmp(pcszElemName, "AnnotationSection"))
                   || (!strcmp(pcszTypeAttr, "ovf:AnnotationSection_Type"))
@@ -795,7 +795,7 @@ void OVFReader::HandleVirtualSystemContent(const xml::ElementNode *pelmVirtualSy
         {
             const xml::ElementNode *pelmAnnotation;
             if ((pelmAnnotation = pelmThis->findChildElement("Annotation")))
-                vsys.strDescription = pelmAnnotation->getValue();
+                vsys.strDescription = pelmAnnotation->getValueN(RT_XML_CONTENT_SMALL);
         }
     }
 }
@@ -808,16 +808,16 @@ void VirtualHardwareItem::fillItem(const xml::ElementNode *item)
     {
         const char *pcszItemChildName = pelmItemChild->getName();
         if (!strcmp(pcszItemChildName, "Description"))
-            strDescription = pelmItemChild->getValue();
+            strDescription = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "Caption"))
-            strCaption = pelmItemChild->getValue();
+            strCaption = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "ElementName"))
-            strElementName = pelmItemChild->getValue();
+            strElementName = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (   !strcmp(pcszItemChildName, "InstanceID")
                  || !strcmp(pcszItemChildName, "InstanceId") )
             pelmItemChild->copyValue(ulInstanceID);
         else if (!strcmp(pcszItemChildName, "HostResource"))
-            strHostResource = pelmItemChild->getValue();
+            strHostResource = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "ResourceType"))
         {
             uint32_t ulType;
@@ -825,33 +825,33 @@ void VirtualHardwareItem::fillItem(const xml::ElementNode *item)
             resourceType = (ResourceType_T)ulType;
             fResourceRequired = true;
             const char *pcszAttValue;
-            if (item->getAttributeValue("required", pcszAttValue))
+            if (item->getAttributeValueN("required", pcszAttValue, RT_XML_ATTR_TINY))
             {
                 if (!strcmp(pcszAttValue, "false"))
                     fResourceRequired = false;
             }
         }
         else if (!strcmp(pcszItemChildName, "OtherResourceType"))
-            strOtherResourceType = pelmItemChild->getValue();
+            strOtherResourceType = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "ResourceSubType"))
-            strResourceSubType = pelmItemChild->getValue();
+            strResourceSubType = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "AutomaticAllocation"))
-            fAutomaticAllocation = (!strcmp(pelmItemChild->getValue(), "true")) ? true : false;
+            fAutomaticAllocation = (!strcmp(pelmItemChild->getValueN(RT_XML_CONTENT_SMALL), "true")) ? true : false;
         else if (!strcmp(pcszItemChildName, "AutomaticDeallocation"))
-            fAutomaticDeallocation = (!strcmp(pelmItemChild->getValue(), "true")) ? true : false;
+            fAutomaticDeallocation = (!strcmp(pelmItemChild->getValueN(RT_XML_CONTENT_SMALL), "true")) ? true : false;
         else if (!strcmp(pcszItemChildName, "Parent"))
             pelmItemChild->copyValue(ulParent);
         else if (!strcmp(pcszItemChildName, "Connection"))
-            strConnection = pelmItemChild->getValue();
+            strConnection = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "Address"))
         {
-            strAddress = pelmItemChild->getValue();
+            strAddress = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
             pelmItemChild->copyValue(lAddress);
         }
         else if (!strcmp(pcszItemChildName, "AddressOnParent"))
-            strAddressOnParent = pelmItemChild->getValue();
+            strAddressOnParent = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "AllocationUnits"))
-            strAllocationUnits = pelmItemChild->getValue();
+            strAllocationUnits = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "VirtualQuantity"))
             pelmItemChild->copyValue(ullVirtualQuantity);
         else if (!strcmp(pcszItemChildName, "Reservation"))
@@ -861,11 +861,11 @@ void VirtualHardwareItem::fillItem(const xml::ElementNode *item)
         else if (!strcmp(pcszItemChildName, "Weight"))
             pelmItemChild->copyValue(ullWeight);
         else if (!strcmp(pcszItemChildName, "ConsumerVisibility"))
-            strConsumerVisibility = pelmItemChild->getValue();
+            strConsumerVisibility = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "MappingBehavior"))
-            strMappingBehavior = pelmItemChild->getValue();
+            strMappingBehavior = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "PoolID"))
-            strPoolID = pelmItemChild->getValue();
+            strPoolID = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "BusNumber"))
             pelmItemChild->copyValue(ulBusNumber);
 //      else if (pelmItemChild->getPrefix() == NULL
@@ -911,13 +911,13 @@ void StorageItem::fillItem(const xml::ElementNode *item)
     {
         const char *pcszItemChildName = pelmItemChild->getName();
         if (!strcmp(pcszItemChildName, "HostExtentName"))
-            strHostExtentName = pelmItemChild->getValue();
+            strHostExtentName = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "OtherHostExtentNameFormat"))
-            strOtherHostExtentNameFormat = pelmItemChild->getValue();
+            strOtherHostExtentNameFormat = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "OtherHostExtentNameNamespace"))
-            strOtherHostExtentNameNamespace = pelmItemChild->getValue();
+            strOtherHostExtentNameNamespace = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "VirtualQuantityUnits"))
-            strVirtualQuantityUnits = pelmItemChild->getValue();
+            strVirtualQuantityUnits = pelmItemChild->getValueN(RT_XML_CONTENT_SMALL);
         else if (!strcmp(pcszItemChildName, "Access"))
         {
             uint32_t temp;

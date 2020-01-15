@@ -475,6 +475,36 @@
       <para>To insert a line break into the description text field, press
       <emphasis>Shift+Enter</emphasis>.</para>
     </sect2>
+
+    <sect2 id="settings-disk-encryption">
+
+      <title>Disk Encryption Tab</title>
+
+      <para>
+        The <emphasis role="bold">Disk Encryption</emphasis> tab enables
+        you to encrypt disks that are attached to the virtual machine.
+      </para>
+
+      <para>
+        To enable disk encryption, select the
+        <emphasis role="bold">Enable Disk Encryption</emphasis> check
+        box.
+      </para>
+
+      <para>
+        Settings are available to configure the cipher used for
+        encryption and the encryption password.
+      </para>
+
+      <note>
+        <para>
+          All files related to the virtual machine except disk images are
+          stored unencrypted.
+        </para>
+      </note>
+
+    </sect2>
+
   </sect1>
 
   <sect1 id="settings-system">

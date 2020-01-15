@@ -751,6 +751,8 @@ AssertCompileMembersAtSameOffset(CPUMCTX, CPUM_UNION_STRUCT_NM(s,n.) gs,   CPUMC
 #define CPUMCTX_WSF_IBPB_ENTRY          RT_BIT_32(1)
 /** Touch IA32_FLUSH_CMD.L1D on VM entry. */
 #define CPUMCTX_WSF_L1D_ENTRY           RT_BIT_32(2)
+/** Flush MDS buffers on VM entry. */
+#define CPUMCTX_WSF_MDS_ENTRY           RT_BIT_32(3)
 /** @} */
 
 

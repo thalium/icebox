@@ -953,15 +953,16 @@ VBOX_RSYNC_IN_FN = rsync -a -v --delete --delete-excluded --prune-empty-dirs \
 #
 # VM IP addresses.
 #
-VBOX_BLD_VM_LNX_IP           := 192.168.27.2
-VBOX_BLD_VM_OS2_IP           := 192.168.27.3
-VBOX_BLD_VM_SOLARIS_IP       := 192.168.27.4
-VBOX_BLD_VM_DARWIN_X86_IP    := 192.168.27.5
-VBOX_BLD_VM_DARWIN_AMD64_IP  := 192.168.27.15
-VBOX_BLD_VM_WIN_X86_IP       := 192.168.27.6
-VBOX_BLD_VM_WIN_AMD64_IP     := 192.168.27.16
-VBOX_BLD_VM_FBSD_X86_IP      := 192.168.27.7
-VBOX_BLD_VM_FBSD_AMD64_IP    := 192.168.27.17
+VBOX_BLD_VM_LNX_IP               := 192.168.27.2
+VBOX_BLD_VM_OS2_IP               := 192.168.27.3
+VBOX_BLD_VM_SOLARIS_IP           := 192.168.27.4
+VBOX_BLD_VM_DARWIN_X86_IP        := 192.168.27.5
+VBOX_BLD_VM_DARWIN_AMD64_IP      := 192.168.27.15
+VBOX_BLD_VM_DARWIN_109_AMD64_IP  := 192.168.27.18
+VBOX_BLD_VM_WIN_X86_IP           := 192.168.27.6
+VBOX_BLD_VM_WIN_AMD64_IP         := 192.168.27.16
+VBOX_BLD_VM_FBSD_X86_IP          := 192.168.27.7
+VBOX_BLD_VM_FBSD_AMD64_IP        := 192.168.27.17
 
 VBOX_WITH_OS2_ADD_BUILD=1
 
@@ -1373,9 +1374,9 @@ ifeq ($(KBUILD_TARGET).$(KBUILD_TARGET_ARCH),darwin.amd64)
 	+ $(VBOX_KMK_TIME) $(KMK) $(VBOX_EXTPACKS_BUILD.amd64) all $(VBOX_EXTPACKS_HOST_BUILD_TWEAK)
 else
 	$(call VBOX_BLD_VM_MSG_BEGIN,Darwin/amd64 extension packs)
-	$(VBOX_KMK_TIME) $(call VBOX_RSYNC_IN_FN,darwin,amd64) . $(VBOX_BLD_VM_DARWIN_AMD64_IP):/Users/vbox/tinderbox/$(VBOX_EXTPACKS_BUILD_SUBDIRNAME)
-	$(VBOX_KMK_TIME) ssh -v vbox@$(VBOX_BLD_VM_DARWIN_AMD64_IP) " echo $@ && cd /Users/vbox/tinderbox/$(VBOX_EXTPACKS_BUILD_SUBDIRNAME) && tools/env.sh --no-wine kmk $(VBOX_EXTPACKS_BUILD.amd64) all"
-	$(VBOX_KMK_TIME) rsync -am -v --delete $(VBOX_BLD_VM_DARWIN_AMD64_IP):/Users/vbox/tinderbox/$(VBOX_EXTPACKS_BUILD_SUBDIRNAME)/out/darwin.amd64 out/
+	$(VBOX_KMK_TIME) $(call VBOX_RSYNC_IN_FN,darwin,amd64) . $(VBOX_BLD_VM_DARWIN_109_AMD64_IP):/Users/vbox/tinderbox/$(VBOX_EXTPACKS_BUILD_SUBDIRNAME)
+	$(VBOX_KMK_TIME) ssh -v vbox@$(VBOX_BLD_VM_DARWIN_109_AMD64_IP) " echo $@ && cd /Users/vbox/tinderbox/$(VBOX_EXTPACKS_BUILD_SUBDIRNAME) && tools/env.sh --no-wine kmk $(VBOX_EXTPACKS_BUILD.amd64) all"
+	$(VBOX_KMK_TIME) rsync -am -v --delete $(VBOX_BLD_VM_DARWIN_109_AMD64_IP):/Users/vbox/tinderbox/$(VBOX_EXTPACKS_BUILD_SUBDIRNAME)/out/darwin.amd64 out/
 	$(call VBOX_BLD_VM_MSG_END__,Darwin/amd64 extension packs)
 endif
 
@@ -1663,7 +1664,7 @@ efi-packing:
 
 
 #
-# Generate VirtualBox-x.x.x.tar.bz2 (PUEL) zip archives for internal use only
+# Generate VirtualBox-x.x.x.zip (PUEL) snapshot archive for internal use only
 # - includes kBuild
 # - must be executed on an PUEL checkout
 #
@@ -1722,6 +1723,27 @@ snapshot-puel:
 	    -x!$(ZIPROOT)/src/VBox/Installer/linux/rpm \
 	    $(ZIPPATH)/$(ZIPNAME))
 	$(QUIET)$(RM) $(ZIPPATH)/$(ZIPROOT)
+
+
+#
+# Generate VirtualBox-x.x.x.tar.bz2 (OSE) snapshot archive
+# - includes kBuild
+#
+
+snapshot-ose:
+ifndef VBOX_OSE
+	$(QUIET)$(RM) -Rf $(wildcard $(PATH_OUT)/vbox-ose-snap-*) $(wildcard $(PATH_OUT)/VirtualBox-*.tar.bz2)
+	$(call MSG_L1,Making OSE snapshot at $(PATH_OUT)/vbox-ose-snap-$(VBOX_VERSION_STRING))
+	$(PATH_DEVTOOLS)/bin/ose-snapshot.sh $(PATH_OUT)/vbox-ose-snap-$(VBOX_VERSION_STRING)
+	$(call MSG_L1,Creating OSE tarball $(PATH_OUT)/VirtualBox-$(VBOX_VERSION_STRING)-r$(VBOX_SVN_REV).tar.bz2)
+	$(REDIRECT) -C $(PATH_OUT)/vbox-ose-snap-$(VBOX_VERSION_STRING) -- \
+		$(PATH_DEVTOOLS)/bin/ose-tarball.sh $(PATH_OUT)/VirtualBox-$(VBOX_VERSION_STRING)-r$(VBOX_SVN_REV).tar.bz2
+else
+	$(QUIET)$(RM) $(wildcard $(PATH_OUT)/VirtualBox-*.tar.bz2)
+	$(call MSG_L1,Creating OSE tarball $(PATH_OUT)/VirtualBox-$(VBOX_VERSION_STRING)-r$(VBOX_SVN_REV).tar.bz2)
+	$(REDIRECT) -C $(PATH_ROOT) -- \
+		$(PATH_DEVTOOLS)/bin/ose-tarball.sh $(PATH_OUT)/VirtualBox-$(VBOX_VERSION_STRING)-r$(VBOX_SVN_REV).tar.bz2
+endif
 
 
 #

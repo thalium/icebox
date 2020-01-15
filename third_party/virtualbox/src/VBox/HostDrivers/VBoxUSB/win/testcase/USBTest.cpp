@@ -156,12 +156,12 @@ int usbMonReleaseDevice(USHORT usVendorId, USHORT usProductId, USHORT usRevision
  * Add USB device filter
  *
  * @returns VBox status code.
- * @param   pszVendor       Vendor filter string
- * @param   pszProduct      Product filter string
- * @param   pszRevision     Revision filter string
+ * @param   usVendorId      Vendor id
+ * @param   usProductId     Product id
+ * @param   usRevision      Revision
  * @param   ppID            Pointer to filter id
  */
-int usbMonInsertFilter(const char *pszVendor, const char *pszProduct, const char *pszRevision, void **ppID)
+int usbMonInsertFilter(USHORT usVendorId, USHORT usProductId, USHORT usRevision, void **ppID)
 {
     USBFILTER           filter;
     USBSUP_FLTADDOUT    flt_add;
@@ -169,11 +169,12 @@ int usbMonInsertFilter(const char *pszVendor, const char *pszProduct, const char
 
     Assert(g_hUSBMonitor);
 
-    printf("usblibInsertFilter %s %s %s\n", pszVendor, pszProduct, pszRevision);
+    printf("usblibInsertFilter %04X %04X %04X\n", usVendorId, usProductId, usRevision);
 
-//    strncpy(filter.szVendor,   pszVendor,   sizeof(filter.szVendor));
-//    strncpy(filter.szProduct,  pszProduct,  sizeof(filter.szProduct));
-//    strncpy(filter.szRevision, pszRevision, sizeof(filter.szRevision));
+    USBFilterInit(&filter, USBFILTERTYPE_CAPTURE);
+    USBFilterSetNumExact(&filter, USBFILTERIDX_VENDOR_ID, usVendorId, true);
+    USBFilterSetNumExact(&filter, USBFILTERIDX_PRODUCT_ID, usProductId, true);
+    USBFilterSetNumExact(&filter, USBFILTERIDX_DEVICE_REV, usRevision, true);
 
     if (!DeviceIoControl(g_hUSBMonitor, SUPUSBFLT_IOCTL_ADD_FILTER, &filter, sizeof(filter), &flt_add, sizeof(flt_add), &cbReturned, NULL))
     {
@@ -181,6 +182,25 @@ int usbMonInsertFilter(const char *pszVendor, const char *pszProduct, const char
         return RTErrConvertFromWin32(GetLastError());
     }
     *ppID = (void *)flt_add.uId;
+    return VINF_SUCCESS;
+}
+
+/**
+ * Applies existing filters to currently plugged-in USB devices
+ *
+ * @returns VBox status code.
+ */
+int usbMonRunFilters(void)
+{
+    DWORD               cbReturned = 0;
+
+    Assert(g_hUSBMonitor);
+
+    if (!DeviceIoControl(g_hUSBMonitor, SUPUSBFLT_IOCTL_RUN_FILTERS, NULL, 0, NULL, 0, &cbReturned, NULL))
+    {
+        AssertMsgFailed(("DeviceIoControl failed with %d\n", GetLastError()));
+        return RTErrConvertFromWin32(GetLastError());
+    }
     return VINF_SUCCESS;
 }
 
@@ -316,6 +336,7 @@ int usbMonitorTerm()
 int __cdecl main(int argc, char **argv)
 {
     int rc;
+    int c;
     RT_NOREF2(argc, argv);
 
     printf("USB test\n");
@@ -323,19 +344,28 @@ int __cdecl main(int argc, char **argv)
     rc = usbMonitorInit();
     AssertRC(rc);
 
-    void *pId1, *pId2;
+    void *pId1, *pId2, *pId3;
 
-    usbMonInsertFilter("0529", "0514", "0100", &pId1);
-    usbMonInsertFilter("0A16", "2499", "0100", &pId2);
+    usbMonInsertFilter(0x0529, 0x0514, 0x0100, &pId1);
+    usbMonInsertFilter(0x0A16, 0x2499, 0x0100, &pId2);
+    usbMonInsertFilter(0x80EE, 0x0030, 0x0110, &pId3);
 
-    printf("Waiting to capture device\n");
-    getchar();
+    printf("Waiting to capture devices... enter 'r' to run filters\n");
+    c = getchar();
+    if (c == 'r')
+    {
+        usbMonRunFilters();
+        printf("Waiting to capture devices...\n");
+        getchar();  /* eat the '\n' */
+        getchar();  /* wait for more input */
+    }
 
     printf("Releasing device\n");
     usbMonReleaseDevice(0xA16, 0x2499, 0x100);
 
     usbMonRemoveFilter(pId1);
     usbMonRemoveFilter(pId2);
+    usbMonRemoveFilter(pId3);
 
     rc = usbMonitorTerm();
 

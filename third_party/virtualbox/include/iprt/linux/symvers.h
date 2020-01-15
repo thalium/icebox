@@ -71,4 +71,7 @@ __asm__(".symver fcntl64,fcntl@GLIBC_2.2.5");
 __asm__(".symver fcntl64,fcntl@GLIBC_2.0");
 #endif
 
+/* Do not use ISO C99 scanf which has a glibc 2.7 dependency. */
+#undef __GLIBC_USE_DEPRECATED_SCANF
+#define __GLIBC_USE_DEPRECATED_SCANF 1
 #endif /* ___iprt_linux_symvers_h */

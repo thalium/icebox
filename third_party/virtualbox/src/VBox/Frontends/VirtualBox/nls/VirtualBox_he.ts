@@ -11,7 +11,7 @@
     <message>
         <source>--</source>
         <comment>Native language country name (empty if this language is for all countries)</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>English</source>
@@ -21,7 +21,7 @@
     <message>
         <source>--</source>
         <comment>Language country name, in English (empty if native country name is empty)</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Oracle Corporation</source>
@@ -80,11 +80,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.</source>
+        <source>The VirtualBox Linux kernel driver is either not loaded or not set up correctly. Please try setting it up again by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.&lt;br/&gt;&lt;br/&gt;If your system has EFI Secure Boot enabled you may also need to sign the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before you can load them. Please see your Linux system&apos;s documentation for more information.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you do not mix the OSE version and the PUEL version of VirtualBox.</source>
+        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you are not mixing builds of VirtualBox from different sources.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -190,6 +190,18 @@
         <source>%1, %2: %3, %4: %5, %6: %7</source>
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text, col.4 name: col.4 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation type="obsolete">מלא</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="obsolete">קריאה-בלבד</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="obsolete">כן</translation>
     </message>
 </context>
 <context>
@@ -1201,6 +1213,58 @@
         <source>Enable audio input</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Find</source>
+        <translation type="obsolete">&amp;מצא</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;רענן</translation>
+    </message>
+    <message>
+        <source>&amp;Save...</source>
+        <translation type="obsolete">&amp;שמור...</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation type="obsolete">אורח</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation type="obsolete">הגדרות</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">מחק</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">שנה שם</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="obsolete">העתק</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">יבא</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="obsolete">יצא</translation>
+    </message>
+    <message>
+        <source>&amp;Clone...</source>
+        <translation type="obsolete">&amp;שבט...</translation>
+    </message>
+    <message>
+        <source>&amp;Copy...</source>
+        <translation type="obsolete">ה&amp;עתק...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">הסר</translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -1468,6 +1532,246 @@
     </message>
 </context>
 <context>
+    <name>UIChooserItemGroup</name>
+    <message>
+        <source>Enter group</source>
+        <translation type="obsolete">כנס לקבוצה</translation>
+    </message>
+    <message>
+        <source>Exit group</source>
+        <translation type="obsolete">צא מקבוצה</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n group(s)</source>
+        <comment>Group item tool-tip / Group info</comment>
+        <translation type="obsolete">
+            <numerusform>קבוצה %n</numerusform>
+            <numerusform>%n קבוצות</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n machine(s)</source>
+        <comment>Group item tool-tip / Machine info</comment>
+        <translation type="obsolete">
+            <numerusform>מכונה %n</numerusform>
+            <numerusform>%n מכונות</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n running)</source>
+        <comment>Group item tool-tip / Running machine info</comment>
+        <translation type="obsolete">
+            <numerusform>(%n מורץ)</numerusform>
+            <numerusform>(%n מורצים)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Collapse group</source>
+        <translation type="obsolete">צמצם קבוצה</translation>
+    </message>
+    <message>
+        <source>Expand group</source>
+        <translation type="obsolete">פרוס קבוצה</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserModel</name>
+    <message>
+        <source>New group</source>
+        <translation type="obsolete">קבוצה חדשה</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">סגור</translation>
+    </message>
+</context>
+<context>
+    <name>UICustomFileSystemModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">שם</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">גודל</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="obsolete">נתיב</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetails</name>
+    <message>
+        <source>Name</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">שם</translation>
+    </message>
+    <message>
+        <source>Operating System</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">מערכת הפעלה</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">קבוצות</translation>
+    </message>
+    <message>
+        <source>Information Inaccessible</source>
+        <comment>details</comment>
+        <translation type="obsolete">מידע לא נגיש</translation>
+    </message>
+    <message>
+        <source>Base Memory</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">זיכרון בסיס</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1 מ״ב</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">מעבדים</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">סדר אתחול</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (system/EFI)</comment>
+        <translation type="obsolete">מאופשר</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">האצה</translation>
+    </message>
+    <message>
+        <source>Video Memory</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">זיכרון גראפי</translation>
+    </message>
+    <message>
+        <source>Screens</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">מסכים</translation>
+    </message>
+    <message>
+        <source>2D Video</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">וידאו דו-מימדי</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">תלת מימד</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">האצה</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server Port</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">פורט שרת שולחן עבודה מרוחק</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">שרת שולחן עבודה מרוחק</translation>
+    </message>
+    <message>
+        <source>Video Capture File</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">קובץ לכידת וידאו</translation>
+    </message>
+    <message>
+        <source>Video Capture</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">לוכד וידאו</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">לא מוצמד</translation>
+    </message>
+    <message>
+        <source>Host Driver</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">כונן מארח</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">בקר</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/output)</comment>
+        <translation type="obsolete">מאופשר</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/input)</comment>
+        <translation type="obsolete">מאופשר</translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">מתאם %1</translation>
+    </message>
+    <message>
+        <source>Port %1</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">פורט %1</translation>
+    </message>
+    <message>
+        <source>USB Controller</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">בקר USB</translation>
+    </message>
+    <message>
+        <source>USB Controller Inaccessible</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">בקר USB לא נגיש</translation>
+    </message>
+    <message>
+        <source>Shared Folders</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">תיקיות משותפות</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">אין</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/menu-bar)</comment>
+        <translation type="obsolete">מאופשר</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/status-bar)</comment>
+        <translation type="obsolete">מאופשר</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (description)</comment>
+        <translation type="obsolete">אין</translation>
+    </message>
+</context>
+<context>
     <name>UIDetailsPagePrivate</name>
     <message>
         <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
@@ -1586,6 +1890,52 @@
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIFDCreationDialog</name>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">גודל:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">תלת מימד {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">תלת מימד {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">תלת מימד {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">תלת מימד {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">סגור</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">ביטול</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">מושהה</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">שם</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">גודל</translation>
     </message>
 </context>
 <context>
@@ -2754,11 +3104,11 @@
     </message>
     <message>
         <source>IPv4</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>IPv6</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2884,6 +3234,36 @@
     </message>
 </context>
 <context>
+    <name>UIGuestControlFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">סגור</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">שם</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">גודל</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">ביטול</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">מושהה</translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestProcessControlWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">סגור</translation>
+    </message>
+</context>
+<context>
     <name>UIHelpButton</name>
     <message>
         <source>&amp;Help</source>
@@ -2934,19 +3314,19 @@
     </message>
     <message>
         <source>Alt Gr</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Caps Lock</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Scroll Lock</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Host+</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>None</source>
@@ -3954,6 +4334,76 @@
     </message>
 </context>
 <context>
+    <name>UIItemHostNetwork</name>
+    <message>
+        <source>Adapter</source>
+        <translation type="obsolete">מתאם</translation>
+    </message>
+    <message>
+        <source>Automatically configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">מוגדר אוטומטית</translation>
+    </message>
+    <message>
+        <source>Manually configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">מוגדר ידנית</translation>
+    </message>
+    <message>
+        <source>IPv4 Address</source>
+        <translation type="obsolete">כתובת IPv4</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>address</comment>
+        <translation type="obsolete">לא נקבע</translation>
+    </message>
+    <message>
+        <source>IPv4 Network Mask</source>
+        <translation type="obsolete">מסיכת רשת IPv4</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>mask</comment>
+        <translation type="obsolete">לא נקבע</translation>
+    </message>
+    <message>
+        <source>IPv6 Address</source>
+        <translation type="obsolete">כתובת IPv6</translation>
+    </message>
+    <message>
+        <source>IPv6 Prefix Length</source>
+        <translation type="obsolete">אורך מסיכת רשת IPv6</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>length</comment>
+        <translation type="obsolete">לא נקבע</translation>
+    </message>
+    <message>
+        <source>DHCP Server</source>
+        <translation type="obsolete">שרת DHCP</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>server</comment>
+        <translation type="obsolete">מאופשר</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="obsolete">כתובת</translation>
+    </message>
+    <message>
+        <source>Network Mask</source>
+        <translation type="obsolete">מסיכת רשת</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>bound</comment>
+        <translation type="obsolete">לא נקבע</translation>
+    </message>
+</context>
+<context>
     <name>UIItemNetworkNAT</name>
     <message>
         <source>%1, %2</source>
@@ -3964,6 +4414,69 @@
         <source>%1</source>
         <comment>col.2 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network Name</source>
+        <translation type="obsolete">שם רשת</translation>
+    </message>
+    <message>
+        <source>[empty]</source>
+        <translation type="obsolete">[ריק]</translation>
+    </message>
+    <message>
+        <source>%1 (renamed from %2)</source>
+        <translation type="obsolete">%1 (שם שונה מן %2)</translation>
+    </message>
+    <message>
+        <source>Old Network Name</source>
+        <translation type="obsolete">שם רשת ישן</translation>
+    </message>
+    <message>
+        <source>New Network Name</source>
+        <translation type="obsolete">שם רשת חדש</translation>
+    </message>
+    <message>
+        <source>Network CIDR</source>
+        <translation type="obsolete">‏CIDR רשת</translation>
+    </message>
+    <message>
+        <source>Supports DHCP</source>
+        <translation type="obsolete">תומך DHCP</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation type="obsolete">כן</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation type="obsolete">לא</translation>
+    </message>
+    <message>
+        <source>Supports IPv6</source>
+        <translation type="obsolete">תומך IPv6</translation>
+    </message>
+</context>
+<context>
+    <name>UILanguageItem</name>
+    <message>
+        <source> (built-in)</source>
+        <comment>Language</comment>
+        <translation type="obsolete"> (מובנית)</translation>
+    </message>
+    <message>
+        <source>&lt;unavailable&gt;</source>
+        <comment>Language</comment>
+        <translation type="obsolete">&lt;לא זמינה&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>Author(s)</comment>
+        <translation type="obsolete">&lt;לא ידוע&gt;</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <comment>Language</comment>
+        <translation type="obsolete">שגרתית</translation>
     </message>
 </context>
 <context>
@@ -3998,6 +4511,37 @@
     <message>
         <source>No supported webcams connected to the host PC</source>
         <translation type="vanished">אין מצלמות רשת נתמכות שמחוברות למחשב המארח</translation>
+    </message>
+</context>
+<context>
+    <name>UIMachinePreview</name>
+    <message>
+        <source>No preview</source>
+        <translation type="obsolete">אין תצוגה מקדימה</translation>
+    </message>
+    <message>
+        <source>Update disabled</source>
+        <translation type="obsolete">עדכון מנוטרל</translation>
+    </message>
+    <message>
+        <source>Every 0.5 s</source>
+        <translation type="obsolete">כל 0.5 שניות</translation>
+    </message>
+    <message>
+        <source>Every 1 s</source>
+        <translation type="obsolete">כל 1 שניות</translation>
+    </message>
+    <message>
+        <source>Every 2 s</source>
+        <translation type="obsolete">כל 2 שניות</translation>
+    </message>
+    <message>
+        <source>Every 5 s</source>
+        <translation type="obsolete">כל 5 שניות</translation>
+    </message>
+    <message>
+        <source>Every 10 s</source>
+        <translation type="obsolete">כל 10 שניות</translation>
     </message>
 </context>
 <context>
@@ -4183,11 +4727,11 @@
     </message>
     <message>
         <source>%1 fps</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>fps</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>low</source>
@@ -4206,7 +4750,7 @@
     </message>
     <message>
         <source>kbps</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Screen %1</source>
@@ -5818,6 +6362,25 @@
     </message>
 </context>
 <context>
+    <name>UIMediumItem</name>
+    <message>
+        <source>Format:</source>
+        <translation type="obsolete">פורמט:</translation>
+    </message>
+    <message>
+        <source>Storage details:</source>
+        <translation type="obsolete">פרטי אחסון:</translation>
+    </message>
+    <message>
+        <source>Attached to:</source>
+        <translation type="obsolete">מוצמד אל:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;לא&amp;nbsp;מוצמד&lt;/i&gt;</translation>
+    </message>
+</context>
+<context>
     <name>UIMediumManager</name>
     <message>
         <source>&amp;Hard drives</source>
@@ -6028,6 +6591,49 @@
     <message>
         <source>Move selected disk image file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">גודל:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">תלת מימד {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">תלת מימד {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">תלת מימד {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">תלת מימד {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIMediumSelector</name>
+    <message>
+        <source>&amp;Add...</source>
+        <translation type="obsolete">הוס&amp;ף...</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">&amp;רענן</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">שם</translation>
+    </message>
+    <message>
+        <source>Virtual Size</source>
+        <translation type="obsolete">גודל וירטואלי</translation>
+    </message>
+    <message>
+        <source>Actual Size</source>
+        <translation type="obsolete">גודל אמיתי</translation>
     </message>
 </context>
 <context>
@@ -7196,6 +7802,10 @@
         <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">יבא</translation>
+    </message>
 </context>
 <context>
     <name>UIMiniToolBar</name>
@@ -7626,7 +8236,7 @@
     </message>
     <message>
         <source>VirtualBox - %1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Proxy</source>
@@ -7681,7 +8291,7 @@
     </message>
     <message>
         <source>USB</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Shared Folders</source>
@@ -7689,7 +8299,7 @@
     </message>
     <message>
         <source>%1 - %2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>User Interface</source>
@@ -7792,6 +8402,34 @@
     <message>
         <source>Take Snapshot (%1)</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UISnapshotItem</name>
+    <message>
+        <source>Current State (changed)</source>
+        <comment>Current State (Modified)</comment>
+        <translation type="obsolete">מצב נוכחי (השתנה)</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <comment>Current State (Unmodified)</comment>
+        <translation type="obsolete">מצב נוכחי</translation>
+    </message>
+    <message>
+        <source>%1 since %2</source>
+        <comment>Current State (time or date + time)</comment>
+        <translation type="obsolete">%1 מאז %2</translation>
+    </message>
+    <message>
+        <source>Taken at %1</source>
+        <comment>Snapshot (time)</comment>
+        <translation type="obsolete">נלקח במועד %1</translation>
+    </message>
+    <message>
+        <source>Taken on %1</source>
+        <comment>Snapshot (date + time)</comment>
+        <translation type="obsolete">נלקח במועד %1</translation>
     </message>
 </context>
 <context>
@@ -7993,6 +8631,17 @@
     </message>
 </context>
 <context>
+    <name>UIToolsModel</name>
+    <message>
+        <source>Network</source>
+        <translation type="obsolete">רשת</translation>
+    </message>
+    <message>
+        <source>Snapshots</source>
+        <translation type="obsolete">תצלומי-בזק</translation>
+    </message>
+</context>
+<context>
     <name>UIToolsPaneGlobal</name>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;This window represents a set of global tools which are currently opened (or can be opened). They are not related to any particular machine but to the complete VM collection. For a list of currently available tools check the corresponding menu at the right side of the main tool bar located at the top of the window. This list will be extended with new tools in future releases.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
@@ -8037,6 +8686,41 @@
         <source>%1</source>
         <comment>col.1 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;מזהה ספק: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product ID: %2&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;מזהה מוצר: %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product: %4&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;מוצר: %4&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Manufacturer: %5&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;יצרן: %5&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Serial No.: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;מספר סידורי: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Port: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;פורט: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;State: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;מצב: %1&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
@@ -8316,6 +9000,51 @@
     <message>
         <source>Fil&amp;ter</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIVMLogViewerWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">סגור</translation>
+    </message>
+    <message>
+        <source>Enter a search string here</source>
+        <translation type="obsolete">הזן מחרוזת חיפוש כאן</translation>
+    </message>
+    <message>
+        <source>String not found</source>
+        <translation type="obsolete">מחרוזת לא נמצאה</translation>
+    </message>
+    <message>
+        <source>Save VirtualBox Log As</source>
+        <translation type="obsolete">שמור יומן VirtualBox בתור</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManager</name>
+    <message>
+        <source>Select a virtual machine file</source>
+        <translation type="obsolete">בחירת קובץ מכונה וירטואלית</translation>
+    </message>
+    <message>
+        <source>Virtual machine files (%1)</source>
+        <translation type="obsolete">קבצי מכונה וירטואלית (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UIVisoCreator</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">שם</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">גודל</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">הסר</translation>
     </message>
 </context>
 <context>
@@ -9284,7 +10013,7 @@
     <message>
         <source>CoreAudio</source>
         <comment>AudioDriverType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Not attached</source>
@@ -9294,7 +10023,7 @@
     <message>
         <source>NAT</source>
         <comment>NetworkAttachmentType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Internal Network</source>
@@ -9444,7 +10173,7 @@
     <message>
         <source>USB</source>
         <comment>DeviceType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Shared Folder</source>
@@ -9454,52 +10183,52 @@
     <message>
         <source>IDE</source>
         <comment>StorageBus</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SATA</source>
         <comment>StorageBus</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Solaris Audio</source>
         <comment>AudioDriverType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PulseAudio</source>
         <comment>AudioDriverType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ICH AC97</source>
         <comment>AudioControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SoundBlaster 16</source>
         <comment>AudioControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PCnet-PCI II (Am79C970A)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PCnet-FAST III (Am79C973)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intel PRO/1000 MT Desktop (82540EM)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intel PRO/1000 T Server (82543GC)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
@@ -9579,37 +10308,37 @@
     <message>
         <source>SCSI</source>
         <comment>StorageBus</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PIIX3</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PIIX4</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ICH6</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>AHCI</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lsilogic</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>BusLogic</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intel PRO/1000 MT Server (82545EM)</source>
@@ -9714,12 +10443,12 @@
     <message>
         <source>Paravirtualized Network (virtio-net)</source>
         <comment>NetworkAdapterType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>I82078</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Empty</source>
@@ -9835,12 +10564,12 @@
     <message>
         <source>SAS</source>
         <comment>StorageBus</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LsiLogic SAS</source>
         <comment>StorageControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>B</source>
@@ -9938,17 +10667,17 @@
     <message>
         <source>Intel HD Audio</source>
         <comment>AudioControllerType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PIIX3</source>
         <comment>ChipsetType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ICH9</source>
         <comment>ChipsetType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Execution Cap</source>
@@ -10092,12 +10821,12 @@
     <message>
         <source>UDP</source>
         <comment>NATProtocol</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TCP</source>
         <comment>NATProtocol</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>IDE Primary Master</source>
@@ -10182,7 +10911,7 @@
     <message>
         <source>USB</source>
         <comment>DetailsElementType</comment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Shared folders</source>
@@ -10588,6 +11317,62 @@
         <source>Audio</source>
         <comment>IndicatorType</comment>
         <translation type="unfinished">שמע</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details report</comment>
+        <translation type="obsolete">מעבדים</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">שם</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation type="obsolete">קבוצות</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <translation type="obsolete">סדר אתחול</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <translation type="obsolete">האצה</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <translation type="obsolete">בקר</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <translation type="obsolete">לא מוצמד</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation type="obsolete">מנותק</translation>
+    </message>
+    <message>
+        <source>Host Pipe</source>
+        <translation type="obsolete">צינור מארח</translation>
+    </message>
+    <message>
+        <source>Host Device</source>
+        <translation type="obsolete">התקן מארח</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>GraphicsControllerType</comment>
+        <translation type="obsolete">אין</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>network adapter</comment>
+        <translation type="obsolete">לא מוצמד</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <comment>serial port</comment>
+        <translation type="obsolete">מנותק</translation>
     </message>
 </context>
 <context>

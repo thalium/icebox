@@ -293,6 +293,8 @@ public:
         BOOL                mSpecCtrlByHost;
         BOOL                mL1DFlushOnSched;
         BOOL                mL1DFlushOnVMEntry;
+        BOOL                mMDSClearOnSched;
+        BOOL                mMDSClearOnVMEntry;
         ULONG               mCPUCount;
         BOOL                mCPUHotPlugEnabled;
         ULONG               mCpuExecutionCap;

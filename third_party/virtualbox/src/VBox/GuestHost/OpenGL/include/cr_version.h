@@ -75,10 +75,16 @@
 /* Version (string) of OpenGL functionality supported by Chromium */
 #ifdef CR_OPENGL_VERSION_2_1
 # define CR_OPENGL_VERSION_STRING "2.1"
+# define CR_OPENGL_VERSION_MAJOR  2
+# define CR_OPENGL_VERSION_MINOR  1
 #elif defined(CR_OPENGL_VERSION_2_0)
 # define CR_OPENGL_VERSION_STRING "2.0"
+# define CR_OPENGL_VERSION_MAJOR  2
+# define CR_OPENGL_VERSION_MINOR  0
 #else
 # define CR_OPENGL_VERSION_STRING "1.5"
+# define CR_OPENGL_VERSION_MAJOR  1
+# define CR_OPENGL_VERSION_MINOR  5
 #endif
 
 

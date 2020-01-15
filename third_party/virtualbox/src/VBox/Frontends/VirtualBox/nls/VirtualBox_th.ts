@@ -81,11 +81,19 @@
     </message>
     <message>
         <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.</source>
-        <translation>ไดร์เวอร์ลินุกซ์เคอร์แนลของเวอร์ชวลบอกซ์ (vboxdrv) อาจไม่ได้ถูกโหลดไว้หรืออาจมีปัญหาสิทธิในการเข้าถึง /dev/vboxdrv โปรดติดตั้งโมดูลเคอร์แนลอีกครั้งด้วยคำสั่ง &lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; ด้วยสิทธิ root</translation>
+        <translation type="vanished">ไดร์เวอร์ลินุกซ์เคอร์แนลของเวอร์ชวลบอกซ์ (vboxdrv) อาจไม่ได้ถูกโหลดไว้หรืออาจมีปัญหาสิทธิในการเข้าถึง /dev/vboxdrv โปรดติดตั้งโมดูลเคอร์แนลอีกครั้งด้วยคำสั่ง &lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; ด้วยสิทธิ root</translation>
     </message>
     <message>
         <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you do not mix the OSE version and the PUEL version of VirtualBox.</source>
-        <translation>โมดูลเคอร์แนลของเวอร์ชวลบอกซ์ไม่ตรงกับเวอร์ชวลบอกซ์รุ่นที่ใช้งานอยู่ อาจเกิดจากการติดตั้งเวอร์ชวลบอกซ์ไม่สมบูรณ์ การใช้คำสั่ง&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;อาจแก้ปัญหานี้ได้ โปรดตรวจสอบให้แน่ใจว่าคุณไม่ได้ใช้เวอร์ชวลบอกซ์รุ่น OSE ร่วมกันกับ PUEL</translation>
+        <translation type="vanished">โมดูลเคอร์แนลของเวอร์ชวลบอกซ์ไม่ตรงกับเวอร์ชวลบอกซ์รุ่นที่ใช้งานอยู่ อาจเกิดจากการติดตั้งเวอร์ชวลบอกซ์ไม่สมบูรณ์ การใช้คำสั่ง&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;อาจแก้ปัญหานี้ได้ โปรดตรวจสอบให้แน่ใจว่าคุณไม่ได้ใช้เวอร์ชวลบอกซ์รุ่น OSE ร่วมกันกับ PUEL</translation>
+    </message>
+    <message>
+        <source>The VirtualBox Linux kernel driver is either not loaded or not set up correctly. Please try setting it up again by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.&lt;br/&gt;&lt;br/&gt;If your system has EFI Secure Boot enabled you may also need to sign the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before you can load them. Please see your Linux system&apos;s documentation for more information.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you are not mixing builds of VirtualBox from different sources.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -189,6 +197,18 @@
         <source>%1, %2: %3, %4: %5, %6: %7</source>
         <comment>col.1 text, col.2 name: col.2 text, col.3 name: col.3 text, col.4 name: col.4 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation type="obsolete">เต็มที่</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="obsolete">อ่านอย่างเดียว</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="obsolete">ใช่</translation>
     </message>
 </context>
 <context>
@@ -1060,6 +1080,74 @@
         <source>Open the Host Network Manager</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Find</source>
+        <translation type="obsolete">&amp;ค้นหา</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">เรียก&amp;ซ้ำ</translation>
+    </message>
+    <message>
+        <source>&amp;Save...</source>
+        <translation type="obsolete">&amp;บันทึก...</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation type="obsolete">เกสต์</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation type="obsolete">การตั้งค่า</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">ลบ</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">เปลี่ยนชื่อ</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="obsolete">คัดลอก</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">นำเข้า</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="obsolete">ส่งออก</translation>
+    </message>
+    <message>
+        <source>Take a snapshot of the current virtual machine state</source>
+        <translation type="obsolete">เก็บสแนปช็อตของสถานะปัจจุบันของเวอร์ชวลแมชชีน</translation>
+    </message>
+    <message>
+        <source>Delete selected snapshot of the virtual machine</source>
+        <translation type="obsolete">ลบสแนปช็อตที่เลือกของเวอร์ชวลแมชชีน</translation>
+    </message>
+    <message>
+        <source>Restore selected snapshot of the virtual machine</source>
+        <translation type="obsolete">คืนค่าของสแนปช็อตที่เลือกให้เวอร์ชวลแมชชีน</translation>
+    </message>
+    <message>
+        <source>&amp;Clone...</source>
+        <translation type="obsolete">โ&amp;คลน...</translation>
+    </message>
+    <message>
+        <source>&amp;Copy...</source>
+        <translation type="obsolete">&amp;คัดลอก...</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">เรียกรายการไฟล์ดิสก์อิมเมจซ้ำอีกครั้ง</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">นำออก</translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -1309,6 +1397,453 @@
     </message>
 </context>
 <context>
+    <name>UIChooserItemGroup</name>
+    <message>
+        <source>Enter group</source>
+        <translation type="obsolete">เข้ากลุ่ม</translation>
+    </message>
+    <message>
+        <source>Exit group</source>
+        <translation type="obsolete">ออกจากกลุ่ม</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt;</source>
+        <comment>Group item tool-tip / Group name</comment>
+        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n group(s)</source>
+        <comment>Group item tool-tip / Group info</comment>
+        <translation type="obsolete">
+            <numerusform>%n กลุ่ม</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Group info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n machine(s)</source>
+        <comment>Group item tool-tip / Machine info</comment>
+        <translation type="obsolete">
+            <numerusform>%n เครื่อง</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n running)</source>
+        <comment>Group item tool-tip / Running machine info</comment>
+        <translation type="obsolete">
+            <numerusform>(%n ทำงานอยู่)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1 %2&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper, including running</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1 %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>Collapse group</source>
+        <translation type="obsolete">ยุบกลุ่ม</translation>
+    </message>
+    <message>
+        <source>Expand group</source>
+        <translation type="obsolete">ขยายกลุ่ม</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserModel</name>
+    <message>
+        <source>New group</source>
+        <translation type="obsolete">กลุ่มใหม่</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileDetailsWidget</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">รีเซ็ต</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileManager</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">รีเซ็ต</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">ปิด</translation>
+    </message>
+</context>
+<context>
+    <name>UICustomFileSystemModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ชื่อ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ขนาด</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="obsolete">เส้นทาง</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetails</name>
+    <message>
+        <source>Name</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">ชื่อ</translation>
+    </message>
+    <message>
+        <source>Operating System</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">ระบบปฏิบัติการ</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">กลุ่ม</translation>
+    </message>
+    <message>
+        <source>Information Inaccessible</source>
+        <comment>details</comment>
+        <translation type="obsolete">ไม่สามารถเข้าถึงข้อมูลได้</translation>
+    </message>
+    <message>
+        <source>Base Memory</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">หน่วยความจำพื้นฐาน</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1 MB</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">โปรเซสเซอร์</translation>
+    </message>
+    <message>
+        <source>Execution Cap</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">จำกัดการประมวลผล</translation>
+    </message>
+    <message>
+        <source>%1%</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1%</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">ลำดับการบูต</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (system/EFI)</comment>
+        <translation type="obsolete">ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (system/EFI)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>VT-x/AMD-V</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">VT-x/AMD-V</translation>
+    </message>
+    <message>
+        <source>Nested Paging</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">การแบ่งหน้าซ้อนกัน</translation>
+    </message>
+    <message>
+        <source>PAE/NX</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">PAE/NX</translation>
+    </message>
+    <message>
+        <source>Minimal Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">พาราเวอร์ชวลไลเซชันขั้นต่ำ</translation>
+    </message>
+    <message>
+        <source>Hyper-V Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">พาราเวอร์ชวลไลเซชัน Hyper-V</translation>
+    </message>
+    <message>
+        <source>KVM Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">พาราเวอร์ชวลไลเซชัน KVM</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">ตัวเร่งความเร็ว</translation>
+    </message>
+    <message>
+        <source>Video Memory</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">หน่วยความจำแสดงผล</translation>
+    </message>
+    <message>
+        <source>Screens</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">หน้าจอ</translation>
+    </message>
+    <message>
+        <source>Scale-factor</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">ค่าสเกล</translation>
+    </message>
+    <message>
+        <source>2D Video</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">การแสดงผล 2D</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">3D</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">ตัวเร่งความเร็ว</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server Port</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">พอร์ตเซอร์ฟเวอร์รีโมตเดสก์ทอป</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">เซอร์ฟเวอร์รีโมตเดสก์ทอป</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/vrde/VRDE server)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Video Capture File</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">ไฟล์สำหรับการจับภาพวิดีโอ</translation>
+    </message>
+    <message>
+        <source>Video Capture Attributes</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">ลักษณะเฉพาะของการจับภาพวิดีโอ</translation>
+    </message>
+    <message>
+        <source>Frame Size: %1x%2, Frame Rate: %3fps, Bit Rate: %4kbps</source>
+        <translation type="obsolete">ขนาดของเฟรม: %1x%2 อัตราเฟรม: %3fps อัตราบิต: %4kbps</translation>
+    </message>
+    <message>
+        <source>Video Capture</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">การจับภาพวิดีโอ</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>[Optical Drive]</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">[ไดรฟ์ออปติคัล]</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Host Driver</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">ไดร์เวอร์ของโฮสต์</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">ตัวควบคุม</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/output)</comment>
+        <translation type="obsolete">ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio/output)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/input)</comment>
+        <translation type="obsolete">ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio/input)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Bridged Adapter, %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">แผงวงจรแบบบริดจ์, %1</translation>
+    </message>
+    <message>
+        <source>Internal Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">เครือข่ายภายใน, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Host-only Adapter, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">แผงวงจรเฉพาะโฮสต์, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">ไดร์เวอร์ทั่วไป, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos; { %2 }</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">ไดร์เวอร์ทั่วไป, &apos;%1&apos; { %2 }</translation>
+    </message>
+    <message>
+        <source>NAT Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">เครือข่าย NAT &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">แผงวงจร %1</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (network/adapter)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Port %1</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">พอร์ต %1</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>USB Controller</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">ตัวควบคุม USB</translation>
+    </message>
+    <message>
+        <source>%1 (%2 active)</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">%1 (%2 ใช้งานอยู่)</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>USB Controller Inaccessible</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">ไม่สามารถเข้าถึงตัวควบคุม USB</translation>
+    </message>
+    <message>
+        <source>Shared Folders</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">โฟลเดอร์ใช้ร่วมกัน</translation>
+    </message>
+    <message>
+        <source>Menu-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">แถบเมนู</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/menu-bar)</comment>
+        <translation type="obsolete">ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/menu-bar)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Status-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">แถบสถานะ</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/status-bar)</comment>
+        <translation type="obsolete">ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/status-bar)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar Position</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">ตำแหน่งแถบเครื่องมือขนาดเล็ก</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">ด้านบน</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">ด้านล่าง</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">แถบเครื่องมือขนาดเล็ก</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/mini-toolbar)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/recording)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+</context>
+<context>
     <name>UIDetailsPagePrivate</name>
     <message>
         <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
@@ -1382,6 +1917,13 @@
     </message>
 </context>
 <context>
+    <name>UIErrorPane</name>
+    <message>
+        <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
+        <translation type="obsolete">เวอร์ชวลแมชชีนที่เลือก&lt;i&gt;ไม่สามารถเข้าถึงได้&lt;/i&gt; กรุณาตรวจสอบข้อผิดพลาดที่แสดงด้านล่าง และกดปุ่ม&lt;b&gt;เรียกซ้ำ&lt;/b&gt;หากต้องการตรวจสอบการเข้าถึงอีกครั้ง:</translation>
+    </message>
+</context>
+<context>
     <name>UIErrorString</name>
     <message>
         <source>Result&amp;nbsp;Code: </source>
@@ -1420,6 +1962,56 @@
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIFDCreationDialog</name>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">ขนาด:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">ปิด</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">ยกเลิก</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">หยุดชั่วคราว</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">รหัสผ่าน</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ชื่อ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ขนาด</translation>
     </message>
 </context>
 <context>
@@ -1963,6 +2555,11 @@
         <comment>details (display/Unscaled HiDPI Video Output)</comment>
         <translation type="unfinished">ไม่ใช้</translation>
     </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/recording)</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
 </context>
 <context>
     <name>UIGDetailsElement</name>
@@ -2077,6 +2674,14 @@
     <message>
         <source>When checked, machine windows will be raised when the mouse pointer moves over them.</source>
         <translation>หากเลือกไว้ หน้าต่างของเครื่องจะถูกนำขึ้นมาแสดงด้านบนเมื่อตัวชี้เมาส์เลื่อนมาอยู่เหนือหน้าต่าง</translation>
+    </message>
+    <message>
+        <source>Scale Factor:</source>
+        <translation type="obsolete">ค่าสเกล:</translation>
+    </message>
+    <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">ควบคุมค่าสเกลหน้าจอของเกสต์</translation>
     </message>
 </context>
 <context>
@@ -2799,6 +3404,40 @@
     </message>
 </context>
 <context>
+    <name>UIGuestControlFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">ปิด</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">รหัสผ่าน</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ชื่อ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ขนาด</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">ยกเลิก</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">หยุดชั่วคราว</translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestProcessControlWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">ปิด</translation>
+    </message>
+</context>
+<context>
     <name>UIHelpButton</name>
     <message>
         <source>&amp;Help</source>
@@ -3270,6 +3909,11 @@
     <message>
         <source>Shortcut</source>
         <translation>ทางลัด</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <comment>scope: description</comment>
+        <translation type="obsolete">%1: %2</translation>
     </message>
 </context>
 <context>
@@ -3891,6 +4535,94 @@
     </message>
 </context>
 <context>
+    <name>UIItemHostNetwork</name>
+    <message>
+        <source>Enable</source>
+        <comment>DHCP Server</comment>
+        <translation type="obsolete">ใช้</translation>
+    </message>
+    <message>
+        <source>Adapter</source>
+        <translation type="obsolete">แผงวงจร</translation>
+    </message>
+    <message>
+        <source>Automatically configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">ตั้งค่าอัตโนมัติ</translation>
+    </message>
+    <message>
+        <source>Manually configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">ตั้งค่าด้วยตนเอง</translation>
+    </message>
+    <message>
+        <source>IPv4 Address</source>
+        <translation type="obsolete">ที่อยู่ IPv4</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>address</comment>
+        <translation type="obsolete">ไม่ได้กำหนด</translation>
+    </message>
+    <message>
+        <source>IPv4 Network Mask</source>
+        <translation type="obsolete">มาสก์เครือข่าย IPv4</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>mask</comment>
+        <translation type="obsolete">ไม่ได้กำหนด</translation>
+    </message>
+    <message>
+        <source>IPv6 Address</source>
+        <translation type="obsolete">ที่อยู่ IPv6</translation>
+    </message>
+    <message>
+        <source>IPv6 Prefix Length</source>
+        <translation type="obsolete">ความยาวมาสก์เครือข่าย IPv6</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>length</comment>
+        <translation type="obsolete">ไม่ได้กำหนด</translation>
+    </message>
+    <message>
+        <source>DHCP Server</source>
+        <translation type="obsolete">เซอร์ฟเวอร์ DHCP</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>server</comment>
+        <translation type="obsolete">ใช้</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>server</comment>
+        <translation type="obsolete">ไม่ใช้</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="obsolete">ที่อยู่</translation>
+    </message>
+    <message>
+        <source>Network Mask</source>
+        <translation type="obsolete">มาสก์เครือข่าย</translation>
+    </message>
+    <message>
+        <source>Lower Bound</source>
+        <translation type="obsolete">ที่อยู่เริ่มต้น</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>bound</comment>
+        <translation type="obsolete">ไม่ได้กำหนด</translation>
+    </message>
+    <message>
+        <source>Upper Bound</source>
+        <translation type="obsolete">ที่อยู่สุดท้าย</translation>
+    </message>
+</context>
+<context>
     <name>UIItemNetworkNAT</name>
     <message>
         <source>%1, %2</source>
@@ -3901,6 +4633,93 @@
         <source>%1</source>
         <comment>col.2 text</comment>
         <translation type="unfinished">%1% {1?}</translation>
+    </message>
+    <message>
+        <source>Network Name</source>
+        <translation type="obsolete">ชื่อเครือข่าย</translation>
+    </message>
+    <message>
+        <source>[empty]</source>
+        <translation type="obsolete">[ว่าง]</translation>
+    </message>
+    <message>
+        <source>%1 (renamed from %2)</source>
+        <translation type="obsolete">%1 (เปลี่ยนชื่อจาก %2)</translation>
+    </message>
+    <message>
+        <source>Old Network Name</source>
+        <translation type="obsolete">ชื่อเครือข่ายเดิม</translation>
+    </message>
+    <message>
+        <source>New Network Name</source>
+        <translation type="obsolete">ชื่อเครือข่ายใหม่</translation>
+    </message>
+    <message>
+        <source>Network CIDR</source>
+        <translation type="obsolete">CIDR ของเครือข่าย</translation>
+    </message>
+    <message>
+        <source>Supports DHCP</source>
+        <translation type="obsolete">รองรับ DHCP</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation type="obsolete">ใช่</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation type="obsolete">ไม่ใช่</translation>
+    </message>
+    <message>
+        <source>Supports IPv6</source>
+        <translation type="obsolete">รองรับ IPv6</translation>
+    </message>
+    <message>
+        <source>Default IPv6 route</source>
+        <translation type="obsolete">เส้นทางตั้งต้น IPv6</translation>
+    </message>
+    <message>
+        <source>No new name specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">ไม่ได้กำหนดชื่อใหม่สำหรับเครือข่าย NAT ที่ถูกเรียกใช้ก่อนหน้านี้ &lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">ไม่ได้กำหนด CIDR สำหรับเครือข่าย NAT &lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">ไม่ได้กำหนด CIDR สำหรับเครือข่าย NAT ที่ถูกเรียกใช้ก่อนหน้านี้ &lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">กำหนด CIDR ไม่ถูกต้อง (&lt;i&gt;%1&lt;/i&gt;) สำหรับเครือข่าย NAT &lt;b&gt;%2&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network previously called &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">กำหนด CIDR ไม่ถูกต้อง (&lt;i&gt;%1&lt;/i&gt;) สำหรับเครือข่าย NAT ที่ถูกเรียกใช้ก่อนหน้านี้ &lt;b&gt;%2&lt;/b&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>UILanguageItem</name>
+    <message>
+        <source> (built-in)</source>
+        <comment>Language</comment>
+        <translation type="obsolete">(บิลท์อิน)</translation>
+    </message>
+    <message>
+        <source>&lt;unavailable&gt;</source>
+        <comment>Language</comment>
+        <translation type="obsolete">&lt;ไม่พร้อมใช้งาน&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>Author(s)</comment>
+        <translation type="obsolete">&lt;ไม่รู้จัก&gt;</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <comment>Language</comment>
+        <translation type="obsolete">ค่าตั้งต้น</translation>
     </message>
 </context>
 <context>
@@ -3915,6 +4734,37 @@
     <message>
         <source>Select a filename for the screenshot ...</source>
         <translation>เลือกชื่อไฟล์สำหรับภาพหน้าจอ ...</translation>
+    </message>
+</context>
+<context>
+    <name>UIMachinePreview</name>
+    <message>
+        <source>No preview</source>
+        <translation type="obsolete">ไม่แสดงตัวอย่าง</translation>
+    </message>
+    <message>
+        <source>Update disabled</source>
+        <translation type="obsolete">ปิดการอัพเดต</translation>
+    </message>
+    <message>
+        <source>Every 0.5 s</source>
+        <translation type="obsolete">ทุก 0.5 วินาที</translation>
+    </message>
+    <message>
+        <source>Every 1 s</source>
+        <translation type="obsolete">ทุก 1 วินาที</translation>
+    </message>
+    <message>
+        <source>Every 2 s</source>
+        <translation type="obsolete">ทุก 2 วินาที</translation>
+    </message>
+    <message>
+        <source>Every 5 s</source>
+        <translation type="obsolete">ทุก 5 วินาที</translation>
+    </message>
+    <message>
+        <source>Every 10 s</source>
+        <translation type="obsolete">ทุก 10 วินาที</translation>
     </message>
 </context>
 <context>
@@ -5718,6 +6568,46 @@
     </message>
 </context>
 <context>
+    <name>UIMediumItem</name>
+    <message>
+        <source>Format:</source>
+        <translation type="obsolete">รูปแบบ:</translation>
+    </message>
+    <message>
+        <source>Storage details:</source>
+        <translation type="obsolete">รายละเอียดหน่วยเก็บข้อมูล:</translation>
+    </message>
+    <message>
+        <source>Attached to:</source>
+        <translation type="obsolete">เชื่อมต่อกับ:</translation>
+    </message>
+    <message>
+        <source>Encrypted with key:</source>
+        <translation type="obsolete">เข้ารหัสลับด้วยกุญแจ:</translation>
+    </message>
+    <message>
+        <source>UUID:</source>
+        <translation type="obsolete">UUID:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;ไม่ได้เชื่อมต่อไว้&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Encrypted&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;ไม่ได้เข้ารหัสลับไว้&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>--</source>
+        <comment>no info</comment>
+        <translation type="obsolete">--</translation>
+    </message>
+    <message>
+        <source>Removing medium...</source>
+        <translation type="obsolete">กำลังนำสื่อบันทึกออก...</translation>
+    </message>
+</context>
+<context>
     <name>UIMediumManager</name>
     <message>
         <source>&amp;Optical disks</source>
@@ -5920,6 +6810,53 @@
     <message>
         <source>Move selected disk image file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">ขนาด:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIMediumSelector</name>
+    <message>
+        <source>&amp;Add...</source>
+        <translation type="obsolete">เ&amp;พิ่ม...</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">เรียก&amp;ซ้ำ</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">เรียกรายการไฟล์ดิสก์อิมเมจซ้ำอีกครั้ง</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ชื่อ</translation>
+    </message>
+    <message>
+        <source>Virtual Size</source>
+        <translation type="obsolete">ขนาดเสมือน</translation>
+    </message>
+    <message>
+        <source>Actual Size</source>
+        <translation type="obsolete">ขนาดจริง</translation>
     </message>
 </context>
 <context>
@@ -7177,6 +8114,10 @@
         <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">นำเข้า</translation>
+    </message>
 </context>
 <context>
     <name>UIMiniToolBar</name>
@@ -7464,6 +8405,13 @@
     </message>
 </context>
 <context>
+    <name>UIScaleFactorEditor</name>
+    <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">ควบคุมค่าสเกลหน้าจอของเกสต์</translation>
+    </message>
+</context>
+<context>
     <name>UIScreenshotViewer</name>
     <message>
         <source>Screenshot of %1 (%2)</source>
@@ -7745,6 +8693,42 @@
     </message>
 </context>
 <context>
+    <name>UISnapshotItem</name>
+    <message>
+        <source>Current State (changed)</source>
+        <comment>Current State (Modified)</comment>
+        <translation type="obsolete">สถานะปัจจุบัน (มีการเปลี่ยนแปลง)</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <comment>Current State (Unmodified)</comment>
+        <translation type="obsolete">สถานะปัจจุบัน</translation>
+    </message>
+    <message>
+        <source>The current state differs from the state stored in the current snapshot</source>
+        <translation type="obsolete">สถานะปัจจุบันมีความแตกต่างจากสถานะที่ถูกจัดเก็บไว้ในสแนปช็อต</translation>
+    </message>
+    <message>
+        <source>The current state is identical to the state stored in the current snapshot</source>
+        <translation type="obsolete">สถานะปัจจุบันตรงกับสถานะที่ถูกจัดเก็บไว้ในสแนปช็อต</translation>
+    </message>
+    <message>
+        <source>%1 since %2</source>
+        <comment>Current State (time or date + time)</comment>
+        <translation type="obsolete">%1 ตั้งแต่ %2</translation>
+    </message>
+    <message>
+        <source>Taken at %1</source>
+        <comment>Snapshot (time)</comment>
+        <translation type="obsolete">เก็บไว้เมื่อ %1</translation>
+    </message>
+    <message>
+        <source>Taken on %1</source>
+        <comment>Snapshot (date + time)</comment>
+        <translation type="obsolete">เก็บไว้เมื่อ %1</translation>
+    </message>
+</context>
+<context>
     <name>UISnapshotPane</name>
     <message>
         <source>Current State (changed)</source>
@@ -7942,6 +8926,17 @@
     </message>
 </context>
 <context>
+    <name>UIToolsModel</name>
+    <message>
+        <source>Network</source>
+        <translation type="obsolete">เครือข่าย</translation>
+    </message>
+    <message>
+        <source>Snapshots</source>
+        <translation type="obsolete">สแนปช็อต</translation>
+    </message>
+</context>
+<context>
     <name>UIToolsPaneGlobal</name>
     <message>
         <source>&lt;h3&gt;Welcome to VirtualBox!&lt;/h3&gt;&lt;p&gt;This window represents a set of global tools which are currently opened (or can be opened). They are not related to any particular machine but to the complete VM collection. For a list of currently available tools check the corresponding menu at the right side of the main tool bar located at the top of the window. This list will be extended with new tools in future releases.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;%1&lt;/b&gt; key to get instant help, or visit &lt;a href=https://www.virtualbox.org&gt;www.virtualbox.org&lt;/a&gt; for more information and latest news.&lt;/p&gt;</source>
@@ -7986,6 +8981,46 @@
         <source>%1</source>
         <comment>col.1 text</comment>
         <translation type="unfinished">%1% {1?}</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;รหัสผู้ผลิต: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product ID: %2&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;รหัสผลิตภัณฑ์: %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Revision: %3&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ครั้งที่แก้ไข: %3&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product: %4&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ผลิตภัณฑ์: %4&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Manufacturer: %5&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;ผู้ผลิต: %5&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Serial No.: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;เลขลำดับ: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Port: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;พอร์ต: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;State: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;สถานะ: %1&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
@@ -8315,6 +9350,68 @@
     <message>
         <source>Fil&amp;ter</source>
         <translation>ฟิลเ&amp;ตอร์</translation>
+    </message>
+</context>
+<context>
+    <name>UIVMLogViewerWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">ปิด</translation>
+    </message>
+    <message>
+        <source>Enter a search string here</source>
+        <translation type="obsolete">ป้อนข้อความเพื่อค้นหาที่นี่</translation>
+    </message>
+    <message>
+        <source>C&amp;ase Sensitive</source>
+        <translation type="obsolete">&amp;ตัวพิมพ์เล็ก/ใหญ่แตกต่างกัน</translation>
+    </message>
+    <message>
+        <source>String not found</source>
+        <translation type="obsolete">ไม่พบข้อความที่ระบุ</translation>
+    </message>
+    <message>
+        <source>Save VirtualBox Log As</source>
+        <translation type="obsolete">บันทึกล็อกเวอร์ชวลบอกซ์เป็น</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No log files found. Press the &lt;b&gt;Refresh&lt;/b&gt; button to rescan the log folder &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</source>
+        <translation type="obsolete">&lt;p&gt;ไม่พบล็อกไฟล์ กดปุ่ม &lt;b&gt;เรียกซ้ำ&lt;/b&gt; เพื่อตรวจสอบโฟลเดอร์เก็บล็อก &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; อีกครั้ง&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManager</name>
+    <message>
+        <source>Manager</source>
+        <comment>Note: main window title which is prepended by the product name.</comment>
+        <translation type="obsolete">ส่วนจัดการ</translation>
+    </message>
+    <message>
+        <source>Select a virtual machine file</source>
+        <translation type="obsolete">เลือกไฟล์เวอร์ชวลแมชชีน</translation>
+    </message>
+    <message>
+        <source>Virtual machine files (%1)</source>
+        <translation type="obsolete">ไฟล์เวอร์ชวลแมชชีน (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UIVisoCreator</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ชื่อ</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">ขนาด</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">นำออก</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">รีเซ็ต</translation>
     </message>
 </context>
 <context>
@@ -8789,6 +9886,10 @@
     <message>
         <source>Write in Oracle Public Cloud 1.0 format.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a file to export the virtual appliance to...</source>
+        <translation type="obsolete">เลือกไฟล์สำหรับส่งออกแอพพลายแอนซ์เสมือน...</translation>
     </message>
 </context>
 <context>
@@ -10678,6 +11779,111 @@
         <source>Differencing</source>
         <comment>MediumType</comment>
         <translation type="unfinished">ความแตกต่าง</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details report</comment>
+        <translation type="obsolete">โปรเซสเซอร์</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">ชื่อ</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation type="obsolete">กลุ่ม</translation>
+    </message>
+    <message>
+        <source>RAM</source>
+        <translation type="obsolete">แรม</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <translation type="obsolete">ลำดับการบูต</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <translation type="obsolete">ตัวเร่งความเร็ว</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <translation type="obsolete">ตัวควบคุม</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <translation type="obsolete">ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>NAT</source>
+        <translation type="obsolete">NAT</translation>
+    </message>
+    <message>
+        <source>Internal Network</source>
+        <translation type="obsolete">เครือข่ายภายใน</translation>
+    </message>
+    <message>
+        <source>Generic Driver</source>
+        <translation type="obsolete">ไดร์เวอร์ทั่วไป</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation type="obsolete">ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Host Pipe</source>
+        <translation type="obsolete">ท่อของโฮสต์</translation>
+    </message>
+    <message>
+        <source>Host Device</source>
+        <translation type="obsolete">อุปกรณ์ของโฮสต์</translation>
+    </message>
+    <message>
+        <source>Raw File</source>
+        <translation type="obsolete">ไฟล์ดิบ</translation>
+    </message>
+    <message>
+        <source>TCP</source>
+        <translation type="obsolete">TCP</translation>
+    </message>
+    <message>
+        <source>VDI (VirtualBox Disk Image)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VDI (VirtualBox Disk Image)</translation>
+    </message>
+    <message>
+        <source>VMDK (Virtual Machine Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VMDK (Virtual Machine Disk)</translation>
+    </message>
+    <message>
+        <source>VHD (Virtual Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VHD (Virtual Hard Disk)</translation>
+    </message>
+    <message>
+        <source>HDD (Parallels Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">HDD (Parallels Hard Disk)</translation>
+    </message>
+    <message>
+        <source>QED (QEMU enhanced disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QED (QEMU enhanced disk)</translation>
+    </message>
+    <message>
+        <source>QCOW (QEMU Copy-On-Write)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QCOW (QEMU Copy-On-Write)</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>network adapter</comment>
+        <translation type="obsolete">ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <comment>serial port</comment>
+        <translation type="obsolete">ไม่ได้เชื่อมต่อ</translation>
     </message>
 </context>
 <context>

@@ -65,8 +65,8 @@ public:
     int             i_waitForRead(GuestWaitEvent *pEvent, uint32_t uTimeoutMS, void *pvData, size_t cbData, uint32_t *pcbRead);
     int             i_waitForStatusChange(GuestWaitEvent *pEvent, uint32_t uTimeoutMS, FileStatus_T *pFileStatus, int *pGuestRc);
     int             i_waitForWrite(GuestWaitEvent *pEvent, uint32_t uTimeoutMS, uint32_t *pcbWritten);
-    int             i_writeData(uint32_t uTimeoutMS, void *pvData, uint32_t cbData, uint32_t *pcbWritten);
-    int             i_writeDataAt(uint64_t uOffset, uint32_t uTimeoutMS, void *pvData, uint32_t cbData, uint32_t *pcbWritten);
+    int             i_writeData(uint32_t uTimeoutMS, const void *pvData, uint32_t cbData, uint32_t *pcbWritten);
+    int             i_writeDataAt(uint64_t uOffset, uint32_t uTimeoutMS, const void *pvData, uint32_t cbData, uint32_t *pcbWritten);
     /** @}  */
 
 private:

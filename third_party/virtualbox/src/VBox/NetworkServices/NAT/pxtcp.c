@@ -2427,7 +2427,7 @@ pxtcp_pcb_pull_inbound(void *ctx)
     }
 
     pxtcp->inbound_pull = 1;
-    if (pxtcp->outbound_close_done) {
+    if (pxtcp->pmhdl.slot < 0) {
         DPRINTF(("%s: pxtcp %p: pcb %p (deferred delete)\n",
                  __func__, (void *)pxtcp, (void *)pxtcp->pcb));
         pxtcp->deferred_delete = 1;

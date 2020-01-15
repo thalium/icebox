@@ -11,6 +11,6 @@
 
 #include <iprt/cdefs.h>
 
-DECLEXPORT(void) crStateError( int line, const char *file, GLenum err, const char *format, ... );
+DECLEXPORT(void) crStateError(PCRStateTracker pState, int line, const char *file, GLenum err, const char *format, ... );
 
 #endif /* CR_STATE_ERROR_H */

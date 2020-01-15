@@ -38,7 +38,7 @@ MOD_NAME   = vboxvideo
 MOD_OBJS   = hgsmi_base.o \
              modesetting.o vbox_drv.o vbox_fb.o vbox_irq.o vbox_main.o \
              vbox_mode.o vbox_ttm.o vbva_base.o vbox_prime.o vbox_hgsmi.o
-MOD_INCL   = -I$(KBUILD_EXTMOD) -Iinclude/drm
+MOD_INCL   = -I$(KBUILD_EXTMOD) -I$(KERN_INCL)/drm
 
 include $(obj)/Makefile.include.footer
 

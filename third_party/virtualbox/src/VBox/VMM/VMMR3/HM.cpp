@@ -457,6 +457,8 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
                               "|SpecCtrlByHost"
                               "|L1DFlushOnSched"
                               "|L1DFlushOnVMEntry"
+                              "|MDSClearOnSched"
+                              "|MDSClearOnVMEntry"
                               "|TPRPatchingEnabled"
                               "|64bitEnabled"
                               "|VmxPleGap"
@@ -465,7 +467,8 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
                               "|SvmPauseFilterThreshold"
                               "|Exclusive"
                               "|MaxResumeLoops"
-                              "|UseVmxPreemptTimer",
+                              "|UseVmxPreemptTimer"
+                              "|LovelyMesaDrvWorkaround",
                               "" /* pszValidNodes */, "HM" /* pszWho */, 0 /* uInstance */);
     if (RT_FAILURE(rc))
         return rc;
@@ -614,12 +617,12 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
     AssertLogRelRCReturn(rc, rc);
 
     /** @cfgm{/HM/L1DFlushOnSched, bool, true}
-     * CVS-2018-3646 workaround, ignored on CPUs that aren't affected. */
+     * CVE-2018-3646 workaround, ignored on CPUs that aren't affected. */
     rc = CFGMR3QueryBoolDef(pCfgHm, "L1DFlushOnSched", &pVM->hm.s.fL1dFlushOnSched, true);
     AssertLogRelRCReturn(rc, rc);
 
     /** @cfgm{/HM/L1DFlushOnVMEntry, bool}
-     * CVS-2018-3646 workaround, ignored on CPUs that aren't affected. */
+     * CVE-2018-3646 workaround, ignored on CPUs that aren't affected. */
     rc = CFGMR3QueryBoolDef(pCfgHm, "L1DFlushOnVMEntry", &pVM->hm.s.fL1dFlushOnVmEntry, false);
     AssertLogRelRCReturn(rc, rc);
 
@@ -631,6 +634,31 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
      * Another expensive paranoia setting. */
     rc = CFGMR3QueryBoolDef(pCfgHm, "SpecCtrlByHost", &pVM->hm.s.fSpecCtrlByHost, false);
     AssertLogRelRCReturn(rc, rc);
+
+    /** @cfgm{/HM/MDSClearOnSched, bool, true}
+     * CVE-2018-12126, CVE-2018-12130, CVE-2018-12127, CVE-2019-11091 workaround,
+     * ignored on CPUs that aren't affected. */
+    rc = CFGMR3QueryBoolDef(pCfgHm, "MDSClearOnSched", &pVM->hm.s.fMdsClearOnSched, true);
+    AssertLogRelRCReturn(rc, rc);
+
+    /** @cfgm{/HM/MDSClearOnVmEntry, bool, false}
+     * CVE-2018-12126, CVE-2018-12130, CVE-2018-12127, CVE-2019-11091 workaround,
+     * ignored on CPUs that aren't affected. */
+    rc = CFGMR3QueryBoolDef(pCfgHm, "MDSClearOnVmEntry", &pVM->hm.s.fMdsClearOnVmEntry, false);
+    AssertLogRelRCReturn(rc, rc);
+
+    /* Disable MDSClearOnSched if MDSClearOnVmEntry is enabled. */
+    if (pVM->hm.s.fMdsClearOnVmEntry)
+        pVM->hm.s.fMdsClearOnSched = false;
+
+    /** @cfgm{/HM/LovelyMesaDrvWorkaround,bool}
+     * Workaround for mesa vmsvga 3d driver making incorrect assumptions about
+     * the hypervisor it is running under. */
+    bool f;
+    rc = CFGMR3QueryBoolDef(pCfgHm, "LovelyMesaDrvWorkaround", &f, false);
+    AssertLogRelRCReturn(rc, rc);
+    for (VMCPUID i = 0; i < pVM->cCpus; i++)
+        pVM->aCpus[i].hm.s.fTrapXcptGpForLovelyMesaDrv = f;
 
     /*
      * Check if VT-x or AMD-v support according to the users wishes.
@@ -1195,6 +1223,26 @@ static int hmR3InitFinalizeR0(PVM pVM)
         pVM->hm.s.fL1dFlushOnSched = pVM->hm.s.fL1dFlushOnVmEntry = false;
 
     /*
+     * Check if MDS flush is needed/possible.
+     * On atoms and knight family CPUs, we will only allow clearing on scheduling.
+     */
+    if (   !pVM->cpum.ro.HostFeatures.fMdsClear
+        || pVM->cpum.ro.HostFeatures.fArchMdsNo)
+        pVM->hm.s.fMdsClearOnSched = pVM->hm.s.fMdsClearOnVmEntry = false;
+    else if (   (   pVM->cpum.ro.HostFeatures.enmMicroarch >=  kCpumMicroarch_Intel_Atom_Airmount
+                 && pVM->cpum.ro.HostFeatures.enmMicroarch <   kCpumMicroarch_Intel_Atom_End)
+             || (   pVM->cpum.ro.HostFeatures.enmMicroarch >=  kCpumMicroarch_Intel_Phi_KnightsLanding
+                 && pVM->cpum.ro.HostFeatures.enmMicroarch <   kCpumMicroarch_Intel_Phi_End))
+    {
+        if (!pVM->hm.s.fMdsClearOnSched)
+             pVM->hm.s.fMdsClearOnSched = pVM->hm.s.fMdsClearOnVmEntry;
+        pVM->hm.s.fMdsClearOnVmEntry = false;
+    }
+    else if (   pVM->cpum.ro.HostFeatures.enmMicroarch <  kCpumMicroarch_Intel_Core7_Nehalem
+             || pVM->cpum.ro.HostFeatures.enmMicroarch >= kCpumMicroarch_Intel_Core7_End)
+        pVM->hm.s.fMdsClearOnSched = pVM->hm.s.fMdsClearOnVmEntry = false;
+
+    /*
      * Sync options.
      */
     /** @todo Move this out of of CPUMCTX and into some ring-0 only HM structure.
@@ -1213,10 +1261,12 @@ static int hmR3InitFinalizeR0(PVM pVM)
         }
         if (pVM->cpum.ro.HostFeatures.fFlushCmd && pVM->hm.s.fL1dFlushOnVmEntry)
             pCpuCtx->fWorldSwitcher |= CPUMCTX_WSF_L1D_ENTRY;
+        if (pVM->cpum.ro.HostFeatures.fMdsClear && pVM->hm.s.fMdsClearOnVmEntry)
+            pCpuCtx->fWorldSwitcher |= CPUMCTX_WSF_MDS_ENTRY;
         if (iCpu == 0)
-            LogRel(("HM: fWorldSwitcher=%#x (fIbpbOnVmExit=%d fIbpbOnVmEntry=%d fL1dFlushOnVmEntry=%d); fL1dFlushOnSched=%d\n",
+            LogRel(("HM: fWorldSwitcher=%#x (fIbpbOnVmExit=%RTbool fIbpbOnVmEntry=%RTbool fL1dFlushOnVmEntry=%RTbool); fL1dFlushOnSched=%RTbool fMdsClearOnVmEntry=%RTbool\n",
                     pCpuCtx->fWorldSwitcher, pVM->hm.s.fIbpbOnVmExit, pVM->hm.s.fIbpbOnVmEntry, pVM->hm.s.fL1dFlushOnVmEntry,
-                    pVM->hm.s.fL1dFlushOnSched));
+                    pVM->hm.s.fL1dFlushOnSched, pVM->hm.s.fMdsClearOnVmEntry));
     }
 
     /*

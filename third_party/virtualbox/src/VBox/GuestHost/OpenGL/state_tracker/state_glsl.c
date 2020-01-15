@@ -23,10 +23,20 @@
 #include "cr_mem.h"
 #include "cr_string.h"
 
-static CRGLSLShader* crStateGetShaderObj(GLuint id)
-{
-    CRContext *g = GetCurrentContext();
+#include <stdio.h> /*sprintf*/
 
+/**
+ * Helper for walking the shaders hash table.
+ */
+typedef struct CRStateGLSLShaderWalkArgs
+{
+    CRGLSLProgram *pProgram;
+    PCRStateTracker pState;
+} CRStateGLSLShaderWalkArgs;
+typedef CRStateGLSLShaderWalkArgs *PCRStateGLSLShaderWalkArgs;
+
+static CRGLSLShader* crStateGetShaderObj(CRContext *g, GLuint id)
+{
     if (!g)
     {
         crWarning("crStateGetShaderObj called without current ctx");
@@ -35,10 +45,8 @@ static CRGLSLShader* crStateGetShaderObj(GLuint id)
     return !g ? NULL : (CRGLSLShader *) crHashtableSearch(g->glsl.shaders, id);
 }
 
-static CRGLSLProgram* crStateGetProgramObj(GLuint id)
+static CRGLSLProgram* crStateGetProgramObj(CRContext *g, GLuint id)
 {
-    CRContext *g = GetCurrentContext();
-
     if (!g)
     {
         crWarning("crStateGetProgramObj called without current ctx");
@@ -115,8 +123,9 @@ static void crStateFreeProgramUniforms(CRGLSLProgram* pProgram)
 #endif
 }
 
-static void crStateShaderDecRefCount(void *data)
+static void crStateShaderDecRefCount(void *data, void *pvUser)
 {
+    CRContext *g = (CRContext *)pvUser;
     CRGLSLShader *pShader = (CRGLSLShader *) data;
 
     CRASSERT(pShader->refCount>0);
@@ -124,10 +133,7 @@ static void crStateShaderDecRefCount(void *data)
     pShader->refCount--;
 
     if (0==pShader->refCount && pShader->deleted)
-    {
-        CRContext *g = GetCurrentContext();
         crHashtableDelete(g->glsl.shaders, pShader->id, crStateFreeGLSLShader);
-    }
 }
 
 static void crStateFakeDecRefCountCB(unsigned long key, void *data1, void *data2)
@@ -137,11 +143,11 @@ static void crStateFakeDecRefCountCB(unsigned long key, void *data1, void *data2
     CRGLSLShader *pRealShader;
     (void) key; (void)ctx;
 
-    pRealShader = crStateGetShaderObj(pShader->id);
+    pRealShader = crStateGetShaderObj(ctx, pShader->id);
 
     if (pRealShader)
     {
-        crStateShaderDecRefCount(pRealShader);
+        crStateShaderDecRefCount(pRealShader, ctx);
     }
     else
     {
@@ -149,16 +155,16 @@ static void crStateFakeDecRefCountCB(unsigned long key, void *data1, void *data2
     }
 }
 
-static void crStateFreeGLSLProgram(void *data)
+static void crStateFreeGLSLProgram(void *data, void *pvUser)
 {
+    CRContext *pCtx = (CRContext *)pvUser;
     CRGLSLProgram* pProgram = (CRGLSLProgram *) data;
 
-    crFreeHashtable(pProgram->currentState.attachedShaders, crStateShaderDecRefCount);
+    crFreeHashtableEx(pProgram->currentState.attachedShaders, crStateShaderDecRefCount, pCtx);
 
     if (pProgram->activeState.attachedShaders)
     {
-        CRContext *g = GetCurrentContext();
-        crHashtableWalk(pProgram->activeState.attachedShaders, crStateFakeDecRefCountCB, g);
+        crHashtableWalk(pProgram->activeState.attachedShaders, crStateFakeDecRefCountCB, pCtx);
         crFreeHashtable(pProgram->activeState.attachedShaders, crStateFreeGLSLShader);
     }
 
@@ -185,46 +191,39 @@ DECLEXPORT(void) STATE_APIENTRY crStateGLSLInit(CRContext *ctx)
 
 DECLEXPORT(void) STATE_APIENTRY crStateGLSLDestroy(CRContext *ctx)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(ctx->pStateTracker);
 
     /** @todo hack to allow crStateFreeGLSLProgram to work correctly,
       as the current context isn't the one being destroyed*/
-#ifdef CHROMIUM_THREADSAFE
     CRASSERT(g != ctx);
     VBoxTlsRefAddRef(ctx); /* <- this is a hack to avoid subsequent SetCurrentContext(g) do recursive Destroy for ctx */
     if (g)
         VBoxTlsRefAddRef(g); /* <- ensure the g is not destroyed by the following SetCurrentContext call */
-    SetCurrentContext(ctx);
-#else
-    __currentContext = ctx;
-#endif
+    SetCurrentContext(ctx->pStateTracker, ctx);
 
-    crFreeHashtable(ctx->glsl.programs, crStateFreeGLSLProgram);
+    crFreeHashtableEx(ctx->glsl.programs, crStateFreeGLSLProgram, ctx);
     crFreeHashtable(ctx->glsl.shaders, crStateFreeGLSLShader);
 
-#ifdef CHROMIUM_THREADSAFE
-    SetCurrentContext(g);
+    SetCurrentContext(ctx->pStateTracker, g);
     if (g)
         VBoxTlsRefRelease(g);
     VBoxTlsRefRelease(ctx); /* <- restore back the cRefs (see above) */
-#else
-    __currentContext = g;
-#endif
-
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetShaderHWID(GLuint id)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetShaderHWID(PCRStateTracker pState, GLuint id)
 {
-    CRGLSLShader *pShader = crStateGetShaderObj(id);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLShader *pShader = crStateGetShaderObj(g, id);
 #ifdef IN_GUEST
     CRASSERT(!pShader || pShader->hwid == id);
 #endif
     return pShader ? pShader->hwid : 0;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetProgramHWID(GLuint id)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetProgramHWID(PCRStateTracker pState, GLuint id)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(id);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, id);
 #ifdef IN_GUEST
     CRASSERT(!pProgram || pProgram->hwid == id);
 #endif
@@ -251,9 +250,9 @@ static void crStateCheckProgramHWIDCB(unsigned long key, void *data1, void *data
         pParms->id = pProgram->id;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLShaderHWIDtoID(GLuint hwid)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLShaderHWIDtoID(PCRStateTracker pState, GLuint hwid)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crCheckIDHWID_t parms;
 
     parms.id = hwid;
@@ -263,9 +262,9 @@ DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLShaderHWIDtoID(GLuint hwid)
     return parms.id;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLProgramHWIDtoID(GLuint hwid)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLProgramHWIDtoID(PCRStateTracker pState, GLuint hwid)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crCheckIDHWID_t parms;
 
     parms.id = hwid;
@@ -275,29 +274,29 @@ DECLEXPORT(GLuint) STATE_APIENTRY crStateGLSLProgramHWIDtoID(GLuint hwid)
     return parms.id;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateDeleteObjectARB( VBoxGLhandleARB obj )
+DECLEXPORT(GLuint) STATE_APIENTRY crStateDeleteObjectARB(PCRStateTracker pState,  VBoxGLhandleARB obj )
 {
-    GLuint hwId = crStateGetProgramHWID(obj);
+    GLuint hwId = crStateGetProgramHWID(pState, obj);
     if (hwId)
     {
-        crStateDeleteProgram(obj);
+        crStateDeleteProgram(pState, obj);
     }
     else
     {
-        hwId = crStateGetShaderHWID(obj);
-        crStateDeleteShader(obj);
+        hwId = crStateGetShaderHWID(pState, obj);
+        crStateDeleteShader(pState, obj);
     }
     return hwId;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateShader(GLuint hwid, GLenum type)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateShader(PCRStateTracker pState, GLuint hwid, GLenum type)
 {
     CRGLSLShader *pShader;
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     GLuint stateId = hwid;
 
 #ifdef IN_GUEST
-    CRASSERT(!crStateGetShaderObj(stateId));
+    CRASSERT(!crStateGetShaderObj(g, stateId));
 #else
     /* the proogram and shader names must not intersect because DeleteObjectARB must distinguish between them
      * see crStateDeleteObjectARB
@@ -309,7 +308,7 @@ DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateShader(GLuint hwid, GLenum type)
         return 0;
     }
 
-    Assert((pShader = crStateGetShaderObj(stateId)) == NULL);
+    Assert((pShader = crStateGetShaderObj(g, stateId)) == NULL);
 #endif
 
     pShader = (CRGLSLShader *) crAlloc(sizeof(*pShader));
@@ -332,19 +331,19 @@ DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateShader(GLuint hwid, GLenum type)
     return stateId;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateProgram(GLuint hwid)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateProgram(PCRStateTracker pState, GLuint hwid)
 {
     CRGLSLProgram *pProgram;
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     GLuint stateId = hwid;
 
 #ifdef IN_GUEST
-    pProgram = crStateGetProgramObj(stateId);
+    pProgram = crStateGetProgramObj(g, stateId);
     if (pProgram)
     {
         crWarning("Program object %d already exists!", stateId);
-        crStateDeleteProgram(stateId);
-        CRASSERT(!crStateGetProgramObj(stateId));
+        crStateDeleteProgram(pState, stateId);
+        CRASSERT(!crStateGetProgramObj(g, stateId));
     }
 #else
     stateId = crHashtableAllocKeys(g->glsl.programs, 1);
@@ -391,9 +390,10 @@ DECLEXPORT(GLuint) STATE_APIENTRY crStateCreateProgram(GLuint hwid)
     return stateId;
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateCompileShader(GLuint shader)
+DECLEXPORT(void) STATE_APIENTRY crStateCompileShader(PCRStateTracker pState, GLuint shader)
 {
-    CRGLSLShader *pShader = crStateGetShaderObj(shader);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLShader *pShader = crStateGetShaderObj(g, shader);
     if (!pShader)
     {
         crWarning("Unknown shader %d", shader);
@@ -409,9 +409,10 @@ static void crStateDbgCheckNoProgramOfId(void *data)
     crError("Unexpected Program id");
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateDeleteShader(GLuint shader)
+DECLEXPORT(void) STATE_APIENTRY crStateDeleteShader(PCRStateTracker pState, GLuint shader)
 {
-    CRGLSLShader *pShader = crStateGetShaderObj(shader);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLShader *pShader = crStateGetShaderObj(g, shader);
     if (!pShader)
     {
         crWarning("Unknown shader %d", shader);
@@ -422,7 +423,6 @@ DECLEXPORT(void) STATE_APIENTRY crStateDeleteShader(GLuint shader)
 
     if (0==pShader->refCount)
     {
-        CRContext *g = GetCurrentContext();
         crHashtableDelete(g->glsl.shaders, shader, crStateFreeGLSLShader);
         /* since we use programs table for key allocation key allocation, we need to
          * free the key in the programs table.
@@ -431,9 +431,10 @@ DECLEXPORT(void) STATE_APIENTRY crStateDeleteShader(GLuint shader)
     }
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateAttachShader(GLuint program, GLuint shader)
+DECLEXPORT(void) STATE_APIENTRY crStateAttachShader(PCRStateTracker pState, GLuint program, GLuint shader)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     CRGLSLShader *pShader;
 
     if (!pProgram)
@@ -448,7 +449,7 @@ DECLEXPORT(void) STATE_APIENTRY crStateAttachShader(GLuint program, GLuint shade
         return;
     }
 
-    pShader = crStateGetShaderObj(shader);
+    pShader = crStateGetShaderObj(g, shader);
 
     if (!pShader)
     {
@@ -461,9 +462,10 @@ DECLEXPORT(void) STATE_APIENTRY crStateAttachShader(GLuint program, GLuint shade
     crHashtableAdd(pProgram->currentState.attachedShaders, shader, pShader);
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateDetachShader(GLuint program, GLuint shader)
+DECLEXPORT(void) STATE_APIENTRY crStateDetachShader(PCRStateTracker pState, GLuint program, GLuint shader)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     CRGLSLShader *pShader;
 
     if (!pProgram)
@@ -485,19 +487,16 @@ DECLEXPORT(void) STATE_APIENTRY crStateDetachShader(GLuint program, GLuint shade
     pShader->refCount--;
 
     if (0==pShader->refCount)
-    {
-        CRContext *g = GetCurrentContext();
         crHashtableDelete(g->glsl.shaders, shader, crStateFreeGLSLShader);
-    }
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateUseProgram(GLuint program)
+DECLEXPORT(void) STATE_APIENTRY crStateUseProgram(PCRStateTracker pState, GLuint program)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
 
     if (program>0)
     {
-        CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+        CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
 
         if (!pProgram)
         {
@@ -513,10 +512,10 @@ DECLEXPORT(void) STATE_APIENTRY crStateUseProgram(GLuint program)
     }
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateDeleteProgram(GLuint program)
+DECLEXPORT(void) STATE_APIENTRY crStateDeleteProgram(PCRStateTracker pState, GLuint program)
 {
-    CRContext *g = GetCurrentContext();
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
 
     if (!pProgram)
     {
@@ -529,12 +528,13 @@ DECLEXPORT(void) STATE_APIENTRY crStateDeleteProgram(GLuint program)
         g->glsl.activeProgram = NULL;
     }
 
-    crHashtableDelete(g->glsl.programs, program, crStateFreeGLSLProgram);
+    crHashtableDeleteEx(g->glsl.programs, program, crStateFreeGLSLProgram, g);
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateValidateProgram(GLuint program)
+DECLEXPORT(void) STATE_APIENTRY crStateValidateProgram(PCRStateTracker pState, GLuint program)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
 
     if (!pProgram)
     {
@@ -548,7 +548,8 @@ DECLEXPORT(void) STATE_APIENTRY crStateValidateProgram(GLuint program)
 static void crStateCopyShaderCB(unsigned long key, void *data1, void *data2)
 {
     CRGLSLShader *pRealShader = (CRGLSLShader *) data1;
-    CRGLSLProgram *pProgram = (CRGLSLProgram *) data2;
+    PCRStateGLSLShaderWalkArgs pArgs = (PCRStateGLSLShaderWalkArgs)data2;
+    PCRStateTracker pState = pArgs->pState;
     CRGLSLShader *pShader;
     GLint sLen=0;
 
@@ -564,20 +565,22 @@ static void crStateCopyShaderCB(unsigned long key, void *data1, void *data2)
 
     crMemcpy(pShader, pRealShader, sizeof(*pShader));
 
-    diff_api.GetShaderiv(pShader->hwid, GL_SHADER_SOURCE_LENGTH, &sLen);
+    pState->diff_api.GetShaderiv(pShader->hwid, GL_SHADER_SOURCE_LENGTH, &sLen);
     if (sLen>0)
     {
         pShader->source = (GLchar*) crAlloc(sLen);
-        diff_api.GetShaderSource(pShader->hwid, sLen, NULL, pShader->source);
+        pState->diff_api.GetShaderSource(pShader->hwid, sLen, NULL, pShader->source);
     }
 
-    crHashtableAdd(pProgram->activeState.attachedShaders, key, pShader);
+    crHashtableAdd(pArgs->pProgram->activeState.attachedShaders, key, pShader);
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateLinkProgram(GLuint program)
+DECLEXPORT(void) STATE_APIENTRY crStateLinkProgram(PCRStateTracker pState, GLuint program)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     GLuint i;
+    CRStateGLSLShaderWalkArgs Args;
 
     if (!pProgram)
     {
@@ -590,7 +593,7 @@ DECLEXPORT(void) STATE_APIENTRY crStateLinkProgram(GLuint program)
     /*Free program's active state*/
     if (pProgram->activeState.attachedShaders)
     {
-        crHashtableWalk(pProgram->activeState.attachedShaders, crStateFakeDecRefCountCB, NULL);
+        crHashtableWalk(pProgram->activeState.attachedShaders, crStateFakeDecRefCountCB, g);
         crFreeHashtable(pProgram->activeState.attachedShaders, crStateFreeGLSLShader);
         pProgram->activeState.attachedShaders = NULL;
     }
@@ -609,7 +612,9 @@ DECLEXPORT(void) STATE_APIENTRY crStateLinkProgram(GLuint program)
         crWarning("crStateLinkProgram: Out of memory!");
         return;
     }
-    crHashtableWalk(pProgram->currentState.attachedShaders, crStateCopyShaderCB, pProgram);
+    Args.pProgram = pProgram;
+    Args.pState   = pState;
+    crHashtableWalk(pProgram->currentState.attachedShaders, crStateCopyShaderCB, &Args);
 
     /*that's not a bug, note the memcpy above*/
     if (pProgram->activeState.pAttribs)
@@ -630,9 +635,10 @@ DECLEXPORT(void) STATE_APIENTRY crStateLinkProgram(GLuint program)
     crStateFreeProgramUniforms(pProgram);
 }
 
-DECLEXPORT(void) STATE_APIENTRY crStateBindAttribLocation(GLuint program, GLuint index, const char * name)
+DECLEXPORT(void) STATE_APIENTRY crStateBindAttribLocation(PCRStateTracker pState, GLuint program, GLuint index, const char * name)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     GLuint i;
     CRGLSLAttrib *pAttribs;
 
@@ -676,9 +682,11 @@ DECLEXPORT(void) STATE_APIENTRY crStateBindAttribLocation(GLuint program, GLuint
     pProgram->currentState.pAttribs = pAttribs;
 }
 
-DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformSize(GLenum type)
+DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformSize(PCRStateTracker pState, GLenum type)
 {
     GLint size;
+
+    RT_NOREF(pState);
 
     switch (type)
     {
@@ -766,8 +774,10 @@ DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformSize(GLenum type)
     return size;
 }
 
-DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsIntUniform(GLenum type)
+DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsIntUniform(PCRStateTracker pState, GLenum type)
 {
+    RT_NOREF(pState);
+
     if (GL_INT==type
         || GL_INT_VEC2==type
         || GL_INT_VEC3==type
@@ -790,9 +800,10 @@ DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsIntUniform(GLenum type)
     else return GL_FALSE;
 }
 
-DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramUniformsCached(GLuint program)
+DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramUniformsCached(PCRStateTracker pState, GLuint program)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
 
     if (!pProgram)
     {
@@ -808,9 +819,10 @@ DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramUniformsCached(GLuint progr
 #endif
 }
 
-DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramAttribsCached(GLuint program)
+DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramAttribsCached(PCRStateTracker pState, GLuint program)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
 
     if (!pProgram)
     {
@@ -830,9 +842,10 @@ DECLEXPORT(GLboolean) STATE_APIENTRY crStateIsProgramAttribsCached(GLuint progra
 
 #ifdef IN_GUEST
 DECLEXPORT(void) STATE_APIENTRY
-crStateGLSLProgramCacheUniforms(GLuint program, GLsizei cbData, GLvoid *pData)
+crStateGLSLProgramCacheUniforms(PCRStateTracker pState, GLuint program, GLsizei cbData, GLvoid *pData)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     char *pCurrent = pData;
     GLsizei cbRead, cbName;
     GLuint i;
@@ -906,9 +919,10 @@ crStateGLSLProgramCacheUniforms(GLuint program, GLsizei cbData, GLvoid *pData)
 }
 
 DECLEXPORT(void) STATE_APIENTRY
-crStateGLSLProgramCacheAttribs(GLuint program, GLsizei cbData, GLvoid *pData)
+crStateGLSLProgramCacheAttribs(PCRStateTracker pState, GLuint program, GLsizei cbData, GLvoid *pData)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     char *pCurrent = pData;
     GLsizei cbRead, cbName;
     GLuint i;
@@ -1004,9 +1018,10 @@ static GLboolean crStateGLSLProgramCacheOneUniform(GLuint location, GLsizei cbNa
 }
 
 DECLEXPORT(void) STATE_APIENTRY
-crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData)
+crStateGLSLProgramCacheUniforms(PCRStateTracker pState, GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     GLint maxUniformLen = 0, activeUniforms=0, fakeUniformsCount, i, j;
     char *pCurrent = pData;
     GLsizei cbWritten;
@@ -1021,9 +1036,9 @@ crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbDa
      * OpenGL spec says about GL_ACTIVE_UNIFORM_MAX_LENGTH:
      * "If no active uniform variable exist, 0 is returned."
      */
-    diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformLen);
+    pState->diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformLen);
     if (maxUniformLen > 0)
-        diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORMS, &activeUniforms);
+        pState->diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_UNIFORMS, &activeUniforms);
 
     *cbData = 0;
 
@@ -1056,8 +1071,8 @@ crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbDa
 
         for (i=0; i<activeUniforms; ++i)
         {
-            diff_api.GetActiveUniform(pProgram->hwid, i, maxUniformLen, &cbName, &size, &type, name);
-            location = diff_api.GetUniformLocation(pProgram->hwid, name);
+            pState->diff_api.GetActiveUniform(pProgram->hwid, i, maxUniformLen, &cbName, &size, &type, name);
+            location = pState->diff_api.GetUniformLocation(pProgram->hwid, name);
 
             if (!crStateGLSLProgramCacheOneUniform(location, cbName, name, &pCurrent, &cbWritten, maxcbData))
                 return;
@@ -1094,7 +1109,7 @@ crStateGLSLProgramCacheUniforms(GLuint program, GLsizei maxcbData, GLsizei *cbDa
                     sprintf(pIndexStr, "[%i]", j);
                     cbName = crStrlen(name);
 
-                    location = diff_api.GetUniformLocation(pProgram->hwid, name);
+                    location = pState->diff_api.GetUniformLocation(pProgram->hwid, name);
 
                     if (!crStateGLSLProgramCacheOneUniform(location, cbName, name, &pCurrent, &cbWritten, maxcbData))
                         return;
@@ -1140,9 +1155,10 @@ static GLboolean crStateGLSLProgramCacheOneAttrib(GLuint location, GLsizei cbNam
 }
 
 DECLEXPORT(void) STATE_APIENTRY
-crStateGLSLProgramCacheAttribs(GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData)
+crStateGLSLProgramCacheAttribs(PCRStateTracker pState, GLuint program, GLsizei maxcbData, GLsizei *cbData, GLvoid *pData)
 {
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     GLint maxAttribLen, activeAttribs=0, fakeAttribsCount, i, j;
     char *pCurrent = pData;
     GLsizei cbWritten;
@@ -1153,8 +1169,8 @@ crStateGLSLProgramCacheAttribs(GLuint program, GLsizei maxcbData, GLsizei *cbDat
         return;
     }
 
-    diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxAttribLen);
-    diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_ATTRIBUTES, &activeAttribs);
+    pState->diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxAttribLen);
+    pState->diff_api.GetProgramiv(pProgram->hwid, GL_ACTIVE_ATTRIBUTES, &activeAttribs);
 
     *cbData = 0;
 
@@ -1187,8 +1203,8 @@ crStateGLSLProgramCacheAttribs(GLuint program, GLsizei maxcbData, GLsizei *cbDat
 
         for (i=0; i<activeAttribs; ++i)
         {
-            diff_api.GetActiveAttrib(pProgram->hwid, i, maxAttribLen, &cbName, &size, &type, name);
-            location = diff_api.GetAttribLocation(pProgram->hwid, name);
+            pState->diff_api.GetActiveAttrib(pProgram->hwid, i, maxAttribLen, &cbName, &size, &type, name);
+            location = pState->diff_api.GetAttribLocation(pProgram->hwid, name);
 
             if (!crStateGLSLProgramCacheOneAttrib(location, cbName, name, &pCurrent, &cbWritten, maxcbData))
                 return;
@@ -1225,7 +1241,7 @@ crStateGLSLProgramCacheAttribs(GLuint program, GLsizei maxcbData, GLsizei *cbDat
                     sprintf(pIndexStr, "[%i]", j);
                     cbName = crStrlen(name);
 
-                    location = diff_api.GetAttribLocation(pProgram->hwid, name);
+                    location = pState->diff_api.GetAttribLocation(pProgram->hwid, name);
 
                     if (!crStateGLSLProgramCacheOneAttrib(location, cbName, name, &pCurrent, &cbWritten, maxcbData))
                         return;
@@ -1248,10 +1264,11 @@ crStateGLSLProgramCacheAttribs(GLuint program, GLsizei maxcbData, GLsizei *cbDat
 }
 #endif
 
-DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformLocation(GLuint program, const char * name)
+DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformLocation(PCRStateTracker pState, GLuint program, const char * name)
 {
 #ifdef IN_GUEST
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     GLint result=-1;
     GLuint i;
 
@@ -1278,15 +1295,17 @@ DECLEXPORT(GLint) STATE_APIENTRY crStateGetUniformLocation(GLuint program, const
 
     return result;
 #else
+    RT_NOREF(pState, program, name);
     crWarning("crStateGetUniformLocation called on host side!!");
     return -1;
 #endif
 }
 
-DECLEXPORT(GLint) STATE_APIENTRY crStateGetAttribLocation(GLuint program, const char * name)
+DECLEXPORT(GLint) STATE_APIENTRY crStateGetAttribLocation(PCRStateTracker pState, GLuint program, const char * name)
 {
 #ifdef IN_GUEST
-    CRGLSLProgram *pProgram = crStateGetProgramObj(program);
+    CRContext *g = GetCurrentContext(pState);
+    CRGLSLProgram *pProgram = crStateGetProgramObj(g, program);
     GLint result=-1;
     GLuint i;
 
@@ -1313,6 +1332,7 @@ DECLEXPORT(GLint) STATE_APIENTRY crStateGetAttribLocation(GLuint program, const 
 
     return result;
 #else
+    RT_NOREF(pState, program, name);
     crWarning("crStateGetAttribLocation called on host side!!");
     return -1;
 #endif
@@ -1322,9 +1342,10 @@ static void crStateGLSLCreateShadersCB(unsigned long key, void *data1, void *dat
 {
     CRGLSLShader *pShader = (CRGLSLShader*) data1;
     CRContext *ctx = (CRContext *) data2;
+    PCRStateTracker pState = ctx->pStateTracker;
     (void)ctx; (void)key;
 
-    pShader->hwid = diff_api.CreateShader(pShader->type);
+    pShader->hwid = pState->diff_api.CreateShader(pShader->type);
 }
 
 static void crStateFixAttachedShaderHWIDsCB(unsigned long key, void *data1, void *data2)
@@ -1342,75 +1363,82 @@ static void crStateFixAttachedShaderHWIDsCB(unsigned long key, void *data1, void
 static void crStateGLSLSyncShadersCB(unsigned long key, void *data1, void *data2)
 {
     CRGLSLShader *pShader = (CRGLSLShader*) data1;
+    PCRStateTracker pState = (PCRStateTracker)data2;
     (void) key;
-    (void) data2;
 
     if (pShader->source)
     {
-        diff_api.ShaderSource(pShader->hwid, 1, (const char**)&pShader->source, NULL);
+        pState->diff_api.ShaderSource(pShader->hwid, 1, (const char**)&pShader->source, NULL);
         if (pShader->compiled)
-            diff_api.CompileShader(pShader->hwid);
+            pState->diff_api.CompileShader(pShader->hwid);
         crFree(pShader->source);
         pShader->source = NULL;
     }
 
     if (pShader->deleted)
-        diff_api.DeleteShader(pShader->hwid);
+        pState->diff_api.DeleteShader(pShader->hwid);
 }
 
 static void crStateAttachShaderCB(unsigned long key, void *data1, void *data2)
 {
     CRGLSLShader *pShader = (CRGLSLShader*) data1;
-    CRGLSLProgram *pProgram = (CRGLSLProgram *) data2;
+    PCRStateGLSLShaderWalkArgs pArgs = (PCRStateGLSLShaderWalkArgs)data2;
+    PCRStateTracker pState = pArgs->pState;
     (void) key;
 
     if (pShader->source)
     {
-        diff_api.ShaderSource(pShader->hwid, 1, (const char**)&pShader->source, NULL);
+        pState->diff_api.ShaderSource(pShader->hwid, 1, (const char**)&pShader->source, NULL);
         if (pShader->compiled)
-            diff_api.CompileShader(pShader->hwid);
+            pState->diff_api.CompileShader(pShader->hwid);
     }
 
-    diff_api.AttachShader(pProgram->hwid, pShader->hwid);
+    pState->diff_api.AttachShader(pArgs->pProgram->hwid, pShader->hwid);
 }
 
 static void crStateDetachShaderCB(unsigned long key, void *data1, void *data2)
 {
     CRGLSLShader *pShader = (CRGLSLShader*) data1;
-    CRGLSLProgram *pProgram = (CRGLSLProgram *) data2;
+    PCRStateGLSLShaderWalkArgs pArgs = (PCRStateGLSLShaderWalkArgs)data2;
     (void) key;
 
-    diff_api.DetachShader(pProgram->hwid, pShader->hwid);
+    pArgs->pState->diff_api.DetachShader(pArgs->pProgram->hwid, pShader->hwid);
 }
 
 static void crStateGLSLCreateProgramCB(unsigned long key, void *data1, void *data2)
 {
     CRGLSLProgram *pProgram = (CRGLSLProgram*) data1;
     CRContext *ctx = (CRContext *) data2;
+    PCRStateTracker pState = ctx->pStateTracker;
     GLuint i;
+    CRStateGLSLShaderWalkArgs Args;
+
+    Args.pProgram = pProgram;
+    Args.pState   = pState;
+
     (void)key;
 
-    pProgram->hwid = diff_api.CreateProgram();
+    pProgram->hwid = pState->diff_api.CreateProgram();
 
     if (pProgram->linked)
     {
         CRASSERT(pProgram->activeState.attachedShaders);
 
         crHashtableWalk(pProgram->activeState.attachedShaders, crStateFixAttachedShaderHWIDsCB, ctx);
-        crHashtableWalk(pProgram->activeState.attachedShaders, crStateAttachShaderCB, pProgram);
+        crHashtableWalk(pProgram->activeState.attachedShaders, crStateAttachShaderCB, &Args);
 
         for (i=0; i<pProgram->activeState.cAttribs; ++i)
         {
-            diff_api.BindAttribLocation(pProgram->hwid, pProgram->activeState.pAttribs[i].index, pProgram->activeState.pAttribs[i].name);
+            pState->diff_api.BindAttribLocation(pProgram->hwid, pProgram->activeState.pAttribs[i].index, pProgram->activeState.pAttribs[i].name);
         }
 
         if (pProgram->validated)
-            diff_api.ValidateProgram(pProgram->hwid);
+            pState->diff_api.ValidateProgram(pProgram->hwid);
 
-        diff_api.LinkProgram(pProgram->hwid);
+        pState->diff_api.LinkProgram(pProgram->hwid);
     }
 
-    diff_api.UseProgram(pProgram->hwid);
+    pState->diff_api.UseProgram(pProgram->hwid);
 
     for (i=0; i<pProgram->cUniforms; ++i)
     {
@@ -1418,45 +1446,45 @@ static void crStateGLSLCreateProgramCB(unsigned long key, void *data1, void *dat
         GLfloat *pFdata = (GLfloat*)pProgram->pUniforms[i].data;
         GLint *pIdata = (GLint*)pProgram->pUniforms[i].data;
 
-        location = diff_api.GetUniformLocation(pProgram->hwid, pProgram->pUniforms[i].name);
+        location = pState->diff_api.GetUniformLocation(pProgram->hwid, pProgram->pUniforms[i].name);
         switch (pProgram->pUniforms[i].type)
         {
             case GL_FLOAT:
-                diff_api.Uniform1fv(location, 1, pFdata);
+                pState->diff_api.Uniform1fv(location, 1, pFdata);
                 break;
             case GL_FLOAT_VEC2:
-                diff_api.Uniform2fv(location, 1, pFdata);
+                pState->diff_api.Uniform2fv(location, 1, pFdata);
                 break;
             case GL_FLOAT_VEC3:
-                diff_api.Uniform3fv(location, 1, pFdata);
+                pState->diff_api.Uniform3fv(location, 1, pFdata);
                 break;
             case GL_FLOAT_VEC4:
-                diff_api.Uniform4fv(location, 1, pFdata);
+                pState->diff_api.Uniform4fv(location, 1, pFdata);
                 break;
             case GL_INT:
             case GL_BOOL:
-                diff_api.Uniform1iv(location, 1, pIdata);
+                pState->diff_api.Uniform1iv(location, 1, pIdata);
                 break;
             case GL_INT_VEC2:
             case GL_BOOL_VEC2:
-                diff_api.Uniform2iv(location, 1, pIdata);
+                pState->diff_api.Uniform2iv(location, 1, pIdata);
                 break;
             case GL_INT_VEC3:
             case GL_BOOL_VEC3:
-                diff_api.Uniform3iv(location, 1, pIdata);
+                pState->diff_api.Uniform3iv(location, 1, pIdata);
                 break;
             case GL_INT_VEC4:
             case GL_BOOL_VEC4:
-                diff_api.Uniform4iv(location, 1, pIdata);
+                pState->diff_api.Uniform4iv(location, 1, pIdata);
                 break;
             case GL_FLOAT_MAT2:
-                diff_api.UniformMatrix2fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix2fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_FLOAT_MAT3:
-                diff_api.UniformMatrix3fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix3fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_FLOAT_MAT4:
-                diff_api.UniformMatrix4fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix4fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_SAMPLER_1D:
             case GL_SAMPLER_2D:
@@ -1466,26 +1494,26 @@ static void crStateGLSLCreateProgramCB(unsigned long key, void *data1, void *dat
             case GL_SAMPLER_2D_SHADOW:
             case GL_SAMPLER_2D_RECT_ARB:
             case GL_SAMPLER_2D_RECT_SHADOW_ARB:
-                diff_api.Uniform1iv(location, 1, pIdata);
+                pState->diff_api.Uniform1iv(location, 1, pIdata);
                 break;
 #ifdef CR_OPENGL_VERSION_2_1
             case GL_FLOAT_MAT2x3:
-                diff_api.UniformMatrix2x3fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix2x3fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_FLOAT_MAT2x4:
-                diff_api.UniformMatrix2x4fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix2x4fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_FLOAT_MAT3x2:
-                diff_api.UniformMatrix3x2fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix3x2fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_FLOAT_MAT3x4:
-                diff_api.UniformMatrix3x4fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix3x4fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_FLOAT_MAT4x2:
-                diff_api.UniformMatrix4x2fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix4x2fv(location, 1, GL_FALSE, pFdata);
                 break;
             case GL_FLOAT_MAT4x3:
-                diff_api.UniformMatrix4x3fv(location, 1, GL_FALSE, pFdata);
+                pState->diff_api.UniformMatrix4x3fv(location, 1, GL_FALSE, pFdata);
                 break;
 #endif
         default:
@@ -1499,12 +1527,13 @@ static void crStateGLSLCreateProgramCB(unsigned long key, void *data1, void *dat
     pProgram->pUniforms = NULL;
     pProgram->cUniforms = 0;
 
-    crHashtableWalk(pProgram->activeState.attachedShaders, crStateDetachShaderCB, pProgram);
-    crHashtableWalk(pProgram->currentState.attachedShaders, crStateAttachShaderCB, pProgram);
+    crHashtableWalk(pProgram->activeState.attachedShaders, crStateDetachShaderCB, &Args);
+    crHashtableWalk(pProgram->currentState.attachedShaders, crStateAttachShaderCB, &Args);
 }
 
 DECLEXPORT(void) STATE_APIENTRY crStateGLSLSwitch(CRContext *from, CRContext *to)
 {
+    PCRStateTracker pState = to->pStateTracker;
     GLboolean fForceUseProgramSet = GL_FALSE;
     if (to->glsl.bResyncNeeded)
     {
@@ -1517,11 +1546,11 @@ DECLEXPORT(void) STATE_APIENTRY crStateGLSLSwitch(CRContext *from, CRContext *to
         /* crStateGLSLCreateProgramCB changes the current program, ensure we have the proper program re-sored */
         fForceUseProgramSet = GL_TRUE;
 
-        crHashtableWalk(to->glsl.shaders, crStateGLSLSyncShadersCB, NULL);
+        crHashtableWalk(to->glsl.shaders, crStateGLSLSyncShadersCB, pState);
     }
 
     if (to->glsl.activeProgram != from->glsl.activeProgram || fForceUseProgramSet)
     {
-        diff_api.UseProgram(to->glsl.activeProgram ? to->glsl.activeProgram->hwid : 0);
+        pState->diff_api.UseProgram(to->glsl.activeProgram ? to->glsl.activeProgram->hwid : 0);
     }
 }

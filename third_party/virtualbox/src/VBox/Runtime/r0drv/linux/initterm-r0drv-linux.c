@@ -68,7 +68,7 @@ DECLHIDDEN(void) rtR0LnxWorkqueuePush(RTR0LNXWORKQUEUEITEM *pWork, void (*pfnWor
 # if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
     INIT_WORK(pWork, pfnWorker);
 # else
-    INIT_WORK(pWork, pfnWorker, pWork);
+    INIT_WORK(pWork, (void (*)(void *))pfnWorker, pWork);
 # endif
     queue_work(g_prtR0LnxWorkQueue, pWork);
 #else

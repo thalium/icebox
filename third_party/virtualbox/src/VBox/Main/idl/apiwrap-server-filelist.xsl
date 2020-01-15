@@ -64,19 +64,19 @@
  - - - - - - - - - - - - - - - - - - - - - - -->
 
 <xsl:template match="interface" mode="filelist-even-sources">
-    <xsl:if test="not(@internal='yes') and not(@supportsErrorInfo='no') and (position() mod 2) = 0">
+    <xsl:if test="not(@internal='yes') and not(@autogen='VBoxEvent') and not(@supportsErrorInfo='no') and (position() mod 2) = 0">
         <xsl:value-of select="concat(' \', $G_sNewLine, '&#9;$(VBOX_MAIN_APIWRAPPER_DIR)/', substring(@name, 2), 'Wrap.cpp')"/>
     </xsl:if>
 </xsl:template>
 
 <xsl:template match="interface" mode="filelist-odd-sources">
-    <xsl:if test="not(@internal='yes') and not(@supportsErrorInfo='no') and (position() mod 2) = 1">
+    <xsl:if test="not(@internal='yes') and not(@autogen='VBoxEvent') and not(@supportsErrorInfo='no') and (position() mod 2) = 1">
         <xsl:value-of select="concat(' \', $G_sNewLine, '&#9;$(VBOX_MAIN_APIWRAPPER_DIR)/', substring(@name, 2), 'Wrap.cpp')"/>
     </xsl:if>
 </xsl:template>
 
 <xsl:template match="interface" mode="filelist-headers">
-    <xsl:if test="not(@internal='yes') and not(@supportsErrorInfo='no')">
+    <xsl:if test="not(@internal='yes') and not(@autogen='VBoxEvent') and not(@supportsErrorInfo='no')">
         <xsl:value-of select="concat(' \', $G_sNewLine, '&#9;$(VBOX_MAIN_APIWRAPPER_DIR)/', substring(@name, 2), 'Wrap.h')"/>
     </xsl:if>
 </xsl:template>

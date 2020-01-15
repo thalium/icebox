@@ -145,11 +145,11 @@ static GLenum __getReadBuffer(CRContext *g)
 
 header = """
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
 			"glGet called in Begin/End");
 		return;
 	}
@@ -161,10 +161,10 @@ header = """
 		pname == GL_CURRENT_TEXTURE_COORDS )
 	{
 #if 0
-		crStateError(__LINE__,__FILE__, GL_INVALID_OPERATION,
+		crStateError(pState, __LINE__,__FILE__, GL_INVALID_OPERATION,
 			"Unimplemented glGet of a 'current' value" );
 #else
-		crStateCurrentRecover();/* &g->current, &sb->current, g->bitID );*/
+		crStateCurrentRecover(pState);/* &g->current, &sb->current, g->bitID );*/
 		
 #endif
 	}
@@ -174,7 +174,7 @@ header = """
 
 for rettype in types:
 	print('')
-	print('void STATE_APIENTRY crStateGet%sv( GLenum pname, %s *params )' % ( rettype, ctypes[rettype] ))
+	print('void STATE_APIENTRY crStateGet%sv(PCRStateTracker pState, GLenum pname, %s *params )' % ( rettype, ctypes[rettype] ))
 	print(header)
 
 	for pname in sorted(params.keys()):
@@ -188,7 +188,7 @@ for rettype in types:
 				print('\t\t\tparams[%d] = %s;' % (i,expr))
 				i += 1
 		except:
-			print('\t\t\tcrStateError(__LINE__,__FILE__,GL_INVALID_OPERATION, "Unimplemented glGet!");')
+			print('\t\t\tcrStateError(pState, __LINE__,__FILE__,GL_INVALID_OPERATION, "Unimplemented glGet!");')
 		print("\t\t\tbreak;")
 
 
@@ -215,18 +215,18 @@ for rettype in types:
 					print('\t\t\tparams[%d] = %s;' % (i,expr))
 				i += 1
 		except:
-			print('\t\t\tcrStateError(__LINE__,__FILE__,GL_INVALID_OPERATION, "Unimplemented glGet!");')
+			print('\t\t\tcrStateError(pState, __LINE__,__FILE__,GL_INVALID_OPERATION, "Unimplemented glGet!");')
 		if ext != 'OPENGL_VERSION_1_2':
 			print("\t\t\t}")
 			print("\t\t\telse {")
-			print('\t\t\t\tcrStateError(__LINE__,__FILE__,GL_INVALID_ENUM, "glGet%sv");' % rettype)
+			print('\t\t\t\tcrStateError(pState, __LINE__,__FILE__,GL_INVALID_ENUM, "glGet%sv");' % rettype)
 			print("\t\t\t}")
 		print("\t\t\tbreak;")
 		#print '#endif /* %s */' % ifdef
 		print('#endif /* CR_%s */' % ext)
 
 	print('\t\tdefault:')
-	print('\t\t\tcrStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGet: Unknown enum: 0x%x", pname);')
+	print('\t\t\tcrStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGet: Unknown enum: 0x%x", pname);')
 	print('\t\t\treturn;')
 	print('\t}')
 	print('}')

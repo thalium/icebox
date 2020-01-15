@@ -1485,6 +1485,14 @@ static PNET_BUFFER_LIST vboxNetLwfWinSGtoNB(PVBOXNETLWF_MODULE pModule, PINTNETS
     Assert(cbFrame >= cbAlignedFrame);
     NET_BUFFER *pBuffer = NET_BUFFER_LIST_FIRST_NB(pBufList);
     NDIS_STATUS Status = NdisRetreatNetBufferDataStart(pBuffer, cbAlignedFrame, 0 /** @todo DataBackfill */, NULL);
+    if (cbAlignedFrame - pSG->cbTotal > 0)
+    {
+        /* Make sure padding zeros do not get to the wire. */
+        if (NET_BUFFER_DATA_LENGTH(pBuffer) != cbAlignedFrame)
+            vboxNetLwfLogErrorEvent(IO_ERR_INTERNAL_ERROR, STATUS_SUCCESS, 11);
+        else
+            NET_BUFFER_DATA_LENGTH(pBuffer) = pSG->cbTotal;
+    }
     if (Status == NDIS_STATUS_SUCCESS)
     {
         uint8_t *pDst = (uint8_t*)NdisGetDataBuffer(pBuffer, pSG->cbTotal, NULL, 1, 0);
@@ -1494,11 +1502,6 @@ static PNET_BUFFER_LIST vboxNetLwfWinSGtoNB(PVBOXNETLWF_MODULE pModule, PINTNETS
             {
                 NdisMoveMemory(pDst, pSG->aSegs[i].pv, pSG->aSegs[i].cb);
                 pDst += pSG->aSegs[i].cb;
-            }
-            if (cbAlignedFrame > pSG->cbTotal)
-            {
-                Log4(("vboxNetLwfWinSGtoNB: padding %d-byte packet with %d zero bytes", pSG->cbTotal, cbAlignedFrame - pSG->cbTotal));
-                NdisZeroMemory(pDst, cbAlignedFrame - pSG->cbTotal);
             }
             Log4(("vboxNetLwfWinSGtoNB: allocated NBL+NB 0x%p\n", pBufList));
             pBufList->SourceHandle = pModule->hFilter;

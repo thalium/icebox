@@ -52,6 +52,6 @@ for index in range(len(keys)):
     if func_name in pack_specials:
         print('\t__fillin(%3d, "%s", (SPUGenericFunction) packspu_%s);' % (index, func_name, func_name ))
     else:
-        print('\t__fillin(%3d, "%s", (SPUGenericFunction) (pack_spu.swap ? crPack%sSWAP : crPack%s));' % (index, func_name, func_name, func_name ))
+        print('\t__fillin(%3d, "%s", (SPUGenericFunction) (crPack%s));' % (index, func_name, func_name ))
 print('\t__fillin(%3d, NULL, NULL);' % num_funcs)
 print('}')

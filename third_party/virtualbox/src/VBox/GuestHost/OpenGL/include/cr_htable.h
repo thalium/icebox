@@ -44,13 +44,6 @@ typedef struct CRHTABLE
     void **paData;
 } CRHTABLE, *PCRHTABLE;
 
-typedef struct CRHTABLE_ITERATOR
-{
-    PCRHTABLE pTbl;
-    uint32_t iCur;
-    uint32_t cLeft;
-} VCRHTABLE_ITERATOR, *PCRHTABLE_ITERATOR;
-
 /*private stuff, not to be used directly */
 DECLINLINE(CRHTABLE_HANDLE) crHTableIndex2Handle(uint32_t iIndex)
 {
@@ -60,43 +53,6 @@ DECLINLINE(CRHTABLE_HANDLE) crHTableIndex2Handle(uint32_t iIndex)
 DECLINLINE(uint32_t) crHTableHandle2Index(CRHTABLE_HANDLE hHandle)
 {
     return hHandle-1;
-}
-
-/* public API */
-DECLINLINE(void) CrHTableIterInit(PCRHTABLE pTbl, PCRHTABLE_ITERATOR pIter)
-{
-    pIter->pTbl = pTbl;
-    pIter->iCur = 0;
-    pIter->cLeft = pTbl->cData;
-}
-
-DECLINLINE(void*) CrHTableIterNext(PCRHTABLE_ITERATOR pIter, CRHTABLE_HANDLE *phHandle)
-{
-    PCRHTABLE pTbl;
-    uint32_t i;
-    if (!pIter->cLeft)
-    {
-        if (phHandle)
-            *phHandle = 0;
-        return NULL;
-    }
-
-    pTbl = pIter->pTbl;
-
-    for (i = pIter->iCur; i < pTbl->cSize; ++i)
-    {
-        if (pTbl->paData[i])
-        {
-            pIter->iCur = i+1;
-            --(pIter->cLeft);
-            if (phHandle)
-                *phHandle = crHTableIndex2Handle(i);
-            return pTbl->paData[i];
-        }
-    }
-
-    crWarning("interator concurent modification!");
-    return NULL;
 }
 
 VBOXHTABLEDECL(int) CrHTableCreate(PCRHTABLE pTbl, uint32_t cSize);
@@ -110,8 +66,6 @@ VBOXHTABLEDECL(void) CrHTableDestroy(PCRHTABLE pTbl);
 VBOXHTABLEDECL(int) CrHTableRealloc(PCRHTABLE pTbl, uint32_t cNewSize);
 VBOXHTABLEDECL(CRHTABLE_HANDLE) CrHTablePut(PCRHTABLE pTbl, void *pvData);
 VBOXHTABLEDECL(int) CrHTablePutToSlot(PCRHTABLE pTbl, CRHTABLE_HANDLE hHandle, void* pvData);
-
-/* note: can be called for the element returned with CrHTableIterNext w/o corrupting the iterator */
 VBOXHTABLEDECL(void*) CrHTableRemove(PCRHTABLE pTbl, CRHTABLE_HANDLE hHandle);
 VBOXHTABLEDECL(void*) CrHTableGet(PCRHTABLE pTbl, CRHTABLE_HANDLE hHandle);
 

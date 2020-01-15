@@ -69,11 +69,11 @@ HostDnsServiceResolvConf::~HostDnsServiceResolvConf()
     }
 }
 
-HRESULT HostDnsServiceResolvConf::init(VirtualBox *virtualbox, const char *aResolvConfFileName)
+HRESULT HostDnsServiceResolvConf::init(HostDnsMonitorProxy *proxy, const char *aResolvConfFileName)
 {
     m = new Data(aResolvConfFileName);
 
-    HostDnsMonitor::init(virtualbox);
+    HostDnsMonitor::init(proxy);
 
     readResolvConf();
 

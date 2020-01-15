@@ -137,7 +137,7 @@ static int                  supdrvIOCtl_LdrOpen(PSUPDRVDEVEXT pDevExt, PSUPDRVSE
 static int                  supdrvIOCtl_LdrLoad(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, PSUPLDRLOAD pReq);
 static int                  supdrvIOCtl_LdrFree(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, PSUPLDRFREE pReq);
 static int                  supdrvIOCtl_LdrLockDown(PSUPDRVDEVEXT pDevExt);
-static int                  supdrvIOCtl_LdrGetSymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, PSUPLDRGETSYMBOL pReq);
+static int                  supdrvIOCtl_LdrQuerySymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, PSUPLDRGETSYMBOL pReq);
 static int                  supdrvIDC_LdrGetSymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, PSUPDRVIDCREQGETSYM pReq);
 static int                  supdrvLdrSetVMMR0EPs(PSUPDRVDEVEXT pDevExt, void *pvVMMR0, void *pvVMMR0EntryFast, void *pvVMMR0EntryEx);
 static void                 supdrvLdrUnsetVMMR0EPs(PSUPDRVDEVEXT pDevExt);
@@ -1808,7 +1808,7 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
             REQ_CHECK_EXPR(SUP_IOCTL_LDR_GET_SYMBOL, RTStrEnd(pReq->u.In.szSymbol, sizeof(pReq->u.In.szSymbol)));
 
             /* execute */
-            pReq->Hdr.rc = supdrvIOCtl_LdrGetSymbol(pDevExt, pSession, pReq);
+            pReq->Hdr.rc = supdrvIOCtl_LdrQuerySymbol(pDevExt, pSession, pReq);
             return 0;
         }
 
@@ -4101,9 +4101,9 @@ SUPR0DECL(int) SUPR0GetRawModeUsability(void)
  *
  * @remarks Must be called with preemption disabled.
  *          The caller is also expected to check that the CPU is an Intel (or
- *          VIA) CPU -and- that it supports VT-x.  Otherwise, this function
- *          might throw a \#GP fault as it tries to read/write MSRs that may not
- *          be present!
+ *          VIA/Shanghai) CPU -and- that it supports VT-x.  Otherwise, this
+ *          function might throw a \#GP fault as it tries to read/write MSRs
+ *          that may not be present!
  */
 SUPR0DECL(int) SUPR0GetVmxUsability(bool *pfIsSmxModeAmbiguous)
 {
@@ -4171,7 +4171,8 @@ SUPR0DECL(int) SUPR0GetVmxUsability(bool *pfIsSmxModeAmbiguous)
         ASMCpuId(0, &uMaxId, &uVendorEBX, &uVendorECX, &uVendorEDX);
         Assert(ASMIsValidStdRange(uMaxId));
         Assert(   ASMIsIntelCpuEx(     uVendorEBX, uVendorECX, uVendorEDX)
-               || ASMIsViaCentaurCpuEx(uVendorEBX, uVendorECX, uVendorEDX));
+               || ASMIsViaCentaurCpuEx(uVendorEBX, uVendorECX, uVendorEDX)
+               || ASMIsShanghaiCpuEx(  uVendorEBX, uVendorECX, uVendorEDX));
 #endif
         ASMCpuId(1, &uDummy, &uDummy, &fFeaturesECX, &uDummy);
         bool fSmxVmxHwSupport = false;
@@ -4276,7 +4277,7 @@ SUPR0DECL(int) SUPR0GetSvmUsability(bool fInitSvm)
  * @retval  VERR_SVM_NO_SVM
  * @retval  VERR_SVM_DISABLED
  * @retval  VERR_UNSUPPORTED_CPU if not identifiable as an AMD, Intel or VIA
- *          (centaur) CPU.
+ *          (centaur)/Shanghai CPU.
  *
  * @param   pfCaps          Where to store the capabilities.
  */
@@ -4304,7 +4305,8 @@ int VBOXCALL supdrvQueryVTCapsInternal(uint32_t *pfCaps)
 
         if (   ASMIsValidStdRange(uMaxId)
             && (   ASMIsIntelCpuEx(     uVendorEBX, uVendorECX, uVendorEDX)
-                || ASMIsViaCentaurCpuEx(uVendorEBX, uVendorECX, uVendorEDX) )
+                || ASMIsViaCentaurCpuEx(uVendorEBX, uVendorECX, uVendorEDX)
+                || ASMIsShanghaiCpuEx(  uVendorEBX, uVendorECX, uVendorEDX) )
            )
         {
             if (    (fFeaturesECX & X86_CPUID_FEATURE_ECX_VMX)
@@ -4384,7 +4386,7 @@ int VBOXCALL supdrvQueryVTCapsInternal(uint32_t *pfCaps)
  * @retval  VERR_SVM_NO_SVM
  * @retval  VERR_SVM_DISABLED
  * @retval  VERR_UNSUPPORTED_CPU if not identifiable as an AMD, Intel or VIA
- *          (centaur) CPU.
+ *          (centaur)/Shanghai CPU.
  *
  * @param   pSession        The session handle.
  * @param   pfCaps          Where to store the capabilities.
@@ -4971,34 +4973,37 @@ static int supdrvIOCtl_LdrOpen(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, P
  * Worker that validates a pointer to an image entrypoint.
  *
  * @returns IPRT status code.
- * @param   pDevExt     The device globals.
- * @param   pImage      The loader image.
- * @param   pv          The pointer into the image.
- * @param   fMayBeNull  Whether it may be NULL.
- * @param   pszWhat     What is this entrypoint? (for logging)
- * @param   pbImageBits The image bits prepared by ring-3.
+ * @param   pDevExt         The device globals.
+ * @param   pImage          The loader image.
+ * @param   pv              The pointer into the image.
+ * @param   fMayBeNull      Whether it may be NULL.
+ * @param   fCheckNative    Whether to check with the native loaders.
+ * @param   pszSymbol       The entrypoint name or log name.  If the symbol
+ *                          capitalized it signifies a specific symbol, otherwise it
+ *                          for logging.
+ * @param   pbImageBits     The image bits prepared by ring-3.
  *
  * @remarks Will leave the lock on failure.
  */
-static int supdrvLdrValidatePointer(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, void *pv,
-                                    bool fMayBeNull, const uint8_t *pbImageBits, const char *pszWhat)
+static int supdrvLdrValidatePointer(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, void *pv, bool fMayBeNull,
+                                    bool fCheckNative, const uint8_t *pbImageBits, const char *pszSymbol)
 {
     if (!fMayBeNull || pv)
     {
         if ((uintptr_t)pv - (uintptr_t)pImage->pvImage >= pImage->cbImageBits)
         {
             supdrvLdrUnlock(pDevExt);
-            Log(("Out of range (%p LB %#x): %s=%p\n", pImage->pvImage, pImage->cbImageBits, pszWhat, pv));
+            Log(("Out of range (%p LB %#x): %s=%p\n", pImage->pvImage, pImage->cbImageBits, pszSymbol, pv));
             return VERR_INVALID_PARAMETER;
         }
 
-        if (pImage->fNative)
+        if (pImage->fNative && fCheckNative)
         {
-            int rc = supdrvOSLdrValidatePointer(pDevExt, pImage, pv, pbImageBits);
+            int rc = supdrvOSLdrValidatePointer(pDevExt, pImage, pv, pbImageBits, pszSymbol);
             if (RT_FAILURE(rc))
             {
                 supdrvLdrUnlock(pDevExt);
-                Log(("Bad entry point address: %s=%p (rc=%Rrc)\n", pszWhat, pv, rc)); NOREF(pszWhat);
+                Log(("Bad entry point address: %s=%p (rc=%Rrc)\n", pszSymbol, pv, rc));
                 return rc;
             }
         }
@@ -5097,17 +5102,17 @@ static int supdrvIOCtl_LdrLoad(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, P
             break;
 
         case SUPLDRLOADEP_VMMR0:
-            rc = supdrvLdrValidatePointer(    pDevExt, pImage, pReq->u.In.EP.VMMR0.pvVMMR0,          false, pReq->u.In.abImage, "pvVMMR0");
+            rc = supdrvLdrValidatePointer(    pDevExt, pImage, pReq->u.In.EP.VMMR0.pvVMMR0,          false, false, pReq->u.In.abImage, "pvVMMR0");
             if (RT_SUCCESS(rc))
-                rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.EP.VMMR0.pvVMMR0EntryFast, false, pReq->u.In.abImage, "pvVMMR0EntryFast");
+                rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.EP.VMMR0.pvVMMR0EntryFast, false,  true, pReq->u.In.abImage, "VMMR0EntryFast");
             if (RT_SUCCESS(rc))
-                rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.EP.VMMR0.pvVMMR0EntryEx,   false, pReq->u.In.abImage, "pvVMMR0EntryEx");
+                rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.EP.VMMR0.pvVMMR0EntryEx,   false,  true, pReq->u.In.abImage, "VMMR0EntryEx");
             if (RT_FAILURE(rc))
                 return supdrvLdrLoadError(rc, pReq, "Invalid VMMR0 pointer");
             break;
 
         case SUPLDRLOADEP_SERVICE:
-            rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.EP.Service.pfnServiceReq, false, pReq->u.In.abImage, "pfnServiceReq");
+            rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.EP.Service.pfnServiceReq, false,  true, pReq->u.In.abImage, "pfnServiceReq");
             if (RT_FAILURE(rc))
                 return supdrvLdrLoadError(rc, pReq, "Invalid pfnServiceReq pointer: %p", pReq->u.In.EP.Service.pfnServiceReq);
             if (    pReq->u.In.EP.Service.apvReserved[0] != NIL_RTR0PTR
@@ -5129,39 +5134,42 @@ static int supdrvIOCtl_LdrLoad(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, P
             return supdrvLdrLoadError(VERR_INVALID_PARAMETER, pReq, "Invalid eEPType=%d", pReq->u.In.eEPType);
     }
 
-    rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.pfnModuleInit, true, pReq->u.In.abImage, "pfnModuleInit");
+    rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.pfnModuleInit, true, true, pReq->u.In.abImage, "ModuleInit");
     if (RT_FAILURE(rc))
         return supdrvLdrLoadError(rc, pReq, "Invalid pfnModuleInit pointer: %p", pReq->u.In.pfnModuleInit);
-    rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.pfnModuleTerm, true, pReq->u.In.abImage, "pfnModuleTerm");
+    rc = supdrvLdrValidatePointer(pDevExt, pImage, pReq->u.In.pfnModuleTerm, true, true, pReq->u.In.abImage, "ModuleTerm");
     if (RT_FAILURE(rc))
         return supdrvLdrLoadError(rc, pReq, "Invalid pfnModuleTerm pointer: %p", pReq->u.In.pfnModuleTerm);
     SUPDRV_CHECK_SMAP_CHECK(pDevExt, RT_NOTHING);
 
     /*
-     * Allocate and copy the tables.
+     * Allocate and copy the tables if non-native.
      * (No need to do try/except as this is a buffered request.)
      */
-    pImage->cbStrTab = pReq->u.In.cbStrTab;
-    if (pImage->cbStrTab)
+    if (!pImage->fNative)
     {
-        pImage->pachStrTab = (char *)RTMemAlloc(pImage->cbStrTab);
-        if (pImage->pachStrTab)
-            memcpy(pImage->pachStrTab, &pReq->u.In.abImage[pReq->u.In.offStrTab], pImage->cbStrTab);
-        else
-            rc = supdrvLdrLoadError(VERR_NO_MEMORY, pReq, "Out of memory for string table: %#x", pImage->cbStrTab);
-        SUPDRV_CHECK_SMAP_CHECK(pDevExt, RT_NOTHING);
-    }
+        pImage->cbStrTab = pReq->u.In.cbStrTab;
+        if (pImage->cbStrTab)
+        {
+            pImage->pachStrTab = (char *)RTMemAlloc(pImage->cbStrTab);
+            if (pImage->pachStrTab)
+                memcpy(pImage->pachStrTab, &pReq->u.In.abImage[pReq->u.In.offStrTab], pImage->cbStrTab);
+            else
+                rc = supdrvLdrLoadError(VERR_NO_MEMORY, pReq, "Out of memory for string table: %#x", pImage->cbStrTab);
+            SUPDRV_CHECK_SMAP_CHECK(pDevExt, RT_NOTHING);
+        }
 
-    pImage->cSymbols = pReq->u.In.cSymbols;
-    if (RT_SUCCESS(rc) && pImage->cSymbols)
-    {
-        size_t  cbSymbols = pImage->cSymbols * sizeof(SUPLDRSYM);
-        pImage->paSymbols = (PSUPLDRSYM)RTMemAlloc(cbSymbols);
-        if (pImage->paSymbols)
-            memcpy(pImage->paSymbols, &pReq->u.In.abImage[pReq->u.In.offSymbols], cbSymbols);
-        else
-            rc = supdrvLdrLoadError(VERR_NO_MEMORY, pReq, "Out of memory for symbol table: %#x", cbSymbols);
-        SUPDRV_CHECK_SMAP_CHECK(pDevExt, RT_NOTHING);
+        pImage->cSymbols = pReq->u.In.cSymbols;
+        if (RT_SUCCESS(rc) && pImage->cSymbols)
+        {
+            size_t  cbSymbols = pImage->cSymbols * sizeof(SUPLDRSYM);
+            pImage->paSymbols = (PSUPLDRSYM)RTMemAlloc(cbSymbols);
+            if (pImage->paSymbols)
+                memcpy(pImage->paSymbols, &pReq->u.In.abImage[pReq->u.In.offSymbols], cbSymbols);
+            else
+                rc = supdrvLdrLoadError(VERR_NO_MEMORY, pReq, "Out of memory for symbol table: %#x", cbSymbols);
+            SUPDRV_CHECK_SMAP_CHECK(pDevExt, RT_NOTHING);
+        }
     }
 
     /*
@@ -5387,14 +5395,14 @@ static int supdrvIOCtl_LdrLockDown(PSUPDRVDEVEXT pDevExt)
 
 
 /**
- * Gets the address of a symbol in an open image.
+ * Queries the address of a symbol in an open image.
  *
  * @returns IPRT status code.
  * @param   pDevExt     Device globals.
  * @param   pSession    Session data.
  * @param   pReq        The request buffer.
  */
-static int supdrvIOCtl_LdrGetSymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, PSUPLDRGETSYMBOL pReq)
+static int supdrvIOCtl_LdrQuerySymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession, PSUPLDRGETSYMBOL pReq)
 {
     PSUPDRVLDRIMAGE pImage;
     PSUPDRVLDRUSAGE pUsage;
@@ -5404,7 +5412,7 @@ static int supdrvIOCtl_LdrGetSymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSessi
     const size_t    cbSymbol = strlen(pReq->u.In.szSymbol) + 1;
     void           *pvSymbol = NULL;
     int             rc = VERR_SYMBOL_NOT_FOUND;
-    Log3(("supdrvIOCtl_LdrGetSymbol: pvImageBase=%p szSymbol=\"%s\"\n", pReq->u.In.pvImageBase, pReq->u.In.szSymbol));
+    Log3(("supdrvIOCtl_LdrQuerySymbol: pvImageBase=%p szSymbol=\"%s\"\n", pReq->u.In.pvImageBase, pReq->u.In.szSymbol));
 
     /*
      * Find the ldr image.
@@ -5429,21 +5437,26 @@ static int supdrvIOCtl_LdrGetSymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSessi
     }
 
     /*
-     * Search the symbol strings.
+     * Search the image exports / symbol strings.
      *
      * Note! The int32_t is for native loading on solaris where the data
      *       and text segments are in very different places.
      */
-    pchStrings = pImage->pachStrTab;
-    paSyms     = pImage->paSymbols;
-    for (i = 0; i < pImage->cSymbols; i++)
+    if (pImage->fNative)
+        rc = supdrvOSLdrQuerySymbol(pDevExt, pImage, pReq->u.In.szSymbol, cbSymbol - 1, &pvSymbol);
+    else
     {
-        if (    paSyms[i].offName + cbSymbol <= pImage->cbStrTab
-            &&  !memcmp(pchStrings + paSyms[i].offName, pReq->u.In.szSymbol, cbSymbol))
+        pchStrings = pImage->pachStrTab;
+        paSyms     = pImage->paSymbols;
+        for (i = 0; i < pImage->cSymbols; i++)
         {
-            pvSymbol = (uint8_t *)pImage->pvImage + (int32_t)paSyms[i].offSymbol;
-            rc = VINF_SUCCESS;
-            break;
+            if (    paSyms[i].offName + cbSymbol <= pImage->cbStrTab
+                &&  !memcmp(pchStrings + paSyms[i].offName, pReq->u.In.szSymbol, cbSymbol))
+            {
+                pvSymbol = (uint8_t *)pImage->pvImage + (int32_t)paSyms[i].offSymbol;
+                rc = VINF_SUCCESS;
+                break;
+            }
         }
     }
     supdrvLdrUnlock(pDevExt);
@@ -5515,21 +5528,31 @@ static int supdrvIDC_LdrGetSymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession
         if (pImage && pImage->uState == SUP_IOCTL_LDR_LOAD)
         {
             /*
-             * Search the symbol strings.
+             * Search the image exports / symbol strings.
              */
-            const char *pchStrings = pImage->pachStrTab;
-            PCSUPLDRSYM paSyms     = pImage->paSymbols;
-            for (i = 0; i < pImage->cSymbols; i++)
+            if (pImage->fNative)
             {
-                if (    paSyms[i].offName + cbSymbol <= pImage->cbStrTab
-                    &&  !memcmp(pchStrings + paSyms[i].offName, pszSymbol, cbSymbol))
-                {
-                    /*
-                     * Found it! Calc the symbol address and add a reference to the module.
-                     */
-                    pReq->u.Out.pfnSymbol = (PFNRT)((uintptr_t)pImage->pvImage + (int32_t)paSyms[i].offSymbol);
+                rc = supdrvOSLdrQuerySymbol(pDevExt, pImage, pszSymbol, cbSymbol - 1, (void **)&pReq->u.Out.pfnSymbol);
+                if (RT_SUCCESS(rc))
                     rc = supdrvLdrAddUsage(pSession, pImage);
-                    break;
+            }
+            else
+            {
+                const char *pchStrings = pImage->pachStrTab;
+                PCSUPLDRSYM paSyms     = pImage->paSymbols;
+                rc = VERR_SYMBOL_NOT_FOUND;
+                for (i = 0; i < pImage->cSymbols; i++)
+                {
+                    if (    paSyms[i].offName + cbSymbol <= pImage->cbStrTab
+                        &&  !memcmp(pchStrings + paSyms[i].offName, pszSymbol, cbSymbol))
+                    {
+                        /*
+                         * Found it! Calc the symbol address and add a reference to the module.
+                         */
+                        pReq->u.Out.pfnSymbol = (PFNRT)((uintptr_t)pImage->pvImage + (int32_t)paSyms[i].offSymbol);
+                        rc = supdrvLdrAddUsage(pSession, pImage);
+                        break;
+                    }
                 }
             }
         }
@@ -5539,6 +5562,33 @@ static int supdrvIDC_LdrGetSymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVSESSION pSession
         supdrvLdrUnlock(pDevExt);
     }
     return rc;
+}
+
+
+/**
+ * Looks up a symbol in g_aFunctions
+ *
+ * @returns VINF_SUCCESS on success, VERR_SYMBOL_NOT_FOUND on failure.
+ * @param   pszSymbol   The symbol to look up.
+ * @param   puValue     Where to return the value.
+ */
+int VBOXCALL supdrvLdrGetExportedSymbol(const char *pszSymbol, uintptr_t *puValue)
+{
+    uint32_t i;
+    for (i = 0; i < RT_ELEMENTS(g_aFunctions); i++)
+        if (!strcmp(g_aFunctions[i].szName, pszSymbol))
+        {
+            *puValue = (uintptr_t)g_aFunctions[i].pfn;
+            return VINF_SUCCESS;
+        }
+
+    if (!strcmp(pszSymbol, "g_SUPGlobalInfoPage"))
+    {
+        *puValue = (uintptr_t)g_pSUPGlobalInfoPage;
+        return VINF_SUCCESS;
+    }
+
+    return VERR_SYMBOL_NOT_FOUND;
 }
 
 

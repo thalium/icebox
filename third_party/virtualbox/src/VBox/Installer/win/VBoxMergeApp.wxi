@@ -1,7 +1,7 @@
 <!--
     VirtualBox Windows Installation Script (WiX)
 
-    Copyright (C) 2006-2016 Oracle Corporation
+    Copyright (C) 2006-2019 Oracle Corporation
 
     This file is part of VirtualBox Open Source Edition (OSE), as
     available from http://www.virtualbox.org. This file is free software;
@@ -20,6 +20,10 @@
 <?else?>
     <?define VBOX_QT_INFIX="" ?>
 <?endif?>
+
+    <Component Id="cp_Permissions" Guid="9F6E9729-6490-4FBB-9EA1-03234E68907A" Win64="$(var.Property_Win64)" >
+        <?include Permissions.wxi ?>
+    </Component>
 
 <?if $(env.VBOX_WITH_DOCS_PACKING) = "yes" ?>
     <Directory Id="dir_VBoxAppDocuments" Name="doc">
@@ -285,15 +289,11 @@
               Source="$(env.PATH_OUT)\bin\VMMRC.rc" />
         <File Id="file_VBoxDDRC.rc" Name="VBoxDDRC.rc"
               Source="$(env.PATH_OUT)\bin\VBoxDDRC.rc" />
-        <File Id="file_VBoxDD2RC.rc" Name="VBoxDD2RC.rc"
-              Source="$(env.PATH_OUT)\bin\VBoxDD2RC.rc" />
 
         <File Id="file_VMMR0.r0" Name="VMMR0.r0"
               Source="$(env.PATH_OUT)\bin\VMMR0.r0" />
         <File Id="file_VBoxDDR0.r0" Name="VBoxDDR0.r0"
               Source="$(env.PATH_OUT)\bin\VBoxDDR0.r0" />
-        <File Id="file_VBoxDD2R0.r0" Name="VBoxDD2R0.r0"
-              Source="$(env.PATH_OUT)\bin\VBoxDD2R0.r0" />
 
 <?if $(env.VBOX_WITH_CROGL) = "yes" ?>
         <File Id="file_VBoxTestOGL.exe" Name="VBoxTestOGL.exe"
@@ -385,12 +385,6 @@
 
 <?if $(env.VBOX_WITH_CROGL) = "yes" ?>
     <Component Id="cp_VBoxCROpenGL" Guid="874A1297-835A-491D-8A9D-7E723BC29EE7" Win64="$(var.Property_Win64)">
-        <File Id="file_VBoxOGLhostcrutil.dll" Name="VBoxOGLhostcrutil.dll"
-              Source="$(env.PATH_OUT)\bin\VBoxOGLhostcrutil.dll" />
-        <File Id="file_VBoxOGLhosterrorspu.dll" Name="VBoxOGLhosterrorspu.dll"
-              Source="$(env.PATH_OUT)\bin\VBoxOGLhosterrorspu.dll" />
-        <File Id="file_VBoxOGLrenderspu.dll" Name="VBoxOGLrenderspu.dll"
-              Source="$(env.PATH_OUT)\bin\VBoxOGLrenderspu.dll" />
         <File Id="file_VBoxSharedCrOpenGL.dll" Name="VBoxSharedCrOpenGL.dll"
               Source="$(env.PATH_OUT)\bin\VBoxSharedCrOpenGL.dll" />
     </Component>

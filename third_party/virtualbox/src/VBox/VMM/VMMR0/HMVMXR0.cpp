@@ -3841,6 +3841,8 @@ static int hmR0VmxLoadSharedCR0(PVMCPU pVCpu, PCPUMCTX pMixedCtx)
 #elif defined(HMVMX_ALWAYS_TRAP_PF)
         pVCpu->hm.s.vmx.u32XcptBitmap    |= RT_BIT(X86_XCPT_PF);
 #endif
+        if (pVCpu->hm.s.fTrapXcptGpForLovelyMesaDrv)
+            pVCpu->hm.s.vmx.u32XcptBitmap |= RT_BIT(X86_XCPT_GP);
 
         Assert(pVM->hm.s.fNestedPaging || (pVCpu->hm.s.vmx.u32XcptBitmap & RT_BIT(X86_XCPT_PF)));
 
@@ -8486,6 +8488,8 @@ VMMR0DECL(int) VMXR0Enter(PVM pVM, PVMCPU pVCpu, PHMGLOBALCPUINFO pCpu)
      */
     if (pVM->hm.s.fL1dFlushOnSched)
         ASMWrMsr(MSR_IA32_FLUSH_CMD, MSR_IA32_FLUSH_CMD_F_L1D);
+    else if (pVCpu->CTX_SUFF(pVM)->hm.s.fMdsClearOnSched)
+        hmR0MdsClear();
 
     return VINF_SUCCESS;
 }
@@ -13867,6 +13871,68 @@ static int hmR0VmxExitXcptDB(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
 
 
 /**
+ * Hacks its way around the lovely mesa driver's backdoor accesses.
+ *
+ * @sa hmR0SvmHandleMesaDrvGp
+ */
+static int hmR0VmxHandleMesaDrvGp(PVMCPU pVCpu, PVMXTRANSIENT pVmxTransient, PCPUMCTX pCtx)
+{
+    Log(("hmR0VmxHandleMesaDrvGp: at %04x:%08RX64 rcx=%RX64 rbx=%RX64\n", pCtx->cs.Sel, pCtx->rip, pCtx->rcx, pCtx->rbx));
+    RT_NOREF(pCtx);
+
+    /* For now we'll just skip the instruction. */
+    return hmR0VmxAdvanceGuestRip(pVCpu, pCtx, pVmxTransient);
+}
+
+
+/**
+ * Checks if the \#GP'ing instruction is the mesa driver doing it's lovely
+ * backdoor logging w/o checking what it is running inside.
+ *
+ * This recognizes an "IN EAX,DX" instruction executed in flat ring-3, with the
+ * backdoor port and magic numbers loaded in registers.
+ *
+ * @returns true if it is, false if it isn't.
+ * @sa      hmR0SvmIsMesaDrvGp
+ */
+DECLINLINE(bool) hmR0VmxIsMesaDrvGp(PVMCPU pVCpu, PVMXTRANSIENT pVmxTransient, PCPUMCTX pCtx)
+{
+    /* 0xed:  IN eAX,dx */
+    uint8_t abInstr[1];
+    if (pVmxTransient->cbInstr != sizeof(abInstr))
+        return false;
+
+    /* Check that it is #GP(0). */
+    if (pVmxTransient->uExitIntErrorCode != 0)
+        return false;
+
+    /* Check magic and port. */
+    /*Log(("hmR0VmxIsMesaDrvGp: rax=%RX64 rdx=%RX64\n", pCtx->rax, pCtx->rdx));*/
+    if (pCtx->rax != UINT32_C(0x564d5868))
+        return false;
+    if (pCtx->dx != UINT32_C(0x5658))
+        return false;
+
+    /* Flat ring-3 CS. */
+    /*Log(("hmR0VmxIsMesaDrvGp: cs.Attr.n.u2Dpl=%d base=%Rx64\n", pCtx->cs.Attr.n.u2Dpl, pCtx->cs.u64Base));*/
+    if (pCtx->cs.Attr.n.u2Dpl != 3)
+        return false;
+    if (pCtx->cs.u64Base != 0)
+        return false;
+
+    /* Check opcode. */
+    int rc = PGMPhysSimpleReadGCPtr(pVCpu, abInstr, pCtx->rip, sizeof(abInstr));
+    /*Log(("hmR0VmxIsMesaDrvGp: PGMPhysSimpleReadGCPtr -> %Rrc %#x\n", rc, abInstr[0]));*/
+    if (RT_FAILURE(rc))
+        return false;
+    if (abInstr[0] != 0xed)
+        return false;
+
+    return true;
+}
+
+
+/**
  * VM-exit exception handler for \#GP (General-protection exception).
  *
  * @remarks Requires pVmxTransient->uExitIntInfo to be up-to-date.
@@ -13882,7 +13948,7 @@ static int hmR0VmxExitXcptGP(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
     else
     {
 #ifndef HMVMX_ALWAYS_TRAP_ALL_XCPTS
-        Assert(pVCpu->hm.s.fUsingDebugLoop);
+        Assert(pVCpu->hm.s.fUsingDebugLoop || pVCpu->hm.s.fTrapXcptGpForLovelyMesaDrv);
 #endif
         /* If the guest is not in real-mode or we have unrestricted execution support, reflect #GP to the guest. */
         rc  = hmR0VmxReadExitIntInfoVmcs(pVmxTransient);
@@ -13892,8 +13958,12 @@ static int hmR0VmxExitXcptGP(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
         AssertRCReturn(rc, rc);
         Log4(("#GP Gst: CS:RIP %04x:%08RX64 ErrorCode=%#x CR0=%#RX64 CPL=%u TR=%#04x\n", pMixedCtx->cs.Sel, pMixedCtx->rip,
               pVmxTransient->uExitIntErrorCode, pMixedCtx->cr0, CPUMGetGuestCPL(pVCpu), pMixedCtx->tr.Sel));
-        hmR0VmxSetPendingEvent(pVCpu, VMX_VMCS_CTRL_ENTRY_IRQ_INFO_FROM_EXIT_INT_INFO(pVmxTransient->uExitIntInfo),
-                               pVmxTransient->cbInstr, pVmxTransient->uExitIntErrorCode, 0 /* GCPtrFaultAddress */);
+        if (   !pVCpu->hm.s.fTrapXcptGpForLovelyMesaDrv
+            || !hmR0VmxIsMesaDrvGp(pVCpu, pVmxTransient, pMixedCtx))
+            hmR0VmxSetPendingEvent(pVCpu, VMX_VMCS_CTRL_ENTRY_IRQ_INFO_FROM_EXIT_INT_INFO(pVmxTransient->uExitIntInfo),
+                                   pVmxTransient->cbInstr, pVmxTransient->uExitIntErrorCode, 0 /* GCPtrFaultAddress */);
+        else
+            rc = hmR0VmxHandleMesaDrvGp(pVCpu, pVmxTransient, pMixedCtx);
         return rc;
     }
 

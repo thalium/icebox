@@ -1182,6 +1182,14 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
         hrc = pMachine->GetCPUProperty(CPUPropertyType_L1DFlushOnVMEntry, &fL1DFlushOnVMEntry); H();
         InsertConfigInteger(pHM, "L1DFlushOnVMEntry", fL1DFlushOnVMEntry);
 
+        BOOL fMDSClearOnSched = true;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_MDSClearOnEMTScheduling, &fMDSClearOnSched); H();
+        InsertConfigInteger(pHM, "MDSClearOnSched", fMDSClearOnSched);
+
+        BOOL fMDSClearOnVMEntry = false;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_MDSClearOnVMEntry, &fMDSClearOnVMEntry); H();
+        InsertConfigInteger(pHM, "MDSClearOnVMEntry", fMDSClearOnVMEntry);
+
         /* Reset overwrite. */
         if (i_isResetTurnedIntoPowerOff())
             InsertConfigInteger(pRoot, "PowerOffInsteadOfReset", 1);
@@ -1649,10 +1657,12 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
         {
             case GraphicsControllerType_Null:
                 break;
-            case GraphicsControllerType_VBoxVGA:
 #ifdef VBOX_WITH_VMSVGA
             case GraphicsControllerType_VMSVGA:
+                InsertConfigInteger(pHM, "LovelyMesaDrvWorkaround", 1); /* hits someone else logging backdoor. */
+                RT_FALL_THROUGH();
 #endif
+            case GraphicsControllerType_VBoxVGA:
                 rc = i_configGraphicsController(pDevices, enmGraphicsController, pBusMgr, pMachine, biosSettings,
                                                 RT_BOOL(fHMEnabled));
                 if (FAILED(rc))

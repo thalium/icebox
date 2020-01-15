@@ -1065,6 +1065,14 @@ RT_C_DECLS_END
 #define VERR_PROC_IQ_PRIV_NOT_HELD          (-22413)
 /** The system has too many CPUs. */
 #define VERR_MP_TOO_MANY_CPUS               (-22414)
+/** Wrong parameter count. */
+#define VERR_WRONG_PARAMETER_COUNT          (-22415)
+/** Wrong parameter type. */
+#define VERR_WRONG_PARAMETER_TYPE           (-22416)
+/** Invalid client ID. */
+#define VERR_INVALID_CLIENT_ID              (-22417)
+/** Invalid session ID. */
+#define VERR_INVALID_SESSION_ID             (-22418)
 /** @} */
 
 
@@ -1593,6 +1601,8 @@ RT_C_DECLS_END
 #define VERR_LDRELF_INVALID_RELOCATION_OFFSET   (-639)
 /** The ELF loader didn't find the symbol/string table for the image. */
 #define VERR_LDRELF_NO_SYMBOL_OR_NO_STRING_TABS (-640)
+/** The ELF loader encountered an unterminated string table. */
+#define VERR_LDRELF_UNTERMINATED_STRING_TAB     (-641)
 /** Invalid link address. */
 #define VERR_LDR_INVALID_LINK_ADDRESS           (-647)
 /** Invalid image relative virtual address. */
@@ -2303,9 +2313,9 @@ RT_C_DECLS_END
 /** Bad ASN.1 object length encoding. */
 #define VERR_ASN1_CURSOR_BAD_LENGTH_ENCODING        (-22831)
 /** Indefinite length form is against the rules. */
-#define VERR_ASN1_CURSOR_ILLEGAL_IDEFINITE_LENGTH   (-22832)
-/** Indefinite length form is not implemented. */
-#define VERR_ASN1_CURSOR_IDEFINITE_LENGTH_NOT_SUP   (-22833)
+#define VERR_ASN1_CURSOR_ILLEGAL_INDEFINITE_LENGTH  (-22832)
+/** Malformed indefinite length encoding. */
+#define VERR_ASN1_CURSOR_BAD_INDEFINITE_LENGTH      (-22833)
 /** ASN.1 object length goes beyond the end of the byte stream being decoded. */
 #define VERR_ASN1_CURSOR_BAD_LENGTH                 (-22834)
 /** Not more data in ASN.1 byte stream. */
@@ -2434,6 +2444,8 @@ RT_C_DECLS_END
 #define VERR_LDRVI_PAGE_HASH_MISMATCH               (-22928)
 /** Image hash mismatch. */
 #define VERR_LDRVI_IMAGE_HASH_MISMATCH              (-22929)
+/** Malformed code signing structure. */
+#define VERR_LDRVI_BAD_CERT_FORMAT                  (-22930)
 
 /** Cannot resolve symbol because it's a forwarder. */
 #define VERR_LDR_FORWARDER                          (-22950)
@@ -2445,6 +2457,82 @@ RT_C_DECLS_END
 #define VERR_LDR_FORWARDER_CHAIN_TOO_LONG           (-22953)
 /** Support for forwarders has not been implemented. */
 #define VERR_LDR_FORWARDERS_NOT_SUPPORTED           (-22954)
+/** Only native endian Mach-O files are supported. */
+#define VERR_LDRMACHO_OTHER_ENDIAN_NOT_SUPPORTED    (-22955)
+/** The Mach-O header is bad or contains new and unsupported features. */
+#define VERR_LDRMACHO_BAD_HEADER                    (-22956)
+/** The file type isn't supported. */
+#define VERR_LDRMACHO_UNSUPPORTED_FILE_TYPE         (-22957)
+/** The machine (cputype / cpusubtype combination) isn't supported. */
+#define VERR_LDRMACHO_UNSUPPORTED_MACHINE           (-22958)
+/** Bad load command(s). */
+#define VERR_LDRMACHO_BAD_LOAD_COMMAND              (-22959)
+/** Encountered an unknown load command.*/
+#define VERR_LDRMACHO_UNKNOWN_LOAD_COMMAND          (-22960)
+/** Encountered a load command that's not implemented.*/
+#define VERR_LDRMACHO_UNSUPPORTED_LOAD_COMMAND      (-22961)
+/** Bad section. */
+#define VERR_LDRMACHO_BAD_SECTION                   (-22962)
+/** Encountered a section type that's not implemented.*/
+#define VERR_LDRMACHO_UNSUPPORTED_SECTION           (-22963)
+/** Encountered a init function section.   */
+#define VERR_LDRMACHO_UNSUPPORTED_INIT_SECTION      (-22964)
+/** Encountered a term function section.   */
+#define VERR_LDRMACHO_UNSUPPORTED_TERM_SECTION      (-22965)
+/** Encountered a section type that's not known to the loader. (probably invalid) */
+#define VERR_LDRMACHO_UNKNOWN_SECTION               (-22966)
+/** The sections aren't ordered by segment as expected by the loader. */
+#define VERR_LDRMACHO_BAD_SECTION_ORDER             (-22967)
+/** The image is 32-bit and contains 64-bit load commands or vise versa. */
+#define VERR_LDRMACHO_BIT_MIX                       (-22968)
+/** Bad MH_OBJECT file. */
+#define VERR_LDRMACHO_BAD_OBJECT_FILE               (-22969)
+/** Bad symbol table entry. */
+#define VERR_LDRMACHO_BAD_SYMBOL                    (-22970)
+/** Unsupported fixup type. */
+#define VERR_LDRMACHO_UNSUPPORTED_FIXUP_TYPE        (-22971)
+/** Both debug and non-debug sections in segment. */
+#define VERR_LDRMACHO_MIXED_DEBUG_SECTION_FLAGS     (-22972)
+/** The segment bits are non-contiguous in the file. */
+#define VERR_LDRMACHO_NON_CONT_SEG_BITS             (-22973)
+/** Hit a todo in the mach-o loader. */
+#define VERR_LDRMACHO_TODO                          (-22974)
+/** Bad symbol table size in Mach-O image. */
+#define VERR_LDRMACHO_BAD_SYMTAB_SIZE               (-22975)
+/** Duplicate segment name. */
+#define VERR_LDR_DUPLICATE_SEGMENT_NAME             (-22976)
+/** No image UUID. */
+#define VERR_LDR_NO_IMAGE_UUID                      (-22977)
+/** Bad image relocation. */
+#define VERR_LDR_BAD_FIXUP                          (-22978)
+/** Address overflow. */
+#define VERR_LDR_ADDRESS_OVERFLOW                   (-22979)
+/** validation of LX header failed. */
+#define VERR_LDRLX_BAD_HEADER                       (-22980)
+/** validation of the loader section (in the LX header) failed. */
+#define VERR_LDRLX_BAD_LOADER_SECTION               (-22981)
+/** validation of the fixup section (in the LX header) failed. */
+#define VERR_LDRLX_BAD_FIXUP_SECTION                (-22982)
+/** validation of the LX object table failed. */
+#define VERR_LDRLX_BAD_OBJECT_TABLE                 (-22983)
+/** A bad page map entry was encountered. */
+#define VERR_LDRLX_BAD_PAGE_MAP                     (-22984)
+/** Bad iterdata (EXEPACK) data. */
+#define VERR_LDRLX_BAD_ITERDATA                     (-22985)
+/** Bad iterdata2 (EXEPACK2) data. */
+#define VERR_LDRLX_BAD_ITERDATA2                    (-22986)
+/** Bad bundle data. */
+#define VERR_LDRLX_BAD_BUNDLE                       (-22987)
+/** No soname. */
+#define VERR_LDRLX_NO_SONAME                        (-22988)
+/** Bad soname. */
+#define VERR_LDRLX_BAD_SONAME                       (-22989)
+/** Bad forwarder entry. */
+#define VERR_LDRLX_BAD_FORWARDER                    (-22990)
+/** internal fixup chain isn't implemented yet. */
+#define VERR_LDRLX_NRICHAIN_NOT_SUPPORTED           (-22991)
+/** Import module ordinal is out of bounds. */
+#define VERR_LDRLX_IMPORT_ORDINAL_OUT_OF_BOUNDS     (-22992)
 /** @} */
 
 /** @name RTCrX509 status codes.
@@ -2615,6 +2703,8 @@ RT_C_DECLS_END
 #define VERR_CR_PKCS7_SIGNER_CERT_NOT_SHIPPED                   (-22358)
 /** The encrypted digest algorithm does not match the one in the certificate. */
 #define VERR_CR_PKCS7_SIGNER_INFO_DIGEST_ENCRYPT_MISMATCH       (-22359)
+/** The PKCS \#7 content is not data. */
+#define VERR_CR_PKCS7_NOT_DATA                                  (-22360)
 /** @} */
 
 /** @name RTCrSpc status codes.

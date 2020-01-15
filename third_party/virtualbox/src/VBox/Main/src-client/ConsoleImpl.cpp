@@ -9859,9 +9859,6 @@ void Console::i_powerUpThreadTask(VMPowerUpTask *pTask)
 
         alock.acquire();
 
-        /* Enable client connections to the server. */
-        pConsole->i_consoleVRDPServer()->EnableConnections();
-
 #ifdef VBOX_WITH_AUDIO_VRDE
         /* Attach the VRDE audio driver. */
         IVRDEServer *pVRDEServer = pConsole->i_getVRDEServer();

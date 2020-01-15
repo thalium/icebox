@@ -426,6 +426,12 @@ typedef struct HM
     bool                        fL1dFlushOnSched;
     /** Set if host manages speculation control settings. */
     bool                        fSpecCtrlByHost;
+    /** Set if MDS related buffers should be cleared on VM entry. */
+    bool                        fMdsClearOnVmEntry;
+    /** Set if MDS related buffers should be cleared on EMT scheduling. */
+    bool                        fMdsClearOnSched;
+    /** Alignment padding. */
+    bool                        afPaddingMinus1[6];
 
     /** Maximum ASID allowed. */
     uint32_t                    uMaxAsid;
@@ -707,7 +713,9 @@ typedef struct HMCPU
     bool                        fGIMTrapXcptUD;
     /** Whether paravirt. hypercalls are enabled. */
     bool                        fHypercallsEnabled;
-    uint8_t                     u8Alignment0[3];
+    /** Whether \#GP needs to be intercept for mesa driver workaround. */
+    bool                        fTrapXcptGpForLovelyMesaDrv;
+    uint8_t                     u8Alignment0[2];
 
     /** World switch exit counter. */
     volatile uint32_t           cWorldSwitchExits;
@@ -1126,7 +1134,7 @@ VMMR0_INT_DECL(void) hmR0DumpDescriptor(PCX86DESCHC pDesc, RTSEL Sel, const char
 DECLASM(int) hmR0VMXStartVMWrapXMM(RTHCUINT fResume, PCPUMCTX pCtx, PVMCSCACHE pCache, PVM pVM, PVMCPU pVCpu, PFNHMVMXSTARTVM pfnStartVM);
 DECLASM(int) hmR0SVMRunWrapXMM(RTHCPHYS pVmcbHostPhys, RTHCPHYS pVmcbPhys, PCPUMCTX pCtx, PVM pVM, PVMCPU pVCpu, PFNHMSVMVMRUN pfnVMRun);
 # endif
-
+DECLASM(void) hmR0MdsClear(void);
 #endif /* IN_RING0 */
 
 /** @} */

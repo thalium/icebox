@@ -47,8 +47,8 @@
 /Support/win/import-template-ntdll.h:    --no-update-copyright-year --no-update-license
 
 # Ignore binary files
---filter-out-files /Support/win/Certificates/*.taf
---filter-out-files /Support/win/Certificates/*.cer
+--filter-out-files /Support/Certificates/*.taf
+--filter-out-files /Support/Certificates/*.cer
 
 # Misc
 /linux/build_in_tmp: --treat-as .sh

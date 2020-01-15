@@ -1309,19 +1309,16 @@ static int darwinLedElementSetValue(IOHIDDeviceRef hidDevice, IOHIDElementRef el
 /** Get state of a particular led. */
 static int darwinLedElementGetValue(IOHIDDeviceRef hidDevice, IOHIDElementRef element, bool *fEnabled)
 {
-    IOHIDValueRef valueRef;
-    IOReturn      rc;
-    CFIndex       integerValue;
-
     /* Try to resume suspended keyboard devices. Abort if failed in order to avoid GUI freezes. */
     int rc1 = SUPR3ResumeSuspendedKeyboards();
     if (RT_FAILURE(rc1))
         return rc1;
 
-    rc = IOHIDDeviceGetValue(hidDevice, element, &valueRef);
+    IOHIDValueRef valueRef;
+    IOReturn rc = IOHIDDeviceGetValue(hidDevice, element, &valueRef);
     if (rc == kIOReturnSuccess)
     {
-        integerValue = IOHIDValueGetIntegerValue(valueRef);
+        CFIndex integerValue = IOHIDValueGetIntegerValue(valueRef);
         switch (integerValue)
         {
             case 0:
@@ -1334,7 +1331,7 @@ static int darwinLedElementGetValue(IOHIDDeviceRef hidDevice, IOHIDElementRef el
                 rc = kIOReturnError;
         }
 
-        CFRelease(valueRef);
+        /*CFRelease(valueRef); - IOHIDDeviceGetValue does not return a reference, so no need to release it. */
     }
 
     return rc;

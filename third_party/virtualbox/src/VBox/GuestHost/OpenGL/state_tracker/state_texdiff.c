@@ -14,7 +14,7 @@
 #include "state_internals.h"
 
 
-#define UNIMPLEMENTED() crStateError(__LINE__,__FILE__,GL_INVALID_OPERATION, "Unimplemented something or other" )
+#define UNIMPLEMENTED() crStateError(pState, __LINE__,__FILE__,GL_INVALID_OPERATION, "Unimplemented something or other" )
 
 
 #if 0 /* NOT USED??? */
@@ -97,6 +97,7 @@ void crStateTextureObjSwitchCallback( unsigned long key, void *data1, void *data
 void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID, 
                                                      CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRTextureState *from = &(fromCtx->texture);
     const CRTextureState *to = &(toCtx->texture);
     unsigned int i,j;
@@ -104,17 +105,19 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
     CRbitvalue nbitID[CR_MAX_BITARRAY];
     unsigned int activeUnit = (unsigned int) -1;
 
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
+
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
-    able[0] = diff_api.Disable;
-    able[1] = diff_api.Enable;
+    able[0] = pState->diff_api.Disable;
+    able[1] = pState->diff_api.Enable;
 
     for (i = 0; i < fromCtx->limits.maxTextureUnits; i++)
     {
         if (CHECKDIRTY(tb->enable[i], bitID)) 
         {
             if (activeUnit != i) {
-                diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
                 activeUnit = i;
             }
             if (from->unit[i].enabled1D != to->unit[i].enabled1D) 
@@ -181,25 +184,25 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
         if (CHECKDIRTY(tb->current[i], bitID)) 
         {
             if (activeUnit != i) {
-                diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
                 activeUnit = i;
             }
             if (from->unit[i].currentTexture1D->hwid != to->unit[i].currentTexture1D->hwid)
             {
-                diff_api.BindTexture(GL_TEXTURE_1D, crStateGetTextureObjHWID(to->unit[i].currentTexture1D));
+                pState->diff_api.BindTexture(GL_TEXTURE_1D, crStateGetTextureObjHWID(pState, to->unit[i].currentTexture1D));
                 FILLDIRTY(tb->current[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].currentTexture2D->hwid != to->unit[i].currentTexture2D->hwid)
             {
-                diff_api.BindTexture(GL_TEXTURE_2D, crStateGetTextureObjHWID(to->unit[i].currentTexture2D));
+                pState->diff_api.BindTexture(GL_TEXTURE_2D, crStateGetTextureObjHWID(pState, to->unit[i].currentTexture2D));
                 FILLDIRTY(tb->current[i]);
                 FILLDIRTY(tb->dirty);
             }
 #ifdef CR_OPENGL_VERSION_1_2
             if (from->unit[i].currentTexture3D->hwid != to->unit[i].currentTexture3D->hwid)
             {
-                diff_api.BindTexture(GL_TEXTURE_3D, crStateGetTextureObjHWID(to->unit[i].currentTexture3D));
+                pState->diff_api.BindTexture(GL_TEXTURE_3D, crStateGetTextureObjHWID(pState, to->unit[i].currentTexture3D));
                 FILLDIRTY(tb->current[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -208,7 +211,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
             if (fromCtx->extensions.ARB_texture_cube_map &&
                 from->unit[i].currentTextureCubeMap->hwid != to->unit[i].currentTextureCubeMap->hwid)
             {
-                diff_api.BindTexture(GL_TEXTURE_CUBE_MAP_ARB, crStateGetTextureObjHWID(to->unit[i].currentTextureCubeMap));
+                pState->diff_api.BindTexture(GL_TEXTURE_CUBE_MAP_ARB, crStateGetTextureObjHWID(pState, to->unit[i].currentTextureCubeMap));
                 FILLDIRTY(tb->current[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -217,7 +220,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
             if (fromCtx->extensions.NV_texture_rectangle &&
                 from->unit[i].currentTextureRect->hwid != to->unit[i].currentTextureRect->hwid)
             {
-                diff_api.BindTexture(GL_TEXTURE_RECTANGLE_NV, crStateGetTextureObjHWID(to->unit[i].currentTextureRect));
+                pState->diff_api.BindTexture(GL_TEXTURE_RECTANGLE_NV, crStateGetTextureObjHWID(pState, to->unit[i].currentTextureRect));
                 FILLDIRTY(tb->current[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -228,7 +231,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
         if (CHECKDIRTY(tb->objGen[i], bitID)) 
         {
             if (activeUnit != i) {
-                diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
                 activeUnit = i;
             }
             if (from->unit[i].objSCoeff.x != to->unit[i].objSCoeff.x ||
@@ -241,7 +244,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].objSCoeff.y;
                 f[2] = to->unit[i].objSCoeff.z;
                 f[3] = to->unit[i].objSCoeff.w;
-                diff_api.TexGenfv (GL_S, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_S, GL_OBJECT_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->objGen[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -254,7 +257,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].objTCoeff.y;
                 f[2] = to->unit[i].objTCoeff.z;
                 f[3] = to->unit[i].objTCoeff.w;
-                diff_api.TexGenfv (GL_T, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_T, GL_OBJECT_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->objGen[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -267,7 +270,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].objRCoeff.y;
                 f[2] = to->unit[i].objRCoeff.z;
                 f[3] = to->unit[i].objRCoeff.w;
-                diff_api.TexGenfv (GL_R, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_R, GL_OBJECT_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->objGen[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -280,7 +283,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].objQCoeff.y;
                 f[2] = to->unit[i].objQCoeff.z;
                 f[3] = to->unit[i].objQCoeff.w;
-                diff_api.TexGenfv (GL_Q, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_Q, GL_OBJECT_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->objGen[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -289,12 +292,12 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
         if (CHECKDIRTY(tb->eyeGen[i], bitID)) 
         {
             if (activeUnit != i) {
-                diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
                 activeUnit = i;
             }
-            diff_api.MatrixMode(GL_MODELVIEW);
-            diff_api.PushMatrix();
-            diff_api.LoadIdentity();
+            pState->diff_api.MatrixMode(GL_MODELVIEW);
+            pState->diff_api.PushMatrix();
+            pState->diff_api.LoadIdentity();
             if (from->unit[i].eyeSCoeff.x != to->unit[i].eyeSCoeff.x ||
                 from->unit[i].eyeSCoeff.y != to->unit[i].eyeSCoeff.y ||
                 from->unit[i].eyeSCoeff.z != to->unit[i].eyeSCoeff.z ||
@@ -304,7 +307,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].eyeSCoeff.y;
                 f[2] = to->unit[i].eyeSCoeff.z;
                 f[3] = to->unit[i].eyeSCoeff.w;
-                diff_api.TexGenfv (GL_S, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_S, GL_EYE_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->eyeGen[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -317,7 +320,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].eyeTCoeff.y;
                 f[2] = to->unit[i].eyeTCoeff.z;
                 f[3] = to->unit[i].eyeTCoeff.w;
-                diff_api.TexGenfv (GL_T, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_T, GL_EYE_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->eyeGen[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -330,7 +333,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].eyeRCoeff.y;
                 f[2] = to->unit[i].eyeRCoeff.z;
                 f[3] = to->unit[i].eyeRCoeff.w;
-                diff_api.TexGenfv (GL_R, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_R, GL_EYE_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->eyeGen[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -343,17 +346,17 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].eyeQCoeff.y;
                 f[2] = to->unit[i].eyeQCoeff.z;
                 f[3] = to->unit[i].eyeQCoeff.w;
-                diff_api.TexGenfv (GL_Q, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_Q, GL_EYE_PLANE, (const GLfloat *) f);
                 FILLDIRTY(tb->eyeGen[i]);
                 FILLDIRTY(tb->dirty);
             }
-            diff_api.PopMatrix();
+            pState->diff_api.PopMatrix();
             CLEARDIRTY(tb->eyeGen[i], nbitID);
         }
         if (CHECKDIRTY(tb->genMode[i], bitID)) 
         {
             if (activeUnit != i) {
-                diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
                 activeUnit = i;
             }
             if (from->unit[i].gen.s != to->unit[i].gen.s ||
@@ -361,10 +364,10 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 from->unit[i].gen.r != to->unit[i].gen.r ||
                 from->unit[i].gen.q != to->unit[i].gen.q) 
             {
-                diff_api.TexGeni (GL_S, GL_TEXTURE_GEN_MODE, to->unit[i].gen.s);
-                diff_api.TexGeni (GL_T, GL_TEXTURE_GEN_MODE, to->unit[i].gen.t);
-                diff_api.TexGeni (GL_R, GL_TEXTURE_GEN_MODE, to->unit[i].gen.r);
-                diff_api.TexGeni (GL_Q, GL_TEXTURE_GEN_MODE, to->unit[i].gen.q);    
+                pState->diff_api.TexGeni (GL_S, GL_TEXTURE_GEN_MODE, to->unit[i].gen.s);
+                pState->diff_api.TexGeni (GL_T, GL_TEXTURE_GEN_MODE, to->unit[i].gen.t);
+                pState->diff_api.TexGeni (GL_R, GL_TEXTURE_GEN_MODE, to->unit[i].gen.r);
+                pState->diff_api.TexGeni (GL_Q, GL_TEXTURE_GEN_MODE, to->unit[i].gen.q);    
                 FILLDIRTY(tb->genMode[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -376,12 +379,12 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
         if (CHECKDIRTY(tb->envBit[i], bitID)) 
         {
             if (activeUnit != i) {
-                diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( i + GL_TEXTURE0_ARB );
                 activeUnit = i;
             }
             if (from->unit[i].envMode != to->unit[i].envMode) 
             {
-                diff_api.TexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, to->unit[i].envMode);
+                pState->diff_api.TexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, to->unit[i].envMode);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -395,103 +398,103 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[i].envColor.g;
                 f[2] = to->unit[i].envColor.b;
                 f[3] = to->unit[i].envColor.a;
-                diff_api.TexEnvfv (GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, (const GLfloat *) f);
+                pState->diff_api.TexEnvfv (GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, (const GLfloat *) f);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineModeRGB != to->unit[i].combineModeRGB)
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, to->unit[i].combineModeRGB);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, to->unit[i].combineModeRGB);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineModeA != to->unit[i].combineModeA)
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, to->unit[i].combineModeA);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, to->unit[i].combineModeA);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineSourceRGB[0] != to->unit[i].combineSourceRGB[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, to->unit[i].combineSourceRGB[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, to->unit[i].combineSourceRGB[0]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineSourceRGB[1] != to->unit[i].combineSourceRGB[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, to->unit[i].combineSourceRGB[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, to->unit[i].combineSourceRGB[1]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineSourceRGB[2] != to->unit[i].combineSourceRGB[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, to->unit[i].combineSourceRGB[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, to->unit[i].combineSourceRGB[2]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineSourceA[0] != to->unit[i].combineSourceA[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, to->unit[i].combineSourceA[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, to->unit[i].combineSourceA[0]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineSourceA[1] != to->unit[i].combineSourceA[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, to->unit[i].combineSourceA[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, to->unit[i].combineSourceA[1]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineSourceA[2] != to->unit[i].combineSourceA[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, to->unit[i].combineSourceA[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, to->unit[i].combineSourceA[2]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineOperandRGB[0] != to->unit[i].combineOperandRGB[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, to->unit[i].combineOperandRGB[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, to->unit[i].combineOperandRGB[0]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineOperandRGB[1] != to->unit[i].combineOperandRGB[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, to->unit[i].combineOperandRGB[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, to->unit[i].combineOperandRGB[1]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineOperandRGB[2] != to->unit[i].combineOperandRGB[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, to->unit[i].combineOperandRGB[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, to->unit[i].combineOperandRGB[2]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineOperandA[0] != to->unit[i].combineOperandA[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, to->unit[i].combineOperandA[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, to->unit[i].combineOperandA[0]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineOperandA[1] != to->unit[i].combineOperandA[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, to->unit[i].combineOperandA[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, to->unit[i].combineOperandA[1]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineOperandA[2] != to->unit[i].combineOperandA[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, to->unit[i].combineOperandA[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, to->unit[i].combineOperandA[2]);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineScaleRGB != to->unit[i].combineScaleRGB)
             {
-                diff_api.TexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, to->unit[i].combineScaleRGB);
+                pState->diff_api.TexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, to->unit[i].combineScaleRGB);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
             if (from->unit[i].combineScaleA != to->unit[i].combineScaleA)
             {
-                diff_api.TexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, to->unit[i].combineScaleA);
+                pState->diff_api.TexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, to->unit[i].combineScaleA);
                 FILLDIRTY(tb->envBit[i]);
                 FILLDIRTY(tb->dirty);
             }
@@ -509,9 +512,9 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
 
     /* After possible fiddling put them back now */
     if (activeUnit != toCtx->texture.curTextureUnit) {
-        diff_api.ActiveTextureARB( toCtx->texture.curTextureUnit + GL_TEXTURE0_ARB );
+        pState->diff_api.ActiveTextureARB( toCtx->texture.curTextureUnit + GL_TEXTURE0_ARB );
     }
-    diff_api.MatrixMode(toCtx->transform.matrixMode);
+    pState->diff_api.MatrixMode(toCtx->transform.matrixMode);
 }
 
 
@@ -522,7 +525,7 @@ void crStateTextureSwitch( CRTextureBits *tb, CRbitvalue *bitID,
  */
 int crStateTextureCheckDirtyImages(CRContext *from, CRContext *to, GLenum target, int textureUnit)
 {
-    CRContext *g         = GetCurrentContext();
+    CRContext *g         = GetCurrentContext(from->pStateTracker);
     CRTextureState *tsto;
     CRbitvalue *bitID;
     CRTextureObj *tobj   = NULL;
@@ -531,6 +534,7 @@ int crStateTextureCheckDirtyImages(CRContext *from, CRContext *to, GLenum target
 
     CRASSERT(to);
     CRASSERT(from);
+    CRASSERT(from->pStateTracker == to->pStateTracker);
 
     tsto = &(to->texture);
     bitID = from->bitid;
@@ -600,16 +604,17 @@ crStateTextureObjectDiff(CRContext *fromCtx,
                          const CRbitvalue *bitID, const CRbitvalue *nbitID,
                          CRTextureObj *tobj, GLboolean alwaysDirty)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRTextureState *from = &(fromCtx->texture);
     glAble able[2];
     int u = 0; /* always use texture unit 0 for diff'ing */
-    GLuint hwid = crStateGetTextureObjHWID(tobj);
+    GLuint hwid = crStateGetTextureObjHWID(pState, tobj);
 
     if (!hwid)
         return;
 
-    able[0] = diff_api.Disable;
-    able[1] = diff_api.Enable;
+    able[0] = pState->diff_api.Disable;
+    able[1] = pState->diff_api.Enable;
 
 #if 0
     /* XXX disabling this code fixed Wes Bethel's problem with missing/white
@@ -618,12 +623,12 @@ crStateTextureObjectDiff(CRContext *fromCtx,
      */
     /* Set active texture unit, and bind this texture object */
     if (from->curTextureUnit != u) {
-        diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
+        pState->diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
         from->curTextureUnit = u;
     }
 #endif
 
-    diff_api.BindTexture(tobj->target, hwid);
+    pState->diff_api.BindTexture(tobj->target, hwid);
 
     if (alwaysDirty || CHECKDIRTY(tobj->paramsBit[u], bitID)) 
     {
@@ -632,40 +637,40 @@ crStateTextureObjectDiff(CRContext *fromCtx,
         f[1] = tobj->borderColor.g;
         f[2] = tobj->borderColor.b;
         f[3] = tobj->borderColor.a;
-        diff_api.TexParameteri(tobj->target, GL_TEXTURE_BASE_LEVEL, tobj->baseLevel);
-        diff_api.TexParameteri(tobj->target, GL_TEXTURE_MAX_LEVEL, tobj->maxLevel);
-        diff_api.TexParameteri(tobj->target, GL_TEXTURE_MIN_FILTER, tobj->minFilter);
-        diff_api.TexParameteri(tobj->target, GL_TEXTURE_MAG_FILTER, tobj->magFilter);
-        diff_api.TexParameteri(tobj->target, GL_TEXTURE_WRAP_S, tobj->wrapS);
-        diff_api.TexParameteri(tobj->target, GL_TEXTURE_WRAP_T, tobj->wrapT);
+        pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_BASE_LEVEL, tobj->baseLevel);
+        pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_MAX_LEVEL, tobj->maxLevel);
+        pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_MIN_FILTER, tobj->minFilter);
+        pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_MAG_FILTER, tobj->magFilter);
+        pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_WRAP_S, tobj->wrapS);
+        pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_WRAP_T, tobj->wrapT);
 #ifdef CR_OPENGL_VERSION_1_2
-        diff_api.TexParameteri(tobj->target, GL_TEXTURE_WRAP_R, tobj->wrapR);
-        diff_api.TexParameterf(tobj->target, GL_TEXTURE_PRIORITY, tobj->priority);
+        pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_WRAP_R, tobj->wrapR);
+        pState->diff_api.TexParameterf(tobj->target, GL_TEXTURE_PRIORITY, tobj->priority);
 #endif
-        diff_api.TexParameterfv(tobj->target, GL_TEXTURE_BORDER_COLOR, (const GLfloat *) f);
+        pState->diff_api.TexParameterfv(tobj->target, GL_TEXTURE_BORDER_COLOR, (const GLfloat *) f);
 #ifdef CR_EXT_texture_filter_anisotropic
         if (fromCtx->extensions.EXT_texture_filter_anisotropic) {
-            diff_api.TexParameterf(tobj->target, GL_TEXTURE_MAX_ANISOTROPY_EXT, tobj->maxAnisotropy);
+            pState->diff_api.TexParameterf(tobj->target, GL_TEXTURE_MAX_ANISOTROPY_EXT, tobj->maxAnisotropy);
         }
 #endif
 #ifdef CR_ARB_depth_texture
         if (fromCtx->extensions.ARB_depth_texture)
-            diff_api.TexParameteri(tobj->target, GL_DEPTH_TEXTURE_MODE_ARB, tobj->depthMode);
+            pState->diff_api.TexParameteri(tobj->target, GL_DEPTH_TEXTURE_MODE_ARB, tobj->depthMode);
 #endif
 #ifdef CR_ARB_shadow
         if (fromCtx->extensions.ARB_shadow) {
-            diff_api.TexParameteri(tobj->target, GL_TEXTURE_COMPARE_MODE_ARB, tobj->compareMode);
-            diff_api.TexParameteri(tobj->target, GL_TEXTURE_COMPARE_FUNC_ARB, tobj->compareFunc);
+            pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_COMPARE_MODE_ARB, tobj->compareMode);
+            pState->diff_api.TexParameteri(tobj->target, GL_TEXTURE_COMPARE_FUNC_ARB, tobj->compareFunc);
         }
 #endif
 #ifdef CR_ARB_shadow_ambient
         if (fromCtx->extensions.ARB_shadow_ambient) {
-            diff_api.TexParameterf(tobj->target, GL_TEXTURE_COMPARE_FAIL_VALUE_ARB, tobj->compareFailValue);
+            pState->diff_api.TexParameterf(tobj->target, GL_TEXTURE_COMPARE_FAIL_VALUE_ARB, tobj->compareFailValue);
         }
 #endif
 #ifdef CR_SGIS_generate_mipmap
         if (fromCtx->extensions.SGIS_generate_mipmap) {
-            diff_api.TexParameteri(tobj->target, GL_GENERATE_MIPMAP_SGIS, tobj->generateMipmap);
+            pState->diff_api.TexParameteri(tobj->target, GL_GENERATE_MIPMAP_SGIS, tobj->generateMipmap);
         }
 #endif
         if (!alwaysDirty)
@@ -687,25 +692,25 @@ crStateTextureObjectDiff(CRContext *fromCtx,
                     if (alwaysDirty || CHECKDIRTY(tl->dirty, bitID)) 
                     {
                         if (tl->generateMipmap) {
-                            diff_api.TexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, 1);
+                            pState->diff_api.TexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, 1);
                         }
                         if (tl->width)
                         {
                             if (tl->compressed) {
-                                diff_api.CompressedTexImage1DARB(GL_TEXTURE_1D, lvl,
+                                pState->diff_api.CompressedTexImage1DARB(GL_TEXTURE_1D, lvl,
                                                                  tl->internalFormat, tl->width,
                                                                  tl->border, tl->bytes, tl->img);
                             }
                             else {
                                 /* alignment must be one */
-                                diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                                pState->diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
                                 if (tl->generateMipmap) {
-                                    diff_api.TexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP_SGIS, 1);
+                                    pState->diff_api.TexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP_SGIS, 1);
                                 }
-                                diff_api.TexImage1D(GL_TEXTURE_1D, lvl,
+                                pState->diff_api.TexImage1D(GL_TEXTURE_1D, lvl,
                                                     tl->internalFormat,
                                                     tl->width, tl->border,
                                                     tl->format, tl->type, tl->img);
@@ -732,24 +737,24 @@ crStateTextureObjectDiff(CRContext *fromCtx,
                     if (alwaysDirty || CHECKDIRTY(tl->dirty, bitID)) 
                     {
                         if (tl->generateMipmap) {
-                            diff_api.TexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, 1);
+                            pState->diff_api.TexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, 1);
                         }
 
                         if (tl->width && tl->height)
                         {
                             if (tl->compressed) {
-                                diff_api.CompressedTexImage2DARB(GL_TEXTURE_2D, lvl,
+                                pState->diff_api.CompressedTexImage2DARB(GL_TEXTURE_2D, lvl,
                                          tl->internalFormat, tl->width,
                                          tl->height, tl->border,
                                          tl->bytes, tl->img);
                             }
                             else {
                                 /* alignment must be one */
-                                diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                                diff_api.TexImage2D(GL_TEXTURE_2D, lvl,
+                                pState->diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                                pState->diff_api.TexImage2D(GL_TEXTURE_2D, lvl,
                                                     tl->internalFormat,
                                                     tl->width, tl->height, tl->border,
                                                     tl->format, tl->type, tl->img);
@@ -778,24 +783,24 @@ crStateTextureObjectDiff(CRContext *fromCtx,
                     if (alwaysDirty || CHECKDIRTY(tl->dirty, bitID)) 
                     {
                         if (tl->generateMipmap) {
-                            diff_api.TexParameteri(GL_TEXTURE_3D, GL_GENERATE_MIPMAP_SGIS, 1);
+                            pState->diff_api.TexParameteri(GL_TEXTURE_3D, GL_GENERATE_MIPMAP_SGIS, 1);
                         }
 
                         if (tl->width && tl->height)
                         {
                             if (tl->compressed) {
-                                diff_api.CompressedTexImage3DARB(GL_TEXTURE_3D, lvl,
+                                pState->diff_api.CompressedTexImage3DARB(GL_TEXTURE_3D, lvl,
                                                                  tl->internalFormat, tl->width,
                                                                  tl->height, tl->depth,
                                                                  tl->border, tl->bytes, tl->img);
                             }
                             else {
                                 /* alignment must be one */
-                                diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                                diff_api.TexImage3D(GL_TEXTURE_3D, lvl,
+                                pState->diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                                pState->diff_api.TexImage3D(GL_TEXTURE_3D, lvl,
                                                     tl->internalFormat,
                                                     tl->width, tl->height, tl->depth,
                                                     tl->border, tl->format,
@@ -829,18 +834,18 @@ crStateTextureObjectDiff(CRContext *fromCtx,
                         if (tl->width && tl->height)
                         {
                             if (tl->compressed) {
-                                diff_api.CompressedTexImage2DARB(GL_TEXTURE_RECTANGLE_NV, lvl,
+                                pState->diff_api.CompressedTexImage2DARB(GL_TEXTURE_RECTANGLE_NV, lvl,
                                                                  tl->internalFormat, tl->width,
                                                                  tl->height, tl->border,
                                                                  tl->bytes, tl->img);
                             }
                             else {
                                 /* alignment must be one */
-                                diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-                                diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                                diff_api.TexImage2D(GL_TEXTURE_RECTANGLE_NV, lvl,
+                                pState->diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+                                pState->diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                                pState->diff_api.TexImage2D(GL_TEXTURE_RECTANGLE_NV, lvl,
                                                     tl->internalFormat,
                                                     tl->width, tl->height, tl->border,
                                                     tl->format, tl->type, tl->img);
@@ -873,25 +878,25 @@ crStateTextureObjectDiff(CRContext *fromCtx,
                         if (alwaysDirty || CHECKDIRTY(tl->dirty, bitID))
                         {
                             if (tl->generateMipmap) {
-                                diff_api.TexParameteri(GL_TEXTURE_CUBE_MAP_ARB,
+                                pState->diff_api.TexParameteri(GL_TEXTURE_CUBE_MAP_ARB,
                                                        GL_GENERATE_MIPMAP_SGIS, 1);
                             }
 
                             if (tl->width && tl->height)
                             {
                                 if (tl->compressed) {
-                                    diff_api.CompressedTexImage2DARB(target,
+                                    pState->diff_api.CompressedTexImage2DARB(target,
                                                                      lvl, tl->internalFormat,
                                                                      tl->width, tl->height,
                                                                      tl->border, tl->bytes, tl->img);
                                 }
                                 else {
                                     /* alignment must be one */
-                                    diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                                    diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-                                    diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-                                    diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                                    diff_api.TexImage2D(target, lvl,
+                                    pState->diff_api.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                                    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+                                    pState->diff_api.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+                                    pState->diff_api.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                                    pState->diff_api.TexImage2D(target, lvl,
                                                         tl->internalFormat,
                                                         tl->width, tl->height, tl->border,
                                                         tl->format, tl->type, tl->img);
@@ -927,6 +932,7 @@ void
 crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                                         CRContext *fromCtx, CRContext *toCtx )
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
     CRTextureState *from = &(fromCtx->texture);
     CRTextureState *to = &(toCtx->texture);
     unsigned int u, t, j;
@@ -934,11 +940,13 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
     CRbitvalue nbitID[CR_MAX_BITARRAY];
     const GLboolean haveFragProg = fromCtx->extensions.ARB_fragment_program || fromCtx->extensions.NV_fragment_program;
 
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
+
     for (j=0;j<CR_MAX_BITARRAY;j++)
         nbitID[j] = ~bitID[j];
 
-    able[0] = diff_api.Disable;
-    able[1] = diff_api.Enable;
+    able[0] = pState->diff_api.Disable;
+    able[1] = pState->diff_api.Enable;
 
     /* loop over texture units */
     for (u = 0; u < fromCtx->limits.maxTextureUnits; u++)
@@ -952,7 +960,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
 
             /* Activate texture unit u if needed */
             if (fromCtx->texture.curTextureUnit != u) {
-                diff_api.ActiveTextureARB( GL_TEXTURE0_ARB + u);
+                pState->diff_api.ActiveTextureARB( GL_TEXTURE0_ARB + u);
                 fromCtx->texture.curTextureUnit = u;
             }
 
@@ -1010,7 +1018,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
         if (CHECKDIRTY(tb->objGen[u], bitID)) 
         {
             if (fromCtx->texture.curTextureUnit != u) {
-                diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
                 fromCtx->texture.curTextureUnit = u;
             }
             if (from->unit[u].objSCoeff.x != to->unit[u].objSCoeff.x ||
@@ -1023,7 +1031,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].objSCoeff.y;
                 f[2] = to->unit[u].objSCoeff.z;
                 f[3] = to->unit[u].objSCoeff.w;
-                diff_api.TexGenfv (GL_S, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_S, GL_OBJECT_PLANE, (const GLfloat *) f);
                 from->unit[u].objSCoeff = to->unit[u].objSCoeff;
             }
             if (from->unit[u].objTCoeff.x != to->unit[u].objTCoeff.x ||
@@ -1036,7 +1044,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].objTCoeff.y;
                 f[2] = to->unit[u].objTCoeff.z;
                 f[3] = to->unit[u].objTCoeff.w;
-                diff_api.TexGenfv (GL_T, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_T, GL_OBJECT_PLANE, (const GLfloat *) f);
                 from->unit[u].objTCoeff = to->unit[u].objTCoeff;
             }
             if (from->unit[u].objRCoeff.x != to->unit[u].objRCoeff.x ||
@@ -1049,7 +1057,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].objRCoeff.y;
                 f[2] = to->unit[u].objRCoeff.z;
                 f[3] = to->unit[u].objRCoeff.w;
-                diff_api.TexGenfv (GL_R, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_R, GL_OBJECT_PLANE, (const GLfloat *) f);
                 from->unit[u].objRCoeff = to->unit[u].objRCoeff;
             }
             if (from->unit[u].objQCoeff.x != to->unit[u].objQCoeff.x ||
@@ -1062,7 +1070,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].objQCoeff.y;
                 f[2] = to->unit[u].objQCoeff.z;
                 f[3] = to->unit[u].objQCoeff.w;
-                diff_api.TexGenfv (GL_Q, GL_OBJECT_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_Q, GL_OBJECT_PLANE, (const GLfloat *) f);
                 from->unit[u].objQCoeff = to->unit[u].objQCoeff;
             }
             CLEARDIRTY(tb->objGen[u], nbitID);
@@ -1070,15 +1078,15 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
         if (CHECKDIRTY(tb->eyeGen[u], bitID)) 
         {
             if (fromCtx->texture.curTextureUnit != u) {
-                diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
                 fromCtx->texture.curTextureUnit = u;
             }
             if (fromCtx->transform.matrixMode != GL_MODELVIEW) {
-                diff_api.MatrixMode(GL_MODELVIEW);
+                pState->diff_api.MatrixMode(GL_MODELVIEW);
                 fromCtx->transform.matrixMode = GL_MODELVIEW;
             }
-            diff_api.PushMatrix();
-            diff_api.LoadIdentity();
+            pState->diff_api.PushMatrix();
+            pState->diff_api.LoadIdentity();
             if (from->unit[u].eyeSCoeff.x != to->unit[u].eyeSCoeff.x ||
                     from->unit[u].eyeSCoeff.y != to->unit[u].eyeSCoeff.y ||
                     from->unit[u].eyeSCoeff.z != to->unit[u].eyeSCoeff.z ||
@@ -1089,7 +1097,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].eyeSCoeff.y;
                 f[2] = to->unit[u].eyeSCoeff.z;
                 f[3] = to->unit[u].eyeSCoeff.w;
-                diff_api.TexGenfv (GL_S, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_S, GL_EYE_PLANE, (const GLfloat *) f);
                 from->unit[u].eyeSCoeff = to->unit[u].eyeSCoeff;
             }
             if (from->unit[u].eyeTCoeff.x != to->unit[u].eyeTCoeff.x ||
@@ -1102,7 +1110,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].eyeTCoeff.y;
                 f[2] = to->unit[u].eyeTCoeff.z;
                 f[3] = to->unit[u].eyeTCoeff.w;
-                diff_api.TexGenfv (GL_T, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_T, GL_EYE_PLANE, (const GLfloat *) f);
                 from->unit[u].eyeTCoeff = to->unit[u].eyeTCoeff;
             }
             if (from->unit[u].eyeRCoeff.x != to->unit[u].eyeRCoeff.x ||
@@ -1115,7 +1123,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].eyeRCoeff.y;
                 f[2] = to->unit[u].eyeRCoeff.z;
                 f[3] = to->unit[u].eyeRCoeff.w;
-                diff_api.TexGenfv (GL_R, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_R, GL_EYE_PLANE, (const GLfloat *) f);
                 from->unit[u].eyeRCoeff = to->unit[u].eyeRCoeff;
             }
             if (from->unit[u].eyeQCoeff.x != to->unit[u].eyeQCoeff.x ||
@@ -1128,16 +1136,16 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].eyeQCoeff.y;
                 f[2] = to->unit[u].eyeQCoeff.z;
                 f[3] = to->unit[u].eyeQCoeff.w;
-                diff_api.TexGenfv (GL_Q, GL_EYE_PLANE, (const GLfloat *) f);
+                pState->diff_api.TexGenfv (GL_Q, GL_EYE_PLANE, (const GLfloat *) f);
                 from->unit[u].eyeQCoeff = to->unit[u].eyeQCoeff;
             }
-            diff_api.PopMatrix();
+            pState->diff_api.PopMatrix();
             CLEARDIRTY(tb->eyeGen[u], nbitID);
         }
         if (CHECKDIRTY(tb->genMode[u], bitID)) 
         {
             if (fromCtx->texture.curTextureUnit != u) {
-                diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
+                pState->diff_api.ActiveTextureARB( u + GL_TEXTURE0_ARB );
                 fromCtx->texture.curTextureUnit = u;
             }
             if (from->unit[u].gen.s != to->unit[u].gen.s ||
@@ -1145,10 +1153,10 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                     from->unit[u].gen.r != to->unit[u].gen.r ||
                     from->unit[u].gen.q != to->unit[u].gen.q) 
             {
-                diff_api.TexGeni (GL_S, GL_TEXTURE_GEN_MODE, to->unit[u].gen.s);
-                diff_api.TexGeni (GL_T, GL_TEXTURE_GEN_MODE, to->unit[u].gen.t);
-                diff_api.TexGeni (GL_R, GL_TEXTURE_GEN_MODE, to->unit[u].gen.r);
-                diff_api.TexGeni (GL_Q, GL_TEXTURE_GEN_MODE, to->unit[u].gen.q);    
+                pState->diff_api.TexGeni (GL_S, GL_TEXTURE_GEN_MODE, to->unit[u].gen.s);
+                pState->diff_api.TexGeni (GL_T, GL_TEXTURE_GEN_MODE, to->unit[u].gen.t);
+                pState->diff_api.TexGeni (GL_R, GL_TEXTURE_GEN_MODE, to->unit[u].gen.r);
+                pState->diff_api.TexGeni (GL_Q, GL_TEXTURE_GEN_MODE, to->unit[u].gen.q);    
                 from->unit[u].gen = to->unit[u].gen;
             }
             CLEARDIRTY(tb->genMode[u], nbitID);
@@ -1159,7 +1167,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
         {
             if (from->unit[u].envMode != to->unit[u].envMode) 
             {
-                diff_api.TexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, to->unit[u].envMode);
+                pState->diff_api.TexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, to->unit[u].envMode);
                 from->unit[u].envMode = to->unit[u].envMode;
             }
             if (from->unit[u].envColor.r != to->unit[u].envColor.r ||
@@ -1172,95 +1180,95 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
                 f[1] = to->unit[u].envColor.g;
                 f[2] = to->unit[u].envColor.b;
                 f[3] = to->unit[u].envColor.a;
-                diff_api.TexEnvfv (GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, (const GLfloat *) f);
+                pState->diff_api.TexEnvfv (GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, (const GLfloat *) f);
                 from->unit[u].envColor = to->unit[u].envColor;
             }
 #ifdef CR_ARB_texture_env_combine
             if (from->unit[u].combineModeRGB != to->unit[u].combineModeRGB)
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, to->unit[u].combineModeRGB);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, to->unit[u].combineModeRGB);
                 from->unit[u].combineModeRGB = to->unit[u].combineModeRGB;
             }
             if (from->unit[u].combineModeA != to->unit[u].combineModeA)
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, to->unit[u].combineModeA);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, to->unit[u].combineModeA);
                 from->unit[u].combineModeA = to->unit[u].combineModeA;
             }
             if (from->unit[u].combineSourceRGB[0] != to->unit[u].combineSourceRGB[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, to->unit[u].combineSourceRGB[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, to->unit[u].combineSourceRGB[0]);
                 from->unit[u].combineSourceRGB[0] = to->unit[u].combineSourceRGB[0];
             }
             if (from->unit[u].combineSourceRGB[1] != to->unit[u].combineSourceRGB[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, to->unit[u].combineSourceRGB[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, to->unit[u].combineSourceRGB[1]);
                 from->unit[u].combineSourceRGB[1] = to->unit[u].combineSourceRGB[1];
             }
             if (from->unit[u].combineSourceRGB[2] != to->unit[u].combineSourceRGB[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, to->unit[u].combineSourceRGB[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, to->unit[u].combineSourceRGB[2]);
                 from->unit[u].combineSourceRGB[2] = to->unit[u].combineSourceRGB[2];
             }
             if (from->unit[u].combineSourceA[0] != to->unit[u].combineSourceA[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, to->unit[u].combineSourceA[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, to->unit[u].combineSourceA[0]);
                 from->unit[u].combineSourceA[0] = to->unit[u].combineSourceA[0];
             }
             if (from->unit[u].combineSourceA[1] != to->unit[u].combineSourceA[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, to->unit[u].combineSourceA[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, to->unit[u].combineSourceA[1]);
                 from->unit[u].combineSourceA[1] = to->unit[u].combineSourceA[1];
             }
             if (from->unit[u].combineSourceA[2] != to->unit[u].combineSourceA[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, to->unit[u].combineSourceA[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, to->unit[u].combineSourceA[2]);
                 from->unit[u].combineSourceA[2] = to->unit[u].combineSourceA[2];
             }
             if (from->unit[u].combineOperandRGB[0] != to->unit[u].combineOperandRGB[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, to->unit[u].combineOperandRGB[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, to->unit[u].combineOperandRGB[0]);
                 from->unit[u].combineOperandRGB[0] = to->unit[u].combineOperandRGB[0];
             }
             if (from->unit[u].combineOperandRGB[1] != to->unit[u].combineOperandRGB[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, to->unit[u].combineOperandRGB[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, to->unit[u].combineOperandRGB[1]);
                 from->unit[u].combineOperandRGB[1] = to->unit[u].combineOperandRGB[1];
             }
             if (from->unit[u].combineOperandRGB[2] != to->unit[u].combineOperandRGB[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, to->unit[u].combineOperandRGB[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, to->unit[u].combineOperandRGB[2]);
                 from->unit[u].combineOperandRGB[2] = to->unit[u].combineOperandRGB[2];
             }
             if (from->unit[u].combineOperandA[0] != to->unit[u].combineOperandA[0])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, to->unit[u].combineOperandA[0]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, to->unit[u].combineOperandA[0]);
                 from->unit[u].combineOperandA[0] = to->unit[u].combineOperandA[0];
             }
             if (from->unit[u].combineOperandA[1] != to->unit[u].combineOperandA[1])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, to->unit[u].combineOperandA[1]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, to->unit[u].combineOperandA[1]);
                 from->unit[u].combineOperandA[1] = to->unit[u].combineOperandA[1];
             }
             if (from->unit[u].combineOperandA[2] != to->unit[u].combineOperandA[2])
             {
-                diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, to->unit[u].combineOperandA[2]);
+                pState->diff_api.TexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, to->unit[u].combineOperandA[2]);
                 from->unit[u].combineOperandA[2] = to->unit[u].combineOperandA[2];
             }
             if (from->unit[u].combineScaleRGB != to->unit[u].combineScaleRGB)
             {
-                diff_api.TexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, to->unit[u].combineScaleRGB);
+                pState->diff_api.TexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, to->unit[u].combineScaleRGB);
                 from->unit[u].combineScaleRGB = to->unit[u].combineScaleRGB;
             }
             if (from->unit[u].combineScaleA != to->unit[u].combineScaleA)
             {
-                diff_api.TexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, to->unit[u].combineScaleA);
+                pState->diff_api.TexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, to->unit[u].combineScaleA);
                 from->unit[u].combineScaleA = to->unit[u].combineScaleA;
             }
 #endif
 #if CR_EXT_texture_lod_bias
             if (from->unit[u].lodBias != to->unit[u].lodBias)
             {
-                diff_api.TexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, to->unit[u].lodBias);
+                pState->diff_api.TexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, to->unit[u].lodBias);
                 from->unit[u].lodBias = to->unit[u].lodBias;
             }
 #endif
@@ -1322,7 +1330,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
 
             /* Activate texture unit u if needed */
             if (fromCtx->texture.curTextureUnit != u) {
-                diff_api.ActiveTextureARB( GL_TEXTURE0_ARB + u);
+                pState->diff_api.ActiveTextureARB( GL_TEXTURE0_ARB + u);
                 fromCtx->texture.curTextureUnit = u;
             }
 
@@ -1331,7 +1339,7 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
             {
                 if (*fromBinding != tobj)
                 {
-                    diff_api.BindTexture(tobj->target, crStateGetTextureObjHWID(tobj));
+                    pState->diff_api.BindTexture(tobj->target, crStateGetTextureObjHWID(pState, tobj));
                     *fromBinding = tobj;
                 }
             }
@@ -1351,11 +1359,11 @@ crStateTextureDiff( CRTextureBits *tb, CRbitvalue *bitID,
 
     /* After possible fiddling with the active unit, put it back now */
     if (fromCtx->texture.curTextureUnit != toCtx->texture.curTextureUnit) {
-        diff_api.ActiveTextureARB( toCtx->texture.curTextureUnit + GL_TEXTURE0_ARB );
+        pState->diff_api.ActiveTextureARB( toCtx->texture.curTextureUnit + GL_TEXTURE0_ARB );
         fromCtx->texture.curTextureUnit = toCtx->texture.curTextureUnit;
     }
     if (fromCtx->transform.matrixMode != toCtx->transform.matrixMode) {
-        diff_api.MatrixMode(toCtx->transform.matrixMode);
+        pState->diff_api.MatrixMode(toCtx->transform.matrixMode);
         fromCtx->transform.matrixMode = toCtx->transform.matrixMode;
     }
 
@@ -1403,6 +1411,7 @@ DiffTextureObjectCallback( unsigned long key, void *texObj , void *cbData)
 void
 crStateDiffAllTextureObjects( CRContext *g, CRbitvalue *bitID, GLboolean bForceUpdate )
 {
+    PCRStateTracker pState = g->pStateTracker;
     CRbitvalue nbitID[CR_MAX_BITARRAY];
     struct callback_info info;
     int j;
@@ -1418,18 +1427,18 @@ crStateDiffAllTextureObjects( CRContext *g, CRbitvalue *bitID, GLboolean bForceU
 
     /* save current texture bindings */
     origUnit = g->texture.curTextureUnit;
-    orig1D = crStateGetTextureObjHWID(g->texture.unit[0].currentTexture1D);
-    orig2D = crStateGetTextureObjHWID(g->texture.unit[0].currentTexture2D);
-    orig3D = crStateGetTextureObjHWID(g->texture.unit[0].currentTexture3D);
+    orig1D = crStateGetTextureObjHWID(pState, g->texture.unit[0].currentTexture1D);
+    orig2D = crStateGetTextureObjHWID(pState, g->texture.unit[0].currentTexture2D);
+    orig3D = crStateGetTextureObjHWID(pState, g->texture.unit[0].currentTexture3D);
 #ifdef CR_ARB_texture_cube_map
-    origCube = crStateGetTextureObjHWID(g->texture.unit[0].currentTextureCubeMap);
+    origCube = crStateGetTextureObjHWID(pState, g->texture.unit[0].currentTextureCubeMap);
 #endif
 #ifdef CR_NV_texture_rectangle
-    origRect = crStateGetTextureObjHWID(g->texture.unit[0].currentTextureRect);
+    origRect = crStateGetTextureObjHWID(pState, g->texture.unit[0].currentTextureRect);
 #endif
 
     /* use texture unit 0 for updates */
-    diff_api.ActiveTextureARB(GL_TEXTURE0_ARB);
+    pState->diff_api.ActiveTextureARB(GL_TEXTURE0_ARB);
 
     /* diff all the textures */
     crHashtableWalk(g->shared->textureTable, DiffTextureObjectCallback, (void *) &info);
@@ -1455,15 +1464,15 @@ crStateDiffAllTextureObjects( CRContext *g, CRbitvalue *bitID, GLboolean bForceU
 
     /* restore bindings */
     /* first restore unit 0 bindings the unit 0 is active currently */
-    diff_api.BindTexture(GL_TEXTURE_1D, orig1D);
-    diff_api.BindTexture(GL_TEXTURE_2D, orig2D);
-    diff_api.BindTexture(GL_TEXTURE_3D, orig3D);
+    pState->diff_api.BindTexture(GL_TEXTURE_1D, orig1D);
+    pState->diff_api.BindTexture(GL_TEXTURE_2D, orig2D);
+    pState->diff_api.BindTexture(GL_TEXTURE_3D, orig3D);
 #ifdef CR_ARB_texture_cube_map
-    diff_api.BindTexture(GL_TEXTURE_CUBE_MAP_ARB, origCube);
+    pState->diff_api.BindTexture(GL_TEXTURE_CUBE_MAP_ARB, origCube);
 #endif
 #ifdef CR_NV_texture_rectangle
-    diff_api.BindTexture(GL_TEXTURE_RECTANGLE_NV, origRect);
+    pState->diff_api.BindTexture(GL_TEXTURE_RECTANGLE_NV, origRect);
 #endif
     /* now restore the proper active unit */
-    diff_api.ActiveTextureARB(GL_TEXTURE0_ARB + origUnit);
+    pState->diff_api.ActiveTextureARB(GL_TEXTURE0_ARB + origUnit);
 }

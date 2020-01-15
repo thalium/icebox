@@ -23,7 +23,6 @@
 #include "chromium.h"
 #include "cr_error.h"
 #include "cr_net.h"
-#include "cr_rand.h"
 #include "server_dispatch.h"
 #include "server.h"
 #include "cr_mem.h"

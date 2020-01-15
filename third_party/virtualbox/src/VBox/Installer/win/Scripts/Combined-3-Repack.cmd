@@ -79,11 +79,13 @@ set _MY_OPT_EXTPACK=%~f2
 goto argument_loop_next_with_value
 
 :opt_h
-echo Toplevel combined package: Prepare both x86 and amd64 for submission.
+echo Toplevel combined package: Repack the installer and extpacks.
 echo .
-echo Usage: Combined-1-Prepare.cmd [-o output-dir] [-e/--extpack puel.vbox-extpack]
+echo Usage: Combined-3-Repack.cmd [-o output-dir] [-e/--extpack puel.vbox-extpack]
 echo            [-s/--extpack-enterprise puel-enterprise.vbox-extpack]
 echo            [-u/--vboxall-dir unpacked-vboxall-dir] [-t build-type]
+echo            [--signed-amd64 signed-amd64.zip]
+echo            [--signed-x86 signed-x86.zip]
 echo
 echo .
 echo Default -e/--extpack value:            %_MY_OPT_EXTPACK%
@@ -255,6 +257,16 @@ for %%i in (4-*.cmd) do (call %%i || goto end_failed)
 echo .
 
 set _MY_OUT_FILES=
+cd /d "%_MY_REPACK_DIR_AMD64%" || goto end_failed
+for %%i in (VBoxMerge*msm) do (
+    copy /y "%%i" "%_MY_OPT_OUTDIR%" || goto end_failed
+    call set _MY_OUT_FILES=%%_MY_OUT_FILES%% %%~nxi
+)
+cd /d "%_MY_REPACK_DIR_X86%" || goto end_failed
+for %%i in (VBoxMerge*msm) do (
+    copy /y "%%i" "%_MY_OPT_OUTDIR%" || goto end_failed
+    call set _MY_OUT_FILES=%%_MY_OUT_FILES%% %%~nxi
+)
 for %%i in (VirtualBox-*MultiArch*exe) do (
     copy /y "%%i" "%_MY_OPT_OUTDIR%" || goto end_failed
     call set _MY_OUT_FILES=%%_MY_OUT_FILES%% %%~nxi
@@ -273,7 +285,7 @@ echo * Regular PUEL...
 set _MY_TMP_OUT=%_MY_OPT_EXTPACK%
 for %%i in (%_MY_TMP_OUT%) do (
     set _MY_TMP_OUT=%_MY_OPT_OUTDIR%\%%~nxi
-    call set _MY_OUT_FILES=%%_MY_OUT_FILES%% %%~nix
+    call set _MY_OUT_FILES=%%_MY_OUT_FILES%% %%~nxi
 )
 call "%_MY_REPACK_DIR_X86%\RepackExtPack.cmd" --bindir-amd64 "%_MY_BINDIR_AMD64%" --bindir-x86 "%_MY_BINDIR_X86%" ^
     --input "%_MY_OPT_EXTPACK%" --output "%_MY_TMP_OUT%" || goto end_failed
@@ -283,7 +295,7 @@ echo * Enterprise PUEL...
 set _MY_TMP_OUT=%_MY_OPT_EXTPACK_ENTERPRISE%
 for %%i in (%_MY_TMP_OUT%) do (
     set _MY_TMP_OUT=%_MY_OPT_OUTDIR%\%%~nxi
-    call set _MY_OUT_FILES=%%_MY_OUT_FILES%% %%~nix
+    call set _MY_OUT_FILES=%%_MY_OUT_FILES%% %%~nxi
 )
 call "%_MY_REPACK_DIR_X86%\RepackExtPack.cmd" --bindir-amd64 "%_MY_BINDIR_AMD64%" --bindir-x86 "%_MY_BINDIR_X86%" ^
     --input "%_MY_OPT_EXTPACK_ENTERPRISE%" --output "%_MY_TMP_OUT%" || goto end_failed

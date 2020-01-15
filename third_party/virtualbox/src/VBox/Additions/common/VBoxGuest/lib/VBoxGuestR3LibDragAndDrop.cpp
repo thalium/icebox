@@ -418,7 +418,7 @@ static int vbglR3DnDHGRecvURIData(PVBGLR3GUESTDNDCMDCTX pCtx, PVBOXDNDSNDDATAHDR
     if (RT_FAILURE(rc))
     {
         RTMemFree(pvChunk);
-        return VERR_NO_MEMORY;
+        return rc;
     }
 
     const char *pszDropDir = pDroppedFiles->GetDirAbs();

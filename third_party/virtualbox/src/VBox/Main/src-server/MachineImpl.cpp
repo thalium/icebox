@@ -200,6 +200,8 @@ Machine::HWData::HWData()
     mSpecCtrlByHost = false;
     mL1DFlushOnSched = true;
     mL1DFlushOnVMEntry = false;
+    mMDSClearOnSched = true;
+    mMDSClearOnVMEntry = false;
     mHPETEnabled = false;
     mCpuExecutionCap = 100; /* Maximum CPU execution cap by default. */
     mCpuIdPortabilityLevel = 0;
@@ -2284,6 +2286,14 @@ HRESULT Machine::getCPUProperty(CPUPropertyType_T aProperty, BOOL *aValue)
             *aValue = mHWData->mL1DFlushOnVMEntry;
             break;
 
+        case CPUPropertyType_MDSClearOnEMTScheduling:
+            *aValue = mHWData->mMDSClearOnSched;
+            break;
+
+        case CPUPropertyType_MDSClearOnVMEntry:
+            *aValue = mHWData->mMDSClearOnVMEntry;
+            break;
+
         default:
             return E_INVALIDARG;
     }
@@ -2367,6 +2377,18 @@ HRESULT Machine::setCPUProperty(CPUPropertyType_T aProperty, BOOL aValue)
             i_setModified(IsModified_MachineData);
             mHWData.backup();
             mHWData->mL1DFlushOnVMEntry = !!aValue;
+            break;
+
+        case CPUPropertyType_MDSClearOnEMTScheduling:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mMDSClearOnSched = !!aValue;
+            break;
+
+        case CPUPropertyType_MDSClearOnVMEntry:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mMDSClearOnVMEntry = !!aValue;
             break;
 
         default:
@@ -2488,7 +2510,7 @@ HRESULT Machine::removeCPUIDLeaf(ULONG aIdx, ULONG aSubIdx)
     /*
      * Do the removal.
      */
-    bool fModified = false;
+    bool fModified = mHWData.isBackedUp();
     for (settings::CpuIdLeafsList::iterator it = mHWData->mCpuIdLeafList.begin(); it != mHWData->mCpuIdLeafList.end(); )
     {
         settings::CpuIdLeaf &rLeaf= *it;
@@ -2501,8 +2523,14 @@ HRESULT Machine::removeCPUIDLeaf(ULONG aIdx, ULONG aSubIdx)
                 fModified = true;
                 i_setModified(IsModified_MachineData);
                 mHWData.backup();
+                // Start from the beginning, since mHWData.backup() creates
+                // a new list, causing iterator mixup. This makes sure that
+                // the settings are not unnecessarily marked as modified,
+                // at the price of extra list walking.
+                it = mHWData->mCpuIdLeafList.begin();
             }
-            it = mHWData->mCpuIdLeafList.erase(it);
+            else
+                it = mHWData->mCpuIdLeafList.erase(it);
         }
         else
             ++it;
@@ -9000,6 +9028,8 @@ HRESULT Machine::i_loadHardware(const Guid *puuidRegistry,
         mHWData->mSpecCtrlByHost              = data.fSpecCtrlByHost;
         mHWData->mL1DFlushOnSched             = data.fL1DFlushOnSched;
         mHWData->mL1DFlushOnVMEntry           = data.fL1DFlushOnVMEntry;
+        mHWData->mMDSClearOnSched             = data.fMDSClearOnSched;
+        mHWData->mMDSClearOnVMEntry           = data.fMDSClearOnVMEntry;
         mHWData->mCPUCount                    = data.cCPUs;
         mHWData->mCPUHotPlugEnabled           = data.fCpuHotPlug;
         mHWData->mCpuExecutionCap             = data.ulCpuExecutionCap;
@@ -10057,6 +10087,10 @@ HRESULT Machine::i_saveSettings(bool *pfNeedsGlobalSaveSettings,
     AssertReturn(!i_isSnapshotMachine(),
                  E_FAIL);
 
+    if (!mData->mAccessible)
+        return setError(VBOX_E_INVALID_VM_STATE,
+                        tr("The machine is not accessible, so cannot save settings"));
+
     HRESULT rc = S_OK;
     bool fNeedsWrite = false;
 
@@ -10329,6 +10363,8 @@ HRESULT Machine::i_saveHardware(settings::Hardware &data, settings::Debugging *p
         data.fSpecCtrlByHost        = !!mHWData->mSpecCtrlByHost;
         data.fL1DFlushOnSched       = !!mHWData->mL1DFlushOnSched;
         data.fL1DFlushOnVMEntry     = !!mHWData->mL1DFlushOnVMEntry;
+        data.fMDSClearOnSched       = !!mHWData->mMDSClearOnSched;
+        data.fMDSClearOnVMEntry     = !!mHWData->mMDSClearOnVMEntry;
         data.cCPUs                  = mHWData->mCPUCount;
         data.fCpuHotPlug            = !!mHWData->mCPUHotPlugEnabled;
         data.ulCpuExecutionCap      = mHWData->mCpuExecutionCap;

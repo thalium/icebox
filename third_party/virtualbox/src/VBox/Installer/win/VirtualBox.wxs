@@ -2,7 +2,7 @@
 <!--
     VirtualBox Windows Installation Script (WiX)
 
-    Copyright (C) 2014-2016 Oracle Corporation
+    Copyright (C) 2014-2019 Oracle Corporation
 
     This file is part of VirtualBox Open Source Edition (OSE), as
     available from http://www.virtualbox.org. This file is free software;
@@ -14,7 +14,8 @@
 -->
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+     xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
     <?include Defines.wxi ?>
 
@@ -75,8 +76,7 @@
 
     <SetProperty Id="VBOX_REGISTERFILEEXTENSIONS" After="AppSearch" Sequence="both" Value="{}">
         <![CDATA[VBOX_REGISTERFILEEXTENSIONS="0"]]>
-     </SetProperty>
-
+    </SetProperty>
 
     <!-- Install the product for all users on the system -->
     <Property Id="ALLUSERS"><![CDATA[1]]></Property>
@@ -421,6 +421,9 @@
             <MergeRef Id="msm_VBoxCOM32On64" />
         <?endif ?>
 <?else ?>
+    <!-- Make sure to reference the permissions component, which takes care of setting
+         the required ACLs for our files / folders. -->
+    <ComponentRef Id="cp_Permissions" />
     <?if $(env.VBOX_WITH_QTGUI) = "yes" ?>
         <ComponentRef Id="cp_RegisterExtensions" />
     <?endif ?>

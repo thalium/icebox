@@ -20,6 +20,7 @@ int
 crChooseVisual(const crOpenGLInterface *ws, int visBits)
 {
 	/* placeholder */
+	RT_NOREF(ws, visBits);
 	return 0;
 }
 #endif

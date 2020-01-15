@@ -88,6 +88,7 @@ VMMR3DECL(void)         PDMR3PowerOff(PVM pVM);
 VMMR3_INT_DECL(void)    PDMR3Relocate(PVM pVM, RTGCINTPTR offDelta);
 VMMR3_INT_DECL(int)     PDMR3Term(PVM pVM);
 VMMR3_INT_DECL(void)    PDMR3TermUVM(PUVM pUVM);
+VMMR3_INT_DECL(bool)    PDMR3HasLoadedState(PVM pVM);
 
 /** PDM loader context indicator.  */
 typedef enum  PDMLDRCTX

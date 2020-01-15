@@ -620,11 +620,17 @@ NTSTATUS vboxWddmRegQueryDisplaySettingsKeyName(PVBOXMP_DEVEXT pDevExt, D3DDDI_V
     if (!pVGuid)
         return STATUS_UNSUCCESSFUL;
 
-    vboxWinVersion_t ver = VBoxQueryWinVersion();
+    uint32_t build;
+    vboxWinVersion_t ver = VBoxQueryWinVersion(&build);
     if (ver == WINVERSION_VISTA)
     {
         pKeyPrefix = VBOXWDDM_REG_DISPLAYSETTINGSKEY_PREFIX_VISTA;
         cbKeyPrefix = sizeof (VBOXWDDM_REG_DISPLAYSETTINGSKEY_PREFIX_VISTA);
+    }
+    else if (ver >= WINVERSION_10 && build >= 17763)
+    {
+        pKeyPrefix = VBOXWDDM_REG_DISPLAYSETTINGSKEY_PREFIX_WIN10_17763;
+        cbKeyPrefix = sizeof (VBOXWDDM_REG_DISPLAYSETTINGSKEY_PREFIX_WIN10_17763);
     }
     else
     {

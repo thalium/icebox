@@ -75,6 +75,21 @@
  */
 #define FS_PER_NS                   1000000
 
+/**
+ * Femtoseconds in a day. Still fits within int64_t.
+ */
+#define FS_PER_DAY                  (1000000LL * 60 * 60 * 24 * FS_PER_NS)
+
+/**
+ * Number of HPET ticks in 100 years, ICH9 frequency.
+ */
+#define HPET_TICKS_IN_100YR_ICH9    (FS_PER_DAY / HPET_CLK_PERIOD_ICH9 * 365 * 100)
+
+/**
+ * Number of HPET ticks in 100 years, made-up PIIX frequency.
+ */
+#define HPET_TICKS_IN_100YR_PIIX    (FS_PER_DAY / HPET_CLK_PERIOD_PIIX * 365 * 100)
+
 /** @name Interrupt type
  * @{ */
 #define HPET_TIMER_TYPE_LEVEL       (1 << 1)
@@ -384,7 +399,7 @@ DECLINLINE(void) hpetTimerSetFrequencyHint(HPET *pThis, HPETTIMER *pHpetTimer)
 }
 
 
-static void hpetProgramTimer(HPETTIMER *pHpetTimer)
+static void hpetProgramTimer(HPET *pThis, HPETTIMER *pHpetTimer)
 {
     /* no wrapping on new timers */
     pHpetTimer->u8Wrap = 0;
@@ -419,8 +434,16 @@ static void hpetProgramTimer(HPETTIMER *pHpetTimer)
         u64Diff = 100000; /* 1 millisecond */
 #endif
 
-    Log4(("HPET: next IRQ in %lld ticks (%lld ns)\n", u64Diff, hpetTicksToNs(pHpetTimer->CTX_SUFF(pHpet), u64Diff)));
-    TMTimerSetNano(pHpetTimer->CTX_SUFF(pTimer), hpetTicksToNs(pHpetTimer->CTX_SUFF(pHpet), u64Diff));
+    uint64_t u64TickLimit = pThis->fIch9 ? HPET_TICKS_IN_100YR_ICH9 : HPET_TICKS_IN_100YR_PIIX;
+    if (u64Diff <= u64TickLimit)
+    {
+        Log4(("HPET: next IRQ in %lld ticks (%lld ns)\n", u64Diff, hpetTicksToNs(pHpetTimer->CTX_SUFF(pHpet), u64Diff)));
+        TMTimerSetNano(pHpetTimer->CTX_SUFF(pTimer), hpetTicksToNs(pHpetTimer->CTX_SUFF(pHpet), u64Diff));
+    }
+    else
+    {
+        LogRelMax(10, ("HPET: Not scheduling an interrupt more than 100 years in the future.\n"));
+    }
     hpetTimerSetFrequencyHint(pHpetTimer->CTX_SUFF(pHpet), pHpetTimer);
 }
 
@@ -567,7 +590,7 @@ static int hpetTimerRegWrite32(HPET *pThis, uint32_t iTimerNo, uint32_t iTimerRe
             Log2(("after HPET_TN_CMP cmp=%#llx per=%#llx\n", pHpetTimer->u64Cmp, pHpetTimer->u64Period));
 
             if (pThis->u64HpetConfig & HPET_CFG_ENABLE)
-                hpetProgramTimer(pHpetTimer);
+                hpetProgramTimer(pThis, pHpetTimer);
             DEVHPET_UNLOCK_BOTH(pThis);
             break;
         }
@@ -587,7 +610,7 @@ static int hpetTimerRegWrite32(HPET *pThis, uint32_t iTimerNo, uint32_t iTimerRe
                 pHpetTimer->u64Config &= ~HPET_TN_SETVAL;
 
                 if (pThis->u64HpetConfig & HPET_CFG_ENABLE)
-                    hpetProgramTimer(pHpetTimer);
+                    hpetProgramTimer(pThis, pHpetTimer);
             }
             DEVHPET_UNLOCK_BOTH(pThis);
             break;
@@ -754,11 +777,21 @@ static int hpetConfigRegWrite32(HPET *pThis, uint32_t idxReg, uint32_t u32NewVal
             {
 /** @todo Only get the time stamp once when reprogramming? */
                 /* Enable main counter and interrupt generation. */
-                pThis->u64HpetOffset = hpetTicksToNs(pThis, pThis->u64HpetCounter)
-                                     - TMTimerGet(pThis->aTimers[0].CTX_SUFF(pTimer));
+                uint64_t u64TickLimit = pThis->fIch9 ? HPET_TICKS_IN_100YR_ICH9 : HPET_TICKS_IN_100YR_PIIX;
+                if (pThis->u64HpetCounter <= u64TickLimit)
+                {
+                    pThis->u64HpetOffset = hpetTicksToNs(pThis, pThis->u64HpetCounter)
+                                         - TMTimerGet(pThis->aTimers[0].CTX_SUFF(pTimer));
+                }
+                else
+                {
+                    LogRelMax(10, ("HPET: Counter set more than 100 years in the future, reducing.\n"));
+                    pThis->u64HpetOffset = 1000000LL * 60 * 60 * 24 * 365 * 100
+                                         - TMTimerGet(pThis->aTimers[0].CTX_SUFF(pTimer));
+                }
                 for (uint32_t i = 0; i < cTimers; i++)
                     if (pThis->aTimers[i].u64Cmp != hpetInvalidValue(&pThis->aTimers[i]))
-                        hpetProgramTimer(&pThis->aTimers[i]);
+                        hpetProgramTimer(pThis, &pThis->aTimers[i]);
             }
             else if (hpetBitJustCleared(iOldValue, u32NewValue, HPET_CFG_ENABLE))
             {
@@ -1037,8 +1070,16 @@ static DECLCALLBACK(void) hpetR3Timer(PPDMDEVINS pDevIns, PTMTIMER pTimer, void 
 
             u64Diff = hpetComputeDiff(pHpetTimer, u64CurTick);
 
-            Log4(("HPET: periodic: next in %llu\n", hpetTicksToNs(pThis, u64Diff)));
-            TMTimerSetNano(pTimer, hpetTicksToNs(pThis, u64Diff));
+            uint64_t u64TickLimit = pThis->fIch9 ? HPET_TICKS_IN_100YR_ICH9 : HPET_TICKS_IN_100YR_PIIX;
+            if (u64Diff <= u64TickLimit)
+            {
+                Log4(("HPET: periodic: next in %llu\n", hpetTicksToNs(pThis, u64Diff)));
+                TMTimerSetNano(pTimer, hpetTicksToNs(pThis, u64Diff));
+            }
+            else
+            {
+                LogRelMax(10, ("HPET: Not scheduling periodic interrupt more than 100 years in the future.\n"));
+            }
         }
     }
     else if (hpet32bitTimer(pHpetTimer))
@@ -1267,7 +1308,7 @@ static DECLCALLBACK(void) hpetR3Reset(PPDMDEVINS pDevIns)
 
         /* We can do all IRQs */
         uint32_t u32RoutingCap = 0xffffffff;
-        pHpetTimer->u64Config |= ((uint64_t)u32RoutingCap) << 32;
+        pHpetTimer->u64Config |= ((uint64_t)u32RoutingCap) << HPET_TN_INT_ROUTE_CAP_SHIFT;
         pHpetTimer->u64Period  = 0;
         pHpetTimer->u8Wrap     = 0;
         pHpetTimer->u64Cmp     = hpetInvalidValue(pHpetTimer);

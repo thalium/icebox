@@ -15,6 +15,8 @@
 extern "C" {
 #endif
 
+typedef struct CRStateTracker *PCRStateTracker;
+
 typedef GLfloat GLdefault;
 #define CR_DEFAULTTYPE_FLOAT
 

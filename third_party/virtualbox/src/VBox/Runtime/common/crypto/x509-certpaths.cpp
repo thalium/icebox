@@ -40,6 +40,7 @@
 #include <iprt/list.h>
 #include <iprt/log.h>
 #include <iprt/time.h>
+#include <iprt/crypto/applecodesign.h> /* critical extension OIDs */
 #include <iprt/crypto/pkcs7.h> /* PCRTCRPKCS7SETOFCERTS */
 #include <iprt/crypto/store.h>
 
@@ -2456,6 +2457,9 @@ static bool rtCrX509CpvCheckCriticalExtensions(PRTCRX509CERTPATHSINT pThis, PRTC
                 && RTAsn1ObjId_CompareWithString(&pCur->ExtnId, RTCRX509_ID_CE_POLICY_CONSTRAINTS_OID) != 0
                 && RTAsn1ObjId_CompareWithString(&pCur->ExtnId, RTCRX509_ID_CE_EXT_KEY_USAGE_OID) != 0
                 && RTAsn1ObjId_CompareWithString(&pCur->ExtnId, RTCRX509_ID_CE_INHIBIT_ANY_POLICY_OID) != 0
+                && RTAsn1ObjId_CompareWithString(&pCur->ExtnId, RTCR_APPLE_CS_DEVID_APPLICATION_OID) != 0
+                && RTAsn1ObjId_CompareWithString(&pCur->ExtnId, RTCR_APPLE_CS_DEVID_INSTALLER_OID) != 0
+                && RTAsn1ObjId_CompareWithString(&pCur->ExtnId, RTCR_APPLE_CS_DEVID_KEXT_OID) != 0
                )
                 return rtCrX509CpvFailed(pThis, VERR_CR_X509_CPV_UNKNOWN_CRITICAL_EXTENSION,
                                          "Node #%u has an unknown critical extension: %s", pThis->v.iNode, pCur->ExtnId.szObjId);

@@ -111,7 +111,7 @@ static RTCString *vboxExtPackLoadDescFromDoc(xml::Document *a_pDoc, PVBOXEXTPACK
         return new RTCString("No VirtualBoxExtensionPack element");
 
     RTCString strFormatVersion;
-    if (!pVBoxExtPackElm->getAttributeValue("version", strFormatVersion))
+    if (!pVBoxExtPackElm->getAttributeValueN("version", strFormatVersion, RT_XML_ATTR_TINY))
         return new RTCString("Missing format version");
     if (!strFormatVersion.equals("1.0"))
         return &(new RTCString("Unsupported format version: "))->append(strFormatVersion);
@@ -122,14 +122,14 @@ static RTCString *vboxExtPackLoadDescFromDoc(xml::Document *a_pDoc, PVBOXEXTPACK
     const xml::ElementNode *pNameElm = pVBoxExtPackElm->findChildElement("Name");
     if (!pNameElm)
         return new RTCString("The 'Name' element is missing");
-    const char *pszName = pNameElm->getValue();
+    const char *pszName = pNameElm->getValueN(RT_XML_CONTENT_SMALL);
     if (!VBoxExtPackIsValidName(pszName))
         return &(new RTCString("Invalid name: "))->append(pszName);
 
     const xml::ElementNode *pDescElm = pVBoxExtPackElm->findChildElement("Description");
     if (!pDescElm)
         return new RTCString("The 'Description' element is missing");
-    const char *pszDesc = pDescElm->getValue();
+    const char *pszDesc = pDescElm->getValueN(RT_XML_CONTENT_LARGE);
     if (!pszDesc || *pszDesc == '\0')
         return new RTCString("The 'Description' element is empty");
     if (strpbrk(pszDesc, "\n\r\t\v\b") != NULL)
@@ -138,7 +138,7 @@ static RTCString *vboxExtPackLoadDescFromDoc(xml::Document *a_pDoc, PVBOXEXTPACK
     const xml::ElementNode *pVersionElm = pVBoxExtPackElm->findChildElement("Version");
     if (!pVersionElm)
         return new RTCString("The 'Version' element is missing");
-    const char *pszVersion = pVersionElm->getValue();
+    const char *pszVersion = pVersionElm->getValueN(RT_XML_CONTENT_SMALL);
     if (!pszVersion || *pszVersion == '\0')
         return new RTCString("The 'Version' element is empty");
     if (!VBoxExtPackIsValidVersionString(pszVersion))
@@ -149,7 +149,7 @@ static RTCString *vboxExtPackLoadDescFromDoc(xml::Document *a_pDoc, PVBOXEXTPACK
         uRevision = 0;
 
     const char *pszEdition;
-    if (!pVersionElm->getAttributeValue("edition", pszEdition))
+    if (!pVersionElm->getAttributeValueN("edition", pszEdition, RT_XML_ATTR_TINY))
         pszEdition = "";
     if (!VBoxExtPackIsValidEditionString(pszEdition))
         return &(new RTCString("Invalid edition string: "))->append(pszEdition);
@@ -157,7 +157,7 @@ static RTCString *vboxExtPackLoadDescFromDoc(xml::Document *a_pDoc, PVBOXEXTPACK
     const xml::ElementNode *pMainModuleElm = pVBoxExtPackElm->findChildElement("MainModule");
     if (!pMainModuleElm)
         return new RTCString("The 'MainModule' element is missing");
-    const char *pszMainModule = pMainModuleElm->getValue();
+    const char *pszMainModule = pMainModuleElm->getValueN(RT_XML_CONTENT_SMALL);
     if (!pszMainModule || *pszMainModule == '\0')
         return new RTCString("The 'MainModule' element is empty");
     if (!VBoxExtPackIsValidModuleString(pszMainModule))
@@ -171,7 +171,7 @@ static RTCString *vboxExtPackLoadDescFromDoc(xml::Document *a_pDoc, PVBOXEXTPACK
     const xml::ElementNode *pMainVMModuleElm = pVBoxExtPackElm->findChildElement("MainVMModule");
     if (pMainVMModuleElm)
     {
-        pszMainVMModule = pMainVMModuleElm->getValue();
+        pszMainVMModule = pMainVMModuleElm->getValueN(RT_XML_CONTENT_SMALL);
         if (!pszMainVMModule || *pszMainVMModule == '\0')
             pszMainVMModule = NULL;
         else if (!VBoxExtPackIsValidModuleString(pszMainVMModule))
@@ -186,7 +186,7 @@ static RTCString *vboxExtPackLoadDescFromDoc(xml::Document *a_pDoc, PVBOXEXTPACK
     const xml::ElementNode *pVrdeModuleElm = pVBoxExtPackElm->findChildElement("VRDEModule");
     if (pVrdeModuleElm)
     {
-        pszVrdeModule = pVrdeModuleElm->getValue();
+        pszVrdeModule = pVrdeModuleElm->getValueN(RT_XML_CONTENT_SMALL);
         if (!pszVrdeModule || *pszVrdeModule == '\0')
             pszVrdeModule = NULL;
         else if (!VBoxExtPackIsValidModuleString(pszVrdeModule))
@@ -280,7 +280,14 @@ RTCString *VBoxExtPackLoadDesc(const char *a_pszDir, PVBOXEXTPACKDESC a_pExtPack
     /*
      * Hand the xml doc over to the common code.
      */
-    return vboxExtPackLoadDescFromDoc(&Doc, a_pExtPackDesc);
+    try
+    {
+        return vboxExtPackLoadDescFromDoc(&Doc, a_pExtPackDesc);
+    }
+    catch (RTCError &rXcpt)      // includes all XML exceptions
+    {
+        return new RTCString(rXcpt.what());
+    }
 }
 
 /**
@@ -356,7 +363,14 @@ RTCString *VBoxExtPackLoadDescFromVfsFile(RTVFSFILE hVfsFile, PVBOXEXTPACKDESC a
      * Hand the xml doc over to the common code.
      */
     if (RT_SUCCESS(rc))
-        pstrErr = vboxExtPackLoadDescFromDoc(&Doc, a_pExtPackDesc);
+        try
+        {
+            pstrErr = vboxExtPackLoadDescFromDoc(&Doc, a_pExtPackDesc);
+        }
+        catch (RTCError &rXcpt)      // includes all XML exceptions
+        {
+            return new RTCString(rXcpt.what());
+        }
 
     return pstrErr;
 }

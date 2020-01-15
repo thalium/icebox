@@ -181,20 +181,19 @@ copy /y "%_MY_OPT_EXTPACK%"   "%_MY_BINDIR_X86%\Oracle_VM_VirtualBox_Extension_P
 rem
 rem Do the packing.
 rem
-@echo **************************************************************************
-@echo Packing AMD64 drivers
-@echo **************************************************************************
+echo **************************************************************************
+echo Packing AMD64 drivers
+echo **************************************************************************
 cd /d "%_MY_REPACK_DIR_AMD64%" || goto end_failed
 call "%_MY_REPACK_DIR_AMD64%\PackDriversForSubmission.cmd" -b "%_MY_BINDIR_AMD64%" -a amd64 -e "%_MY_OPT_EXTPACK%" ^
     -o "%_MY_OPT_OUTDIR%\VBoxDrivers-%_MY_VER_REV%-amd64.cab" || goto end_failed
-@echo .
-@echo **************************************************************************
-@echo Packing X86 drivers
-@echo **************************************************************************
+echo .
+echo **************************************************************************
+echo Packing X86 drivers
+echo **************************************************************************
 cd /d "%_MY_REPACK_DIR_X86%" || goto end_failed
 call "%_MY_REPACK_DIR_X86%\PackDriversForSubmission.cmd" -b "%_MY_BINDIR_X86%" -a x86 -e "%_MY_OPT_EXTPACK%" ^
     -o "%_MY_OPT_OUTDIR%\VBoxDrivers-%_MY_VER_REV%-x86.cab" || goto end_failed
-@echo off
 echo .
 cd /d "%_MY_SAVED_CD%"
 
@@ -220,10 +219,9 @@ echo *     %_MY_OPT_OUTDIR%\VBoxDrivers-%_MY_VER_REV%-amd64.cab
 echo *     %_MY_OPT_OUTDIR%\VBoxDrivers-%_MY_VER_REV%-x86.cab
 echo *
 echo * Next steps:
-echo *   1. Sign the two files using the Oracle EV certificate.
-echo *   2. Submit the signed files to Microsoft for attestation signing.
-echo *   3. Download the signed result.
-echo *   4. "%_MY_NEXT_SCRIPT%" --signed-x86 {zip} --signed-amd64 {zip}
+echo *   1. Submit the files to Microsoft for attestation signing.
+echo *   2. Download the signed result.
+echo *   3. "%_MY_NEXT_SCRIPT%" --signed-x86 {zip} --signed-amd64 {zip}
 
 goto end
 

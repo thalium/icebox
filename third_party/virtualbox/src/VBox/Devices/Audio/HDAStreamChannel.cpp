@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2017 Oracle Corporation
+ * Copyright (C) 2017-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -62,81 +62,6 @@ void hdaR3StreamChannelDataDestroy(PPDMAUDIOSTREAMCHANNELDATA pChanData)
     }
 
     pChanData->fFlags = PDMAUDIOSTREAMCHANNELDATA_FLAG_NONE;
-}
-
-/**
- * Extracts HDA audio stream data and stores it into the given stream channel data block.
- *
- * @returns IPRT status code.
- * @param   pChan               Channel data to extract audio stream data into.
- * @param   pvBuf               Buffer of audio data to extract.
- * @param   cbBuf               Size (in bytes) of audio data to extract.
- */
-int hdaR3StreamChannelExtract(PPDMAUDIOSTREAMCHANNEL pChan, const void *pvBuf, size_t cbBuf)
-{
-    AssertPtrReturn(pChan, VERR_INVALID_POINTER);
-    AssertPtrReturn(pvBuf, VERR_INVALID_POINTER);
-    AssertReturn(cbBuf,    VERR_INVALID_PARAMETER);
-
-    AssertRelease(pChan->cbOff <= cbBuf);
-
-    const uint8_t *pu8Buf = (const uint8_t *)pvBuf;
-
-    size_t         cbSrc = cbBuf - pChan->cbOff;
-    const uint8_t *pvSrc = &pu8Buf[pChan->cbOff];
-
-    size_t         cbDst;
-    uint8_t       *pvDst;
-    RTCircBufAcquireWriteBlock(pChan->Data.pCircBuf, cbBuf, (void **)&pvDst, &cbDst);
-
-    cbSrc = RT_MIN(cbSrc, cbDst);
-
-    while (cbSrc)
-    {
-        AssertBreak(cbDst >= cbSrc);
-
-        /* Enough data for at least one next frame? */
-        if (cbSrc < pChan->cbFrame)
-            break;
-
-        memcpy(pvDst, pvSrc, pChan->cbFrame);
-
-        /* Advance to next channel frame in stream. */
-        pvSrc        += pChan->cbStep;
-        Assert(cbSrc >= pChan->cbStep);
-        cbSrc        -= pChan->cbStep;
-
-        /* Advance destination by one frame. */
-        pvDst        += pChan->cbFrame;
-        Assert(cbDst >= pChan->cbFrame);
-        cbDst        -= pChan->cbFrame;
-
-        /* Adjust offset. */
-        pChan->cbOff += pChan->cbFrame;
-    }
-
-    RTCircBufReleaseWriteBlock(pChan->Data.pCircBuf, cbDst);
-
-    return VINF_SUCCESS;
-}
-
-/**
- * Advances the current read / write pointer by a certain amount.
- *
- * @returns IPRT status code.
- * @param   pChan               Channel data to advance read / write pointer for.
- * @param   cbAdv               Amount (in bytes) to advance read / write pointer.
- *
- * @remark  Currently not used / implemented.
- */
-int hdaR3StreamChannelAdvance(PPDMAUDIOSTREAMCHANNEL pChan, size_t cbAdv)
-{
-    AssertPtrReturn(pChan, VERR_INVALID_POINTER);
-
-    if (!cbAdv)
-        return VINF_SUCCESS;
-
-    return VINF_SUCCESS;
 }
 
 /**

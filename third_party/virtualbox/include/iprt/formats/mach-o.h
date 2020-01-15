@@ -28,6 +28,7 @@
 #define ___internal_ldrMach_O_h
 
 #include <iprt/types.h>
+#include <iprt/assertcompile.h>
 
 #ifndef CPU_ARCH_MASK
 
@@ -380,7 +381,10 @@ typedef struct section_32
     uint32_t            reloff;
     uint32_t            nreloc;
     uint32_t            flags;
+    /** For S_LAZY_SYMBOL_POINTERS, S_NON_LAZY_SYMBOL_POINTERS and S_SYMBOL_STUBS
+     * this is the index into the indirect symbol table. */
     uint32_t            reserved1;
+    /** For S_SYMBOL_STUBS this is the entry size. */
     uint32_t            reserved2;
 } section_32_t;
 
@@ -395,30 +399,40 @@ typedef struct section_64
     uint32_t            reloff;
     uint32_t            nreloc;
     uint32_t            flags;
+    /** For S_LAZY_SYMBOL_POINTERS, S_NON_LAZY_SYMBOL_POINTERS and S_SYMBOL_STUBS
+     * this is the index into the indirect symbol table. */
     uint32_t            reserved1;
     uint32_t            reserved2;
     uint32_t            reserved3;
 } section_64_t;
 
 /* section flags */
-#define SECTION_TYPE                UINT32_C(0x000000ff)
-#define S_REGULAR                   0x0
-#define S_ZEROFILL                  0x1
-#define S_CSTRING_LITERALS          0x2
-#define S_4BYTE_LITERALS            0x3
-#define S_8BYTE_LITERALS            0x4
-#define S_LITERAL_POINTERS          0x5
-#define S_NON_LAZY_SYMBOL_POINTERS  0x6
-#define S_LAZY_SYMBOL_POINTERS      0x7
-#define S_SYMBOL_STUBS              0x8
-#define S_MOD_INIT_FUNC_POINTERS    0x9
-#define S_MOD_TERM_FUNC_POINTERS    0xa
-#define S_COALESCED                 0xb
-#define S_GB_ZEROFILL               0xc
-#define S_INTERPOSING               0xd
-#define S_16BYTE_LITERALS           0xe
-#define S_DTRACE_DOF                0xf
-#define S_LAZY_DYLIB_SYMBOL_POINTERS 0x10
+#define SECTION_TYPE                            UINT32_C(0xff)
+#define S_REGULAR                               UINT32_C(0x00)
+#define S_ZEROFILL                              UINT32_C(0x01)
+#define S_CSTRING_LITERALS                      UINT32_C(0x02)
+#define S_4BYTE_LITERALS                        UINT32_C(0x03)
+#define S_8BYTE_LITERALS                        UINT32_C(0x04)
+#define S_LITERAL_POINTERS                      UINT32_C(0x05)
+#define S_NON_LAZY_SYMBOL_POINTERS              UINT32_C(0x06)
+#define S_LAZY_SYMBOL_POINTERS                  UINT32_C(0x07)
+#define S_SYMBOL_STUBS                          UINT32_C(0x08)
+#define S_MOD_INIT_FUNC_POINTERS                UINT32_C(0x09)
+#define S_MOD_TERM_FUNC_POINTERS                UINT32_C(0x0a)
+#define S_COALESCED                             UINT32_C(0x0b)
+#define S_GB_ZEROFILL                           UINT32_C(0x0c)
+#define S_INTERPOSING                           UINT32_C(0x0d)
+#define S_16BYTE_LITERALS                       UINT32_C(0x0e)
+#define S_DTRACE_DOF                            UINT32_C(0x0f)
+#define S_LAZY_DYLIB_SYMBOL_POINTERS            UINT32_C(0x10)
+#define S_THREAD_LOCAL_REGULAR                  UINT32_C(0x11)
+#define S_THREAD_LOCAL_ZEROFILL                 UINT32_C(0x12)
+#define S_THREAD_LOCAL_VARIABLES                UINT32_C(0x13)
+#define S_THREAD_LOCAL_VARIABLE_POINTERS        UINT32_C(0x14)
+#define S_THREAD_LOCAL_INIT_FUNCTION_POINTERS   UINT32_C(0x15)
+
+
+
 
 #define SECTION_ATTRIBUTES          UINT32_C(0xffffff00)
 #define SECTION_ATTRIBUTES_USR      UINT32_C(0xff000000)
@@ -472,12 +486,124 @@ typedef struct symtab_command
     uint32_t            strsize;
 } symtab_command_t;
 
+typedef struct dysymtab_command
+{
+    uint32_t            cmd;
+    uint32_t            cmdsize;
+    /** @name Symbol groupings.
+     * @{ */
+    uint32_t            ilocalsym;          /**< Index into the symbol table of the first local symbol. */
+    uint32_t            nlocalsym;          /**< Number of local symbols. */
+    uint32_t            iextdefsym;         /**< Index into the symbol table of the first externally defined symbol. */
+    uint32_t            nextdefsym;         /**< Number of externally defined symbols. */
+    uint32_t            iundefsym;          /**< Index into the symbol table of the first undefined symbol. */
+    uint32_t            nundefsym;          /**< Number of undefined symbols. */
+    /** @} */
+    uint32_t            tocoff;             /**< Table of content file offset. (usually empty) */
+    uint32_t            ntoc;               /**< Number of entries in TOC. */
+    uint32_t            modtaboff;          /** The module table file offset. (usually empty) */
+    uint32_t            nmodtab;            /**< Number of entries in the module table. */
+    /** @name Dynamic symbol tables.
+     * @{ */
+    uint32_t            extrefsymoff;       /**< Externally referenceable symbol table file offset. @sa dylib_reference_t */
+    uint32_t            nextrefsym;         /**< Number externally referenceable symbols. */
+    uint32_t            indirectsymboff;    /**< Indirect symbol table (32-bit symtab indexes) for thunks and offset tables. */
+    uint32_t            nindirectsymb;      /**< Number of indirect symbol table entries. */
+    /** @} */
+    /** @name Relocations.
+     * @{ */
+    uint32_t            extreloff;          /**< External relocations (r_address is relative to first segment (i.e. RVA)). */
+    uint32_t            nextrel;            /**< Number of external relocations. */
+    uint32_t            locreloff;          /**< Local relocations (r_address is relative to first segment (i.e. RVA)). */
+    uint32_t            nlocrel;            /**< Number of local relocations. */
+    /** @} */
+} dysymtab_command_t;
+AssertCompileSize(dysymtab_command_t, 80);
+
+/** Special indirect symbol table entry value, stripped local symbol. */
+#define INDIRECT_SYMBOL_LOCAL   UINT32_C(0x80000000)
+/** Special indirect symbol table entry value, stripped absolute symbol. */
+#define INDIRECT_SYMBOL_ABS     UINT32_C(0x40000000)
+
+typedef struct dylib_reference
+{
+    uint32_t            isym : 24;          /**< Symbol table index. */
+    uint32_t            flags : 8;          /**< REFERENCE_FLAG_XXX? */
+} dylib_reference_t;
+AssertCompileSize(dylib_reference_t, 4);
+
+
+typedef struct dylib_table_of_contents
+{
+    uint32_t            symbol_index;       /**< External symbol table entry. */
+    uint32_t            module_index;       /**< The module table index of the module defining it. */
+} dylib_table_of_contents_t;
+AssertCompileSize(dylib_table_of_contents_t, 8);
+
+
+/** 32-bit module table entry. */
+typedef struct dylib_module
+{
+    uint32_t            module_name;
+    uint32_t            iextdefsym;
+    uint32_t            nextdefsym;
+    uint32_t            irefsym;
+    uint32_t            nrefsym;
+    uint32_t            ilocalsym;
+    uint32_t            nlocalsym;
+    uint32_t            iextrel;
+    uint32_t            nextrel;
+    uint32_t            iinit_iterm;
+    uint32_t            ninit_nterm;
+    uint32_t            objc_module_info_addr;
+    uint32_t            objc_module_info_size;
+} dylib_module_32_t;
+AssertCompileSize(dylib_module_32_t, 13*4);
+
+/* a 64-bit module table entry */
+typedef struct dylib_module_64
+{
+    uint32_t            module_name;
+    uint32_t            iextdefsym;
+    uint32_t            nextdefsym;
+    uint32_t            irefsym;
+    uint32_t            nrefsym;
+    uint32_t            ilocalsym;
+    uint32_t            nlocalsym;
+    uint32_t            iextrel;
+    uint32_t            nextrel;
+    uint32_t            iinit_iterm;
+    uint32_t            ninit_nterm;
+    uint32_t            objc_module_info_size;
+    uint64_t            objc_module_info_addr;
+} dylib_module_64_t;
+AssertCompileSize(dylib_module_64_t, 12*4+8);
+
 typedef struct uuid_command
 {
     uint32_t            cmd;
     uint32_t            cmdsize;
     uint8_t             uuid[16];
 } uuid_command_t;
+AssertCompileSize(uuid_command_t, 24);
+
+typedef struct linkedit_data_command
+{
+    uint32_t            cmd;        /**< LC_CODE_SIGNATURE, LC_SEGMENT_SPLIT_INFO, LC_FUNCTION_STARTS */
+    uint32_t            cmdsize;    /**< Size of this structure. */
+    uint32_t            dataoff;    /**< Offset into the file of the data. */
+    uint32_t            datasize;   /**< The size of the data. */
+} linkedit_data_command_t;
+AssertCompileSize(linkedit_data_command_t, 16);
+
+typedef struct version_min_command
+{
+    uint32_t            cmd;        /**< LC_VERSION_MIN_MACOSX, LC_VERSION_MIN_IPHONEOS */
+    uint32_t            cmdsize;    /**< Size of this structure. */
+    uint32_t            version;    /**< 31..16=major, 15..8=minor, 7..0=patch. */
+    uint32_t            reserved;   /**< MBZ. */
+} version_min_command_t;
+AssertCompileSize(version_min_command_t, 16);
 
 typedef struct macho_nlist_32
 {
@@ -585,6 +711,7 @@ typedef struct macho_relocation_info
     uint32_t            r_extern    : 1;
     uint32_t            r_type      : 4;
 } macho_relocation_info_t;
+AssertCompileSize(macho_relocation_info_t, 8);
 
 #define R_ABS                       0
 #define R_SCATTERED                 UINT32_C(0x80000000)
@@ -608,6 +735,14 @@ typedef struct scattered_relocation_info
 #endif
     int32_t             r_value;
 } scattered_relocation_info_t;
+AssertCompileSize(scattered_relocation_info_t, 8);
+
+typedef union
+{
+    macho_relocation_info_t     r;
+    scattered_relocation_info_t s;
+} macho_relocation_union_t;
+AssertCompileSize(macho_relocation_union_t, 8);
 
 typedef enum reloc_type_generic
 {

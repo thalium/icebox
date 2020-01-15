@@ -216,7 +216,7 @@ DECLEXPORT(void) crStateTextureFree(CRContext *ctx);
 DECLEXPORT(void) crStateTextureInitTexture(GLuint name);
 DECLEXPORT(CRTextureObj *) crStateTextureAllocate(GLuint name);
     /*void crStateTextureDelete(GLuint name);*/
-DECLEXPORT(CRTextureObj *) crStateTextureGet(GLenum target, GLuint textureid);
+DECLEXPORT(CRTextureObj *) crStateTextureGet(PCRStateTracker pState, GLenum target, GLuint textureid);
 DECLEXPORT(int) crStateTextureGetSize(GLenum target, GLenum level);
 DECLEXPORT(const GLvoid *) crStateTextureGetData(GLenum target, GLenum level);
 
@@ -237,11 +237,11 @@ DECLEXPORT(void) crStateDiffAllTextureObjects( CRContext *g, CRbitvalue *bitID, 
 DECLEXPORT(void) crStateDeleteTextureObjectData(CRTextureObj *tobj);
 DECLEXPORT(void) crStateDeleteTextureObject(CRTextureObj *tobj);
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateTextureHWIDtoID(GLuint hwid);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureHWID(GLuint id);
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureObjHWID(CRTextureObj *tobj);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateTextureHWIDtoID(PCRStateTracker pState, GLuint hwid);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureHWID(PCRStateTracker pState, GLuint id);
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureObjHWID(PCRStateTracker pState, CRTextureObj *tobj);
 
-void crStateRegTextures(GLsizei n, GLuint *names);
+void crStateRegTextures(PCRStateTracker pState, GLsizei n, GLuint *names);
 
 #ifdef __cplusplus
 }

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2017-2018 Oracle Corporation
+ * Copyright (C) 2017-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -25,6 +25,7 @@
 #include <iprt/mem.h>
 #include <iprt/semaphore.h>
 
+#include <VBox/AssertGuest.h>
 #include <VBox/vmm/pdmdev.h>
 #include <VBox/vmm/pdmaudioifs.h>
 
@@ -93,20 +94,33 @@ int hdaR3StreamCreate(PHDASTREAM pStream, PHDASTATE pThis, uint8_t u8SD)
         AssertRC(rc2);
 
         if (hdaGetDirFromSD(pStream->u8SD) == PDMAUDIODIR_IN)
-            RTStrPrintf(szFile, sizeof(szFile), "hdaDMAWriteSD%RU8", pStream->u8SD);
+            RTStrPrintf(szFile, sizeof(szFile), "hdaDMARawWriteSD%RU8", pStream->u8SD);
         else
-            RTStrPrintf(szFile, sizeof(szFile), "hdaDMAReadSD%RU8", pStream->u8SD);
+            RTStrPrintf(szFile, sizeof(szFile), "hdaDMARawReadSD%RU8", pStream->u8SD);
 
         rc2 = DrvAudioHlpFileNameGet(szPath, sizeof(szPath), pThis->Dbg.szOutPath, szFile,
                                      0 /* uInst */, PDMAUDIOFILETYPE_WAV, PDMAUDIOFILENAME_FLAG_NONE);
         AssertRC(rc2);
 
-        rc2 = DrvAudioHlpFileCreate(PDMAUDIOFILETYPE_WAV, szPath, PDMAUDIOFILE_FLAG_NONE, &pStream->Dbg.Runtime.pFileDMA);
+        rc2 = DrvAudioHlpFileCreate(PDMAUDIOFILETYPE_WAV, szPath, PDMAUDIOFILE_FLAG_NONE, &pStream->Dbg.Runtime.pFileDMARaw);
+        AssertRC(rc2);
+
+        if (hdaGetDirFromSD(pStream->u8SD) == PDMAUDIODIR_IN)
+            RTStrPrintf(szFile, sizeof(szFile), "hdaDMAWriteMappedSD%RU8", pStream->u8SD);
+        else
+            RTStrPrintf(szFile, sizeof(szFile), "hdaDMAReadMappedSD%RU8", pStream->u8SD);
+
+        rc2 = DrvAudioHlpFileNameGet(szPath, sizeof(szPath), pThis->Dbg.szOutPath, szFile,
+                                     0 /* uInst */, PDMAUDIOFILETYPE_WAV, PDMAUDIOFILENAME_FLAG_NONE);
+        AssertRC(rc2);
+
+        rc2 = DrvAudioHlpFileCreate(PDMAUDIOFILETYPE_WAV, szPath, PDMAUDIOFILE_FLAG_NONE, &pStream->Dbg.Runtime.pFileDMAMapped);
         AssertRC(rc2);
 
         /* Delete stale debugging files from a former run. */
         DrvAudioHlpFileDelete(pStream->Dbg.Runtime.pFileStream);
-        DrvAudioHlpFileDelete(pStream->Dbg.Runtime.pFileDMA);
+        DrvAudioHlpFileDelete(pStream->Dbg.Runtime.pFileDMARaw);
+        DrvAudioHlpFileDelete(pStream->Dbg.Runtime.pFileDMAMapped);
     }
 
     return rc;
@@ -121,7 +135,7 @@ void hdaR3StreamDestroy(PHDASTREAM pStream)
 {
     AssertPtrReturnVoid(pStream);
 
-    LogFlowFunc(("[SD%RU8]: Destroying ...\n", pStream->u8SD));
+    LogFlowFunc(("[SD%RU8] Destroying ...\n", pStream->u8SD));
 
     hdaR3StreamMapDestroy(&pStream->State.Mapping);
 
@@ -159,8 +173,11 @@ void hdaR3StreamDestroy(PHDASTREAM pStream)
         DrvAudioHlpFileDestroy(pStream->Dbg.Runtime.pFileStream);
         pStream->Dbg.Runtime.pFileStream = NULL;
 
-        DrvAudioHlpFileDestroy(pStream->Dbg.Runtime.pFileDMA);
-        pStream->Dbg.Runtime.pFileDMA = NULL;
+        DrvAudioHlpFileDestroy(pStream->Dbg.Runtime.pFileDMARaw);
+        pStream->Dbg.Runtime.pFileDMARaw = NULL;
+
+        DrvAudioHlpFileDestroy(pStream->Dbg.Runtime.pFileDMAMapped);
+        pStream->Dbg.Runtime.pFileDMAMapped = NULL;
     }
 
     LogFlowFuncLeave();
@@ -169,7 +186,8 @@ void hdaR3StreamDestroy(PHDASTREAM pStream)
 /**
  * Initializes an HDA stream.
  *
- * @returns IPRT status code.
+ * @returns IPRT status code. VINF_NO_CHANGE if the stream does not need (re-)initialization because the stream's (hardware)
+ *          parameters did not change.
  * @param   pStream             HDA stream to initialize.
  * @param   uSD                 SD (stream descriptor) number to assign the HDA stream to.
  */
@@ -180,25 +198,110 @@ int hdaR3StreamInit(PHDASTREAM pStream, uint8_t uSD)
     PHDASTATE pThis = pStream->pHDAState;
     AssertPtr(pThis);
 
-    pStream->u8SD       = uSD;
-    pStream->u64BDLBase = RT_MAKE_U64(HDA_STREAM_REG(pThis, BDPL, pStream->u8SD),
-                                      HDA_STREAM_REG(pThis, BDPU, pStream->u8SD));
-    pStream->u16LVI     = HDA_STREAM_REG(pThis, LVI, pStream->u8SD);
-    pStream->u32CBL     = HDA_STREAM_REG(pThis, CBL, pStream->u8SD);
-    pStream->u16FIFOS   = HDA_STREAM_REG(pThis, FIFOS, pStream->u8SD) + 1;
+    const uint64_t u64BDLBase = RT_MAKE_U64(HDA_STREAM_REG(pThis, BDPL, uSD),
+                                            HDA_STREAM_REG(pThis, BDPU, uSD));
+    const uint16_t u16LVI     = HDA_STREAM_REG(pThis, LVI, uSD);
+    const uint32_t u32CBL     = HDA_STREAM_REG(pThis, CBL, uSD);
+    const uint16_t u16FIFOS   = HDA_STREAM_REG(pThis, FIFOS, uSD) + 1;
+    const uint16_t u16FMT     = HDA_STREAM_REG(pThis, FMT, uSD);
 
-    PPDMAUDIOSTREAMCFG pCfg = &pStream->State.Cfg;
+    /* Is the bare minimum set of registers configured for the stream?
+     * If not, bail out early, as there's nothing to do here for us (yet). */
+    if (   !u64BDLBase
+        || !u16LVI
+        || !u32CBL
+        || !u16FIFOS
+        || !u16FMT)
+    {
+        LogFunc(("[SD%RU8] Registers not set up yet, skipping (re-)initialization\n", uSD));
+        return VINF_SUCCESS;
+    }
 
-    int rc = hdaR3SDFMTToPCMProps(HDA_STREAM_REG(pThis, FMT, uSD), &pCfg->Props);
+    PDMAUDIOPCMPROPS Props;
+    int rc = hdaR3SDFMTToPCMProps(u16FMT, &Props);
     if (RT_FAILURE(rc))
     {
         LogRel(("HDA: Warning: Format 0x%x for stream #%RU8 not supported\n", HDA_STREAM_REG(pThis, FMT, uSD), uSD));
         return rc;
     }
 
-    /* Set scheduling hint (if available). */
-    if (pThis->u16TimerHz)
-        pCfg->Device.uSchedulingHintMs = 1000 /* ms */ / pThis->u16TimerHz;
+    /* Reset (any former) stream map. */
+    hdaR3StreamMapReset(&pStream->State.Mapping);
+
+    /*
+     * Initialize the stream mapping in any case, regardless if
+     * we support surround audio or not. This is needed to handle
+     * the supported channels within a single audio stream, e.g. mono/stereo.
+     *
+     * In other words, the stream mapping *always* knows the real
+     * number of channels in a single audio stream.
+     */
+    rc = hdaR3StreamMapInit(&pStream->State.Mapping, &Props);
+    AssertRCReturn(rc, rc);
+
+    ASSERT_GUEST_LOGREL_MSG_RETURN(u32CBL % pStream->State.Mapping.cbFrameSize == 0,
+                                   ("CBL for stream #%RU8 does not align to frame size\n", pStream->u8SD),
+                                   VERR_INVALID_PARAMETER);
+
+    /*
+     * Set the stream's timer Hz rate, based on the stream channel count.
+     * Currently this is just a rough guess and we might want to optimize this further.
+     *
+     * In any case, more channels per SDI/SDO means that we have to drive data more frequently.
+     */
+    if (pThis->uTimerHz == HDA_TIMER_HZ_DEFAULT) /* Make sure that we don't have any custom Hz rate set we want to enforce */
+    {
+        if (Props.cChannels >= 5)
+            pStream->State.uTimerHz = 300;
+        else if (Props.cChannels == 4)
+            pStream->State.uTimerHz = 150;
+        else
+            pStream->State.uTimerHz = 100;
+    }
+    else
+        pStream->State.uTimerHz = pThis->uTimerHz;
+
+#ifndef VBOX_WITH_AUDIO_HDA_51_SURROUND
+    if (Props.cChannels > 2)
+    {
+        /*
+         * When not running with surround support enabled, override the audio channel count
+         * with stereo (2) channels so that we at least can properly work with those.
+         *
+         * Note: This also involves dealing with surround setups the guest might has set up for us.
+         */
+        LogRel2(("HDA: More than stereo (2) channels are not supported (%RU8 requested), "
+                 "falling back to stereo channels for stream #%RU8\n", Props.cChannels, uSD));
+        Props.cChannels = 2;
+        Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(Props.cBytes, Props.cChannels);
+    }
+#endif
+
+    /* Did some of the vital / critical parameters change?
+     * If not, we can skip a lot of the (re-)initialization and just (re-)use the existing stuff.
+     * Also, tell the caller so that further actions can be taken. */
+    if (   uSD        == pStream->u8SD
+        && u64BDLBase == pStream->u64BDLBase
+        && u16LVI     == pStream->u16LVI
+        && u32CBL     == pStream->u32CBL
+        && u16FIFOS   == pStream->u16FIFOS
+        && u16FMT     == pStream->u16FMT)
+    {
+        LogFunc(("[SD%RU8] No format change, skipping (re-)initialization\n", uSD));
+        return VINF_NO_CHANGE;
+    }
+
+    pStream->u8SD       = uSD;
+
+    /* Update all register copies so that we later know that something has changed. */
+    pStream->u64BDLBase = u64BDLBase;
+    pStream->u16LVI     = u16LVI;
+    pStream->u32CBL     = u32CBL;
+    pStream->u16FIFOS   = u16FIFOS;
+    pStream->u16FMT     = u16FMT;
+
+    PPDMAUDIOSTREAMCFG pCfg = &pStream->State.Cfg;
+    pCfg->Props = Props;
 
     /* (Re-)Allocate the stream's internal DMA buffer, based on the PCM  properties we just got above. */
     if (pStream->State.pCircBuf)
@@ -208,7 +311,8 @@ int hdaR3StreamInit(PHDASTREAM pStream, uint8_t uSD)
     }
 
     /* By default we allocate an internal buffer of 100ms. */
-    rc = RTCircBufCreate(&pStream->State.pCircBuf, DrvAudioHlpMilliToBytes(100 /* ms */, &pCfg->Props)); /** @todo Make this configurable. */
+    rc = RTCircBufCreate(&pStream->State.pCircBuf,
+                         DrvAudioHlpMilliToBytes(100 /* ms */, &pCfg->Props)); /** @todo Make this configurable. */
     AssertRCReturn(rc, rc);
 
     /* Set the stream's direction. */
@@ -237,49 +341,22 @@ int hdaR3StreamInit(PHDASTREAM pStream, uint8_t uSD)
             break;
     }
 
-    if (   !pStream->u32CBL
-        || !pStream->u16LVI
-        || !pStream->u64BDLBase
-        || !pStream->u16FIFOS)
-    {
-        return VINF_SUCCESS;
-    }
+    /* Set scheduling hint (if available). */
+    if (pStream->State.uTimerHz)
+        pCfg->Device.uSchedulingHintMs = 1000 /* ms */ / pStream->State.uTimerHz;
 
-    /* Set the stream's frame size. */
-    pStream->State.cbFrameSize = pCfg->Props.cChannels * pCfg->Props.cBytes;
-    LogFunc(("[SD%RU8] cChannels=%RU8, cBytes=%RU8 -> cbFrameSize=%RU32\n",
-             pStream->u8SD, pCfg->Props.cChannels, pCfg->Props.cBytes, pStream->State.cbFrameSize));
-    Assert(pStream->State.cbFrameSize); /* Frame size must not be 0. */
-
-    /*
-     * Initialize the stream mapping in any case, regardless if
-     * we support surround audio or not. This is needed to handle
-     * the supported channels within a single audio stream, e.g. mono/stereo.
-     *
-     * In other words, the stream mapping *always* knows the real
-     * number of channels in a single audio stream.
-     */
-    rc = hdaR3StreamMapInit(&pStream->State.Mapping, &pCfg->Props);
-    AssertRCReturn(rc, rc);
-
-    LogFunc(("[SD%RU8] DMA @ 0x%x (%RU32 bytes), LVI=%RU16, FIFOS=%RU16, Hz=%RU32, rc=%Rrc\n",
-             pStream->u8SD, pStream->u64BDLBase, pStream->u32CBL, pStream->u16LVI, pStream->u16FIFOS,
-             pStream->State.Cfg.Props.uHz, rc));
-
-    /* Make sure that mandatory parameters are set up correctly. */
-    AssertStmt(pStream->u32CBL %  pStream->State.cbFrameSize == 0, rc = VERR_INVALID_PARAMETER);
-    AssertStmt(pStream->u16LVI >= 1,                               rc = VERR_INVALID_PARAMETER);
+    LogFunc(("[SD%RU8] DMA @ 0x%x (%RU32 bytes), LVI=%RU16, FIFOS=%RU16\n",
+             pStream->u8SD, pStream->u64BDLBase, pStream->u32CBL, pStream->u16LVI, pStream->u16FIFOS));
 
     if (RT_SUCCESS(rc))
     {
         /* Make sure that the chosen Hz rate dividable by the stream's rate. */
-        if (pStream->State.Cfg.Props.uHz % pThis->u16TimerHz != 0)
-            LogRel(("HDA: Device timer (%RU32) does not fit to stream #RU8 timing (%RU32)\n",
-                    pThis->u16TimerHz, pStream->State.Cfg.Props.uHz));
+        if (pStream->State.Cfg.Props.uHz % pStream->State.uTimerHz != 0)
+            LogRel(("HDA: Stream timer Hz rate (%RU32) does not fit to stream #%RU8 timing (%RU32)\n",
+                    pStream->State.uTimerHz, pStream->u8SD, pStream->State.Cfg.Props.uHz));
 
         /* Figure out how many transfer fragments we're going to use for this stream. */
         /** @todo Use a more dynamic fragment size? */
-        Assert(pStream->u16LVI <= UINT8_MAX - 1);
         uint8_t cFragments = pStream->u16LVI + 1;
         if (cFragments <= 1)
             cFragments = 2; /* At least two fragments (BDLEs) must be present. */
@@ -317,12 +394,12 @@ int hdaR3StreamInit(PHDASTREAM pStream, uint8_t uSD)
                 /** @todo Implement / use a (dynamic) table once this gets more complicated. */
 #ifdef VBOX_WITH_INTEL_HDA
                 /* Intel ICH / PCH: 1 frame. */
-                if (BDLE.Desc.u32BufSize == 1 * pStream->State.cbFrameSize)
+                if (BDLE.Desc.u32BufSize == (uint32_t)(1 * pStream->State.Mapping.cbFrameSize))
                 {
                     cfPosAdjust = 1;
                 }
                 /* Intel Baytrail / Braswell: 32 frames. */
-                else if (BDLE.Desc.u32BufSize == 32 * pStream->State.cbFrameSize)
+                else if (BDLE.Desc.u32BufSize == (uint32_t)(32 * pStream->State.Mapping.cbFrameSize))
                 {
                     cfPosAdjust = 32;
                 }
@@ -343,69 +420,72 @@ int hdaR3StreamInit(PHDASTREAM pStream, uint8_t uSD)
                  * Only skip a fragment if the whole buffer fragment is used for
                  * position adjustment.
                  */
-                if (   (cfPosAdjust * pStream->State.cbFrameSize) == BDLE.Desc.u32BufSize
+                if (   (cfPosAdjust * pStream->State.Mapping.cbFrameSize) == BDLE.Desc.u32BufSize
                     && cFragments)
                 {
                     cFragments--;
                 }
 
                 /* Initialize position adjustment counter. */
-                pStream->State.cPosAdjustFramesLeft = cfPosAdjust;
-                LogRel2(("HDA: Position adjustment for stream #%RU8 active (%RU32 frames)\n", pStream->u8SD, cfPosAdjust));
+                pStream->State.cfPosAdjustDefault = cfPosAdjust;
+                pStream->State.cfPosAdjustLeft    = pStream->State.cfPosAdjustDefault;
+
+                LogRel2(("HDA: Position adjustment for stream #%RU8 active (%RU32 frames)\n",
+                         pStream->u8SD, pStream->State.cfPosAdjustDefault));
             }
         }
 
         LogFunc(("[SD%RU8] cfPosAdjust=%RU32, cFragments=%RU8\n", pStream->u8SD, cfPosAdjust, cFragments));
 
         /*
-         * Set up data transfer transfer stuff.
+         * Set up data transfer stuff.
          */
 
         /* Calculate the fragment size the guest OS expects interrupt delivery at. */
         pStream->State.cbTransferSize = pStream->u32CBL / cFragments;
         Assert(pStream->State.cbTransferSize);
-        Assert(pStream->State.cbTransferSize % pStream->State.cbFrameSize == 0);
+        Assert(pStream->State.cbTransferSize % pStream->State.Mapping.cbFrameSize == 0);
+        ASSERT_GUEST_LOGREL_MSG_STMT(pStream->State.cbTransferSize,
+                                     ("Transfer size for stream #%RU8 is invalid\n", pStream->u8SD), rc = VERR_INVALID_PARAMETER);
+        if (RT_SUCCESS(rc))
+        {
+            /* Calculate the bytes we need to transfer to / from the stream's DMA per iteration.
+             * This is bound to the device's Hz rate and thus to the (virtual) timing the device expects. */
+            pStream->State.cbTransferChunk = (pStream->State.Cfg.Props.uHz / pStream->State.uTimerHz) * pStream->State.Mapping.cbFrameSize;
+            Assert(pStream->State.cbTransferChunk);
+            Assert(pStream->State.cbTransferChunk % pStream->State.Mapping.cbFrameSize == 0);
+            ASSERT_GUEST_LOGREL_MSG_STMT(pStream->State.cbTransferChunk,
+                                         ("Transfer chunk for stream #%RU8 is invalid\n", pStream->u8SD),
+                                         rc = VERR_INVALID_PARAMETER);
+            if (RT_SUCCESS(rc))
+            {
+                /* Make sure that the transfer chunk does not exceed the overall transfer size. */
+                if (pStream->State.cbTransferChunk > pStream->State.cbTransferSize)
+                    pStream->State.cbTransferChunk = pStream->State.cbTransferSize;
 
-        /* Calculate the bytes we need to transfer to / from the stream's DMA per iteration.
-         * This is bound to the device's Hz rate and thus to the (virtual) timing the device expects. */
-        pStream->State.cbTransferChunk = (pStream->State.Cfg.Props.uHz / pThis->u16TimerHz) * pStream->State.cbFrameSize;
-        Assert(pStream->State.cbTransferChunk);
-        Assert(pStream->State.cbTransferChunk % pStream->State.cbFrameSize == 0);
+                const uint64_t cTicksPerHz = TMTimerGetFreq(pStream->pTimer) / pStream->State.uTimerHz;
 
-        /* Make sure that the transfer chunk does not exceed the overall transfer size. */
-        if (pStream->State.cbTransferChunk > pStream->State.cbTransferSize)
-            pStream->State.cbTransferChunk = pStream->State.cbTransferSize;
+                /* Calculate the timer ticks per byte for this stream. */
+                pStream->State.cTicksPerByte = cTicksPerHz / pStream->State.cbTransferChunk;
+                Assert(pStream->State.cTicksPerByte);
 
-        pStream->State.cbTransferProcessed        = 0;
-        pStream->State.cTransferPendingInterrupts = 0;
-        pStream->State.cbDMALeft                  = 0;
-        pStream->State.tsLastUpdateNs             = 0;
+                /* Calculate timer ticks per transfer. */
+                pStream->State.cTransferTicks = pStream->State.cbTransferChunk * pStream->State.cTicksPerByte;
+                Assert(pStream->State.cTransferTicks);
 
-        const uint64_t cTicksPerHz = TMTimerGetFreq(pStream->pTimer) / pThis->u16TimerHz;
+                LogFunc(("[SD%RU8] Timer %uHz (%RU64 ticks per Hz), cTicksPerByte=%RU64, cbTransferChunk=%RU32, " \
+                         "cTransferTicks=%RU64, cbTransferSize=%RU32\n",
+                         pStream->u8SD, pStream->State.uTimerHz, cTicksPerHz, pStream->State.cTicksPerByte,
+                         pStream->State.cbTransferChunk, pStream->State.cTransferTicks, pStream->State.cbTransferSize));
 
-        /* Calculate the timer ticks per byte for this stream. */
-        pStream->State.cTicksPerByte = cTicksPerHz / pStream->State.cbTransferChunk;
-        Assert(pStream->State.cTicksPerByte);
-
-        /* Calculate timer ticks per transfer. */
-        pStream->State.cTransferTicks     = pStream->State.cbTransferChunk * pStream->State.cTicksPerByte;
-        Assert(pStream->State.cTransferTicks);
-
-        /* Initialize the transfer timestamps. */
-        pStream->State.tsTransferLast     = 0;
-        pStream->State.tsTransferNext     = 0;
-
-        LogFunc(("[SD%RU8] Timer %uHz (%RU64 ticks per Hz), cTicksPerByte=%RU64, cbTransferChunk=%RU32, cTransferTicks=%RU64, " \
-                 "cbTransferSize=%RU32\n",
-                 pStream->u8SD, pThis->u16TimerHz, cTicksPerHz, pStream->State.cTicksPerByte,
-                 pStream->State.cbTransferChunk, pStream->State.cTransferTicks, pStream->State.cbTransferSize));
-
-        /* Make sure to also update the stream's DMA counter (based on its current LPIB value). */
-        hdaR3StreamSetPosition(pStream, HDA_STREAM_REG(pThis, LPIB, pStream->u8SD));
+                /* Make sure to also update the stream's DMA counter (based on its current LPIB value). */
+                hdaR3StreamSetPosition(pStream, HDA_STREAM_REG(pThis, LPIB, pStream->u8SD));
 
 #ifdef LOG_ENABLED
-        hdaR3BDLEDumpAll(pThis, pStream->u64BDLBase, pStream->u16LVI + 1);
+                hdaR3BDLEDumpAll(pThis, pStream->u64BDLBase, pStream->u16LVI + 1);
 #endif
+            }
+        }
     }
 
     if (RT_FAILURE(rc))
@@ -431,7 +511,7 @@ void hdaR3StreamReset(PHDASTATE pThis, PHDASTREAM pStream, uint8_t uSD)
     AssertReleaseMsg(!pStream->State.fRunning, ("[SD%RU8] Cannot reset stream while in running state\n", uSD));
 # endif
 
-    LogFunc(("[SD%RU8]: Reset\n", uSD));
+    LogFunc(("[SD%RU8] Reset\n", uSD));
 
     /*
      * Set reset state.
@@ -462,23 +542,25 @@ void hdaR3StreamReset(PHDASTATE pThis, PHDASTREAM pStream, uint8_t uSD)
 #endif
 
     /* Assign the default mixer sink to the stream. */
-    pStream->pMixSink             = hdaR3GetDefaultSink(pThis, uSD);
+    pStream->pMixSink = hdaR3GetDefaultSink(pThis, uSD);
 
+    /* Reset position adjustment counter. */
+    pStream->State.cfPosAdjustLeft = pStream->State.cfPosAdjustDefault;
+
+    /* Reset transfer stuff. */
+    pStream->State.cbTransferProcessed        = 0;
+    pStream->State.cTransferPendingInterrupts = 0;
     pStream->State.tsTransferLast = 0;
     pStream->State.tsTransferNext = 0;
+
+    /* Initialize other timestamps. */
+    pStream->State.tsLastUpdateNs = 0;
 
     RT_ZERO(pStream->State.BDLE);
     pStream->State.uCurBDLE = 0;
 
     if (pStream->State.pCircBuf)
         RTCircBufReset(pStream->State.pCircBuf);
-
-    /* Reset stream map. */
-    hdaR3StreamMapReset(&pStream->State.Mapping);
-
-    /* (Re-)initialize the stream with current values. */
-    int rc2 = hdaR3StreamInit(pStream, uSD);
-    AssertRC(rc2);
 
     /* Reset the stream's period. */
     hdaR3StreamPeriodReset(&pStream->State.Period);
@@ -514,7 +596,7 @@ int hdaR3StreamEnable(PHDASTREAM pStream, bool fEnable)
 {
     AssertPtrReturn(pStream, VERR_INVALID_POINTER);
 
-    LogFunc(("[SD%RU8]: fEnable=%RTbool, pMixSink=%p\n", pStream->u8SD, fEnable, pStream->pMixSink));
+    LogFunc(("[SD%RU8] fEnable=%RTbool, pMixSink=%p\n", pStream->u8SD, fEnable, pStream->pMixSink));
 
     int rc = VINF_SUCCESS;
 
@@ -541,9 +623,16 @@ int hdaR3StreamEnable(PHDASTREAM pStream, bool fEnable)
                 AssertRC(rc2);
             }
 
-            if (!DrvAudioHlpFileIsOpen(pStream->Dbg.Runtime.pFileDMA))
+            if (!DrvAudioHlpFileIsOpen(pStream->Dbg.Runtime.pFileDMARaw))
             {
-                int rc2 = DrvAudioHlpFileOpen(pStream->Dbg.Runtime.pFileDMA, PDMAUDIOFILE_DEFAULT_OPEN_FLAGS,
+                int rc2 = DrvAudioHlpFileOpen(pStream->Dbg.Runtime.pFileDMARaw, PDMAUDIOFILE_DEFAULT_OPEN_FLAGS,
+                                              &pStream->State.Cfg.Props);
+                AssertRC(rc2);
+            }
+
+            if (!DrvAudioHlpFileIsOpen(pStream->Dbg.Runtime.pFileDMAMapped))
+            {
+                int rc2 = DrvAudioHlpFileOpen(pStream->Dbg.Runtime.pFileDMAMapped, PDMAUDIOFILE_DEFAULT_OPEN_FLAGS,
                                               &pStream->State.Cfg.Props);
                 AssertRC(rc2);
             }
@@ -754,7 +843,7 @@ int hdaR3StreamRead(PHDASTREAM pStream, uint32_t cbToRead, uint32_t *pcbRead)
     PHDAMIXERSINK pSink = pStream->pMixSink;
     if (!pSink)
     {
-        AssertMsgFailed(("[SD%RU8]: Can't read from a stream with no sink attached\n", pStream->u8SD));
+        AssertMsgFailed(("[SD%RU8] Can't read from a stream with no sink attached\n", pStream->u8SD));
 
         if (pcbRead)
             *pcbRead = 0;
@@ -787,7 +876,7 @@ int hdaR3StreamRead(PHDASTREAM pStream, uint32_t cbToRead, uint32_t *pcbRead)
             AssertRC(rc);
 
             Assert(cbSrc >= cbWritten);
-            Log2Func(("[SD%RU8]: %RU32/%zu bytes read\n", pStream->u8SD, cbWritten, cbSrc));
+            Log2Func(("[SD%RU8] %RU32/%zu bytes read\n", pStream->u8SD, cbWritten, cbSrc));
         }
 
         RTCircBufReleaseReadBlock(pCircBuf, cbWritten);
@@ -914,11 +1003,11 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
 
         /* If there are position adjustment frames left to be processed,
          * make sure that we process them first as a whole. */
-        if (pStream->State.cPosAdjustFramesLeft)
-            cbChunk = RT_MIN(cbChunk, uint32_t(pStream->State.cPosAdjustFramesLeft * pStream->State.cbFrameSize));
+        if (pStream->State.cfPosAdjustLeft)
+            cbChunk = RT_MIN(cbChunk, uint32_t(pStream->State.cfPosAdjustLeft * pStream->State.Mapping.cbFrameSize));
 
         Log3Func(("[SD%RU8] cbChunk=%RU32, cPosAdjustFramesLeft=%RU16\n",
-                  pStream->u8SD, cbChunk, pStream->State.cPosAdjustFramesLeft));
+                  pStream->u8SD, cbChunk, pStream->State.cfPosAdjustLeft));
 
         if (!cbChunk)
             break;
@@ -976,10 +1065,8 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
             rc = hdaR3DMARead(pThis, pStream, abChunk, cbChunk, &cbDMA /* pcbRead */);
             if (RT_SUCCESS(rc))
             {
-                const uint32_t cbDMAFree = (uint32_t)RTCircBufFree(pCircBuf);
-                Assert(cbDMAFree >= cbDMA); /* This must always hold. */
+                const uint32_t cbFree = (uint32_t)RTCircBufFree(pCircBuf);
 
-#ifndef VBOX_WITH_HDA_AUDIO_INTERLEAVING_STREAMS_SUPPORT
                 /*
                  * Most guests don't use different stream frame sizes than
                  * the default one, so save a bit of CPU time and don't go into
@@ -987,10 +1074,10 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
                  *
                  * Only macOS guests need the frame extraction branch below at the moment AFAIK.
                  */
-                if (pStream->State.cbFrameSize == HDA_FRAME_SIZE)
+                if (pStream->State.Mapping.cbFrameSize == HDA_FRAME_SIZE_DEFAULT)
                 {
                     uint32_t cbDMARead = 0;
-                    uint32_t cbDMALeft = RT_MIN(cbDMA, cbDMAFree);
+                    uint32_t cbDMALeft = RT_MIN(cbDMA, cbFree);
 
                     while (cbDMALeft)
                     {
@@ -1020,35 +1107,88 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
                      * So take this into account by just handling the first channel in such a stream ("A")
                      * and just discard the other channel's data.
                      *
+                     * I know, the following code is horribly slow, but seems to work for now.
+                     ** @todo Optimize channel data extraction! Use some SSE(3) / intrinsics?
                      */
-                    /** @todo Optimize this stuff -- copying only one frame a time is expensive. */
-                    uint32_t cbDMARead = pStream->State.cbDMALeft ? pStream->State.cbFrameSize - pStream->State.cbDMALeft : 0;
-                    uint32_t cbDMALeft = RT_MIN(cbDMA, cbDMAFree);
-
-                    while (cbDMALeft >= pStream->State.cbFrameSize)
+                    for (unsigned m = 0; m < pStream->State.Mapping.cMappings; m++)
                     {
-                        void *pvBuf; size_t cbBuf;
-                        RTCircBufAcquireWriteBlock(pCircBuf, HDA_FRAME_SIZE, &pvBuf, &cbBuf);
+                        const uint32_t cbFrame  = pStream->State.Mapping.cbFrameSize;
 
-                        AssertBreak(cbDMARead <= sizeof(abChunk));
+                        Assert(cbFree >= cbDMA);
 
-                        if (cbBuf)
-                            memcpy(pvBuf, abChunk + cbDMARead, cbBuf);
+                        PPDMAUDIOSTREAMMAP pMap = &pStream->State.Mapping.paMappings[m];
+                        AssertPtr(pMap);
 
-                        RTCircBufReleaseWriteBlock(pCircBuf, cbBuf);
+                        Log3Func(("Mapping #%u: Start (cbDMA=%RU32, cbFrame=%RU32, cbOff=%RU32)\n",
+                                  m, cbDMA, cbFrame, pMap->cbOff));
 
-                        Assert(cbDMALeft >= pStream->State.cbFrameSize);
-                        cbDMALeft -= pStream->State.cbFrameSize;
-                        cbDMARead += pStream->State.cbFrameSize;
-                    }
+                        uint8_t *pbSrcBuf = abChunk;
+                        size_t cbSrcOff   = pMap->cbOff;
+                        Assert(cbChunk >= cbSrcOff);
 
-                    pStream->State.cbDMALeft = cbDMALeft;
-                    Assert(pStream->State.cbDMALeft < pStream->State.cbFrameSize);
-                }
-#else
-                /** @todo This needs making use of HDAStreamMap + HDAStreamChannel. */
-# error "Implement reading interleaving streams support here."
+                        for (unsigned i = 0; i < cbDMA / cbFrame; i++)
+                        {
+                            void *pvDstBuf; size_t cbDstBuf;
+                            RTCircBufAcquireWriteBlock(pCircBuf, pMap->cbSize, &pvDstBuf, &cbDstBuf);
+
+                            Assert(cbDstBuf >= pMap->cbSize);
+
+                            if (cbDstBuf)
+                            {
+                                Log3Func(("Mapping #%u: Frame #%02u:    cbSize=%zu, cbFirst=%zu, cbOff=%zu, cbDstBuf=%zu, cbSrcOff=%zu\n",
+                                          m, i, pMap->cbSize, pMap->cbFirst, pMap->cbOff, cbDstBuf, cbSrcOff));
+
+                                memcpy(pvDstBuf, pbSrcBuf + cbSrcOff, cbDstBuf);
+
+#if 0 /* Too slow, even for release builds, so disabled it. */
+                                if (pStream->Dbg.Runtime.fEnabled)
+                                    DrvAudioHlpFileWrite(pStream->Dbg.Runtime.pFileDMAMapped, pvDstBuf, cbDstBuf,
+                                                         0 /* fFlags */);
 #endif
+                                Assert(cbSrcOff <= cbDMA);
+                                if (cbSrcOff + cbFrame + pMap->cbFirst <= cbDMA)
+                                    cbSrcOff += cbFrame + pMap->cbFirst;
+
+                                Log3Func(("Mapping #%u: Frame #%02u:    -> cbSrcOff=%zu\n", m, i, cbSrcOff));
+                            }
+
+                            RTCircBufReleaseWriteBlock(pCircBuf, cbDstBuf);
+                        }
+
+                        Log3Func(("Mapping #%u: End cbSize=%zu, cbDMA=%RU32, cbSrcOff=%zu\n",
+                                  m, pMap->cbSize, cbDMA, cbSrcOff));
+
+                        Assert(cbSrcOff <= cbDMA);
+
+                        const uint32_t cbSrcLeft = cbDMA - (uint32_t)cbSrcOff;
+                        if (cbSrcLeft)
+                        {
+                            Log3Func(("Mapping #%u: cbSrcLeft=%RU32\n", m, cbSrcLeft));
+
+                            if (cbSrcLeft >= pMap->cbSize)
+                            {
+                                void *pvDstBuf; size_t cbDstBuf;
+                                RTCircBufAcquireWriteBlock(pCircBuf, pMap->cbSize, &pvDstBuf, &cbDstBuf);
+
+                                Assert(cbDstBuf >= pMap->cbSize);
+
+                                if (cbDstBuf)
+                                {
+                                    memcpy(pvDstBuf, pbSrcBuf + cbSrcOff, cbDstBuf);
+                                }
+
+                                RTCircBufReleaseWriteBlock(pCircBuf, cbDstBuf);
+                            }
+
+                            Assert(pMap->cbFrame >= cbSrcLeft);
+                            pMap->cbOff = pMap->cbFrame - cbSrcLeft;
+                        }
+                        else
+                            pMap->cbOff = 0;
+
+                        Log3Func(("Mapping #%u finish (cbSrcOff=%zu, cbOff=%zu)\n", m, cbSrcOff, pMap->cbOff));
+                    }
+                }
             }
             else
                 LogRel(("HDA: Reading from stream #%RU8 DMA failed with %Rrc\n", pStream->u8SD, rc));
@@ -1068,7 +1208,7 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
 
             /* Are we done doing the position adjustment?
              * Only then do the transfer accounting .*/
-            if (pStream->State.cPosAdjustFramesLeft == 0)
+            if (pStream->State.cfPosAdjustLeft == 0)
             {
                 Assert(cbLeft >= cbDMA);
                 cbLeft        -= cbDMA;
@@ -1099,7 +1239,7 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
                  * position adjustment requires an interrupt on completion (IOC) being set.
                  *
                  * In such a case we need to skip such an interrupt and just move on. */
-                && pStream->State.cPosAdjustFramesLeft == 0)
+                && pStream->State.cfPosAdjustLeft == 0)
             {
                 /* If the IOCE ("Interrupt On Completion Enable") bit of the SDCTL register is set
                  * we need to generate an interrupt.
@@ -1126,7 +1266,8 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
         }
 
         /* Do the position adjustment accounting. */
-        pStream->State.cPosAdjustFramesLeft -= RT_MIN(pStream->State.cPosAdjustFramesLeft, cbDMA / pStream->State.cbFrameSize);
+        pStream->State.cfPosAdjustLeft -=
+            RT_MIN(pStream->State.cfPosAdjustLeft, cbDMA / pStream->State.Mapping.cbFrameSize);
 
         if (RT_FAILURE(rc))
             break;
@@ -1141,9 +1282,9 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
 
     /* Only do the data accounting if we don't have to do any position
      * adjustment anymore. */
-    if (pStream->State.cPosAdjustFramesLeft == 0)
+    if (pStream->State.cfPosAdjustLeft == 0)
     {
-        hdaR3StreamPeriodInc(pPeriod, RT_MIN(cbProcessed / pStream->State.cbFrameSize,
+        hdaR3StreamPeriodInc(pPeriod, RT_MIN(cbProcessed / pStream->State.Mapping.cbFrameSize,
                                              hdaR3StreamPeriodGetRemainingFrames(pPeriod)));
 
         pStream->State.cbTransferProcessed += cbProcessed;
@@ -1175,7 +1316,7 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
                                                  hdaWalClkGetCurrent(pThis)
                                                + hdaR3StreamPeriodFramesToWalClk(pPeriod,
                                                                                    pStream->State.cbTransferProcessed
-                                                                                 / pStream->State.cbFrameSize),
+                                                                                 / pStream->State.Mapping.cbFrameSize),
                                                false /* fForce */);
         RT_NOREF(fWalClkSet);
     }
@@ -1486,7 +1627,7 @@ uint32_t hdaR3StreamUpdateLPIB(PHDASTREAM pStream, uint32_t u32LPIB)
 
     u32LPIB = RT_MIN(u32LPIB, pStream->u32CBL);
 
-    LogFlowFunc(("[SD%RU8]: LPIB=%RU32 (DMA Position Buffer Enabled: %RTbool)\n",
+    LogFlowFunc(("[SD%RU8] LPIB=%RU32 (DMA Position Buffer Enabled: %RTbool)\n",
                  pStream->u8SD, u32LPIB, pThis->fDMAPosition));
 
     /* Update LPIB in any case. */
@@ -1553,7 +1694,7 @@ bool hdaR3StreamRegisterDMAHandlers(PHDASTREAM pStream)
             pRange = &arrRanges[cRanges - 1];
 
             /* Is the current range a direct neighbor of the current BLDE? */
-            if ((pRange->uAddr + pRange->uSize) == BDLE.Desc.u64BufAdr)
+            if ((pRange->uAddr + pRange->uSize) == BDLE.Desc.u64BufAddr)
             {
                 /* Expand the current range by the current BDLE's size. */
                 pRange->uSize += BDLE.Desc.u32BufSize;
@@ -1571,7 +1712,7 @@ bool hdaR3StreamRegisterDMAHandlers(PHDASTREAM pStream)
         {
             pRange = &arrRanges[cRanges];
 
-            pRange->uAddr = BDLE.Desc.u64BufAdr;
+            pRange->uAddr = BDLE.Desc.u64BufAddr;
             pRange->uSize = BDLE.Desc.u32BufSize;
 
             LogFunc(("Adding range %zu - 0x%x (%RU32)\n", cRanges, pRange->uAddr, pRange->uSize));
@@ -1698,7 +1839,7 @@ DECLCALLBACK(int) hdaR3StreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser)
 
     RTThreadUserSignal(hThreadSelf);
 
-    LogFunc(("[SD%RU8]: Started\n", pStream->u8SD));
+    LogFunc(("[SD%RU8] Started\n", pStream->u8SD));
 
     for (;;)
     {
@@ -1727,7 +1868,7 @@ DECLCALLBACK(int) hdaR3StreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser)
         AssertRC(rc2);
     }
 
-    LogFunc(("[SD%RU8]: Ended\n", pStream->u8SD));
+    LogFunc(("[SD%RU8] Ended\n", pStream->u8SD));
 
     ASMAtomicXchgBool(&pAIO->fStarted, false);
 
@@ -1772,7 +1913,7 @@ int hdaR3StreamAsyncIOCreate(PHDASTREAM pStream)
     else
         rc = VINF_SUCCESS;
 
-    LogFunc(("[SD%RU8]: Returning %Rrc\n", pStream->u8SD, rc));
+    LogFunc(("[SD%RU8] Returning %Rrc\n", pStream->u8SD, rc));
     return rc;
 }
 
@@ -1811,7 +1952,7 @@ int hdaR3StreamAsyncIODestroy(PHDASTREAM pStream)
         pAIO->fEnabled  = false;
     }
 
-    LogFunc(("[SD%RU8]: Returning %Rrc\n", pStream->u8SD, rc));
+    LogFunc(("[SD%RU8] Returning %Rrc\n", pStream->u8SD, rc));
     return rc;
 }
 

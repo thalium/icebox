@@ -780,7 +780,7 @@ int GuestSession::i_directoryRemoveFromList(GuestDirectory *pDirectory)
 int GuestSession::i_directoryRemoveInternal(const Utf8Str &strPath, uint32_t uFlags,
                                             int *pGuestRc)
 {
-    AssertReturn(!(uFlags & ~DIRREMOVE_FLAG_VALID_MASK), VERR_INVALID_PARAMETER);
+    AssertReturn(!(uFlags & ~DIRREMOVEREC_FLAG_VALID_MASK), VERR_INVALID_PARAMETER);
     AssertPtrReturn(pGuestRc, VERR_INVALID_POINTER);
 
     LogFlowThisFunc(("strPath=%s, uFlags=0x%x\n", strPath.c_str(), uFlags));
@@ -2631,15 +2631,16 @@ HRESULT GuestSession::directoryCreate(const com::Utf8Str &aPath, ULONG aMode,
 
     HRESULT hr = S_OK;
 
-    ComObjPtr <GuestDirectory> pDirectory; int guestRc;
+    ComObjPtr <GuestDirectory> pDirectory;
+    int guestRc = VERR_IPE_UNINITIALIZED_STATUS;
     int rc = i_directoryCreateInternal(aPath, (uint32_t)aMode, fFlags, &guestRc);
     if (RT_FAILURE(rc))
     {
         switch (rc)
         {
             case VERR_GSTCTL_GUEST_ERROR:
-                hr = setError(VBOX_E_IPRT_ERROR, tr("Directory creation failed: %s",
-                                                    GuestDirectory::i_guestErrorToString(guestRc).c_str()));
+                hr = setError(VBOX_E_IPRT_ERROR, tr("Directory creation failed: %s"),
+                                                    GuestDirectory::i_guestErrorToString(guestRc).c_str());
                 break;
 
             case VERR_INVALID_PARAMETER:
@@ -2835,18 +2836,43 @@ HRESULT GuestSession::directoryRemove(const com::Utf8Str &aPath)
 HRESULT GuestSession::directoryRemoveRecursive(const com::Utf8Str &aPath, const std::vector<DirectoryRemoveRecFlag_T> &aFlags,
                                                ComPtr<IProgress> &aProgress)
 {
-    RT_NOREF(aFlags);
-    LogFlowThisFuncEnter();
+    AutoCaller autoCaller(this);
+    if (FAILED(autoCaller.rc())) return autoCaller.rc();
 
     if (RT_UNLIKELY((aPath.c_str()) == NULL || *(aPath.c_str()) == '\0'))
         return setError(E_INVALIDARG, tr("No directory to remove recursively specified"));
 
-/** @todo r=bird: Must check that the flags matches the hardcoded behavior
- *        further down!! */
+    /* By default only delete empty directory structures, e.g. the operation will abort if there are
+     * directories which are not empty. */
+    uint32_t fFlags = DIRREMOVEREC_FLAG_RECURSIVE;
+    if (aFlags.size())
+    {
+        for (size_t i = 0; i < aFlags.size(); i++)
+        {
+            switch (aFlags[i])
+            {
+                case DirectoryRemoveRecFlag_None: /* Skip. */
+                    continue;
+
+                case DirectoryRemoveRecFlag_ContentAndDir:
+                    fFlags |= DIRREMOVEREC_FLAG_CONTENT_AND_DIR;
+                    break;
+
+                case DirectoryRemoveRecFlag_ContentOnly:
+                    fFlags |= DIRREMOVEREC_FLAG_CONTENT_ONLY;
+                    break;
+
+                default:
+                    return setError(E_INVALIDARG, tr("Invalid flags specified"));
+            }
+        }
+    }
 
     HRESULT hr = i_isReadyExternal();
     if (FAILED(hr))
         return hr;
+
+    LogFlowThisFuncEnter();
 
     ComObjPtr<Progress> pProgress;
     hr = pProgress.createObject();
@@ -2865,11 +2891,8 @@ HRESULT GuestSession::directoryRemoveRecursive(const com::Utf8Str &aPath, const 
     if (FAILED(hr))
         return hr;
 
-    /* Remove the directory + all its contents. */
-    uint32_t uFlags = DIRREMOVE_FLAG_RECURSIVE
-                    | DIRREMOVE_FLAG_CONTENT_AND_DIR;
     int guestRc;
-    int vrc = i_directoryRemoveInternal(aPath, uFlags, &guestRc);
+    int vrc = i_directoryRemoveInternal(aPath, fFlags, &guestRc);
     if (RT_FAILURE(vrc))
     {
         switch (vrc)
@@ -3085,13 +3108,11 @@ HRESULT GuestSession::fileOpenEx(const com::Utf8Str &aPath, FileAccessMode_T aAc
     openInfo.mAccessMode = aAccessMode;
     switch (aAccessMode)
     {
-        case (FileAccessMode_T)FileAccessMode_ReadOnly:  openInfo.mpszAccessMode = "r"; break;
-        case (FileAccessMode_T)FileAccessMode_WriteOnly: openInfo.mpszAccessMode = "w"; break;
-        case (FileAccessMode_T)FileAccessMode_ReadWrite: openInfo.mpszAccessMode = "r+"; break;
-        case (FileAccessMode_T)FileAccessMode_AppendOnly:
-            RT_FALL_THRU();
-        case (FileAccessMode_T)FileAccessMode_AppendRead:
-            return setError(E_NOTIMPL, tr("Append access modes are not yet implemented"));
+        case (FileAccessMode_T)FileAccessMode_ReadOnly:   openInfo.mpszAccessMode = "r"; break;
+        case (FileAccessMode_T)FileAccessMode_WriteOnly:  openInfo.mpszAccessMode = "w"; break;
+        case (FileAccessMode_T)FileAccessMode_ReadWrite:  openInfo.mpszAccessMode = "r+"; break;
+        case (FileAccessMode_T)FileAccessMode_AppendOnly: openInfo.mpszAccessMode = "a"; break;
+        case (FileAccessMode_T)FileAccessMode_AppendRead: openInfo.mpszAccessMode = "a+"; break;
         default:
             return setError(E_INVALIDARG, tr("Unknown FileAccessMode value %u (%#x)"), aAccessMode, aAccessMode);
     }

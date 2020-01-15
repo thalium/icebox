@@ -19,6 +19,7 @@ def main():
 void crState%(Name)sDiff(CR%(Name)sBits *b, CRbitvalue *bitID,
 		CRContext *fromCtx, CRContext *toCtx)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
 	CR%(Name)sState *from = &(fromCtx->%(name)s);
 	CR%(Name)sState *to = &(toCtx->%(name)s);"""%vars())
 	gendiffcode("state_%s.txt"%(name.lower()), name, docopy=1, doinvalid=0)
@@ -27,6 +28,7 @@ void crState%(Name)sDiff(CR%(Name)sBits *b, CRbitvalue *bitID,
 void crState%(Name)sSwitch(CR%(Name)sBits *b, CRbitvalue *bitID,
 		CRContext *fromCtx, CRContext *toCtx)
 {
+    PCRStateTracker pState = fromCtx->pStateTracker;
 	CR%(Name)sState *from = &(fromCtx->%(name)s);
 	CR%(Name)sState *to = &(toCtx->%(name)s);"""%vars())
 	gendiffcode("state_%s.txt"%(Name.lower()), Name, docopy=0, doinvalid=1)
@@ -57,6 +59,7 @@ def gendiffcode(fname, state_name, docopy, doinvalid):
 
 	print("""	unsigned int j, i;
 	CRbitvalue nbitID[CR_MAX_BITARRAY];
+    CRASSERT(fromCtx->pStateTracker == toCtx->pStateTracker);
 	for (j = 0; j<CR_MAX_BITARRAY; j++)
 		nbitID[j] = ~bitID[j];
 	i = 0; /* silence compiler */""")
@@ -150,8 +153,8 @@ def gendiffcode(fname, state_name, docopy, doinvalid):
 			tab = tab+"\t"
 			if members[0] != "*" and guardbit[0:6] == "enable":
 				print(tab+"glAble able[2];")
-				print(tab+"able[0] = diff_api.Disable;")
-				print(tab+"able[1] = diff_api.Enable;")
+				print(tab+"able[0] = pState->diff_api.Disable;")
+				print(tab+"able[1] = pState->diff_api.Enable;")
 
 		current_dependency = dependency
 		current_guard = guardbit
@@ -225,7 +228,7 @@ def gendiffcode(fname, state_name, docopy, doinvalid):
 								print(tab+"varg["+str(i)+"] = "+target+"->"+elem+";")
 								i += 1
 
-						sys.stdout.write(tab+"diff_api.%(func)s("%vars())
+						sys.stdout.write(tab+"pState->diff_api.%(func)s("%vars())
 						for funcarg in funcargs:
 							sys.stdout.write(funcarg+", ")
 

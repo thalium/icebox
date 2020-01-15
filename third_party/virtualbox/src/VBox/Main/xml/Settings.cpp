@@ -2783,6 +2783,8 @@ Hardware::Hardware() :
     fSpecCtrlByHost(false),
     fL1DFlushOnSched(true),
     fL1DFlushOnVMEntry(false),
+    fMDSClearOnSched(true),
+    fMDSClearOnVMEntry(false),
     enmLongMode(HC_ARCH_BITS == 64 ? Hardware::LongMode_Enabled : Hardware::LongMode_Disabled),
     cCPUs(1),
     fCpuHotPlug(false),
@@ -2942,6 +2944,8 @@ bool Hardware::operator==(const Hardware& h) const
             && fSpecCtrlByHost           == h.fSpecCtrlByHost
             && fL1DFlushOnSched          == h.fL1DFlushOnSched
             && fL1DFlushOnVMEntry        == h.fL1DFlushOnVMEntry
+            && fMDSClearOnSched          == h.fMDSClearOnSched
+            && fMDSClearOnVMEntry        == h.fMDSClearOnVMEntry
             && cCPUs                     == h.cCPUs
             && fCpuHotPlug               == h.fCpuHotPlug
             && ulCpuExecutionCap         == h.ulCpuExecutionCap
@@ -3961,6 +3965,12 @@ void MachineConfigFile::readHardware(const xml::ElementNode &elmHardware,
             {
                 pelmCPUChild->getAttributeValue("scheduling", hw.fL1DFlushOnSched);
                 pelmCPUChild->getAttributeValue("vmentry", hw.fL1DFlushOnVMEntry);
+            }
+            pelmCPUChild = pelmHwChild->findChildElement("MDSClearOn");
+            if (pelmCPUChild)
+            {
+                pelmCPUChild->getAttributeValue("scheduling", hw.fMDSClearOnSched);
+                pelmCPUChild->getAttributeValue("vmentry", hw.fMDSClearOnVMEntry);
             }
 
             if ((pelmCPUChild = pelmHwChild->findChildElement("CpuIdTree")))
@@ -5307,6 +5317,14 @@ void MachineConfigFile::buildHardwareXML(xml::ElementNode &elmParent,
                 pelmChild->setAttribute("scheduling", hw.fL1DFlushOnSched);
             if (hw.fL1DFlushOnVMEntry)
                 pelmChild->setAttribute("vmentry", hw.fL1DFlushOnVMEntry);
+        }
+        if (!hw.fMDSClearOnSched || hw.fMDSClearOnVMEntry)
+        {
+            xml::ElementNode *pelmChild = pelmCPU->createChild("MDSClearOn");
+            if (!hw.fMDSClearOnSched)
+                pelmChild->setAttribute("scheduling", hw.fMDSClearOnSched);
+            if (hw.fMDSClearOnVMEntry)
+                pelmChild->setAttribute("vmentry", hw.fMDSClearOnVMEntry);
         }
     }
     if (m->sv >= SettingsVersion_v1_14 && hw.enmLongMode != Hardware::LongMode_Legacy)
@@ -6985,7 +7003,9 @@ void MachineConfigFile::bumpSettingsVersionIfNeeded()
             || hardwareMachine.fSpecCtrl
             || hardwareMachine.fSpecCtrlByHost
             || !hardwareMachine.fL1DFlushOnSched
-            || hardwareMachine.fL1DFlushOnVMEntry)
+            || hardwareMachine.fL1DFlushOnVMEntry
+            || !hardwareMachine.fMDSClearOnSched
+            || hardwareMachine.fMDSClearOnVMEntry)
         {
             m->sv = SettingsVersion_v1_16;
             return;

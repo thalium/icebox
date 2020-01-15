@@ -173,7 +173,7 @@ typedef struct RTLDRREADER
      * @returns size of raw image bits in bytes.
      * @param   pReader     Pointer to the reader instance.
      */
-    DECLCALLBACKMEMBER(RTFOFF, pfnSize)(PRTLDRREADER pReader);
+    DECLCALLBACKMEMBER(uint64_t, pfnSize)(PRTLDRREADER pReader);
 
     /**
      * Map the bits into memory.
@@ -398,18 +398,6 @@ RTDECL(int) RTLdrOpen(const char *pszFilename, uint32_t fFlags, RTLDRARCH enmArc
 RTDECL(int) RTLdrOpenEx(const char *pszFilename, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod, PRTERRINFO pErrInfo);
 
 /**
- * Opens a binary image file using kLdr.
- *
- * @returns iprt status code.
- * @param   pszFilename Image filename.
- * @param   phLdrMod    Where to store the handle to the loaded module.
- * @param   fFlags      Valid RTLDR_O_XXX combination.
- * @param   enmArch     CPU architecture specifier for the image to be loaded.
- * @remark  Primarily for testing the loader.
- */
-RTDECL(int) RTLdrOpenkLdr(const char *pszFilename, uint32_t fFlags, RTLDRARCH enmArch, PRTLDRMOD phLdrMod);
-
-/**
  * Open part with reader.
  *
  * @returns iprt status code.
@@ -443,8 +431,9 @@ typedef FNRTLDRRDRMEMREAD *PFNRTLDRRDRMEMREAD;
  *
  * @returns IPRT status code
  * @param   pvUser      The user parameter.
+ * @param   cbImage     The image size.
  */
-typedef DECLCALLBACK(void) FNRTLDRRDRMEMDTOR(void *pvUser);
+typedef DECLCALLBACK(void) FNRTLDRRDRMEMDTOR(void *pvUser, size_t cbImage);
 /** Pointer to a RTLdrOpenInMemory destructor callback. */
 typedef FNRTLDRRDRMEMDTOR *PFNRTLDRRDRMEMDTOR;
 
@@ -1119,11 +1108,17 @@ typedef enum RTLDRSIGNATURETYPE
  * @param   enmSignature    The signature format.
  * @param   pvSignature     The signature data. Format given by @a enmSignature.
  * @param   cbSignature     The size of the buffer @a pvSignature points to.
+ * @param   pvExternalData  Pointer to the signed data, if external. NULL if the
+ *                          data is internal to the signature structure.
+ * @param   cbExternalData Size of the signed data, if external.  0 if
+ *                          internal to the signature structure.
  * @param   pErrInfo        Pointer to an error info buffer, optional.
  * @param   pvUser          User argument.
  *
  */
-typedef DECLCALLBACK(int) FNRTLDRVALIDATESIGNEDDATA(RTLDRMOD hLdrMod, RTLDRSIGNATURETYPE enmSignature, void const *pvSignature, size_t cbSignature,
+typedef DECLCALLBACK(int) FNRTLDRVALIDATESIGNEDDATA(RTLDRMOD hLdrMod, RTLDRSIGNATURETYPE enmSignature,
+                                                    void const *pvSignature, size_t cbSignature,
+                                                    void const *pvExternalData, size_t cbExternalData,
                                                     PRTERRINFO pErrInfo, void *pvUser);
 /** Pointer to a signature verification callback. */
 typedef FNRTLDRVALIDATESIGNEDDATA *PFNRTLDRVALIDATESIGNEDDATA;

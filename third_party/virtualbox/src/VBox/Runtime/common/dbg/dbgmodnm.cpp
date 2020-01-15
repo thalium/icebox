@@ -518,6 +518,7 @@ static DECLCALLBACK(int) rtDbgModNm_TryOpen(PRTDBGMODINT pMod, RTLDRARCH enmArch
                 }
             }
             RTDbgModRelease(pThis->hCnt);
+            RTMemFree(pThis);
         }
         else
             rc = VERR_NO_MEMORY;

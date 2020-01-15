@@ -829,6 +829,18 @@ VMMR3_INT_DECL(void) PDMR3TermUVM(PUVM pUVM)
 
 
 /**
+ * For APIC assertions.
+ *
+ * @returns true if we've loaded state.
+ * @param   pVM             The cross context VM structure.
+ */
+VMMR3_INT_DECL(bool)    PDMR3HasLoadedState(PVM pVM)
+{
+    return pVM->pdm.s.fStateLoaded;
+}
+
+
+/**
  * Bits that are saved in pass 0 and in the final pass.
  *
  * @param   pVM             The cross context VM structure.
@@ -974,6 +986,12 @@ static DECLCALLBACK(int) pdmR3LoadExec(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
     {
         /*
          * Load the interrupt and DMA states.
+         *
+         * The APIC, PIC and DMA devices does not restore these, we do.  In the
+         * APIC and PIC cases, it is possible that some devices is incorrectly
+         * setting IRQs during restore.  We'll warn when this happens.  (There
+         * are debug assertions in PDMDevMiscHlp.cpp and APICAll.cpp for
+         * catching the buggy device.)
          */
         for (VMCPUID idCpu = 0; idCpu < pVM->cCpus; idCpu++)
         {
@@ -989,7 +1007,8 @@ static DECLCALLBACK(int) pdmR3LoadExec(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
                 AssertMsgFailed(("fInterruptPending=%#x (APIC)\n", fInterruptPending));
                 return VERR_SSM_DATA_UNIT_FORMAT_CHANGED;
             }
-            AssertRelease(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_APIC));
+            AssertLogRelMsg(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_APIC),
+                            ("VCPU%03u: VMCPU_FF_INTERRUPT_APIC set! Devices shouldn't set interrupts during state restore...\n", idCpu));
             if (fInterruptPending)
                 VMCPU_FF_SET(pVCpu, VMCPU_FF_INTERRUPT_APIC);
 
@@ -1003,7 +1022,8 @@ static DECLCALLBACK(int) pdmR3LoadExec(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
                 AssertMsgFailed(("fInterruptPending=%#x (PIC)\n", fInterruptPending));
                 return VERR_SSM_DATA_UNIT_FORMAT_CHANGED;
             }
-            AssertRelease(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_PIC));
+            AssertLogRelMsg(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_PIC),
+                            ("VCPU%03u: VMCPU_FF_INTERRUPT_PIC set!  Devices shouldn't set interrupts during state restore...\n", idCpu));
             if (fInterruptPending)
                 VMCPU_FF_SET(pVCpu, VMCPU_FF_INTERRUPT_PIC);
 
@@ -1019,7 +1039,7 @@ static DECLCALLBACK(int) pdmR3LoadExec(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
                     AssertMsgFailed(("fInterruptPending=%#x (NMI)\n", fInterruptPending));
                     return VERR_SSM_DATA_UNIT_FORMAT_CHANGED;
                 }
-                AssertRelease(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_NMI));
+                AssertLogRelMsg(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_NMI), ("VCPU%3u: VMCPU_FF_INTERRUPT_NMI set!\n", idCpu));
                 if (fInterruptPending)
                     VMCPU_FF_SET(pVCpu, VMCPU_FF_INTERRUPT_NMI);
 
@@ -1033,7 +1053,7 @@ static DECLCALLBACK(int) pdmR3LoadExec(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
                     AssertMsgFailed(("fInterruptPending=%#x (SMI)\n", fInterruptPending));
                     return VERR_SSM_DATA_UNIT_FORMAT_CHANGED;
                 }
-                AssertRelease(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_SMI));
+                AssertLogRelMsg(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_INTERRUPT_SMI), ("VCPU%3u: VMCPU_FF_INTERRUPT_SMI set!\n", idCpu));
                 if (fInterruptPending)
                     VMCPU_FF_SET(pVCpu, VMCPU_FF_INTERRUPT_SMI);
             }
@@ -1124,6 +1144,12 @@ static DECLCALLBACK(int) pdmR3LoadExec(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersi
                 return SSMR3SetCfgError(pSSM, RT_SRC_POS, N_("Device '%s'/%d not found in the saved state"),
                                         pDevIns->pReg->szName, pDevIns->iInstance);
         }
+
+
+    /*
+     * Indicate that we've been called (for assertions).
+     */
+    pVM->pdm.s.fStateLoaded = true;
 
     return VINF_SUCCESS;
 }

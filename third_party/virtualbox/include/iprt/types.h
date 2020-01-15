@@ -2978,7 +2978,7 @@ typedef union RTPTRUNION
     /** As a signed integer. */
     intptr_t                i;
     /** As an unsigned integer. */
-    intptr_t                u;
+    uintptr_t               u;
     /** Pointer to char value. */
     char            RT_FAR *pch;
     /** Pointer to char value. */
@@ -2999,6 +2999,14 @@ typedef union RTPTRUNION
     uint32_t        RT_FAR *pu32;
     /** Pointer to a 64-bit unsigned value. */
     uint64_t        RT_FAR *pu64;
+    /** Pointer to a 8-bit signed value. */
+    int8_t          RT_FAR *pi8;
+    /** Pointer to a 16-bit signed value. */
+    int16_t         RT_FAR *pi16;
+    /** Pointer to a 32-bit signed value. */
+    int32_t         RT_FAR *pi32;
+    /** Pointer to a 64-bit signed value. */
+    int64_t         RT_FAR *pi64;
     /** Pointer to a UTF-16 character. */
     PRTUTF16                pwc;
     /** Pointer to a UUID character. */
@@ -3017,7 +3025,7 @@ typedef union RTCPTRUNION
     /** As a signed integer. */
     intptr_t                i;
     /** As an unsigned integer. */
-    intptr_t                u;
+    uintptr_t               u;
     /** Pointer to char value. */
     char const      RT_FAR *pch;
     /** Pointer to char value. */
@@ -3038,6 +3046,14 @@ typedef union RTCPTRUNION
     uint32_t const  RT_FAR *pu32;
     /** Pointer to a 64-bit unsigned value. */
     uint64_t const  RT_FAR *pu64;
+    /** Pointer to a 8-bit signed value. */
+    int8_t const    RT_FAR *pi8;
+    /** Pointer to a 16-bit signed value. */
+    int16_t const   RT_FAR *pi16;
+    /** Pointer to a 32-bit signed value. */
+    int32_t const   RT_FAR *pi32;
+    /** Pointer to a 64-bit signed value. */
+    int64_t const   RT_FAR *pi64;
     /** Pointer to a UTF-16 character. */
     PCRTUTF16               pwc;
     /** Pointer to a UUID character. */
@@ -3056,7 +3072,7 @@ typedef union RTVPTRUNION
     /** As a signed integer. */
     intptr_t                i;
     /** As an unsigned integer. */
-    intptr_t                u;
+    uintptr_t               u;
     /** Pointer to char value. */
     char volatile  RT_FAR *pch;
     /** Pointer to char value. */
@@ -3070,13 +3086,21 @@ typedef union RTVPTRUNION
     /** Pointer to a long value. */
     unsigned long volatile RT_FAR *pul;
     /** Pointer to a 8-bit unsigned value. */
-    uint8_t volatile RT_FAR *pu8;
+    uint8_t volatile RT_FAR  *pu8;
     /** Pointer to a 16-bit unsigned value. */
     uint16_t volatile RT_FAR *pu16;
     /** Pointer to a 32-bit unsigned value. */
     uint32_t volatile RT_FAR *pu32;
     /** Pointer to a 64-bit unsigned value. */
     uint64_t volatile RT_FAR *pu64;
+    /** Pointer to a 8-bit signed value. */
+    int8_t volatile RT_FAR   *pi8;
+    /** Pointer to a 16-bit signed value. */
+    int16_t volatile RT_FAR  *pi16;
+    /** Pointer to a 32-bit signed value. */
+    int32_t volatile RT_FAR  *pi32;
+    /** Pointer to a 64-bit signed value. */
+    int64_t volatile RT_FAR  *pi64;
     /** Pointer to a UTF-16 character. */
     RTUTF16 volatile RT_FAR *pwc;
     /** Pointer to a UUID character. */
@@ -3095,7 +3119,7 @@ typedef union RTCVPTRUNION
     /** As a signed integer. */
     intptr_t                                i;
     /** As an unsigned integer. */
-    intptr_t                                u;
+    uintptr_t                               u;
     /** Pointer to char value. */
     char const volatile             RT_FAR *pch;
     /** Pointer to char value. */
@@ -3116,6 +3140,14 @@ typedef union RTCVPTRUNION
     uint32_t const volatile         RT_FAR *pu32;
     /** Pointer to a 64-bit unsigned value. */
     uint64_t const volatile         RT_FAR *pu64;
+    /** Pointer to a 8-bit signed value. */
+    int8_t const volatile           RT_FAR *pi8;
+    /** Pointer to a 16-bit signed value. */
+    int16_t const volatile          RT_FAR *pi16;
+    /** Pointer to a 32-bit signed value. */
+    int32_t const volatile          RT_FAR *pi32;
+    /** Pointer to a 64-bit signed value. */
+    int64_t const volatile          RT_FAR *pi64;
     /** Pointer to a UTF-16 character. */
     RTUTF16 const volatile          RT_FAR *pwc;
     /** Pointer to a UUID character. */

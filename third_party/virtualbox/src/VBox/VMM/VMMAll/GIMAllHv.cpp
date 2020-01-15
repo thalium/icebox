@@ -1362,7 +1362,8 @@ VMM_INT_DECL(VBOXSTRICTRC) gimHvExecHypercallInstr(PVMCPU pVCpu, PCPUMCTX pCtx, 
     CPUMCPUVENDOR const enmGuestCpuVendor = CPUMGetGuestCpuVendor(pVM);
     if (   (   pDis->pCurInstr->uOpcode == OP_VMCALL
             && (   enmGuestCpuVendor == CPUMCPUVENDOR_INTEL
-                || enmGuestCpuVendor == CPUMCPUVENDOR_VIA))
+                || enmGuestCpuVendor == CPUMCPUVENDOR_VIA
+                || enmGuestCpuVendor == CPUMCPUVENDOR_SHANGHAI))
         || (   pDis->pCurInstr->uOpcode == OP_VMMCALL
             && enmGuestCpuVendor == CPUMCPUVENDOR_AMD))
     {

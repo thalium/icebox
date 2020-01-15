@@ -1500,12 +1500,15 @@ static DECLCALLBACK(void) drvNATDestruct(PPDMDRVINS pDrvIns)
 
 #ifdef RT_OS_DARWIN
     /* Cleanup the DNS watcher. */
-    CFRunLoopRef hRunLoopMain = CFRunLoopGetMain();
-    CFRetain(hRunLoopMain);
-    CFRunLoopRemoveSource(hRunLoopMain, pThis->hRunLoopSrcDnsWatcher, kCFRunLoopCommonModes);
-    CFRelease(hRunLoopMain);
-    CFRelease(pThis->hRunLoopSrcDnsWatcher);
-    pThis->hRunLoopSrcDnsWatcher = NULL;
+    if (pThis->hRunLoopSrcDnsWatcher != NULL)
+    {
+        CFRunLoopRef hRunLoopMain = CFRunLoopGetMain();
+        CFRetain(hRunLoopMain);
+        CFRunLoopRemoveSource(hRunLoopMain, pThis->hRunLoopSrcDnsWatcher, kCFRunLoopCommonModes);
+        CFRelease(hRunLoopMain);
+        CFRelease(pThis->hRunLoopSrcDnsWatcher);
+        pThis->hRunLoopSrcDnsWatcher = NULL;
+    }
 #endif
 }
 

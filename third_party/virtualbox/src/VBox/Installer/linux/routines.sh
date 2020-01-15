@@ -1,3 +1,4 @@
+# $Id: routines.sh $
 # Oracle VM VirtualBox
 # VirtualBox installer shell routines
 #
@@ -172,10 +173,15 @@ ExecStop=${script} stop
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl daemon-reexec
 }
 
-## Installs a file containing a shell script as an init script
+use_systemd()
+{
+    test ! -f /sbin/init || test -L /sbin/init
+}
+
+## Installs a file containing a shell script as an init script.  Call
+# finish_init_script_install when all scripts have been installed.
 install_init_script()
 {
     self="install_init_script"
@@ -190,7 +196,7 @@ install_init_script()
     test -L "/sbin/rc${name}" && rm "/sbin/rc${name}"
     ln -s "${script}" "/sbin/rc${name}"
     if test -x "`which systemctl 2>/dev/null`"; then
-        if ! test -f /sbin/init || ls -l /sbin/init | grep -q ">.*systemd"; then
+        if use_systemd; then
             { systemd_wrap_init_script "$script" "$name"; return; }
         fi
     fi
@@ -218,6 +224,16 @@ remove_init_script()
     rm -f /lib/systemd/system/"$name".service /usr/lib/systemd/system/"$name".service
     rm -f "/etc/rc.d/init.d/$name"
     rm -f "/etc/init.d/$name"
+}
+
+## Tell systemd services have been installed or removed.  Should not be done
+# after each individual one, as systemd can crash if it is done too often
+# (reported by the OL team for OL 7.6, may not apply to other versions.)
+finish_init_script_install()
+{
+    if use_systemd; then
+        systemctl daemon-reload
+    fi
 }
 
 ## Did we install a systemd service?

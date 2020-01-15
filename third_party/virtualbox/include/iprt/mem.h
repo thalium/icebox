@@ -423,7 +423,7 @@ RTR0DECL(int) RTR0MemExecDonate(void *pvMemory, size_t cb) RT_NO_THROW_PROTO;
  *
  * @returns Pointer to the allocated memory.
  * @returns NULL if we're out of memory.
- * @param   cb  Size of the memory block. Will be rounded up to page size.
+ * @param   cb      Size of the memory block. Will be rounded up to page size.
  */
 #define RTMemPageAlloc(cb)              RTMemPageAllocTag((cb), RTMEM_TAG)
 
@@ -432,7 +432,7 @@ RTR0DECL(int) RTR0MemExecDonate(void *pvMemory, size_t cb) RT_NO_THROW_PROTO;
  *
  * @returns Pointer to the allocated memory.
  * @returns NULL if we're out of memory.
- * @param   cb  Size of the memory block. Will be rounded up to page size.
+ * @param   cb      Size of the memory block. Will be rounded up to page size.
  * @param   pszTag  Allocation tag used for statistics and such.
  */
 RTDECL(void *) RTMemPageAllocTag(size_t cb, const char *pszTag) RT_NO_THROW_PROTO;
@@ -442,7 +442,7 @@ RTDECL(void *) RTMemPageAllocTag(size_t cb, const char *pszTag) RT_NO_THROW_PROT
  *
  * @returns Pointer to the allocated memory.
  * @returns NULL if we're out of memory.
- * @param   cb  Size of the memory block. Will be rounded up to page size.
+ * @param   cb      Size of the memory block. Will be rounded up to page size.
  */
 #define RTMemPageAllocZ(cb)             RTMemPageAllocZTag((cb), RTMEM_TAG)
 
@@ -451,10 +451,43 @@ RTDECL(void *) RTMemPageAllocTag(size_t cb, const char *pszTag) RT_NO_THROW_PROT
  *
  * @returns Pointer to the allocated memory.
  * @returns NULL if we're out of memory.
- * @param   cb  Size of the memory block. Will be rounded up to page size.
+ * @param   cb      Size of the memory block. Will be rounded up to page size.
  * @param   pszTag  Allocation tag used for statistics and such.
  */
 RTDECL(void *) RTMemPageAllocZTag(size_t cb, const char *pszTag) RT_NO_THROW_PROTO;
+
+/**
+ * Allocate page aligned memory with default tag, extended version.
+ *
+ * @returns Pointer to the allocated memory.
+ * @returns NULL if we're out of memory.
+ * @param   cb      Size of the memory block. Will be rounded up to page size.
+ * @param   fFlags  RTMEMPAGEALLOC_F_XXX.
+ */
+#define RTMemPageAllocEx(cb, fFlags)    RTMemPageAllocExTag((cb), (fFlags), RTMEM_TAG)
+
+/**
+ * Allocate page aligned memory with custom tag, extended version.
+ *
+ * @returns Pointer to the allocated memory.
+ * @returns NULL if we're out of memory.
+ * @param   cb      Size of the memory block. Will be rounded up to page size.
+ * @param   fFlags  RTMEMPAGEALLOC_F_XXX.
+ * @param   pszTag  Allocation tag used for statistics and such.
+ */
+RTDECL(void *) RTMemPageAllocExTag(size_t cb, uint32_t fFlags, const char *pszTag) RT_NO_THROW_PROTO;
+
+/** @name RTMEMPAGEALLOC_F_XXX - flags for RTMemPageAllocEx() and RTMemPageAllocExTag()
+ * @{ */
+/** Zero the allocation. */
+#define RTMEMPAGEALLOC_F_ZERO           RT_BIT_32(0)
+/** Try lock the allocation (failure ignored). */
+#define RTMEMPAGEALLOC_F_ADVISE_LOCKED  RT_BIT_32(1)
+/** Try prevent the memory from ending up in a dump/core. */
+#define RTMEMPAGEALLOC_F_ADVISE_NO_DUMP RT_BIT_32(2)
+/** Valid bit mask. */
+#define RTMEMPAGEALLOC_F_VALID_MASK     UINT32_C(0x00000007)
+/** @} */
 
 /**
  * Free a memory block allocated with RTMemPageAlloc() or RTMemPageAllocZ().

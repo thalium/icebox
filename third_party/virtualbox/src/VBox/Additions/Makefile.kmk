@@ -268,13 +268,13 @@ endif # win.x86
 if defined(VBOX_WITH_ADDITIONS_ISO.win.amd64) || defined(VBOX_WITH_ADDITIONS_ISO.win.x86)
  ifndef VBOX_SIGNING_MODE
   GUESTADDITIONS_FILESPEC.win =
- else if "$(VBOX_WITH_CORP_CODE_SIGNING)" == "all" || (!defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) && !defined(VBOX_WITH_CORP_CODE_SIGNING))
+ else if !defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) && !$(intersects win all 1,$(VBOX_WITH_CORP_CODE_SIGNING))
   GUESTADDITIONS_FILESPEC.win = cert/vbox.cer=$(VBOX_PATH_ADDITIONS.win)/vbox.cer
  else
   GUESTADDITIONS_FILESPEC.win = \
   	cert/vbox-sha1.cer=$(VBOX_PATH_ADDITIONS.win)/vbox-sha1.cer \
   	cert/vbox-sha256.cer=$(VBOX_PATH_ADDITIONS.win)/vbox-sha256.cer
-  if defined(VBOX_CERTIFICATE_SHA2_SUBJECT_NAME) && defined(VBOX_WITH_CORP_CODE_SIGNING)
+  if $(intersects win_planb,$(VBOX_WITH_CORP_CODE_SIGNING))
    GUESTADDITIONS_FILESPEC.win += cert/vbox-sha256-r3.cer=$(VBOX_PATH_ADDITIONS.win)/vbox-sha256-r3.cer
   endif
  endif

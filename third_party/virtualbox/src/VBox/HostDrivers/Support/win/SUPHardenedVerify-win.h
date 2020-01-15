@@ -51,6 +51,7 @@ typedef enum SUPHARDNTVPKIND
     SUPHARDNTVPKIND_VERIFY_ONLY = 1,
     SUPHARDNTVPKIND_CHILD_PURIFICATION,
     SUPHARDNTVPKIND_SELF_PURIFICATION,
+    SUPHARDNTVPKIND_SELF_PURIFICATION_LIMITED,
     SUPHARDNTVPKIND_32BIT_HACK = 0x7fffffff
 } SUPHARDNTVPKIND;
 /** @name SUPHARDNTVP_F_XXX - Flags for supHardenedWinVerifyProcess
@@ -99,7 +100,7 @@ typedef struct SUPHNTVIRDR
     /** Current file offset. */
     RTFOFF      off;
     /** The file size. */
-    RTFOFF      cbFile;
+    uint64_t    cbFile;
     /** Flags for the verification callback, SUPHNTVI_F_XXX. */
     uint32_t    fFlags;
     /** The executable timstamp in second since unix epoch. */

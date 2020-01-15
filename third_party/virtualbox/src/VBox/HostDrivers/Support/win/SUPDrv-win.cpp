@@ -86,6 +86,11 @@
 /** Enables the fast I/O control code path. */
 #define VBOXDRV_WITH_FAST_IO
 
+/* Missing if we're compiling against older WDKs. */
+#ifndef NonPagedPoolNx
+# define NonPagedPoolNx     ((POOL_TYPE)512)
+#endif
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -320,6 +325,8 @@ RT_C_DECLS_END
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *
 *********************************************************************************************************************************/
+/** The non-paged pool type to use, NonPagedPool or NonPagedPoolNx. */
+static POOL_TYPE      g_enmNonPagedPoolType = NonPagedPool;
 /** Pointer to the system device instance. */
 static PDEVICE_OBJECT g_pDevObjSys = NULL;
 /** Pointer to the user device instance. */
@@ -588,6 +595,14 @@ NTSTATUS _stdcall DriverEntry(PDRIVER_OBJECT pDrvObj, PUNICODE_STRING pRegPath)
 #endif
 
     /*
+     * Figure out if we can use NonPagedPoolNx or not.
+     */
+    ULONG ulMajorVersion, ulMinorVersion, ulBuildNumber;
+    PsGetVersion(&ulMajorVersion, &ulMinorVersion, &ulBuildNumber, NULL);
+    if (ulMajorVersion > 6 || (ulMajorVersion == 6 && ulMinorVersion >= 2)) /* >= 6.2 (W8)*/
+        g_enmNonPagedPoolType = NonPagedPoolNx;
+
+    /*
      * Query options first so any overflows on unpatched machines will do less
      * harm (see MS11-011 / 2393802 / 2011-03-18).
      *
@@ -595,7 +610,7 @@ NTSTATUS _stdcall DriverEntry(PDRIVER_OBJECT pDrvObj, PUNICODE_STRING pRegPath)
      * quite likely always is, so we have to make a copy here.
      */
     NTSTATUS rcNt;
-    PWSTR pwszCopy = (PWSTR)ExAllocatePoolWithTag(NonPagedPool, pRegPath->Length + sizeof(WCHAR), 'VBox');
+    PWSTR pwszCopy = (PWSTR)ExAllocatePoolWithTag(g_enmNonPagedPoolType, pRegPath->Length + sizeof(WCHAR), 'VBox');
     if (pwszCopy)
     {
         memcpy(pwszCopy, pRegPath->Buffer, pRegPath->Length);
@@ -1190,7 +1205,7 @@ static BOOLEAN _stdcall VBoxDrvNtFastIoDeviceControl(PFILE_OBJECT pFileObj, BOOL
                     && cbBuf < _1M*16)
                 {
                     /* Allocate a buffer and copy all the input into it. */
-                    PSUPREQHDR pHdr = (PSUPREQHDR)ExAllocatePoolWithTag(NonPagedPool, cbBuf, 'VBox');
+                    PSUPREQHDR pHdr = (PSUPREQHDR)ExAllocatePoolWithTag(g_enmNonPagedPoolType, cbBuf, 'VBox');
                     if (pHdr)
                     {
                         __try
@@ -1553,32 +1568,36 @@ NTSTATUS _stdcall VBoxDrvNtRead(PDEVICE_OBJECT pDevObj, PIRP pIrp)
             int rc = RTSemMutexRequestNoResume(g_hErrorInfoLock, RT_INDEFINITE_WAIT);
             if (RT_SUCCESS(rc))
             {
-                PSUPDRVNTERRORINFO  pCur;
+                PSUPDRVNTERRORINFO pMatch = NULL;
+                PSUPDRVNTERRORINFO pCur;
                 RTListForEach(&g_ErrorInfoHead, pCur, SUPDRVNTERRORINFO, ListEntry)
                 {
                     if (   pCur->hProcessId == hCurProcessId
                         && pCur->hThreadId  == hCurThreadId)
+                    {
+                        pMatch = pCur;
                         break;
+                    }
                 }
 
                 /*
                  * Did we find error info and is the caller requesting data within it?
                  * If so, check the destination buffer and copy the data into it.
                  */
-                if (   pCur
-                    && pStack->Parameters.Read.ByteOffset.QuadPart < pCur->cchErrorInfo
+                if (   pMatch
+                    && pStack->Parameters.Read.ByteOffset.QuadPart < pMatch->cchErrorInfo
                     && pStack->Parameters.Read.ByteOffset.QuadPart >= 0)
                 {
                     PVOID pvDstBuf = pIrp->AssociatedIrp.SystemBuffer;
                     if (pvDstBuf)
                     {
                         uint32_t offRead  = (uint32_t)pStack->Parameters.Read.ByteOffset.QuadPart;
-                        uint32_t cbToRead = pCur->cchErrorInfo - offRead;
+                        uint32_t cbToRead = pMatch->cchErrorInfo - offRead;
                         if (cbToRead < pStack->Parameters.Read.Length)
                             RT_BZERO((uint8_t *)pvDstBuf + cbToRead, pStack->Parameters.Read.Length - cbToRead);
                         else
                             cbToRead = pStack->Parameters.Read.Length;
-                        memcpy(pvDstBuf, &pCur->szErrorInfo[offRead], cbToRead);
+                        memcpy(pvDstBuf, &pMatch->szErrorInfo[offRead], cbToRead);
                         pIrp->IoStatus.Information = cbToRead;
 
                         rcNt = STATUS_SUCCESS;
@@ -1589,10 +1608,10 @@ NTSTATUS _stdcall VBoxDrvNtRead(PDEVICE_OBJECT pDevObj, PIRP pIrp)
                 /*
                  * End of file. Free the info.
                  */
-                else if (pCur)
+                else if (pMatch)
                 {
-                    RTListNodeRemove(&pCur->ListEntry);
-                    RTMemFree(pCur);
+                    RTListNodeRemove(&pMatch->ListEntry);
+                    RTMemFree(pMatch);
                     rcNt = STATUS_END_OF_FILE;
                 }
                 /*
@@ -2005,7 +2024,7 @@ int  VBOXCALL   supdrvOSLdrOpen(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, c
             Log(("ImageAddress=%p SectionPointer=%p ImageLength=%#x cbImageBits=%#x rcNt=%#x '%ls'\n",
                  Info.ImageAddress, Info.SectionPointer, Info.ImageLength, pImage->cbImageBits, rcNt, Info.Name.Buffer));
 # ifdef DEBUG_bird
-            SUPR0Printf("ImageAddress=%p SectionPointer=%p ImageLength=%#x cbImageBits=%#x rcNt=%#x '%ws'\n",
+            SUPR0Printf("ImageAddress=%p SectionPointer=%p ImageLength=%#x cbImageBits=%#x rcNt=%#x '%ls'\n",
                         Info.ImageAddress, Info.SectionPointer, Info.ImageLength, pImage->cbImageBits, rcNt, Info.Name.Buffer);
 # endif
             if (pImage->cbImageBits == Info.ImageLength)
@@ -2080,15 +2099,170 @@ void VBOXCALL   supdrvOSLdrNotifyOpened(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE p
     NOREF(pDevExt); NOREF(pImage); NOREF(pszFilename);
 }
 
+
 void VBOXCALL   supdrvOSLdrNotifyUnloaded(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage)
 {
     NOREF(pDevExt); NOREF(pImage);
 }
 
-int  VBOXCALL   supdrvOSLdrValidatePointer(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, void *pv, const uint8_t *pbImageBits)
+
+/**
+ * Common worker for supdrvOSLdrQuerySymbol and supdrvOSLdrValidatePointer.
+ *
+ * @note    Similar code in rtR0DbgKrnlNtParseModule.
+ */
+static int supdrvOSLdrValidatePointerOrQuerySymbol(PSUPDRVLDRIMAGE pImage, void *pv, const char *pszSymbol,
+                                                   size_t cchSymbol, void **ppvSymbol)
 {
-    NOREF(pDevExt); NOREF(pImage); NOREF(pv); NOREF(pbImageBits);
+    AssertReturn(pImage->pvNtSectionObj, VERR_INVALID_STATE);
+    Assert(pszSymbol || !ppvSymbol);
+
+    /*
+     * Locate the export directory in the loaded image.
+     */
+    uint8_t const  *pbMapping      = (uint8_t const  *)pImage->pvImage;
+    uint32_t const  cbMapping      = pImage->cbImageBits;
+    uint32_t const  uRvaToValidate = (uint32_t)((uintptr_t)pv - (uintptr_t)pbMapping);
+    AssertReturn(uRvaToValidate < cbMapping || ppvSymbol, VERR_INTERNAL_ERROR_3);
+
+    uint32_t const  offNtHdrs = *(uint16_t *)pbMapping == IMAGE_DOS_SIGNATURE
+                              ? ((IMAGE_DOS_HEADER const *)pbMapping)->e_lfanew
+                              : 0;
+    AssertLogRelReturn(offNtHdrs + sizeof(IMAGE_NT_HEADERS) < cbMapping, VERR_INTERNAL_ERROR_5);
+
+    IMAGE_NT_HEADERS const *pNtHdrs = (IMAGE_NT_HEADERS const *)((uintptr_t)pbMapping + offNtHdrs);
+    AssertLogRelReturn(pNtHdrs->Signature == IMAGE_NT_SIGNATURE, VERR_INVALID_EXE_SIGNATURE);
+    AssertLogRelReturn(pNtHdrs->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR_MAGIC, VERR_BAD_EXE_FORMAT);
+    AssertLogRelReturn(pNtHdrs->OptionalHeader.NumberOfRvaAndSizes == IMAGE_NUMBEROF_DIRECTORY_ENTRIES, VERR_BAD_EXE_FORMAT);
+
+    uint32_t const offEndSectHdrs = offNtHdrs
+                                  + sizeof(*pNtHdrs)
+                                  + pNtHdrs->FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER);
+    AssertReturn(offEndSectHdrs < cbMapping, VERR_BAD_EXE_FORMAT);
+
+    /*
+     * Find the export directory.
+     */
+    IMAGE_DATA_DIRECTORY ExpDir = pNtHdrs->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+    if (!ExpDir.Size)
+    {
+        SUPR0Printf("SUPDrv: No exports in %s!\n", pImage->szName);
+        return ppvSymbol ? VERR_SYMBOL_NOT_FOUND : VERR_NOT_FOUND;
+    }
+    AssertReturn(   ExpDir.Size >= sizeof(IMAGE_EXPORT_DIRECTORY)
+                 && ExpDir.VirtualAddress >= offEndSectHdrs
+                 && ExpDir.VirtualAddress < cbMapping
+                 && ExpDir.VirtualAddress + ExpDir.Size <= cbMapping, VERR_BAD_EXE_FORMAT);
+
+    IMAGE_EXPORT_DIRECTORY const *pExpDir = (IMAGE_EXPORT_DIRECTORY const *)&pbMapping[ExpDir.VirtualAddress];
+
+    uint32_t const cNamedExports = pExpDir->NumberOfNames;
+    AssertReturn(cNamedExports              < _1M, VERR_BAD_EXE_FORMAT);
+    AssertReturn(pExpDir->NumberOfFunctions < _1M, VERR_BAD_EXE_FORMAT);
+    if (pExpDir->NumberOfFunctions == 0 || cNamedExports == 0)
+    {
+        SUPR0Printf("SUPDrv: No exports in %s!\n", pImage->szName);
+        return ppvSymbol ? VERR_SYMBOL_NOT_FOUND : VERR_NOT_FOUND;
+    }
+
+    uint32_t const cExports = RT_MAX(cNamedExports, pExpDir->NumberOfFunctions);
+
+    AssertReturn(   pExpDir->AddressOfFunctions >= offEndSectHdrs
+                 && pExpDir->AddressOfFunctions < cbMapping
+                 && pExpDir->AddressOfFunctions + cExports * sizeof(uint32_t) <= cbMapping,
+                 VERR_BAD_EXE_FORMAT);
+    uint32_t const * const paoffExports = (uint32_t const *)&pbMapping[pExpDir->AddressOfFunctions];
+
+    AssertReturn(   pExpDir->AddressOfNames >= offEndSectHdrs
+                 && pExpDir->AddressOfNames < cbMapping
+                 && pExpDir->AddressOfNames + cNamedExports * sizeof(uint32_t) <= cbMapping,
+                 VERR_BAD_EXE_FORMAT);
+    uint32_t const * const paoffNamedExports = (uint32_t const *)&pbMapping[pExpDir->AddressOfNames];
+
+    AssertReturn(   pExpDir->AddressOfNameOrdinals >= offEndSectHdrs
+                 && pExpDir->AddressOfNameOrdinals < cbMapping
+                 && pExpDir->AddressOfNameOrdinals + cNamedExports * sizeof(uint32_t) <= cbMapping,
+                 VERR_BAD_EXE_FORMAT);
+    uint16_t const * const pau16NameOrdinals = (uint16_t const *)&pbMapping[pExpDir->AddressOfNameOrdinals];
+
+    /*
+     * Validate the entrypoint RVA by scanning the export table.
+     */
+    uint32_t iExportOrdinal = UINT32_MAX;
+    if (!ppvSymbol)
+    {
+        for (uint32_t i = 0; i < cExports; i++)
+            if (paoffExports[i] == uRvaToValidate)
+            {
+                iExportOrdinal = i;
+                break;
+            }
+        if (iExportOrdinal == UINT32_MAX)
+        {
+            SUPR0Printf("SUPDrv: No export with rva %#x (%s) in %s!\n", uRvaToValidate, pszSymbol, pImage->szName);
+            return VERR_NOT_FOUND;
+        }
+    }
+
+    /*
+     * Can we validate the symbol name too or should we find a name?
+     * If so, just do a linear search.
+     */
+    if (pszSymbol && (RT_C_IS_UPPER(*pszSymbol) || ppvSymbol))
+    {
+        for (uint32_t i = 0; i < cNamedExports; i++)
+        {
+            uint32_t const     offName = paoffNamedExports[i];
+            AssertReturn(offName < cbMapping, VERR_BAD_EXE_FORMAT);
+            uint32_t const     cchMaxName = cbMapping - offName;
+            const char * const pszName    = (const char *)&pbMapping[offName];
+            const char * const pszEnd     = (const char *)memchr(pszName, '\0', cchMaxName);
+            AssertReturn(pszEnd, VERR_BAD_EXE_FORMAT);
+
+            if (   cchSymbol == (size_t)(pszEnd - pszName)
+                && memcmp(pszName, pszSymbol, cchSymbol) == 0)
+            {
+                if (ppvSymbol)
+                {
+                    iExportOrdinal = pau16NameOrdinals[i];
+                    if (   iExportOrdinal < cExports
+                        && paoffExports[iExportOrdinal] < cbMapping)
+                    {
+                        *ppvSymbol = (void *)(paoffExports[iExportOrdinal] + pbMapping);
+                        return VINF_SUCCESS;
+                    }
+                }
+                else if (pau16NameOrdinals[i] == iExportOrdinal)
+                    return VINF_SUCCESS;
+                else
+                    SUPR0Printf("SUPDrv: Different exports found for %s and rva %#x in %s: %#x vs %#x\n",
+                                pszSymbol, uRvaToValidate, pImage->szName, pau16NameOrdinals[i], iExportOrdinal);
+                return VERR_LDR_BAD_FIXUP;
+            }
+        }
+        if (!ppvSymbol)
+            SUPR0Printf("SUPDrv: No export named %s (%#x) in %s!\n", pszSymbol, uRvaToValidate, pImage->szName);
+        return VERR_SYMBOL_NOT_FOUND;
+    }
     return VINF_SUCCESS;
+}
+
+
+int  VBOXCALL   supdrvOSLdrValidatePointer(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, void *pv,
+                                           const uint8_t *pbImageBits, const char *pszSymbol)
+{
+    RT_NOREF(pDevExt, pbImageBits);
+    return supdrvOSLdrValidatePointerOrQuerySymbol(pImage, pv, pszSymbol, pszSymbol ? strlen(pszSymbol) : 0, NULL);
+}
+
+
+int  VBOXCALL   supdrvOSLdrQuerySymbol(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage,
+                                       const char *pszSymbol, size_t cchSymbol, void **ppvSymbol)
+{
+    RT_NOREF(pDevExt);
+    AssertReturn(ppvSymbol, VERR_INVALID_PARAMETER);
+    AssertReturn(pszSymbol, VERR_INVALID_PARAMETER);
+    return supdrvOSLdrValidatePointerOrQuerySymbol(pImage, NULL, pszSymbol, cchSymbol, ppvSymbol);
 }
 
 
@@ -2144,8 +2318,7 @@ int  VBOXCALL   supdrvOSLdrLoad(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, c
 
         /*
          * On Windows 10 the ImageBase member of the optional header is sometimes
-         * updated with the actual load address and sometimes not.  Try compare
-         *
+         * updated with the actual load address and sometimes not.
          */
         uint32_t const  offNtHdrs = *(uint16_t *)pbImageBits == IMAGE_DOS_SIGNATURE
                                   ? ((IMAGE_DOS_HEADER const *)pbImageBits)->e_lfanew

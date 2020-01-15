@@ -16,7 +16,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
 
-    <?include Properties.wxi ?>
+    <?include Defines.wxi ?>
 
     <Module Id="msm_VBoxUSB"
             Language="!(loc.LANG)"
@@ -33,6 +33,7 @@
                  Platform="$(var.Property_Platform)"
                  SummaryCodepage="1252"/>
 
+        <?include CommonProperties.wxi ?>
         <?include PublicProperties.wxi ?>
 
         <!-- Here comes the file/directory list -->

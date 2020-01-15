@@ -13,7 +13,7 @@ void PACK_APIENTRY crPackPolygonStipple( const GLubyte *mask )
 {
     CR_GET_PACKER_CONTEXT(pc);
     unsigned char *data_ptr;
-    int nodata = crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int nodata = crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
     int packet_length = sizeof(int);
 
     if (nodata)

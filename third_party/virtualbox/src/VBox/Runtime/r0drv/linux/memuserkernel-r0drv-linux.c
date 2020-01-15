@@ -66,7 +66,11 @@ RT_EXPORT_SYMBOL(RTR0MemUserCopyTo);
 RTR0DECL(bool) RTR0MemUserIsValidAddr(RTR3PTR R3Ptr)
 {
     IPRT_LINUX_SAVE_EFL_AC();
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0) || defined(RHEL_81)
+    bool fRc = access_ok((void *)R3Ptr, 1);
+#else
     bool fRc = access_ok(VERIFY_READ, (void *)R3Ptr, 1);
+#endif
     IPRT_LINUX_RESTORE_EFL_AC();
     return fRc;
 }
@@ -82,7 +86,11 @@ RTR0DECL(bool) RTR0MemKernelIsValidAddr(void *pv)
     return (uintptr_t)pv >= PAGE_OFFSET;
 #else
 # error "PORT ME"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0) || defined(RHEL_81)
+    return !access_ok(pv, 1);
+#else
     return !access_ok(VERIFY_READ, pv, 1);
+#endif /* LINUX_VERSION_CODE */
 #endif
 }
 RT_EXPORT_SYMBOL(RTR0MemKernelIsValidAddr);

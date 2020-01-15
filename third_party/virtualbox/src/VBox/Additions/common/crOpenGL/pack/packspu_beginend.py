@@ -35,7 +35,7 @@ void PACKSPU_APIENTRY packspu_Begin( GLenum mode )
     {
         GLboolean serverArrays = GL_FALSE;
         if (ctx->clientState->extensions.ARB_vertex_buffer_object)
-            serverArrays = crStateUseServerArrays();
+            serverArrays = crStateUseServerArrays(&pack_spu.StateTracker);
         if (serverArrays) {
             CRClientState *clientState = &(ctx->clientState->client);
             if (clientState->array.locked && !clientState->array.synced)
@@ -47,15 +47,7 @@ void PACKSPU_APIENTRY packspu_Begin( GLenum mode )
     }
 #endif
 
-    if (pack_spu.swap)
-    {
-        crPackBeginSWAP( mode );
-    }
-    else
-    {
-        crPackBegin( mode );
-    }
-
+    crPackBegin( mode );
     if ( thread->netServer.conn->Barf ) {
         thread->BeginEndMode = mode;
         thread->BeginEndState = -1;
@@ -98,14 +90,7 @@ void PACKSPU_APIENTRY packspu_End( void )
         buf->pack = NULL;
     }
 
-    if (pack_spu.swap)
-    {
-        crPackEndSWAP();
-    }
-    else
-    {
-        crPackEnd();
-    }
+    crPackEnd();
 }
 
 static void DoVertex( void )
@@ -165,13 +150,6 @@ for func_name in apiutil.AllSpecials( "packspu_vertex" ):
     params = apiutil.Parameters(func_name)
     print('void PACKSPU_APIENTRY packspu_%s(%s)' % ( func_name, apiutil.MakeDeclarationString(params) ))
     print('{')
-    print('\tif (pack_spu.swap)')
-    print('\t{')
-    print('\t\tcrPack%sSWAP(%s);' % ( func_name, apiutil.MakeCallString( params ) ))
-    print('\t}')
-    print('\telse')
-    print('\t{')
-    print('\t\tcrPack%s(%s);' % ( func_name, apiutil.MakeCallString( params ) ))
-    print('\t}')
+    print('\tcrPack%s(%s);' % ( func_name, apiutil.MakeCallString( params ) ))
     print('\tRunState();')
     print('}')

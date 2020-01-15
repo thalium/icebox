@@ -43,13 +43,13 @@ print("""
 #include "state.h"
 #include "state/cr_statetypes.h"
 
-GLboolean STATE_APIENTRY crStateIsEnabled( GLenum pname )
+GLboolean STATE_APIENTRY crStateIsEnabled(PCRStateTracker pState, GLenum pname )
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 
 	if (g->current.inBeginEnd)
 	{
-		crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glGet called in Begin/End");
+		crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glGet called in Begin/End");
 		return 0;
 	}
 
@@ -69,7 +69,7 @@ for pname in sorted(extended_params.keys()):
 	print("\t\treturn %s;" % extended_params[pname][2][0])
 	print('#endif /* CR_%s */' % ext)
 print("\tdefault:")
-print("\t\tcrStateError(__LINE__, __FILE__, GL_INVALID_ENUM, \"glIsEnabled: Unknown enum: %d\", pname);")
+print("\t\tcrStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, \"glIsEnabled: Unknown enum: %d\", pname);")
 print("\t\treturn 0;")
 print("\t}")
 print("}")

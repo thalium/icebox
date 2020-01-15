@@ -51,13 +51,7 @@
 # define CR_NEWWINTRACK
 #endif
 
-#if !defined(CHROMIUM_THREADSAFE) && defined(CR_NEWWINTRACK)
-# error CHROMIUM_THREADSAFE have to be defined
-#endif
-
-#ifdef CHROMIUM_THREADSAFE
-# include <cr_threads.h>
-#endif
+#include <cr_threads.h>
 
 #if 0 && defined(CR_NEWWINTRACK) && !defined(WINDOWS)
 #define XLOCK(dpy) XLockDisplay(dpy)
@@ -118,9 +112,7 @@ struct context_info_t
     struct VBOXUHGSMI *pHgsmi;
 #endif
 
-#ifdef CHROMIUM_THREADSAFE
     VBOXTLSREFDATA
-#endif
 
 #ifdef WINDOWS
     HGLRC hglrc;
@@ -222,19 +214,14 @@ typedef struct {
 
     /* thread safety stuff */
     GLboolean threadSafe;
-#ifdef CHROMIUM_THREADSAFE
     CRtsd dispatchTSD;
     CRmutex mutex;
-#endif
 
     CRpid mothershipPID;
 
     /* contexts */
     int freeContextNumber;
     CRHashTable *contextTable;
-#ifndef CHROMIUM_THREADSAFE
-    ContextInfo *currentContext; /* may be NULL */
-#endif
 
     /* windows */
     CRHashTable *windowTable;
@@ -267,7 +254,6 @@ typedef struct {
 
 } Stub;
 
-#ifdef CHROMIUM_THREADSAFE
 /* we place the g_stubCurrentContextTLS outside the Stub data because Stub data is inited by the client's call,
  * while we need g_stubCurrentContextTLS the g_stubCurrentContextTLS to be valid at any time to be able to handle
  * THREAD_DETACH cleanup on windows.
@@ -288,10 +274,6 @@ DECLINLINE(ContextInfo*) stubGetCurrentContext(void)
     return ctx;
 }
 # define stubSetCurrentContext(_ctx) VBoxTlsRefSetCurrent(ContextInfo, &g_stubCurrentContextTSD, _ctx)
-#else
-# define stubGetCurrentContext() (stub.currentContext)
-# define stubSetCurrentContext(_ctx) do { stub.currentContext = (_ctx); } while (0)
-#endif
 
 extern Stub stub;
 

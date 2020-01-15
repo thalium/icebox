@@ -32,12 +32,27 @@ for func_name in keys:
 		print('{')
 		print('\tfeedback_spu.super.%s(%s);' % ( func_name, apiutil.MakeCallString(params) ))
 		print('}')
+		print('')
+		print('static %s FEEDBACKSPU_APIENTRY feedbackspu_FeedbackWrap%s(%s)' % ( return_type, func_name, apiutil.MakeDeclarationString(params) ))
+		print('{')
+		if len(params) == 0:
+			print('\tcrStateFeedback%s(&feedback_spu.StateTracker);' % ( func_name, ))
+		else:
+			print('\tcrStateFeedback%s(&feedback_spu.StateTracker, %s);' % ( func_name, apiutil.MakeCallString(params) ))
+		print('}')
+	if apiutil.FindSpecial( "select", func_name ):
+		print('static %s FEEDBACKSPU_APIENTRY feedbackspu_SelectWrap%s(%s)' % ( return_type, func_name, apiutil.MakeDeclarationString(params) ))
+		print('{')
+		if len(params) == 0:
+			print('\tcrStateSelect%s(&feedback_spu.StateTracker);' % ( func_name, ))
+		else:
+			print('\tcrStateSelect%s(&feedback_spu.StateTracker, %s);' % ( func_name, apiutil.MakeCallString(params) ))
+		print('}')
 
 
 
 print("""
 #define CHANGE(name, func) crSPUChangeInterface((void *)&(feedback_spu.self), (void *)feedback_spu.self.name, (void *)((SPUGenericFunction) func))
-#define CHANGESWAP(name, swapfunc, regfunc) crSPUChangeInterface( (void *)&(feedback_spu.self), (void *)feedback_spu.self.name, (void *)((SPUGenericFunction) (feedback_spu.swap ? swapfunc: regfunc )))
 
 static void __loadFeedbackAPI( void )
 {
@@ -46,7 +61,7 @@ for func_name in keys:
 	return_type = apiutil.ReturnType(func_name)
 	params = apiutil.Parameters(func_name)
 	if apiutil.FindSpecial( "feedback", func_name ):
-		print('\tCHANGE(%s, crStateFeedback%s);' % (func_name, func_name ))
+		print('\tCHANGE(%s, feedbackspu_FeedbackWrap%s);' % (func_name, func_name ))
 print("""
 }
 
@@ -55,7 +70,7 @@ static void __loadSelectAPI( void )
 """)
 for func_name in keys:
 	if apiutil.FindSpecial( "select", func_name ):
-		print('\tCHANGE(%s, crStateSelect%s);' % (func_name, func_name ))
+		print('\tCHANGE(%s, feedbackspu_SelectWrap%s);' % (func_name, func_name ))
 	elif apiutil.FindSpecial( "feedback", func_name ):
 		print('\tCHANGE(%s, feedbackspu_%s);' % (func_name, func_name ))
 print("""
@@ -93,18 +108,18 @@ static GLint FEEDBACKSPU_APIENTRY feedbackspu_RenderMode ( GLenum mode )
 			break;
 	}
 
-	return crStateRenderMode( mode );
+	return crStateRenderMode(&feedback_spu.StateTracker, mode );
 }
 
 static void FEEDBACKSPU_APIENTRY feedbackspu_Begin ( GLenum mode )
 {
 	if (feedback_spu.render_mode == GL_FEEDBACK)
-		crStateFeedbackBegin( mode );
+		crStateFeedbackBegin(&feedback_spu.StateTracker, mode );
 	else if (feedback_spu.render_mode == GL_SELECT)
-		crStateSelectBegin( mode );
+		crStateSelectBegin(&feedback_spu.StateTracker, mode );
 	else
 	{
-		crStateBegin( mode );
+		crStateBegin(&feedback_spu.StateTracker, mode );
 		feedback_spu.super.Begin( mode );
 	}
 }
@@ -112,24 +127,24 @@ static void FEEDBACKSPU_APIENTRY feedbackspu_Begin ( GLenum mode )
 static void FEEDBACKSPU_APIENTRY feedbackspu_End ( void )
 {
 	if (feedback_spu.render_mode == GL_FEEDBACK)
-		crStateFeedbackEnd( );
+		crStateFeedbackEnd(&feedback_spu.StateTracker);
 	else if (feedback_spu.render_mode == GL_SELECT)
-		crStateSelectEnd( );
+		crStateSelectEnd(&feedback_spu.StateTracker);
 	else
 	{
-		crStateEnd( );
+		crStateEnd(&feedback_spu.StateTracker);
 		feedback_spu.super.End( );
 	}
 }
 
 static void FEEDBACKSPU_APIENTRY feedbackspu_Bitmap ( GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap )
 {
-	crStateBitmap( width, height, xorig, yorig, xmove, ymove, bitmap );
+	crStateBitmap(&feedback_spu.StateTracker, width, height, xorig, yorig, xmove, ymove, bitmap );
 
 	if (feedback_spu.render_mode == GL_FEEDBACK)
-		crStateFeedbackBitmap( width, height, xorig, yorig, xmove, ymove, bitmap );
+		crStateFeedbackBitmap(&feedback_spu.StateTracker, width, height, xorig, yorig, xmove, ymove, bitmap );
 	else if (feedback_spu.render_mode == GL_SELECT)
-		crStateSelectBitmap( width, height, xorig, yorig, xmove, ymove, bitmap );
+		crStateSelectBitmap(&feedback_spu.StateTracker, width, height, xorig, yorig, xmove, ymove, bitmap );
 	else
 		feedback_spu.super.Bitmap( width, height, xorig, yorig, xmove, ymove, bitmap );
 }
@@ -137,9 +152,9 @@ static void FEEDBACKSPU_APIENTRY feedbackspu_Bitmap ( GLsizei width, GLsizei hei
 static void FEEDBACKSPU_APIENTRY feedbackspu_CopyPixels( GLint x, GLint y, GLsizei width, GLsizei height, GLenum type )
 {
 	if (feedback_spu.render_mode == GL_FEEDBACK)
-		crStateFeedbackCopyPixels( x, y, width, height, type );
+		crStateFeedbackCopyPixels(&feedback_spu.StateTracker, x, y, width, height, type );
 	else if (feedback_spu.render_mode == GL_SELECT)
-		crStateSelectCopyPixels( x, y, width, height, type );
+		crStateSelectCopyPixels(&feedback_spu.StateTracker, x, y, width, height, type );
 	else
 		feedback_spu.super.CopyPixels( x, y, width, height, type );
 }
@@ -147,9 +162,9 @@ static void FEEDBACKSPU_APIENTRY feedbackspu_CopyPixels( GLint x, GLint y, GLsiz
 static void FEEDBACKSPU_APIENTRY feedbackspu_DrawPixels( GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels )
 {
 	if (feedback_spu.render_mode == GL_FEEDBACK)
-		crStateFeedbackDrawPixels( width, height, format, type, pixels );
+		crStateFeedbackDrawPixels(&feedback_spu.StateTracker, width, height, format, type, pixels );
 	else if (feedback_spu.render_mode == GL_SELECT)
-		crStateSelectDrawPixels( width, height, format, type, pixels );
+		crStateSelectDrawPixels(&feedback_spu.StateTracker, width, height, format, type, pixels );
 	else
 		feedback_spu.super.DrawPixels( width, height, format, type, pixels );
 }
@@ -160,10 +175,10 @@ static void FEEDBACKSPU_APIENTRY feedbackspu_GetBooleanv( GLenum pname, GLboolea
 	if (pname == GL_FEEDBACK_BUFFER_SIZE ||
 	    pname == GL_FEEDBACK_BUFFER_TYPE ||
 	    pname == GL_SELECTION_BUFFER_SIZE)
-		crStateFeedbackGetBooleanv( pname, params );
+		crStateFeedbackGetBooleanv(&feedback_spu.StateTracker, pname, params );
 	else
 	if (pname == GL_VIEWPORT && feedback_spu.default_viewport)
-		crStateGetBooleanv( pname, params );
+		crStateGetBooleanv(&feedback_spu.StateTracker, pname, params );
 	else
 		feedback_spu.super.GetBooleanv( pname, params );
 }
@@ -174,10 +189,10 @@ static void FEEDBACKSPU_APIENTRY feedbackspu_GetDoublev( GLenum pname, GLdouble 
 	if (pname == GL_FEEDBACK_BUFFER_SIZE ||
 	    pname == GL_FEEDBACK_BUFFER_TYPE ||
 	    pname == GL_SELECTION_BUFFER_SIZE)
-		crStateFeedbackGetDoublev( pname, params );
+		crStateFeedbackGetDoublev(&feedback_spu.StateTracker, pname, params );
 	else
 	if (pname == GL_VIEWPORT && feedback_spu.default_viewport)
-		crStateGetDoublev( pname, params );
+		crStateGetDoublev(&feedback_spu.StateTracker, pname, params );
 	else
 		feedback_spu.super.GetDoublev( pname, params );
 }
@@ -188,10 +203,10 @@ static void FEEDBACKSPU_APIENTRY feedbackspu_GetFloatv( GLenum pname, GLfloat *p
 	if (pname == GL_FEEDBACK_BUFFER_SIZE ||
 	    pname == GL_FEEDBACK_BUFFER_TYPE ||
 	    pname == GL_SELECTION_BUFFER_SIZE)
-		crStateFeedbackGetFloatv( pname, params );
+		crStateFeedbackGetFloatv(&feedback_spu.StateTracker, pname, params );
 	else
 	if (pname == GL_VIEWPORT && feedback_spu.default_viewport)
-		crStateGetFloatv( pname, params );
+		crStateGetFloatv(&feedback_spu.StateTracker, pname, params );
 	else
 		feedback_spu.super.GetFloatv( pname, params );
 }
@@ -202,10 +217,10 @@ static void FEEDBACKSPU_APIENTRY feedbackspu_GetIntegerv( GLenum pname, GLint *p
 	if (pname == GL_FEEDBACK_BUFFER_SIZE ||
 	    pname == GL_FEEDBACK_BUFFER_TYPE ||
 	    pname == GL_SELECTION_BUFFER_SIZE)
-		crStateFeedbackGetIntegerv( pname, params );
+		crStateFeedbackGetIntegerv(&feedback_spu.StateTracker, pname, params );
 	else
 	if (pname == GL_VIEWPORT && feedback_spu.default_viewport)
-		crStateGetIntegerv( pname, params );
+		crStateGetIntegerv(&feedback_spu.StateTracker, pname, params );
 	else
 		feedback_spu.super.GetIntegerv( pname, params );
 }

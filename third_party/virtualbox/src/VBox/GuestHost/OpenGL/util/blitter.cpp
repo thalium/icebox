@@ -33,7 +33,6 @@ DECLINLINE(void) crWarning(const char *format, ... ) {}
 # include "chromium.h"
 # include "cr_error.h"
 # include "cr_net.h"
-# include "cr_rand.h"
 # include "cr_mem.h"
 # include "cr_string.h"
 # include "cr_bmpscale.h"
@@ -767,10 +766,10 @@ static DECLCALLBACK(int) crBltBlitTexBufImplDraw2D(PCR_BLITTER pBlitter, const V
         crBltVtRectsTFNormalized(paSrcRect, cRects, normalX, normalY, pTexCoords, srcHeight);
 
         pBlitter->pDispatch->EnableClientState(GL_VERTEX_ARRAY);
-        pBlitter->pDispatch->VertexPointer(2, GL_FLOAT, 0, pVerticies);
+        pBlitter->pDispatch->VertexPointer(2, GL_FLOAT, 0, pVerticies CRVBOX_HOST_ONLY_PARAM(1 /*fRealPtr*/));
 
         pBlitter->pDispatch->EnableClientState(GL_TEXTURE_COORD_ARRAY);
-        pBlitter->pDispatch->TexCoordPointer(2, GL_FLOAT, 0, pTexCoords);
+        pBlitter->pDispatch->TexCoordPointer(2, GL_FLOAT, 0, pTexCoords CRVBOX_HOST_ONLY_PARAM(1 /*fRealPtr*/));
 
         pBlitter->pDispatch->Enable(pSrc->target);
 
@@ -795,10 +794,10 @@ static DECLCALLBACK(int) crBltBlitTexBufImplDraw2D(PCR_BLITTER pBlitter, const V
         crBltVtRectsITNormalized(paSrcRect, cRects, normalX, normalY, pTexCoords, NULL, NULL, srcHeight);
 
         pBlitter->pDispatch->EnableClientState(GL_VERTEX_ARRAY);
-        pBlitter->pDispatch->VertexPointer(2, GL_FLOAT, 0, pVerticies);
+        pBlitter->pDispatch->VertexPointer(2, GL_FLOAT, 0, pVerticies CRVBOX_HOST_ONLY_PARAM(1 /*fRealPtr*/));
 
         pBlitter->pDispatch->EnableClientState(GL_TEXTURE_COORD_ARRAY);
-        pBlitter->pDispatch->TexCoordPointer(2, GL_FLOAT, 0, pTexCoords);
+        pBlitter->pDispatch->TexCoordPointer(2, GL_FLOAT, 0, pTexCoords CRVBOX_HOST_ONLY_PARAM(1 /*fRealPtr*/));
 
         pBlitter->pDispatch->Enable(pSrc->target);
 

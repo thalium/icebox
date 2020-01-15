@@ -307,7 +307,7 @@ crPackExpandArrayElement(GLint index, CRClientState *c, const GLfloat *pZva)
     unsigned char *p;
     unsigned int unit, attr;
     const CRVertexArrays *array = &(c->array);
-    const GLboolean vpEnabled = crStateGetCurrent()->program.vpEnabled;
+    const GLboolean vpEnabled = crStateGetCurrent(g_pStateTracker)->program.vpEnabled;
 
     /*crDebug("crPackExpandArrayElement(%i)", index);*/
 
@@ -668,7 +668,7 @@ crPackDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indice
     int packet_length = sizeof(int) + sizeof(mode) + sizeof(count) + sizeof(type) + sizeof(GLuint);
     GLsizei indexsize;
 #ifdef CR_ARB_vertex_buffer_object
-    CRBufferObject *elementsBuffer = crStateGetCurrent()->bufferobject.elementsBuffer;
+    CRBufferObject *elementsBuffer = crStateGetCurrent(g_pStateTracker)->bufferobject.elementsBuffer;
     packet_length += sizeof(GLint);
     if (elementsBuffer && elementsBuffer->id)
     {
@@ -707,7 +707,7 @@ crPackDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indice
 
 void PACK_APIENTRY
 crPackDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count,
-                                                GLenum type, const GLvoid *indices)
+                        GLenum type, const GLvoid *indices)
 {
     unsigned char *data_ptr, *start_ptr;
     int packet_length = sizeof(int) + sizeof(mode) + sizeof(start)
@@ -715,7 +715,7 @@ crPackDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count,
     GLsizei indexsize;
 
 #ifdef CR_ARB_vertex_buffer_object
-    CRBufferObject *elementsBuffer = crStateGetCurrent()->bufferobject.elementsBuffer;
+    CRBufferObject *elementsBuffer = crStateGetCurrent(g_pStateTracker)->bufferobject.elementsBuffer;
     packet_length += sizeof(GLint);
     if (elementsBuffer && elementsBuffer->id)
     {
@@ -761,12 +761,12 @@ crPackDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count,
  */
 void
 crPackExpandDrawElements(GLenum mode, GLsizei count, GLenum type,
-                                                 const GLvoid *indices, CRClientState *c, const GLfloat *pZva)
+                         const GLvoid *indices, CRClientState *c, const GLfloat *pZva)
 {
     int i;
     GLubyte *p = (GLubyte *)indices;
 #ifdef CR_ARB_vertex_buffer_object
-    CRBufferObject *elementsBuffer = crStateGetCurrent()->bufferobject.elementsBuffer;
+    CRBufferObject *elementsBuffer = crStateGetCurrent(g_pStateTracker)->bufferobject.elementsBuffer;
 #endif
 
     if (count < 0)
@@ -1064,7 +1064,7 @@ static void crPackLockClientPointer(GLint first, GLint count, unsigned char **pp
 
 void PACK_APIENTRY crPackLockArraysEXT(GLint first, GLint count)
 {
-    CRContext *g = crStateGetCurrent();
+    CRContext *g = crStateGetCurrent(g_pStateTracker);
     CRClientState *c = &g->client;
     unsigned char *data_ptr, *start_ptr;
     int packet_length = sizeof(int); /*extopcode*/

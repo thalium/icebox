@@ -53,12 +53,17 @@ if !defined(VBOX_ONLY_DOCS)
  bldRTManifest_TEMPLATE = VBoxAdvBldProg
  bldRTManifest_SOURCES  = RTManifest.cpp
 
- # RTSignTool - Signing utility - build version.  Signed on windows so we can get the certificate from it.
- BLDPROGS += bldRTSignTool
- bldRTSignTool_TEMPLATE = VBoxAdvBldProg
- bldRTSignTool_SOURCES = RTSignTool.cpp
- bldRTSignTool_DEFS = IPRT_IN_BUILD_TOOL
- bldRTSignTool_POST_CMDS.win = $(VBOX_SIGN_IMAGE_CMDS)
+ if !defined(VBOX_ONLY_EXTPACKS) || "$(KBUILD_TARGET)" == "win"
+  # RTSignTool - Signing utility - build version.  Signed on windows so we can get the certificate from it.
+  BLDPROGS += bldRTSignTool
+  bldRTSignTool_TEMPLATE = VBoxAdvBldProg
+  bldRTSignTool_SOURCES = RTSignTool.cpp
+  bldRTSignTool_DEFS = IPRT_IN_BUILD_TOOL
+  bldRTSignTool_POST_CMDS.win = $(VBOX_SIGN_IMAGE_CMDS)
+  if defined(VBOX_WITH_DARWIN_R0_DARWIN_IMAGE_VERIFICATION) && defined(VBOX_SIGNING_MODE)
+   bldRTSignTool_POST_CMDS.darwin = $(call VBOX_SIGN_MACHO_FN,$(out),org.virtualbox.org.bldtool.$(target))
+  endif
+ endif
 
 endif
 

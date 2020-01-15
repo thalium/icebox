@@ -13,7 +13,7 @@
         <location line="+11"/>
         <source>--</source>
         <comment>Native language country name (empty if this language is for all countries)</comment>
-        <translation></translation>
+        <translation type="unfinished">--</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -25,7 +25,7 @@
         <location line="+11"/>
         <source>--</source>
         <comment>Language country name, in English (empty if native country name is empty)</comment>
-        <translation></translation>
+        <translation type="unfinished">--</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -37,7 +37,7 @@
 <context>
     <name>QApplication</name>
     <message>
-        <location filename="../src/main.cpp" line="+446"/>
+        <location filename="../src/main.cpp" line="+449"/>
         <source>Executable &lt;b&gt;%1&lt;/b&gt; requires Qt %2.x, found Qt %3.</source>
         <translation>Exekutagarria &lt;b&gt;%1&lt;/b&gt; behar du Qt %2.x, aurkituta Qt %3.</translation>
     </message>
@@ -67,13 +67,13 @@
         <translation>Zihurtu kernel moduloa ongi gertatu dela.</translation>
     </message>
     <message>
-        <location line="-24"/>
-        <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.</source>
+        <location line="-27"/>
+        <source>The VirtualBox Linux kernel driver is either not loaded or not set up correctly. Please try setting it up again by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root.&lt;br/&gt;&lt;br/&gt;If your system has EFI Secure Boot enabled you may also need to sign the kernel modules (vboxdrv, vboxnetflt, vboxnetadp, vboxpci) before you can load them. Please see your Linux system&apos;s documentation for more information.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+15"/>
-        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you do not mix the OSE version and the PUEL version of VirtualBox.</source>
+        <location line="+18"/>
+        <source>The VirtualBox kernel modules do not match this version of VirtualBox. The installation of VirtualBox was apparently not successful. Executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/vboxconfig&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;may correct this. Make sure that you are not mixing builds of VirtualBox from different sources.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -106,7 +106,7 @@
         <translation type="vanished">VirtualBox kernel moduloak ez datoz bat VirtualBox bertsio honekin. VirtualBox-en ezarpena dirudienez ez da ongi egin. &lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/rcvboxdrv setup&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt; exekutatzeak hau zuzendu dezake. Zihurtatu ez dituzula VirtualBox-en OSE bertsioa eta PUEL bertsioa nahastu.</translation>
     </message>
     <message>
-        <location line="-13"/>
+        <location line="-16"/>
         <source>This error means that the kernel driver was either not able to allocate enough memory or that some mapping operation failed.</source>
         <translation>Akats honek esanahi dut kernel gidatzailea ez dela gauza nahikoa oroimen esleitzeko edo mapaketa eragiketaren batek huts egin duela.</translation>
     </message>
@@ -269,6 +269,18 @@
 </context>
 <context>
     <name>SFTreeViewItem</name>
+    <message>
+        <source>Full</source>
+        <translation type="obsolete">Osoa</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="obsolete">Irakurri-bakarrik</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="obsolete">Bai</translation>
+    </message>
     <message>
         <location filename="../src/settings/machine/UIMachineSettingsSF.cpp" line="+182"/>
         <source>%1, %2: %3, %4: %5, %6: %7</source>
@@ -958,6 +970,34 @@
         <translation>Erakutsi ezarpen orokorren leihoa</translation>
     </message>
     <message>
+        <source>&amp;Find</source>
+        <translation type="obsolete">&amp;Bilatu</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">B&amp;erritu</translation>
+    </message>
+    <message>
+        <source>&amp;Save...</source>
+        <translation type="obsolete">&amp;Gorde...</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation type="obsolete">Gonbidatua</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">Ezabatu</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">Berrizendatu</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="obsolete">Kopiatu</translation>
+    </message>
+    <message>
         <source>Show Network Operations Manager</source>
         <translation type="obsolete">Erakutsi Sare Eragiketa Kudeatzailea</translation>
     </message>
@@ -1073,6 +1113,10 @@
         <translation>&amp;Multimedia Birtual Kudeatzailea...</translation>
     </message>
     <message>
+        <source>Export</source>
+        <translation type="obsolete">Esportatu</translation>
+    </message>
+    <message>
         <source>Display the Virtual Media Manager dialog</source>
         <translation type="obsolete">Erakutsi Multimedia Birtual Kudeatzaile elkarrizketa</translation>
     </message>
@@ -1085,6 +1129,10 @@
         <location line="+1"/>
         <source>Display the Host Network Manager window</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">Inportatu</translation>
     </message>
     <message>
         <location line="+27"/>
@@ -1232,6 +1280,34 @@
         <location line="+1"/>
         <source>Create shortcut files to the VirtualBox Machine Definition files on your desktop</source>
         <translation>VirtualBox Makina Adiera agiriaren lasterbide agiri bat sortzen du zure mahaigainean</translation>
+    </message>
+    <message>
+        <source>Take a snapshot of the current virtual machine state</source>
+        <translation type="obsolete">Hautu oraingo makina birtualaren egoera berehalako bat</translation>
+    </message>
+    <message>
+        <source>Delete selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Ezabatu hautaturiko makina birtualaren berehalakoa</translation>
+    </message>
+    <message>
+        <source>Restore selected snapshot of the virtual machine</source>
+        <translation type="obsolete">Leheneratu hautaturiko makina birtualaren berehalakoa</translation>
+    </message>
+    <message>
+        <source>&amp;Clone...</source>
+        <translation type="obsolete">&amp;Klonatu...</translation>
+    </message>
+    <message>
+        <source>&amp;Copy...</source>
+        <translation type="obsolete">K&amp;opiatu...</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Berritu diska irudi agiri zerrenda</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Kendu</translation>
     </message>
     <message>
         <location line="+24"/>
@@ -1709,6 +1785,10 @@
         <source>No supported webcams connected to the host PC</source>
         <translation>Ez dago sostengaturiko webkamerarik hostalari PC-ra elkarturik</translation>
     </message>
+    <message>
+        <source>Settings</source>
+        <translation type="obsolete">Ezarpenak</translation>
+    </message>
 </context>
 <context>
     <name>UIAddDiskEncryptionPasswordDialog</name>
@@ -2035,6 +2115,109 @@
     </message>
 </context>
 <context>
+    <name>UIChooserItemGroup</name>
+    <message>
+        <source>Enter group</source>
+        <translation type="obsolete">Sartu taldera</translation>
+    </message>
+    <message>
+        <source>Exit group</source>
+        <translation type="obsolete">Atera taldetik</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt;</source>
+        <comment>Group item tool-tip / Group name</comment>
+        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n group(s)</source>
+        <comment>Group item tool-tip / Group info</comment>
+        <translation type="obsolete">
+            <numerusform>%n talde</numerusform>
+            <numerusform>%n talde</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Group info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n machine(s)</source>
+        <comment>Group item tool-tip / Machine info</comment>
+        <translation type="obsolete">
+            <numerusform>%n makina</numerusform>
+            <numerusform>%n makina</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n running)</source>
+        <comment>Group item tool-tip / Running machine info</comment>
+        <translation type="obsolete">
+            <numerusform>(%n ekinean)</numerusform>
+            <numerusform>(%n ekinean)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;%1 %2&lt;/nobr&gt;</source>
+        <comment>Group item tool-tip / Machine info wrapper, including running</comment>
+        <translation type="obsolete">&lt;nobr&gt;%1 %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>Collapse group</source>
+        <translation type="obsolete">Bildu taldea</translation>
+    </message>
+    <message>
+        <source>Expand group</source>
+        <translation type="obsolete">Hedatu taldea</translation>
+    </message>
+</context>
+<context>
+    <name>UIChooserModel</name>
+    <message>
+        <source>New group</source>
+        <translation type="obsolete">Talde berria</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileDetailsWidget</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">Berrezarri</translation>
+    </message>
+</context>
+<context>
+    <name>UICloudProfileManager</name>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">Berrezarri</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Itxi</translation>
+    </message>
+</context>
+<context>
+    <name>UICustomFileSystemModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Izena</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Neurria</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="obsolete">Helburua</translation>
+    </message>
+</context>
+<context>
     <name>UIDescriptionPagePrivate</name>
     <message>
         <source>No description. Press the Edit button below to add it.</source>
@@ -2047,6 +2230,368 @@
     <message>
         <source>Edit (Ctrl+E)</source>
         <translation type="obsolete">Editatu (Ctrl+E)</translation>
+    </message>
+</context>
+<context>
+    <name>UIDetails</name>
+    <message>
+        <source>Name</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Izena</translation>
+    </message>
+    <message>
+        <source>Operating System</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Sistema Eragilea</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <comment>details (general)</comment>
+        <translation type="obsolete">Taldeak</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1 MB</translation>
+    </message>
+    <message>
+        <source>Base Memory</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Ohinarri Oroimena</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Prozesagailuak</translation>
+    </message>
+    <message>
+        <source>%1%</source>
+        <comment>details</comment>
+        <translation type="obsolete">%1%</translation>
+    </message>
+    <message>
+        <source>Execution Cap</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Exekuzio Muga</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Abiarazpen Hurrenkera</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Bizkorpena</translation>
+    </message>
+    <message>
+        <source>Video Memory</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Bideo Oroimena</translation>
+    </message>
+    <message>
+        <source>Screens</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Ikusleihoak</translation>
+    </message>
+    <message>
+        <source>Scale-factor</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Eskala-ezaugarria</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">Bizkorpena</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server Port</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">Hurruneko Mahaigain Zerbitzari Ataka</translation>
+    </message>
+    <message>
+        <source>Remote Desktop Server</source>
+        <comment>details (display/vrde)</comment>
+        <translation type="obsolete">Hurruneko Mahaigain Zerbitzaria</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/vrde/VRDE server)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/recording)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">Erantsi gabe</translation>
+    </message>
+    <message>
+        <source>Host Driver</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Hostalari Gidagailua</translation>
+    </message>
+    <message>
+        <source>Controller</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Kontrolatzailea</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Egokitzailea %1</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (network/adapter)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Port %1</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">Ataka %1</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (serial)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>USB Controller</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">USB Kontrolatzailea</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">Gailu Iragazkiak</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Shared Folders</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">Elkarbanatutako Agiritegiak</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (shared folders)</comment>
+        <translation type="obsolete">Ezer ez</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (system/EFI)</comment>
+        <translation type="obsolete">Gaituta</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (system/EFI)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>VT-x/AMD-V</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">VT-x/AMD-V</translation>
+    </message>
+    <message>
+        <source>Nested Paging</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Nested Orrialdeztapena</translation>
+    </message>
+    <message>
+        <source>PAE/NX</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">PAE/NX</translation>
+    </message>
+    <message>
+        <source>Minimal Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Parabirtualizazio Txikiena</translation>
+    </message>
+    <message>
+        <source>Hyper-V Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">Hyper-V Parabirtualizazioa</translation>
+    </message>
+    <message>
+        <source>KVM Paravirtualization</source>
+        <comment>details (system)</comment>
+        <translation type="obsolete">KVM Parabirtualizazioa</translation>
+    </message>
+    <message>
+        <source>2D Video</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">2D Bideoa</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <comment>details (display)</comment>
+        <translation type="obsolete">3D</translation>
+    </message>
+    <message>
+        <source>Frame Size: %1x%2, Frame Rate: %3fps, Bit Rate: %4kbps</source>
+        <translation type="obsolete">Frame Neurria: %1x%2, Frame Maila: %3fps-ko, Bit Maila: %4kbs-ko</translation>
+    </message>
+    <message>
+        <source>[Optical Drive]</source>
+        <comment>details (storage)</comment>
+        <translation type="obsolete">[Diska Optikoa]</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/output)</comment>
+        <translation type="obsolete">Gaituta</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio/output)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (audio/input)</comment>
+        <translation type="obsolete">Gaituta</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (audio/input)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Bridged Adapter, %1</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Zubi egokitzailea, %1</translation>
+    </message>
+    <message>
+        <source>Internal Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Barneko sarea, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Host-only Adapter, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Hostalaria-bakarrik Egokitzailea, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Gidagailu generikoa, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Generic Driver, &apos;%1&apos; { %2 }</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">Gidagailu generikoa, &apos;%1&apos; { %2 }</translation>
+    </message>
+    <message>
+        <source>NAT Network, &apos;%1&apos;</source>
+        <comment>details (network)</comment>
+        <translation type="obsolete">NAT Sarea, &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>%1 (%2 active)</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">%1 (%2 gaituta)</translation>
+    </message>
+    <message>
+        <source>Information Inaccessible</source>
+        <comment>details</comment>
+        <translation type="obsolete">Argibideak eskuraezin</translation>
+    </message>
+    <message>
+        <source>USB Controller Inaccessible</source>
+        <comment>details (usb)</comment>
+        <translation type="obsolete">USB Kontrolatzailea Eskuraezina</translation>
+    </message>
+    <message>
+        <source>Menu-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Menu-barra</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/menu-bar)</comment>
+        <translation type="obsolete">Gaituta</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/menu-bar)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Status-bar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Egoera-barra</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>details (user interface/status-bar)</comment>
+        <translation type="obsolete">Gaituta</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/status-bar)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar Position</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Tresnabarra-txikiaren Kokapena</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Goian</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <comment>details (user interface/mini-toolbar position)</comment>
+        <translation type="obsolete">Behean</translation>
+    </message>
+    <message>
+        <source>Mini-toolbar</source>
+        <comment>details (user interface)</comment>
+        <translation type="obsolete">Tresnabarra-txikia</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (user interface/mini-toolbar)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>details (description)</comment>
+        <translation type="obsolete">Ezer ez</translation>
+    </message>
+    <message>
+        <source>Video Capture File</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Bido Harpen Agiria</translation>
+    </message>
+    <message>
+        <source>Video Capture Attributes</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Bideo Harpen Ezaugarriak</translation>
+    </message>
+    <message>
+        <source>Video Capture</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Bideo Harpena</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/video capture)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
     </message>
 </context>
 <context>
@@ -2420,6 +2965,13 @@
     </message>
 </context>
 <context>
+    <name>UIErrorPane</name>
+    <message>
+        <source>The selected virtual machine is &lt;i&gt;inaccessible&lt;/i&gt;. Please inspect the error message shown below and press the &lt;b&gt;Refresh&lt;/b&gt; button if you want to repeat the accessibility check:</source>
+        <translation type="obsolete">Hautaturiko makina birtuala &lt;i&gt;eskuraezina&lt;/i&gt; da. Mesedez aztertu behean erakusten den akats mezua eta sakatu &lt;b&gt;Berritu&lt;/b&gt; botoia sarbidetasun egiaztapena berregitea nahi baduzu:</translation>
+    </message>
+</context>
+<context>
     <name>UIErrorString</name>
     <message>
         <location filename="../src/globals/UIErrorString.cpp" line="+126"/>
@@ -2466,6 +3018,56 @@
         <source>%1, %2: %3</source>
         <comment>col.2 text, col.3 name: col.3 text</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UIFDCreationDialog</name>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Neurria:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Itxi</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Ezeztatu</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Pausatuta</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Sarhitza</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Izena</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Neurria</translation>
     </message>
 </context>
 <context>
@@ -3213,6 +3815,11 @@
         <comment>details (shared folders)</comment>
         <translation>Elkarbanatutako Agiritegiak</translation>
     </message>
+    <message>
+        <source>Disabled</source>
+        <comment>details (display/recording)</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
 </context>
 <context>
     <name>UIGDetailsElement</name>
@@ -3298,6 +3905,14 @@
         <location line="+26"/>
         <source>Holds the maximum height which we would like the guest to use.</source>
         <translation>Gonbidatuak erabili dezan nahi dugun gehinezko garaiera zehazten du.</translation>
+    </message>
+    <message>
+        <source>Scale Factor:</source>
+        <translation type="obsolete">Eskala Ezaugarria:</translation>
+    </message>
+    <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">Gonbidatuaren ikusleiho eskalatze ezaugarria kontrolatzen du.</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -4482,6 +5097,40 @@
     </message>
 </context>
 <context>
+    <name>UIGuestControlFileManager</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Itxi</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="obsolete">Sarhitza</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Izena</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Neurria</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Ezeztatu</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="obsolete">Pausatuta</translation>
+    </message>
+</context>
+<context>
+    <name>UIGuestProcessControlWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Itxi</translation>
+    </message>
+</context>
+<context>
     <name>UIHelpButton</name>
     <message>
         <location filename="../src/widgets/UISpecialControls.cpp" line="+180"/>
@@ -4516,7 +5165,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+232"/>
+        <location line="+233"/>
         <source>Left Shift</source>
         <translation>Ezkerreko Aldatu</translation>
     </message>
@@ -5137,6 +5786,11 @@
         <location line="+1"/>
         <source>Shortcut</source>
         <translation>Lastertekla</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <comment>scope: description</comment>
+        <translation type="obsolete">%1: %2</translation>
     </message>
 </context>
 <context>
@@ -5933,7 +6587,159 @@
     </message>
 </context>
 <context>
+    <name>UIItemHostNetwork</name>
+    <message>
+        <source>Enable</source>
+        <comment>DHCP Server</comment>
+        <translation type="obsolete">Gaitu</translation>
+    </message>
+    <message>
+        <source>Adapter</source>
+        <translation type="obsolete">Egokitzailea</translation>
+    </message>
+    <message>
+        <source>Automatically configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">Berezgaitasunez itxuratuta</translation>
+    </message>
+    <message>
+        <source>Manually configured</source>
+        <comment>interface</comment>
+        <translation type="obsolete">Eskuz itxuratuta</translation>
+    </message>
+    <message>
+        <source>IPv4 Address</source>
+        <translation type="obsolete">IPv4 Helbidea</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>address</comment>
+        <translation type="obsolete">Ezarri gabe</translation>
+    </message>
+    <message>
+        <source>IPv4 Network Mask</source>
+        <translation type="obsolete">IPv4 Sare Mozorroa</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>mask</comment>
+        <translation type="obsolete">Ezarri gabe</translation>
+    </message>
+    <message>
+        <source>IPv6 Address</source>
+        <translation type="obsolete">IPv6 Helbidea</translation>
+    </message>
+    <message>
+        <source>IPv6 Prefix Length</source>
+        <translation type="obsolete">IPv6 Sare Mozorro Luzera</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>length</comment>
+        <translation type="obsolete">Ezarri gabe</translation>
+    </message>
+    <message>
+        <source>DHCP Server</source>
+        <translation type="obsolete">DHCP Zerbitzaria</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <comment>server</comment>
+        <translation type="obsolete">Gaituta</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <comment>server</comment>
+        <translation type="obsolete">Ezgaituta</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="obsolete">Helbidea</translation>
+    </message>
+    <message>
+        <source>Network Mask</source>
+        <translation type="obsolete">Sare Mozorroa</translation>
+    </message>
+    <message>
+        <source>Lower Bound</source>
+        <translation type="obsolete">Behe Muga</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <comment>bound</comment>
+        <translation type="obsolete">Ezarri gabe</translation>
+    </message>
+    <message>
+        <source>Upper Bound</source>
+        <translation type="obsolete">Goi Muga</translation>
+    </message>
+</context>
+<context>
     <name>UIItemNetworkNAT</name>
+    <message>
+        <source>Network Name</source>
+        <translation type="obsolete">Sarearen Izena</translation>
+    </message>
+    <message>
+        <source>[empty]</source>
+        <translation type="obsolete">[hutsik]</translation>
+    </message>
+    <message>
+        <source>%1 (renamed from %2)</source>
+        <translation type="obsolete">%1 (%2-tik berrizendatua)</translation>
+    </message>
+    <message>
+        <source>Old Network Name</source>
+        <translation type="obsolete">Sare Zaharraren Izena</translation>
+    </message>
+    <message>
+        <source>New Network Name</source>
+        <translation type="obsolete">Sare Berriaren Izena</translation>
+    </message>
+    <message>
+        <source>Network CIDR</source>
+        <translation type="obsolete">Sarearen CIDR</translation>
+    </message>
+    <message>
+        <source>Supports DHCP</source>
+        <translation type="obsolete">DHCP sostengua du</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation type="obsolete">bai</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation type="obsolete">ez</translation>
+    </message>
+    <message>
+        <source>Supports IPv6</source>
+        <translation type="obsolete">IPv6 sostengua du</translation>
+    </message>
+    <message>
+        <source>Default IPv6 route</source>
+        <translation type="obsolete">Berezko IPv6 biderapena</translation>
+    </message>
+    <message>
+        <source>No new name specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Ez da izen berririk adierazi NAT sarerako, lehengo izena: &lt;b&gt;%1&lt;/b&gt; da.</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Ez da CIDR adirazi &lt;b&gt;%1&lt;/b&gt; NAT sarerako.</translation>
+    </message>
+    <message>
+        <source>No CIDR specified for the NAT network previously called &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="obsolete">Ez da CIDR adierazi NAT sarerako, lehengo izena: &lt;b&gt;%1&lt;/b&gt; da.</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">CIDR baliogabea (&lt;i&gt;%1&lt;/i&gt;) adierazi da &lt;b&gt;%2&lt;/b&gt; NAT sarearentzat.</translation>
+    </message>
+    <message>
+        <source>Invalid CIDR specified (&lt;i&gt;%1&lt;/i&gt;) for the NAT network previously called &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="obsolete">CIDR baliogabea (&lt;i&gt;%1&lt;/i&gt;) adierazi da NAT sarerako, lehengo izena: &lt;b&gt;%2&lt;/b&gt; da.</translation>
+    </message>
     <message>
         <location filename="../src/settings/global/UIGlobalSettingsNetwork.cpp" line="-146"/>
         <source>%1, %2</source>
@@ -5945,6 +6751,29 @@
         <source>%1</source>
         <comment>col.2 text</comment>
         <translation type="unfinished">%1% {1?}</translation>
+    </message>
+</context>
+<context>
+    <name>UILanguageItem</name>
+    <message>
+        <source> (built-in)</source>
+        <comment>Language</comment>
+        <translation type="obsolete"> (barne-eraikita)</translation>
+    </message>
+    <message>
+        <source>&lt;unavailable&gt;</source>
+        <comment>Language</comment>
+        <translation type="obsolete">&lt;eskuraezina&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>Author(s)</comment>
+        <translation type="obsolete">&lt;ezezaguna&gt;</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <comment>Language</comment>
+        <translation type="obsolete">Berezkoa</translation>
     </message>
 </context>
 <context>
@@ -6009,6 +6838,37 @@
         <location filename="../src/runtime/UIMachineLogic.cpp" line="-766"/>
         <source>Select a filename for the screenshot ...</source>
         <translation>Hautatu ikusleiho-argazkiarentzako agirizen bat...</translation>
+    </message>
+</context>
+<context>
+    <name>UIMachinePreview</name>
+    <message>
+        <source>No preview</source>
+        <translation type="obsolete">Ez dago aurreikuspenik</translation>
+    </message>
+    <message>
+        <source>Update disabled</source>
+        <translation type="obsolete">Eguneraketa ezgaituta</translation>
+    </message>
+    <message>
+        <source>Every 0.5 s</source>
+        <translation type="obsolete">0.5 seg-tik behin</translation>
+    </message>
+    <message>
+        <source>Every 1 s</source>
+        <translation type="obsolete">1 seg-tik behin</translation>
+    </message>
+    <message>
+        <source>Every 2 s</source>
+        <translation type="obsolete">2 seg-tik behin</translation>
+    </message>
+    <message>
+        <source>Every 5 s</source>
+        <translation type="obsolete">5 seg-tik behin</translation>
+    </message>
+    <message>
+        <source>Every 10 s</source>
+        <translation type="obsolete">10 seg-tik behin</translation>
     </message>
 </context>
 <context>
@@ -8836,6 +9696,46 @@
     </message>
 </context>
 <context>
+    <name>UIMediumItem</name>
+    <message>
+        <source>Format:</source>
+        <translation type="obsolete">Heuskarria:</translation>
+    </message>
+    <message>
+        <source>Storage details:</source>
+        <translation type="obsolete">Biltegi xehetasunak:</translation>
+    </message>
+    <message>
+        <source>Attached to:</source>
+        <translation type="obsolete">Hona Erantsita:</translation>
+    </message>
+    <message>
+        <source>Encrypted with key:</source>
+        <translation type="obsolete">Enkriptaketa giltza:</translation>
+    </message>
+    <message>
+        <source>UUID:</source>
+        <translation type="obsolete">UUID:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Attached&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;Ez&amp;nbsp;Erantsita&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Not&amp;nbsp;Encrypted&lt;/i&gt;</source>
+        <translation type="obsolete">&lt;i&gt;Ez&amp;nbsp;Enkriptatuta&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>--</source>
+        <comment>no info</comment>
+        <translation type="obsolete">--</translation>
+    </message>
+    <message>
+        <source>Removing medium...</source>
+        <translation type="obsolete">Medioak kentzen...</translation>
+    </message>
+</context>
+<context>
     <name>UIMediumManager</name>
     <message>
         <source>&amp;Hard drives</source>
@@ -9110,6 +10010,53 @@
         <location filename="../src/medium/UIMediumManager.cpp" line="+3"/>
         <source>Choose the location of this medium</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="obsolete">Neurria:</translation>
+    </message>
+    <message>
+        <source>1.44M</source>
+        <translation type="obsolete">3D {1.44M?}</translation>
+    </message>
+    <message>
+        <source>1.2M</source>
+        <translation type="obsolete">3D {1.2M?}</translation>
+    </message>
+    <message>
+        <source>720K</source>
+        <translation type="obsolete">3D {720K?}</translation>
+    </message>
+    <message>
+        <source>360K</source>
+        <translation type="obsolete">3D {360K?}</translation>
+    </message>
+</context>
+<context>
+    <name>UIMediumSelector</name>
+    <message>
+        <source>&amp;Add...</source>
+        <translation type="obsolete">&amp;Gehitu...</translation>
+    </message>
+    <message>
+        <source>&amp;Refresh</source>
+        <translation type="obsolete">B&amp;erritu</translation>
+    </message>
+    <message>
+        <source>Refresh the list of disk image files</source>
+        <translation type="obsolete">Berritu diska irudi agiri zerrenda</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Izena</translation>
+    </message>
+    <message>
+        <source>Virtual Size</source>
+        <translation type="obsolete">Neurri Birtuala</translation>
+    </message>
+    <message>
+        <source>Actual Size</source>
+        <translation type="obsolete">Oraingo Neurria</translation>
     </message>
 </context>
 <context>
@@ -9459,6 +10406,10 @@
         <location line="+8"/>
         <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="obsolete">Inportatu</translation>
     </message>
     <message numerus="yes">
         <location line="+73"/>
@@ -11064,7 +12015,7 @@
 <context>
     <name>UINetworkReplyPrivate</name>
     <message>
-        <location filename="../src/net/UINetworkReply.cpp" line="+965"/>
+        <location filename="../src/net/UINetworkReply.cpp" line="+980"/>
         <source>Host not found</source>
         <translation>Hostalaria ez da aurkitu</translation>
     </message>
@@ -11128,7 +12079,7 @@
 <context>
     <name>UINetworkReplyPrivateThread</name>
     <message>
-        <location line="-590"/>
+        <location line="-605"/>
         <source>During proxy configuration</source>
         <translation>Proxy itxurapenean zehar</translation>
     </message>
@@ -11297,6 +12248,13 @@
     </message>
 </context>
 <context>
+    <name>UIScaleFactorEditor</name>
+    <message>
+        <source>Controls the guest screen scale factor.</source>
+        <translation type="obsolete">Gonbidatuaren ikusleiho eskalatze ezaugarria kontrolatzen du.</translation>
+    </message>
+</context>
+<context>
     <name>UIScreenshotViewer</name>
     <message>
         <location filename="../src/selector/UISnapshotDetailsWidget.cpp" line="-1402"/>
@@ -11317,7 +12275,7 @@
 <context>
     <name>UISelectorWindow</name>
     <message>
-        <location filename="../src/selector/UISelectorWindow.cpp" line="+188"/>
+        <location filename="../src/selector/UISelectorWindow.cpp" line="+190"/>
         <source>Show Toolbar</source>
         <translation>Erakutsi Tresnabarra</translation>
     </message>
@@ -11332,7 +12290,7 @@
         <translation>Erakutsi Egoerabarra</translation>
     </message>
     <message>
-        <location line="+373"/>
+        <location line="+377"/>
         <source>Select a virtual machine file</source>
         <translation>Hautatu makina birtual agiria</translation>
     </message>
@@ -11655,6 +12613,42 @@
     </message>
 </context>
 <context>
+    <name>UISnapshotItem</name>
+    <message>
+        <source>Current State (changed)</source>
+        <comment>Current State (Modified)</comment>
+        <translation type="obsolete">Oraingo Egoera (aldatuta)</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <comment>Current State (Unmodified)</comment>
+        <translation type="obsolete">Oraingo Egoera</translation>
+    </message>
+    <message>
+        <source>The current state differs from the state stored in the current snapshot</source>
+        <translation type="obsolete">Oraingo egoera oraingo berehalakoan biltegiratutako egoeraren ezberdina da</translation>
+    </message>
+    <message>
+        <source>The current state is identical to the state stored in the current snapshot</source>
+        <translation type="obsolete">Oraingo egoera oraingo berehalakoan biltegiratutako egoeraren berdina da</translation>
+    </message>
+    <message>
+        <source>%1 since %2</source>
+        <comment>Current State (time or date + time)</comment>
+        <translation type="obsolete">%1 %2-tik</translation>
+    </message>
+    <message>
+        <source>Taken at %1</source>
+        <comment>Snapshot (time)</comment>
+        <translation type="obsolete">Hartua %1</translation>
+    </message>
+    <message>
+        <source>Taken on %1</source>
+        <comment>Snapshot (date + time)</comment>
+        <translation type="obsolete">Hartua %1</translation>
+    </message>
+</context>
+<context>
     <name>UISnapshotPane</name>
     <message>
         <location filename="../src/selector/UISnapshotPane.cpp" line="+278"/>
@@ -11899,6 +12893,17 @@
     </message>
 </context>
 <context>
+    <name>UIToolsModel</name>
+    <message>
+        <source>Network</source>
+        <translation type="obsolete">Sarea</translation>
+    </message>
+    <message>
+        <source>Snapshots</source>
+        <translation type="obsolete">Berehalakoak</translation>
+    </message>
+</context>
+<context>
     <name>UIToolsPaneGlobal</name>
     <message>
         <location filename="../src/selector/UIToolsPaneGlobal.cpp" line="+181"/>
@@ -11952,6 +12957,41 @@
         <source>%1</source>
         <comment>col.1 text</comment>
         <translation type="unfinished">%1% {1?}</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Vendor ID: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Saltzaile ID-a: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product ID: %2&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Produktu ID-a: %2&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Revision: %3&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Berrikuspena: %3&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Product: %4&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Produktua: %4&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Manufacturer: %5&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Ekoizlea: %5&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;Port: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Ataka: %1&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;nobr&gt;State: %1&lt;/nobr&gt;</source>
+        <comment>USB filter tooltip</comment>
+        <translation type="obsolete">&lt;nobr&gt;Egoera: %1&lt;/nobr&gt;</translation>
     </message>
 </context>
 <context>
@@ -12338,6 +13378,33 @@
     </message>
 </context>
 <context>
+    <name>UIVMLogViewerWidget</name>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Itxi</translation>
+    </message>
+    <message>
+        <source>Enter a search string here</source>
+        <translation type="obsolete">Sartu bilaketa kate bat hemen</translation>
+    </message>
+    <message>
+        <source>C&amp;ase Sensitive</source>
+        <translation type="obsolete">Be&amp;reizi Hizki Larri-xeheak</translation>
+    </message>
+    <message>
+        <source>String not found</source>
+        <translation type="obsolete">Katea ez da aurkitu</translation>
+    </message>
+    <message>
+        <source>Save VirtualBox Log As</source>
+        <translation type="obsolete">Gorde VirtualBox Oharra Honela</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No log files found. Press the &lt;b&gt;Refresh&lt;/b&gt; button to rescan the log folder &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.&lt;/p&gt;</source>
+        <translation type="obsolete">&lt;p&gt;Ez da ohar agiririk aurkitu. Sakatu &lt;b&gt;Berritu&lt;/b&gt; botoia &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; ohar agiritegia berriro mihatzeko.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
     <name>UIVMPreviewWindow</name>
     <message>
         <source>Update Disabled</source>
@@ -12366,6 +13433,41 @@
     <message>
         <source>No Preview</source>
         <translation type="obsolete">Ez dago Aurreikuspenik</translation>
+    </message>
+</context>
+<context>
+    <name>UIVirtualBoxManager</name>
+    <message>
+        <source>Manager</source>
+        <comment>Note: main window title which is prepended by the product name.</comment>
+        <translation type="obsolete">Kudeatzailea</translation>
+    </message>
+    <message>
+        <source>Select a virtual machine file</source>
+        <translation type="obsolete">Hautatu makina birtual agiria</translation>
+    </message>
+    <message>
+        <source>Virtual machine files (%1)</source>
+        <translation type="obsolete">Makina birtual agiriak (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UIVisoCreator</name>
+    <message>
+        <source>Name</source>
+        <translation type="obsolete">Izena</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Neurria</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="obsolete">Kendu</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="obsolete">Berrezarri</translation>
     </message>
 </context>
 <context>
@@ -12850,6 +13952,10 @@
         <translation>Makina Birtual ezarpenak</translation>
     </message>
     <message>
+        <source>Choose a file to export the virtual appliance to...</source>
+        <translation type="obsolete">Hautatu agiri bat gailu birtuala esportatzeko...</translation>
+    </message>
+    <message>
         <location line="+3"/>
         <source>Please choose where to create the virtual appliance. You can create it on your own computer, on the Sun Cloud service or on an S3 storage server.</source>
         <translation>Mesedez hautatu non sortu gailu birtuala. Zeure ordenagailuan sortu dezakezu, Sun Cloud zerbitzuan edo S3 biltegiratze zerbitzari batean.</translation>
@@ -12877,7 +13983,7 @@
         <translation>&amp;Biltegi Arrunt Sistema (S3)</translation>
     </message>
     <message>
-        <location filename="../src/wizards/exportappliance/UIWizardExportAppPageBasic3.cpp" line="+119"/>
+        <location filename="../src/wizards/exportappliance/UIWizardExportAppPageBasic3.cpp" line="+123"/>
         <source>Oracle Public Cloud Format Archive (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13747,6 +14853,11 @@
         <source>Paravirtualization Interface</source>
         <comment>details report</comment>
         <translation>Parabirtualizazio Interfazea</translation>
+    </message>
+    <message>
+        <source>Processors</source>
+        <comment>details report</comment>
+        <translation type="obsolete">Prozesagailuak</translation>
     </message>
     <message>
         <location filename="../src/runtime/information/UIInformationDataItem.cpp" line="+146"/>
@@ -15026,6 +16137,11 @@
         <translation>USB Multi-Ikutu Tableteta</translation>
     </message>
     <message>
+        <source>None</source>
+        <comment>GraphicsControllerType</comment>
+        <translation type="obsolete">Ezer ez</translation>
+    </message>
+    <message>
         <location line="+11"/>
         <source>Normal</source>
         <comment>MediumType</comment>
@@ -15298,6 +16414,26 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Name</source>
+        <translation type="obsolete">Izena</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation type="obsolete">Taldeak</translation>
+    </message>
+    <message>
+        <source>RAM</source>
+        <translation type="obsolete">RAM</translation>
+    </message>
+    <message>
+        <source>Boot Order</source>
+        <translation type="obsolete">Abiarazpen Hurrenkera</translation>
+    </message>
+    <message>
+        <source>Acceleration</source>
+        <translation type="obsolete">Bizkorpena</translation>
+    </message>
+    <message>
         <location line="+738"/>
         <location line="+27"/>
         <source>General</source>
@@ -15387,6 +16523,52 @@
         <translation>Azalpena</translation>
     </message>
     <message>
+        <source>Controller</source>
+        <translation type="obsolete">Kontrolatzailea</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <comment>network adapter</comment>
+        <translation type="obsolete">Erantsi gabe</translation>
+    </message>
+    <message>
+        <source>NAT</source>
+        <translation type="obsolete">NAT</translation>
+    </message>
+    <message>
+        <source>Internal Network</source>
+        <translation type="obsolete">Barneko Sarea</translation>
+    </message>
+    <message>
+        <source>Generic Driver</source>
+        <translation type="obsolete">Gidagailu Generikoa</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <comment>serial port</comment>
+        <translation type="obsolete">Etenda</translation>
+    </message>
+    <message>
+        <source>Host Pipe</source>
+        <translation type="obsolete">Hostalari Hodia</translation>
+    </message>
+    <message>
+        <source>Host Device</source>
+        <translation type="obsolete">Hostalari Gailua</translation>
+    </message>
+    <message>
+        <source>Raw File</source>
+        <translation type="obsolete">Raw Agiria</translation>
+    </message>
+    <message>
+        <source>TCP</source>
+        <translation type="obsolete">TCP</translation>
+    </message>
+    <message>
+        <source>Device Filters</source>
+        <translation type="obsolete">Gailu Iragazkiak</translation>
+    </message>
+    <message>
         <location line="+453"/>
         <source>Hard Disks</source>
         <comment>IndicatorType</comment>
@@ -15433,6 +16615,36 @@
         <source>Display</source>
         <comment>IndicatorType</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VDI (VirtualBox Disk Image)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VDI (VirtualBox Diska Irudia)</translation>
+    </message>
+    <message>
+        <source>VMDK (Virtual Machine Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VMDK (Makina Birtual Diska)</translation>
+    </message>
+    <message>
+        <source>VHD (Virtual Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">VHD (Diska Gogor Birtuala)</translation>
+    </message>
+    <message>
+        <source>HDD (Parallels Hard Disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">HDD (Diska Gogor Kidetuak)</translation>
+    </message>
+    <message>
+        <source>QED (QEMU enhanced disk)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QED (QEMU diska hobetua)</translation>
+    </message>
+    <message>
+        <source>QCOW (QEMU Copy-On-Write)</source>
+        <comment>UIMediumFormat</comment>
+        <translation type="obsolete">QCOW (QEMU Kopiatu-Eta-Idatzi)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -15634,6 +16846,14 @@
         <location filename="../src/wizards/newvd/UIWizardNewVDPageBasic3.cpp" line="-131"/>
         <source>Please choose a location for new virtual hard disk file</source>
         <translation>Mesedez hautatu diska gogor birtual agiri berriarentzako kokaleku bat</translation>
+    </message>
+    <message>
+        <source>Not Attached</source>
+        <translation type="obsolete">Erantsi gabe</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation type="obsolete">Etenda</translation>
     </message>
 </context>
 <context>

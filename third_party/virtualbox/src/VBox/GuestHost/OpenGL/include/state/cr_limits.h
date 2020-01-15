@@ -271,7 +271,7 @@ extern DECLEXPORT(void) crStateLimitsDestroy(CRLimitsState *limits);
 
 extern DECLEXPORT(void) crStateLimitsPrint(const CRLimitsState *limits);
 
-extern DECLEXPORT(GLfloat) crStateComputeVersion(float minVersion);
+extern DECLEXPORT(void) crStateComputeVersion(uint32_t *puMajorMin, uint32_t *puMinorMin);
 
 extern DECLEXPORT(GLubyte *) crStateMergeExtensions(GLuint n, const GLubyte **extensions);
 

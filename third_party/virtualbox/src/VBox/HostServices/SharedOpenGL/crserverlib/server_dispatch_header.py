@@ -40,7 +40,7 @@ for func_name in keys:
         params = apiutil.Parameters(func_name)
         return_type = apiutil.ReturnType(func_name)
         
-        print('%s SERVER_DISPATCH_APIENTRY crServerDispatch%s(%s);' % (return_type, func_name, apiutil.MakeDeclarationString( params )))
+        print('%s SERVER_DISPATCH_APIENTRY crServerDispatch%s(%s);' % (return_type, func_name, apiutil.MakeDeclarationStringForDispatcher( params )))
 
 print("""
 #if defined(__cplusplus)

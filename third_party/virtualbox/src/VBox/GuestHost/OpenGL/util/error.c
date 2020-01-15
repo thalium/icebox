@@ -24,17 +24,14 @@
 #include <iprt/assert.h>
 #include <iprt/buildconfig.h>
 
+
 #include <VBox/log.h>
+#include <iprt/env.h>
 
 #ifdef RT_OS_WINDOWS
 # include <iprt/win/windows.h>
-# include "cr_environment.h"
-# include "cr_error.h"
-# include "VBox/VBoxGuestLib.h"
-# include "iprt/initterm.h"
-#else
-# include "cr_error.h"
 #endif
+#include "cr_error.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -99,7 +96,7 @@ DECLEXPORT(void) crError(const char *pszFormat, ...)
 #ifdef WINDOWS
     /* Log last error on windows. */
     dwLastErr = GetLastError();
-    if (dwLastErr != 0 && crGetenv("CR_WINDOWS_ERRORS") != NULL)
+    if (dwLastErr != 0 && RTEnvGet("CR_WINDOWS_ERRORS") != NULL)
     {
         LPTSTR pszWindowsMessage;
 
@@ -177,43 +174,3 @@ DECLEXPORT(void) crDebug(const char *pszFormat, ...)
         va_end(va);
     }
 }
-
-#if defined(RT_OS_WINDOWS)
-BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
-{
-    (void) lpvReserved; (void) hDLLInst;
-
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-        {
-            int rc;
-            rc = RTR3InitDll(RTR3INIT_FLAGS_UNOBTRUSIVE); CRASSERT(rc==0);
-# ifdef IN_GUEST
-            rc = VbglR3Init();
-# endif
-            LogRel(("crUtil DLL loaded.\n"));
-# if defined(DEBUG_misha)
-            char aName[MAX_PATH];
-            GetModuleFileNameA(hDLLInst, aName, RT_ELEMENTS(aName));
-            crDbgCmdSymLoadPrint(aName, hDLLInst);
-# endif
-             break;
-        }
-
-        case DLL_PROCESS_DETACH:
-        {
-            LogRel(("crUtil DLL unloaded."));
-# ifdef IN_GUEST
-            VbglR3Term();
-# endif
-        }
-
-        default:
-            break;
-    }
-
-    return TRUE;
-}
-#endif
-

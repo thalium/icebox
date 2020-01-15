@@ -48,7 +48,7 @@ void crStateTextureInit(CRContext *ctx)
 {
     CRLimitsState *limits = &ctx->limits;
     CRTextureState *t = &ctx->texture;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(ctx->pStateTracker);
     CRTextureBits *tb = &(sb->texture);
     unsigned int i;
     unsigned int a;
@@ -201,7 +201,7 @@ crStateTextureInitTextureObj(CRContext *ctx, CRTextureObj *tobj,
     tobj->hwid          = 0;
 
 #ifndef IN_GUEST
-    crStateGetTextureObjHWID(tobj);
+    crStateGetTextureObjHWID(ctx->pStateTracker, tobj);
 #endif
 
     CRASSERT(t->maxLevel);
@@ -519,9 +519,9 @@ void crStateTextureInitTexture (GLuint name)
  * Return the texture object corresponding to the given target and ID.
  */
 CRTextureObj *
-crStateTextureGet(GLenum target, GLuint name) 
+crStateTextureGet(PCRStateTracker pState, GLenum target, GLuint name) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
     CRTextureObj *tobj;
 
@@ -634,28 +634,29 @@ void crStateRegNames(CRContext *g, CRHashTable *table, GLsizei n, GLuint *names)
     }
 }
 
-void crStateRegTextures(GLsizei n, GLuint *names)
+void crStateRegTextures(PCRStateTracker pState, GLsizei n, GLuint *names)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crStateRegNames(g, g->shared->textureTable, n, names);
 }
 
 void crStateGenNames(CRContext *g, CRHashTable *table, GLsizei n, GLuint *names)
 {
+    PCRStateTracker pState = g->pStateTracker;
     GLint start;
 
     FLUSH();
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "crStateGenNames called in Begin/End");
         return;
     }
 
     if (n < 0)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "Negative n passed to crStateGenNames: %d", n);
         return;
     }
@@ -669,21 +670,21 @@ void crStateGenNames(CRContext *g, CRHashTable *table, GLsizei n, GLuint *names)
     }
     else
     {
-        crStateError(__LINE__, __FILE__, GL_OUT_OF_MEMORY, "glGenTextures");
+        crStateError(pState, __LINE__, __FILE__, GL_OUT_OF_MEMORY, "glGenTextures");
     }
 }
 
-void STATE_APIENTRY crStateGenTextures(GLsizei n, GLuint *textures) 
+void STATE_APIENTRY crStateGenTextures(PCRStateTracker pState, GLsizei n, GLuint *textures) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crStateGenNames(g, g->shared->textureTable, n, textures);
 }
 
-static void crStateTextureCheckFBOAPs(GLenum target, GLuint texture)
+static void crStateTextureCheckFBOAPs(PCRStateTracker pState, GLenum target, GLuint texture)
 {
     GLuint u;
     CRFBOAttachmentPoint *ap;
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRFramebufferObjectState *fbo = &g->framebufferobject;
     CRFramebufferObject *pFBO;
 
@@ -695,25 +696,26 @@ static void crStateTextureCheckFBOAPs(GLenum target, GLuint texture)
         ap = &pFBO->color[u];
         if (ap->type==GL_TEXTURE && ap->name==texture)
         {
-            crStateFramebufferTexture1DEXT(target, u+GL_COLOR_ATTACHMENT0_EXT, 0, 0, 0);
+            crStateFramebufferTexture1DEXT(pState, target, u+GL_COLOR_ATTACHMENT0_EXT, 0, 0, 0);
         }
     }
 
     ap = &pFBO->depth;
     if (ap->type==GL_TEXTURE && ap->name==texture)
     {
-        crStateFramebufferTexture1DEXT(target, GL_DEPTH_ATTACHMENT_EXT, 0, 0, 0);
+        crStateFramebufferTexture1DEXT(pState, target, GL_DEPTH_ATTACHMENT_EXT, 0, 0, 0);
     }
 
     ap = &pFBO->stencil;
     if (ap->type==GL_TEXTURE && ap->name==texture)
     {
-        crStateFramebufferTexture1DEXT(target, GL_STENCIL_ATTACHMENT_EXT, 0, 0, 0);
+        crStateFramebufferTexture1DEXT(pState, target, GL_STENCIL_ATTACHMENT_EXT, 0, 0, 0);
     }
 }
 
 static void crStateCleanupTextureRefs(CRContext *g, CRTextureObj *tObj)
 {
+    PCRStateTracker pState = g->pStateTracker;
     CRTextureState *t = &(g->texture);
     GLuint u;
 
@@ -750,17 +752,17 @@ static void crStateCleanupTextureRefs(CRContext *g, CRTextureObj *tObj)
 #endif
 
 #ifdef CR_EXT_framebuffer_object
-        crStateTextureCheckFBOAPs(GL_DRAW_FRAMEBUFFER, tObj->id);
-        crStateTextureCheckFBOAPs(GL_READ_FRAMEBUFFER, tObj->id);
+        crStateTextureCheckFBOAPs(pState, GL_DRAW_FRAMEBUFFER, tObj->id);
+        crStateTextureCheckFBOAPs(pState, GL_READ_FRAMEBUFFER, tObj->id);
 #endif
     }
 }
 
-void STATE_APIENTRY crStateDeleteTextures(GLsizei n, const GLuint *textures) 
+void STATE_APIENTRY crStateDeleteTextures(PCRStateTracker pState, GLsizei n, const GLuint *textures) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTextureBits *tb = &(sb->texture);
     int i;
 
@@ -768,14 +770,14 @@ void STATE_APIENTRY crStateDeleteTextures(GLsizei n, const GLuint *textures)
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glDeleteTextures called in Begin/End");
         return;
     }
 
     if (n < 0)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                                  "Negative n passed to glDeleteTextures: %d", n);
         return;
     }
@@ -802,7 +804,7 @@ void STATE_APIENTRY crStateDeleteTextures(GLsizei n, const GLuint *textures)
                  * so on restore, we set mark bits as used.
                  * This is why g_pAvailableContexts[j] could be NULL
                  * also g_pAvailableContexts[0] will hold default context, which we should discard */
-                CRContext *ctx = g_pAvailableContexts[j];
+                CRContext *ctx = pState->apAvailableContexts[j];
                 if (j && ctx)
                 {
                     crStateCleanupTextureRefs(ctx, tObj);
@@ -830,22 +832,22 @@ void STATE_APIENTRY crStateDeleteTextures(GLsizei n, const GLuint *textures)
 
 
 
-void STATE_APIENTRY crStateClientActiveTextureARB( GLenum texture )
+void STATE_APIENTRY crStateClientActiveTextureARB(PCRStateTracker pState, GLenum texture )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRClientState *c = &(g->client);
 
     FLUSH();
 
     if (!g->extensions.ARB_multitexture) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glClientActiveTextureARB not available");
         return;
     }
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glClientActiveTextureARB called in Begin/End");
         return;
     }
@@ -853,7 +855,7 @@ void STATE_APIENTRY crStateClientActiveTextureARB( GLenum texture )
     if ( texture < GL_TEXTURE0_ARB ||
              texture >= GL_TEXTURE0_ARB + g->limits.maxTextureUnits)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "crStateClientActiveTexture: unit = %d (max is %d)",
                                  texture, g->limits.maxTextureUnits );
         return;
@@ -861,31 +863,31 @@ void STATE_APIENTRY crStateClientActiveTextureARB( GLenum texture )
 
     c->curClientTextureUnit = texture - GL_TEXTURE0_ARB;
 
-    DIRTY(GetCurrentBits()->client.dirty, g->neg_bitid);
+    DIRTY(GetCurrentBits(pState)->client.dirty, g->neg_bitid);
 }
 
-void STATE_APIENTRY crStateActiveTextureARB( GLenum texture )
+void STATE_APIENTRY crStateActiveTextureARB(PCRStateTracker pState, GLenum texture )
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
 
     FLUSH();
 
     if (!g->extensions.ARB_multitexture) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                                  "glActiveTextureARB not available");
         return;
     }
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glActiveTextureARB called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glActiveTextureARB called in Begin/End");
         return;
     }
 
     if ( texture < GL_TEXTURE0_ARB || texture >= GL_TEXTURE0_ARB + g->limits.maxTextureUnits)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "Bad texture unit passed to crStateActiveTexture: %d (max is %d)", texture, g->limits.maxTextureUnits );
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "Bad texture unit passed to crStateActiveTexture: %d (max is %d)", texture, g->limits.maxTextureUnits );
         return;
     }
 
@@ -893,7 +895,7 @@ void STATE_APIENTRY crStateActiveTextureARB( GLenum texture )
 
     /* update the current matrix pointer, etc. */
     if (g->transform.matrixMode == GL_TEXTURE) {
-        crStateMatrixMode(GL_TEXTURE);
+        crStateMatrixMode(pState, GL_TEXTURE);
     }
 }
 
@@ -902,10 +904,10 @@ void STATE_APIENTRY crStateActiveTextureARB( GLenum texture )
 static uint32_t gDbgNumPinned = 0;
 # endif
 
-DECLEXPORT(void) crStatePinTexture(GLuint texture, GLboolean pin)
+DECLEXPORT(void) crStatePinTexture(PCRStateTracker pState, GLuint texture, GLboolean pin)
 {
     CRTextureObj * pTobj;
-    CRSharedState *pShared = crStateGlobalSharedAcquire();
+    CRSharedState *pShared = crStateGlobalSharedAcquire(pState);
     if (pShared)
     {
         pTobj = (CRTextureObj*)crHashtableSearch(pShared->textureTable, texture);
@@ -928,22 +930,22 @@ DECLEXPORT(void) crStatePinTexture(GLuint texture, GLboolean pin)
             if (!pin)
             {
                 if (!CR_STATE_SHAREDOBJ_USAGE_IS_USED(pTobj))
-                    crStateOnTextureUsageRelease(pShared, pTobj);
+                    crStateOnTextureUsageRelease(pState, pShared, pTobj);
             }
         }
         else
             WARN(("texture %d not defined", texture));
 
-        crStateGlobalSharedRelease();
+        crStateGlobalSharedRelease(pState);
     }
     else
         WARN(("no global shared"));
 }
 #endif
 
-DECLEXPORT(void) crStateSetTextureUsed(GLuint texture, GLboolean used)
+DECLEXPORT(void) crStateSetTextureUsed(PCRStateTracker pState, GLuint texture, GLboolean used)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureObj *tobj;
 
     if (!texture)
@@ -972,7 +974,7 @@ DECLEXPORT(void) crStateSetTextureUsed(GLuint texture, GLboolean used)
         CR_STATE_SHAREDOBJ_USAGE_SET(tobj, g);
     else
     {
-        CRStateBits *sb = GetCurrentBits();
+        CRStateBits *sb = GetCurrentBits(pState);
         CRTextureBits *tb = &(sb->texture);
         CRTextureState *t = &(g->texture);
 
@@ -985,19 +987,19 @@ DECLEXPORT(void) crStateSetTextureUsed(GLuint texture, GLboolean used)
     }
 }
 
-void STATE_APIENTRY crStateBindTexture(GLenum target, GLuint texture) 
+void STATE_APIENTRY crStateBindTexture(PCRStateTracker pState, GLenum target, GLuint texture) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
     CRTextureObj *tobj;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTextureBits *tb = &(sb->texture);
 
     FLUSH();
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "glBindTexture called in Begin/End");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "glBindTexture called in Begin/End");
         return;
     }
 
@@ -1020,7 +1022,7 @@ void STATE_APIENTRY crStateBindTexture(GLenum target, GLuint texture)
 #ifdef CR_ARB_texture_cube_map
             case GL_TEXTURE_CUBE_MAP_ARB:
                 if (!g->extensions.ARB_texture_cube_map) {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "Invalid target passed to glBindTexture: %d", target);
                     return;
                 }
@@ -1030,7 +1032,7 @@ void STATE_APIENTRY crStateBindTexture(GLenum target, GLuint texture)
 #ifdef CR_NV_texture_rectangle
             case GL_TEXTURE_RECTANGLE_NV:
                 if (!g->extensions.NV_texture_rectangle) {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "Invalid target passed to glBindTexture: %d", target);
                     return;
                 }
@@ -1038,7 +1040,7 @@ void STATE_APIENTRY crStateBindTexture(GLenum target, GLuint texture)
                 break;
 #endif
             default:
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "Invalid target passed to glBindTexture: %d", target);
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "Invalid target passed to glBindTexture: %d", target);
                 return;
         }
 
@@ -1069,7 +1071,7 @@ void STATE_APIENTRY crStateBindTexture(GLenum target, GLuint texture)
                   ||(target==GL_TEXTURE_2D && tobj->target==GL_TEXTURE_RECTANGLE_NV)))
     {
         crWarning( "You called glBindTexture with a target of 0x%x, but the texture you wanted was target 0x%x [1D: %x 2D: %x 3D: %x cube: %x]", (int) target, (int) tobj->target, GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP );
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION, "Attempt to bind a texture of different dimensions");
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION, "Attempt to bind a texture of different dimensions");
         return;
     }
 
@@ -1098,7 +1100,7 @@ void STATE_APIENTRY crStateBindTexture(GLenum target, GLuint texture)
             break;
 #endif
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                      "Invalid target passed to glBindTexture: %d", target);
             return;
     }
@@ -1109,13 +1111,13 @@ void STATE_APIENTRY crStateBindTexture(GLenum target, GLuint texture)
 
 
 void STATE_APIENTRY
-crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param) 
+crStateTexParameterfv(PCRStateTracker pState, GLenum target, GLenum pname, const GLfloat *param) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureObj *tobj = NULL;
     CRTextureLevel *tl = NULL;
     GLenum e = (GLenum) *param;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTextureBits *tb = &(sb->texture);
     unsigned int i;
 
@@ -1123,14 +1125,14 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "TexParameterfv called in Begin/End");
         return;
     }
 
     crStateGetTextureObjectAndImage(g, target, 0, &tobj, &tl);
     if (!tobj) {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "TexParamterfv(invalid target=0x%x)", target);
         return;
     }
@@ -1145,7 +1147,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
                     e != GL_NEAREST_MIPMAP_LINEAR &&
                     e != GL_LINEAR_MIPMAP_LINEAR)
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                             "TexParamterfv: GL_TEXTURE_MIN_FILTER invalid param: %d", e);
                 return;
             }
@@ -1154,7 +1156,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
         case GL_TEXTURE_MAG_FILTER:
             if (e != GL_NEAREST && e != GL_LINEAR)
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                             "TexParamterfv: GL_TEXTURE_MAG_FILTER invalid param: %d", e);
                 return;
             }
@@ -1190,7 +1192,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
             }
 #endif
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "TexParameterfv: GL_TEXTURE_WRAP_S invalid param: 0x%x", e);
                 return;
             }
@@ -1225,7 +1227,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
             }
 #endif
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "TexParameterfv: GL_TEXTURE_WRAP_T invalid param: 0x%x", e);
                 return;
             }
@@ -1259,7 +1261,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
             }
 #endif
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "TexParameterfv: GL_TEXTURE_WRAP_R invalid param: 0x%x", e);
                 return;
             }
@@ -1276,7 +1278,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
         case GL_TEXTURE_BASE_LEVEL:
             if (e < 0.0f) 
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "TexParameterfv: GL_TEXTURE_BASE_LEVEL invalid param: 0x%x", e);
                 return;
             }
@@ -1285,7 +1287,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
         case GL_TEXTURE_MAX_LEVEL:
             if (e < 0.0f) 
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "TexParameterfv: GL_TEXTURE_MAX_LEVEL invalid param: 0x%x", e);
                 return;
             }
@@ -1303,7 +1305,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
             if (g->extensions.EXT_texture_filter_anisotropic) {
                 if (param[0] < 1.0f)
                 {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                         "TexParameterfv: GL_TEXTURE_MAX_ANISOTROPY_EXT called with parameter less than 1: %f", param[0]);
                     return;
                 }
@@ -1325,7 +1327,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
                 }
                 else
                 {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                         "TexParameterfv: GL_DEPTH_TEXTURE_MODE_ARB called with invalid parameter: 0x%x", param[0]);
                     return;
                 }
@@ -1341,7 +1343,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
                 }
                 else
                 {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                         "TexParameterfv: GL_TEXTURE_COMPARE_MODE_ARB called with invalid parameter: 0x%x", param[0]);
                     return;
                 }
@@ -1367,7 +1369,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
             }
 #endif
             else {
-                    crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
                         "TexParameterfv: GL_TEXTURE_COMPARE_FUNC_ARB called with invalid parameter: 0x%x", param[0]);
                     return;
             }
@@ -1388,7 +1390,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
             break;
 #endif
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "TexParamterfv: Invalid pname: %d", pname);
             return;
     }
@@ -1403,7 +1405,7 @@ crStateTexParameterfv(GLenum target, GLenum pname, const GLfloat *param)
 
 
 void STATE_APIENTRY
-crStateTexParameteriv(GLenum target, GLenum pname, const GLint *param) 
+crStateTexParameteriv(PCRStateTracker pState, GLenum target, GLenum pname, const GLint *param) 
 {
     GLfloat f_param;
     GLcolor f_color;
@@ -1438,17 +1440,17 @@ crStateTexParameteriv(GLenum target, GLenum pname, const GLint *param)
         case GL_GENERATE_MIPMAP_SGIS:
 #endif
             f_param = (GLfloat) (*param);
-            crStateTexParameterfv( target, pname, &(f_param) );
+            crStateTexParameterfv(pState, target, pname, &(f_param) );
             break;
         case GL_TEXTURE_BORDER_COLOR:
             f_color.r = ((GLfloat) param[0])/CR_MAXINT;
             f_color.g = ((GLfloat) param[1])/CR_MAXINT;
             f_color.b = ((GLfloat) param[2])/CR_MAXINT;
             f_color.a = ((GLfloat) param[3])/CR_MAXINT;
-            crStateTexParameterfv( target, pname, (const GLfloat *) &(f_color) );
+            crStateTexParameterfv(pState, target, pname, (const GLfloat *) &(f_color) );
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "TexParamteriv: Invalid pname: %d", pname);
             return;
     }
@@ -1456,25 +1458,25 @@ crStateTexParameteriv(GLenum target, GLenum pname, const GLint *param)
 
 
 void STATE_APIENTRY
-crStateTexParameterf(GLenum target, GLenum pname, GLfloat param) 
+crStateTexParameterf(PCRStateTracker pState, GLenum target, GLenum pname, GLfloat param) 
 {
-    crStateTexParameterfv( target, pname, &param );
+    crStateTexParameterfv(pState, target, pname, &param );
 }
 
 
 void STATE_APIENTRY
-crStateTexParameteri(GLenum target, GLenum pname, GLint param) {
+crStateTexParameteri(PCRStateTracker pState, GLenum target, GLenum pname, GLint param) {
     GLfloat f_param = (GLfloat) param;
-    crStateTexParameterfv( target, pname, &f_param );
+    crStateTexParameterfv(pState, target, pname, &f_param );
 }
 
 
 void STATE_APIENTRY
-crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param) 
+crStateTexEnvfv(PCRStateTracker pState, GLenum target, GLenum pname, const GLfloat *param) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTextureBits *tb = &(sb->texture);
     GLenum e;
     GLcolorf c;
@@ -1486,7 +1488,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "glTexEnvfv called in begin/end");
         return;
     }
@@ -1494,7 +1496,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
 #if CR_EXT_texture_lod_bias
     if (target == GL_TEXTURE_FILTER_CONTROL_EXT) {
         if (!g->extensions.EXT_texture_lod_bias || pname != GL_TEXTURE_LOD_BIAS_EXT) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnv");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnv");
         }
         else {
             t->unit[t->curTextureUnit].lodBias = *param;
@@ -1508,7 +1510,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
 #if CR_ARB_point_sprite
     if (target == GL_POINT_SPRITE_ARB) {
         if (!g->extensions.ARB_point_sprite || pname != GL_COORD_REPLACE_ARB) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnv");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnv");
         }
         else {
             CRPointBits *pb = &(sb->point);
@@ -1522,7 +1524,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
 #endif
     if (target != GL_TEXTURE_ENV)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glTexEnvfv: target != GL_TEXTURE_ENV: %d", target);
         return;
     }
@@ -1538,7 +1540,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                     e != GL_REPLACE &&
                     e != GL_COMBINE_ARB)
             {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                             "glTexEnvfv: invalid param: %f", *param);
                 return;
             }
@@ -1582,7 +1584,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
             }
 #endif
             else {
-                 crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv(param=0x%x", e);
+                 crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv(param=0x%x", e);
                  return;
             }
             break;
@@ -1598,7 +1600,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                  t->unit[t->curTextureUnit].combineModeA = e;
             }
             else {
-                 crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
+                 crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
                  return;
             }
             break;
@@ -1620,7 +1622,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                 t->unit[t->curTextureUnit].combineSourceRGB[stage] = e;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
                 return;
             }
             break;
@@ -1642,7 +1644,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                 t->unit[t->curTextureUnit].combineSourceA[stage] = e;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
                 return;
             }
             break;
@@ -1659,7 +1661,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                 t->unit[t->curTextureUnit].combineOperandRGB[stage] = e;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv");
                 return;
             }
             break;
@@ -1674,7 +1676,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                 t->unit[t->curTextureUnit].combineOperandA[stage] = e;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv(param=0x%x)", e);
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glTexEnvfv(param=0x%x)", e);
                 return;
             }
             break;
@@ -1686,7 +1688,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                 t->unit[t->curTextureUnit].combineScaleRGB = *param;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "glTexEnvfv");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "glTexEnvfv");
                 return;
             }
             break;
@@ -1698,14 +1700,14 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
                 t->unit[t->curTextureUnit].combineScaleA = *param;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_VALUE, "glTexEnvfv");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE, "glTexEnvfv");
                 return;
             }
         break;
 #endif /* CR_ARB_texture_env_combine */
 
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glTexEnvfv: invalid pname: %d", pname);
             return;
     }
@@ -1716,7 +1718,7 @@ crStateTexEnvfv(GLenum target, GLenum pname, const GLfloat *param)
 
 
 void STATE_APIENTRY
-crStateTexEnviv(GLenum target, GLenum pname, const GLint *param) 
+crStateTexEnviv(PCRStateTracker pState, GLenum target, GLenum pname, const GLint *param) 
 {
     GLfloat f_param;
     GLcolor f_color;
@@ -1724,14 +1726,14 @@ crStateTexEnviv(GLenum target, GLenum pname, const GLint *param)
     switch (pname) {
         case GL_TEXTURE_ENV_MODE:
             f_param = (GLfloat) (*param);
-            crStateTexEnvfv( target, pname, &f_param );
+            crStateTexEnvfv(pState, target, pname, &f_param );
             break;
         case GL_TEXTURE_ENV_COLOR:
             f_color.r = ((GLfloat) param[0]) / CR_MAXINT;
             f_color.g = ((GLfloat) param[1]) / CR_MAXINT;
             f_color.b = ((GLfloat) param[2]) / CR_MAXINT;
             f_color.a = ((GLfloat) param[3]) / CR_MAXINT;
-            crStateTexEnvfv( target, pname, (const GLfloat *) &f_color );
+            crStateTexEnvfv(pState, target, pname, (const GLfloat *) &f_color );
             break;
 #ifdef CR_ARB_texture_env_combine
         case GL_COMBINE_RGB_ARB:
@@ -1751,24 +1753,24 @@ crStateTexEnviv(GLenum target, GLenum pname, const GLint *param)
         case GL_RGB_SCALE_ARB:
         case GL_ALPHA_SCALE:
             f_param = (GLfloat) (*param);
-            crStateTexEnvfv( target, pname, &f_param );
+            crStateTexEnvfv(pState, target, pname, &f_param );
             break;
 #endif
 #ifdef CR_EXT_texture_lod_bias
         case GL_TEXTURE_LOD_BIAS_EXT:
             f_param = (GLfloat) (*param);
-            crStateTexEnvfv( target, pname, &f_param);
+            crStateTexEnvfv(pState, target, pname, &f_param);
             break;
 #endif
 #ifdef CR_ARB_point_sprite
         case GL_COORD_REPLACE_ARB:
             f_param = (GLfloat) *param;
-            crStateTexEnvfv( target, pname, &f_param);
+            crStateTexEnvfv(pState, target, pname, &f_param);
             break;
 #endif
 
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glTexEnvfv: invalid pname: %d", pname);
             return;
     }
@@ -1776,29 +1778,29 @@ crStateTexEnviv(GLenum target, GLenum pname, const GLint *param)
 
 
 void STATE_APIENTRY
-crStateTexEnvf(GLenum target, GLenum pname, GLfloat param) 
+crStateTexEnvf(PCRStateTracker pState, GLenum target, GLenum pname, GLfloat param) 
 {
-    crStateTexEnvfv( target, pname, &param );
+    crStateTexEnvfv(pState, target, pname, &param );
 }
 
 
 void STATE_APIENTRY
-crStateTexEnvi(GLenum target, GLenum pname, GLint param) 
+crStateTexEnvi(PCRStateTracker pState, GLenum target, GLenum pname, GLint param) 
 {
     GLfloat f_param = (GLfloat) param;
-    crStateTexEnvfv( target, pname, &f_param );
+    crStateTexEnvfv(pState, target, pname, &f_param );
 }
 
 
 void STATE_APIENTRY
-crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param) 
+crStateGetTexEnvfv(PCRStateTracker pState, GLenum target, GLenum pname, GLfloat *param) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__,GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__,GL_INVALID_OPERATION,
                     "glGetTexEnvfv called in begin/end");
         return;
     }
@@ -1806,7 +1808,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
 #if CR_EXT_texture_lod_bias
     if (target == GL_TEXTURE_FILTER_CONTROL_EXT) {
         if (!g->extensions.EXT_texture_lod_bias || pname != GL_TEXTURE_LOD_BIAS_EXT) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
         }
         else {
             *param = t->unit[t->curTextureUnit].lodBias;
@@ -1818,7 +1820,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
 #if CR_ARB_point_sprite
     if (target == GL_POINT_SPRITE_ARB) {
         if (!g->extensions.ARB_point_sprite || pname != GL_COORD_REPLACE_ARB) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
         }
         else {
             *param = (GLfloat) g->point.coordReplacement[t->curTextureUnit];
@@ -1829,7 +1831,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
 #endif
     if (target != GL_TEXTURE_ENV)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexEnvfv: target != GL_TEXTURE_ENV: %d", target);
         return;
     }
@@ -1849,7 +1851,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineModeRGB;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1858,7 +1860,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineModeA;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1867,7 +1869,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineSourceRGB[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1876,7 +1878,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineSourceRGB[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1885,7 +1887,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineSourceRGB[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1894,7 +1896,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineSourceA[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1903,7 +1905,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineSourceA[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1912,7 +1914,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineSourceA[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1921,7 +1923,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineOperandRGB[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1930,7 +1932,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineOperandRGB[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1939,7 +1941,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineOperandRGB[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1948,7 +1950,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineOperandA[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1957,7 +1959,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineOperandA[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1966,7 +1968,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = (GLfloat) t->unit[t->curTextureUnit].combineOperandA[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1975,7 +1977,7 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = t->unit[t->curTextureUnit].combineScaleRGB;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
@@ -1984,12 +1986,12 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
                 *param = t->unit[t->curTextureUnit].combineScaleA;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnvfv(pname)");
                 return;
             }
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glGetTexEnvfv: invalid pname: %d", pname);
             return;
     }
@@ -1997,14 +1999,14 @@ crStateGetTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
 
 
 void STATE_APIENTRY
-crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param) 
+crStateGetTexEnviv(PCRStateTracker pState, GLenum target, GLenum pname, GLint *param) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__,GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__,GL_INVALID_OPERATION,
                     "glGetTexEnviv called in begin/end");
         return;
     }
@@ -2012,7 +2014,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
 #if CR_EXT_texture_lod_bias
     if (target == GL_TEXTURE_FILTER_CONTROL_EXT) {
         if (!g->extensions.EXT_texture_lod_bias || pname != GL_TEXTURE_LOD_BIAS_EXT) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
         }
         else {
             *param = (GLint) t->unit[t->curTextureUnit].lodBias;
@@ -2024,7 +2026,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
 #if CR_ARB_point_sprite
     if (target == GL_POINT_SPRITE_ARB) {
         if (!g->extensions.ARB_point_sprite || pname != GL_COORD_REPLACE_ARB) {
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnv");
         }
         else {
             *param = (GLint) g->point.coordReplacement[t->curTextureUnit];
@@ -2035,7 +2037,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
 #endif
     if (target != GL_TEXTURE_ENV)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexEnviv: target != GL_TEXTURE_ENV: %d", target);
         return;
     }
@@ -2055,7 +2057,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineModeRGB;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2064,7 +2066,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineModeA;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2073,7 +2075,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineSourceRGB[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2082,7 +2084,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineSourceRGB[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2091,7 +2093,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineSourceRGB[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2100,7 +2102,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineSourceA[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2109,7 +2111,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineSourceA[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2118,7 +2120,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineSourceA[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2127,7 +2129,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineOperandRGB[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2136,7 +2138,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineOperandRGB[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2145,7 +2147,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineOperandRGB[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2154,7 +2156,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineOperandA[0];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2163,7 +2165,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineOperandA[1];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2172,7 +2174,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineOperandA[2];
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2181,7 +2183,7 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineScaleRGB;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
@@ -2190,12 +2192,12 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
                 *param = (GLint) t->unit[t->curTextureUnit].combineScaleA;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, "glGetTexEnviv(pname)");
                 return;
             }
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glGetTexEnviv: invalid pname: %d", pname);
             return;
     }
@@ -2203,22 +2205,22 @@ crStateGetTexEnviv(GLenum target, GLenum pname, GLint *param)
 
 
 void STATE_APIENTRY
-crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param) 
+crStateTexGendv(PCRStateTracker pState, GLenum coord, GLenum pname, const GLdouble *param) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
     CRTransformState *trans = &(g->transform);
     GLvectorf v;
     GLenum e;
     CRmatrix inv;
-    CRStateBits *sb = GetCurrentBits();
+    CRStateBits *sb = GetCurrentBits(pState);
     CRTextureBits *tb = &(sb->texture);
 
     FLUSH();
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "glTexGen called in begin/end");
         return;
     }
@@ -2243,7 +2245,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                         DIRTY(tb->dirty, g->neg_bitid);
                     }
                     else {
-                        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                             "glTexGendv called with bad param: %lf", *param);
                         return;
                     }
@@ -2269,7 +2271,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                     DIRTY(tb->dirty, g->neg_bitid);
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glTexGendv called with bogus pname: %d", pname);
                     return;
             }
@@ -2291,7 +2293,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                         DIRTY(tb->dirty, g->neg_bitid);
                     }
                     else {
-                        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                             "glTexGendv called with bad param: %lf", *param);
                         return;
                     }
@@ -2317,7 +2319,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                     DIRTY(tb->dirty, g->neg_bitid);
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glTexGen called with bogus pname: %d", pname);
                     return;
             }
@@ -2339,7 +2341,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                         DIRTY(tb->dirty, g->neg_bitid);
                     }
                     else {
-                        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                             "glTexGen called with bad param: %lf", *param);
                         return;
                     }
@@ -2365,7 +2367,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                     DIRTY(tb->dirty, g->neg_bitid);
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glTexGen called with bogus pname: %d", pname);
                     return;
             }
@@ -2387,7 +2389,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                         DIRTY(tb->dirty, g->neg_bitid);
                     }
                     else {
-                        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                             "glTexGen called with bad param: %lf", *param);
                         return;
                     }
@@ -2413,13 +2415,13 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
                     DIRTY(tb->dirty, g->neg_bitid);
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glTexGen called with bogus pname: %d", pname);
                     return;
             }
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glTexGen called with bogus coord: %d", coord);
             return;
     }
@@ -2427,7 +2429,7 @@ crStateTexGendv(GLenum coord, GLenum pname, const GLdouble *param)
 
 
 void STATE_APIENTRY
-crStateTexGenfv(GLenum coord, GLenum pname, const GLfloat *param) 
+crStateTexGenfv(PCRStateTracker pState, GLenum coord, GLenum pname, const GLfloat *param) 
 {
     GLdouble d_param;
     GLvectord d_vector;
@@ -2435,7 +2437,7 @@ crStateTexGenfv(GLenum coord, GLenum pname, const GLfloat *param)
     {
         case GL_TEXTURE_GEN_MODE:
             d_param = (GLdouble) *param;
-            crStateTexGendv( coord, pname, &d_param );
+            crStateTexGendv(pState, coord, pname, &d_param );
             break;
         case GL_OBJECT_PLANE:
         case GL_EYE_PLANE:
@@ -2443,10 +2445,10 @@ crStateTexGenfv(GLenum coord, GLenum pname, const GLfloat *param)
             d_vector.y = (GLdouble) param[1];
             d_vector.z = (GLdouble) param[2];
             d_vector.w = (GLdouble) param[3];
-            crStateTexGendv( coord, pname, (const double *) &d_vector );
+            crStateTexGendv(pState, coord, pname, (const double *) &d_vector );
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glTexGen called with bogus pname: %d", pname);
             return;
     }
@@ -2454,7 +2456,7 @@ crStateTexGenfv(GLenum coord, GLenum pname, const GLfloat *param)
 
 
 void STATE_APIENTRY
-crStateTexGeniv(GLenum coord, GLenum pname, const GLint *param) 
+crStateTexGeniv(PCRStateTracker pState, GLenum coord, GLenum pname, const GLint *param) 
 {
     GLdouble d_param;
     GLvectord d_vector;
@@ -2462,7 +2464,7 @@ crStateTexGeniv(GLenum coord, GLenum pname, const GLint *param)
     {
         case GL_TEXTURE_GEN_MODE:
             d_param = (GLdouble) *param;
-            crStateTexGendv( coord, pname, &d_param );
+            crStateTexGendv(pState, coord, pname, &d_param );
             break;
         case GL_OBJECT_PLANE:
         case GL_EYE_PLANE:
@@ -2470,10 +2472,10 @@ crStateTexGeniv(GLenum coord, GLenum pname, const GLint *param)
             d_vector.y = (GLdouble) param[1];
             d_vector.z = (GLdouble) param[2];
             d_vector.w = (GLdouble) param[3];
-            crStateTexGendv( coord, pname, (const double *) &d_vector );
+            crStateTexGendv(pState, coord, pname, (const double *) &d_vector );
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glTexGen called with bogus pname: %d", pname);
             return;
     }
@@ -2481,37 +2483,37 @@ crStateTexGeniv(GLenum coord, GLenum pname, const GLint *param)
 
 
 void STATE_APIENTRY
-crStateTexGend (GLenum coord, GLenum pname, GLdouble param) 
+crStateTexGend (PCRStateTracker pState, GLenum coord, GLenum pname, GLdouble param) 
 {
-    crStateTexGendv( coord, pname, &param );
+    crStateTexGendv(pState, coord, pname, &param );
 }
 
 
 void STATE_APIENTRY
-crStateTexGenf(GLenum coord, GLenum pname, GLfloat param) 
+crStateTexGenf(PCRStateTracker pState, GLenum coord, GLenum pname, GLfloat param) 
 {
     GLdouble d_param = (GLdouble) param;
-    crStateTexGendv( coord, pname, &d_param );
+    crStateTexGendv(pState, coord, pname, &d_param );
 }
 
 
 void STATE_APIENTRY
-crStateTexGeni(GLenum coord, GLenum pname, GLint param) 
+crStateTexGeni(PCRStateTracker pState, GLenum coord, GLenum pname, GLint param) 
 {
     GLdouble d_param = (GLdouble) param;
-    crStateTexGendv( coord, pname, &d_param );
+    crStateTexGendv(pState, coord, pname, &d_param );
 }
 
 
 void STATE_APIENTRY
-crStateGetTexGendv(GLenum coord, GLenum pname, GLdouble *param) 
+crStateGetTexGendv(PCRStateTracker pState, GLenum coord, GLenum pname, GLdouble *param) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "glGetTexGen called in begin/end");
         return;
     }
@@ -2532,7 +2534,7 @@ crStateGetTexGendv(GLenum coord, GLenum pname, GLdouble *param)
                     *param = (GLdouble) t->unit[t->curTextureUnit].gen.q;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGen called with bogus coord: %d", coord);
                     return;
             }
@@ -2564,7 +2566,7 @@ crStateGetTexGendv(GLenum coord, GLenum pname, GLdouble *param)
                     param[3] = (GLdouble) t->unit[t->curTextureUnit].objQCoeff.w;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGen called with bogus coord: %d", coord);
                     return;
             }
@@ -2596,13 +2598,13 @@ crStateGetTexGendv(GLenum coord, GLenum pname, GLdouble *param)
                     param[3] = (GLdouble) t->unit[t->curTextureUnit].eyeQCoeff.w;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGen called with bogus coord: %d", coord);
                     return;
             }
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glGetTexGen called with bogus pname: %d", pname);
             return;
     }
@@ -2610,14 +2612,14 @@ crStateGetTexGendv(GLenum coord, GLenum pname, GLdouble *param)
 
 
 void STATE_APIENTRY
-crStateGetTexGenfv(GLenum coord, GLenum pname, GLfloat *param)
+crStateGetTexGenfv(PCRStateTracker pState, GLenum coord, GLenum pname, GLfloat *param)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "glGetTexGenfv called in begin/end");
         return;
     }
@@ -2638,7 +2640,7 @@ crStateGetTexGenfv(GLenum coord, GLenum pname, GLfloat *param)
                     *param = (GLfloat) t->unit[t->curTextureUnit].gen.q;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGenfv called with bogus coord: %d", coord);
                     return;
             }
@@ -2670,7 +2672,7 @@ crStateGetTexGenfv(GLenum coord, GLenum pname, GLfloat *param)
                     param[3] =  t->unit[t->curTextureUnit].objQCoeff.w;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGenfv called with bogus coord: %d", coord);
                     return;
             }
@@ -2702,13 +2704,13 @@ crStateGetTexGenfv(GLenum coord, GLenum pname, GLfloat *param)
                     param[3] =  t->unit[t->curTextureUnit].eyeQCoeff.w;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGenfv called with bogus coord: %d", coord);
                     return;
             }
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glGetTexGenfv called with bogus pname: %d", pname);
             return;
     }
@@ -2716,14 +2718,14 @@ crStateGetTexGenfv(GLenum coord, GLenum pname, GLfloat *param)
 
 
 void STATE_APIENTRY
-crStateGetTexGeniv(GLenum coord, GLenum pname, GLint *param)
+crStateGetTexGeniv(PCRStateTracker pState, GLenum coord, GLenum pname, GLint *param)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "glGetTexGeniv called in begin/end");
         return;
     }
@@ -2744,7 +2746,7 @@ crStateGetTexGeniv(GLenum coord, GLenum pname, GLint *param)
                     *param = (GLint) t->unit[t->curTextureUnit].gen.q;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGeniv called with bogus coord: %d", coord);
                     return;
             }
@@ -2776,7 +2778,7 @@ crStateGetTexGeniv(GLenum coord, GLenum pname, GLint *param)
                     param[3] = (GLint) t->unit[t->curTextureUnit].objQCoeff.w;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGeniv called with bogus coord: %d", coord);
                     return;
             }
@@ -2808,13 +2810,13 @@ crStateGetTexGeniv(GLenum coord, GLenum pname, GLint *param)
                     param[3] = (GLint) t->unit[t->curTextureUnit].eyeQCoeff.w;
                     break;
                 default:
-                    crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                    crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                                 "glGetTexGeniv called with bogus coord: %d", coord);
                     return;
             }
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                         "glGetTexGen called with bogus pname: %d", pname);
             return;
     }
@@ -2822,24 +2824,24 @@ crStateGetTexGeniv(GLenum coord, GLenum pname, GLint *param)
 
 
 void STATE_APIENTRY
-crStateGetTexLevelParameterfv(GLenum target, GLint level, 
+crStateGetTexLevelParameterfv(PCRStateTracker pState, GLenum target, GLint level, 
                                                             GLenum pname, GLfloat *params) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
     CRTextureObj *tobj;
     CRTextureLevel *timg;
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
             "glGetTexLevelParameterfv called in begin/end");
         return;
     }
 
     if (level < 0 || level > t->maxLevel)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
             "glGetTexLevelParameterfv: Invalid level: %d", level);
         return;
     }
@@ -2847,7 +2849,7 @@ crStateGetTexLevelParameterfv(GLenum target, GLint level,
     crStateGetTextureObjectAndImage(g, target, level, &tobj, &timg);
     if (!timg)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
             "GetTexLevelParameterfv: invalid target: 0x%x or level %d",
             target, level);
         return;
@@ -2899,7 +2901,7 @@ crStateGetTexLevelParameterfv(GLenum target, GLint level,
              break;
 #endif
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "GetTexLevelParameterfv: invalid pname: 0x%x",
                 pname);
             return;
@@ -2908,24 +2910,24 @@ crStateGetTexLevelParameterfv(GLenum target, GLint level,
 
 
 void STATE_APIENTRY
-crStateGetTexLevelParameteriv(GLenum target, GLint level, 
+crStateGetTexLevelParameteriv(PCRStateTracker pState, GLenum target, GLint level, 
                                                             GLenum pname, GLint *params) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureState *t = &(g->texture);
     CRTextureObj *tobj;
     CRTextureLevel *timg;
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
             "glGetTexLevelParameteriv called in begin/end");
         return;
     }
 
     if (level < 0 || level > t->maxLevel)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_VALUE,
             "glGetTexLevelParameteriv: Invalid level: %d", level);
         return;
     }
@@ -2933,7 +2935,7 @@ crStateGetTexLevelParameteriv(GLenum target, GLint level,
     crStateGetTextureObjectAndImage(g, target, level, &tobj, &timg);
     if (!timg)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
             "GetTexLevelParameteriv: invalid target: 0x%x",
             target);
         return;
@@ -2992,7 +2994,7 @@ crStateGetTexLevelParameteriv(GLenum target, GLint level,
             break;
 #endif
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "GetTexLevelParameteriv: invalid pname: 0x%x",
                 pname);
             return;
@@ -3001,15 +3003,15 @@ crStateGetTexLevelParameteriv(GLenum target, GLint level,
 
 
 void STATE_APIENTRY
-crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params) 
+crStateGetTexParameterfv(PCRStateTracker pState, GLenum target, GLenum pname, GLfloat *params) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureObj *tobj;
     CRTextureLevel *tl;
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "glGetTexParameterfv called in begin/end");
         return;
     }
@@ -3017,7 +3019,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
     crStateGetTextureObjectAndImage(g, target, 0, &tobj, &tl);
     if (!tobj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
             "glGetTexParameterfv: invalid target: 0x%x", target);
         return;
     }
@@ -3056,7 +3058,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
                 *params = (GLfloat) tobj->maxAnisotropy;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameterfv: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3068,7 +3070,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
                 *params = (GLfloat) tobj->depthMode;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3080,7 +3082,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
                 *params = (GLfloat) tobj->compareMode;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3090,7 +3092,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
                 *params = (GLfloat) tobj->compareFunc;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3102,7 +3104,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
                 *params = (GLfloat) tobj->compareFailValue;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3114,7 +3116,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
                 *params = (GLfloat) tobj->generateMipmap;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3145,7 +3147,7 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
             crWarning("glGetTexParameterfv GL_TEXTURE_RESIDENT is unimplemented");
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                 "glGetTexParameterfv: invalid pname: %d", pname);
             return;
     }
@@ -3153,15 +3155,15 @@ crStateGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
 
 
 void STATE_APIENTRY
-crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params) 
+crStateGetTexParameteriv(PCRStateTracker pState, GLenum target, GLenum pname, GLint *params) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureObj *tobj;
     CRTextureLevel *tl;
 
     if (g->current.inBeginEnd)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_OPERATION,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_OPERATION,
                     "glGetTexParameter called in begin/end");
         return;
     }
@@ -3169,7 +3171,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
     crStateGetTextureObjectAndImage(g, target, 0, &tobj, &tl);
     if (!tobj)
     {
-        crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+        crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
             "glGetTexParameteriv: invalid target: 0x%x", target);
         return;
     }
@@ -3222,7 +3224,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
                 *params = (GLint) tobj->maxAnisotropy;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, 
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, 
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3234,7 +3236,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
                 *params = (GLint) tobj->depthMode;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3246,7 +3248,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
                 *params = (GLint) tobj->compareMode;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3256,7 +3258,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
                 *params = (GLint) tobj->compareFunc;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3268,7 +3270,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
                 *params = (GLint) tobj->compareFailValue;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3280,7 +3282,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
                 *params = (GLint) tobj->generateMipmap;
             }
             else {
-                crStateError(__LINE__, __FILE__, GL_INVALID_ENUM,
+                crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
                     "glGetTexParameter: invalid pname: 0x%x", pname);
                 return;
             }
@@ -3291,7 +3293,7 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
             crWarning("glGetTexParameteriv GL_TEXTURE_RESIDENT is unimplemented");
             break;
         default:
-            crStateError(__LINE__, __FILE__, GL_INVALID_ENUM, 
+            crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM, 
                 "glGetTexParameter: invalid pname: %d", pname);
             return;
     }
@@ -3299,10 +3301,10 @@ crStateGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
 
 
 void STATE_APIENTRY
-crStatePrioritizeTextures(GLsizei n, const GLuint *textures,
+crStatePrioritizeTextures(PCRStateTracker pState, GLsizei n, const GLuint *textures,
                                                     const GLclampf *priorities) 
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureObj *tobj;
     GLsizei i;
     UNUSED(priorities);
@@ -3329,9 +3331,10 @@ crStatePrioritizeTextures(GLsizei n, const GLuint *textures,
 
 
 GLboolean STATE_APIENTRY
-crStateAreTexturesResident(GLsizei n, const GLuint *textures,
+crStateAreTexturesResident(PCRStateTracker pState, GLsizei n, const GLuint *textures,
                                                      GLboolean *residences) 
 {
+    RT_NOREF(pState);
     UNUSED(n);
     UNUSED(textures);
     UNUSED(residences);
@@ -3341,9 +3344,9 @@ crStateAreTexturesResident(GLsizei n, const GLuint *textures,
 
 
 GLboolean STATE_APIENTRY
-crStateIsTexture(GLuint texture)
+crStateIsTexture(PCRStateTracker pState, GLuint texture)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureObj *tobj;
 
     GET_TOBJ(tobj, g, texture);
@@ -3356,25 +3359,26 @@ static void crStateCheckTextureHWIDCB(unsigned long key, void *data1, void *data
     crCheckIDHWID_t *pParms = (crCheckIDHWID_t*) data2;
     (void) key;
 
-    if (crStateGetTextureObjHWID(pTex)==pParms->hwid)
+    if (crStateGetTextureObjHWID(pParms->pState, pTex)==pParms->hwid)
         pParms->id = pTex->id;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateTextureHWIDtoID(GLuint hwid)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateTextureHWIDtoID(PCRStateTracker pState, GLuint hwid)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     crCheckIDHWID_t parms;
 
     parms.id = hwid;
     parms.hwid = hwid;
+    parms.pState = pState;
 
     crHashtableWalk(g->shared->textureTable, crStateCheckTextureHWIDCB, &parms);
     return parms.id;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureHWID(GLuint id)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureHWID(PCRStateTracker pState, GLuint id)
 {
-    CRContext *g = GetCurrentContext();
+    CRContext *g = GetCurrentContext(pState);
     CRTextureObj *tobj;
 
     GET_TOBJ(tobj, g, id);
@@ -3395,23 +3399,25 @@ DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureHWID(GLuint id)
 #endif
 
 
-    return tobj ? crStateGetTextureObjHWID(tobj) : 0;
+    return tobj ? crStateGetTextureObjHWID(pState, tobj) : 0;
 }
 
-DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureObjHWID(CRTextureObj *tobj)
+DECLEXPORT(GLuint) STATE_APIENTRY crStateGetTextureObjHWID(PCRStateTracker pState, CRTextureObj *tobj)
 {
     CRASSERT(tobj);
 
 #ifndef IN_GUEST
     if (tobj->id && !tobj->hwid)
     {
-        CRASSERT(diff_api.GenTextures);
-        diff_api.GenTextures(1, &tobj->hwid);
+        CRASSERT(pState->diff_api.GenTextures);
+        pState->diff_api.GenTextures(1, &tobj->hwid);
 #if 0 /*def DEBUG_misha*/
         crDebug("tex id(%d), hwid(%d)", tobj->id, tobj->hwid);
 #endif
         CRASSERT(tobj->hwid);
     }
+#else
+    RT_NOREF(pState);
 #endif
 
     return tobj->hwid;

@@ -91,7 +91,6 @@ typedef struct {
                         /* glProgramLocalParameterARB, glProgramParameterNV */
 } CRServerProgram;
 
-void crServerSetVBoxConfiguration();
 void crServerSetVBoxConfigurationHGCM();
 void crServerInitDispatch(void);
 void crServerReturnValue( const void *payload, unsigned int payload_len );
@@ -107,8 +106,6 @@ void crServerApplyViewMatrix( const CRmatrix *view );
 void crServerSetOutputBounds( const CRMuralInfo *mural, int extNum );
 void crServerComputeViewportBounds( const CRViewportState *v, CRMuralInfo *mural );
 
-GLboolean crServerInitializeBucketing(CRMuralInfo *mural);
-
 void crComputeOverlapGeom(double *quads, int nquad, CRPoly ***res);
 void crComputeKnockoutGeom(double *quads, int nquad, int my_quad_idx, CRPoly **res);
 
@@ -120,7 +117,7 @@ GLint crServerDispatchCreateContextEx(const char *dpyName, GLint visualBits, GLi
 GLint crServerDispatchWindowCreateEx(const char *dpyName, GLint visBits, GLint preloadWinID);
 GLint crServerMuralInit(CRMuralInfo *mural, GLboolean fGuestWindow, GLint visBits, GLint preloadWinID);
 void crServerMuralTerm(CRMuralInfo *mural);
-GLboolean crServerMuralSize(CRMuralInfo *mural, GLint width, GLint height);
+GLboolean crServerMuralSize(CRMuralInfo *mural, GLuint width, GLuint height);
 void crServerMuralPosition(CRMuralInfo *mural, GLint x, GLint y);
 void crServerMuralVisibleRegion( CRMuralInfo *mural, GLint cRects, const GLint *pRects );
 void crServerMuralShow( CRMuralInfo *mural, GLint state );
@@ -343,7 +340,7 @@ DECLINLINE(void) crServerCtxSwitchPrepare(CR_SERVER_CTX_SWITCH *pData, CRContext
     GLuint idDrawFBO, idReadFBO;
     CRContext *pCurCtx = pCurCtxInfo ? pCurCtxInfo->pContext : NULL;
 
-    CRASSERT(pCurCtx == crStateGetCurrent());
+    CRASSERT(pCurCtx == crStateGetCurrent(&cr_server.StateTracker));
 
     if (pCurrentMural)
     {

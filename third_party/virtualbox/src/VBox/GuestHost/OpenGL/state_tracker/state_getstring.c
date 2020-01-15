@@ -13,9 +13,9 @@
 #include "cr_string.h"
 
 
-const GLubyte * STATE_APIENTRY crStateGetString( GLenum name )
+const GLubyte * STATE_APIENTRY crStateGetString(PCRStateTracker pState, GLenum name )
 {
-	CRContext *g = GetCurrentContext();
+	CRContext *g = GetCurrentContext(pState);
 	if (!g)
 		return NULL;
 
@@ -46,7 +46,7 @@ const GLubyte * STATE_APIENTRY crStateGetString( GLenum name )
 			return g->program.errorString;
 #endif
 		default:
-			crStateError( __LINE__, __FILE__, GL_INVALID_ENUM,
+			crStateError(pState, __LINE__, __FILE__, GL_INVALID_ENUM,
 									"calling glGetString() with invalid name" );
 			return NULL;
 	}

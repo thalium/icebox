@@ -161,6 +161,7 @@ fi
 # Sensible default actions
 ACTION="install"
 BUILD_MODULE="true"
+unset FORCE_UPGRADE
 while true
 do
     if [ "$2" = "" ]; then
@@ -204,7 +205,7 @@ if [ "$ACTION" = "install" ]; then
         . $CONFIG_DIR/$CONFIG
         PREV_INSTALLATION=$INSTALL_DIR
     fi
-    if ! check_previous $INSTALL_DIR
+    if ! check_previous $INSTALL_DIR && test -z "$FORCE_UPGRADE"
     then
         info
         info "You appear to have a version of VirtualBox on your system which was installed"

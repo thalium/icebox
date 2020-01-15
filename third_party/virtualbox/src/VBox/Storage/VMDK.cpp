@@ -137,6 +137,9 @@ typedef struct SparseExtentHeader
 } SparseExtentHeader;
 #pragma pack()
 
+/** The maximum allowed descriptor size in the extent header in sectors. */
+#define VMDK_SPARSE_DESCRIPTOR_SIZE_MAX UINT64_C(20480) /* 10MB */
+
 /** VMDK capacity for a single chunk when 2G splitting is turned on. Should be
  * divisible by the default grain size (64K) */
 #define VMDK_2G_SPLIT_SIZE (2047 * 1024 * 1024)
@@ -2583,6 +2586,12 @@ static int vmdkValidateHeader(PVMDKIMAGE pImage, PVMDKEXTENT pExtent, const Spar
              || pHeader->doubleEndLineChar2 != '\n') )
     {
         rc = vdIfError(pImage->pIfError, VERR_VD_VMDK_INVALID_HEADER, RT_SRC_POS, N_("VMDK: corrupted by CR/LF translation in '%s'"), pExtent->pszFullname);
+        return rc;
+    }
+    if (RT_LE2H_U64(pHeader->descriptorSize) > VMDK_SPARSE_DESCRIPTOR_SIZE_MAX)
+    {
+        rc = vdIfError(pImage->pIfError, VERR_VD_VMDK_INVALID_HEADER, RT_SRC_POS, N_("VMDK: descriptor size out of bounds (%llu vs %llu) '%s'"),
+                       pExtent->pszFullname, RT_LE2H_U64(pHeader->descriptorSize), VMDK_SPARSE_DESCRIPTOR_SIZE_MAX);
         return rc;
     }
     return rc;

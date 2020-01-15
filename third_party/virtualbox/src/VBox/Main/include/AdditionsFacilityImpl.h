@@ -61,7 +61,7 @@ public:
     com::Utf8Str i_getName() const;
     AdditionsFacilityStatus_T i_getStatus() const;
     AdditionsFacilityType_T i_getType() const;
-    void i_update(AdditionsFacilityStatus_T a_enmStatus, uint32_t a_fFlags, PCRTTIMESPEC a_pTimeSpecTS);
+    bool i_update(AdditionsFacilityStatus_T a_enmStatus, uint32_t a_fFlags, PCRTTIMESPEC a_pTimeSpecTS);
 
 private:
 

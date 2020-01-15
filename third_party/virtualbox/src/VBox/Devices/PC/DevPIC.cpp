@@ -332,7 +332,7 @@ PDMBOTHCBDECL(void) picSetIrq(PPDMDEVINS pDevIns, int iIrq, int iLevel, uint32_t
     Assert(pThis->CTX_SUFF(pDevIns) == pDevIns);
     Assert(pThis->aPics[0].CTX_SUFF(pDevIns) == pDevIns);
     Assert(pThis->aPics[1].CTX_SUFF(pDevIns) == pDevIns);
-    AssertMsg(iIrq < 16, ("iIrq=%d\n", iIrq));
+    AssertMsgReturnVoid(iIrq < 16, ("iIrq=%d\n", iIrq));
 
     Log(("picSetIrq %d %d\n", iIrq, iLevel));
     DumpPICState(&pThis->aPics[0], "picSetIrq");
@@ -810,6 +810,8 @@ static DECLCALLBACK(int) picLoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uint32
         SSMR3GetU8(pSSM, &pThis->aPics[i].init4);
         SSMR3GetU8(pSSM, &pThis->aPics[i].elcr);
     }
+
+    /* Note! PDM will restore the VMCPU_FF_INTERRUPT_PIC state. */
     return VINF_SUCCESS;
 }
 

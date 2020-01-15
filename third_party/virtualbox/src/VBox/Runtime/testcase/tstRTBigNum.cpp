@@ -856,6 +856,7 @@ static void testModulo(void)
         RTTESTI_CHECK_RC(RTBigNumModulo(&Result, &g_LargeNegative, &g_LargeNegativePluss1), VINF_SUCCESS);
         RTTESTI_CHECK(RTBigNumCompareWithS64(&Result, -1) == 0);
 
+        RTTESTI_CHECK_RC(RTBigNumDestroy(&Tmp), VINF_SUCCESS);
         RTTESTI_CHECK_RC(RTBigNumDestroy(&Result), VINF_SUCCESS);
     }
 }
@@ -1035,6 +1036,7 @@ static void testModExp(void)
     RTTESTI_CHECK_RC_RETV(RTBigNumInitZero(&Result, 0), VINF_SUCCESS);
     RTTESTI_CHECK_RC(RTBigNumModExp(&Result, &g_Signature, &g_PubKeyExp, &g_PubKeyMod), VINF_SUCCESS);
     RTTESTI_CHECK(RTBigNumCompare(&Result, &g_SignatureDecrypted) == 0);
+    RTTESTI_CHECK_RC(RTBigNumDestroy(&Result), VINF_SUCCESS);
 }
 
 
@@ -1173,6 +1175,8 @@ static void testBenchmarks(bool fOnlyModExp)
     RTTESTI_CHECK_RC(rc, VINF_SUCCESS);
     RTTestIValue("RTBigNumModulo", uElapsed / cRounds, RTTESTUNIT_NS_PER_CALL);
 
+    RTBigNumDestroy(&Decrypted);
+
 #if 1
     /* Compare with OpenSSL BN. */
     BIGNUM *pObnProduct = BN_new();
@@ -1207,6 +1211,8 @@ static void testBenchmarks(bool fOnlyModExp)
     RTTESTI_CHECK_RC(rc, VINF_SUCCESS);
     RTTestIValue("RTBigNumMultiply", uElapsed / cRounds, RTTESTUNIT_NS_PER_CALL);
 
+    RTBigNumDestroy(&Product);
+
 #if 1
     /* Compare with OpenSSL BN. */
     rc = 1;
@@ -1220,6 +1226,14 @@ static void testBenchmarks(bool fOnlyModExp)
     uElapsed = RTTimeNanoTS() - uStartTS;
     RTTESTI_CHECK_RC(rc, 1);
     RTTestIValue("BN_mul", uElapsed / cRounds, RTTESTUNIT_NS_PER_CALL);
+
+    BN_free(pObnPubKeyExp);
+    BN_free(pObnPubKeyMod);
+    BN_free(pObnSignature);
+    BN_free(pObnSignatureDecrypted);
+    BN_free(pObnResult);
+    BN_free(pObnProduct);
+    BN_CTX_free(pObnCtx);
 #endif
 
 }

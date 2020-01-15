@@ -591,6 +591,8 @@ RTASN1TYPE_STANDARD_PROTOTYPES_NO_GET_CORE(RTASN1CORE, RTDECL, RTAsn1Core);
  * set, uData might be NULL or point to some shared static memory for
  * frequently used values. */
 #define RTASN1CORE_F_DECODED_CONTENT    RT_BIT_32(6)
+/** Indefinite length, still pending. */
+#define RTASN1CORE_F_INDEFINITE_LENGTH  RT_BIT_32(7)
 /** @} */
 
 
@@ -1648,9 +1650,11 @@ typedef struct RTASN1CURSOR
 /** @name RTASN1CURSOR_FLAGS_XXX - Cursor flags.
  * @{ */
 /** Enforce DER rules. */
-#define RTASN1CURSOR_FLAGS_DER      RT_BIT(1)
+#define RTASN1CURSOR_FLAGS_DER                  RT_BIT(1)
 /** Enforce CER rules. */
-#define RTASN1CURSOR_FLAGS_CER      RT_BIT(2)
+#define RTASN1CURSOR_FLAGS_CER                  RT_BIT(2)
+/** Pending indefinite length encoding. */
+#define RTASN1CURSOR_FLAGS_INDEFINITE_LENGTH    RT_BIT(3)
 /** @} */
 
 
@@ -1662,6 +1666,8 @@ typedef struct RTASN1CURSORPRIMARY
     PRTERRINFO                  pErrInfo;
     /** The allocator virtual method table. */
     PCRTASN1ALLOCATORVTABLE     pAllocator;
+    /** Pointer to the first byte.  Useful for calculating offsets. */
+    uint8_t const              *pbFirst;
 } RTASN1CURSORPRIMARY;
 typedef RTASN1CURSORPRIMARY *PRTASN1CURSORPRIMARY;
 
@@ -1759,6 +1765,52 @@ RTDECL(int) RTAsn1CursorSetInfoV(PRTASN1CURSOR pCursor, int rc, const char *pszM
  * @param   pCursor             The cursor we're decoding from.
  */
 RTDECL(int) RTAsn1CursorCheckEnd(PRTASN1CURSOR pCursor);
+
+/**
+ * Specialization of RTAsn1CursorCheckEnd for handling indefinite length sequences.
+ *
+ * Makes sure we've reached the end of the data for the cursor, and in case of a
+ * an indefinite length sequence it may adjust sequence length and the parent
+ * cursor.
+ *
+ * @returns IPRT status code.
+ * @param   pCursor             The cursor we're decoding from.
+ * @param   pSeqCore            The sequence core record.
+ * @sa      RTAsn1CursorCheckSetEnd, RTAsn1CursorCheckOctStrEnd,
+ *          RTAsn1CursorCheckEnd
+ */
+RTDECL(int) RTAsn1CursorCheckSeqEnd(PRTASN1CURSOR pCursor, PRTASN1SEQUENCECORE pSeqCore);
+
+/**
+ * Specialization of RTAsn1CursorCheckEnd for handling indefinite length sets.
+ *
+ * Makes sure we've reached the end of the data for the cursor, and in case of a
+ * an indefinite length sets it may adjust set length and the parent cursor.
+ *
+ * @returns IPRT status code.
+ * @param   pCursor             The cursor we're decoding from.
+ * @param   pSetCore            The set core record.
+ * @sa      RTAsn1CursorCheckSeqEnd, RTAsn1CursorCheckOctStrEnd,
+ *          RTAsn1CursorCheckEnd
+ */
+RTDECL(int) RTAsn1CursorCheckSetEnd(PRTASN1CURSOR pCursor, PRTASN1SETCORE pSetCore);
+
+/**
+ * Specialization of RTAsn1CursorCheckEnd for handling indefinite length
+ * constructed octet strings.
+ *
+ * This function must used when parsing the content of an octet string, like
+ * for example the Content of a PKCS\#7 ContentInfo structure.  It makes sure
+ * we've reached the end of the data for the cursor, and in case of a an
+ * indefinite length sets it may adjust set length and the parent cursor.
+ *
+ * @returns IPRT status code.
+ * @param   pCursor             The cursor we're decoding from.
+ * @param   pOctetString        The octet string.
+ * @sa      RTAsn1CursorCheckSeqEnd, RTAsn1CursorCheckSetEnd,
+ *          RTAsn1CursorCheckEnd
+ */
+RTDECL(int) RTAsn1CursorCheckOctStrEnd(PRTASN1CURSOR pCursor, PRTASN1OCTETSTRING pOctetString);
 
 
 /**

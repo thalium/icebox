@@ -1637,6 +1637,14 @@ static void e1kWakeupReceive(PPDMDEVINS pDevIns)
 static void e1kHardReset(PE1KSTATE pThis)
 {
     E1kLog(("%s Hard reset triggered\n", pThis->szPrf));
+    /* No interrupts should survive device reset, see @bugref(9556). */
+    if (pThis->fIntRaised)
+    {
+        /* Lower(0) INTA(0) */
+        PDMDevHlpPCISetIrq(pThis->CTX_SUFF(pDevIns), 0, 0);
+        pThis->fIntRaised = false;
+        E1kLog(("%s e1kHardReset: Lowered IRQ: ICR=%08x\n", pThis->szPrf, ICR));
+    }
     memset(pThis->auRegs,        0, sizeof(pThis->auRegs));
     memset(pThis->aRecAddr.au32, 0, sizeof(pThis->aRecAddr.au32));
 #ifdef E1K_INIT_RA0
@@ -2396,7 +2404,8 @@ static int e1kHandleRxPacket(PE1KSTATE pThis, const void *pvBuf, size_t cb, E1KR
         E1kLog3(("%s Added FCS (cb=%u)\n", pThis->szPrf, cb));
     }
     /* Compute checksum of complete packet */
-    uint16_t checksum = e1kCSum16(rxPacket + GET_BITS(RXCSUM, PCSS), cb);
+    size_t cbCSumStart = RT_MIN(GET_BITS(RXCSUM, PCSS), cb);
+    uint16_t checksum = e1kCSum16(rxPacket + cbCSumStart, cb - cbCSumStart);
     e1kRxChecksumOffload(pThis, rxPacket, cb, &status);
 
     /* Update stats */
@@ -2451,6 +2460,8 @@ static int e1kHandleRxPacket(PE1KSTATE pThis, const void *pvBuf, size_t cb, E1KR
 # endif /* !E1K_WITH_RXD_CACHE */
         if (pDesc->u64BufAddr)
         {
+            uint16_t u16RxBufferSize = pThis->u16RxBSize; /* see @bugref{9427} */
+
             /* Update descriptor */
             pDesc->status        = status;
             pDesc->u16Checksum   = checksum;
@@ -2464,16 +2475,16 @@ static int e1kHandleRxPacket(PE1KSTATE pThis, const void *pvBuf, size_t cb, E1KR
              * e1kRegWriteRDT() never modifies RDH. It never touches already
              * fetched RxD cache entries either.
              */
-            if (cb > pThis->u16RxBSize)
+            if (cb > u16RxBufferSize)
             {
                 pDesc->status.fEOP = false;
                 e1kCsRxLeave(pThis);
-                e1kStoreRxFragment(pThis, pDesc, ptr, pThis->u16RxBSize);
+                e1kStoreRxFragment(pThis, pDesc, ptr, u16RxBufferSize);
                 rc = e1kCsRxEnter(pThis, VERR_SEM_BUSY);
                 if (RT_UNLIKELY(rc != VINF_SUCCESS))
                     return rc;
-                ptr += pThis->u16RxBSize;
-                cb -= pThis->u16RxBSize;
+                ptr += u16RxBufferSize;
+                cb -= u16RxBufferSize;
             }
             else
             {
@@ -3127,6 +3138,8 @@ static int e1kRegWriteRCTL(PE1KSTATE pThis, uint32_t offset, uint32_t index, uin
     unsigned cbRxBuf = 2048 >> GET_BITS_V(value, RCTL, BSIZE);
     if (value & RCTL_BSEX)
         cbRxBuf *= 16;
+    if (cbRxBuf > E1K_MAX_RX_PKT_SIZE)
+        cbRxBuf = E1K_MAX_RX_PKT_SIZE;
     if (cbRxBuf != pThis->u16RxBSize)
         E1kLog2(("%s e1kRegWriteRCTL: Setting receive buffer size to %d (old %d)\n",
                  pThis->szPrf, cbRxBuf, pThis->u16RxBSize));
@@ -3767,7 +3780,7 @@ DECLINLINE(int) e1kXmitAllocBuf(PE1KSTATE pThis, bool fGso)
         pSg = &pThis->uTxFallback.Sg;
         pSg->fFlags      = PDMSCATTERGATHER_FLAGS_MAGIC | PDMSCATTERGATHER_FLAGS_OWNER_3;
         pSg->cbUsed      = 0;
-        pSg->cbAvailable = 0;
+        pSg->cbAvailable = sizeof(pThis->aTxPacketFallback);
         pSg->pvAllocator = pThis;
         pSg->pvUser      = NULL; /* No GSO here. */
         pSg->cSegs       = 1;
@@ -4204,10 +4217,14 @@ static int e1kFallbackAddSegment(PE1KSTATE pThis, RTGCPHYS PhysAddr, uint16_t u1
 
     E1kLog3(("%s e1kFallbackAddSegment: Length=%x, remaining payload=%x, header=%x, send=%RTbool\n",
              pThis->szPrf, u16Len, pThis->u32PayRemain, pThis->u16HdrRemain, fSend));
-    Assert(pThis->u32PayRemain + pThis->u16HdrRemain > 0);
+    AssertReturn(pThis->u32PayRemain + pThis->u16HdrRemain > 0, VINF_SUCCESS);
 
-    PDMDevHlpPhysRead(pThis->CTX_SUFF(pDevIns), PhysAddr,
-                      pThis->aTxPacketFallback + pThis->u16TxPktLen, u16Len);
+    if (pThis->u16TxPktLen + u16Len <= sizeof(pThis->aTxPacketFallback))
+        PDMDevHlpPhysRead(pThis->CTX_SUFF(pDevIns), PhysAddr,
+                          pThis->aTxPacketFallback + pThis->u16TxPktLen, u16Len);
+    else
+        E1kLog(("%s e1kFallbackAddSegment: writing beyond aTxPacketFallback, u16TxPktLen=%d(0x%x) + u16Len=%d(0x%x) > %d\n",
+                pThis->szPrf, pThis->u16TxPktLen, pThis->u16TxPktLen, u16Len, u16Len, sizeof(pThis->aTxPacketFallback)));
     E1kLog3(("%s Dump of the segment:\n"
             "%.*Rhxd\n"
             "%s --- End of dump ---\n",
@@ -4239,7 +4256,10 @@ static int e1kFallbackAddSegment(PE1KSTATE pThis, RTGCPHYS PhysAddr, uint16_t u1
         }
     }
 
-    pThis->u32PayRemain -= u16Len;
+    if (u16Len > pThis->u32PayRemain)
+        pThis->u32PayRemain = 0;
+    else
+        pThis->u32PayRemain -= u16Len;
 
     if (fSend)
     {
@@ -4279,12 +4299,19 @@ static int e1kFallbackAddSegment(PE1KSTATE pThis, RTGCPHYS PhysAddr, uint16_t u1
          */
         if (pThis->CTX_SUFF(pTxSg))
         {
-            Assert(pThis->u16TxPktLen <= pThis->CTX_SUFF(pTxSg)->cbAvailable);
+            /* Make sure the packet fits into the allocated buffer */
+            size_t cbCopy = RT_MIN(pThis->u16TxPktLen, pThis->CTX_SUFF(pTxSg)->cbAvailable);
+#ifdef DEBUG
+            if (pThis->u16TxPktLen > pThis->CTX_SUFF(pTxSg)->cbAvailable)
+                E1kLog(("%s e1kFallbackAddSegment: truncating packet, u16TxPktLen=%d(0x%x) > cbAvailable=%d(0x%x)\n",
+                        pThis->szPrf, pThis->u16TxPktLen, pThis->u16TxPktLen,
+                        pThis->CTX_SUFF(pTxSg)->cbAvailable, pThis->CTX_SUFF(pTxSg)->cbAvailable));
+#endif /* DEBUG */
             Assert(pThis->CTX_SUFF(pTxSg)->cSegs == 1);
             if (pThis->CTX_SUFF(pTxSg)->aSegs[0].pvSeg != pThis->aTxPacketFallback)
-                memcpy(pThis->CTX_SUFF(pTxSg)->aSegs[0].pvSeg, pThis->aTxPacketFallback, pThis->u16TxPktLen);
-            pThis->CTX_SUFF(pTxSg)->cbUsed         = pThis->u16TxPktLen;
-            pThis->CTX_SUFF(pTxSg)->aSegs[0].cbSeg = pThis->u16TxPktLen;
+                memcpy(pThis->CTX_SUFF(pTxSg)->aSegs[0].pvSeg, pThis->aTxPacketFallback, cbCopy);
+            pThis->CTX_SUFF(pTxSg)->cbUsed         = cbCopy;
+            pThis->CTX_SUFF(pTxSg)->aSegs[0].cbSeg = cbCopy;
         }
         e1kTransmitFrame(pThis, fOnWorkerThread);
 
@@ -4400,6 +4427,9 @@ static int e1kFallbackAddToFrame(PE1KSTATE pThis, E1KTXDESC *pDesc, bool fOnWork
 #endif
 
     uint16_t u16MaxPktLen = pThis->contextTSE.dw3.u8HDRLEN + pThis->contextTSE.dw3.u16MSS;
+    /* We cannot produce empty packets, ignore all TX descriptors (see @bugref{9571}) */
+    if (u16MaxPktLen == 0)
+        return VINF_SUCCESS;
 
     /*
      * Carve out segments.
@@ -4462,21 +4492,26 @@ static bool e1kAddToFrame(PE1KSTATE pThis, RTGCPHYS PhysAddr, uint32_t cbFragmen
     bool const          fGso     = e1kXmitIsGsoBuf(pTxSg);
     uint32_t const      cbNewPkt = cbFragment + pThis->u16TxPktLen;
 
+    LogFlow(("%s e1kAddToFrame: ENTER cbFragment=%d u16TxPktLen=%d cbUsed=%d cbAvailable=%d fGSO=%s\n",
+             pThis->szPrf, cbFragment, pThis->u16TxPktLen, pTxSg->cbUsed, pTxSg->cbAvailable,
+             fGso ? "true" : "false"));
     if (RT_UNLIKELY( !fGso && cbNewPkt > E1K_MAX_TX_PKT_SIZE ))
     {
         E1kLog(("%s Transmit packet is too large: %u > %u(max)\n", pThis->szPrf, cbNewPkt, E1K_MAX_TX_PKT_SIZE));
         return false;
     }
-    if (RT_UNLIKELY( fGso && cbNewPkt > pTxSg->cbAvailable ))
+    if (RT_UNLIKELY( cbNewPkt > pTxSg->cbAvailable ))
     {
-        E1kLog(("%s Transmit packet is too large: %u > %u(max)/GSO\n", pThis->szPrf, cbNewPkt, pTxSg->cbAvailable));
+        E1kLog(("%s Transmit packet is too large: %u > %u(max)\n", pThis->szPrf, cbNewPkt, pTxSg->cbAvailable));
         return false;
     }
 
     if (RT_LIKELY(pTxSg))
     {
         Assert(pTxSg->cSegs == 1);
-        Assert(pTxSg->cbUsed == pThis->u16TxPktLen);
+        if (pTxSg->cbUsed != pThis->u16TxPktLen)
+            E1kLog(("%s e1kAddToFrame:  pTxSg->cbUsed=%d(0x%x) != u16TxPktLen=%d(0x%x)\n",
+                    pThis->szPrf, pTxSg->cbUsed, pTxSg->cbUsed, pThis->u16TxPktLen, pThis->u16TxPktLen));
 
         PDMDevHlpPhysRead(pThis->CTX_SUFF(pDevIns), PhysAddr,
                           (uint8_t *)pTxSg->aSegs[0].pvSeg + pThis->u16TxPktLen, cbFragment);
@@ -4854,6 +4889,13 @@ static int e1kXmitDesc(PE1KSTATE pThis, E1KTXDESC *pDesc, RTGCPHYS addr,
 
     e1kPrintTDesc(pThis, pDesc, "vvv");
 
+    if (pDesc->legacy.dw3.fDD)
+    {
+        E1kLog(("%s e1kXmitDesc: skipping bad descriptor ^^^\n", pThis->szPrf));
+        e1kDescReport(pThis, pDesc, addr);
+        return VINF_SUCCESS;
+    }
+
 //#ifdef E1K_USE_TX_TIMERS
     if (pThis->fTidEnabled)
         TMTimerStop(pThis->CTX_SUFF(pTIDTimer));
@@ -5055,9 +5097,21 @@ static bool e1kLocateTxPacket(PE1KSTATE pThis)
         switch (e1kGetDescType(pDesc))
         {
             case E1K_DTYP_CONTEXT:
-                e1kUpdateTxContext(pThis, pDesc);
+                if (cbPacket == 0)
+                    e1kUpdateTxContext(pThis, pDesc);
+                else
+                    E1kLog(("%s e1kLocateTxPacket: ignoring a context descriptor in the middle of a packet, cbPacket=%d\n",
+                            pThis->szPrf, cbPacket));
                 continue;
             case E1K_DTYP_LEGACY:
+                /* Skip invalid descriptors. */
+                if (cbPacket > 0 && (pThis->fGSO || fTSE))
+                {
+                    E1kLog(("%s e1kLocateTxPacket: ignoring a legacy descriptor in the segmentation context, cbPacket=%d\n",
+                            pThis->szPrf, cbPacket));
+                    pDesc->legacy.dw3.fDD = true; /* Make sure it is skipped by processing */
+                    continue;
+                }
                 /* Skip empty descriptors. */
                 if (!pDesc->legacy.u64BufAddr || !pDesc->legacy.cmd.u16Length)
                     break;
@@ -5065,6 +5119,14 @@ static bool e1kLocateTxPacket(PE1KSTATE pThis)
                 pThis->fGSO = false;
                 break;
             case E1K_DTYP_DATA:
+                /* Skip invalid descriptors. */
+                if (cbPacket > 0 && (bool)pDesc->data.cmd.fTSE != fTSE)
+                {
+                    E1kLog(("%s e1kLocateTxPacket: ignoring %sTSE descriptor in the %ssegmentation context, cbPacket=%d\n",
+                            pThis->szPrf, pDesc->data.cmd.fTSE ? "" : "non-", fTSE ? "" : "non-", cbPacket));
+                    pDesc->data.dw3.fDD = true; /* Make sure it is skipped by processing */
+                    continue;
+                }
                 /* Skip empty descriptors. */
                 if (!pDesc->data.u64BufAddr || !pDesc->data.cmd.u20DTALEN)
                     break;
@@ -5113,8 +5175,9 @@ static bool e1kLocateTxPacket(PE1KSTATE pThis)
                 RT_MIN(cbPacket, pThis->contextTSE.dw3.u16MSS + pThis->contextTSE.dw3.u8HDRLEN);
             if (pThis->fVTag)
                 pThis->cbTxAlloc += 4;
-            LogFlow(("%s e1kLocateTxPacket: RET true cbTxAlloc=%d\n",
-                     pThis->szPrf, pThis->cbTxAlloc));
+            LogFlow(("%s e1kLocateTxPacket: RET true cbTxAlloc=%d cbPacket=%d%s%s\n",
+                     pThis->szPrf, pThis->cbTxAlloc, cbPacket,
+                     pThis->fGSO ? " GSO" : "", fTSE ? " TSE" : ""));
             return true;
         }
     }
@@ -5126,8 +5189,8 @@ static bool e1kLocateTxPacket(PE1KSTATE pThis)
                  pThis->szPrf, pThis->cbTxAlloc));
         return true;
     }
-    LogFlow(("%s e1kLocateTxPacket: RET false cbTxAlloc=%d\n",
-             pThis->szPrf, pThis->cbTxAlloc));
+    LogFlow(("%s e1kLocateTxPacket: RET false cbTxAlloc=%d cbPacket=%d\n",
+             pThis->szPrf, pThis->cbTxAlloc, cbPacket));
     return false;
 }
 
@@ -5436,9 +5499,7 @@ static DECLCALLBACK(bool) e1kTxQueueConsumer(PPDMDEVINS pDevIns, PPDMQUEUEITEMCO
     E1kLog2(("%s e1kTxQueueConsumer:\n", pThis->szPrf));
 
     int rc = e1kXmitPending(pThis, false /*fOnWorkerThread*/); NOREF(rc);
-#ifndef DEBUG_andy /** @todo r=andy Happens for me a lot, mute this for me. */
-    AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
-#endif
+    AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN || rc == VERR_NET_DOWN, ("%Rrc\n", rc));
     return true;
 }
 
@@ -6903,6 +6964,8 @@ static DECLCALLBACK(int) e1kLoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uint32
         //SSMR3GetBool(pSSM, pThis->fDelayInts);
         //SSMR3GetBool(pSSM, pThis->fIntMaskUsed);
         SSMR3GetU16(pSSM, &pThis->u16TxPktLen);
+        if (pThis->u16TxPktLen > sizeof(pThis->aTxPacketFallback))
+            pThis->u16TxPktLen = sizeof(pThis->aTxPacketFallback);
         SSMR3GetMem(pSSM, &pThis->aTxPacketFallback[0], pThis->u16TxPktLen);
         SSMR3GetBool(pSSM, &pThis->fIPcsum);
         SSMR3GetBool(pSSM, &pThis->fTCPcsum);

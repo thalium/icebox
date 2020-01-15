@@ -67,6 +67,85 @@ VBGLR3DECL(int) VbglR3GuestCtrlDisconnect(uint32_t idClient)
 
 
 /**
+ * Reports features to the host and retrieve host feature set.
+ *
+ * @returns VBox status code.
+ * @param   idClient        The client ID returned by VbglR3GuestCtrlConnect().
+ * @param   fGuestFeatures  Features to report, VBOX_GUESTCTRL_GF_XXX.
+ * @param   pfHostFeatures  Where to store the features VBOX_GUESTCTRL_HF_XXX.
+ */
+VBGLR3DECL(int) VbglR3GuestCtrlReportFeatures(uint32_t idClient, uint64_t fGuestFeatures, uint64_t *pfHostFeatures)
+{
+    int rc;
+    do
+    {
+        struct
+        {
+            VBGLIOCHGCMCALL         Hdr;
+            HGCMFunctionParameter   f64Features0;
+            HGCMFunctionParameter   f64Features1;
+        } Msg;
+        VBGL_HGCM_HDR_INIT(&Msg.Hdr, idClient, GUEST_MSG_REPORT_FEATURES, 2);
+        VbglHGCMParmUInt64Set(&Msg.f64Features0, fGuestFeatures);
+        VbglHGCMParmUInt64Set(&Msg.f64Features1, VBOX_GUESTCTRL_GF_1_MUST_BE_ONE);
+
+        rc = VbglR3HGCMCall(&Msg.Hdr, sizeof(Msg));
+        if (RT_SUCCESS(rc))
+        {
+            Assert(Msg.f64Features0.type == VMMDevHGCMParmType_64bit);
+            Assert(Msg.f64Features1.type == VMMDevHGCMParmType_64bit);
+            if (Msg.f64Features1.u.value64 & VBOX_GUESTCTRL_GF_1_MUST_BE_ONE)
+                rc = VERR_NOT_SUPPORTED;
+            else if (pfHostFeatures)
+                *pfHostFeatures = Msg.f64Features0.u.value64;
+            break;
+        }
+    } while (rc == VERR_INTERRUPTED);
+    return rc;
+
+}
+
+
+/**
+ * Query the host features.
+ *
+ * @returns VBox status code.
+ * @param   idClient        The client ID returned by VbglR3GuestCtrlConnect().
+ * @param   pfHostFeatures  Where to store the host feature, VBOX_GUESTCTRL_HF_XXX.
+ */
+VBGLR3DECL(int) VbglR3GuestCtrlQueryFeatures(uint32_t idClient, uint64_t *pfHostFeatures)
+{
+    int rc;
+    do
+    {
+        struct
+        {
+            VBGLIOCHGCMCALL         Hdr;
+            HGCMFunctionParameter   f64Features0;
+            HGCMFunctionParameter   f64Features1;
+        } Msg;
+        VBGL_HGCM_HDR_INIT(&Msg.Hdr, idClient, GUEST_MSG_QUERY_FEATURES, 2);
+        VbglHGCMParmUInt64Set(&Msg.f64Features0, 0);
+        VbglHGCMParmUInt64Set(&Msg.f64Features1, RT_BIT_64(63));
+
+        rc = VbglR3HGCMCall(&Msg.Hdr, sizeof(Msg));
+        if (RT_SUCCESS(rc))
+        {
+            Assert(Msg.f64Features0.type == VMMDevHGCMParmType_64bit);
+            Assert(Msg.f64Features1.type == VMMDevHGCMParmType_64bit);
+            if (Msg.f64Features1.u.value64 & RT_BIT_64(63))
+                rc = VERR_NOT_SUPPORTED;
+            else if (pfHostFeatures)
+                *pfHostFeatures = Msg.f64Features0.u.value64;
+            break;
+        }
+    } while (rc == VERR_INTERRUPTED);
+    return rc;
+
+}
+
+
+/**
  * Waits until a new host message arrives.
  * This will block until a message becomes available.
  *
@@ -664,7 +743,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileGetReadAt(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VBGL_HGCM_HDR_INIT(&Msg.hdr, pCtx->uClientID, GUEST_MSG_WAIT, pCtx->uNumParms);
     VbglHGCMParmUInt32Set(&Msg.context, 0);
     VbglHGCMParmUInt32Set(&Msg.handle, 0);
-    VbglHGCMParmUInt32Set(&Msg.offset, 0);
+    VbglHGCMParmUInt64Set(&Msg.offset, 0);
     VbglHGCMParmUInt32Set(&Msg.size, 0);
 
     int rc = VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
@@ -725,7 +804,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileGetWriteAt(PVBGLR3GUESTCTRLCMDCTX pCtx, uint3
     VbglHGCMParmUInt32Set(&Msg.handle, 0);
     VbglHGCMParmPtrSet(&Msg.data, pvData, cbData);
     VbglHGCMParmUInt32Set(&Msg.size, 0);
-    VbglHGCMParmUInt32Set(&Msg.offset, 0);
+    VbglHGCMParmUInt64Set(&Msg.offset, 0);
 
     int rc = VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
     if (RT_SUCCESS(rc))
@@ -785,6 +864,34 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileGetTell(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t
     {
         Msg.context.GetUInt32(&pCtx->uContextID);
         Msg.handle.GetUInt32(puHandle);
+    }
+    return rc;
+}
+
+
+/**
+ * Retrieves a HOST_FILE_SET_SIZE message.
+ */
+VBGLR3DECL(int) VbglR3GuestCtrlFileGetSetSize(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t *puHandle, uint64_t *pcbNew)
+{
+    AssertPtrReturn(pCtx, VERR_INVALID_POINTER);
+
+    AssertReturn(pCtx->uNumParms == 3, VERR_INVALID_PARAMETER);
+    AssertPtrReturn(puHandle, VERR_INVALID_POINTER);
+    AssertPtrReturn(pcbNew, VERR_INVALID_POINTER);
+
+    HGCMMsgFileSetSize Msg;
+    VBGL_HGCM_HDR_INIT(&Msg.Hdr, pCtx->uClientID, GUEST_MSG_WAIT, pCtx->uNumParms);
+    VbglHGCMParmUInt32Set(&Msg.id32Context, HOST_MSG_FILE_SET_SIZE);
+    VbglHGCMParmUInt32Set(&Msg.id32Handle, 0);
+    VbglHGCMParmUInt64Set(&Msg.cb64NewSize, 0);
+
+    int rc = VbglR3HGCMCall(&Msg.Hdr, sizeof(Msg));
+    if (RT_SUCCESS(rc))
+    {
+        Msg.id32Context.GetUInt32(&pCtx->uContextID);
+        Msg.id32Handle.GetUInt32(puHandle);
+        Msg.cb64NewSize.GetUInt64(pcbNew);
     }
     return rc;
 }
@@ -901,8 +1008,24 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbRead(PVBGLR3GUESTCTRLCMDCTX pCtx,
 }
 
 
-VBGLR3DECL(int) VbglR3GuestCtrlFileCbWrite(PVBGLR3GUESTCTRLCMDCTX pCtx,
-                                           uint32_t uRc, uint32_t uWritten)
+VBGLR3DECL(int) VbglR3GuestCtrlFileCbReadOffset(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t uRc,
+                                                void *pvData, uint32_t cbData, int64_t offNew)
+{
+    AssertPtrReturn(pCtx, VERR_INVALID_POINTER);
+
+    HGCMReplyFileNotify Msg;
+    VBGL_HGCM_HDR_INIT(&Msg.hdr, pCtx->uClientID, GUEST_FILE_NOTIFY, 5);
+    VbglHGCMParmUInt32Set(&Msg.context, pCtx->uContextID);
+    VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_READ_OFFSET);
+    VbglHGCMParmUInt32Set(&Msg.rc, uRc);
+    VbglHGCMParmPtrSet(&Msg.u.ReadOffset.pvData, pvData, cbData);
+    VbglHGCMParmUInt64Set(&Msg.u.ReadOffset.off64New, (uint64_t)offNew);
+
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.ReadOffset));
+}
+
+
+VBGLR3DECL(int) VbglR3GuestCtrlFileCbWrite(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t uRc, uint32_t cbWritten)
 {
     AssertPtrReturn(pCtx, VERR_INVALID_POINTER);
 
@@ -911,14 +1034,29 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbWrite(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.context, pCtx->uContextID);
     VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_WRITE);
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
-    VbglHGCMParmUInt32Set(&Msg.u.write.written, uWritten);
+    VbglHGCMParmUInt32Set(&Msg.u.write.written, cbWritten);
 
     return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.write));
 }
 
 
-VBGLR3DECL(int) VbglR3GuestCtrlFileCbSeek(PVBGLR3GUESTCTRLCMDCTX pCtx,
-                                          uint32_t uRc, uint64_t uOffActual)
+VBGLR3DECL(int) VbglR3GuestCtrlFileCbWriteOffset(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t uRc, uint32_t cbWritten, int64_t offNew)
+{
+    AssertPtrReturn(pCtx, VERR_INVALID_POINTER);
+
+    HGCMReplyFileNotify Msg;
+    VBGL_HGCM_HDR_INIT(&Msg.hdr, pCtx->uClientID, GUEST_FILE_NOTIFY, 5);
+    VbglHGCMParmUInt32Set(&Msg.context, pCtx->uContextID);
+    VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_WRITE_OFFSET);
+    VbglHGCMParmUInt32Set(&Msg.rc, uRc);
+    VbglHGCMParmUInt32Set(&Msg.u.WriteOffset.cb32Written, cbWritten);
+    VbglHGCMParmUInt64Set(&Msg.u.WriteOffset.off64New, (uint64_t)offNew);
+
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.WriteOffset));
+}
+
+
+VBGLR3DECL(int) VbglR3GuestCtrlFileCbSeek(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t uRc, uint64_t offCurrent)
 {
     AssertPtrReturn(pCtx, VERR_INVALID_POINTER);
 
@@ -927,14 +1065,13 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbSeek(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.context, pCtx->uContextID);
     VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_SEEK);
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
-    VbglHGCMParmUInt64Set(&Msg.u.seek.offset, uOffActual);
+    VbglHGCMParmUInt64Set(&Msg.u.seek.offset, offCurrent);
 
     return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.seek));
 }
 
 
-VBGLR3DECL(int) VbglR3GuestCtrlFileCbTell(PVBGLR3GUESTCTRLCMDCTX pCtx,
-                                          uint32_t uRc, uint64_t uOffActual)
+VBGLR3DECL(int) VbglR3GuestCtrlFileCbTell(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t uRc, uint64_t offCurrent)
 {
     AssertPtrReturn(pCtx, VERR_INVALID_POINTER);
 
@@ -943,9 +1080,24 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbTell(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.context, pCtx->uContextID);
     VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_TELL);
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
-    VbglHGCMParmUInt64Set(&Msg.u.tell.offset, uOffActual);
+    VbglHGCMParmUInt64Set(&Msg.u.tell.offset, offCurrent);
 
     return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.tell));
+}
+
+
+VBGLR3DECL(int) VbglR3GuestCtrlFileCbSetSize(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t uRc, uint64_t cbNew)
+{
+    AssertPtrReturn(pCtx, VERR_INVALID_POINTER);
+
+    HGCMReplyFileNotify Msg;
+    VBGL_HGCM_HDR_INIT(&Msg.hdr, pCtx->uClientID, GUEST_FILE_NOTIFY, 4);
+    VbglHGCMParmUInt32Set(&Msg.context, pCtx->uContextID);
+    VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_SET_SIZE);
+    VbglHGCMParmUInt32Set(&Msg.rc, uRc);
+    VbglHGCMParmUInt64Set(&Msg.u.SetSize.cb64Size, cbNew);
+
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.SetSize));
 }
 
 

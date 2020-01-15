@@ -51,6 +51,7 @@
 #include <VBox/vmm/pdmdrv.h>
 #include <iprt/assert.h>
 #include <iprt/file.h>
+#include <iprt/path.h>
 #ifndef RT_OS_WINDOWS
 # include <sys/ioctl.h>
 # include <poll.h>
@@ -578,6 +579,8 @@ void slirp_term(PNATState pData)
 #ifdef RT_OS_WINDOWS
     WSACleanup();
 #endif
+    if (tftp_prefix)
+        RTStrFree((char *)tftp_prefix);
 #ifdef LOG_ENABLED
     Log(("\n"
          "NAT statistics\n"
@@ -1663,7 +1666,9 @@ void slirp_post_sent(PNATState pData, void *pvArg)
 void slirp_set_dhcp_TFTP_prefix(PNATState pData, const char *tftpPrefix)
 {
     Log2(("tftp_prefix: %s\n", tftpPrefix));
-    tftp_prefix = tftpPrefix;
+    if (tftp_prefix)
+        RTStrFree((char *)tftp_prefix);
+    tftp_prefix = RTPathAbsDup(tftpPrefix);
 }
 
 void slirp_set_dhcp_TFTP_bootfile(PNATState pData, const char *bootFile)

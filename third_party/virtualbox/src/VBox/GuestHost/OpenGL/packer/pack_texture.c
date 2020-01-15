@@ -19,7 +19,7 @@ crPackTexImage1D(GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     packet_length =
         sizeof(target) +
@@ -62,7 +62,7 @@ crPackTexImage2D(GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    const int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    const int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
     const int is_distrib = ((type == GL_TRUE) || (type == GL_FALSE));
     int distrib_buf_len = 0;
 
@@ -138,7 +138,7 @@ crPackTexImage3DEXT(GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
     int is_distrib = ( (type == GL_TRUE) || (type == GL_FALSE) ) ;
     int distrib_buf_len = 0;
     int tex_size = 0;
@@ -214,7 +214,7 @@ crPackTexImage3D(GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
     int is_distrib = ( (type == GL_TRUE) || (type == GL_FALSE) ) ;
     int distrib_buf_len = 0;
     int tex_size = 0;
@@ -560,7 +560,7 @@ crPackTexSubImage3D(GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     packet_length =
         sizeof(target) +
@@ -613,7 +613,7 @@ crPackTexSubImage2D(GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     packet_length =
         sizeof(target) +
@@ -659,7 +659,7 @@ crPackTexSubImage1D(GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (pixels == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (pixels == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     packet_length =
         sizeof(target) +
@@ -731,7 +731,7 @@ void PACK_APIENTRY crPackCompressedTexImage1DARB( GLenum target, GLint level, GL
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (data == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (data == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     /* All extended opcodes have their first 8 bytes predefined:
      * the first four indicate the packet size, and the next four
@@ -776,7 +776,7 @@ void PACK_APIENTRY crPackCompressedTexImage2DARB( GLenum target, GLint level, GL
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (data == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (data == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     /* All extended opcodes have their first 8 bytes predefined:
      * the first four indicate the packet size, and the next four
@@ -824,7 +824,7 @@ void PACK_APIENTRY crPackCompressedTexImage3DARB( GLenum target, GLint level, GL
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (data == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (data == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     /* All extended opcodes have their first 8 bytes predefined:
      * the first four indicate the packet size, and the next four
@@ -872,7 +872,7 @@ void PACK_APIENTRY crPackCompressedTexSubImage1DARB( GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (data == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (data == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     /* All extended opcodes have their first 8 bytes predefined:
      * the first four indicate the packet size, and the next four
@@ -916,7 +916,7 @@ void PACK_APIENTRY crPackCompressedTexSubImage2DARB( GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (data == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (data == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     /* All extended opcodes have their first 8 bytes predefined:
      * the first four indicate the packet size, and the next four
@@ -964,7 +964,7 @@ void PACK_APIENTRY crPackCompressedTexSubImage3DARB( GLenum target, GLint level,
 {
     unsigned char *data_ptr;
     int packet_length;
-    int noimagedata = (data == NULL) || crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB);
+    int noimagedata = (data == NULL) || crStateIsBufferBound(g_pStateTracker, GL_PIXEL_UNPACK_BUFFER_ARB);
 
     /* All extended opcodes have their first 8 bytes predefined:
      * the first four indicate the packet size, and the next four

@@ -11,7 +11,7 @@
 
 #define CRSTATE_CHECKERR_RET(expr, result, message, ret)         \
     if (expr) {                                             \
-        crStateError(__LINE__, __FILE__, result, message);  \
+        crStateError(pState, __LINE__, __FILE__, result, message);  \
         return ret;                                             \
     }
 
@@ -21,32 +21,19 @@
 
 typedef struct _crCheckIDHWID {
     GLuint id, hwid;
+    PCRStateTracker pState;
 } crCheckIDHWID_t;
 
-extern SPUDispatchTable diff_api;
-extern CRStateBits *__currentBits;
+#define GetCurrentBits(a_pState) (a_pState)->pCurrentBits
 
-#define GetCurrentBits() __currentBits
-
-#ifdef CHROMIUM_THREADSAFE
 #include <cr_threads.h>
 
-extern CRtsd __contextTSD;
-#define GetCurrentContext() VBoxTlsRefGetCurrent(CRContext, &__contextTSD)
+#define GetCurrentContext(a_pState) VBoxTlsRefGetCurrent(CRContext, &((a_pState)->contextTSD))
 
 /* NOTE: below SetCurrentContext stuff is supposed to be used only internally!!
  * it is placed here only to simplify things since some code besides state_init.c
  * (i.e. state_glsl.c) is using it */
-#define SetCurrentContext(_ctx) VBoxTlsRefSetCurrent(CRContext, &__contextTSD, _ctx)
-#else
-extern CRContext *__currentContext;
-#define GetCurrentContext() __currentContext
-#endif
-
-extern GLboolean g_bVBoxEnableDiffOnMakeCurrent;
-
-extern CRContext *g_pAvailableContexts[CR_MAX_CONTEXTS];
-extern uint32_t g_cContexts;
+#define SetCurrentContext(a_pState, _ctx) VBoxTlsRefSetCurrent(CRContext, &((a_pState)->contextTSD), _ctx)
 
 extern void crStateTextureInitTextureObj (CRContext *ctx, CRTextureObj *tobj, GLuint name, GLenum target);
 extern void crStateTextureInitTextureFormat( CRTextureLevel *tl, GLenum internalFormat );
@@ -70,11 +57,11 @@ void crStateClientDiff(CRClientBits *cb, CRbitvalue *bitID, CRContext *from, CRC
                                              
 void crStateClientSwitch(CRClientBits *cb, CRbitvalue *bitID,   CRContext *from, CRContext *to);
 
-void crStateFreeBufferObject(void *data);
-void crStateFreeFBO(void *data);
-void crStateFreeRBO(void *data);
+void crStateFreeBufferObject(void *data, void *pvUser);
+void crStateFreeFBO(void *data, void *pvUser);
+void crStateFreeRBO(void *data, void *pvUser);
 
 void crStateGenNames(CRContext *g, CRHashTable *table, GLsizei n, GLuint *names);
 void crStateRegNames(CRContext *g, CRHashTable *table, GLsizei n, GLuint *names);
-void crStateOnTextureUsageRelease(CRSharedState *pS, CRTextureObj *pObj);
+void crStateOnTextureUsageRelease(PCRStateTracker pState, CRSharedState *pS, CRTextureObj *pObj);
 #endif

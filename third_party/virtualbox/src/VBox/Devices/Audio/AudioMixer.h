@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2014-2018 Oracle Corporation
+ * Copyright (C) 2014-2019 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -18,16 +18,16 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef AUDIO_MIXER_H
-#define AUDIO_MIXER_H
+#ifndef VBOX_INCLUDED_SRC_Audio_AudioMixer_h
+#define VBOX_INCLUDED_SRC_Audio_AudioMixer_h
+#ifndef RT_WITHOUT_PRAGMA_ONCE
+# pragma once
+#endif
 
 #include <iprt/cdefs.h>
 #include <iprt/critsect.h>
 
 #include <VBox/vmm/pdmaudioifs.h>
-
-/* Use a mixer sink's mixing buffer for multiplexing. */
-#define VBOX_AUDIO_MIXER_WITH_MIXBUF
 
 /**
  * Structure for maintaining an audio mixer instance.
@@ -167,11 +167,9 @@ typedef struct AUDMIXSINK
     AUDMIXSINKDIR           enmDir;
     /** The sink's critical section. */
     RTCRITSECT              CritSect;
-#ifdef VBOX_AUDIO_MIXER_WITH_MIXBUF
     /** This sink's mixing buffer, acting as
      * a parent buffer for all streams this sink owns. */
     PDMAUDIOMIXBUF          MixBuf;
-#endif
     /** Union for input/output specifics. */
     union
     {
@@ -261,5 +259,5 @@ void AudioMixerStreamDestroy(PAUDMIXSTREAM pStream);
 bool AudioMixerStreamIsActive(PAUDMIXSTREAM pStream);
 bool AudioMixerStreamIsValid(PAUDMIXSTREAM pStream);
 
-#endif /* !AUDIO_MIXER_H */
+#endif /* !VBOX_INCLUDED_SRC_Audio_AudioMixer_h */
 

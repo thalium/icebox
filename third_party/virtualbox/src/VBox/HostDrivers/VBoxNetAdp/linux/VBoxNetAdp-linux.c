@@ -70,8 +70,8 @@
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
-static int  VBoxNetAdpLinuxInit(void);
-static void VBoxNetAdpLinuxUnload(void);
+static int  __init VBoxNetAdpLinuxInit(void);
+static void __exit VBoxNetAdpLinuxUnload(void);
 
 static int VBoxNetAdpLinuxOpen(struct inode *pInode, struct file *pFilp);
 static int VBoxNetAdpLinuxClose(struct inode *pInode, struct file *pFilp);
@@ -84,7 +84,11 @@ static long VBoxNetAdpLinuxIOCtlUnlocked(struct file *pFilp,
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36) */
 
 static void vboxNetAdpEthGetDrvinfo(struct net_device *dev, struct ethtool_drvinfo *info);
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
+static int vboxNetAdpEthGetLinkSettings(struct net_device *pNetDev, struct ethtool_link_ksettings *pLinkSettings);
+#else /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) */
 static int vboxNetAdpEthGetSettings(struct net_device *dev, struct ethtool_cmd *cmd);
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) */
 
 
 /*********************************************************************************************************************************
@@ -126,10 +130,18 @@ static struct miscdevice g_CtlDev =
 # endif
 };
 
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19)
 static const struct ethtool_ops gEthToolOpsVBoxNetAdp =
+# else
+static struct ethtool_ops gEthToolOpsVBoxNetAdp =
+# endif
 {
     .get_drvinfo        = vboxNetAdpEthGetDrvinfo,
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
+    .get_link_ksettings = vboxNetAdpEthGetLinkSettings,
+# else /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) */
     .get_settings       = vboxNetAdpEthGetSettings,
+# endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) */
     .get_link           = ethtool_op_get_link,
 };
 
@@ -201,6 +213,23 @@ static void vboxNetAdpEthGetDrvinfo(struct net_device *pNetDev, struct ethtool_d
 }
 
 
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
+/* ethtool_ops::get_link_ksettings */
+static int vboxNetAdpEthGetLinkSettings(struct net_device *pNetDev, struct ethtool_link_ksettings *pLinkSettings)
+{
+    /* We just need to set field we care for, the rest is done by ethtool_get_link_ksettings() helper in ethtool. */
+    ethtool_link_ksettings_zero_link_mode(pLinkSettings, supported);
+    ethtool_link_ksettings_zero_link_mode(pLinkSettings, advertising);
+    ethtool_link_ksettings_zero_link_mode(pLinkSettings, lp_advertising);
+    pLinkSettings->base.speed       = SPEED_10;
+    pLinkSettings->base.duplex      = DUPLEX_FULL;
+    pLinkSettings->base.port        = PORT_TP;
+    pLinkSettings->base.phy_address = 0;
+    pLinkSettings->base.transceiver = XCVR_INTERNAL;
+    pLinkSettings->base.autoneg     = AUTONEG_DISABLE;
+    return 0;
+}
+#else /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) */
 /* ethtool_ops::get_settings */
 static int vboxNetAdpEthGetSettings(struct net_device *pNetDev, struct ethtool_cmd *cmd)
 {
@@ -220,6 +249,7 @@ static int vboxNetAdpEthGetSettings(struct net_device *pNetDev, struct ethtool_c
     cmd->maxrxpkt       = 0;
     return 0;
 }
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) */
 
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
