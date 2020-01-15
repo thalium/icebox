@@ -1263,6 +1263,10 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
     if(!vma_start)
         return FAIL(vma_type_e::none, "unable to read vm_start of vm_area 0x%" PRIx64, vm_area.id);
 
+    const auto mod = mod_find(proc, *vma_start);
+    if(mod)
+        return vma_type_e::module;
+
     const auto start_brk = io_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
     if(start_brk && *start_brk)
     {
@@ -1271,8 +1275,6 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
             LOG(ERROR, "unable to find a vm_area which start_brk (0x%" PRIx64 ") belongs", *start_brk);
         else if(vma_heap->id == vm_area.id)
             return vma_type_e::heap;
-        else if(*vma_start < *start_brk)
-            return vma_type_e::binary;
     }
     else
         LOG(ERROR, "unable to read address of start_brk in mm 0x%" PRIx64, *mm);
@@ -1285,17 +1287,11 @@ vma_type_e OsLinux::vm_area_type(proc_t proc, vm_area_t vm_area)
             LOG(ERROR, "unable to find a vm_area which vma_stack (0x%" PRIx64 ") belongs", *start_stack);
         else if(vma_stack->id == vm_area.id)
             return vma_type_e::stack;
-        else if(*vma_start > *start_stack)
-            return vma_type_e::other;
     }
     else
         LOG(ERROR, "unable to read address of start_stack in mm 0x%" PRIx64, *mm);
 
-    const auto mod = mod_find(proc, *vma_start);
-    if(mod)
-        return vma_type_e::module;
-
-    return vma_type_e::none;
+    return vma_type_e::other;
 }
 
 opt<std::string> OsLinux::vm_area_name(proc_t proc, vm_area_t vm_area)

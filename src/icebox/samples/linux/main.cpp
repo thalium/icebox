@@ -113,9 +113,7 @@ void display_vm_area(core::Core& core, const proc_t& proc)
         const auto span      = vm_area::span(core, proc, vm_area);
         const auto type      = vm_area::type(core, proc, vm_area);
         std::string type_str = "             ";
-        if(type == vma_type_e::binary)
-            type_str = "[binary]";
-        else if(type == vma_type_e::heap)
+        if(type == vma_type_e::heap)
             type_str = "[heap]  ";
         else if(type == vma_type_e::stack)
             type_str = "[stack] ";

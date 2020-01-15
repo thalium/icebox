@@ -67,7 +67,6 @@ enum vma_access_e
 enum class vma_type_e
 {
     none,
-    binary,
     heap,
     stack,
     module,
