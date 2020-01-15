@@ -1080,6 +1080,7 @@ find_cu_die_base_fields(Dwarf_Debug dbg,
 
     cu_context = cudie->di_cu_context;
     version_stamp = cu_context->cc_version_stamp;
+    memset(&signature, 0, sizeof signature);
 
     alres = dwarf_attrlist(cudie, &alist,
         &atcount,error);
