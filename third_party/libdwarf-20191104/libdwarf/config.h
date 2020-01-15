@@ -33,7 +33,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <libelf.h> header file. */
-#define HAVE_LIBELF_H 1
+/* #undef HAVE_LIBELF_H */
 
 /* Define to 1 if you have the <libelf/libelf.h> header file. */
 /* #undef HAVE_LIBELF_LIBELF_H */
@@ -150,8 +150,6 @@
 #endif
 
 // added for icebox
-
-#define __LIBELF_INTERNAL__ 1 // to find libelf includes
 
 #ifdef _MSC_VER
 typedef long long ssize_t;

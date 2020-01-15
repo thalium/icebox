@@ -108,13 +108,6 @@ target_include_directories(pdbparser PUBLIC
     "${retdec_dir}/include"
 )
 
-# libelf
-set(libelf_dir "${root_dir}/third_party/libelf-0.8.13/lib")
-add_target(libelf third_party "${libelf_dir}" OPTIONS external)
-target_include_directories(libelf PUBLIC
-    "${libelf_dir}"
-)
-
 # libdwarf
 set(libdwarf_dir "${root_dir}/third_party/libdwarf-20191104/libdwarf")
 set(zlib_dir "${root_dir}/third_party/virtualbox/src/libs/zlib-1.2.8")
@@ -124,7 +117,6 @@ filter_out(libdwarf_files
     "test_.+[.]c"
 )
 make_target(libdwarf third_party ${libdwarf_files} OPTIONS external)
-target_link_libraries(libdwarf PRIVATE libelf)
 target_compile_definitions(libdwarf PRIVATE
     HAVE_ZLIB
 )
