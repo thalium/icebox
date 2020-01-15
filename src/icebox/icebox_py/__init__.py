@@ -6,21 +6,23 @@ import types
 from . import _icebox
 
 
-# voodoo magic to attach dynamic properties to a single class instance
-def _attach_dynamic_property(instance, name, propr):
+# magic to attach dynamic properties to a single class instance
+def _attach_dynamic_properties(instance, properties):
     class_name = instance.__class__.__name__ + '_'
-    child_class = type(class_name, (instance.__class__,), {name: propr})
+    child_class = type(class_name, (instance.__class__,), properties)
     instance.__class__ = child_class
 
 
 class Registers:
     def __init__(self, regs, read, write):
+        props = {}
         for name, idx in regs():
             def get_property(idx):
                 def fget(_): return read(idx)
                 def fset(_, arg): return write(idx, arg)
                 return property(fget, fset)
-            _attach_dynamic_property(self, name, get_property(idx))
+            props[name] = get_property(idx)
+        _attach_dynamic_properties(self, props)
 
 
 class Flags:
