@@ -51,7 +51,7 @@ bool modules::is_equal(core::Core& core, proc_t proc, mod_t mod, flags_t flags, 
     if(!mod_name)
         return false;
 
-    if(stricmp(path::filename(*mod_name).generic_string().data(), name.data()))
+    if(stricmp(path::filename(*mod_name).generic_string().data(), name.data()) != 0)
         return false;
 
     return true;

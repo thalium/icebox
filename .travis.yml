@@ -20,16 +20,16 @@ matrix:
           compiler: clang
           env:
             - USE_STATIC_ANALYZER=1
-            - CC=/usr/bin/clang-8
-            - CXX=/usr/bin/clang++-8
-            - CLANG_FORMAT=/usr/bin/clang-format-8
-            - CLANG_TIDY=/usr/bin/clang-tidy-8
+            - CC=/usr/bin/clang-9
+            - CXX=/usr/bin/clang++-9
+            - CLANG_FORMAT=/usr/bin/clang-format-9
+            - CLANG_TIDY=/usr/bin/clang-tidy-9
           before_install:
             - sudo apt-get -qq update
             - sudo apt-get -qq -y install
-              clang-8
-              clang-tidy-8
-              clang-tools-8
+              clang-9
+              clang-tidy-9
+              clang-tools-9
           <<: *linux-build
         - name: visual studio 2017 windows
           os: windows

@@ -34,6 +34,7 @@ if(${USE_STATIC_ANALYZER})
         "-misc-non-private-member-variables-in-classes"
         "-readability-magic-numbers"
         "-modernize-avoid-c-arrays"
+        "-modernize-use-trailing-return-type"
         # style...
         "-readability-braces-around-statements"
         "-readability-implicit-bool-conversion"

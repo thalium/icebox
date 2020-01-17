@@ -48,7 +48,7 @@ opt<driver_t> drivers::find_name(core::Core& core, std::string_view name)
 
         const auto drv_name = path::filename(*drv_path);
         LOG(WARNING, "checking %s", drv_name.generic_string().data());
-        if(stricmp(drv_name.generic_string().data(), name.data()))
+        if(stricmp(drv_name.generic_string().data(), name.data()) != 0)
             return walk_e::next;
 
         found = drv;
