@@ -19,7 +19,7 @@ namespace bench
         {
             const auto end      = std::chrono::high_resolution_clock::now();
             const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-            LOG(INFO, "{}: {} ms", name.data(), duration);
+            LOG(INFO, "%s: %" PRId64 " ms", name.data(), duration);
         }
 
         const timestamp_t begin;
