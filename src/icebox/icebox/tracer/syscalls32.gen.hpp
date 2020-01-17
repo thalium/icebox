@@ -419,8 +419,8 @@ namespace wow64
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         using callcfgs_t = std::array<tracer::callcfg_t, 399>;
 
-        opt<bpid_t>         register_all(proc_t proc, const on_call_fn& on_call);
-        const callcfgs_t&   callcfgs    ();
+        opt<bpid_t>                 register_all(proc_t proc, const on_call_fn& on_call);
+        static const callcfgs_t&    callcfgs    ();
 
         opt<bpid_t> register_NtAcceptConnectPort                               (proc_t proc, const on_NtAcceptConnectPort_fn& on_func);
         opt<bpid_t> register_NtAccessCheck                                     (proc_t proc, const on_NtAccessCheck_fn& on_func);

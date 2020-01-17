@@ -26,8 +26,8 @@ namespace nt
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         using callcfgs_t = std::array<tracer::callcfg_t, 6>;
 
-        opt<bpid_t>         register_all(proc_t proc, const on_call_fn& on_call);
-        const callcfgs_t&   callcfgs    ();
+        opt<bpid_t>                 register_all(proc_t proc, const on_call_fn& on_call);
+        static const callcfgs_t&    callcfgs    ();
 
         opt<bpid_t> register_RtlFreeHeap               (proc_t proc, const on_RtlFreeHeap_fn& on_func);
         opt<bpid_t> register_RtlGetUserInfoHeap        (proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func);
