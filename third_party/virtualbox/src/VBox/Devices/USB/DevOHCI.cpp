@@ -3075,7 +3075,6 @@ static bool ohciServiceTd(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pEd, uint3
     Log(("ohciServiceTd: failed submitting TdAddr=%#010x EdAddr=%#010x pUrb=%p!!\n",
          TdAddr, EdAddr, pUrb));
     ohci_in_flight_remove(pThis, TdAddr);
-    VUSBIRhFreeUrb(pThis->RootHub.pIRhConn, pUrb);
     return false;
 }
 
@@ -3245,8 +3244,9 @@ static bool ohciServiceTdMultiple(POHCI pThis, VUSBXFERTYPE enmType, PCOHCIED pE
     /* Failure cleanup. Can happen if we're still resetting the device or out of resources. */
     Log(("ohciServiceTdMultiple: failed submitting pUrb=%p cbData=%#x EdAddr=%#010x cTds=%d TdAddr0=%#010x - rc=%Rrc\n",
          pUrb, cbTotal, EdAddr, cTds, TdAddr, rc));
-    ohci_in_flight_remove_urb(pThis, pUrb);
-    VUSBIRhFreeUrb(pThis->RootHub.pIRhConn, pUrb);
+    /* NB: We cannot call ohciR3InFlightRemoveUrb() because the URB is already gone! */
+    for (struct OHCITDENTRY *pCur = &Head; pCur; pCur = pCur->pNext, iTd++)
+        ohci_in_flight_remove(pThis, pCur->TdAddr);
     return false;
 }
 
@@ -3488,7 +3488,6 @@ static bool ohciServiceIsochronousTd(POHCI pThis, POHCIITD pITd, uint32_t ITdAdd
     Log(("ohciServiceIsochronousTd: failed submitting pUrb=%p cbData=%#x EdAddr=%#010x cTds=%d ITdAddr0=%#010x - rc=%Rrc\n",
          pUrb, cbTotal, EdAddr, 1, ITdAddr, rc));
     ohci_in_flight_remove(pThis, ITdAddr);
-    VUSBIRhFreeUrb(pThis->RootHub.pIRhConn, pUrb);
     return false;
 }
 

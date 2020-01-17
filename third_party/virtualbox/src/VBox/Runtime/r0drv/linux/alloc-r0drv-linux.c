@@ -441,9 +441,6 @@ RTR0DECL(void *) RTMemContAlloc(PRTCCPHYS pPhys, size_t cb)
             }
 
             SetPageReserved(&paPages[iPage]);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 20) /** @todo find the exact kernel where change_page_attr was introduced. */
-            MY_SET_PAGES_EXEC(&paPages[iPage], 1);
-#endif
         }
         *pPhys = page_to_phys(paPages);
         pvRet = phys_to_virt(page_to_phys(paPages));
@@ -489,9 +486,6 @@ RTR0DECL(void) RTMemContFree(void *pv, size_t cb)
         for (iPage = 0; iPage < cPages; iPage++)
         {
             ClearPageReserved(&paPages[iPage]);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 20) /** @todo find the exact kernel where change_page_attr was introduced. */
-            MY_SET_PAGES_NOEXEC(&paPages[iPage], 1);
-#endif
         }
         __free_pages(paPages, cOrder);
         IPRT_LINUX_RESTORE_EFL_AC();

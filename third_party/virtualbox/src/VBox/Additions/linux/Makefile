@@ -43,7 +43,7 @@ vboxsf: vboxguest
 	        cp vboxguest/Module.symvers vboxsf; \
 	    fi; \
 	    echo "=== Building 'vboxsf' module ==="; \
-	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxsf || exit 1; \
+	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_EXTRA_SYMBOLS=$(abspath vboxsf/Module.symvers) -C vboxsf || exit 1; \
 	    if [ -f vboxsf/vboxsf.ko ]; then \
 	        cp vboxsf/vboxsf.ko .; \
 	    else \
@@ -58,7 +58,7 @@ vboxvideo:
 	        cp vboxguest/Module.symvers vboxvideo; \
 	    fi; \
 	    echo "=== Building 'vboxvideo' module ==="; \
-	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxvideo || exit 1; \
+	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_EXTRA_SYMBOLS=$(abspath vboxvideo/Module.symvers) -C vboxvideo || exit 1; \
 	    if [ -f vboxvideo/vboxvideo.ko ]; then \
 	        cp vboxvideo/vboxvideo.ko .; \
 	    elif [ -f vboxvideo/vboxvideo.o ]; then \

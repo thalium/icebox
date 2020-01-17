@@ -98,6 +98,10 @@ DLLS += VBoxDbg
 VBoxDbg_TEMPLATE = VBOXQTGUI
 VBoxDbg_DEFS = IN_DBG_R3
 VBoxDbg_INCS = .
+if $(VBOX_GCC_VERSION_CXX) >= 90000
+ # Needed for GCC 9. Even system's Qt 5.12.4 (on Ubuntu 19.10) did not have this fixed yet.
+ VBoxDbg_CXXFLAGS += -Wno-deprecated-copy
+endif
 VBoxDbg_QT_MODULES = Core Gui Widgets
 VBoxDbg_QT_MOCHDRS = \
 	VBoxDbgGui.h \

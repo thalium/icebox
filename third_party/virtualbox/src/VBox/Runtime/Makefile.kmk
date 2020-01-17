@@ -2091,7 +2091,7 @@ RuntimeR0Drv_TEMPLATE   = VBoxR0DrvLib
 RuntimeR0Drv_SDKS.win   = ReorderCompilerIncs $(VBOX_WINDDK) $(VBOX_WINPSDK)INCS VBOX_OPENSSL
 RuntimeR0Drv_DEFS       = IN_RT_R0 RT_WITH_VBOX RT_WITHOUT_NOCRT_WRAPPERS RT_NO_EXPORT_SYMBOL NOFILEID
 RuntimeR0Drv_DEFS.win   = IN_SUP_R0 LDR_ONLY_PE
-RuntimeR0Drv_DEFS.darwin= IN_SUP_R0 LDR_ONLY_MACHO IPRT_WITHOUT_DIGEST_MD4
+RuntimeR0Drv_DEFS.darwin= IN_SUP_R0 LDR_ONLY_MACHO IPRT_WITHOUT_DIGEST_MD4 IN_RING0_DRV_ON_DARWIN
 
 RuntimeR0Drv_INCS      := $(PATH_SUB_CURRENT) include
 RuntimeR0Drv_INCS.freebsd = \
@@ -2519,6 +2519,9 @@ RuntimeR0Drv_SOURCES.darwin = \
 	r0drv/alloc-ef-r0drv.cpp \
 	r0drv/memobj-r0drv.cpp \
 	r0drv/powernotification-r0drv.c
+# - The xnu memcpy implementation in osfmk/x86_64/bcopy.s returns 'void' rather than 'void *', so use our own.
+RuntimeR0Drv_SOURCES.darwin.amd64 = \
+	common/string/memcpy.asm \
 
 RuntimeR0Drv_SOURCES.os2 = \
 	common/string/memchr.asm \

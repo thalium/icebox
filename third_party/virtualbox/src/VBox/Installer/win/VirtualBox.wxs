@@ -226,7 +226,8 @@
         NOT VBOXSUN
     </Condition>-->
 
-    <CustomAction Id="ca_StartVBox" Directory="INSTALLDIR" ExeCommand="[INSTALLDIR]\VirtualBox.exe" Return="asyncNoWait" Impersonate="yes" />
+    <CustomAction Id="ca_StartVBox" Directory="INSTALLDIR" ExeCommand='"[INSTALLDIR]\VirtualBox.exe"' Return="asyncNoWait" Impersonate="yes" />
+
     <CustomAction Id="ca_CheckSerial" BinaryKey="VBoxInstallHelper" DllEntry="CheckSerial" Impersonate="no"/>
 
     <CustomAction Id="ca_InstallBranding" BinaryKey="VBoxInstallHelper" DllEntry="InstallBranding" Execute="deferred" Return="check" Impersonate="no"/>

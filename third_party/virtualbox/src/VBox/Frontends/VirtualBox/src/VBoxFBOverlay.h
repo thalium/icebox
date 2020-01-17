@@ -750,7 +750,7 @@ private:
 class VBoxVHWAHandleTable
 {
 public:
-    VBoxVHWAHandleTable(uint32_t initialSize);
+    VBoxVHWAHandleTable(uint32_t maxSize);
     ~VBoxVHWAHandleTable();
     uint32_t put(void * data);
     bool mapPut(uint32_t h, void * data);

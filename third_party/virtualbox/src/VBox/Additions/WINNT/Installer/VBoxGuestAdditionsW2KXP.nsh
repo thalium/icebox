@@ -396,7 +396,7 @@ Function W2K_InstallFiles
     ; The mouse filter does not contain any device IDs but a "DefaultInstall" section;
     ; so this .INF file needs to be installed using "InstallHinfSection" which is implemented
     ; with VBoxDrvInst's "driver executeinf" routine
-    ${CmdExecute} "$\"$INSTDIR\VBoxDrvInst.exe$\" driver executeinf $\"$INSTDIR\VBoxMouse.inf$\"" "false"
+    ${CmdExecute} "$\"$INSTDIR\VBoxDrvInst.exe$\" driver install $\"$INSTDIR\VBoxMouse.inf$\"" "false"
   ${Else}
     ${LogVerbose} "Mouse driver installation skipped!"
   ${EndIf}

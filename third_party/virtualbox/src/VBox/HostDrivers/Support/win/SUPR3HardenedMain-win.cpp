@@ -1123,8 +1123,8 @@ static void supR3HardenedWinVerifyCacheProcessImportTodos(void)
  */
 static void supR3HardenedWinVerifyCacheProcessWvtTodos(void)
 {
-    PVERIFIERCACHEENTRY  pReschedule = NULL;
-    PVERIFIERCACHEENTRY volatile *ppReschedLastNext = NULL;
+    PVERIFIERCACHEENTRY           pReschedule = NULL;
+    PVERIFIERCACHEENTRY volatile *ppReschedLastNext = &pReschedule;
 
     /*
      * Work until we've got nothing more todo.
@@ -1160,9 +1160,8 @@ static void supR3HardenedWinVerifyCacheProcessWvtTodos(void)
                     /* Retry it at a later time. */
                     SUP_DPRINTF(("supR3HardenedWinVerifyCacheProcessWvtTodos: %d (was %d) fWinVerifyTrust=%d for '%ls' [rescheduled]\n",
                                  rc, pCur->rc, fWinVerifyTrust, pCur->wszPath));
-                    if (!pReschedule)
-                        ppReschedLastNext = &pCur->pNextTodoWvt;
-                    pCur->pNextTodoWvt = pReschedule;
+                    *ppReschedLastNext = pCur;
+                    ppReschedLastNext = &pCur->pNextTodoWvt;
                 }
             }
             /* else: already processed. */

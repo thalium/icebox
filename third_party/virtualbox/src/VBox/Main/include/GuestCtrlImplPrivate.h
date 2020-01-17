@@ -741,6 +741,14 @@ public:
     GuestProcessStreamValue(const GuestProcessStreamValue& aThat)
            : mValue(aThat.mValue) { }
 
+    /** Copy assignment operator. */
+    GuestProcessStreamValue &operator=(GuestProcessStreamValue const &a_rThat)
+    {
+        mValue = a_rThat.mValue;
+
+        return *this;
+    }
+
     Utf8Str mValue;
 };
 

@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2006-2017 Oracle Corporation
+# Copyright (C) 2006-2019 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -260,5 +260,148 @@ $(PATH_STAGE_BIN)/additions/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH).exe: \
 			'$(subst /,\,$<)'
 	$(call VBOX_SIGN_FILE_FN,$@)
 
-include $(FILE_KBUILD_SUB_FOOTER)
+#
+# Repackaging scripts and files.
+#
+INSTALLS += RePackScriptsAdd
+RePackScriptsAdd_TEMPLATE = DUMMY
+RePackScriptsAdd_INST = repack/add/
+RePackScriptsAdd_INSTTYPE = stage
+RePackScriptsAdd_SOURCES = \
+	$(RePackScriptsAdd_0_OUTDIR)/UnpackBlessedDrivers.cmd \
+	$(RePackScriptsAdd_0_OUTDIR)/PackDriversForSubmission.cmd \
+	$(RePackScriptsAdd_0_OUTDIR)/Combined-1-Prepare.cmd \
+	$(RePackScriptsAdd_0_OUTDIR)/Combined-3-RepackAdditions.cmd \
+	$(RePackScriptsAdd_0_OUTDIR)/sign-ev.cmd
 
+INSTALLS += RePackScriptsAddResources
+RePackScriptsAddResources_TEMPLATE = DUMMY
+RePackScriptsAddResources_INST = repack/add/resources/
+RePackScriptsAddResources_INSTTYPE = stage
+RePackScriptsAddResources_SOURCES = \
+	$(RePackScriptsAddResources_0_OUTDIR)/welcome.bmp \
+	$(RePackScriptsAddResources_0_OUTDIR)/VirtualBoxGA-vista.ico \
+	$(RePackScriptsAddResources_0_OUTDIR)/VirtualBoxGA-nsis.ico \
+	$(RePackScriptsAddResources_0_OUTDIR)/iexplore.ico \
+	$(RePackScriptsAddResources_0_OUTDIR)/License-gpl-2.0.rtf \
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditions.nsi \
+	$(RePackScriptsAddResources_0_OUTDIR)/dumplog.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/ReplaceDLL.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/servicepack.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/strstr.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsCommon.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsExternal.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsLog.nsh\
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsNT4.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsUninstall.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsUninstallOld.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsVista.nsh\
+	$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsW2KXP.nsh\
+	$(RePackScriptsAddResources_0_OUTDIR)/winver.nsh \
+	$(RePackScriptsAddResources_0_OUTDIR)/AUTORUN.INF \
+	$(RePackScriptsAddResources_0_OUTDIR)/ReadmeDrivers.txt
+
+INSTALLS += RePackScriptsAddResourcesLanguages
+RePackScriptsAddResourcesLanguages_TEMPLATE = DUMMY
+RePackScriptsAddResourcesLanguages_INST = repack/add/resources/Languages/
+RePackScriptsAddResourcesLanguages_INSTTYPE = stage
+RePackScriptsAddResourcesLanguages_SOURCES = \
+	$(RePackScriptsAddResourcesLanguages_0_OUTDIR)/English.nsh \
+	$(RePackScriptsAddResourcesLanguages_0_OUTDIR)/French.nsh \
+	$(RePackScriptsAddResourcesLanguages_0_OUTDIR)/German.nsh
+
+
+$(call VBOX_EDIT_VERSION_AND_BUILD_RULE_FN,RePackScriptsAdd,../../../Installer/win/Scripts/PackDriversForSubmission.cmd,PackDriversForSubmission.cmd)
+$(call VBOX_EDIT_VERSION_AND_BUILD_RULE_FN,RePackScriptsAdd,../../../Installer/win/Scripts/Combined-1-Prepare.cmd,Combined-1-Prepare.cmd)
+$(call VBOX_EDIT_VERSION_AND_BUILD_RULE_FN,RePackScriptsAdd,../../../Installer/win/Scripts/Combined-3-RepackAdditions.cmd,Combined-3-RepackAdditions.cmd)
+
+$$(RePackScriptsAdd_0_OUTDIR)/UnpackBlessedDrivers.cmd: $(PATH_SUB_CURRENT)/../../../Installer/win/Scripts/UnpackBlessedDrivers.cmd | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAdd_0_OUTDIR)/sign-ev.cmd: | $$(dir $$@)
+	# The %~dp1\ oddity is working around otherwise ending with \" during
+	# expansion of the CCS command line which for a reason I cannot immediately
+	# understand appends a " to the path.
+	$(APPEND) -nt "$@" \
+		'if ".%KBUILD_DEVTOOLS%" == "." (echo KBUILD_DEVTOOLS is not set & exit /b 1)' \
+		'if ".%KBUILD_BIN_PATH%" == "." (echo KBUILD_BIN_PATH is not set & exit /b 1)' \
+		'if ".%1" == "." (echo No .cab file specified & exit /b 1)' \
+		$(subst $(KBUILD_BIN_PATH),%KBUILD_BIN_PATH%,$(subst $(KBUILD_DEVTOOLS),%KBUILD_DEVTOOLS%, \
+		'( $(call VBOX_SIGN_EV_FILE_FN,%1,%~dp1\) ) || exit /b1' \
+		) )
+
+$$(RePackScriptsAddResources_0_OUTDIR)/welcome.bmp: $(PATH_SUB_CURRENT)/welcome.bmp | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VirtualBoxGA-vista.ico: src/VBox/Artwork/win/$(if $(VBOX_OSE),OSE/virtualbox-vbox.ico,NonOSE/VirtualBoxGA-vista.ico) | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VirtualBoxGA-nsis.ico: src/VBox/Artwork/win/$(if $(VBOX_OSE),OSE/virtualbox-vbox.ico,NonOSE/VirtualBoxGA-vista.ico) | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/iexplore.ico:  $(PATH_SUB_CURRENT)/iexplore.ico | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/License-gpl-2.0.rtf : doc/License-gpl-2.0.rtf | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditions.nsi: $(PATH_SUB_CURRENT)/VBoxGuestAdditions.nsi | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/dumplog.nsh: $(PATH_SUB_CURRENT)/dumplog.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/ReplaceDLL.nsh: $(PATH_SUB_CURRENT)/ReplaceDLL.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/servicepack.nsh: $(PATH_SUB_CURRENT)/servicepack.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/strstr.nsh: $(PATH_SUB_CURRENT)/strstr.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsCommon.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsCommon.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsExternal.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsExternal.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsLog.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsLog.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsNT4.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsNT4.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsUninstall.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsUninstall.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsUninstallOld.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsUninstallOld.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsVista.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsVista.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/VBoxGuestAdditionsW2KXP.nsh: $(PATH_SUB_CURRENT)/VBoxGuestAdditionsW2KXP.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/winver.nsh: $(PATH_SUB_CURRENT)/winver.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/AUTORUN.INF: $(PATH_SUB_CURRENT)/ISO/AUTORUN.INF | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResources_0_OUTDIR)/ReadmeDrivers.txt: $(PATH_SUB_CURRENT)/ISO/ReadmeDrivers.txt | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResourcesLanguages_0_OUTDIR)/English.nsh: $(PATH_SUB_CURRENT)/Languages/English.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResourcesLanguages_0_OUTDIR)/French.nsh: $(PATH_SUB_CURRENT)/Languages/French.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+$$(RePackScriptsAddResourcesLanguages_0_OUTDIR)/German.nsh: $(PATH_SUB_CURRENT)/Languages/German.nsh | $$(dir $$@)
+	$(CP) -f $< $@
+
+
+
+include $(FILE_KBUILD_SUB_FOOTER)

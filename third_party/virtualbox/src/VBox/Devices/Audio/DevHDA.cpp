@@ -2156,8 +2156,13 @@ static int hdaRegWriteRIRBWP(PHDASTATE pThis, uint32_t iReg, uint32_t u32Value)
         /* Do a RIRB reset. */
         if (pThis->cbRirbBuf)
         {
+#ifdef IN_RING3
             Assert(pThis->pu64RirbBuf);
-            RT_BZERO((void *)pThis->pu64RirbBuf, pThis->cbRirbBuf);
+            RT_BZERO(pThis->pu64RirbBuf, pThis->cbRirbBuf);
+#else
+            DEVHDA_UNLOCK(pThis);
+            return VINF_IOM_R3_MMIO_WRITE;
+#endif
         }
 
         LogRel2(("HDA: RIRB reset\n"));

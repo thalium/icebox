@@ -50,6 +50,9 @@ VBoxSharedCrOpenGL_TEMPLATE = VBOXCROGLR3HOSTDLL
 ifdef VBOX_WITH_XPCOM
  VBoxSharedCrOpenGL_DEFS = VBOX_WITH_XPCOM
  VBoxSharedCrOpenGL_CXXFLAGS = -Wno-non-virtual-dtor -fshort-wchar $(VBOX_GCC_std)
+ if $(VBOX_GCC_VERSION_CXX) >= 90000
+  VBoxSharedCrOpenGL_CXXFLAGS += -Wno-deprecated-copy
+ endif
 endif
 VBoxSharedCrOpenGL_INTERMEDIATES = \
 	$(TEMPLATE_VBOXMAINEXE_INTERMEDIATES)
@@ -314,6 +317,9 @@ if (   defined(VBOX_WITH_QTGUI) \
   VBoxTestOGL_DEFS.solaris     = SunOS=1 _GNU_SOURCE #GLEXT_64_TYPES_DEFINED
   VBoxTestOGL_DEFS.darwin      = DARWIN=1 GL_GLEXT_LEGACY _GNU_SOURCE
   VBoxTestOGL_DEFS.freebsd     = FreeBSD=1 _GNU_SOURCE
+  if $(VBOX_GCC_VERSION_CXX) >= 90000
+   VBoxTestOGL_CXXFLAGS       += -Wno-deprecated-copy
+  endif
   VBoxTestOGL_SOURCES = OpenGLTest/OpenGLTestApp.cpp
   VBoxTestOGL_SOURCES.win = OpenGLTest/VBoxTestOGL.rc
   VBoxTestOGL_LIBS = \

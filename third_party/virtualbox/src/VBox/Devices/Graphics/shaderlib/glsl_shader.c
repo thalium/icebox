@@ -3183,6 +3183,8 @@ static void shader_glsl_tex(const struct wined3d_shader_instruction *ins)
      * 2.0+: Use provided sampler source. */
     if (shader_version < WINED3D_SHADER_VERSION(2,0)) sampler_idx = ins->dst[0].reg.idx;
     else sampler_idx = ins->src[1].reg.idx;
+
+    AssertReturnVoid(sampler_idx < RT_ELEMENTS(ins->ctx->reg_maps->sampler_type));
     sampler_type = ins->ctx->reg_maps->sampler_type[sampler_idx];
 
     if (shader_version < WINED3D_SHADER_VERSION(1,4))
@@ -3278,6 +3280,8 @@ static void shader_glsl_texldd(const struct wined3d_shader_instruction *ins)
     }
 
     sampler_idx = ins->src[1].reg.idx;
+    AssertReturnVoid(sampler_idx < RT_ELEMENTS(ins->ctx->reg_maps->sampler_type));
+
     sampler_type = ins->ctx->reg_maps->sampler_type[sampler_idx];
     if(deviceImpl->stateBlock->textures[sampler_idx] &&
        IWineD3DBaseTexture_GetTextureDimensions(deviceImpl->stateBlock->textures[sampler_idx]) == GL_TEXTURE_RECTANGLE_ARB) {
@@ -3306,6 +3310,8 @@ static void shader_glsl_texldl(const struct wined3d_shader_instruction *ins)
     DWORD swizzle = ins->src[1].swizzle;
 
     sampler_idx = ins->src[1].reg.idx;
+    AssertReturnVoid(sampler_idx < RT_ELEMENTS(ins->ctx->reg_maps->sampler_type));
+
     sampler_type = ins->ctx->reg_maps->sampler_type[sampler_idx];
     if(deviceImpl->stateBlock->textures[sampler_idx] &&
        IWineD3DBaseTexture_GetTextureDimensions(deviceImpl->stateBlock->textures[sampler_idx]) == GL_TEXTURE_RECTANGLE_ARB) {

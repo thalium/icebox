@@ -65,6 +65,11 @@
 # define VBOX_USE_PAE_HACK
 #endif
 
+/* gfp_t was introduced in 2.6.14, define it for earlier. */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 14)
+# define gfp_t  unsigned
+#endif
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -79,6 +84,8 @@ typedef struct RTR0MEMOBJLNX
     /** Set if the allocation is contiguous.
      * This means it has to be given back as one chunk. */
     bool                fContiguous;
+    /** Set if executable allocation. */
+    bool                fExecutable;
     /** Set if we've vmap'ed the memory into ring-0. */
     bool                fMappedToRing0;
     /** The pages in the apPages array. */
@@ -282,10 +289,11 @@ static void rtR0MemObjLinuxDoMunmap(void *pv, size_t cb, struct task_struct *pTa
  *                      Only valid if fContiguous == true, ignored otherwise.
  * @param   fFlagsLnx   The page allocation flags (GPFs).
  * @param   fContiguous Whether the allocation must be contiguous.
+ * @param   fExecutable Whether the memory must be executable.
  * @param   rcNoMem     What to return when we're out of pages.
  */
 static int rtR0MemObjLinuxAllocPages(PRTR0MEMOBJLNX *ppMemLnx, RTR0MEMOBJTYPE enmType, size_t cb,
-                                     size_t uAlignment, unsigned fFlagsLnx, bool fContiguous, int rcNoMem)
+                                     size_t uAlignment, gfp_t fFlagsLnx, bool fContiguous, bool fExecutable, int rcNoMem)
 {
     size_t          iPage;
     size_t const    cPages = cb >> PAGE_SHIFT;
@@ -364,7 +372,8 @@ static int rtR0MemObjLinuxAllocPages(PRTR0MEMOBJLNX *ppMemLnx, RTR0MEMOBJTYPE en
     for (iPage = 0; iPage < cPages; iPage++)
     {
         pMemLnx->apPages[iPage] = &paPages[iPage];
-        MY_SET_PAGES_EXEC(pMemLnx->apPages[iPage], 1);
+        if (fExecutable)
+            MY_SET_PAGES_EXEC(pMemLnx->apPages[iPage], 1);
         if (PageHighMem(pMemLnx->apPages[iPage]))
             BUG();
     }
@@ -372,6 +381,7 @@ static int rtR0MemObjLinuxAllocPages(PRTR0MEMOBJLNX *ppMemLnx, RTR0MEMOBJTYPE en
     fContiguous = true;
 #endif /* < 2.4.22 */
     pMemLnx->fContiguous = fContiguous;
+    pMemLnx->fExecutable = fExecutable;
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0)
     /*
@@ -402,7 +412,7 @@ static int rtR0MemObjLinuxAllocPages(PRTR0MEMOBJLNX *ppMemLnx, RTR0MEMOBJTYPE en
              * This should never happen!
              */
             printk("rtR0MemObjLinuxAllocPages(cb=0x%lx, uAlignment=0x%lx): alloc_pages(..., %d) returned physical memory at 0x%lx!\n",
-                    (unsigned long)cb, (unsigned long)uAlignment, rtR0MemObjLinuxOrder(cPages), (unsigned long)page_to_phys(pMemLnx->apPages[0]));
+                   (unsigned long)cb, (unsigned long)uAlignment, rtR0MemObjLinuxOrder(cPages), (unsigned long)page_to_phys(pMemLnx->apPages[0]));
             rtR0MemObjLinuxFreePages(pMemLnx);
             return rcNoMem;
         }
@@ -431,14 +441,12 @@ static void rtR0MemObjLinuxFreePages(PRTR0MEMOBJLNX pMemLnx)
         while (iPage-- > 0)
         {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0)
-            /*
-             * See SetPageReserved() in rtR0MemObjLinuxAllocPages()
-             */
+            /* See SetPageReserved() in rtR0MemObjLinuxAllocPages() */
             ClearPageReserved(pMemLnx->apPages[iPage]);
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 22)
-#else
-            MY_SET_PAGES_NOEXEC(pMemLnx->apPages[iPage], 1);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 4, 22)
+            if (pMemLnx->fExecutable)
+                MY_SET_PAGES_NOEXEC(pMemLnx->apPages[iPage], 1);
 #endif
         }
 
@@ -655,10 +663,10 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocPage(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 22)
     rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_PAGE, cb, PAGE_SIZE, GFP_HIGHUSER,
-                                   false /* non-contiguous */, VERR_NO_MEMORY);
+                                   false /* non-contiguous */, fExecutable, VERR_NO_MEMORY);
 #else
     rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_PAGE, cb, PAGE_SIZE, GFP_USER,
-                                   false /* non-contiguous */, VERR_NO_MEMORY);
+                                   false /* non-contiguous */, fExecutable, VERR_NO_MEMORY);
 #endif
     if (RT_SUCCESS(rc))
     {
@@ -689,19 +697,19 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocLow(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, 
 #if (defined(RT_ARCH_AMD64) || defined(CONFIG_X86_PAE)) && defined(GFP_DMA32)
     /* ZONE_DMA32: 0-4GB */
     rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_LOW, cb, PAGE_SIZE, GFP_DMA32,
-                                   false /* non-contiguous */, VERR_NO_LOW_MEMORY);
+                                   false /* non-contiguous */, fExecutable, VERR_NO_LOW_MEMORY);
     if (RT_FAILURE(rc))
 #endif
 #ifdef RT_ARCH_AMD64
         /* ZONE_DMA: 0-16MB */
         rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_LOW, cb, PAGE_SIZE, GFP_DMA,
-                                       false /* non-contiguous */, VERR_NO_LOW_MEMORY);
+                                       false /* non-contiguous */, fExecutable, VERR_NO_LOW_MEMORY);
 #else
 # ifdef CONFIG_X86_PAE
 # endif
         /* ZONE_NORMAL: 0-896MB */
         rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_LOW, cb, PAGE_SIZE, GFP_USER,
-                                       false /* non-contiguous */, VERR_NO_LOW_MEMORY);
+                                       false /* non-contiguous */, fExecutable, VERR_NO_LOW_MEMORY);
 #endif
     if (RT_SUCCESS(rc))
     {
@@ -731,17 +739,17 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
 #if (defined(RT_ARCH_AMD64) || defined(CONFIG_X86_PAE)) && defined(GFP_DMA32)
     /* ZONE_DMA32: 0-4GB */
     rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_CONT, cb, PAGE_SIZE, GFP_DMA32,
-                                   true /* contiguous */, VERR_NO_CONT_MEMORY);
+                                   true /* contiguous */, fExecutable, VERR_NO_CONT_MEMORY);
     if (RT_FAILURE(rc))
 #endif
 #ifdef RT_ARCH_AMD64
         /* ZONE_DMA: 0-16MB */
         rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_CONT, cb, PAGE_SIZE, GFP_DMA,
-                                       true /* contiguous */, VERR_NO_CONT_MEMORY);
+                                       true /* contiguous */, fExecutable, VERR_NO_CONT_MEMORY);
 #else
         /* ZONE_NORMAL (32-bit hosts): 0-896MB */
         rc = rtR0MemObjLinuxAllocPages(&pMemLnx, RTR0MEMOBJTYPE_CONT, cb, PAGE_SIZE, GFP_USER,
-                                       true /* contiguous */, VERR_NO_CONT_MEMORY);
+                                       true /* contiguous */, fExecutable, VERR_NO_CONT_MEMORY);
 #endif
     if (RT_SUCCESS(rc))
     {
@@ -781,14 +789,14 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
  * @param   fGfp        The Linux GFP flags to use for the allocation.
  */
 static int rtR0MemObjLinuxAllocPhysSub2(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJTYPE enmType,
-                                        size_t cb, size_t uAlignment, RTHCPHYS PhysHighest, unsigned fGfp)
+                                        size_t cb, size_t uAlignment, RTHCPHYS PhysHighest, gfp_t fGfp)
 {
     PRTR0MEMOBJLNX pMemLnx;
     int rc;
 
     rc = rtR0MemObjLinuxAllocPages(&pMemLnx, enmType, cb, uAlignment, fGfp,
                                    enmType == RTR0MEMOBJTYPE_PHYS /* contiguous / non-contiguous */,
-                                   VERR_NO_PHYS_MEMORY);
+                                   false /*fExecutable*/, VERR_NO_PHYS_MEMORY);
     if (RT_FAILURE(rc))
         return rc;
 

@@ -32,7 +32,12 @@ BEGINCODE
 ; @param    pvDst   gcc: rdi  msc: rcx  x86:[esp+4]
 ; @param    pvSrc   gcc: rsi  msc: rdx  x86:[esp+8]
 ; @param    cb      gcc: rdx  msc: r8   x86:[esp+0ch]
+%ifdef IN_RING0_DRV_ON_DARWIN
+global NAME(memcpy):private_extern
+NAME(memcpy):
+%else
 RT_NOCRT_BEGINPROC memcpy
+%endif
         cld
 
         ; Do the bulk of the work.

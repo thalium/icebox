@@ -212,6 +212,8 @@ struct wined3d_sm1_opcode_info
 struct wined3d_sm1_data
 {
     struct wined3d_shader_version shader_version;
+    const DWORD *end;
+    DWORD tokens_num;
     const struct wined3d_sm1_opcode_info *opcode_table;
 };
 
@@ -517,7 +519,7 @@ static int shader_skip_unrecognized(const struct wined3d_sm1_data *priv, const D
     return tokens_read;
 }
 
-static void *shader_sm1_init(const DWORD *byte_code, const struct wined3d_shader_signature *output_signature)
+static void *shader_sm1_init(const DWORD *byte_code, DWORD tokens_num, const struct wined3d_shader_signature *output_signature)
 {
     struct wined3d_sm1_data *priv;
     BYTE major, minor;
@@ -536,6 +538,9 @@ static void *shader_sm1_init(const DWORD *byte_code, const struct wined3d_shader
         ERR("Failed to allocate private data\n");
         return NULL;
     }
+    
+    priv->end = NULL;
+    priv->tokens_num = tokens_num;
 
     if (output_signature)
     {
@@ -572,6 +577,8 @@ static void shader_sm1_read_header(void *data, const DWORD **ptr, struct wined3d
 {
     struct wined3d_sm1_data *priv = data;
     DWORD version_token;
+
+    priv->end = *ptr + priv->tokens_num;
 
     version_token = *(*ptr)++;
     TRACE("version: 0x%08x\n", version_token);
@@ -673,11 +680,15 @@ static void shader_sm1_read_comment(const DWORD **ptr, const char **comment, UIN
 
 static BOOL shader_sm1_is_end(void *data, const DWORD **ptr)
 {
+    struct wined3d_sm1_data *priv = data;
+
     if (**ptr == WINED3DSP_END)
     {
         ++(*ptr);
         return TRUE;
     }
+
+    AssertMsgReturn(*ptr < priv->end, ("End-of-bytecode token is missing"), TRUE);
 
     return FALSE;
 }

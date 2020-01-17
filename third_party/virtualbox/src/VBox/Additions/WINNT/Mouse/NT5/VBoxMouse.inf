@@ -17,6 +17,7 @@
 
 [Version]
 Signature="$Windows NT$"
+Provider=%ORACLE%
 ClassGuid={4D36E96F-E325-11CE-BFC1-08002BE10318}
 Class=Mouse
 DriverPackageType=ClassFilter
@@ -32,20 +33,25 @@ VBoxMouse.sys = 1
 [DestinationDirs]
 DefaultDestDir = 12     ; DIRID_DRIVERS
 
-[Manufacturer]
-;x86   %ORACLE%=VBoxMouse
-;amd64 %ORACLE%=VBoxMouse, NTamd64
+; Disabled install via [Manufacturer], not working. See [DefaultInstall].
+;[Manufacturer]
+;;x86   %ORACLE%=VBoxMouse
+;;amd64 %ORACLE%=VBoxMouse, NTamd64
+;
+;;x86   [VBoxMouse]
+;;amd64 [VBoxMouse.NTamd64]
+;%ORACLE%=VBoxMouse_Install
+;
+;[VBoxMouse_Install]
+;CopyFiles = @VBoxMouse.sys
+;
+;[VBoxMouse_Install.Services]
+;AddService = VBoxMouse,,VBoxMouse.Service
 
-[VBoxMouse_Install]
+[DefaultInstall@DOT-NT-ARCH@]
 CopyFiles = @VBoxMouse.sys
 
-[VBoxMouse_Install.Services]
-AddService = VBoxMouse,,VBoxMouse.Service
-
-[DefaultInstall]
-CopyFiles = @VBoxMouse.sys
-
-[DefaultInstall.Services]
+[DefaultInstall@DOT-NT-ARCH@.Services]
 AddService = VBoxMouse,,VBoxMouse.Service
 
 [VBoxMouse.AddRegistry]

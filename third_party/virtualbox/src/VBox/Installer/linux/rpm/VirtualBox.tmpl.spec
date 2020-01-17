@@ -87,6 +87,7 @@ rm -rf $RPM_BUILD_ROOT
 install -m 755 -d $RPM_BUILD_ROOT/sbin
 install -m 755 -d $RPM_BUILD_ROOT%{_initrddir}
 install -m 755 -d $RPM_BUILD_ROOT/lib/modules
+install -m 755 -d $RPM_BUILD_ROOT/etc/modprobe.d
 install -m 755 -d $RPM_BUILD_ROOT/etc/vbox
 install -m 755 -d $RPM_BUILD_ROOT/usr/bin
 install -m 755 -d $RPM_BUILD_ROOT/usr/src
@@ -106,6 +107,7 @@ rm -rf sdk/installer
 mv nls $RPM_BUILD_ROOT/usr/share/virtualbox
 cp -a src $RPM_BUILD_ROOT/usr/share/virtualbox
 mv VBox.sh $RPM_BUILD_ROOT/usr/bin/VBox
+mv blacklist-vboxpci.conf $RPM_BUILD_ROOT/etc/modprobe.d/blacklist-vboxpci.conf
 mv VBoxSysInfo.sh $RPM_BUILD_ROOT/usr/share/virtualbox
 cp icons/128x128/virtualbox.png $RPM_BUILD_ROOT/usr/share/pixmaps/virtualbox.png
 cd icons
@@ -339,3 +341,4 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/mime/packages/*
 /usr/share/pixmaps/*
 /usr/share/virtualbox
+%config(noreplace) /etc/modprobe.d/blacklist-vboxpci.conf

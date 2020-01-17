@@ -78,6 +78,11 @@
 /*********************************************************************************************************************************
 *   Defined Constants And Macros                                                                                                 *
 *********************************************************************************************************************************/
+/* 128 should be enough */
+#define VBOXVHWA_MAX_SURFACES 128
+#define VBOXVHWA_MAX_WIDTH    4096
+#define VBOXVHWA_MAX_HEIGHT   4096
+
 #ifdef VBOXQGL_PROF_BASE
 # ifdef VBOXQGL_DBG_SURF
 #  define VBOXQGL_PROF_WIDTH 1400
@@ -317,35 +322,24 @@ private:
 VBoxVHWARefCounter VBoxVHWACommandProcessEvent::g_EventCounter;
 #endif
 
-VBoxVHWAHandleTable::VBoxVHWAHandleTable(uint32_t initialSize)
+VBoxVHWAHandleTable::VBoxVHWAHandleTable(uint32_t maxSize)
+    :
+    mcSize(maxSize),
+    mcUsage(0),
+    mCursor(1) /* 0 is treated as invalid */
 {
-    mTable = new void*[initialSize];
-    memset(mTable, 0, initialSize*sizeof(void*));
-    mcSize = initialSize;
-    mcUsage = 0;
-    mCursor = 1; /* 0 is treated as invalid */
+    mTable = (void **)RTMemAllocZ(sizeof(void *) * maxSize);
 }
 
 VBoxVHWAHandleTable::~VBoxVHWAHandleTable()
 {
-    delete[] mTable;
+    RTMemFree(mTable);
 }
 
 uint32_t VBoxVHWAHandleTable::put(void *data)
 {
-    Assert(data);
-    if (!data)
-        return VBOXVHWA_SURFHANDLE_INVALID;
-
-    if (mcUsage == mcSize)
-    {
-        /** @todo resize */
-        AssertFailed();
-    }
-
-    Assert(mcUsage < mcSize);
-    if (mcUsage >= mcSize)
-        return VBOXVHWA_SURFHANDLE_INVALID;
+    AssertPtrReturn(data, VBOXVHWA_SURFHANDLE_INVALID);
+    AssertReturn(mcUsage < mcSize, VBOXVHWA_SURFHANDLE_INVALID);
 
     for (int k = 0; k < 2; ++k)
     {
@@ -366,31 +360,29 @@ uint32_t VBoxVHWAHandleTable::put(void *data)
     return VBOXVHWA_SURFHANDLE_INVALID;
 }
 
-bool VBoxVHWAHandleTable::mapPut(uint32_t h, void * data)
+bool VBoxVHWAHandleTable::mapPut(uint32_t h, void *data)
 {
-    if (mcSize <= h)
-        return false;
-    if (h == 0)
-        return false;
+    AssertReturn(h > 0 && h < mcSize, false);
+    RT_UNTRUSTED_VALIDATED_FENCE();
     if (mTable[h])
         return false;
-
     doPut(h, data);
     return true;
 }
 
-void* VBoxVHWAHandleTable::get(uint32_t h)
+void * VBoxVHWAHandleTable::get(uint32_t h)
 {
-    Assert(h < mcSize);
-    Assert(h > 0);
+    AssertReturn(h > 0 && h < mcSize, NULL);
+    RT_UNTRUSTED_VALIDATED_FENCE();
     return mTable[h];
 }
 
-void* VBoxVHWAHandleTable::remove(uint32_t h)
+void * VBoxVHWAHandleTable::remove(uint32_t h)
 {
     Assert(mcUsage);
-    Assert(h < mcSize);
-    void* val = mTable[h];
+    AssertReturn(h > 0 && h < mcSize, NULL);
+    RT_UNTRUSTED_VALIDATED_FENCE();
+    void *val = mTable[h];
     Assert(val);
     if (val)
     {
@@ -1495,20 +1487,20 @@ void VBoxVHWASurfaceBase::init(VBoxVHWASurfaceBase * pPrimary, uchar *pvMem)
 void VBoxVHWATexture::doUpdate(uchar *pAddress, const QRect *pRect)
 {
     GLenum tt = texTarget();
+    QRect rect = mRect;
     if (pRect)
-        Assert(mRect.contains(*pRect));
-    else
-        pRect = &mRect;
+        rect = rect.intersected(*pRect);
+    AssertReturnVoid(!rect.isEmpty());
 
     Assert(glIsTexture(mTexture));
     VBOXQGL_CHECKERR(
             glBindTexture(tt, mTexture);
             );
 
-    int x = pRect->x()/mColorFormat.widthCompression();
-    int y = pRect->y()/mColorFormat.heightCompression();
-    int width = pRect->width()/mColorFormat.widthCompression();
-    int height = pRect->height()/mColorFormat.heightCompression();
+    int x = rect.x()/mColorFormat.widthCompression();
+    int y = rect.y()/mColorFormat.heightCompression();
+    int width = rect.width()/mColorFormat.widthCompression();
+    int height = rect.height()/mColorFormat.heightCompression();
 
     uchar *address = pAddress + pointOffsetTex(x, y);
 
@@ -1672,7 +1664,7 @@ GLenum VBoxVHWATextureNP2Rect::texTarget()
 bool VBoxVHWASurfaceBase::synchTexMem(const QRect * pRect)
 {
     if (pRect)
-        Assert(mRect.contains(*pRect));
+        AssertReturn(mRect.contains(*pRect), false);
 
     if (mUpdateMem2TexRect.isClear())
         return false;
@@ -1869,7 +1861,7 @@ int VBoxVHWASurfaceBase::lock(const QRect *pRect, uint32_t flags)
     Q_UNUSED(flags);
 
     if (pRect)
-        Assert(mRect.contains(*pRect));
+        AssertReturn(mRect.contains(*pRect), VERR_GENERAL_FAILURE);
 
     Assert(mLockCount >= 0);
     if (pRect && pRect->isEmpty())
@@ -1881,7 +1873,7 @@ int VBoxVHWASurfaceBase::lock(const QRect *pRect, uint32_t flags)
     VBOXQGLLOG_QRECT("rect: ", pRect ? pRect : &mRect, "\n");
     VBOXQGLLOG_METHODTIME("time ");
 
-    mUpdateMem2TexRect.add(pRect ? *pRect : mRect);
+    mUpdateMem2TexRect.add(pRect ? mRect.intersected(*pRect) : mRect);
 
     Assert(!mUpdateMem2TexRect.isClear());
     Assert(mRect.contains(mUpdateMem2TexRect.rect()));
@@ -1898,7 +1890,7 @@ int VBoxVHWASurfaceBase::unlock()
 void VBoxVHWASurfaceBase::setRectValues (const QRect &aTargRect, const QRect &aSrcRect)
 {
     mTargRect = aTargRect;
-    mSrcRect = aSrcRect;
+    mSrcRect = mRect.intersected(aSrcRect);
 }
 
 void VBoxVHWASurfaceBase::setVisibleRectValues (const QRect &aVisTargRect)
@@ -1976,8 +1968,7 @@ void VBoxVHWASurfaceBase::initDisplay()
 
 void VBoxVHWASurfaceBase::updatedMem(const QRect *rec)
 {
-    if (rec)
-        Assert(mRect.contains(*rec));
+    AssertReturnVoid(mRect.contains(*rec));
     mUpdateMem2TexRect.add(*rec);
 }
 
@@ -2047,9 +2038,8 @@ VBoxGLWgt::VBoxGLWgt(VBoxVHWAImage *pImage, QWidget *parent, const QGLWidget *sh
     Assert(isSharing());
 }
 
-
 VBoxVHWAImage::VBoxVHWAImage ()
-    : mSurfHandleTable(128) /* 128 should be enough */
+    : mSurfHandleTable(VBOXVHWA_MAX_SURFACES)
     , mRepaintNeeded(false)
 //  ,  mbVGASurfCreated(false)
     , mConstructingList(NULL)
@@ -2198,6 +2188,13 @@ int VBoxVHWAImage::vhwaSurfaceCanCreate(struct VBOXVHWACMD_SURF_CANCREATE RT_UNT
 {
     VBOXQGLLOG_ENTER(("\n"));
 
+    if (pCmd->SurfInfo.width > VBOXVHWA_MAX_WIDTH || pCmd->SurfInfo.height > VBOXVHWA_MAX_HEIGHT)
+    {
+        AssertFailed();
+        pCmd->u.out.ErrInfo = -1;
+        return VINF_SUCCESS;
+    }
+
     const VBoxVHWAInfo & info = vboxVHWAGetSupportInfo(NULL);
 
     if (!(pCmd->SurfInfo.flags & VBOXVHWA_SD_CAPS))
@@ -2296,10 +2293,11 @@ int VBoxVHWAImage::vhwaSurfaceCreate(struct VBOXVHWACMD_SURF_CREATE RT_UNTRUSTED
 {
     VBOXQGLLOG_ENTER (("\n"));
 
-    uint32_t handle = VBOXVHWA_SURFHANDLE_INVALID;
-    if (pCmd->SurfInfo.hSurf != VBOXVHWA_SURFHANDLE_INVALID)
+    uint32_t handle = pCmd->SurfInfo.hSurf;
+    AssertReturn(handle == VBOXVHWA_SURFHANDLE_INVALID || handle < VBOXVHWA_MAX_SURFACES, VERR_GENERAL_FAILURE);
+    RT_UNTRUSTED_VALIDATED_FENCE();
+    if (handle != VBOXVHWA_SURFHANDLE_INVALID)
     {
-        handle = pCmd->SurfInfo.hSurf;
         if (mSurfHandleTable.get(handle))
         {
             AssertFailed();
@@ -2347,12 +2345,10 @@ int VBoxVHWAImage::vhwaSurfaceCreate(struct VBOXVHWACMD_SURF_CREATE RT_UNTRUSTED
         bPrimary = true;
         VBoxVHWASurfaceBase *pVga = vgaSurface();
 #ifdef VBOX_WITH_WDDM
-        uchar * addr = vboxVRAMAddressFromOffset(pCmd->SurfInfo.offSurface);
-        Assert(addr);
-        if (addr)
-        {
-            pVga->setAddress(addr);
-        }
+        uchar *addr = vboxVRAMAddressFromOffset(pCmd->SurfInfo.offSurface);
+        AssertPtrReturn(addr, VERR_GENERAL_FAILURE);
+        RT_UNTRUSTED_VALIDATED_FENCE();
+        pVga->setAddress(addr);
 #endif
 
         Assert((pCmd->SurfInfo.surfCaps & VBOXVHWA_SCAPS_OFFSCREENPLAIN) == 0);
@@ -2400,6 +2396,11 @@ int VBoxVHWAImage::vhwaSurfaceCreate(struct VBOXVHWACMD_SURF_CREATE RT_UNTRUSTED
 
     if (!surf)
     {
+        ASSERT_GUEST_RETURN(   pCmd->SurfInfo.width <= VBOXVHWA_MAX_WIDTH
+                            && pCmd->SurfInfo.height <= VBOXVHWA_MAX_HEIGHT, VERR_GENERAL_FAILURE);
+        ASSERT_GUEST_RETURN(pCmd->SurfInfo.cBackBuffers < VBOXVHWA_MAX_SURFACES, VERR_GENERAL_FAILURE);
+        RT_UNTRUSTED_VALIDATED_FENCE();
+
         VBOXVHWAIMG_TYPE fFlags = 0;
         if (!bNoPBO)
         {
@@ -2445,6 +2446,7 @@ int VBoxVHWAImage::vhwaSurfaceCreate(struct VBOXVHWACMD_SURF_CREATE RT_UNTRUSTED
         }
 
         uchar *addr = vboxVRAMAddressFromOffset(pCmd->SurfInfo.offSurface);
+        AssertReturn(addr || pCmd->SurfInfo.offSurface == VBOXVHWA_OFFSET64_VOID, VERR_GENERAL_FAILURE);
         surf->init(mDisplay.getPrimary(), addr);
 
         if (pCmd->SurfInfo.surfCaps & VBOXVHWA_SCAPS_OVERLAY)
@@ -2538,6 +2540,9 @@ int VBoxVHWAImage::vhwaSurfaceCreate(struct VBOXVHWACMD_SURF_CREATE RT_UNTRUSTED
 #ifdef VBOX_WITH_WDDM
 int VBoxVHWAImage::vhwaSurfaceGetInfo(struct VBOXVHWACMD_SURF_GETINFO RT_UNTRUSTED_VOLATILE_GUEST *pCmd)
 {
+    ASSERT_GUEST_RETURN(   pCmd->SurfInfo.width <= VBOXVHWA_MAX_WIDTH
+                        && pCmd->SurfInfo.height <= VBOXVHWA_MAX_HEIGHT, VERR_INVALID_PARAMETER);
+    RT_UNTRUSTED_VALIDATED_FENCE();
     VBoxVHWAColorFormat format;
     Assert(!format.isValid());
     if (pCmd->SurfInfo.PixelFormat.flags & VBOXVHWA_PF_RGB)
@@ -2574,25 +2579,27 @@ int VBoxVHWAImage::vhwaSurfaceDestroy(struct VBOXVHWACMD_SURF_DESTROY RT_UNTRUST
     if (pList != mDisplay.getVGA()->getComplexList())
     {
         Assert(pList);
-        pList->remove(pSurf);
-        if (pList->surfaces().empty())
+        if (pList)
         {
-            mDisplay.removeOverlay(pList);
-            if (pList == mConstructingList)
+            pList->remove(pSurf);
+            if (pList->surfaces().empty())
             {
-                mConstructingList = NULL;
-                mcRemaining2Contruct = 0;
+                mDisplay.removeOverlay(pList);
+                if (pList == mConstructingList)
+                {
+                    mConstructingList = NULL;
+                    mcRemaining2Contruct = 0;
+                }
+                delete pList;
             }
-            delete pList;
         }
 
         delete(pSurf);
     }
     else
     {
-        Assert(pList);
-        Assert(pList->size() >= 1);
-        if (pList->size() > 1)
+        Assert(pList && pList->size() >= 1);
+        if (pList && pList->size() > 1)
         {
             if (pSurf == mDisplay.getVGA())
             {
@@ -2911,7 +2918,6 @@ int VBoxVHWAImage::vhwaSurfaceOverlaySetPosition(struct VBOXVHWACMD_SURF_OVERLAY
 #endif
     if (pSrcSurf->getComplexList()->current() != NULL)
     {
-        Assert(pDstSurf);
         if (pDstSurf != mDisplay.getPrimary())
         {
             mDisplay.updateVGA(pDstSurf);
@@ -3604,13 +3610,19 @@ int VBoxVHWAImage::vhwaConstruct(struct VBOXVHWACMD_HH_CONSTRUCT *pCmd)
 
 uchar *VBoxVHWAImage::vboxVRAMAddressFromOffset(uint64_t offset)
 {
-    /** @todo check vramSize() */
-    return (offset != VBOXVHWA_OFFSET64_VOID) ? ((uint8_t *)vramBase()) + offset : NULL;
+    if (offset == VBOXVHWA_OFFSET64_VOID)
+        return NULL;
+    AssertReturn(offset <= vramSize(), NULL);
+    RT_UNTRUSTED_VALIDATED_FENCE();
+    return (uint8_t *)vramBase() + offset;
 }
 
 uint64_t VBoxVHWAImage::vboxVRAMOffsetFromAddress(uchar *addr)
 {
-    return uint64_t(addr - ((uchar *)vramBase()));
+    AssertReturn((uintptr_t)addr >= (uintptr_t)vramBase(), VBOXVHWA_OFFSET64_VOID);
+    uint64_t const offset = uint64_t((uintptr_t)addr - (uintptr_t)vramBase());
+    AssertReturn(offset <= vramSize(), VBOXVHWA_OFFSET64_VOID);
+    return offset;
 }
 
 uint64_t VBoxVHWAImage::vboxVRAMOffset(VBoxVHWASurfaceBase *pSurf)

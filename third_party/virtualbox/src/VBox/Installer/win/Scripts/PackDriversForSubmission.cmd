@@ -5,7 +5,7 @@ rem Windows NT batch script for preparing for signing submission.
 rem
 
 rem
-rem Copyright (C) 2018 Oracle Corporation
+rem Copyright (C) 2018-2019 Oracle Corporation
 rem
 rem This file is part of VirtualBox Open Source Edition (OSE), as
 rem available from http://www.virtualbox.org. This file is free software;
@@ -25,12 +25,15 @@ rem Parse arguments.
 rem
 set _MY_OPT_BINDIR=..\bin
 set _MY_OPT_PDBDIR=
+set _MY_OPT_GADIR=
+set _MY_OPT_WITH_MAIN=1
 set _MY_OPT_WITH_PDB=1
 set _MY_OPT_EXTPACK=
 set _MY_OPT_WITH_EXTPACK=1
+set _MY_OPT_WITH_GA=0
 set _MY_OPT_OUTPUT=
 set _MY_OPT_DDF_FILE=
-set _MY_OPT_ARCH=@KBUILD_TARGET_ARCH@
+set _MY_OPT_ARCH=amd64
 
 :argument_loop
 if ".%1" == "."             goto no_more_arguments
@@ -51,6 +54,7 @@ if ".%1" == ".-d"           goto opt_d
 if ".%1" == ".--ddf"        goto opt_d
 if ".%1" == ".-e"           goto opt_e
 if ".%1" == ".--extpack"    goto opt_e
+if ".%1" == ".--no-main"    goto opt_m
 if ".%1" == ".-n"           goto opt_n
 if ".%1" == ".--no-pdb"     goto opt_n
 if ".%1" == ".-o"           goto opt_o
@@ -59,6 +63,9 @@ if ".%1" == ".-p"           goto opt_p
 if ".%1" == ".--pdb"        goto opt_p
 if ".%1" == ".-x"           goto opt_x
 if ".%1" == ".--no-extpack" goto opt_x
+if ".%1" == ".-g"           goto opt_g
+if ".%1" == ".--ga"         goto opt_g
+if ".%1" == ".--additions"  goto opt_g
 echo syntax error: Unknown option: %1
 echo               Try --help to list valid options.
 goto end_failed
@@ -93,11 +100,16 @@ goto argument_loop_next_with_value
 echo This script creates a .cab file containing all drivers needing blessing from
 echo Microsoft to run on recent Windows 10 installations.
 echo .
-echo Usage: PackDriversForSubmission.cmd [-b bindir] [-p pdbdir] [-n/--no-pdb]
-echo           [-e expack] [-x/--no-extpack] [-o output.cab] [-p output.ddf] [-a x86/amd64]
+echo Usage: PackDriversForSubmission.cmd [-b bindir] [-p pdbdir] [--no-main] [-n/--no-pdb] [-e expack]
+echo           [-x/--no-extpack] [-g/--ga/--additions] [-o output.cab] [-p output.ddf] [-a x86/amd64]
 echo .
 echo Warning! This script should normally be invoked from the repack directory w/o any parameters.
 goto end_failed
+
+:opt_m
+set _MY_OPT_WITH_MAIN=0
+shift
+goto argument_loop
 
 :opt_n
 set _MY_OPT_WITH_PDB=0
@@ -119,6 +131,12 @@ set _MY_OPT_WITH_EXTPACK=0
 shift
 goto argument_loop
 
+:opt_g
+set _MY_OPT_WITH_GA=1
+shift
+goto argument_loop
+
+
 :syntax_error_missing_value
 echo syntax error: missing or empty option value after %1
 goto end_failed
@@ -139,6 +157,11 @@ goto end_failed
 echo syntax error: Specified extension pack does not exist: "%_MY_OPT_EXTPACK%"
 goto end_failed
 
+:error_additions_does_not_exist
+echo syntax error: Specified guest additions does not exist: "%_MY_OPT_GADIR%"
+goto end_failed
+
+
 :error_output_exists
 echo error: The output file already exist: "%_MY_OPT_OUTPUT%"
 goto end_failed
@@ -151,17 +174,22 @@ goto end_failed
 rem validate specified options
 if not exist "%_MY_OPT_BINDIR%"     goto error_bindir_does_not_exist
 
-if "%_MY_OPT_WITH_PDB" == "0"       goto no_pdbdir_validation
+if "%_MY_OPT_WITH_PDB%" == "0"      goto no_pdbdir_validation
 if ".%_MY_OPT_PDBDIR%" == "."       set _MY_OPT_PDBDIR=%_MY_OPT_BINDIR%\..\stage\debug\bin
 if not exist "%_MY_OPT_PDBDIR%"     goto error_pdbdir_does_not_exist
 :no_pdbdir_validation
 
-if "%_MY_OPT_WITH_EXTPACK" == "0"   goto no_extpack_validation
+if "%_MY_OPT_WITH_EXTPACK%" == "0"  goto no_extpack_validation
 if ".%_MY_OPT_EXTPACK%" == "."      set _MY_OPT_EXTPACK=%_MY_OPT_BINDIR%\Oracle_VM_VirtualBox_Extension_Pack.vbox-extpack
 if not exist "%_MY_OPT_EXTPACK%"    goto error_extpack_does_not_exist
-:no_extack_validation
+:no_extpack_validation
 
-if ".%_MY_OPT_OUTPUT%" == "."       set _MY_OPT_OUTPUT=VBoxDrivers-@VBOX_VERSION_STRING@r@VBOX_SVN_REV@-%_MY_OPT_ARCH%.cab
+if "%_MY_OPT_WITH_GA%" == "0"       goto no_additions_validation
+if ".%_MY_OPT_GADIR%" == "."        set _MY_OPT_GADIR=%_MY_OPT_BINDIR%\additions
+if not exist "%_MY_OPT_GADIR%"      goto error_additions_does_not_exist
+:no_additions_validation
+
+if ".%_MY_OPT_OUTPUT%" == "."       set _MY_OPT_OUTPUT=VBoxDrivers-6.1.0_RC1_SPBr135037-%_MY_OPT_ARCH%.cab
 if exist "%_MY_OPT_OUTPUT%"         goto error_output_exists
 
 if ".%_MY_OPT_DDF_FILE%" == "."     set _MY_OPT_DDF_FILE=%_MY_OPT_OUTPUT%.ddf
@@ -176,7 +204,7 @@ rem Note! Modify the path a little to ensure windows utilities are used before
 rem       cygwin ones, and that we can use stuff from bin\tools if we like.
 rem
 set PATH=%SystemRoot%\System32;%PATH%;%_MY_OPT_BINDIR%
-if "%_MY_OPT_WITH_EXTPACK" == "0"   goto no_extpack_unpack
+if "%_MY_OPT_WITH_EXTPACK%" == "0" goto no_extpack_unpack
 set _MY_EXTPACK_DIR=%_MY_OPT_BINDIR%\ExtensionPacks\Oracle_VM_VirtualBox_Extension_Pack
 if not exist "%_MY_OPT_BINDIR%\ExtensionPacks"  ( mkdir "%_MY_OPT_BINDIR%\ExtensionPacks" || goto end_failed )
 if not exist "%_MY_EXTPACK_DIR%"                ( mkdir "%_MY_EXTPACK_DIR%" || goto end_failed )
@@ -201,6 +229,7 @@ echo .Set CabinetNameTemplate=%_MY_OPT_OUTPUT%>>                                
 echo .Set InfFileName=%_MY_OPT_OUTPUT%.inf>>                                            "%_MY_OPT_DDF_FILE%"
 echo .Set RptFileName=%_MY_OPT_OUTPUT%.rpt>>                                            "%_MY_OPT_DDF_FILE%"
 
+if %_MY_OPT_WITH_MAIN% == 0 goto skip_main_package
 echo .Set DestinationDir=VBoxDrv>>                                                      "%_MY_OPT_DDF_FILE%"
 echo %_MY_OPT_BINDIR%\VBoxDrv.inf VBoxDrv.inf>>                                         "%_MY_OPT_DDF_FILE%"
 echo %_MY_OPT_BINDIR%\VBoxDrv.sys VBoxDrv.sys>>                                         "%_MY_OPT_DDF_FILE%"
@@ -231,15 +260,61 @@ echo .\VMMR0.inf VMMR0.inf>>                                                    
 echo %_MY_OPT_BINDIR%\VMMR0.r0 VMMR0.r0>>                                               "%_MY_OPT_DDF_FILE%"
 if "%_MY_OPT_WITH_PDB%" == "1" echo %_MY_OPT_PDBDIR%\VMMR0.pdb VMMR0.pdb>>              "%_MY_OPT_DDF_FILE%"
 echo %_MY_OPT_BINDIR%\VBoxDDR0.r0 VBoxDDR0.r0>>                                         "%_MY_OPT_DDF_FILE%"
+:skip_main_package
+
 if "%_MY_OPT_WITH_PDB%" == "1" echo %_MY_OPT_PDBDIR%\VBoxDDR0.pdb VBoxDDR0.pdb>>        "%_MY_OPT_DDF_FILE%"
 
-if "%_MY_OPT_WITH_EXTPACK" == "0"   goto no_extpack_ddf
+if "%_MY_OPT_WITH_EXTPACK%" == "0" goto no_extpack_ddf
 echo .Set DestinationDir=VBoxExtPackPuel>>                                              "%_MY_OPT_DDF_FILE%"
 echo .\VBoxExtPackPuel.inf VBoxExtPackPuel.inf>>                                        "%_MY_OPT_DDF_FILE%"
 echo %_MY_EXTPACK_DIR%\win.%_MY_OPT_ARCH%\VBoxEhciR0.r0 VBoxEhciR0.r0>>                 "%_MY_OPT_DDF_FILE%"
 echo %_MY_EXTPACK_DIR%\win.%_MY_OPT_ARCH%\VBoxNvmeR0.r0 VBoxNvmeR0.r0>>                 "%_MY_OPT_DDF_FILE%"
 rem echo %_MY_EXTPACK_DIR%\win.%_MY_OPT_ARCH%\VBoxPciRawR0.r0 VBoxPciRawR0.r0>>             "%_MY_OPT_DDF_FILE%"
 :no_extpack_ddf
+
+if "%_MY_OPT_WITH_GA%" == "0"   goto no_additions_ddf
+echo .Set DestinationDir=VBoxGuestAdditions>>                                           "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxGuest.inf>>                                                    "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxGuest.sys>>                                                    "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxTray.exe>>                                                     "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxControl.exe>>                                                  "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxMouse.inf>>                                                    "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxMouse.sys>>                                                    "%_MY_OPT_DDF_FILE%"
+rem VBoxVideo files are excluded from attestation signing.
+echo %_MY_OPT_GADIR%\VBoxVideo.inf>>                                                    "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxVideo.sys>>                                                    "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxVideoW8.inf>>                                                  "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxVideoW8.sys>>                                                  "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxVideoWddm.inf>>                                                "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxVideoWddm.sys>>                                                "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\vboxdisp.dll>>                                                         "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\vboxdispd3d.dll>>                                                      "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxD3D8.dll>>                                                         "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxD3D9.dll>>                                                         "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxD3D9wddm.dll>>                                                     "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\vboxogl.dll>>                                                     "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\wined3dwddm.dll>>                                                     "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxnine.dll>>                                                     "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxsvga.dll>>                                                     "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxicd.dll>>                                                      "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxgl.dll>>                                                       "%_MY_OPT_DDF_FILE%"
+if ".%_MY_OPT_ARCH%" == ".amd64" goto skip_x86_files
+echo %_MY_OPT_GADIR%\VBoxMouseNT.sys>>                                                      "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxGuestNT.sys>>                                                      "%_MY_OPT_DDF_FILE%"
+:skip_x86_files
+if ".%_MY_OPT_ARCH%" == ".x86" goto skip_amd64_files
+echo %_MY_OPT_GADIR%\vboxdispd3d-x86.dll>>                                                  "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\VBoxD3D9wddm-x86.dll>>                                                 "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxnine-x86.dll>>                                                 "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxsvga-x86.dll>>                                                 "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxicd-x86.dll>>                                                  "%_MY_OPT_DDF_FILE%"
+rem echo %_MY_OPT_GADIR%\vboxgl-x86.dll>>                                                   "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\vboxogl-x86.dll>>                                                     "%_MY_OPT_DDF_FILE%"
+echo %_MY_OPT_GADIR%\wined3dwddm-x86.dll>>                                                     "%_MY_OPT_DDF_FILE%"
+
+:skip_amd64_files
+
+:no_additions_ddf
 
 rem
 rem Create the cabient file.
@@ -264,4 +339,3 @@ goto end
 :end
 @endlocal
 @endlocal
-

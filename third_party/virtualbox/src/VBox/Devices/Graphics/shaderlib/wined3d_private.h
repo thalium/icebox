@@ -569,6 +569,7 @@ typedef struct shader_reg_maps
     WORD labels;                            /* MAX_LABELS, 16 */
     DWORD temporary;                        /* MAX_REG_TEMP, 32 */
     DWORD *constf;                          /* pixel, vertex */
+    DWORD constf_size;
     DWORD texcoord_mask[MAX_REG_TEXCRD];    /* vertex < 3.0 */
     WORD input_registers;                   /* max(MAX_REG_INPUT, MAX_ATTRIBS), 16 */
     WORD output_registers;                  /* MAX_REG_OUTPUT, 12 */
@@ -671,7 +672,7 @@ struct wined3d_shader_loop_control
 
 struct wined3d_shader_frontend
 {
-    void *(*shader_init)(const DWORD *ptr, const struct wined3d_shader_signature *output_signature);
+    void *(*shader_init)(const DWORD *ptr, DWORD tokens_num, const struct wined3d_shader_signature *output_signature);
     void (*shader_free)(void *data);
     void (*shader_read_header)(void *data, const DWORD **ptr, struct wined3d_shader_version *shader_version);
     void (*shader_read_opcode)(void *data, const DWORD **ptr, struct wined3d_shader_instruction *ins, UINT *param_size);

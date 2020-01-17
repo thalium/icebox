@@ -72,11 +72,12 @@ else
 fi
 if [ -n "$USE_MOD_SYMVERS" ]; then
   cp $USE_MOD_SYMVERS $tmpdir/Module.symvers
+  MAKE_EXTRAOPTS="KBUILD_EXTRA_SYMBOLS=$tmpdir/Module.symvers"
 fi
 
 # make, cleanup if success
 cd "$tmpdir"
-if make "-j`echo ${MAKE_JOBS}`" "$@"; then  # strip leading space from "MAKE_JOBS"
+if make "-j`echo ${MAKE_JOBS}`" "$@" ${MAKE_EXTRAOPTS}; then  # strip leading space from "MAKE_JOBS"
   if [ -n "$SAVE_MOD_SYMVERS" ]; then
     if [ -f Module.symvers ]; then
       cp -f Module.symvers $SAVE_MOD_SYMVERS

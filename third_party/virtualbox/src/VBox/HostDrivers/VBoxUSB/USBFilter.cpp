@@ -326,6 +326,17 @@ USBLIB_DECL(int) USBFilterValidate(PCUSBFILTER pFilter)
         return VERR_INVALID_PARAMETER;
     }
 
+    /* Validate that string value offsets are inside the string table. */
+    for (uint32_t i = 0; i < RT_ELEMENTS(pFilter->aFields); i++)
+    {
+        if (    USBFilterIsMethodUsingStringValue((USBFILTERMATCH)pFilter->aFields[i].enmMatch)
+            &&  pFilter->aFields[i].u16Value > pFilter->offCurEnd)
+        {
+            Log(("USBFilter: %p - bad offset=%#x\n", pFilter, pFilter->aFields[i].u16Value));
+            return VERR_INVALID_PARAMETER;
+        }
+    }
+
     /*
      * Validate the string table.
      */
@@ -349,7 +360,7 @@ USBLIB_DECL(int) USBFilterValidate(PCUSBFILTER pFilter)
         uint16_t off = (uint16_t)(uintptr_t)(psz - &pFilter->achStrTab[0]);
         unsigned i;
         for (i = 0; i < RT_ELEMENTS(pFilter->aFields); i++)
-            if (    USBFilterIsMethodString((USBFILTERMATCH)pFilter->aFields[i].enmMatch)
+            if (    USBFilterIsMethodUsingStringValue((USBFILTERMATCH)pFilter->aFields[i].enmMatch)
                 &&  pFilter->aFields[i].u16Value == off)
                 break;
         if (i >= RT_ELEMENTS(pFilter->aFields))
@@ -1790,7 +1801,7 @@ USBLIB_DECL(bool) USBFilterIsMethodUsingStringValue(USBFILTERMATCH enmMatchingMe
 
 
 /**
- * Checks if a matching method is for string fields or not.
+ * Checks if a matching method is for numeric fields or not.
  *
  * @returns true / false.
  * @param   enmMatchingMethod   The matching method.

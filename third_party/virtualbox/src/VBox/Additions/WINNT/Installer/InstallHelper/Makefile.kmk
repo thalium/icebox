@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2010-2017 Oracle Corporation
+# Copyright (C) 2010-2019 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -24,8 +24,10 @@ include $(KBUILD_PATH)/subheader.kmk
 ## @todo kBuild: This needs the WINPSDK fix to work for cross building.
 DLLS.x86 += VBoxGuestInstallHelper
 VBoxGuestInstallHelper_TEMPLATE = VBoxGuestR3Dll
+#Installation is required for repacking Guest Additions
+VBoxGuestInstallHelper_INST     = repack/resources/VBoxGuestInstallHelper/
 ifdef VBOX_SIGN_ADDITIONS # (See the parent makefile.)
- VBoxGuestInstallHelper_INSTTYPE = none
+ VBoxGuestInstallHelper_INSTTYPE = stage
  VBoxGuestInstallHelper_DEBUG_INSTTYPE = both
 endif
 VBoxGuestInstallHelper_DEFS     = _WIN32_WINNT=0x0400 WIN32_LEAN_AND_MEAN=1

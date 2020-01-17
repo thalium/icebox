@@ -5,7 +5,7 @@ rem Windows NT batch script for unpacking drivers after being signed.
 rem
 
 rem
-rem Copyright (C) 2018 Oracle Corporation
+rem Copyright (C) 2018-2019 Oracle Corporation
 rem
 rem This file is part of VirtualBox Open Source Edition (OSE), as
 rem available from http://www.virtualbox.org. This file is free software;
@@ -35,6 +35,7 @@ rem
 set _MY_OPT_BINDIR=..\bin
 set _MY_OPT_INPUT=
 set _MY_OPT_SIGN_CAT=1
+set _MY_OPT_SIGN_VERIFY=1
 
 :argument_loop
 if ".%1" == "."             goto no_more_arguments
@@ -53,6 +54,9 @@ if ".%1" == ".-i"           goto opt_i
 if ".%1" == ".--input"      goto opt_i
 if ".%1" == ".-n"           goto opt_n
 if ".%1" == ".--no-sign-cat" goto opt_n
+if ".%1" == ".-v"           goto opt_v
+if ".%1" == ".--no-sign-verify" goto opt_v
+
 echo syntax error: Unknown option: %1
 echo               Try --help to list valid options.
 goto end_failed
@@ -72,7 +76,7 @@ echo This script unpacks the zip-file containing the blessed driver files from
 echo Microsoft, replacing original files in the bin directory.  The catalog files
 echo will be signed again and the Microsoft signature merged with ours.
 echo .
-echo Usage: UnpackBlessedDrivers.cmd [-b bindir] [-n/--no-sign-cat] -i input.zip
+echo Usage: UnpackBlessedDrivers.cmd [-b bindir] [-n/--no-sign-cat] [-v/--no-sign-verify] -i input.zip
 echo .
 echo Warning! This script should normally be invoked from the repack directory
 goto end_failed
@@ -84,6 +88,11 @@ goto argument_loop_next_with_value
 
 :opt_n
 set _MY_OPT_SIGN_CAT=0
+shift
+goto argument_loop
+
+:opt_v
+set _MY_OPT_SIGN_VERIFY=0
 shift
 goto argument_loop
 
@@ -115,6 +124,7 @@ rem
 if NOT ERRORLEVEL 1 goto end_failed
 :unzip_okay
 
+if ".%_MY_OPT_SIGN_VERIFY%" == ".0" goto no_sign_verify
 rem
 rem Verify it against the PreW10 catalog files we saved.
 rem
@@ -129,7 +139,7 @@ for %%d in (%_MY_DRIVER_BASE_NAMES%) do (
     "%_MY_SIGNTOOL%" verify /kp /c "%_MY_OPT_BINDIR%\%%d-PreW10.cat" "%_MY_OPT_BINDIR%\%%d.inf" || goto end_failed
     "%_MY_SIGNTOOL%" verify /kp /c "%_MY_OPT_BINDIR%\%%d-PreW10.cat" "%_MY_OPT_BINDIR%\%%d.sys" || goto end_failed
 )
-
+:no_sign_verify
 
 rem
 rem Modify the catalog signatures.

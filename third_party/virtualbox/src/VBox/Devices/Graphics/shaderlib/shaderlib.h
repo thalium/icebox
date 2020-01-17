@@ -69,8 +69,8 @@ SHADERDECL(int) ShaderDestroyLib(void);
 SHADERDECL(int) ShaderContextCreate(void **ppShaderContext);
 SHADERDECL(int) ShaderContextDestroy(void *pShaderContext);
 
-SHADERDECL(int) ShaderCreateVertexShader(void *pShaderContext, const uint32_t *pShaderData, void **pShaderObj);
-SHADERDECL(int) ShaderCreatePixelShader(void *pShaderContext, const uint32_t *pShaderData, void **pShaderObj);
+SHADERDECL(int) ShaderCreateVertexShader(void *pShaderContext, const uint32_t *pShaderData, uint32_t cbShaderData, void **pShaderObj);
+SHADERDECL(int) ShaderCreatePixelShader(void *pShaderContext, const uint32_t *pShaderData, uint32_t cbShaderData, void **pShaderObj);
 
 SHADERDECL(int) ShaderDestroyVertexShader(void *pShaderContext, void *pShaderObj);
 SHADERDECL(int) ShaderDestroyPixelShader(void *pShaderContext, void *pShaderObj);

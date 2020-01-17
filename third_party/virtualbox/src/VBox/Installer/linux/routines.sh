@@ -144,13 +144,14 @@ systemd_wrap_init_script()
     conflicts=`sed -n 's/# *X-Conflicts-With: *\(.*\)/\1/p' "${script}" | sed 's/\$[a-z]*//'`
     description=`sed -n 's/# *Short-Description: *\(.*\)/\1/p' "${script}"`
     required=`sed -n 's/# *Required-Start: *\(.*\)/\1/p' "${script}" | sed 's/\$[a-z]*//'`
+    required_target=`sed -n 's/# *X-Required-Target-Start: *\(.*\)/\1/p' "${script}"`
     startbefore=`sed -n 's/# *X-Start-Before: *\(.*\)/\1/p' "${script}" | sed 's/\$[a-z]*//'`
     runlevels=`sed -n 's/# *Default-Start: *\(.*\)/\1/p' "${script}"`
     servicetype=`sed -n 's/# *X-Service-Type: *\(.*\)/\1/p' "${script}"`
     test -z "${servicetype}" && servicetype="forking"
     targets=`for i in ${runlevels}; do printf "runlevel${i}.target "; done`
     before=`for i in ${startbefore}; do printf "${i}.service "; done`
-    after=`for i in ${required}; do printf "${i}.service "; done`
+    after=`for i in ${required_target}; do printf "${i}.target "; done; for i in ${required}; do printf "${i}.service "; done`
     cat > "${unit_path}/${name}.service" << EOF
 [Unit]
 SourcePath=${script}
@@ -391,11 +392,17 @@ terminate_proc() {
 maybe_run_python_bindings_installer() {
     VBOX_INSTALL_PATH="${1}"
 
-    PYTHON=python
-    if [ "`python -c 'import sys
-if sys.version_info >= (2, 6):
-    print \"test\"' 2> /dev/null`" != "test" ]; then
-        echo  1>&2 "Python 2.6 or later not available, skipping bindings installation."
+    # Check for python2 only, because the generic package does not provide
+    # any XPCOM bindings support for python3 since there is no standard ABI.
+    for p in python python2 python2.6 python 2.7; do
+        if [ "`$p -c 'import sys
+if sys.version_info >= (2, 6) and sys.version_info < (3, 0):
+    print \"test\"' 2> /dev/null`" = "test" ]; then
+            PYTHON=$p
+        fi
+    done
+    if [ -z "$PYTHON" ]; then
+        echo  1>&2 "Python 2 (2.6 or 2.7) not available, skipping bindings installation."
         return 1
     fi
 

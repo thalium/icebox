@@ -1119,12 +1119,22 @@ int hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax)
                         PPDMAUDIOSTREAMMAP pMap = &pStream->State.Mapping.paMappings[m];
                         AssertPtr(pMap);
 
-                        Log3Func(("Mapping #%u: Start (cbDMA=%RU32, cbFrame=%RU32, cbOff=%RU32)\n",
-                                  m, cbDMA, cbFrame, pMap->cbOff));
+                        Log3Func(("Mapping #%u: Start (cbDMA=%RU32, cbFrame=%RU32, cbChunk=%RU32, cbMapOff=%RU32)\n",
+                                  m, cbDMA, cbFrame, cbChunk, pMap->cbOff));
+
+                        /* Skip the current DMA chunk if the chunk is smaller than what the current stream mapping needs to read
+                         * the next associated frame (pointed to at pMap->cbOff).
+                         *
+                         * This can happen if the guest did not come up with enough data within a certain time period, especially
+                         * when using multi-channel speaker (> 2 channels [stereo]) setups. */
+                        if (pMap->cbOff > cbChunk)
+                        {
+                            Log2Func(("Mapping #%u: Skipped (cbChunk=%RU32, cbMapOff=%RU32)\n", m, cbChunk, pMap->cbOff));
+                            continue;
+                        }
 
                         uint8_t *pbSrcBuf = abChunk;
                         size_t cbSrcOff   = pMap->cbOff;
-                        Assert(cbChunk >= cbSrcOff);
 
                         for (unsigned i = 0; i < cbDMA / cbFrame; i++)
                         {
