@@ -75,7 +75,9 @@
 
 /* Qt includes: */
 #ifdef VBOX_WS_WIN
+/*MYCODE*/
 //# include <QtWin>
+/*ENDMYCODE*/
 #endif /* VBOX_WS_WIN */
 
 #ifdef VBOX_WS_X11

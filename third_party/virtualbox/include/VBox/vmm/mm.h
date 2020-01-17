@@ -228,7 +228,9 @@ VMMDECL(bool)       MMHyperIsInsideArea(PVM pVM, RTGCPTR GCPtr);
 
 VMMDECL(RTHCPHYS)   MMPage2Phys(PVM pVM, void *pvPage);
 VMMDECL(void *)     MMPagePhys2Page(PVM pVM, RTHCPHYS HCPhysPage);
+/*MYCODE*/
 VMMDECL(void *)     MMPagePhys2PageU(PUVM pUVM, RTHCPHYS HCPhysPage);
+/*ENDMYCODE*/
 VMMDECL(int)        MMPagePhys2PageEx(PVM pVM, RTHCPHYS HCPhysPage, void **ppvPage);
 VMMDECL(int)        MMPagePhys2PageTry(PVM pVM, RTHCPHYS HCPhysPage, void **ppvPage);
 
@@ -296,7 +298,9 @@ VMMR3DECL(int)      MMR3HyperReadGCVirt(PVM pVM, void *pvDst, RTGCPTR GCPtr, siz
  * @todo retire this group, elimintating or moving MMR3PhysGetRamSize to PGMPhys.
  * @{ */
 VMMR3DECL(uint64_t) MMR3PhysGetRamSize(PVM pVM);
+/*MYCODE*/
 VMMR3DECL(uint64_t) MMR3PhysGetRamSizeU(PUVM pUVM);
+/*ENDMYCODE*/
 VMMR3DECL(uint32_t) MMR3PhysGetRamSizeBelow4GB(PVM pVM);
 VMMR3DECL(uint64_t) MMR3PhysGetRamSizeAbove4GB(PVM pVM);
 VMMR3DECL(uint32_t) MMR3PhysGet4GBRamHoleSize(PVM pVM);

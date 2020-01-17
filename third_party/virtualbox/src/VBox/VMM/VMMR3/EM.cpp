@@ -2323,7 +2323,7 @@ VMMR3_INT_DECL(int) EMR3ExecuteVM(PVM pVM, PVMCPU pVCpu)
                 rc = VINF_EM_SUSPEND;
                 pVCpu->mystate.s.bSuspendRequired = false;
             }
-            /*MYCODE*/
+            /*ENDMYCODE*/
 
             /*
              * Now what to do?

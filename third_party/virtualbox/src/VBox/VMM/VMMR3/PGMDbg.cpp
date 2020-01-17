@@ -779,10 +779,12 @@ VMMR3_INT_DECL(int) PGMR3DbgScanPhysical(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cbRa
     return VERR_DBGF_MEM_NOT_FOUND;
 }
 
+/*MYCODE*/
 VMMR3_INT_DECL(int) PGMR3DbgScanPhysicalU(PUVM pUVM, RTGCPHYS GCPhys, RTGCPHYS cbRange, RTGCPHYS GCPhysAlign, const uint8_t *pabNeedle, size_t cbNeedle, PRTGCPHYS pGCPhysHit)
 {
     return PGMR3DbgScanPhysical(pUVM->pVM, GCPhys, cbRange, GCPhysAlign, pabNeedle, cbNeedle, pGCPhysHit);
 }
+/*ENDMYCODE*/
 
 /**
  * Scans (guest) virtual memory for a byte string.

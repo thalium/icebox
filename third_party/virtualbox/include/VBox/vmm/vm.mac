@@ -82,8 +82,10 @@ struc VMCPU
     alignb 4096
     .cpum                   resb 4096
     alignb 4096
+;MYCODE
     .mystate                resb 4096
     alignb 4096
+;ENDMYCODE
 endstruc
 
 ;;
@@ -177,10 +179,12 @@ struc VM
     .vm                     resb 24
     .cfgm                   resb 8
     alignb 4096
+;MYCODE
     .bp                     resb 131072
     alignb 4096
     .mystate                resb 4096
     alignb 4096
+;ENDMYCODE
     .aCpus                  resb VMCPU_size
 endstruc
 

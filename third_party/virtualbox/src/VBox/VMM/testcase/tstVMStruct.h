@@ -1468,7 +1468,9 @@
     GEN_CHECK_OFF(VM, vm);
     GEN_CHECK_OFF(VM, cfgm);
     GEN_CHECK_OFF(VM, apic);
+/*MYCODE*/
     GEN_CHECK_OFF(VM, mystate);
+/*ENDMYCODE*/
     GEN_CHECK_OFF(VM, aCpus);
 
 
@@ -1499,7 +1501,9 @@
     GEN_CHECK_OFF(VMCPU, apic);
     GEN_CHECK_OFF(VMCPU, pgm);
     GEN_CHECK_OFF(VMCPU, cpum);
+/*MYCODE*/
     GEN_CHECK_OFF(VMCPU, mystate);
+/*ENDMYCODE*/
 
 #ifndef VBOX_FOR_DTRACE_LIB
     GEN_CHECK_SIZE(DISCPUSTATE);

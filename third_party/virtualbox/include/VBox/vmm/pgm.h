@@ -646,7 +646,9 @@ VMMDECL(VBOXSTRICTRC) PGMPhysReadGCPtr(PVMCPU pVCpu, void *pvDst, RTGCPTR GCPtrS
 VMMDECL(VBOXSTRICTRC) PGMPhysWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb, PGMACCESSORIGIN enmOrigin);
 
 VMMDECL(int)        PGMPhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
+/*MYCODE*/
 VMMDECL(int)        PGMPhysSimpleReadGCPhys2(PUVM pUVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
+/*ENDMYCODE*/
 VMMDECL(int)        PGMPhysSimpleWriteGCPhys(PVM pVM, RTGCPHYS GCPhysDst, const void *pvSrc, size_t cb);
 VMMDECL(int)        PGMPhysSimpleReadGCPtr(PVMCPU pVCpu, void *pvDst, RTGCPTR GCPtrSrc, size_t cb);
 VMMDECL(int)        PGMPhysSimpleWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb);
@@ -716,7 +718,9 @@ VMMR0_INT_DECL(int) PGMR0PhysSetupIoMmu(PGVM pGVM, PVM pVM);
 VMMR0DECL(int)      PGMR0SharedModuleCheck(PVM pVM, PGVM pGVM, VMCPUID idCpu, PGMMSHAREDMODULE pModule, PCRTGCPTR64 paRegionsGCPtrs);
 VMMR0DECL(int)      PGMR0Trap0eHandlerNestedPaging(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, RTGCUINT uErr, PCPUMCTXCORE pRegFrame, RTGCPHYS pvFault);
 VMMR0DECL(VBOXSTRICTRC) PGMR0Trap0eHandlerNPMisconfig(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, PCPUMCTXCORE pRegFrame, RTGCPHYS GCPhysFault, uint32_t uErr);
+/*MYCODE*/
 VMMR0DECL(VBOXSTRICTRC) PGMR0PhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
+/*ENDMYCODE*/
 # ifdef VBOX_WITH_2X_4GB_ADDR_SPACE
 VMMR0DECL(int)      PGMR0DynMapInit(void);
 VMMR0DECL(void)     PGMR0DynMapTerm(void);
@@ -747,7 +751,9 @@ VMMR3_INT_DECL(void)    PGMR3MemSetup(PVM pVM, bool fReset);
 VMMR3DECL(int)      PGMR3Term(PVM pVM);
 VMMR3DECL(int)      PGMR3LockCall(PVM pVM);
 VMMR3DECL(int)      PGMR3ChangeMode(PVM pVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
+/*MYCODE*/
 VMMR3DECL(int)      PGMR3ChangeMode2(PUVM pUVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
+/*ENDMYCODE*/
 
 VMMR3DECL(int)      PGMR3PhysRegisterRam(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, const char *pszDesc);
 VMMR3DECL(int)      PGMR3PhysChangeMemBalloon(PVM pVM, bool fInflate, unsigned cPages, RTGCPHYS *paPhysPage);

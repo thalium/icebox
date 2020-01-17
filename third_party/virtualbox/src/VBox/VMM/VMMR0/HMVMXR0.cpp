@@ -4290,7 +4290,7 @@ static int hmR0VmxLoadSharedDebugState(PVMCPU pVCpu, PCPUMCTX pMixedCtx)
     pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR3_STORE_EXIT;
     pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR8_LOAD_EXIT;
     pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR8_STORE_EXIT;
-    /*ENDCODE*/
+    /*ENDMYCODE*/
 
     rc = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
     AssertRCReturn(rc, rc);

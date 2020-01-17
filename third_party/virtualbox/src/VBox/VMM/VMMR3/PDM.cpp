@@ -1241,7 +1241,7 @@ DECLINLINE(int) pdmR3PowerOnDev(PPDMDEVINS pDevIns)
  */
 VMMR3DECL(void) PDMR3PowerOn(PVM pVM)
 {
-    LogRel(("PDMR3PowerOn:\n"));
+    LogFlow(("PDMR3PowerOn:\n"));
 
     /*
      * Iterate thru the device instances and USB device instances,
