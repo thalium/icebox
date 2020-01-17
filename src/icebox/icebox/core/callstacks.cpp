@@ -8,16 +8,25 @@
 
 size_t callstacks::read(core::Core& core, caller_t* callers, size_t num_callers, proc_t proc)
 {
+    if(!core.callstacks_)
+        return 0;
+
     return core.callstacks_->read(callers, num_callers, proc);
 }
 
 size_t callstacks::read_from(core::Core& core, caller_t* callers, size_t num_callers, proc_t proc, const context_t& where)
 {
+    if(!core.callstacks_)
+        return 0;
+
     return core.callstacks_->read_from(callers, num_callers, proc, where);
 }
 
 bool callstacks::load_module(core::Core& core, proc_t proc, mod_t mod)
 {
+    if(!core.callstacks_)
+        return false;
+
     if(mod.flags.is_x86)
         return true;
 
@@ -34,6 +43,9 @@ bool callstacks::load_module(core::Core& core, proc_t proc, mod_t mod)
 
 bool callstacks::load_driver(core::Core& core, proc_t proc, driver_t drv)
 {
+    if(!core.callstacks_)
+        return false;
+
     const auto opt_name = drivers::name(core, drv);
     if(!opt_name)
         return false;
@@ -47,6 +59,9 @@ bool callstacks::load_driver(core::Core& core, proc_t proc, driver_t drv)
 
 opt<bpid_t> callstacks::autoload_modules(core::Core& core, proc_t proc)
 {
+    if(!core.callstacks_)
+        return {};
+
     modules::list(core, proc, [&](mod_t mod)
     {
         load_module(core, proc, mod);
