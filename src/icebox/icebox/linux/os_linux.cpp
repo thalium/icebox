@@ -702,17 +702,17 @@ bool OsLinux::is_kernel_address(uint64_t ptr)
 
 opt<phy_t> OsLinux::virtual_to_physical(proc_t* /*proc*/, dtb_t /*dtb*/, uint64_t /*ptr*/)
 {
-    return FAIL(ext::nullopt, "OsLinux::virtual_to_physical not implemented");
+    return {};
 }
 
 bool OsLinux::read_page(void* /*dst*/, uint64_t /*ptr*/, proc_t* /*proc*/, dtb_t /*dtb*/)
 {
-    return FAIL(false, "OsLinux::read_page not implemented");
+    return false;
 }
 
 bool OsLinux::write_page(uint64_t /*ptr*/, const void* /*src*/, proc_t* /*proc*/, dtb_t /*dtb*/)
 {
-    return FAIL(false, "OsLinux::write_page not implemented");
+    return false;
 }
 
 flags_t OsLinux::proc_flags(proc_t proc) // compatibility checked until v5.2-rc5 (06/2019)
