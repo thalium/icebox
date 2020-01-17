@@ -480,8 +480,17 @@ namespace
         if(!addr)
             return FAIL(false, "unable to find symbol %s", strSymbol.data());
 
+        const auto text = sysmap->symbol_offset("_text");
+        if(!*text)
+            return FAIL(false, "unable to find symbol _text");
+
+        const auto end = sysmap->symbol_offset("_end");
+        if(!*end)
+            return FAIL(false, "unable to find symbol _end");
+
         const auto kaslr = addrSymbol - *addr;
-        ok               = symbols.insert(symbols::kernel, "kernel_sym", {kaslr, 0x1000000}, sysmap);
+        sysmap->rebase_symbols(-static_cast<int64_t>(*text));
+        ok = symbols.insert(symbols::kernel, "kernel_sym", {*text + kaslr, *end - *text}, sysmap);
         if(!ok)
             return FAIL(ext::nullopt, "unable to store sysmap kernel symbols");
 
@@ -565,8 +574,8 @@ bool OsLinux::setup()
         const auto kaslr = make_symbols(core_, hash, "linux_banner", candidate);
         if(!kaslr)
             return walk_e::next;
-        LOG(INFO, "debug profile found");
 
+        LOG(INFO, "debug profile found");
         if(!load_symbols(core_, symbols_))
             return walk_e::next;
 
@@ -578,8 +587,8 @@ bool OsLinux::setup()
 
         if(!std::regex_search(*linux_banner, match, pattern))
             return FAIL(walk_e::next, "unable to parse kernel version in this linux banner");
-        kversion = match[1].str();
 
+        kversion             = match[1].str();
         const auto opt_struc = symbols::read_struc(core_, symbols::kernel, "kernel", "pt_regs");
         if(!opt_struc)
             return FAIL(walk_e::next, "unable to read the size of pt_regs structure");
