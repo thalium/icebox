@@ -6,16 +6,18 @@ linux-build: &linux-build
     - cd build
     - ./configure.sh
     - cd ../out/x64
-    - make
+    - make -j2
 
 matrix:
     include:
         - name: gcc linux
           compiler: gcc
           <<: *linux-build
+
         - name: clang linux
           compiler: clang
           <<: *linux-build
+
         - name: clang linux with static analysis
           compiler: clang
           env:
@@ -31,6 +33,7 @@ matrix:
               clang-tidy-9
               clang-tools-9
           <<: *linux-build
+
         - name: visual studio 2017 windows
           os: windows
           before_install:
@@ -40,6 +43,7 @@ matrix:
             - ./configure_2017.cmd
             - cd ../out/x64
             - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
+
         - name: gcc virtualbox driver linux
           compiler: gcc
           dist: bionic
