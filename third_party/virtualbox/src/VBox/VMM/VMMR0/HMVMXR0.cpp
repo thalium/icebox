@@ -941,11 +941,6 @@ static void hmR0VmxStructsFree(PVM pVM)
  */
 static int hmR0VmxStructsAlloc(PVM pVM)
 {
-    /*MYCODE*/
-    pVM->mystate.s.PageSpinlock = NIL_RTSPINLOCK;
-    RTSpinlockCreate(&pVM->mystate.s.PageSpinlock, RTSPINLOCK_FLAGS_INTERRUPT_SAFE, pVM->mystate.s.PageSpinLockName);
-    /*ENDMYCODE*/
-
     /*
      * Initialize members up-front so we can cleanup properly on allocation failure.
      */
@@ -13481,10 +13476,8 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
                 //This is a host page breakpoint !
                 pVCpu->mystate.s.bPageHyperBreakPointHitted = true;
 
-                //RTSpinlockAcquire(pVM->mystate.s.PageSpinlock);
                 PGMShwRestoreRights(pVCpu, GCPhys);
                 VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
-                //RTSpinlockRelease(pVM->mystate.s.PageSpinlock);
 
                 return VINF_EM_HALT;
             }
@@ -13508,7 +13501,6 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
             }
 
             //If it not the breakpoint then continue !
-            RTSpinlockAcquire(pVM->mystate.s.PageSpinlock);
             PGMShwPresent(pVCpu, GCPhys);
             PGMShwWrite(pVCpu, GCPhys);
             PGMShwExecute(pVCpu, GCPhys);
@@ -13532,8 +13524,6 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
             PGMShwRestoreRights(pVCpu, GCPhys);
             //Flush TLB
             VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
-            RTSpinlockRelease(pVM->mystate.s.PageSpinlock);
-
             return VINF_SUCCESS;
         }
         int SoftBreakpointId = VMMGetBreakpointIdFromPage(pVM, GCPhys, FDP_SOFTHBP);
@@ -13549,7 +13539,6 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
                 return VINF_SUCCESS;
             }
 
-            RTSpinlockAcquire(pVM->mystate.s.PageSpinlock);
             pVCpu->mystate.s.bPageFaultOverflowGuard = true;
             rc = VINF_SUCCESS;
 
@@ -13598,8 +13587,6 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
             VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
 
             pVCpu->mystate.s.bPageFaultOverflowGuard = false;
-            RTSpinlockRelease(pVM->mystate.s.PageSpinlock);
-
             return rc;
         }
     }

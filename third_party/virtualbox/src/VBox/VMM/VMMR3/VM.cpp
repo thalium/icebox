@@ -634,10 +634,6 @@ static int vmR3CreateU(PUVM pUVM, uint32_t cCpus, PFNCFGMCONSTRUCTOR pfnCFGMCons
             if (RT_SUCCESS(rc))
             {
                 /*MYCODE*/
-                //This spinlock is created in Ring-0!
-                strcpy(pVM->mystate.s.PageSpinLockName, "PAGELOCK_");
-                strcat(pVM->mystate.s.PageSpinLockName, VMR3GetName(pUVM));
-
                 //Create CpuSpinLock
                 char CpuSpinLockName[256];
                 strcpy(CpuSpinLockName, "CPULOCK_");

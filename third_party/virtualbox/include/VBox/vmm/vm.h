@@ -1420,8 +1420,6 @@ typedef struct VM
             uint32_t            u32HardwarePageTableCount;
             HardwarePage_t      aHardwarePageTable[64];
             volatile uint8_t    u8StateBitmap;
-            char                PageSpinLockName[256];
-            RTSPINLOCK          PageSpinlock;
             PfnEntrie_t         *pPfnTableR3;
             PfnEntrie_t         *pPfnTableR0;
             RTSPINLOCK          CpuLock;
