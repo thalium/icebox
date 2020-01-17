@@ -5,7 +5,7 @@ rem Windows NT batch script for preparing both amd64 and x86 for signing submiss
 rem
 
 rem
-rem Copyright (C) 2018 Oracle Corporation
+rem Copyright (C) 2018-2019 Oracle Corporation
 rem
 rem This file is part of VirtualBox Open Source Edition (OSE), as
 rem available from http://www.virtualbox.org. This file is free software;
@@ -28,11 +28,13 @@ if ".%KBUILD_BIN_PATH%" == "." (echo KBUILD_BIN_PATH is not set & goto end_faile
 set _MY_SCRIPT_DIR=%~dp0
 set _MY_SAVED_CD=%CD%
 set _MY_VER_REV=@VBOX_VERSION_STRING@r@VBOX_SVN_REV@
+set _MY_PACK_EXTPACK=1
+set _MY_PACK_ADDITIONS=0
 
 rem
 rem Parse arguments.
 rem
-set _MY_OPT_UNTAR_DIR=%_MY_SCRIPT_DIR%\..\..\..\
+set _MY_OPT_UNTAR_DIR=%_MY_SCRIPT_DIR%\..\..\..
 for %%i in (%_MY_OPT_UNTAR_DIR%) do set _MY_OPT_UNTAR_DIR=%%~fi
 set _MY_OPT_EXTPACK=%_MY_OPT_UNTAR_DIR%\Oracle_VM_VirtualBox_Extension_Pack-%_MY_VER_REV%.vbox-extpack
 set _MY_OPT_EXTPACK_ENTERPRISE=%_MY_OPT_UNTAR_DIR%\Oracle_VM_VirtualBox_Extension_Pack-%_MY_VER_REV%-ENTERPRISE.vbox-extpack
@@ -50,8 +52,11 @@ if ".%1" == "./?"           goto opt_h
 if ".%1" == ".-help"        goto opt_h
 if ".%1" == ".--help"       goto opt_h
 
+if ".%1" == ".-g"                   goto opt_g
+if ".%1" == ".--additions"          goto opt_g
 if ".%1" == ".-e"                   goto opt_e
 if ".%1" == ".--extpack"            goto opt_e
+if ".%1" == ".--no-extpack"         goto opt_ne
 if ".%1" == ".-o"                   goto opt_o
 if ".%1" == ".--outdir"             goto opt_o
 if ".%1" == ".-s"                   goto opt_s
@@ -69,16 +74,27 @@ shift
 shift
 goto argument_loop
 
+:opt_g
+set _MY_PACK_ADDITIONS=1
+shift
+goto argument_loop
+
 :opt_e
 if ".%~2" == "."            goto syntax_error_missing_value
 set _MY_OPT_EXTPACK=%~f2
 goto argument_loop_next_with_value
+
+:opt_ne
+set _MY_PACK_EXTPACK=0
+shift
+goto argument_loop
 
 :opt_h
 echo Toplevel combined package: Prepare both x86 and amd64 for submission.
 echo .
 echo Usage: Combined-1-Prepare.cmd [-o output-dir] [-e/--extpack puel.vbox-extpack]
 echo            [-s/--extpack-enterprise puel-enterprise.vbox-extpack]
+echo            [--no-extpack] [-g/--additions]
 echo            [-u/--vboxall-dir unpacked-vboxall-dir] [-t build-type]
 echo .
 echo Default -e/--extpack value:            %_MY_OPT_EXTPACK%
@@ -124,15 +140,15 @@ echo syntax error: The AMD64 bin directory was not found: "%_MY_BINDIR_AMD64%"
 goto end_failed
 
 :error_x86_bindir_not_found
-echo syntax error: The AMD64 bin directory was not found: "%_MY_BINDIR_X86%"
+echo syntax error: The X86 bin directory was not found: "%_MY_BINDIR_X86%"
 goto end_failed
 
 :error_amd64_repack_dir_not_found
-echo syntax error: The AMD64 bin directory was not found: "%_MY_REPACK_DIR_AMD64%"
+echo syntax error: The AMD64 repack directory was not found: "%_MY_REPACK_DIR_AMD64%"
 goto end_failed
 
 :error_x86_repack_dir_not_found
-echo syntax error: The AMD64 bin directory was not found: "%_MY_REPACK_DIR_X86%"
+echo syntax error: The X86 repack directory was not found: "%_MY_REPACK_DIR_X86%"
 goto end_failed
 
 :error_extpack_not_found
@@ -143,7 +159,9 @@ goto end_failed
 echo syntax error: Specified enterprise extension pack not found: "%_MY_OPT_EXTPACK_ENTERPRISE%"
 goto end_failed
 
-
+:error_extpack_and_additions_together
+echo usage error: You can't prepare extPack and GuestAdditions in one call
+goto end_failed
 
 :no_more_arguments
 rem
@@ -157,17 +175,23 @@ set _MY_BINDIR_X86=%_MY_OPT_UNTAR_DIR%\win.x86\%_MY_OPT_BUILD_TYPE%\bin
 if not exist "%_MY_BINDIR_AMD64%"       goto error_amd64_bindir_not_found
 if not exist "%_MY_BINDIR_X86%"         goto error_x86_bindir_not_found
 
+if ".%_MY_PACK_EXTPACK%" == ".%_MY_PACK_ADDITIONS%" goto error_extpack_and_additions_together
+
 set _MY_REPACK_DIR_AMD64=%_MY_OPT_UNTAR_DIR%\win.amd64\%_MY_OPT_BUILD_TYPE%\repack
 set _MY_REPACK_DIR_X86=%_MY_OPT_UNTAR_DIR%\win.x86\%_MY_OPT_BUILD_TYPE%\repack
 if not exist "%_MY_REPACK_DIR_AMD64%"   goto error_amd64_repack_dir_not_found
 if not exist "%_MY_REPACK_DIR_X86%"     goto error_x86_repack_dir_not_found
 
-if not exist "%_MY_OPT_EXTPACK%"        goto error_extpack_not_found
-if not ".%_MY_OPT_EXTPACK_ENTERPRISE%" == "." if not exist "%_MY_OPT_EXTPACK_ENTERPRISE%" goto error_enterprise_extpack_not_found
-
-
 rem Make sure the output dir exists.
 if not exist "%_MY_OPT_OUTDIR%"     (mkdir "%_MY_OPT_OUTDIR%" || goto end_failed)
+
+rem
+rem ExtPack section
+rem
+if ".%_MY_PACK_EXTPACK%" == ".0" goto skip_extpack_packing
+
+if not exist "%_MY_OPT_EXTPACK%"        goto error_extpack_not_found
+if not ".%_MY_OPT_EXTPACK_ENTERPRISE%" == "." if not exist "%_MY_OPT_EXTPACK_ENTERPRISE%" goto error_enterprise_extpack_not_found
 
 rem
 rem Install the extpack in the bin directories.
@@ -179,7 +203,7 @@ copy /y "%_MY_OPT_EXTPACK%"   "%_MY_BINDIR_X86%\Oracle_VM_VirtualBox_Extension_P
 @echo off
 
 rem
-rem Do the packing.
+rem Do the packing of ExtPack
 rem
 echo **************************************************************************
 echo Packing AMD64 drivers
@@ -196,18 +220,57 @@ call "%_MY_REPACK_DIR_X86%\PackDriversForSubmission.cmd" -b "%_MY_BINDIR_X86%" -
     -o "%_MY_OPT_OUTDIR%\VBoxDrivers-%_MY_VER_REV%-x86.cab" || goto end_failed
 echo .
 cd /d "%_MY_SAVED_CD%"
+:skip_extpack_packing
+
+rem
+rem GuestAdditions section
+rem
+if ".%_MY_PACK_ADDITIONS%" == ".0" goto skip_additions_packing
+
+rem
+rem Do the packing of GuestAdditions
+rem
+echo **************************************************************************
+echo Packing AMD64 additions
+echo **************************************************************************
+cd /d "%_MY_REPACK_DIR_AMD64%" || goto end_failed
+call "%_MY_REPACK_DIR_AMD64%\PackDriversForSubmission.cmd" -b "%_MY_BINDIR_AMD64%" -a amd64 -x -n --no-main --ga ^
+    -o "%_MY_OPT_OUTDIR%\VBoxDrivers-%_MY_VER_REV%-amd64.cab" || goto end_failed
+echo .
+echo **************************************************************************
+echo Packing X86 drivers
+echo **************************************************************************
+cd /d "%_MY_REPACK_DIR_X86%" || goto end_failed
+call "%_MY_REPACK_DIR_X86%\PackDriversForSubmission.cmd" -b "%_MY_BINDIR_X86%" -a x86 -x -n --no-main --ga ^
+    -o "%_MY_OPT_OUTDIR%\VBoxDrivers-%_MY_VER_REV%-x86.cab" || goto end_failed
+echo .
+cd /d "%_MY_SAVED_CD%"
+:skip_additions_packing
 
 rem
 rem Generate script for taking the next step.
 rem
-set _MY_NEXT_SCRIPT=%_MY_OPT_OUTDIR%\Combined-3-Repack.cmd
+set _MY_NEXT_SCRIPT_SHORT_NAME=Combined-3-Repack.cmd
+set _MY_NEXT_SCRIPT=%_MY_OPT_OUTDIR%\%_MY_NEXT_SCRIPT_SHORT_NAME%
+if ".%_MY_PACK_ADDITIONS%" == ".0" goto generate_legacy_script
+set _MY_NEXT_SCRIPT_SHORT_NAME=Combined-3-RepackAdditions.cmd
+set _MY_NEXT_SCRIPT=%_MY_OPT_OUTDIR%\%_MY_NEXT_SCRIPT_SHORT_NAME%
 echo cd /d "%cd%" > "%_MY_NEXT_SCRIPT%"
-echo call "%_MY_SCRIPT_DIR%\Combined-3-Repack.cmd" --extpack "%_MY_OPT_EXTPACK%" ^
-    --extpack-enterprise "%_MY_OPT_EXTPACK_ENTERPRISE%" ^
+echo call "%_MY_SCRIPT_DIR%%_MY_NEXT_SCRIPT_SHORT_NAME%" ^
     --vboxall-untar-dir "%_MY_OPT_UNTAR_DIR%" ^
     --outdir "%_MY_OPT_OUTDIR%" ^
     --build-type "%_MY_OPT_BUILD_TYPE%" %%* >> "%_MY_NEXT_SCRIPT%"
+goto show_next_steps
+:generate_legacy_script
+echo cd /d "%cd%" > "%_MY_NEXT_SCRIPT%"
+echo call "%_MY_SCRIPT_DIR%%_MY_NEXT_SCRIPT_SHORT_NAME%" --extpack "%_MY_OPT_EXTPACK%" ^
+    --extpack-enterprise "%_MY_OPT_EXTPACK_ENTERPRISE%" ^
+    --vboxall-untar-dir "%_MY_OPT_UNTAR_DIR%" ^
+    --outdir "%_MY_OPT_OUTDIR%" ^
+    %_MY_OPT_SCRIPT_SKIPEXTPACK_PARAM% %_MY_OPT_SCRIPT_ADDITIONS_PARAM% ^
+    --build-type "%_MY_OPT_BUILD_TYPE%" %%* >> "%_MY_NEXT_SCRIPT%"
 
+:show_next_steps
 rem
 rem Instructions on what to do next.
 rem
@@ -221,11 +284,8 @@ echo *
 echo * Next steps:
 echo *   1. Submit the files to Microsoft for attestation signing.
 echo *   2. Download the signed result.
-echo *   3. "%_MY_NEXT_SCRIPT%" --signed-x86 {zip} --signed-amd64 {zip}
-
+echo *   3. "%_MY_NEXT_SCRIPT%" --signed-x86 {zip} --signed-amd64 {zip} %_MY_OPT_SCRIPT_SKIPEXTPACK_PARAM% %_MY_OPT_SCRIPT_ADDITIONAL_PARAMS%
 goto end
-
-
 :end_failed
 @cd /d "%_MY_SAVED_CD%"
 @endlocal

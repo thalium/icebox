@@ -95,17 +95,20 @@ ifeq ($(JOBS),0)
   JOBS := 1
 endif
 
-# OL/UEK: disable module signing for external modules -- we don't have any private key
+# OL/UEK: CONFIG_MODULE_SIG= disables module signing for external modules.
+# Ubuntu 18.04.3: CONFIG_MODULE_SIG_ALL= disables signing of all modules.
+# We disable signing because we don't have any private key and want to leave
+# the key handling and secure boot config to the user.
 $(MODULE):
-	$(MAKE) V=$(LINUX_VERBOSE) CONFIG_MODULE_SIG= -C $(KERN_DIR) M=$(CURDIR) SRCROOT=$(CURDIR) $(if $(JOBS),-j$(JOBS),) modules
+	$(MAKE) V=$(LINUX_VERBOSE) CONFIG_MODULE_SIG= CONFIG_MODULE_SIG_ALL= -C $(KERN_DIR) M=$(CURDIR) SRCROOT=$(CURDIR) $(if $(JOBS),-j$(JOBS),) modules
 
 install: $(MODULE)
-	$(MAKE) V=$(LINUX_VERBOSE) CONFIG_MODULE_SIG= -C $(KERN_DIR) M=$(CURDIR) SRCROOT=$(CURDIR) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH) INSTALL_MOD_DIR=$(INSTALL_MOD_DIR) modules_install
+	$(MAKE) V=$(LINUX_VERBOSE) CONFIG_MODULE_SIG= CONFIG_MODULE_SIG_ALL= -C $(KERN_DIR) M=$(CURDIR) SRCROOT=$(CURDIR) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH) INSTALL_MOD_DIR=$(INSTALL_MOD_DIR) modules_install
 
 modules_install: install
 
 clean:
-	$(MAKE) V=$(LINUX_VERBOSE) CONFIG_MODULE_SIG= -C $(KERN_DIR) M=$(CURDIR) SRCROOT=$(CURDIR) clean
+	$(MAKE) V=$(LINUX_VERBOSE) CONFIG_MODULE_SIG= CONFIG_MODULE_SIG_ALL= -C $(KERN_DIR) M=$(CURDIR) SRCROOT=$(CURDIR) clean
 
 .PHONY: $(MODULE) install modules_install clean
 endif

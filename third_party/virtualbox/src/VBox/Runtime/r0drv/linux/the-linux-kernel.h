@@ -328,8 +328,10 @@ DECLINLINE(unsigned long) msecs_to_jiffies(unsigned int cMillies)
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
-# define MY_SET_PAGES_EXEC(pPages, cPages)    set_pages_x(pPages, cPages)
-# define MY_SET_PAGES_NOEXEC(pPages, cPages)  set_pages_nx(pPages, cPages)
+# if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0) /* The interface was removed, but we only need it for < 2.4.22, so who cares. */
+#  define MY_SET_PAGES_EXEC(pPages, cPages)     set_pages_x(pPages, cPages)
+#  define MY_SET_PAGES_NOEXEC(pPages, cPages)   set_pages_nx(pPages, cPages)
+# endif
 #else
 # define MY_SET_PAGES_EXEC(pPages, cPages) \
     do { \

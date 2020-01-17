@@ -2369,7 +2369,8 @@ void UIMachineLogic::sltSwitchKeyboardLedsToGuestLeds()
 #if defined(VBOX_WS_MAC)
     if (m_pHostLedsState == NULL)
         m_pHostLedsState = DarwinHidDevicesKeepLedsState();
-    DarwinHidDevicesBroadcastLeds(m_pHostLedsState, uisession()->isNumLock(), uisession()->isCapsLock(), uisession()->isScrollLock());
+    if (m_pHostLedsState != NULL)
+        DarwinHidDevicesBroadcastLeds(m_pHostLedsState, uisession()->isNumLock(), uisession()->isCapsLock(), uisession()->isScrollLock());
 #elif defined(VBOX_WS_WIN)
     if (m_pHostLedsState == NULL)
         m_pHostLedsState = WinHidDevicesKeepLedsState();

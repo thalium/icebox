@@ -36,12 +36,13 @@ struct AudioDriverCfg
         , uLUN(a_uLUN)
         , strName(a_strName) { }
 
-    AudioDriverCfg& operator=(AudioDriverCfg that)
+    /** Copy assignment operator. */
+    AudioDriverCfg& operator=(AudioDriverCfg const &a_rThat)
     {
-        this->strDev  = that.strDev;
-        this->uInst   = that.uInst;
-        this->uLUN    = that.uLUN;
-        this->strName = that.strName;
+        this->strDev  = a_rThat.strDev;
+        this->uInst   = a_rThat.uInst;
+        this->uLUN    = a_rThat.uLUN;
+        this->strName = a_rThat.strName;
 
         return *this;
     }
@@ -68,6 +69,9 @@ class AudioDriver
 public:
     AudioDriver(Console *pConsole);
     virtual ~AudioDriver();
+
+    /** Copy assignment operator. */
+    AudioDriver &operator=(AudioDriver const &a_rThat);
 
     Console *GetParent(void) { return mpConsole; }
 

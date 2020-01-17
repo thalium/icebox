@@ -16,7 +16,7 @@ from __future__ import print_function
 import os,sys
 from distutils.version import StrictVersion
 
-versions = ["2.6", "2.7", "3.1", "3.2", "3.2m", "3.3", "3.3m", "3.4", "3.4m", "3.5", "3.5m", "3.6", "3.6m", "3.7", "3.7m"]
+versions = ["2.6", "2.7", "3.1", "3.2", "3.2m", "3.3", "3.3m", "3.4", "3.4m", "3.5", "3.5m", "3.6", "3.6m", "3.7", "3.7m", "3.8", "3.8m" ]
 prefixes = ["/usr", "/usr/local", "/opt", "/opt/local"]
 known = {}
 

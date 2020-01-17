@@ -901,7 +901,7 @@ static int rtStrmWriteLocked(PRTSTREAM pStream, const void *pvBuf, size_t cbWrit
     {
         char       *pszSrcFree = NULL;
         const char *pszSrc     = (const char *)pvBuf;
-        if (pszSrc[cbWrite])
+        if (pszSrc[cbWrite - 1])
         {
             pszSrc = pszSrcFree = RTStrDupN(pszSrc, cbWrite);
             if (pszSrc == NULL)

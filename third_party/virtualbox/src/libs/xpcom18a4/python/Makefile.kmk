@@ -26,7 +26,7 @@ endif
 
 #
 # List of supported Python versions, defining a number of
-# VBOX_PYTHON[26|27|31|32|32M|33|33M|34|34M|35|35M|36|36M|37|37M|DEF]_[INC|LIB] variables
+# VBOX_PYTHON[26|27|31|32|32M|33|33M|34|34M|35|35M|36|36M|37|37M|38|38M|DEF]_[INC|LIB] variables
 # which get picked up below.
 #
 ifeq ($(KBUILD_TARGET),darwin) # Relatively predictable, don't script.
@@ -483,6 +483,52 @@ VBoxPython3_7m_x86_EXTENDS_BY = appending
 VBoxPython3_7m_x86_TEMPLATE_   = XPCOM
 VBoxPython3_7m_x86_INCS       = $(VBOX_PYTHON37M_INC)
 VBoxPython3_7m_x86_LIBS       = $(VBOX_PYTHON37M_LIB_X86)
+  endif
+ endif
+endif
+
+ifdef VBOX_PYTHON38_INC
+#
+# Python 3.8 version
+#
+DLLS += VBoxPython3_8
+VBoxPython3_8_EXTENDS    = VBoxPythonBase
+VBoxPython3_8_EXTENDS_BY = appending
+VBoxPython3_8_TEMPLATE   = XPCOM
+VBoxPython3_8_INCS       = $(VBOX_PYTHON38_INC)
+VBoxPython3_8_LIBS       = $(VBOX_PYTHON38_LIB)
+
+ ifdef VBOX_WITH_32_ON_64_MAIN_API
+  ifdef VBOX_PYTHON38_LIB_X86
+DLLS += VBoxPython3_8_x86
+VBoxPython3_8_x86_EXTENDS    = VBoxPythonBase_x86
+VBoxPython3_8_x86_EXTENDS_BY = appending
+VBoxPython3_8_x86_TEMPLATE   = XPCOM
+VBoxPython3_8_x86_INCS       = $(VBOX_PYTHON38_INC)
+VBoxPython3_8_x86_LIBS       = $(VBOX_PYTHON38_LIB_X86)
+  endif
+ endif
+endif
+
+ifdef VBOX_PYTHON38M_INC
+#
+# Python 3.8 version with pymalloc
+#
+DLLS += VBoxPython3_8m
+VBoxPython3_8m_EXTENDS    = VBoxPythonBase_m
+VBoxPython3_8m_EXTENDS_BY = appending
+VBoxPython3_8m_TEMPLATE   = XPCOM
+VBoxPython3_8m_INCS       = $(VBOX_PYTHON38M_INC)
+VBoxPython3_8m_LIBS       = $(VBOX_PYTHON38M_LIB)
+
+ ifdef VBOX_WITH_32_ON_64_MAIN_API
+  ifdef VBOX_PYTHON38M_LIB_X86
+DLLS += VBoxPython3_8m_x86
+VBoxPython3_8m_x86_EXTENDS    = VBoxPythonBase_x86_m
+VBoxPython3_8m_x86_EXTENDS_BY = appending
+VBoxPython3_8m_x86_TEMPLATE_   = XPCOM
+VBoxPython3_8m_x86_INCS       = $(VBOX_PYTHON38M_INC)
+VBoxPython3_8m_x86_LIBS       = $(VBOX_PYTHON38M_LIB_X86)
   endif
  endif
 endif

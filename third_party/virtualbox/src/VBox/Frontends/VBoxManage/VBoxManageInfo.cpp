@@ -830,6 +830,43 @@ HRESULT showVMInfo(ComPtr<IVirtualBox> pVirtualBox,
     else
         RTPrintf("State:           %s (since %s)\n", pszState, pszTime);
 
+    GraphicsControllerType_T enmGraphics;
+    rc = machine->COMGETTER(GraphicsControllerType)(&enmGraphics);
+    if (SUCCEEDED(rc))
+    {
+        const char *pszCtrl  = "Unknown";
+        switch (enmGraphics)
+        {
+            case GraphicsControllerType_Null:
+                if (details == VMINFO_MACHINEREADABLE)
+                    pszCtrl = "null";
+                else
+                    pszCtrl = "Null";
+                break;
+            case GraphicsControllerType_VBoxVGA:
+                if (details == VMINFO_MACHINEREADABLE)
+                    pszCtrl = "vboxvga";
+                else
+                    pszCtrl = "VBoxVGA";
+                break;
+            case GraphicsControllerType_VMSVGA:
+                if (details == VMINFO_MACHINEREADABLE)
+                    pszCtrl = "vmsvga";
+                else
+                    pszCtrl = "VMSVGA";
+                break;
+            default:
+                if (details == VMINFO_MACHINEREADABLE)
+                    pszCtrl = "unknown";
+                break;
+        }
+
+        if (details == VMINFO_MACHINEREADABLE)
+            RTPrintf("graphicscontroller=\"%s\"\n", pszCtrl);
+        else
+            RTPrintf("%-28s %s\n", "Graphics Controller:", pszCtrl);
+    }
+
     SHOW_ULONG_PROP(      machine,  MonitorCount,               "monitorcount",             "Monitor count", "");
     SHOW_BOOLEAN_PROP(    machine,  Accelerate3DEnabled,        "accelerate3d",             "3D Acceleration");
 #ifdef VBOX_WITH_VIDEOHWACCEL

@@ -547,12 +547,22 @@ public:
              m_fAutoMount(aAutoMount)
         { }
 
-        // copy constructor
+        /** Copy constructor. */
         SharedFolderData(const SharedFolderData& aThat)
            : m_strHostPath(aThat.m_strHostPath),
              m_fWritable(aThat.m_fWritable),
              m_fAutoMount(aThat.m_fAutoMount)
         { }
+
+        /** Copy assignment operator. */
+        SharedFolderData &operator=(SharedFolderData const &a_rThat)
+        {
+            m_strHostPath       = a_rThat.m_strHostPath;
+            m_fWritable         = a_rThat.m_fWritable;
+            m_fAutoMount        = a_rThat.m_fAutoMount;
+
+            return *this;
+        }
 
         Utf8Str m_strHostPath;
         bool m_fWritable;

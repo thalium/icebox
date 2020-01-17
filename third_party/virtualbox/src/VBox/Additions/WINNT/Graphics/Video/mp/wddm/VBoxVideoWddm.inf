@@ -97,7 +97,7 @@ ServiceBinary=%12%\VBoxVideoWddm.sys
 AddReg = VBoxVideo_EventLog_AddReg
 
 [VBoxVideo_EventLog_AddReg]
-HKR,,EventMessageFile,0x00020000,"%SystemRoot%\System32\IoLogMsg.dll;%SystemRoot%\System32\drivers\VBoxVideoWddm.sys"
+HKR,,EventMessageFile,0x00020000,"%%SystemRoot%%\System32\IoLogMsg.dll;%%SystemRoot%%\System32\drivers\VBoxVideoWddm.sys"
 HKR,,TypesSupported,0x00010001,7
 
 [SourceDisksNames]

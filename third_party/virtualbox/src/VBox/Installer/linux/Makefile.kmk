@@ -104,7 +104,8 @@ linux-misc_SOURCES = \
 	$(VBOX_PATH_INST_COMMON_SRC)/virtualbox.xml \
 	$(if $(VBOX_OSE),,$(VBOX_BRAND_LICENSE_TXT)=>LICENSE) \
 	$(linux-misc_0_OUTDIR)/generated.sh=>scripts/generated.sh \
-	$(if $(VBOX_WITH_QTGUI),$(linux-misc_0_OUTDIR)/virtualbox.desktop,)
+	$(if $(VBOX_WITH_QTGUI),$(linux-misc_0_OUTDIR)/virtualbox.desktop,) \
+	blacklist-vboxpci.conf
 linux-misc_CLEAN = \
 	$(linux-misc_0_OUTDIR)/generated.sh \
 	$(linux-misc_0_OUTDIR)/virtualbox.desktop
@@ -128,6 +129,10 @@ linux-icons_INST = bin/icons/
 linux-icons_MODE = a+r,u+w
 linux-icons_SOURCES = $(VBOX_MIME_ICONS) $(VBOX_DESKTOP_ICONS)
 
+INSTALLS += linux-config
+linux-config_INST = etc/modprobe.d/
+linux-config_MODE = a+r,u+w
+linux-config_SOURCES = blacklist-vboxpci.conf
 
 #
 # The files residing in bin/ that we'll ship.
@@ -231,7 +236,8 @@ VBOX_LNX_NO_STRIP = \
 	VBox.sh \
 	vboxweb-service.sh \
 	VBox.png \
-	$(addprefix UnattendedTemplates/,$(VBOX_UNATTENDED_TEMPLATES))
+	$(addprefix UnattendedTemplates/,$(VBOX_UNATTENDED_TEMPLATES)) \
+	blacklist-vboxpci.conf
 
 ifdef VBOX_WITH_EXTPACK
  VBOX_LNX_STRIP_BIN += \

@@ -1,4 +1,5 @@
 /opt
+/etc/modprobe.d
 /etc/vbox
 /etc/init.d
 /usr/src

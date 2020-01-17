@@ -58,6 +58,8 @@ else
 fi
 VBOXUSB_MODE=0664
 VBOXUSB_GRP=$GROUPNAME
+MOD_DIR="/etc/modprobe.d"
+BLACKLIST_FILE="blacklist-vboxpci.conf"
 
 ## Were we able to stop any previously running Additions kernel modules?
 MODULES_STOPPED=1
@@ -272,7 +274,18 @@ if [ "$ACTION" = "install" ]; then
     fi
 
     cp uninstall.sh $INSTALLATION_DIR
-    echo "uninstall.sh" >> $CONFIG_DIR/$CONFIG_FILES
+    echo $INSTALLATION_DIR/uninstall.sh >> $CONFIG_DIR/$CONFIG_FILES
+
+    if [ -d "$MOD_DIR" ]; then
+        if [ ! -f "$MOD_DIR/$BLACKLIST_FILE" ]; then
+            cp $BLACKLIST_FILE $MOD_DIR
+            echo $MOD_DIR/$BLACKLIST_FILE >> $CONFIG_DIR/$CONFIG_FILES
+	else
+            # Keep existing one but copy new one.
+            cp $BLACKLIST_FILE $MOD_DIR/$BLACKLIST_FILE.$VERSION
+            echo $MOD_DIR/$BLACKLIST_FILE.$VERSION >> $CONFIG_DIR/$CONFIG_FILES
+        fi
+    fi
 
     # Hardened build: Mark selected binaries set-user-ID-on-execution,
     #                 create symlinks for working around unsupported $ORIGIN/.. in VBoxC.so (setuid),

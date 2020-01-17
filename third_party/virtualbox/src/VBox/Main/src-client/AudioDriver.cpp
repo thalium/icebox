@@ -37,8 +37,19 @@ AudioDriver::AudioDriver(Console *pConsole)
 {
 }
 
+
 AudioDriver::~AudioDriver(void)
 {
+}
+
+
+AudioDriver &AudioDriver::operator=(AudioDriver const &a_rThat)
+{
+    mpConsole  = a_rThat.mpConsole;
+    mCfg       = a_rThat.mCfg;
+    mfAttached = a_rThat.mfAttached;
+
+    return *this;
 }
 
 

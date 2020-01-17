@@ -35,13 +35,11 @@ DriverPackageType=PlugAndPlay
 
 [SourceDisksNames]
 1 = %VBoxGuest.MediaDesc%
-2 = %VBoxControl.MediaDesc%
-3 = %VBoxTray.MediaDesc%
 
 [SourceDisksFiles]
 VBoxGuest.sys = 1
-VBoxControl.exe = 2
-VBoxTray.exe = 3
+VBoxControl.exe = 1
+VBoxTray.exe = 1
 
 [DestinationDirs]
 DefaultDestDir = 12 ; drivers
@@ -79,14 +77,14 @@ LoadOrderGroup = Base
 ServiceBinary  = %12%\VBoxGuest.sys
 
 [VBoxTray_Add_Reg]
-HKLM, SOFTWARE\Microsoft\Windows\CurrentVersion\Run, VBoxTray, 0x00000000, %11%\VBoxTray.exe
+HKLM, SOFTWARE\Microsoft\Windows\CurrentVersion\Run, VBoxTray, 0x00020000, %%SystemRoot%%\system32\VBoxTray.exe
 
 [ClassInstall32]
 ; This should fix the error 0xe0000101 (The required section was not found in the INF).
 
 [Strings]
 ORACLE = "Oracle Corporation"
-VBoxGuest.DeviceDesc = "VirtualBox Device"
+VBoxGuest.DeviceDesc = "VirtualBox Guest Device"
 VBoxGuest_svcdesc = "VirtualBox Guest Driver"
 VBoxTray_svcdesc = "VirtualBox Guest Tray"
-
+VBoxGuest.MediaDesc = "VirtualBox Guest Driver Installation Disk"

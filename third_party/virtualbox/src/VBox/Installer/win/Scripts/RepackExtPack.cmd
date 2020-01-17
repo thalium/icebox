@@ -5,7 +5,7 @@ rem Windows NT batch script for repacking an extension pack with blessed .r0 fil
 rem
 
 rem
-rem Copyright (C) 2018 Oracle Corporation
+rem Copyright (C) 2018-2019 Oracle Corporation
 rem
 rem This file is part of VirtualBox Open Source Edition (OSE), as
 rem available from http://www.virtualbox.org. This file is free software;

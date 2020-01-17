@@ -1939,7 +1939,12 @@ endif
 
 
 # Intel ASL compiler for ACPI
+$(warning KBUILD_HOST:=$(KBUILD_HOST) KBUILD_HOST_VERSION_MAJOR=$(KBUILD_HOST_VERSION_MAJOR) VBOX_IASLCMD=$(VBOX_IASLCMD))
+if "$(KBUILD_HOST)" == "darwin" && "$(KBUILD_HOST_VERSION_MAJOR)" >= 19  # Temp hack! Catalina needs 64-bit binary
+VBOX_IASLCMD   ?= /opt/local/bin/iasl$(HOSTSUFF_EXE)
+else
 VBOX_IASLCMD   ?= $(firstword $(wildcard $(KBUILD_DEVTOOLS_HST)/bin/iasl$(HOSTSUFF_EXE)) iasl$(HOSTSUFF_EXE))
+endif
 
 # libxslt XSLT processor. (see PATH_TOOL_YASM for explanation why it's temporarily located in bin.)
 ifeq ($(VBOX_XSLTPROC),)
@@ -2173,16 +2178,23 @@ ifeq ($(KBUILD_TARGET),darwin)
  ifeq ($(KBUILD_HOST),darwin)
   ifndef VBOX_XCODE_VERSION
    ifdef VBOX_WITH_NEW_XCODE
-    VBOX_XCODE_VERSION := $(word 2, $(shell $(VBOX_PATH_MACOSX_DEVEL_ROOT)/usr/bin/xcodebuild -version))
+    VBOX_XCODE_VERSION := $(shell exec $(VBOX_PATH_MACOSX_DEVEL_ROOT)/usr/bin/xcodebuild -version 2>&1)
+    ifneq ($(pos Symbol not found,$(VBOX_XCODE_VERSION)),0) # Try detect unresolved symbol running Xcode 6.2 on Catalina.
+     VBOX_XCODE_VERSION = 6.2
+    else
+     VBOX_XCODE_VERSION := $(word 2, $(VBOX_XCODE_VERSION))
+    endif
    else ifdef VBOX_WITH_MACOSX_COMPILERS_FROM_DEVEL
     VBOX_XCODE_VERSION := $(word 2, $(shell $(VBOX_PATH_MACOSX_DEVEL_ROOT)/usr/bin/xcodebuild -version))
    else
     VBOX_XCODE_VERSION := $(word 2, $(shell xcodebuild -version))
    endif
-   ifdef VBOX_WITH_NEW_XCODE
-    VBOX_XCODE_VERSION ?= 6.2
-   else
-    VBOX_XCODE_VERSION ?= 4.1
+   ifeq ($(strip $(VBOX_XCODE_VERSION)),)
+    ifdef VBOX_WITH_NEW_XCODE
+     VBOX_XCODE_VERSION := 6.2
+    else
+     VBOX_XCODE_VERSION := 4.1
+    endif
    endif
   endif
   ifdef VBOX_WITH_NEW_XCODE
@@ -4451,7 +4463,7 @@ $$(PATH_TARGET)/tst$(use_symvers)$(subst /,_,$(KERN_DIR))_mod.run))
 	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) KERN_DIR=$(KERN_DIR) -C $$(PATH_TARGET)/tst$(module)_mod clean
 	$(QUIET)$$(if $$(eq $$(symvers_$(module)_dep),),,\
 $$(CP) $$(symvers_$(module)_dep) "$$(PATH_TARGET)/tst$(module)_mod/Module.symvers")
-	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) KERN_DIR=$(KERN_DIR) $(if-expr $(KMK_OPTS_JOBS) != 1,JOBS=$(KMK_OPTS_JOBS),) -C $$(PATH_TARGET)/tst$(module)_mod \
+	+ $(QUIET)make KBUILD_VERBOSE=$(KBUILD_VERBOSE) KERN_DIR=$(KERN_DIR) $$(if $$(eq $$(symvers_$(module)_dep),),,KBUILD_EXTRA_SYMBOLS="$$(PATH_TARGET)/tst$(module)_mod/Module.symvers") $(if-expr $(KMK_OPTS_JOBS) != 1,JOBS=$(KMK_OPTS_JOBS),) -C $$(PATH_TARGET)/tst$(module)_mod \
 		2> "$$(PATH_TARGET)/tst$(module)_mod/make.err"
 	$(QUIET)! grep "^WARNING: .* undefined!$$$$" "$$(PATH_TARGET)/tst$(module)_mod/make.err"
 	$(QUIET)$$(if $$(eq $(save_symvers),$(module)),\
@@ -7271,7 +7283,8 @@ endif
 # The VBOX_SVN_REV contains our best guess.  Use svn info on the root of the
 # tree to determine this it if .svn/wc.db or .svn/entries is found (the former
 # also up to two directory levels higher to allow for checkouts of the entire
-# repository), otherwise fall back on the Config.kmk revision.
+# repository), otherwise fall back on maximum value of Config.kmk and
+# Version.kmk revision.
 #
 # Makefile rules using this information shall list $(VBOX_SVN_REV_KMK) as a
 # prerequisite.
@@ -7279,7 +7292,8 @@ endif
 SVN                    ?= svn$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_FALLBACK := $(patsubst %:,,  $Rev: 133883 $  )
+ VBOX_SVN_REV_CONFIG_FALLBACK := $(patsubst %:,,  $Rev: 135629 $  )
+ VBOX_SVN_REV_FALLBACK := $(if-expr $(VBOX_SVN_REV_CONFIG_FALLBACK) > $(VBOX_SVN_REV_VERSION_FALLBACK),$(VBOX_SVN_REV_CONFIG_FALLBACK),$(VBOX_SVN_REV_VERSION_FALLBACK))
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  ifeq ($(which $(SVN)),)
   VBOX_SVN_DEP         :=

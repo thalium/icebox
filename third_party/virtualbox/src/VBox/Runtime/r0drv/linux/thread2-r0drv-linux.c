@@ -36,6 +36,9 @@
 #include <iprt/err.h>
 #include "internal/thread.h"
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    #include <uapi/linux/sched/types.h>
+#endif /* >= KERNEL_VERSION(4, 11, 0) */
 
 RTDECL(RTTHREAD) RTThreadSelf(void)
 {

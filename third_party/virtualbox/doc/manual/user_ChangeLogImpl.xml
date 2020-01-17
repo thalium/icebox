@@ -29,7 +29,50 @@ are ordered as follows:
 
   <sect1>
 
-    <title>Version 5.2.33 (2019-xx-xx)</title>
+    <title>Version 5.2.36 (2020-01-14)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>Audio: fixed crash in the HDA emulation when using multi-speaker
+          configurations</para>
+      </listitem>
+
+      <listitem>
+        <para>VBoxManage: show graphics controller type in VM info</para>
+      </listitem>
+
+      <listitem>
+        <para>API: support Python 3.8</para>
+      </listitem>
+
+      <listitem>
+        <para>
+          macOS host: Fix VM crashes (most visible on macOS Catalina)
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host: fix systemd service dependency for web service</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host: Support Linux 5.5 (guest additions not yet)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux host and guest: Support Linux 5.4 (bug #18945)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+
+    <title>Version 5.2.34 (2019-10-15)</title>
 
     <para>This is a maintenance release. The following items were fixed and/or
       added:</para>

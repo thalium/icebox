@@ -69,6 +69,7 @@
 *   Header Files                                                               *
 *******************************************************************************/
 //#define DEBUG
+#include <iprt/semaphore.h>
 #include <VBox/vmm/pdmdev.h>
 #include <VBox/vmm/pdmstorageifs.h>
 #include <VBox/scsi.h>
@@ -125,6 +126,8 @@ typedef struct VBOXSCSI
     volatile bool        fBusy;
     /** The state we are in when fetching a command from the BIOS. */
     VBOXSCSISTATE        enmState;
+    /** Critical section protecting the device state. */
+    RTCRITSECT           CritSect;
 } VBOXSCSI, *PVBOXSCSI;
 
 #define VBOX_SCSI_BUSY  RT_BIT(0)
@@ -133,6 +136,8 @@ typedef struct VBOXSCSI
 #ifdef IN_RING3
 RT_C_DECLS_BEGIN
 int vboxscsiInitialize(PVBOXSCSI pVBoxSCSI);
+void vboxscsiDestroy(PVBOXSCSI pVBoxSCSI);
+void vboxscsiHwReset(PVBOXSCSI pVBoxSCSI);
 int vboxscsiReadRegister(PVBOXSCSI pVBoxSCSI, uint8_t iRegister, uint32_t *pu32Value);
 int vboxscsiWriteRegister(PVBOXSCSI pVBoxSCSI, uint8_t iRegister, uint8_t uVal);
 int vboxscsiSetupRequest(PVBOXSCSI pVBoxSCSI, uint32_t *puLun, uint8_t **ppbCdb, size_t *pcbCdb,

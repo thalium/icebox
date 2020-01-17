@@ -26,6 +26,7 @@
 # Default-Start:  2 3 4 5
 # Default-Stop:   0 1 6
 # Description:    VirtualBox web service API
+# X-Required-Target-Start: network-online
 ### END INIT INFO
 
 PATH=$PATH:/bin:/sbin:/usr/sbin

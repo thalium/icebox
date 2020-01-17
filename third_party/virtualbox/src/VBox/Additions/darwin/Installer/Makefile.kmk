@@ -353,7 +353,7 @@ else
 		,$(INSTALL) -m 0755 $(VBOX_PATH_DIST)/additions/$(binary)           "$(VBOX_PATH_PACK_TMP)/$(VBOX_GA_PKG).root/Library/Application Support/VirtualBox Guest Additions/$(binary)-$(KBUILD_TARGET_ARCH)"$(NLTAB))
 endif
 	# Add Uninstall.tool
-	$(INSTALL) $(VBOX_ADD_PATH_DI_SRC)/DiskImage/Uninstall.tool  "$(VBOX_PATH_PACK_TMP)/$(VBOX_GA_PKG).root/Library/Application Support/VirtualBox Guest Additions/" \
+	$(INSTALL) -m 0755 $(VBOX_ADD_PATH_DI_SRC)/DiskImage/Uninstall.tool  "$(VBOX_PATH_PACK_TMP)/$(VBOX_GA_PKG).root/Library/Application Support/VirtualBox Guest Additions/"
 
 	@# Install launchd stuff
 	$(INSTALL) -m 0755 $(VBOX_ADD_PATH_DI_SRC)/VBoxGuestAdditionsToolsAndServices/VBoxServiceWrapper \
