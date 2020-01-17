@@ -50,6 +50,7 @@ namespace
         opt<symbols::Struc>     read_struc      (const std::string& struc) override;
         opt<symbols::Offset>    find_symbol     (size_t offset) override;
         bool                    list_symbols    (symbols::on_symbol_fn on_symbol) override;
+        void                    rebase_symbols  (uint64_t offset) override;
 
         const std::string guid;
         uint32_t          last_name_idx;
@@ -275,6 +276,14 @@ bool Data::list_symbols(symbols::on_symbol_fn on_sym)
             break;
 
     return true;
+}
+
+void Data::rebase_symbols(uint64_t offset)
+{
+    for(auto& sym : symbols)
+        sym.offset += offset;
+    for(auto& sym : offsets)
+        sym.offset += offset;
 }
 
 std::shared_ptr<symbols::Indexer> symbols::make_indexer(std::string_view id)

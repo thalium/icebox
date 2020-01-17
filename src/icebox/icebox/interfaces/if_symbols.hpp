@@ -26,6 +26,7 @@ namespace symbols
         virtual opt<symbols::Struc> read_struc      (const std::string& struc) = 0;
         virtual opt<Offset>         find_symbol     (size_t offset) = 0;
         virtual bool                list_symbols    (on_symbol_fn on_symbol) = 0;
+        virtual void                rebase_symbols  (uint64_t offset) = 0;
     };
 
     struct Identity
