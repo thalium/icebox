@@ -78,10 +78,10 @@ PyObject* py::symbols::read_struc(core::Core& core, PyObject* args)
 
     for(const auto& m : opt_struc->members)
     {
-        const auto py_item = Py_BuildValue("{s:s,s:k,s:k}",
+        const auto py_item = Py_BuildValue("{s:s,s:K,s:K}",
                                            "name", m.name.data(),
-                                           "offset", m.offset,
-                                           "bits", m.bits);
+                                           "offset", (uint64_t) m.offset,
+                                           "bits", (uint64_t) m.bits);
         PY_DEFER_DECREF(py_item);
         PyList_Append(py_list, py_item);
     }

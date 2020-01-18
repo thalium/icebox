@@ -154,6 +154,7 @@ namespace
         {"modules_span", &core_exec<&py::modules::span>, METH_VARARGS, "read module span"},
         {"modules_flags", &core_exec<&py::modules::flags>, METH_VARARGS, "read module flags"},
         {"modules_find", &core_exec<&py::modules::find>, METH_VARARGS, "find module from address"},
+        {"modules_find_name", &core_exec<&py::modules::find_name>, METH_VARARGS, "find module from address"},
         {"modules_listen_create", &core_exec<&py::modules::listen_create>, METH_VARARGS, "listen on module creation"},
         // drivers
         {"drivers_list", &core_exec<&py::drivers::list>, METH_NOARGS, "list drivers"},

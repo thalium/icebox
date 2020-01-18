@@ -112,6 +112,30 @@ PyObject* py::modules::find(core::Core& core, PyObject* args)
     return py::to_bytes(*opt_mod);
 }
 
+PyObject* py::modules::find_name(core::Core& core, PyObject* args)
+{
+    auto py_proc  = static_cast<PyObject*>(nullptr);
+    auto name     = static_cast<const char*>(nullptr);
+    auto py_flags = static_cast<PyObject*>(nullptr);
+    const auto ok = PyArg_ParseTuple(args, "OsO", &py_proc, &name, &py_flags);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    const auto opt_flags = py::flags::to(py_flags);
+    if(!opt_flags)
+        return nullptr;
+
+    const auto opt_mod = ::modules::find_name(core, *opt_proc, name, *opt_flags);
+    if(!opt_mod)
+        Py_RETURN_NONE;
+
+    return py::to_bytes(*opt_mod);
+}
+
 PyObject* py::modules::listen_create(core::Core& core, PyObject* args)
 {
     auto py_proc  = static_cast<PyObject*>(nullptr);

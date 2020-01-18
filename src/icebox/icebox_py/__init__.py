@@ -189,13 +189,9 @@ class Modules:
         mod = _icebox.modules_find(self.proc, addr)
         return Module(self.proc, mod) if mod else None
 
-    def find_name(self, name):
-        name = name.casefold()
-        for mod in self():
-            mod_name, _ = os.path.splitext(os.path.basename(mod.name()))
-            if mod_name.casefold() == name:
-                return mod
-        return None
+    def find_name(self, name, flags):
+        mod = _icebox.modules_find_name(self.proc, name, flags)
+        return Module(self.proc, mod) if mod else None
 
     def break_on_create(self, flags, callback):
         def fmod(mod): return callback(Module(self.proc, mod))

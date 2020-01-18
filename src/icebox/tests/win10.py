@@ -207,7 +207,7 @@ class Windows(unittest.TestCase):
         p = self.vm.processes.find_name("dwm.exe", icebox.flags_x64)
         p.join("user")
 
-        kernelbase = p.modules.find_name("kernelbase")
+        kernelbase = p.modules.find_name("kernelbase.dll", icebox.flags_any)
         self.assertIsNotNone(kernelbase)
 
         addr, size = kernelbase.span()
@@ -292,10 +292,10 @@ class Windows(unittest.TestCase):
     def test_callstacks(self):
         p = self.vm.processes.wait("dwm.exe", icebox.flags_any)
         p.join("user")
-        mod = p.modules.find_name("dwm")
+        mod = p.modules.find_name("dwm.exe", icebox.flags_x64)
         self.assertIsNotNone(mod)
         p.callstacks.load_module(mod)
-        mod = p.modules.find_name("ntdll")
+        mod = p.modules.find_name("ntdll.dll", icebox.flags_x64)
         self.assertIsNotNone(mod)
         p.callstacks.load_module(mod)
         name = "nt!NtWaitForMultipleObjects"

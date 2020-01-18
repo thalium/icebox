@@ -81,6 +81,7 @@ namespace py
         PyObject*   span            (core::Core& core, PyObject* args);
         PyObject*   flags           (core::Core& core, PyObject* args);
         PyObject*   find            (core::Core& core, PyObject* args);
+        PyObject*   find_name       (core::Core& core, PyObject* args);
         PyObject*   listen_create   (core::Core& core, PyObject* args);
     } // namespace modules
 
