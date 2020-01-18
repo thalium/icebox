@@ -229,7 +229,7 @@ target_link_libraries(icebox_cmd PRIVATE icebox)
 add_target(icebox_py libs "${root_dir}/src/icebox/icebox_py" OPTIONS shared fmt tidy)
 set_target_output_directory(icebox_py "icebox")
 set_target_output_name(icebox_py _icebox _icebox_d)
-set_target_properties(icebox_py PROPERTIES PREFIX "" SUFFIX ".pyd")
+set_target_properties(icebox_py PROPERTIES PREFIX "")
 target_include_directories(icebox_py PRIVATE
     ${PYTHON_INCLUDE_DIRS}
 )
@@ -238,6 +238,7 @@ if(WIN32)
     target_link_directories(icebox_py PRIVATE
         ${python_libdir}
     )
+    set_target_properties(icebox_py PROPERTIES SUFFIX ".pyd")
 else()
     target_link_libraries(icebox_py PRIVATE ${PYTHON_LIBRARIES})
 endif()
