@@ -39,7 +39,8 @@ def generate_env_variables(variables):
 
 def generate_jobs(jobs):
     output = ""
-    for key, value in jobs.items():
+    for key in sorted(jobs.keys()):
+        value = jobs[key]
         output += """
 ## Job: {job_name}
 Tags:
