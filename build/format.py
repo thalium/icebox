@@ -1,4 +1,3 @@
-import argparse
 import os
 import re
 import shutil
@@ -8,12 +7,17 @@ import tempfile
 import time
 import timeit
 
+
 def read_file(filename):
     with open(filename, "rb") as fh:
         return fh.read().decode("utf-8")
 
+
 def write_file(filename, data):
-    fd = tempfile.NamedTemporaryFile(mode="wb", prefix=os.path.basename(filename), dir=os.path.dirname(filename), delete=False)
+    fd = tempfile.NamedTemporaryFile(mode="wb",
+                                     prefix=os.path.basename(filename),
+                                     dir=os.path.dirname(filename),
+                                     delete=False)
     try:
         fd.write(data.encode("utf-8"))
     finally:
@@ -22,8 +26,9 @@ def write_file(filename, data):
         try:
             shutil.move(fd.name, filename)
             return
-        except:
+        except BaseException:
             time.sleep(0.1)
+
 
 def compile_fields(fields):
     reply = []
@@ -36,11 +41,12 @@ def compile_fields(fields):
         reply.append((re_full, re_line, p))
     return reply
 
+
 def align_fields(data, re_blobs, re_lines, align):
     for blob in re_blobs.findall(data):
         if blob.count("\n") < 2:
             continue
-        #print(blob)
+        # print(blob)
         pad_a = 0
         pad_b = 0
         lines = re_lines.findall(blob)
@@ -60,6 +66,7 @@ def align_fields(data, re_blobs, re_lines, align):
         data = data.replace(blob, dst)
     return data
 
+
 def apply_patterns(data, patterns):
     for p, r in patterns:
         dst = ""
@@ -67,6 +74,7 @@ def apply_patterns(data, patterns):
             dst = p.sub(r, data)
             data, dst = dst, data
     return data
+
 
 def process(data, pre_patterns, re_fields, post_patterns):
     if not len(data):
@@ -78,6 +86,7 @@ def process(data, pre_patterns, re_fields, post_patterns):
         data = align_fields(data, blobs, lines, align)
     data = apply_patterns(data, post_patterns)
     return data
+
 
 def main():
     pre_patterns = [
@@ -94,13 +103,16 @@ def main():
         # align #define MACRO(...) ...
         (4, r"# *define [a-zA-Z_][a-zA-Z_0-9_]*(?:\([^)]+\))?", " +", r".+?"),
         # align members (or try to...)
-        (0, r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*", " +", r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\]| = {[^}]+})?;"),
+        (0, r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*", " +",
+         r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\]| = {[^}]+})?;"),
         # align ... = ...
         (0, r" *\b(?:using )?[^\n ]+", " +", r"= .+?"),
         # align method names
-        (4, r" *\b[^\n=]*?[^\n=, +]", " +", r"(?:\b\w+|\(\*\w+\)) *\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
+        (4, r" *\b[^\n=]*?[^\n=, +]", " +",
+         r"(?:\b\w+|\(\*\w+\)) *\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
         # align method parameters
-        (4, r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))", " *", r"\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
+        (4, r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))", " *",
+         r"\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
     ]
     post_patterns = [
         # align constructor with destructor
@@ -129,6 +141,7 @@ def main():
     re_fields = compile_fields(fields)
 
     total = 0
+
     def round_time(arg):
         return int(round(arg * 1000))
 
@@ -143,15 +156,17 @@ def main():
     clang = os.path.abspath(sys.argv[2])
     for filename, data in targets:
         t = timeit.default_timer()
-        after_clang = subprocess.check_output([clang, "-style=file", filename]).decode()
+        after_clang = subprocess.check_output(
+            [clang, "-style=file", filename]).decode()
         value = process(after_clang, pre_patterns, re_fields, post_patterns)
         step = timeit.default_timer() - t
-        #print("%4dms: %s" % (round_time(step), f))
+        # print("%4dms: %s" % (round_time(step), f))
         total += step
         if value != data:
             write_file(filename, value)
             print("fmt: %s/%s" % (target, os.path.basename(filename)))
-    #print("fmt: %s %d files %dms" % (target, len(files), round_time(total)))
+    # print("fmt: %s %d files %dms" % (target, len(files), round_time(total)))
+
 
 if __name__ == "__main__":
     main()

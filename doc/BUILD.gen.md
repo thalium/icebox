@@ -1,6 +1,6 @@
-**This file was generated from the .gitlab-ci.yml file that is used
-                for continuous integration.**<br>**It contains useful commands to
-                build the project.**<br>
+**This file was generated from the .gitlab-ci.yml file that is
+                used for continuous integration.**<br>**It contains useful
+                commands to build the project.**<br>
 # Environment variables
 ```bash
 APT_UPDATE = apt-get update -qq -y

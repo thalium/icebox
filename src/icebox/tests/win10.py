@@ -1,4 +1,3 @@
-import inspect
 import os
 import struct
 import sys
@@ -140,26 +139,26 @@ class Windows(unittest.TestCase):
         self.assertEqual(val, 0xcc)
         p.memory[rip] = backup
 
-        backup = p.memory[rip : rip + 16]
+        backup = p.memory[rip: rip + 16]
         zero = b'\x00' * len(backup)
-        p.memory[rip : rip + len(backup)] = zero
-        val = p.memory[rip : rip + len(backup)]
+        p.memory[rip: rip + len(backup)] = zero
+        val = p.memory[rip: rip + len(backup)]
         self.assertEqual(zero, val)
         p.memory.write(backup, rip)
-        val = p.memory[rip : rip + len(backup)]
+        val = p.memory[rip: rip + len(backup)]
         self.assertEqual(val, backup)
 
         phy = p.memory.physical_address(rip)
         self.assertIsNotNone(phy)
 
-        phy_backup = self.vm.physical[phy : phy + 16]
+        phy_backup = self.vm.physical[phy: phy + 16]
         self.assertEqual(backup, phy_backup)
         zero = b'\x00' * len(backup)
-        self.vm.physical[phy : phy + len(backup)] = zero
-        val = self.vm.physical[phy : phy + len(backup)]
+        self.vm.physical[phy: phy + len(backup)] = zero
+        val = self.vm.physical[phy: phy + len(backup)]
         self.assertEqual(zero, val)
         self.vm.physical.write(backup, phy)
-        val = self.vm.physical[phy : phy + len(backup)]
+        val = self.vm.physical[phy: phy + len(backup)]
         self.assertEqual(val, backup)
 
     def test_symbols(self):
@@ -193,7 +192,7 @@ class Windows(unittest.TestCase):
         for mod in p.modules():
             modules.append(mod)
             addr, size = mod.span()
-            header = p.memory[addr : addr + 2]
+            header = p.memory[addr: addr + 2]
             self.assertEqual(header, b'MZ')
             other = p.modules.find(addr)
             self.assertEqual(mod, other)
@@ -238,28 +237,29 @@ class Windows(unittest.TestCase):
             while hit == 0:
                 self.vm.exec()
 
-        with self.vm.break_on("break_on " + name, addr, on_break):
+        with self.vm.break_on("bp " + name, addr, on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
 
-        with self.vm.break_on_process("break_on_process " + name, p, addr, on_break):
+        with self.vm.break_on_process("bp proc " + name, p, addr, on_break):
             run_until_hit()
         dtb = self.vm.registers.cr3
         t = self.vm.threads.current()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.processes.current(), p)
 
-        with self.vm.break_on_thread("break_on_thread " + name, t, addr, on_break):
+        with self.vm.break_on_thread("bp thread " + name, t, addr, on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.threads.current(), t)
 
         phy = p.memory.physical_address(addr)
-        with self.vm.break_on_physical("break_on_physical " + name, phy, on_break):
+        with self.vm.break_on_physical("bp phy " + name, phy, on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
 
-        with self.vm.break_on_physical_process("break_on_physical_process " + name, dtb, phy, on_break):
+        with self.vm.break_on_physical_process("bp phy proc " + name, dtb, phy,
+                                               on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.processes.current(), p)

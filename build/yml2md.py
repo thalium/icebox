@@ -3,20 +3,24 @@
 import argparse
 import os
 
+
 def read_file(filename):
     with open(filename, "rb") as fh:
         return fh.read()
+
 
 def write_file(filename, data):
     with open(filename, "wb") as fh:
         fh.write(data.encode("utf-8"))
 
+
 def load_yaml(input):
     f = read_file(input)
     try:
         return yaml.load(f)
-    except yaml.YAMLError as exc:
+    except yaml.YAMLError:
         return []
+
 
 def generate_variables(job):
     if "variables" not in job:
@@ -27,6 +31,7 @@ Variables:
 ```bash
 {variables}```""".format(variables=job["variables"])
 
+
 def generate_env_variables(variables):
     output = """
 # Environment variables
@@ -36,6 +41,7 @@ def generate_env_variables(variables):
         output += "{var} = {value}\n".format(var=key, value=value)
     output += "```"
     return output
+
 
 def generate_jobs(jobs):
     output = ""
@@ -50,8 +56,9 @@ Commands:
 ```bash
 {commands}```
 """.format(job_name=key, tags=value["tags"],
-          commands=value["commands"], variables=generate_variables(value))
+           commands=value["commands"], variables=generate_variables(value))
     return output
+
 
 def generate_stage(stage_title, jobs):
     return """
@@ -63,8 +70,8 @@ def generate_stage(stage_title, jobs):
 
 def parse_job(job, raw_job):
     if "tags" in raw_job and len(raw_job["tags"]) != 0:
-            for t in raw_job["tags"]:
-                job["tags"] += "* "+ t + "\n"
+        for t in raw_job["tags"]:
+            job["tags"] += "* " + t + "\n"
 
     if "before_script" in raw_job and len(raw_job["before_script"]) != 0:
         job["commands"] = ""
@@ -87,16 +94,20 @@ def parse_job(job, raw_job):
 
     return stage_name
 
+
 if __name__ == '__main__':
     try:
         import yaml
-    except ImportError as error:
+    except ImportError:
         print("python3-yaml not installed")
         exit(0)
 
-    parser = argparse.ArgumentParser(description='generate doc from gitlab-ci.yml')
-    parser.add_argument('-i', '--input', type=os.path.abspath, help='input yaml', required=True)
-    parser.add_argument('-o', '--output', type=os.path.abspath, help='output md',  default="BUILD.gen.md")
+    parser = argparse.ArgumentParser(
+        description='generate doc from gitlab-ci.yml')
+    parser.add_argument('-i', '--input', type=os.path.abspath,
+                        help='input yaml', required=True)
+    parser.add_argument('-o', '--output', type=os.path.abspath,
+                        help='output md',  default="BUILD.gen.md")
     opts = parser.parse_args()
 
     raw = load_yaml(opts.input)
@@ -104,7 +115,8 @@ if __name__ == '__main__':
         print("unable to load yaml")
         exit(1)
 
-    if "stages" not in raw and (not isinstance(raw["stages"], list) or len(raw["stages"]) == 0):
+    if "stages" not in raw and (not isinstance(raw["stages"], list) or
+                                len(raw["stages"]) == 0):
         print("unable to read stages in yaml file")
         exit(1)
 
@@ -123,7 +135,7 @@ if __name__ == '__main__':
         if key[0] == ".":
             continue
 
-        job = {"tags" : "", "commands" : ""}
+        job = {"tags": "", "commands": ""}
         stage_name = ""
 
         if "extends" in value and value["extends"] in raw:
@@ -141,9 +153,9 @@ if __name__ == '__main__':
 
             stages[stage_name][" ".join(tab_key)] = job
 
-    output = """**This file was generated from the .gitlab-ci.yml file that is used
-                for continuous integration.**<br>**It contains useful commands to
-                build the project.**<br>"""
+    output = """**This file was generated from the .gitlab-ci.yml file that is
+                used for continuous integration.**<br>**It contains useful
+                commands to build the project.**<br>"""
     output += generate_env_variables(env_variables)
 
     for key, value in stages.items():

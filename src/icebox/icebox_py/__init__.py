@@ -49,6 +49,7 @@ def dump_bytes(buf):
         return dump_bytes(buf[:8]) + " " + dump_bytes(buf[8:])
     return binascii.hexlify(buf).decode()
 
+
 class BreakpointId:
     def __init__(self, bpid, callback):
         self.bpid = bpid
@@ -165,7 +166,8 @@ class Module:
 
     def __repr__(self):
         addr, size = self.span()
-        return "%s: %x-%x flags:%s" % (self.name(), addr, addr + size, str(self.flags()))
+        flags = str(self.flags())
+        return "%s: %x-%x flags:%s" % (self.name(), addr, addr + size, flags)
 
     def name(self):
         return _icebox.modules_name(self.proc, self.mod)
@@ -453,10 +455,10 @@ class Drivers:
 class Vm:
     def __init__(self, name):
         _icebox.attach(name)
-        self.registers = Registers(
-            _icebox.register_list, _icebox.register_read, _icebox.register_write)
-        self.msr = Registers(
-            _icebox.msr_list, _icebox.msr_read, _icebox.msr_write)
+        r, w = _icebox.register_read, _icebox.register_write
+        self.registers = Registers(_icebox.register_list, r, w)
+        r, w = _icebox.msr_read, _icebox.msr_write
+        self.msr = Registers(_icebox.msr_list, r, w)
         self.threads = Threads()
         self.processes = Processes()
         self.physical = Physical()
