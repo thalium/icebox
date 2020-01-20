@@ -255,6 +255,7 @@ set(deploy_dir $<$<CONFIG:Debug>:${bin_d_dir}>$<$<CONFIG:RelWithDebInfo>:${bin_d
 add_custom_command(TARGET icebox_py POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${root_dir}/src/icebox/icebox_py/setup.py"    "${deploy_dir}"
     COMMAND ${CMAKE_COMMAND} -E copy "${root_dir}/src/icebox/icebox_py/__init__.py" "${deploy_dir}/icebox"
+    COMMAND ${CMAKE_COMMAND} -E copy "${root_dir}/src/icebox/icebox_py/symbols.py"  "${deploy_dir}/icebox"
 )
 
 # samples/vm_resume
