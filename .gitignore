@@ -7,3 +7,4 @@
 /third_party/virtualbox/configure.log
 /third_party/virtualbox/env.*
 /third_party/virtualbox/include/FDP
+*.pyc
