@@ -148,7 +148,7 @@ std::shared_ptr<symbols::Module> symbols::make_pdb(const std::string& module, co
 {
     const auto path = getenv("_NT_SYMBOL_PATH");
     if(!path)
-        return nullptr;
+        return FAIL(nullptr, "missing _NT_SYMBOL_PATH environment variable");
 
     auto indexer = symbols::make_indexer(guid);
     if(!indexer)
