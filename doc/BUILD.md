@@ -5,6 +5,7 @@ Install the following packages:
 sudo apt install            \
             cmake           \
             python3         \
+            libpython3-dev  \
             gcc-8           \
             g++-8           \
             clang-format    \
@@ -16,9 +17,9 @@ sudo apt install            \
 ## Windows
 Install:
 ```
-Visual Studio 15 2017 Win64
+Visual Studio 2019 Win64
 cmake
-python3
+python3 & debug libraries
 clang-format
 ```
 
