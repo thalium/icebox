@@ -17,6 +17,11 @@ then
     USE_STATIC_ANALYZER=0
 fi
 
+if [ -z "$NO_CLANG_FORMAT" ]
+then
+    NO_CLANG_FORMAT=1
+fi
+
 if [ -z "$OUT" ]
 then
     OUT=../out/x64
@@ -27,4 +32,5 @@ mkdir -p "$OUT"
 cd "$OUT"
 cmake ../../build -DCMAKE_BUILD_TYPE="${CONFIG}" \
     -G "${TARGET}" \
-    -DUSE_STATIC_ANALYZER=${USE_STATIC_ANALYZER}
+    -DUSE_STATIC_ANALYZER=${USE_STATIC_ANALYZER} \
+    -DNO_CLANG_FORMAT=${NO_CLANG_FORMAT}
