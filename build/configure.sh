@@ -17,9 +17,9 @@ then
     USE_STATIC_ANALYZER=0
 fi
 
-if [ -z "$NO_CLANG_FORMAT" ]
+if [ -n "$NO_CLANG_FORMAT" ]
 then
-    NO_CLANG_FORMAT=1
+    NO_CLANG_FORMAT=-DNO_CLANG_FORMAT=1
 fi
 
 if [ -z "$OUT" ]
@@ -33,4 +33,4 @@ cd "$OUT"
 cmake ../../build -DCMAKE_BUILD_TYPE="${CONFIG}" \
     -G "${TARGET}" \
     -DUSE_STATIC_ANALYZER=${USE_STATIC_ANALYZER} \
-    -DNO_CLANG_FORMAT=${NO_CLANG_FORMAT}
+    ${NO_CLANG_FORMAT}

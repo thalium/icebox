@@ -5,6 +5,11 @@ enable_testing()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
+if(${NO_CLANG_FORMAT})
+    message("-- clang-format: disabled")
+    set(ENV{DISABLE_CLANG_FORMAT} "true")
+endif()
+
 include(common.cmake)
 get_filename_component(root_dir     ${CMAKE_CURRENT_SOURCE_DIR}/.. ABSOLUTE)
 get_filename_component(bin_d_dir    ${root_dir}/bin/d_${ARCH}  ABSOLUTE)
@@ -17,11 +22,6 @@ if(NOT MSVC)
         -Wno-unused-local-typedefs
         -fPIC
     )
-endif()
-
-if(${NO_CLANG_FORMAT})
-    message("-- Disabling clang-format")
-    set(ENV{DISABLE_CLANG_FORMAT} "true")
 endif()
 
 if(${USE_STATIC_ANALYZER})
