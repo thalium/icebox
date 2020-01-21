@@ -99,6 +99,9 @@ namespace py
         PyObject*   load_module_memory  (core::Core& core, PyObject* args);
         PyObject*   load_module         (core::Core& core, PyObject* args);
         PyObject*   load_modules        (core::Core& core, PyObject* args);
+        PyObject*   load_driver_memory  (core::Core& core, PyObject* args);
+        PyObject*   load_driver         (core::Core& core, PyObject* args);
+        PyObject*   load_drivers        (core::Core& core, PyObject* args);
         PyObject*   autoload_modules    (core::Core& core, PyObject* args);
         PyObject*   address             (core::Core& core, PyObject* args);
         PyObject*   list_strucs         (core::Core& core, PyObject* args);

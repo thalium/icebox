@@ -168,6 +168,45 @@ PyObject* py::symbols::load_modules(core::Core& core, PyObject* args)
     Py_RETURN_NONE;
 }
 
+PyObject* py::symbols::load_driver_memory(core::Core& core, PyObject* args)
+{
+    auto addr = uint64_t{};
+    auto size = uint64_t{};
+    auto ok   = PyArg_ParseTuple(args, "KK", &addr, &size);
+    if(!ok)
+        return nullptr;
+
+    ok = ::symbols::load_driver_memory(core, {addr, size});
+    if(!ok)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load driver memory");
+
+    Py_RETURN_NONE;
+}
+
+PyObject* py::symbols::load_driver(core::Core& core, PyObject* args)
+{
+    auto name = static_cast<const char*>(nullptr);
+    auto ok   = PyArg_ParseTuple(args, "s", &name);
+    if(!ok)
+        return nullptr;
+
+    name = name ? name : "";
+    ok   = ::symbols::load_driver(core, name);
+    if(!ok)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load driver");
+
+    Py_RETURN_NONE;
+}
+
+PyObject* py::symbols::load_drivers(core::Core& core, PyObject* /*args*/)
+{
+    const auto ok = ::symbols::load_drivers(core);
+    if(!ok)
+        return py::fail_with(nullptr, PyExc_RuntimeError, "unable to load drivers");
+
+    Py_RETURN_NONE;
+}
+
 PyObject* py::symbols::autoload_modules(core::Core& core, PyObject* args)
 {
     auto py_proc = static_cast<PyObject*>(nullptr);

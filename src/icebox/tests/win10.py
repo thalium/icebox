@@ -274,6 +274,7 @@ class Windows(unittest.TestCase):
             other = self.vm.drivers.find(addr + size - 1)
             self.assertEqual(drv, other)
         self.assertGreater(len(drivers), 1)
+        self.vm.symbols.load_driver("hal")
 
     def test_functions(self):
         name = "nt!SwapContext"

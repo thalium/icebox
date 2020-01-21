@@ -452,6 +452,17 @@ class Drivers:
         return BreakpointId(bpid, fdrv)
 
 
+class KernelSymbols:
+    def __init__(self):
+        pass
+
+    def load_drivers(self):
+        return _icebox.symbols_load_drivers()
+
+    def load_driver(self, name):
+        return _icebox.symbols_load_driver(name)
+
+
 class Vm:
     def __init__(self, name):
         _icebox.attach(name)
@@ -464,6 +475,7 @@ class Vm:
         self.physical = Physical()
         self.functions = Functions()
         self.drivers = Drivers()
+        self.symbols = KernelSymbols()
 
     def detach(self):
         _icebox.detach()
