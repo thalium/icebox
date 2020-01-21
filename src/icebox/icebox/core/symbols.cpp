@@ -452,15 +452,11 @@ namespace
         return insert_module(d, proc, module, opt_mod->span, opt_mod->module, insert_e::cached);
     }
 
-    bool is_target_module(core::Core& core, proc_t proc, mod_t mod, const memory::Io& io, const std::string& name)
+    bool is_target(span_t span, const memory::Io& io, const std::string& name)
     {
-        const auto opt_span = modules::span(core, proc, mod);
-        if(!opt_span)
-            return false;
-
         for(const auto& h : g_helpers)
         {
-            const auto opt_id = h.identify(*opt_span, io);
+            const auto opt_id = h.identify(span, io);
             if(!opt_id)
                 continue;
 
@@ -469,6 +465,15 @@ namespace
                 return true;
         }
         return false;
+    }
+
+    bool is_target_module(core::Core& core, proc_t proc, mod_t mod, const memory::Io& io, const std::string& name)
+    {
+        const auto opt_span = modules::span(core, proc, mod);
+        if(!opt_span)
+            return false;
+
+        return is_target(*opt_span, io, name);
     }
 
     opt<mod_t> wait_for_module(core::Core& core, proc_t proc, const std::string& name)
@@ -551,9 +556,58 @@ bool symbols::load_driver_memory(core::Core& core, span_t span)
     return core.symbols_->insert(symbols::kernel, io, span);
 }
 
-bool symbols::load_driver(core::Core& core, driver_t driver)
+namespace
 {
-    const auto span = drivers::span(core, driver);
+    opt<driver_t> wait_for_driver(core::Core& core, const std::string& name)
+    {
+        auto found           = opt<driver_t>{};
+        const auto io        = memory::make_io_kernel(core);
+        const auto check_drv = [&](driver_t drv)
+        {
+            const auto opt_span = drivers::span(core, drv);
+            if(!opt_span)
+                return walk_e::next;
+
+            if(!is_target(*opt_span, io, name))
+                return walk_e::next;
+
+            found = drv;
+            return walk_e::stop;
+        };
+        drivers::list(core, check_drv);
+        if(found)
+            return found;
+
+        // driver not found yet, wait for it...
+        const auto bp = drivers::listen_create(core, [=](driver_t drv, bool load)
+        {
+            if(!load)
+                return walk_e::next;
+
+            return check_drv(drv);
+        });
+        if(!bp)
+            return {};
+
+        while(!found)
+            state::exec(core);
+
+        state::drop_breakpoint(core, *bp);
+        return found;
+    }
+}
+
+bool symbols::load_driver(core::Core& core, const std::string& name)
+{
+    auto& d = *core.symbols_->d_;
+    if(find_module(d, symbols::kernel, name, find_e::proc_only))
+        return true;
+
+    const auto opt_drv = wait_for_driver(core, name);
+    if(!opt_drv)
+        return false;
+
+    const auto span = drivers::span(core, *opt_drv);
     if(!span)
         return false;
 
@@ -564,7 +618,10 @@ bool symbols::load_drivers(core::Core& core)
 {
     drivers::list(core, [&](driver_t driver)
     {
-        load_driver(core, driver);
+        const auto opt_span = drivers::span(core, driver);
+        if(opt_span)
+            load_driver_memory(core, *opt_span);
+
         return walk_e::next;
     });
     return true;
