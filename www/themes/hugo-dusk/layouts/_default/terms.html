@@ -1,0 +1,22 @@
+
+{{ partial "header.html" . }}
+
+<h2 class="term-list-title">
+    <a href="{{ .Permalink }}" class="linktopost">{{ .Title }}</a>
+</h2>
+
+<div class="terms">
+{{ $data := .Data }}
+{{ range $key, $value := .Data.Terms.Alphabetical }}
+
+  <div class="term">
+    <a href="{{ $value.Name | urlize }}">
+      <div class="term-title">{{ $value.Name }} ({{ $value.WeightedPages.Count }})</div> 
+    </a>
+
+  </div> <!-- term -->
+
+{{ end }}
+</div> <!-- terms -->
+
+{{ partial "footer.html" . }}

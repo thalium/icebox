@@ -1,0 +1,24 @@
+
+<div class="social-links-header">
+
+  {{with .Site.Params.email}}
+  <a href="mailto:{{.}}"><div class="social-link">email</div></a>
+  {{end}}
+
+  {{with .Site.Params.github}}
+  <a href="https://github.com/{{.}}" target="_blank"><div class="social-link">gh</div></a>
+  {{end}}
+
+  {{with .Site.Params.gitlab}}
+  <a href="https://gitlab.com/{{.}}" target="_blank"><div class="social-link">gl</div></a>
+  {{end}}
+
+  {{with .Site.Params.twitter}}
+  <a href="https://twitter.com/{{.}}" target="_blank"><div class="social-link">twtr</div></a>
+  {{end}}
+
+  {{with .Site.Params.linkedin}}
+  <a href="https://www.linkedin.com/in/{{.}}" target="_blank"><div class="social-link">in</div></a>
+  {{end}}
+
+</div>

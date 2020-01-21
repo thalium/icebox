@@ -1,0 +1,16 @@
+<div class="content-item">
+
+    <a href="{{ .Permalink }}">
+      <div class="post-list"> <h3 class="title"> {{ .Title }} </h3>
+      <div class="date"> {{ .Date.Format "2 Jan, 2006" }} </div>
+
+      </div>
+    </a>
+    {{if or .Params.tags .Params.categories .Params.series}}
+      <div class="meta">
+        {{ partial "tags.html" . }}
+        {{ partial "categories.html" . }}
+        {{ partial "series.html" . }}
+      </div>
+    {{end}}
+</div>

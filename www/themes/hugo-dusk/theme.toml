@@ -1,0 +1,12 @@
+name = "hugo-dusk"
+license = "MIT"
+licenselink = "https://github.com/gyorb/hugo-dusk/blob/master/LICENSE.md"
+description = "A minimalistic dark responsive theme."
+homepage = "https://github.com/gyorb/hugo-dusk"
+tags = ["blog", "responsive", "google analytics", "disqus", "utterances", "syntax highlighting", "custom themes", "minimal", "minimalist", "clean", "dark"]
+features = ["blog"]
+min_version = "0.57.2"
+
+[author]
+  name = "Gyorgy Orban"
+  homepage = "https://github.com/gyorb"

@@ -1,0 +1,17 @@
+{{ partial "header.html" . }}
+
+<div class="err-404" >
+    <h1 id="title">{{ .Title }} :(</h1>
+</div>
+
+<div class="sitemap" >
+  <ul>
+  {{ range site.RegularPages.ByLastmod.Reverse }}
+      <li><article itemscope itemtype="http://schema.org/Blog">
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+      </article></li>
+  {{ end }}
+  </ul>
+
+</div> <!-- sitemap -->
+{{ partial "footer.html" . }}

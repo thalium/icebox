@@ -1,0 +1,15 @@
+
+{{ partial "header.html" . }}
+
+<main>
+
+{{ $paginator := .Paginate (where site.RegularPages "Type" "in" site.Params.mainSections) }}
+  {{ range $paginator.Pages }}
+    {{ .Render "summary" }}
+{{ end }}
+
+{{ partial "paginator-menu.html" . }}
+
+</main>
+
+{{ partial "footer.html" . }}

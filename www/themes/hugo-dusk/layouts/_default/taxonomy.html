@@ -1,0 +1,11 @@
+{{ partial "header.html" . }}
+
+<h2 class="term-list-title">
+    <a href="{{ .Permalink }}" class="linktopost">{{ .Data.Singular }}: {{ .Data.Term }}</a>
+</h2>
+
+{{ range .Data.Pages }}
+    {{ .Render "summary" }}
+{{ end }}
+
+{{ partial "footer.html" . }}

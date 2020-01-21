@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="{{ with .Site.LanguageCode }}{{ . }}{{ else }}en-US{{ end }}">
+
+{{ partial "head.html" . }}
+
+<body>
+<div class="main">
+<header>
+
+<div class="header-bar">
+
+  <nav>
+    <div class="siteTitle">
+      <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
+    </div> <!--siteTitle-->
+
+    {{ $currentPage := . }}
+    {{ range .Site.Menus.main }}
+    <a class="nav-item{{if or ($currentPage.IsMenuCurrent "main" .) ($currentPage.HasMenuCurrent "main" .) }} active{{end}}" href="{{.URL}}"><div class="nav-item-title">{{ .Name }}</div></a>
+    {{ end }}
+
+  </nav>
+
+  {{ partial "social-links.html" . }}
+
+</div>
+
+
+</header>
