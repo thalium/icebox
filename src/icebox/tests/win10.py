@@ -237,29 +237,28 @@ class Windows(unittest.TestCase):
             while hit == 0:
                 self.vm.exec()
 
-        with self.vm.break_on("bp " + name, addr, on_break):
+        with self.vm.break_on(addr, on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
 
-        with self.vm.break_on_process("bp proc " + name, p, addr, on_break):
+        with self.vm.break_on_process(p, addr, on_break):
             run_until_hit()
         dtb = self.vm.registers.cr3
         t = self.vm.threads.current()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.processes.current(), p)
 
-        with self.vm.break_on_thread("bp thread " + name, t, addr, on_break):
+        with self.vm.break_on_thread(t, addr, on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.threads.current(), t)
 
         phy = p.memory.physical_address(addr)
-        with self.vm.break_on_physical("bp phy " + name, phy, on_break):
+        with self.vm.break_on_physical(phy, on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
 
-        with self.vm.break_on_physical_process("bp phy proc " + name, dtb, phy,
-                                               on_break):
+        with self.vm.break_on_physical_process(dtb, phy, on_break):
             run_until_hit()
         self.assertEqual(self.vm.registers.rip, addr)
         self.assertEqual(self.vm.processes.current(), p)
@@ -280,14 +279,14 @@ class Windows(unittest.TestCase):
         name = "nt!SwapContext"
         p = self.vm.processes.current()
         addr = p.symbols.address(name)
-        with self.vm.break_on(name, addr, lambda: None):
+        with self.vm.break_on(addr, lambda: None):
             self.vm.exec()
         stack_0 = self.vm.functions.read_stack(0)
         self.assertIsNotNone(stack_0)
         arg_0 = self.vm.functions.read_arg(0)
         self.assertIsNotNone(arg_0)
         self.vm.functions.write_arg(0, arg_0)
-        self.vm.functions.break_on_return(name + " return", lambda: None)
+        self.vm.functions.break_on_return(lambda: None)
         self.vm.exec()
 
     def test_callstacks(self):
@@ -301,7 +300,7 @@ class Windows(unittest.TestCase):
         p.callstacks.load_module(mod)
         name = "nt!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
-        with self.vm.break_on_process(name, p, addr, lambda: None):
+        with self.vm.break_on_process(p, addr, lambda: None):
             self.vm.exec()
 
         p = self.vm.processes.current()

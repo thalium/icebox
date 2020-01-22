@@ -403,7 +403,7 @@ class Functions:
     def write_arg(self, idx, arg):
         return _icebox.functions_write_arg(idx, arg)
 
-    def break_on_return(self, name, callback):
+    def break_on_return(self, callback, name=""):
         # TODO do we need to keep ref on callback ?
         return _icebox.functions_break_on_return(name, callback)
 
@@ -496,23 +496,23 @@ class Vm:
         self.resume()
         self.wait()
 
-    def break_on(self, name, where, callback):
+    def break_on(self, where, callback, name=""):
         bp = _icebox.break_on(name, where, callback)
         return BreakpointId(bp, callback)
 
-    def break_on_process(self, name, proc, where, callback):
+    def break_on_process(self, proc, where, callback, name=""):
         bp = _icebox.break_on_process(name, proc.proc, where, callback)
         return BreakpointId(bp, callback)
 
-    def break_on_thread(self, name, thread, where, callback):
+    def break_on_thread(self, thread, where, callback, name=""):
         bp = _icebox.break_on_thread(name, thread.thread, where, callback)
         return BreakpointId(bp, callback)
 
-    def break_on_physical(self, name, where, callback):
+    def break_on_physical(self, where, callback, name=""):
         bp = _icebox.break_on_physical(name, where, callback)
         return BreakpointId(bp, callback)
 
-    def break_on_physical_process(self, name, dtb, where, callback):
+    def break_on_physical_process(self, dtb, where, callback, name=""):
         bp = _icebox.break_on_physical_process(name, dtb, where, callback)
         return BreakpointId(bp, callback)
 
