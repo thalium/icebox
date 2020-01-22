@@ -496,23 +496,42 @@ class Vm:
         self.resume()
         self.wait()
 
+    def _to_virtual(self, where, get_proc):
+        if not isinstance(where, str):
+            return where
+        proc = get_proc()
+        return proc.symbols.address(where)
+
+    def _to_physical(self, where, get_proc):
+        if not isinstance(where, str):
+            return where
+        proc = get_proc()
+        addr = proc.symbols.address(where)
+        phy = proc.memory.physical_address(addr)
+        return phy
+
     def break_on(self, where, callback, name=""):
+        where = self._to_virtual(where, lambda: self.processes.current())
         bp = _icebox.break_on(name, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_process(self, proc, where, callback, name=""):
+        where = self._to_virtual(where, lambda: proc)
         bp = _icebox.break_on_process(name, proc.proc, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_thread(self, thread, where, callback, name=""):
+        where = self._to_virtual(where, lambda: where.process())
         bp = _icebox.break_on_thread(name, thread.thread, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_physical(self, where, callback, name=""):
+        where = self._to_physical(where, lambda: self.processes.current())
         bp = _icebox.break_on_physical(name, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_physical_process(self, dtb, where, callback, name=""):
+        where = self._to_physical(where, self.processes.current())
         bp = _icebox.break_on_physical_process(name, dtb, where, callback)
         return BreakpointId(bp, callback)
 
