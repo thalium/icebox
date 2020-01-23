@@ -421,7 +421,7 @@ std::string symbols::to_string(const symbols::Symbol& symbol)
         return symbol.module + '!' + symbol.symbol + to_offset('+', symbol.offset);
 
     if(!symbol.module.empty())
-        return symbol.module + to_offset('+', symbol.offset);
+        return symbol.module + to_offset(':', symbol.offset);
 
     return to_offset(0, symbol.offset);
 }
