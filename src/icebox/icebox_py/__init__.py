@@ -191,11 +191,11 @@ class Modules:
         mod = _icebox.modules_find(self.proc, addr)
         return Module(self.proc, mod) if mod else None
 
-    def find_name(self, name, flags):
+    def find_name(self, name, flags=flags_any):
         mod = _icebox.modules_find_name(self.proc, name, flags)
         return Module(self.proc, mod) if mod else None
 
-    def break_on_create(self, flags, callback):
+    def break_on_create(self, callback, flags=flags_any):
         def fmod(mod): return callback(Module(self.proc, mod))
         bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
         return BreakpointId(bpid, fmod)
@@ -291,7 +291,7 @@ class Processes:
     def current(self):
         return Process(_icebox.process_current())
 
-    def find_name(self, name, flags=None):
+    def find_name(self, name, flags=flags_any):
         for p in self():
             got_name = os.path.basename(p.name())
             if got_name != name:
@@ -313,7 +313,7 @@ class Processes:
                 return p
         return None
 
-    def wait(self, name, flags):
+    def wait(self, name, flags=flags_any):
         return Process(_icebox.process_wait(name, flags))
 
     def break_on_create(self, callback):
