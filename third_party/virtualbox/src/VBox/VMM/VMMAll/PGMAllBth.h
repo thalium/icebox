@@ -1176,6 +1176,7 @@ rc=0
      * If we get here it is because something failed above, i.e. most like guru
      * meditiation time.
      */
+    if(0)
     LogRel(("%s: returns rc=%Rrc pvFault=%RGv uErr=%RX64 cs:rip=%04x:%08RX64\n",
             __PRETTY_FUNCTION__, rc, pvFault, (uint64_t)uErr, pRegFrame->cs.Sel, pRegFrame->rip));
     return rc;
