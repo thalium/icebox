@@ -52,7 +52,17 @@ def dump_bytes(buf):
     if len(buf) == 8:
         return hex(struct.unpack_from("<Q", buf)[0])[2:]
     if len(buf) > 8:
-        return dump_bytes(buf[:8]) + " " + dump_bytes(buf[8:])
+        rpy = ""
+        count = 0
+        max_count = 256
+        while len(buf) > 8 and count < max_count:
+            rpy += dump_bytes(buf[:8]) + " "
+            buf = buf[8:]
+            count += 1
+        rpy = rpy[:-1]
+        if count == max_count and len(buf) > 8:
+            rpy += " ... [%d bytes truncated]" % len(buf)
+        return rpy
     return binascii.hexlify(buf).decode()
 
 
