@@ -294,10 +294,10 @@ class Windows(unittest.TestCase):
         p.join("user")
         mod = p.modules.find_name("dwm.exe", icebox.flags_x64)
         self.assertIsNotNone(mod)
-        p.callstacks.load_module(mod)
+        p.callstack.load_module(mod)
         mod = p.modules.find_name("ntdll.dll", icebox.flags_x64)
         self.assertIsNotNone(mod)
-        p.callstacks.load_module(mod)
+        p.callstack.load_module(mod)
         name = "nt!NtWaitForMultipleObjects"
         addr = p.symbols.address(name)
         with self.vm.break_on_process(p, addr, lambda: None):
@@ -305,7 +305,7 @@ class Windows(unittest.TestCase):
 
         p = self.vm.processes.current()
         addrs = []
-        for x in p.callstacks():
+        for x in p.callstack():
             addrs.append(x)
         self.assertGreater(len(addrs), 1)
 

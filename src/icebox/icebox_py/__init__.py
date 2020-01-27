@@ -217,7 +217,7 @@ class Modules:
         return BreakpointId(bpid, fmod)
 
 
-class Callstacks:
+class Callstack:
     def __init__(self, proc):
         self.proc = proc
 
@@ -260,7 +260,7 @@ class Process:
         self.symbols = Symbols(self)
         self.memory = Virtual(proc)
         self.modules = Modules(proc)
-        self.callstacks = Callstacks(proc)
+        self.callstack = Callstack(proc)
         self.vm_areas = VmAreas(proc)
 
     def __eq__(self, other):
