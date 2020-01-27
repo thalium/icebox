@@ -90,11 +90,10 @@ def read_pdbs(text):
         yield pdb.group(1), pdb.group(2)
 
 
-def download_pdbs(filename, output, args):
+def list_pdbs(filename):
     for line in read_lines(filename):
         for name, guid in read_pdbs(line):
-            try_download_pdb(output, name, guid, args)
-    return 0
+            yield name, guid
 
 
 def read_symbol_path():
@@ -115,7 +114,20 @@ def download_pdb_from_guid(args):
 
 def download_pdbs_from_log(args):
     dst = read_symbol_path()
-    return download_pdbs(args.file, dst, args)
+    with fut.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+        futures = []
+        for name, guid in list_pdbs(args.file):
+            fret = executor.submit(download_pdb, dst, name, guid, args)
+            futures.append(fret)
+
+        count = 0
+        for fret in fut.as_completed(futures):
+            try:
+                fret.result()
+                count += 1
+            except BaseException as exc:
+                print(exc)
+        return count
 
 
 load_all_symbols = """
@@ -128,12 +140,12 @@ vm.symbols.load_drivers()
 print("loading explorer.exe symbols...")
 p = vm.processes.wait("explorer.exe", icebox.flags_any)
 p.join("user")
-#p.symbols.load_modules()
+p.symbols.load_modules()
 
 print("loading taskmgr.exe wow64 symbols...")
 p = vm.processes.find_name("Taskmgr.exe", icebox.flags_x86)
 p.join("user")
-#p.symbols.load_modules()
+p.symbols.load_modules()
 """
 
 
