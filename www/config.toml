@@ -1,4 +1,25 @@
 baseURL = "http://example.org/"
 languageCode = "en-us"
+canonifyurls = true
 title = "Thalium Blog"
 theme = "hugo-dusk"
+copyright = "Copyright (c) 2020, all rights reserved."
+googleAnalytics = "UA-141692648-1"
+
+[author]
+    name = "Thalium Team"
+
+[[menu.main]]
+  name = "Posts"
+  weight = -120
+  identifier = "posts"
+  url = "/posts/"
+
+[params.meta]
+  keywords = "blog, tech"
+  description = "Thalium blog."
+
+[params]
+    github = "thalium"
+    twitter = "thalium_team"
+    email = "thalium.team@gmail.com"
