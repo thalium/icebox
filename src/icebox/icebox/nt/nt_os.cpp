@@ -244,8 +244,8 @@ bool nt::Os::setup()
     if(!kernel)
         return FAIL(false, "unable to find kernel");
 
-    LOG(INFO, "kernel: 0x%" PRIx64 " - 0x%" PRIx64 " (%zu 0x%" PRIx64 ")",
-        kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
+    LOG(INFO, "kernel: 0x%" PRIx64 "-0x%" PRIx64 " size:0x%" PRIx64,
+        kernel->addr, kernel->addr + kernel->size, kernel->size);
     const auto opt_id = symbols::identify_pdb(*kernel, io_);
     if(!opt_id)
         return FAIL(false, "unable to identify kernel PDB");
@@ -278,9 +278,7 @@ bool nt::Os::setup()
 
     // now update kernel dtb with the one read from system process
     proc_join(*proc, mode_e::kernel);
-    ok = update_kernel_dtb(*this);
-    if(!ok)
-        return false;
+    io_.dtb.val = proc->kdtb.val;
 
     // read the NtMajorVersion and NtMinorVersion from the _KUSER_SHARED_DATA
     static constexpr uint64_t user_shared_data_addr = 0xFFFFF78000000000ULL;
@@ -294,8 +292,7 @@ bool nt::Os::setup()
         return false;
 
     init_nt_mmu(*this);
-
-    LOG(WARNING, "kernel: kpcr: 0x%" PRIx64 " kdtb: 0x%" PRIx64 " version: %d.%d", kpcr_, io_.dtb.val, NtMajorVersion_, NtMinorVersion_);
+    LOG(WARNING, "kernel: kpcr:0x%" PRIx64 " kdtb:0x%" PRIx64 " version:%d.%d", kpcr_, io_.dtb.val, NtMajorVersion_, NtMinorVersion_);
     return try_load_ntdll(*this, core_);
 }
 
