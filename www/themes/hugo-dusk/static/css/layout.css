@@ -204,6 +204,10 @@ th, td {
   padding-bottom: 0.2em;
 }
 
+.post-footer-data .author {
+  font-weight: normal;
+}
+
 .post-footer-data .tag {
   font-weight: bold;
 }

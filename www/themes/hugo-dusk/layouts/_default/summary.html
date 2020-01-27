@@ -4,7 +4,12 @@
     <h2 class="title"> <a href='{{ .Permalink }}'> {{ .Title }}</a> </h2>
     <div class="meta">
       <div class="date">
-      {{ .Date.Format "2 Jan, 2006" }} - {{ .ReadingTime }} minutes
+        {{ .Date.Format "2 Jan, 2006" }}
+        by {{ if .Params.twitter}}
+          <a href='https://twitter.com/{{ .Params.twitter }}'>{{ .Params.author }}</a>
+        {{ else }}
+          {{ .Params.author }}
+        {{ end }}
       </div>
       {{ partial "tags.html" . }}
     </div>

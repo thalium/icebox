@@ -2,7 +2,16 @@
 
   <div class="post-footer-data">
             {{ partial "tags.html" . }}
-    <div class="date"> {{ .Date.Format "2006-01-02" }} </div>
+    <span class="date">
+      {{ .Date.Format "2006-01-02" }}
+      <span class="author">
+        by {{ if .Params.twitter}}
+          <a href='https://twitter.com/{{ .Params.twitter }}'>{{ .Params.author }}</a>
+          {{ else }}
+          {{ .Params.author }}
+          {{ end }}
+        </span>
+    </span>
     {{if or .Params.categories .Params.series}}
     <hr>
             {{ partial "categories.html" . }}
