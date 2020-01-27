@@ -30,6 +30,12 @@ class Flags:
         for k, v in dict.items():
             setattr(self, k, v)
 
+    def __repr__(self):
+        return str(vars(self))
+
+    def __eq__(self, other):
+        return vars(self) == vars(other)
+
 
 flags_any = Flags({"is_x86": False,  "is_x64": False})
 flags_x86 = Flags({"is_x86": True,   "is_x64": False})
@@ -176,7 +182,7 @@ class Module:
         return _icebox.modules_span(self.proc, self.mod)
 
     def flags(self):
-        return _icebox.modules_flags(self.mod)
+        return Flags(_icebox.modules_flags(self.mod))
 
 
 class Modules:
