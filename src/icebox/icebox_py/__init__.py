@@ -165,10 +165,10 @@ class Virtual:
 
     def __setitem__(self, key, item):
         if isinstance(key, slice):
-            return self.write(item, key.start)
-        return self.write(struct.pack("B", item), key)
+            return self.write(key.start, item)
+        return self.write(key, struct.pack("B", item))
 
-    def write(self, buf, ptr):
+    def write(self, ptr, buf):
         return _icebox.memory_write_virtual(buf, self.proc, ptr)
 
 
@@ -399,10 +399,10 @@ class Physical:
 
     def __setitem__(self, key, item):
         if isinstance(key, slice):
-            return self.write(item, key.start)
-        return self.write(struct.pack("B", item), key)
+            return self.write(key.start, item)
+        return self.write(key, struct.pack("B", item))
 
-    def write(self, buf, ptr):
+    def write(self, ptr, buf):
         return _icebox.memory_write_physical(buf, ptr)
 
 

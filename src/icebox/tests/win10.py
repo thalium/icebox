@@ -144,7 +144,7 @@ class Windows(unittest.TestCase):
         p.memory[rip: rip + len(backup)] = zero
         val = p.memory[rip: rip + len(backup)]
         self.assertEqual(zero, val)
-        p.memory.write(backup, rip)
+        p.memory.write(rip, backup)
         val = p.memory[rip: rip + len(backup)]
         self.assertEqual(val, backup)
 
@@ -157,7 +157,7 @@ class Windows(unittest.TestCase):
         self.vm.physical[phy: phy + len(backup)] = zero
         val = self.vm.physical[phy: phy + len(backup)]
         self.assertEqual(zero, val)
-        self.vm.physical.write(backup, phy)
+        self.vm.physical.write(phy, backup)
         val = self.vm.physical[phy: phy + len(backup)]
         self.assertEqual(val, backup)
 
