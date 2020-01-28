@@ -12,6 +12,14 @@ namespace symbols
 
     struct Symbol
     {
+        Symbol(uint64_t addr, const std::string& module, const std::string& symbol, uint64_t offset)
+            : addr(addr)
+            , module(module)
+            , symbol(symbol)
+            , offset(offset)
+        {
+        }
+        uint64_t    addr;
         std::string module;
         std::string symbol;
         uint64_t    offset;

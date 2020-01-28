@@ -357,31 +357,54 @@ namespace
         return find(s, symbols::kernel, addr);
     }
 
-    symbols::Symbol read_name_from_proc(core::Core& core, proc_t proc, uint64_t addr)
+    opt<symbols::Symbol> read_name_from_module(core::Core& core, proc_t proc, uint64_t addr)
     {
-        const auto name = process::name(core, proc);
-        if(!name)
-            return {"", "", addr};
+        const auto opt_mod = modules::find(core, proc, addr);
+        if(!opt_mod)
+            return {};
 
-        return {fix_module_name(*name), "", addr};
+        const auto span = modules::span(core, proc, *opt_mod);
+        if(!span)
+            return {};
+
+        const auto name = modules::name(core, proc, *opt_mod);
+        if(!name)
+            return {};
+
+        return symbols::Symbol{addr, fix_module_name(*name), {}, addr - span->addr};
+    }
+
+    opt<symbols::Symbol> read_name_from_driver(core::Core& core, uint64_t addr)
+    {
+        const auto opt_drv = drivers::find(core, addr);
+        if(!opt_drv)
+            return {};
+
+        const auto span = drivers::span(core, *opt_drv);
+        if(!span)
+            return {};
+
+        const auto name = drivers::name(core, *opt_drv);
+        if(!name)
+            return {};
+
+        return symbols::Symbol{addr, fix_module_name(*name), {}, addr - span->addr};
     }
 
     symbols::Symbol read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
     {
         if(!process::is_valid(core, proc))
-            return read_name_from_proc(core, proc, addr);
+            return {addr, {}, {}, 0};
 
-        const auto mod = modules::find(core, proc, addr);
-        if(!mod)
-            return read_name_from_proc(core, proc, addr);
+        const auto opt_mod = read_name_from_module(core, proc, addr);
+        if(opt_mod)
+            return *opt_mod;
 
-        const auto span = modules::span(core, proc, *mod);
-        if(!span)
-            return read_name_from_proc(core, proc, addr);
+        const auto opt_drv = read_name_from_driver(core, addr);
+        if(opt_drv)
+            return *opt_drv;
 
-        const auto name = modules::name(core, proc, *mod);
-        const auto path = name ? fix_module_name(*name) : "";
-        return {path, "", addr - span->addr};
+        return {addr, {}, {}, 0};
     }
 }
 
@@ -394,9 +417,9 @@ symbols::Symbol symbols::Modules::find(proc_t proc, uint64_t addr)
 
     const auto cur = p->mod.module->find_symbol(addr - p->mod.span.addr);
     if(!cur)
-        return {p->name, "", addr};
+        return {addr, p->name, {}, addr - p->mod.span.addr};
 
-    return {p->name, cur->symbol, cur->offset};
+    return {addr, p->name, cur->symbol, cur->offset};
 }
 
 namespace
@@ -421,9 +444,9 @@ std::string symbols::to_string(const symbols::Symbol& symbol)
         return symbol.module + '!' + symbol.symbol + to_offset('+', symbol.offset);
 
     if(!symbol.module.empty())
-        return symbol.module + to_offset(':', symbol.offset);
+        return symbol.module + to_offset('+', symbol.offset);
 
-    return to_offset(0, symbol.offset);
+    return to_offset(0, symbol.addr);
 }
 
 bool symbols::load_module_memory(core::Core& core, proc_t proc, const memory::Io& io, span_t span)
