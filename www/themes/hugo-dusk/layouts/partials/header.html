@@ -4,6 +4,26 @@
 {{ partial "head.html" . }}
 
 <body>
+  <style>
+  @font-face {
+    font-family: 'days_one';
+    src: url('/days_one.ttf') format('truetype');
+  }
+  .siteTitle {
+    margin-top: 24px;
+  }
+  .siteTitle img {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -24px;
+    margin-right: -10px;
+  }
+  .siteTitle span {
+    font-family: 'days_one', Fallback, sans-serif;
+    color: white;
+    font-size: 160%;
+  }
+  </style>
 <div class="main">
 <header>
 
@@ -11,7 +31,10 @@
 
   <nav>
     <div class="siteTitle">
-      <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
+      <a href="{{ .Site.BaseURL }}">
+        <img src="/shard_only_no_background.png" width=12%></img>
+        <span>{{ .Site.Title }}</span>
+      </a>
     </div> <!--siteTitle-->
 
     {{ $currentPage := . }}

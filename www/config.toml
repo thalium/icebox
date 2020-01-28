@@ -1,7 +1,7 @@
 baseURL = "http://example.org/"
 languageCode = "en-us"
 canonifyurls = true
-title = "Thalium Blog"
+title = "THALIUM"
 theme = "hugo-dusk"
 copyright = "Copyright (c) 2020, all rights reserved."
 googleAnalytics = "UA-141692648-1"

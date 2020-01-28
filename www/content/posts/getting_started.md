@@ -6,8 +6,8 @@ author: "Benoît Amiaux"
 twitter: "bamiaux"
 ---
 
-**Icebox** is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide.
-All Icebox code can be found on our [github page](https://github.com/thalium/icebox).
+**Icebox** is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any kernel or user code system-wide.
+All Icebox source code can be found on our [github page](https://github.com/thalium/icebox).
 
 ## Try Icebox
 
