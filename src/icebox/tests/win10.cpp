@@ -520,6 +520,22 @@ TEST_F(win10, loader)
     EXPECT_TRUE(!!ok);
 }
 
+TEST_F(win10, out_of_context_loads)
+{
+    auto& core      = *ptr_core;
+    const auto proc = process::find_name(core, "explorer.exe", flags::x64);
+    ASSERT_TRUE(!!proc);
+
+    // join another process
+    const auto other = process::find_name(core, "dwm.exe", flags::x64);
+    ASSERT_TRUE(!!other);
+    process::join(core, *other, mode_e::user);
+
+    // test memory from another process context
+    symbols::load_modules(core, *proc);
+    ASSERT_TRUE(process::is_valid(core, *other));
+}
+
 TEST_F(win10, tracer)
 {
     auto& core      = *ptr_core;

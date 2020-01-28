@@ -139,7 +139,7 @@ namespace
         return static_cast<irql_e>(registers::read(core, reg_e::cr8));
     }
 
-    bool try_inject_page_fault(nt::Os& os, proc_t* proc, uint64_t src)
+    bool try_inject_page_fault(nt::Os& os, proc_t* proc, dtb_t dtb, uint64_t src)
     {
         // disable pf on kernel addresses
         if(os.is_kernel_address(src))
@@ -152,6 +152,13 @@ namespace
         // disable pf in IRQL >= dispatch
         const auto irql = read_irql(os.core_);
         if(irql >= irql_e::dispatch)
+            return false;
+
+        // disable pf on cr3 mismatch
+        const auto cr3 = registers::read(os.core_, reg_e::cr3);
+        if(proc && cr3 != proc->kdtb.val && cr3 != proc->udtb.val)
+            return false;
+        if(!proc && cr3 != dtb.val)
             return false;
 
         // check if input address is valid
@@ -194,7 +201,7 @@ bool nt::Os::read_page(void* dst, uint64_t ptr, proc_t* proc, dtb_t dtb)
     if(nt_phy->valid_page)
         return memory::read_physical(core_, dst, nt_phy->ptr, PAGE_SIZE);
 
-    const auto ok = try_inject_page_fault(*this, proc, ptr);
+    const auto ok = try_inject_page_fault(*this, proc, dtb, ptr);
     if(!ok)
         return false;
 
@@ -210,7 +217,7 @@ bool nt::Os::write_page(uint64_t ptr, const void* src, proc_t* proc, dtb_t dtb)
     if(nt_phy->valid_page)
         return memory::write_physical(core_, nt_phy->ptr, src, PAGE_SIZE);
 
-    const auto ok = try_inject_page_fault(*this, proc, ptr);
+    const auto ok = try_inject_page_fault(*this, proc, dtb, ptr);
     if(!ok)
         return false;
 
@@ -226,7 +233,7 @@ opt<phy_t> nt::Os::virtual_to_physical(proc_t* proc, dtb_t dtb, uint64_t ptr)
     if(nt_phy->valid_page)
         return phy_t{nt_phy->ptr};
 
-    const auto ok = try_inject_page_fault(*this, proc, ptr);
+    const auto ok = try_inject_page_fault(*this, proc, dtb, ptr);
     if(!ok)
         return {};
 
