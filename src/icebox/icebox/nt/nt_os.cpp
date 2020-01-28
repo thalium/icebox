@@ -154,8 +154,6 @@ namespace
         if(!ok)
             return false;
 
-        LOG(INFO, "LdrpInitializeProcess    0x%" PRIX64, os.LdrpInitializeProcess_.val);
-        LOG(INFO, "LdrpSendDllNotifications 0x%" PRIX64, os.LdrpSendDllNotifications_.val);
         return true;
     }
 
