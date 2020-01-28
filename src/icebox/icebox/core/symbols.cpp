@@ -357,7 +357,20 @@ namespace
         return find(s, symbols::kernel, addr);
     }
 
-    opt<symbols::Symbol> read_name_from_module(core::Core& core, proc_t proc, uint64_t addr)
+    std::string to_offset(char prefix, uint64_t offset)
+    {
+        if(!offset)
+            return {};
+
+        char dst[2 + 8 * 2 + 1];
+        const auto ptr  = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, offset);
+        const auto size = &dst[sizeof dst - 1] - ptr;
+        auto ret        = std::string(!!prefix + size, prefix);
+        memcpy(&ret[!!prefix], ptr, size);
+        return ret;
+    }
+
+    opt<std::string> read_name_from_module(core::Core& core, proc_t proc, uint64_t addr)
     {
         const auto opt_mod = modules::find(core, proc, addr);
         if(!opt_mod)
@@ -371,10 +384,10 @@ namespace
         if(!name)
             return {};
 
-        return symbols::Symbol{addr, fix_module_name(*name), {}, addr - span->addr};
+        return fix_module_name(*name) + to_offset('+', addr - span->addr);
     }
 
-    opt<symbols::Symbol> read_name_from_driver(core::Core& core, uint64_t addr)
+    opt<std::string> read_name_from_driver(core::Core& core, uint64_t addr)
     {
         const auto opt_drv = drivers::find(core, addr);
         if(!opt_drv)
@@ -388,13 +401,13 @@ namespace
         if(!name)
             return {};
 
-        return symbols::Symbol{addr, fix_module_name(*name), {}, addr - span->addr};
+        return fix_module_name(*name) + to_offset('+', addr - span->addr);
     }
 
-    symbols::Symbol read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
+    std::string read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
     {
         if(!process::is_valid(core, proc))
-            return {addr, {}, {}, 0};
+            return to_offset(0, addr);
 
         const auto opt_mod = read_name_from_module(core, proc, addr);
         if(opt_mod)
@@ -404,11 +417,11 @@ namespace
         if(opt_drv)
             return *opt_drv;
 
-        return {addr, {}, {}, 0};
+        return to_offset(0, addr);
     }
 }
 
-symbols::Symbol symbols::Modules::find(proc_t proc, uint64_t addr)
+std::string symbols::Modules::string(proc_t proc, uint64_t addr)
 {
     auto& d      = *d_;
     const auto p = ::find_mod(d, proc, addr);
@@ -417,36 +430,9 @@ symbols::Symbol symbols::Modules::find(proc_t proc, uint64_t addr)
 
     const auto cur = p->mod.module->find_symbol(addr - p->mod.span.addr);
     if(!cur)
-        return {addr, p->name, {}, addr - p->mod.span.addr};
+        return p->name + to_offset('+', addr - p->mod.span.addr);
 
-    return {addr, p->name, cur->symbol, cur->offset};
-}
-
-namespace
-{
-    std::string to_offset(char prefix, uint64_t offset)
-    {
-        if(!offset)
-            return {};
-
-        char dst[2 + 8 * 2 + 1];
-        const auto ptr  = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, offset);
-        const auto size = &dst[sizeof dst - 1] - ptr;
-        auto ret        = std::string(!!prefix + size, prefix);
-        memcpy(&ret[!!prefix], ptr, size);
-        return ret;
-    }
-}
-
-std::string symbols::to_string(const symbols::Symbol& symbol)
-{
-    if(!symbol.module.empty() && !symbol.symbol.empty())
-        return symbol.module + '!' + symbol.symbol + to_offset('+', symbol.offset);
-
-    if(!symbol.module.empty())
-        return symbol.module + to_offset('+', symbol.offset);
-
-    return to_offset(0, symbol.addr);
+    return p->name + '!' + cur->symbol + to_offset('+', cur->offset);
 }
 
 bool symbols::load_module_memory(core::Core& core, proc_t proc, const memory::Io& io, span_t span)
@@ -660,7 +646,7 @@ opt<uint64_t> symbols::address(core::Core& core, proc_t proc, const std::string&
     return core.symbols_->address(proc, module, symbol);
 }
 
-symbols::Symbol symbols::find(core::Core& core, proc_t proc, uint64_t addr)
+std::string symbols::string(core::Core& core, proc_t proc, uint64_t addr)
 {
-    return core.symbols_->find(proc, addr);
+    return core.symbols_->string(proc, addr);
 }

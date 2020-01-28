@@ -339,8 +339,7 @@ void nt::Os::debug_print()
     const auto cr3    = registers::read(core_, reg_e::cr3);
     const auto thread = thread_current();
     const auto proc   = thread_proc(*thread);
-    const auto ripcur = symbols::find(core_, *proc, rip);
-    const auto ripsym = symbols::to_string(ripcur);
+    const auto ripsym = symbols::string(core_, *proc, rip);
     const auto name   = proc_name(*proc);
     const auto dump   = "rip:" + to_hex(rip)
                       + " cr3:" + to_hex(cr3)

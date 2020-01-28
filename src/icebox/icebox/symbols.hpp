@@ -10,21 +10,6 @@ namespace symbols
 {
     using on_name_fn = std::function<void(std::string_view)>;
 
-    struct Symbol
-    {
-        Symbol(uint64_t addr, const std::string& module, const std::string& symbol, uint64_t offset)
-            : addr(addr)
-            , module(module)
-            , symbol(symbol)
-            , offset(offset)
-        {
-        }
-        uint64_t    addr;
-        std::string module;
-        std::string symbol;
-        uint64_t    offset;
-    };
-
     struct Member
     {
         std::string_view name;
@@ -55,6 +40,5 @@ namespace symbols
     opt<Struc>      read_struc  (core::Core& core, proc_t proc, const std::string& module, const std::string& struc);
     opt<Member>     find_member (const Struc& struc, const std::string& member);
     opt<Member>     read_member (core::Core& core, proc_t proc, const std::string& module, const std::string& struc, const std::string& member);
-    Symbol          find        (core::Core& core, proc_t proc, uint64_t addr);
-    std::string     to_string   (const Symbol& symbol);
+    std::string     string      (core::Core& core, proc_t proc, uint64_t addr);
 } // namespace symbols

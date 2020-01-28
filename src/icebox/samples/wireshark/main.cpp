@@ -182,8 +182,7 @@ namespace
 
     std::string get_callstep_name(core::Core& core, proc_t proc, uint64_t addr)
     {
-        const auto symbol = symbols::find(core, proc, addr);
-        return symbols::to_string(symbol) + "\n";
+        return symbols::string(core, proc, addr) + "\n";
     }
 
     void get_user_callstack32(core::Core& core, pcap::metadata_t& meta, proc_t proc)

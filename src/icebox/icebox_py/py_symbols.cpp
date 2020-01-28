@@ -104,9 +104,8 @@ PyObject* py::symbols::string(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    const auto sym = ::symbols::find(core, *opt_proc, ptr);
-    const auto txt = ::symbols::to_string(sym);
-    return PyUnicode_FromStringAndSize(txt.data(), txt.size());
+    const auto sym = ::symbols::string(core, *opt_proc, ptr);
+    return PyUnicode_FromStringAndSize(sym.data(), sym.size());
 }
 
 PyObject* py::symbols::load_module_memory(core::Core& core, PyObject* args)

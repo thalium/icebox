@@ -563,8 +563,7 @@ namespace
 {
     std::string dump_address(core::Core& core, proc_t proc, uint64_t addr)
     {
-        const auto symbol = symbols::find(core, proc, addr);
-        return symbols::to_string(symbol);
+        return symbols::string(core, proc, addr);
     }
 
     bool starts_with(std::string_view token, std::string_view prefix)
@@ -685,7 +684,7 @@ TEST_F(win10, symbols)
     const auto opt_addr = symbols::address(core, *opt_proc, "nt", "PspExitProcess");
     EXPECT_TRUE(!!opt_addr);
 
-    const auto strsym = symbols::to_string(symbols::find(core, *opt_proc, *opt_addr));
+    const auto strsym = symbols::string(core, *opt_proc, *opt_addr);
     EXPECT_EQ(strsym, "nt!PspExitProcess");
 
     auto strucs = std::vector<std::string>{};

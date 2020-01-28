@@ -95,8 +95,8 @@ namespace
             if(!rip)
                 return walk_e::next;
 
-            const auto name = symbols::find(core, *target, *rip);
-            LOG(INFO, "thread: 0x%" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, symbols::to_string(name).data());
+            const auto name = symbols::string(core, *target, *rip);
+            LOG(INFO, "thread: 0x%" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, name.data());
             return walk_e::next;
         });
 
@@ -114,9 +114,9 @@ namespace
                 const auto thread   = threads::current(core);
                 const auto tid      = threads::tid(core, *proc, *thread);
                 const auto procname = proc ? process::name(core, *proc) : ext::nullopt;
-                const auto symbol   = symbols::find(core, *proc, rip);
+                const auto symbol   = symbols::string(core, *proc, rip);
                 LOG(INFO, "BREAK! rip: 0x%" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
-                    rip, symbols::to_string(symbol).data(), procname ? procname->data() : "", pid, tid);
+                    rip, symbol.data(), procname ? procname->data() : "", pid, tid);
             });
             for(size_t i = 0; i < 16; ++i)
                 state::exec(core);
@@ -136,8 +136,8 @@ namespace
                 for(size_t i = 0; i < n; ++i)
                 {
                     const auto addr   = callers[i].addr;
-                    const auto symbol = symbols::find(core, *target, addr);
-                    LOG(INFO, "%-2zd - %s", i, symbols::to_string(symbol).data());
+                    const auto symbol = symbols::string(core, *target, addr);
+                    LOG(INFO, "%-2zd - %s", i, symbol.data());
                 }
                 LOG(INFO, " ");
             });

@@ -56,7 +56,7 @@ namespace symbols
         opt<uint64_t>       address     (proc_t proc, const std::string& module, const std::string& symbol);
         void                list_strucs (proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc);
         opt<symbols::Struc> read_struc  (proc_t proc, const std::string& module, const std::string& struc);
-        Symbol              find        (proc_t proc, uint64_t addr);
+        std::string         string      (proc_t proc, uint64_t addr);
 
         // remove me
         static Modules& modules(core::Core& core);

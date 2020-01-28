@@ -247,8 +247,8 @@ namespace
         for(size_t i = 0; i < n; ++i)
         {
             const auto addr   = callers[i].addr;
-            const auto symbol = symbols::find(d.core_, d.target_, addr);
-            LOG(INFO, "%-3" PRIx64 " - 0x%" PRIx64 "- %s", i, addr, symbols::to_string(symbol).data());
+            const auto symbol = symbols::string(d.core_, d.target_, addr);
+            LOG(INFO, "%-3" PRIx64 " - 0x%" PRIx64 "- %s", i, addr, symbol.data());
         }
     }
 }

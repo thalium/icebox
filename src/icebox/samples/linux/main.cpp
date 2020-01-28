@@ -18,9 +18,8 @@ std::string thread_pc(core::Core& core, const thread_t& thread)
     if(!pc)
         return "<err>";
 
-    const auto proc   = threads::process(core, thread);
-    const auto symbol = symbols::find(core, *proc, *pc);
-    return symbols::to_string(symbol);
+    const auto proc = threads::process(core, thread);
+    return symbols::string(core, *proc, *pc);
 }
 
 void display_thread(core::Core& core, const thread_t& thread)

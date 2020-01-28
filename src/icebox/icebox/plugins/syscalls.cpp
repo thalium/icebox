@@ -92,8 +92,7 @@ namespace
         // Call function recursively to create subtrees
         for(auto& it : intermediate_tree)
         {
-            const auto symbol     = symbols::find(core, target, it.first);
-            const auto symbol_txt = symbols::to_string(symbol);
+            const auto symbol_txt = symbols::string(core, target, it.first);
             calltree[symbol_txt]  = create_calltree(core, it.second, args, target, callsteps);
         }
 
@@ -115,8 +114,8 @@ namespace
             for(size_t i = idx; i < idx + n; ++i)
             {
                 const auto addr   = d.callsteps_[i].addr;
-                const auto symbol = symbols::find(d.core_, d.proc_, addr);
-                LOG(INFO, "%zd - %s", i - idx, symbols::to_string(symbol).data());
+                const auto symbol = symbols::string(d.core_, d.proc_, addr);
+                LOG(INFO, "%zd - %s", i - idx, symbol.data());
             }
         d.triggers_.push_back(bp_trigger_info_t{{idx, n}, d.nb_triggers_});
         return true;
