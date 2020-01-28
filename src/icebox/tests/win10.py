@@ -48,7 +48,7 @@ class Windows(unittest.TestCase):
         flags = p.flags()
         self.assertTrue(flags.is_x64)
         self.assertFalse(flags.is_x86)
-        p.join("kernel")
+        p.join_kernel()
 
         pa = self.vm.processes.current()
         pb = self.vm.processes.find_name(pa.name(), pa.flags())
@@ -57,8 +57,8 @@ class Windows(unittest.TestCase):
         pd = self.vm.processes.wait("explorer.exe", icebox.flags_x64)
         self.assertEqual(pd.name(), "explorer.exe")
 
-        pd.join("kernel")
-        pd.join("user")
+        pd.join_kernel()
+        pd.join_user()
 
         pe = self.vm.processes.find_name("services.exe", icebox.flags_x64)
         pf = pe.parent()
@@ -187,7 +187,7 @@ class Windows(unittest.TestCase):
 
     def test_modules(self):
         p = self.vm.processes.find_name("dwm.exe")
-        p.join("user")
+        p.join_user()
         modules = []
         for mod in p.modules():
             modules.append(mod)
@@ -204,7 +204,7 @@ class Windows(unittest.TestCase):
 
     def test_symbols_load(self):
         p = self.vm.processes.find_name("dwm.exe", icebox.flags_x64)
-        p.join("user")
+        p.join_user()
 
         kernelbase = p.modules.find_name("kernelbase.dll", icebox.flags_any)
         self.assertIsNotNone(kernelbase)
@@ -291,7 +291,7 @@ class Windows(unittest.TestCase):
 
     def test_callstacks(self):
         p = self.vm.processes.wait("dwm.exe", icebox.flags_any)
-        p.join("user")
+        p.join_user()
         mod = p.modules.find_name("dwm.exe", icebox.flags_x64)
         self.assertIsNotNone(mod)
         p.callstack.load_module(mod)

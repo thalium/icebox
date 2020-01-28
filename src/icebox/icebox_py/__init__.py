@@ -281,11 +281,11 @@ class Process:
     def flags(self):
         return Flags(_icebox.process_flags(self.proc))
 
-    def join(self, mode):
-        if mode != "kernel" and mode != "user":
-            raise BaseException("invalid join mode")
+    def join_kernel(self):
+        return _icebox.process_join(self.proc, "kernel")
 
-        return _icebox.process_join(self.proc, mode)
+    def join_user(self):
+        return _icebox.process_join(self.proc, "user")
 
     def parent(self):
         ret = _icebox.process_parent(self.proc)

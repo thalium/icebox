@@ -248,10 +248,10 @@ assert(proc.pid() > 0)
 assert(proc.flags() == icebox.flags_x86)
 assert(proc.parent())
 
-proc.join("kernel")
+proc.join_kernel()
 print(hex(vm.registers.rip))
 
-proc.join("user")
+proc.join_user()
 print(hex(vm.registers.rip))
 
 
@@ -317,10 +317,10 @@ print("%s = 0x%x" % (symbol, lstar))
 addr = proc.symbols.address(symbol)  # convert string to address
 assert(lstar == addr)
 
-proc.join("kernel")
+proc.join_kernel()
 print(proc.symbols.string(vm.registers.rip))
 
-proc.join("user")
+proc.join_user()
 print(proc.symbols.string(vm.registers.rip))
 
 # list all known strucs for named module
