@@ -3,26 +3,26 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://example.org/posts/getting_started/</loc>
+    <loc>https://thalium.github.io/icebox/posts/getting_started/</loc>
     <lastmod>2020-01-24T12:00:00+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://example.org/posts/</loc>
+    <loc>https://thalium.github.io/icebox/posts/</loc>
     <lastmod>2020-01-24T12:00:00+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://example.org/</loc>
+    <loc>https://thalium.github.io/icebox/</loc>
     <lastmod>2020-01-24T12:00:00+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://example.org/categories/</loc>
+    <loc>https://thalium.github.io/icebox/categories/</loc>
   </url>
   
   <url>
-    <loc>http://example.org/tags/</loc>
+    <loc>https://thalium.github.io/icebox/tags/</loc>
   </url>
   
 </urlset>

@@ -7,41 +7,41 @@
 <meta name="description" content="Thalium blog." />
 <meta name="keywords" content="blog, tech" />
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-<meta name="generator" content="Hugo 0.63.0-DEV" />
+<meta name="generator" content="Hugo 0.63.2" />
 
-<link rel="canonical" href="http://example.org/posts/getting_started/">
+<link rel="canonical" href="https://thalium.github.io/icebox/posts/getting_started/">
 <meta property="og:title" content="Getting Started with Icebox VMI" />
-<meta property="og:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github
+<meta property="og:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github page.
 Try Icebox Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
 User-land breakpoints &amp; callstacks example Here&rsquo;s a short example on how to break a user-land windows 10 process on every ntdll!" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://example.org/posts/getting_started/" />
+<meta property="og:url" content="https://thalium.github.io/icebox/posts/getting_started/" />
 <meta property="article:published_time" content="2020-01-24T12:00:00+01:00" />
 <meta property="article:modified_time" content="2020-01-24T12:00:00+01:00" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Getting Started with Icebox VMI"/>
-<meta name="twitter:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github
+<meta name="twitter:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github page.
 Try Icebox Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
 User-land breakpoints &amp; callstacks example Here&rsquo;s a short example on how to break a user-land windows 10 process on every ntdll!"/>
 
 
 <meta itemprop="name" content="Getting Started with Icebox VMI">
-<meta itemprop="description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github
+<meta itemprop="description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github page.
 Try Icebox Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
 User-land breakpoints &amp; callstacks example Here&rsquo;s a short example on how to break a user-land windows 10 process on every ntdll!">
 <meta itemprop="datePublished" content="2020-01-24T12:00:00&#43;01:00" />
 <meta itemprop="dateModified" content="2020-01-24T12:00:00&#43;01:00" />
-<meta itemprop="wordCount" content="1650">
+<meta itemprop="wordCount" content="1695">
 
 
 
 <meta itemprop="keywords" content="" />
 
-<link rel="stylesheet" href="http://example.org/css/layout.css" />
+<link rel="stylesheet" href="https://thalium.github.io/icebox/css/layout.css" />
 
 
-<link rel="stylesheet" href="http://example.org/css/default-dark.css" />
+<link rel="stylesheet" href="https://thalium.github.io/icebox/css/default-dark.css" />
 
 
 
@@ -75,12 +75,12 @@ if (!doNotTrack) {
 
   <nav>
     <div class="siteTitle">
-      <a href="http://example.org/">Thalium Blog</a>
+      <a href="https://thalium.github.io/icebox/">Thalium Blog</a>
     </div> 
 
     
     
-    <a class="nav-item" href="http://example.org/posts/"><div class="nav-item-title">Posts</div></a>
+    <a class="nav-item" href="https://thalium.github.io/icebox/posts/"><div class="nav-item-title">Posts</div></a>
     
 
   </nav>
@@ -93,13 +93,13 @@ if (!doNotTrack) {
   
 
   
-  <a href="https://github.com/thalium" target="_blank"><div class="social-link">gh</div></a>
+  <a href="https://github.com/thalium" target="_blank"><div class="social-link">github</div></a>
   
 
   
 
   
-  <a href="https://twitter.com/thalium_team" target="_blank"><div class="social-link">twtr</div></a>
+  <a href="https://twitter.com/thalium_team" target="_blank"><div class="social-link">twitter</div></a>
   
 
   
@@ -116,7 +116,7 @@ if (!doNotTrack) {
 <article class="post">
     <h1 class="title"> Getting Started with Icebox VMI </h1>
     <div class="content"> <p><strong>Icebox</strong> is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide.
-All Icebox code can be found on our <a href="https://github.com/thalium/icebox">github</a></p>
+All Icebox code can be found on our <a href="https://github.com/thalium/icebox">github page</a>.</p>
 <h2 id="try-icebox">Try Icebox</h2>
 <p>Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.</p>
 <h3 id="user-land-breakpoints--callstacks-example">User-land breakpoints &amp; callstacks example</h3>
@@ -128,16 +128,18 @@ proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>
 <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%s</span><span style="color:#e6db74"> pid:</span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (proc<span style="color:#f92672">.</span>name(), proc<span style="color:#f92672">.</span>pid()))
 proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_modules()  <span style="color:#75715e"># load all Taskmgr module symbols</span>
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">print_taskmgr_callstack</span>():
-    <span style="color:#66d9ef">print</span>()
-    <span style="color:#66d9ef">for</span> addr <span style="color:#f92672">in</span> proc<span style="color:#f92672">.</span>callstack():
-        <span style="color:#66d9ef">print</span>(proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>string(addr))
+counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>counter()  <span style="color:#75715e"># create a shared counter</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">print_taskmgr_callstack</span>():  <span style="color:#75715e"># callback called on every breakpoint</span>
+    <span style="color:#66d9ef">print</span>()  <span style="color:#75715e"># skip a line</span>
+    <span style="color:#66d9ef">for</span> addr <span style="color:#f92672">in</span> proc<span style="color:#f92672">.</span>callstack():  <span style="color:#75715e"># read current Taskmgr callstack</span>
+        <span style="color:#66d9ef">print</span>(proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>string(addr))  <span style="color:#75715e"># convert &amp; print address</span>
+    counter<span style="color:#f92672">.</span>add()
 
 <span style="color:#75715e"># set a breakpoint on ntdll!NtQuerySystemInformation</span>
 addr <span style="color:#f92672">=</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ntdll!NtQuerySystemInformation</span><span style="color:#e6db74">&#34;</span>
 <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>break_on_process(proc, addr, print_taskmgr_callstack):
-    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">2</span>):
-        vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()  <span style="color:#75715e"># execute vm until break</span>
+    <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>:  <span style="color:#75715e"># run until callback is called twice</span>
+        vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
 </code></pre></div><p>Running this script on a live VM will return an output looking like this:</p>
 <pre><code>17:56:58.458 INFO| core: waiting for shm...
 17:56:58.464 INFO| core: attached
@@ -304,25 +306,25 @@ proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>
 <span style="color:#66d9ef">assert</span>(proc<span style="color:#f92672">.</span>flags() <span style="color:#f92672">==</span> icebox<span style="color:#f92672">.</span>flags_x86)
 <span style="color:#66d9ef">assert</span>(proc<span style="color:#f92672">.</span>parent())
 
-proc<span style="color:#f92672">.</span>join(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">kernel</span><span style="color:#e6db74">&#34;</span>)
+proc<span style="color:#f92672">.</span>join_kernel()
 <span style="color:#66d9ef">print</span>(hex(vm<span style="color:#f92672">.</span>registers<span style="color:#f92672">.</span>rip))
 
-proc<span style="color:#f92672">.</span>join(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">user</span><span style="color:#e6db74">&#34;</span>)
+proc<span style="color:#f92672">.</span>join_user()
 <span style="color:#66d9ef">print</span>(hex(vm<span style="color:#f92672">.</span>registers<span style="color:#f92672">.</span>rip))
 
-
+counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>counter()
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">on_create</span>(proc):
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">+ </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (proc<span style="color:#f92672">.</span>pid(), proc<span style="color:#f92672">.</span>name()))
-
+    counter<span style="color:#f92672">.</span>add()
 
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">on_delete</span>(proc):
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">- </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (proc<span style="color:#f92672">.</span>pid(), proc<span style="color:#f92672">.</span>name()))
-
+    counter<span style="color:#f92672">.</span>add()
 
 <span style="color:#75715e"># put breakpoints on process creation &amp; deletion</span>
 <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>break_on_create(on_create):
     <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>break_on_delete(on_delete):
-        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">4</span>):
+        <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>:
             vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
 </code></pre></div><h3 id="threads-api">Threads API</h3>
 <p>You can also manipulate process threads.
@@ -336,16 +338,19 @@ thread <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</spa
 proc_bis <span style="color:#f92672">=</span> thread<span style="color:#f92672">.</span>process()
 <span style="color:#66d9ef">assert</span>(proc <span style="color:#f92672">==</span> proc_bis)
 
+counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>counter()
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">on_create</span>(thread):
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">+ </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (thread<span style="color:#f92672">.</span>process()<span style="color:#f92672">.</span>name(), thread<span style="color:#f92672">.</span>tid()))
+    counter<span style="color:#f92672">.</span>add()
 
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">on_delete</span>(p):
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">- </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (thread<span style="color:#f92672">.</span>process()<span style="color:#f92672">.</span>name(), thread<span style="color:#f92672">.</span>tid()))
+    counter<span style="color:#f92672">.</span>add()
 
 <span style="color:#75715e"># put breakpoints on thread creation &amp; deletion</span>
 <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>threads<span style="color:#f92672">.</span>break_on_create(on_create):
     <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>threads<span style="color:#f92672">.</span>break_on_delete(on_delete):
-        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">4</span>):
+        <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>:
             vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
 </code></pre></div><h3 id="symbols-api">Symbols API</h3>
 <p>Symbols can be manipulated per-process.
@@ -363,10 +368,10 @@ symbol <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</s
 addr <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>address(symbol)  <span style="color:#75715e"># convert string to address</span>
 <span style="color:#66d9ef">assert</span>(lstar <span style="color:#f92672">==</span> addr)
 
-proc<span style="color:#f92672">.</span>join(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">kernel</span><span style="color:#e6db74">&#34;</span>)
+proc<span style="color:#f92672">.</span>join_kernel()
 <span style="color:#66d9ef">print</span>(proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>string(vm<span style="color:#f92672">.</span>registers<span style="color:#f92672">.</span>rip))
 
-proc<span style="color:#f92672">.</span>join(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">user</span><span style="color:#e6db74">&#34;</span>)
+proc<span style="color:#f92672">.</span>join_user()
 <span style="color:#66d9ef">print</span>(proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>string(vm<span style="color:#f92672">.</span>registers<span style="color:#f92672">.</span>rip))
 
 <span style="color:#75715e"># list all known strucs for named module</span>
@@ -376,7 +381,7 @@ count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
 <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">nt: </span><span style="color:#e6db74">%d</span><span style="color:#e6db74"> structs</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> count)
 
 <span style="color:#75715e"># access struc properties &amp; members</span>
-struc <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>struc(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">nt!_EPROCESS</span><span style="color:#e6db74">&#34;</span>)
+struc <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>struc(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">nt!_EPROCESS</span><span style="color:#e6db74">&#34;</span>)  <span style="color:#75715e"># read struc</span>
 <span style="color:#66d9ef">assert</span>(struc<span style="color:#f92672">.</span>name <span style="color:#f92672">==</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">_EPROCESS</span><span style="color:#e6db74">&#34;</span>)
 <span style="color:#66d9ef">assert</span>(struc<span style="color:#f92672">.</span>size <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>)
 <span style="color:#66d9ef">assert</span>(len(struc<span style="color:#f92672">.</span>members) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>)
@@ -421,7 +426,7 @@ vm<span style="color:#f92672">.</span>physical[phy: phy<span style="color:#f9267
 vm<span style="color:#f92672">.</span>physical<span style="color:#f92672">.</span>write(phy, backup)
 </code></pre></div><h3 id="modules--drivers-api">Modules &amp; drivers API</h3>
 <p>Modules &amp; drivers are first-class entities in Icebox.
-Full script can be found at <code>src/icebox/icebox_py/examples/memory.py</code></p>
+Full script can be found at <code>src/icebox/icebox_py/examples/modules.py</code></p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># list drivers</span>
 <span style="color:#66d9ef">for</span> drv <span style="color:#f92672">in</span> vm<span style="color:#f92672">.</span>drivers():
     addr, size <span style="color:#f92672">=</span> drv<span style="color:#f92672">.</span>span()
@@ -487,17 +492,19 @@ Full script can be found at <code>src/icebox/icebox_py/examples/callstacks.py</c
 proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
 proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_modules()
 
+counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>counter()
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">print_callstack</span>():
     <span style="color:#66d9ef">print</span>()
     proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
     <span style="color:#66d9ef">for</span> i, addr <span style="color:#f92672">in</span> enumerate(proc<span style="color:#f92672">.</span>callstack()):
         <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%2d</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (i, proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>string(addr)))
+    counter<span style="color:#f92672">.</span>add()
 
 <span style="color:#75715e"># print callstack at every ntdll!NtClose</span>
 addr <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>address(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ntdll!NtClose</span><span style="color:#e6db74">&#34;</span>)
 phy <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>physical_address(addr)
 <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>break_on_physical(phy, print_callstack):
-    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">4</span>):
+    <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>:
         vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
 
 <span style="color:#75715e"># various function helpers</span>
@@ -560,7 +567,7 @@ addrs_return <span style="color:#f92672">=</span> [x <span style="color:#66d9ef"
   
 
   <div class="social-link">
-  <a href="http://example.org/index.xml" target="_blank">RSS</a>
+  <a href="https://thalium.github.io/icebox/index.xml" target="_blank">RSS</a>
   </div>
 
 </div>
