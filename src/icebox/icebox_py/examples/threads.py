@@ -11,17 +11,21 @@ thread = vm.threads.current()  # get current thread
 proc_bis = thread.process()
 assert(proc == proc_bis)
 
+counter = icebox.counter()
+
 
 def on_create(thread):
     print("+ %s: %d" % (thread.process().name(), thread.tid()))
+    counter.add()
 
 
 def on_delete(p):
     print("- %s: %d" % (thread.process().name(), thread.tid()))
+    counter.add()
 
 
 # put breakpoints on thread creation & deletion
 with vm.threads.break_on_create(on_create):
     with vm.threads.break_on_delete(on_delete):
-        for i in range(0, 4):
+        while counter.read() < 4:
             vm.exec()

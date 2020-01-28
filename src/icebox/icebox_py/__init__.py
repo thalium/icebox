@@ -554,3 +554,18 @@ class Vm:
 
 def attach(name):
     return Vm(name)
+
+
+class Counter():
+    def __init__(self):
+        self.count = 0
+
+    def add(self):
+        self.count += 1
+
+    def read(self):
+        return self.count
+
+
+def counter():
+    return Counter()

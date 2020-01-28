@@ -24,17 +24,21 @@ print(hex(vm.registers.rip))
 proc.join_user()
 print(hex(vm.registers.rip))
 
+counter = icebox.counter()
+
 
 def on_create(proc):
     print("+ %d: %s" % (proc.pid(), proc.name()))
+    counter.add()
 
 
 def on_delete(proc):
     print("- %d: %s" % (proc.pid(), proc.name()))
+    counter.add()
 
 
 # put breakpoints on process creation & deletion
 with vm.processes.break_on_create(on_create):
     with vm.processes.break_on_delete(on_delete):
-        for i in range(0, 4):
+        while counter.read() < 4:
             vm.exec()

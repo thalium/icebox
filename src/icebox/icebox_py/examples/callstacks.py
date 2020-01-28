@@ -7,19 +7,22 @@ vm = icebox.attach("win10")
 proc = vm.processes.current()
 proc.symbols.load_modules()
 
+counter = icebox.counter()
+
 
 def print_callstack():
     print()
     proc = vm.processes.current()
     for i, addr in enumerate(proc.callstack()):
         print("%2d: %s" % (i, proc.symbols.string(addr)))
+    counter.add()
 
 
 # print callstack at every ntdll!NtClose
 addr = proc.symbols.address("ntdll!NtClose")
 phy = proc.memory.physical_address(addr)
 with vm.break_on_physical(phy, print_callstack):
-    for i in range(0, 4):
+    while counter.read() < 4:
         vm.exec()
 
 # various function helpers

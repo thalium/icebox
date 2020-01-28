@@ -25,16 +25,18 @@ proc = vm.processes.find_name("Taskmgr.exe")  # find process named 'Taskmgr'
 print("%s pid:%d" % (proc.name(), proc.pid()))
 proc.symbols.load_modules()  # load all Taskmgr module symbols
 
-def print_taskmgr_callstack():
-    print()
-    for addr in proc.callstack():
-        print(proc.symbols.string(addr))
+counter = icebox.counter()  # create a shared counter
+def print_taskmgr_callstack():  # callback called on every breakpoint
+    print()  # skip a line
+    for addr in proc.callstack():  # read current Taskmgr callstack
+        print(proc.symbols.string(addr))  # convert & print address
+    counter.add()
 
 # set a breakpoint on ntdll!NtQuerySystemInformation
 addr = "ntdll!NtQuerySystemInformation"
 with vm.break_on_process(proc, addr, print_taskmgr_callstack):
-    for i in range(0, 2):
-        vm.exec()  # execute vm until break
+    while counter.read() < 2:  # run until callback is called twice
+        vm.exec()
 ``` 
 
 Running this script on a live VM will return an output looking like this:
@@ -254,19 +256,19 @@ print(hex(vm.registers.rip))
 proc.join_user()
 print(hex(vm.registers.rip))
 
-
+counter = icebox.counter()
 def on_create(proc):
     print("+ %d: %s" % (proc.pid(), proc.name()))
-
+    counter.add()
 
 def on_delete(proc):
     print("- %d: %s" % (proc.pid(), proc.name()))
-
+    counter.add()
 
 # put breakpoints on process creation & deletion
 with vm.processes.break_on_create(on_create):
     with vm.processes.break_on_delete(on_delete):
-        for i in range(0, 4):
+        while counter.read() < 4:
             vm.exec()
 ```
 
@@ -285,16 +287,19 @@ thread = vm.threads.current()  # get current thread
 proc_bis = thread.process()
 assert(proc == proc_bis)
 
+counter = icebox.counter()
 def on_create(thread):
     print("+ %s: %d" % (thread.process().name(), thread.tid()))
+    counter.add()
 
 def on_delete(p):
     print("- %s: %d" % (thread.process().name(), thread.tid()))
+    counter.add()
 
 # put breakpoints on thread creation & deletion
 with vm.threads.break_on_create(on_create):
     with vm.threads.break_on_delete(on_delete):
-        for i in range(0, 4):
+        while counter.read() < 4:
             vm.exec()
 ```
 
@@ -330,7 +335,7 @@ for struc_name in proc.symbols.strucs("nt"):
 print("nt: %d structs" % count)
 
 # access struc properties & members
-struc = proc.symbols.struc("nt!_EPROCESS")
+struc = proc.symbols.struc("nt!_EPROCESS")  # read struc
 assert(struc.name == "_EPROCESS")
 assert(struc.size > 0)
 assert(len(struc.members) > 0)
@@ -383,7 +388,7 @@ vm.physical.write(phy, backup)
 ### Modules & drivers API
 
 Modules & drivers are first-class entities in Icebox.
-Full script can be found at `src/icebox/icebox_py/examples/memory.py`
+Full script can be found at `src/icebox/icebox_py/examples/modules.py`
 
 ```python
 # list drivers
@@ -461,17 +466,19 @@ Full script can be found at `src/icebox/icebox_py/examples/callstacks.py`
 proc = vm.processes.current()
 proc.symbols.load_modules()
 
+counter = icebox.counter()
 def print_callstack():
     print()
     proc = vm.processes.current()
     for i, addr in enumerate(proc.callstack()):
         print("%2d: %s" % (i, proc.symbols.string(addr)))
+    counter.add()
 
 # print callstack at every ntdll!NtClose
 addr = proc.symbols.address("ntdll!NtClose")
 phy = proc.memory.physical_address(addr)
 with vm.break_on_physical(phy, print_callstack):
-    for i in range(0, 4):
+    while counter.read() < 4:
         vm.exec()
 
 # various function helpers
