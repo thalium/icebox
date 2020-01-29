@@ -323,3 +323,21 @@ target_link_libraries(icebox_tests PRIVATE
     gtest
     icebox
 )
+
+# gbench
+set(gbench_dir "${root_dir}/third_party/benchmark")
+add_target(gbench third_party "${gbench_dir}/src" "${gbench_dir}/include" OPTIONS recursive external)
+target_include_directories(gbench
+    PUBLIC "${gbench_dir}/include"
+    PRIVATE "${gbench_dir}"
+)
+if(WIN32)
+    target_link_libraries(gbench PUBLIC shlwapi)
+endif()
+
+# icebox_benchs
+add_target(icebox_benchs tests "${root_dir}/src/icebox/benchs" OPTIONS fmt test)
+target_link_libraries(icebox_benchs PRIVATE
+    gbench
+    icebox
+)
