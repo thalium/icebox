@@ -161,6 +161,26 @@ cd $icebox_dir/third_party/virtualbox/out/linux.amd64/release/bin
 ./VirtualBox &
 ```
 
+On Windows, before using VirtualBox you will need to be able to load unsigned drivers first. Please be aware that enabling unsigned drivers is a security risk and take appropriate measures.
+Use the following instructions to start VirtualBox on windows using our precompiled binaries:
+
+```
+# start an admin console
+# enable testsigning
+bcdedit.exe -set TESTSIGNING on
+
+# disable driver signature enforcement at boot
+Shift-Click Reboot
+Troubleshoot > Advanced Options > Startup Settings > Restart
+Press F7
+
+# unzip the release from https://github.com/thalium/icebox/releases
+# start an admin console
+install.cmd
+# windows will ask you to confirm two unsigned drivers installation
+# start VirtualBox.exe
+```
+
 ## Prepare a Windows 10 VM
 
 To use Icebox, you will need to prepare a VirtualBox VM, a full Windows 10 VM in this example.
