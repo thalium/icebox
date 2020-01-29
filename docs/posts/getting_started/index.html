@@ -11,9 +11,10 @@
 
 <link rel="canonical" href="https://thalium.github.io/icebox/posts/getting_started/">
 <meta property="og:title" content="Getting Started with Icebox VMI" />
-<meta property="og:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github page.
-Try Icebox Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
-User-land breakpoints &amp; callstacks example Here&rsquo;s a short example on how to break a user-land windows 10 process on every ntdll!" />
+<meta property="og:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any kernel or user code system-wide.
+All Icebox source code can be found on our github page.
+Try Icebox Icebox now comes with full python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
+The core itself is in C&#43;&#43; and exposes most of its public functions into a &lsquo;icebox&rsquo; python 3 module." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thalium.github.io/icebox/posts/getting_started/" />
 <meta property="article:published_time" content="2020-01-24T12:00:00+01:00" />
@@ -21,18 +22,20 @@ User-land breakpoints &amp; callstacks example Here&rsquo;s a short example on h
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Getting Started with Icebox VMI"/>
-<meta name="twitter:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github page.
-Try Icebox Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
-User-land breakpoints &amp; callstacks example Here&rsquo;s a short example on how to break a user-land windows 10 process on every ntdll!"/>
+<meta name="twitter:description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any kernel or user code system-wide.
+All Icebox source code can be found on our github page.
+Try Icebox Icebox now comes with full python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
+The core itself is in C&#43;&#43; and exposes most of its public functions into a &lsquo;icebox&rsquo; python 3 module."/>
 
 
 <meta itemprop="name" content="Getting Started with Icebox VMI">
-<meta itemprop="description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github page.
-Try Icebox Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
-User-land breakpoints &amp; callstacks example Here&rsquo;s a short example on how to break a user-land windows 10 process on every ntdll!">
+<meta itemprop="description" content="Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any kernel or user code system-wide.
+All Icebox source code can be found on our github page.
+Try Icebox Icebox now comes with full python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
+The core itself is in C&#43;&#43; and exposes most of its public functions into a &lsquo;icebox&rsquo; python 3 module.">
 <meta itemprop="datePublished" content="2020-01-24T12:00:00&#43;01:00" />
 <meta itemprop="dateModified" content="2020-01-24T12:00:00&#43;01:00" />
-<meta itemprop="wordCount" content="1695">
+<meta itemprop="wordCount" content="2381">
 
 
 
@@ -68,6 +71,26 @@ if (!doNotTrack) {
 
 
 <body>
+  <style>
+  @font-face {
+    font-family: 'days_one';
+    src: url('/days_one.ttf') format('truetype');
+  }
+  .siteTitle {
+    margin-top: 24px;
+  }
+  .siteTitle img {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -24px;
+    margin-right: -10px;
+  }
+  .siteTitle span {
+    font-family: 'days_one', Fallback, sans-serif;
+    color: white;
+    font-size: 160%;
+  }
+  </style>
 <div class="main">
 <header>
 
@@ -75,7 +98,10 @@ if (!doNotTrack) {
 
   <nav>
     <div class="siteTitle">
-      <a href="https://thalium.github.io/icebox/">Thalium Blog</a>
+      <a href="https://thalium.github.io/icebox/">
+        <img src="https://thalium.github.io/icebox/shard_only_no_background.png" width=12%></img>
+        <span>THALIUM</span>
+      </a>
     </div> 
 
     
@@ -89,17 +115,17 @@ if (!doNotTrack) {
 <div class="social-links-header">
 
   
-  <a href="mailto:thalium.team@gmail.com"><div class="social-link">email</div></a>
+  <a href="mailto:thalium.team@gmail.com"><div class="social-link">Email</div></a>
   
 
   
-  <a href="https://github.com/thalium" target="_blank"><div class="social-link">github</div></a>
+  <a href="https://github.com/thalium" target="_blank"><div class="social-link">Github</div></a>
   
 
   
 
   
-  <a href="https://twitter.com/thalium_team" target="_blank"><div class="social-link">twitter</div></a>
+  <a href="https://twitter.com/thalium_team" target="_blank"><div class="social-link">Twitter</div></a>
   
 
   
@@ -115,68 +141,82 @@ if (!doNotTrack) {
 
 <article class="post">
     <h1 class="title"> Getting Started with Icebox VMI </h1>
-    <div class="content"> <p><strong>Icebox</strong> is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide.
-All Icebox code can be found on our <a href="https://github.com/thalium/icebox">github page</a>.</p>
+    <div class="content"> <p><strong>Icebox</strong> is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any kernel or user code system-wide.</p>
+<p>All Icebox source code can be found on our <a href="https://github.com/thalium/icebox">github page</a>.</p>
 <h2 id="try-icebox">Try Icebox</h2>
-<p>Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.</p>
+<p>Icebox now comes with full python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.</p>
+<p>The core itself is in C++ and exposes most of its public functions into a &lsquo;icebox&rsquo; python 3 module.</p>
+<p>This article is a prelude to more technical articles exploring various kernel internals or malicious code behavior.</p>
 <h3 id="user-land-breakpoints--callstacks-example">User-land breakpoints &amp; callstacks example</h3>
-<p>Here&rsquo;s a short example on how to break a user-land windows 10 process on every <code>ntdll!NtQuerySystemInformation</code> call. You will need to start the task manager in windows prior to running this script.</p>
+<p>This is a short example showing a few features of icebox python bindings.</p>
+<p>This script will attach to a live VirtualBox VM running windows and named &ldquo;win10&rdquo;.</p>
+<p>Then it will find the Desktop Windows Manager process, break on every <code>ntdll!NtWaitForSingleObject</code> function call, and print the current callstack.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> icebox
 
 vm <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>attach(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">win10</span><span style="color:#e6db74">&#34;</span>)  <span style="color:#75715e"># attach to vm named &#34;win10&#34;</span>
-proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>find_name(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">Taskmgr.exe</span><span style="color:#e6db74">&#34;</span>)  <span style="color:#75715e"># find process named &#39;Taskmgr&#39;</span>
+proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>find_name(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">dwm.exe</span><span style="color:#e6db74">&#34;</span>)  <span style="color:#75715e"># find process named &#39;dwm&#39;</span>
 <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%s</span><span style="color:#e6db74"> pid:</span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (proc<span style="color:#f92672">.</span>name(), proc<span style="color:#f92672">.</span>pid()))
-proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_modules()  <span style="color:#75715e"># load all Taskmgr module symbols</span>
+<span style="color:#66d9ef">for</span> mod <span style="color:#f92672">in</span> [<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">kernel32</span><span style="color:#e6db74">&#34;</span>, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">kernelbase</span><span style="color:#e6db74">&#34;</span>]:
+    proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_module(mod)  <span style="color:#75715e"># load some symbols</span>
 
-counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>counter()  <span style="color:#75715e"># create a shared counter</span>
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">print_taskmgr_callstack</span>():  <span style="color:#75715e"># callback called on every breakpoint</span>
+counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>counter()  <span style="color:#75715e"># run the vm until we&#39;ve updated this counter twice</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">dump_callstack</span>():  <span style="color:#75715e"># dump the current proc callstack</span>
     <span style="color:#66d9ef">print</span>()  <span style="color:#75715e"># skip a line</span>
-    <span style="color:#66d9ef">for</span> addr <span style="color:#f92672">in</span> proc<span style="color:#f92672">.</span>callstack():  <span style="color:#75715e"># read current Taskmgr callstack</span>
-        <span style="color:#66d9ef">print</span>(proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>string(addr))  <span style="color:#75715e"># convert &amp; print address</span>
-    counter<span style="color:#f92672">.</span>add()
+    <span style="color:#66d9ef">for</span> addr <span style="color:#f92672">in</span> proc<span style="color:#f92672">.</span>callstack():  <span style="color:#75715e"># read current dwm.exe callstack</span>
+        <span style="color:#66d9ef">print</span>(proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>string(addr))  <span style="color:#75715e"># convert &amp; print callstack address</span>
+    counter<span style="color:#f92672">.</span>add()  <span style="color:#75715e"># update counter</span>
 
-<span style="color:#75715e"># set a breakpoint on ntdll!NtQuerySystemInformation</span>
-addr <span style="color:#f92672">=</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ntdll!NtQuerySystemInformation</span><span style="color:#e6db74">&#34;</span>
-<span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>break_on_process(proc, addr, print_taskmgr_callstack):
-    <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>:  <span style="color:#75715e"># run until callback is called twice</span>
+<span style="color:#75715e"># set a breakpoint on ntdll!NtWaitForSingleObject</span>
+<span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>break_on_process(proc, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ntdll!NtWaitForSingleObject</span><span style="color:#e6db74">&#34;</span>, dump_callstack):
+    <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>:  <span style="color:#75715e"># run until dump_callstack is called twice</span>
         vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
-</code></pre></div><p>Running this script on a live VM will return an output looking like this:</p>
-<pre><code>17:56:58.458 INFO| core: waiting for shm...
-17:56:58.464 INFO| core: attached
-17:56:58.472 INFO| nt: kernel: 0xfffff8044c000000 - 0xfffff8044cab6000 (11231232 0xab6000)
-17:56:58.516 INFO| sym: loaded E0093F3AEF15D58168B753C9488A40431 nt
-17:56:58.548 INFO| nt: kernel: kpcr: 0xfffff804493f2000 kdtb: 0x80000000001aa002 version: 10.0
-17:56:58.550 INFO| nt: loading ntdll from process Taskmgr.exe
-17:56:58.556 INFO| sym: loaded 0C2E19EA1901E9B82E4567D2D21E56D21 ntdll
-Taskmgr.exe pid:1688
-17:56:58.564 INFO| sym: loaded 637A6ADE3949DFB52DD9431EBE3812EE1 Taskmgr
-[...] truncated
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/modules.py</code>
+Make sure you&rsquo;ve started the &ldquo;win10&rdquo; VM first &amp; run it with the following command:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">PYTHONPATH<span style="color:#f92672">=</span>$icebox_dir/bin/x64 python3 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    $icebox_dir/src/icebox/icebox_py/examples/getting_started.py
+</code></pre></div><p>Output will look like this:</p>
+<pre><code>17:34:09.478 INFO| core: waiting for shm...
+17:34:09.490 INFO| core: attached
+17:34:09.505 INFO| nt: kernel: 0xfffff8003c8a4000-0xfffff8003d295000 size:0x9f1000
+17:34:09.573 INFO| sym: loaded 69247313056076BBCB3411FD964287141 nt
+17:34:09.594 INFO| nt: kernel: kpcr:0xfffff8003bc24000 kdtb:0x1aa002 version:10.0
+17:34:09.603 INFO| nt: loading ntdll from process dwm.exe
+17:34:09.623 INFO| sym: loaded 2055091C8F2C5808D8DFE02C75D129591 ntdll
+dwm.exe pid:896
+17:34:09.641 INFO| sym: loaded 7C073461BC41EEA8F242AD876C2F4A9F1 kernel32
+17:34:09.689 INFO| sym: loaded 7BF8014B3D39BE6ADDC83DA4991008EB1 kernelbase
 
-ntdll!NtQuerySystemInformation
-Taskmgr!?WdcQueryProcessInformation@@YAJPEAU_WDC_EXPANDING_CALL@@@Z+0x78
-Taskmgr!?WdcExpandingCall@@YAJP6AJPEAU_WDC_EXPANDING_CALL@@@ZPEA_KPEAPEAXKZZ+0x83
-Taskmgr!?Update@WdcApplicationsMonitor@@MEAAJXZ+0xC6
-Taskmgr!?DoUpdates@WdcDataMonitor@@MEAAJXZ+0xB8
-Taskmgr!?UpdateThread@WdcDataMonitor@@KAKPEAX@Z+0x4D
+17:34:09.708 INFO| unwind: loading C:\Windows\SYSTEM32\ntdll.dll
+17:34:09.721 INFO| unwind: loading C:\Windows\System32\KERNELBASE.dll
+17:34:09.737 INFO| unwind: loading C:\Windows\system32\d3d10warp.dll
+17:34:09.770 INFO| unwind: loading C:\Windows\System32\KERNEL32.DLL
+ntdll!NtWaitForSingleObject
+kernelbase!WaitForSingleObjectEx+0x93
+d3d10warp+0xC16EF
+d3d10warp+0x33FE25
+d3d10warp+0x341F08
+ntdll!TppWorkpExecuteCallback+0x130
+ntdll!TppWorkerThread+0x644
 kernel32!BaseThreadInitThunk+0x14
 ntdll!RtlUserThreadStart+0x21
 
-ntdll!NtQuerySystemInformation
-kernelbase!GlobalMemoryStatusEx+0x3E
-Taskmgr!?GetMemoryLoad@CRUMAPIHelper@@QEAAJPEAK@Z+0x33
-Taskmgr!?CalcSysMemMetrics@CRUMHelper@@AEAAJXZ+0x18
-Taskmgr!?Pass1CalcSysUtilization@CRUMHelper@@QEAAJXZ+0x51
-Taskmgr!?Update@WdcApplicationsMonitor@@MEAAJXZ+0x224
-Taskmgr!?DoUpdates@WdcDataMonitor@@MEAAJXZ+0xB8
-Taskmgr!?UpdateThread@WdcDataMonitor@@KAKPEAX@Z+0x4D
+17:34:09.807 INFO| unwind: loading C:\Windows\system32\dwmcore.dll
+ntdll!NtWaitForSingleObject
+kernelbase!WaitForSingleObjectEx+0x93
+dwmcore+0x52EDD
+dwmcore+0x52986
+dwmcore+0xB9321
 kernel32!BaseThreadInitThunk+0x14
 ntdll!RtlUserThreadStart+0x21
-</code></pre><p>Icebox has attached to a live VM named &ldquo;win10&rdquo;, read various kernel structures, like the kernel base address or the current KPCR.
-It found Taskmgr process at pid 1688 and loaded symbols from all its modules like ntdll.dll. Note that you will need to have the environment variable _NT_SYMBOL_PATH defined so icebox can find PDBs.
-Finally, we print callstacks on every <code>ntdll!NtQuerySystemInformation</code> call filtered on the Taskmgr.exe process.</p>
+</code></pre><p>During startup, the icebox core has attached itself to the live VirtualBox VM named &ldquo;win10&rdquo;, detected various kernel structures, like the kernel base address, or the current KPCR (Kernel Processor Control Region).</p>
+<p>The Desktop Windows Manager process has been found with PID 896 and we loaded symbols from modules &ldquo;kernel32&rdquo; &amp; &ldquo;kernelbase&rdquo;. Note that you will need to have _NT_SYMBOL_PATH defined so icebox can read &amp; parse PDBs.</p>
+<p>Eventually, we break on every <code>ntdll!NtWaitForSingleObject</code> function call from dwm.exe and print the current callstack.</p>
 <h2 id="build-hypervisor-back-end">Build Hypervisor Back-end</h2>
-<p>The first step to use Icebox is to build or download a customized hypervisor back-end. We only currently support a customized VirtualBox hypervisor. On Windows, you can download a ready-to-use compiled binary on the <a href="https://github.com/thalium/icebox/releases">releases</a> github page.
-On Linux, we will need to compile our own version with the following instructions.</p>
+<p>The first step to use Icebox is to build or download a customized hypervisor back-end. We currently support a customized VirtualBox hypervisor only.</p>
+<ul>
+<li>On Windows, you can download a ready-to-use compiled binary on the <a href="https://github.com/thalium/icebox/releases">releases</a> github page.</li>
+<li>On Linux, we will need to compile our own version with the following instructions.</li>
+</ul>
 <h3 id="build-virtualbox">Build VirtualBox</h3>
 <p>These instructions have been tested on ubuntu 18.04.3 LTS.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># export icebox_dir as your root icebox directory</span>
@@ -223,24 +263,48 @@ sudo chmod g+rw /dev/vboxdrv
 <span style="color:#75715e"># start virtualbox GUI</span>
 cd $icebox_dir/third_party/virtualbox/out/linux.amd64/release/bin
 ./VirtualBox &amp;
-</code></pre></div><h2 id="prepare-a-windows-10-vm">Prepare a Windows 10 VM</h2>
+</code></pre></div><p>On Windows, before using VirtualBox you will need to be able to load unsigned drivers first. Please be aware that enabling unsigned drivers is a security risk and take appropriate measures.
+Use the following instructions to start VirtualBox on windows using our precompiled binaries:</p>
+<pre><code># start an admin console
+# enable testsigning
+bcdedit.exe -set TESTSIGNING on
+
+# disable driver signature enforcement at boot
+Shift-Click Reboot
+Troubleshoot &gt; Advanced Options &gt; Startup Settings &gt; Restart
+Press F7
+
+# unzip the release from https://github.com/thalium/icebox/releases
+# start an admin console
+install.cmd
+# windows will ask you to confirm two unsigned drivers installation
+# start VirtualBox.exe
+</code></pre><h2 id="prepare-a-windows-10-vm">Prepare a Windows 10 VM</h2>
 <p>To use Icebox, you will need to prepare a VirtualBox VM, a full Windows 10 VM in this example.
 There are only two prerequisites:</p>
 <ul>
 <li>Configure the VM to have only one CPU</li>
-<li>Configure the VM to have exactly 8192 MB of RAM</li>
+<li>Configure the VM to have at most 8192 MB of RAM</li>
 </ul>
 <p>Those two limitations may be removed eventually.</p>
-<p>We will assume that your vm is named &ldquo;win10&rdquo; for the rest of this article.</p>
+<p>We will assume that your vm is named &ldquo;win10&rdquo; for the rest of this article.
+We advise you to create a snapshot of the VM after installation so you can fast restore a clean environment and skip the need to reboot the whole operating system.</p>
 <h2 id="build-icebox">Build Icebox</h2>
-<p>We can now compile Icebox itself with the following instructions. These instructions have been tested on Ubuntu 18.04.3 LTS.</p>
+<p>We can now compile Icebox itself with the following instructions.
+These instructions have been tested on Ubuntu 18.04.3 LTS.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">cd $icebox_dir/build
 NO_CLANG_FORMAT<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> ./configure.sh
 cd $icebox_dir/out/x64
 make -j2
 </code></pre></div><h2 id="download-symbols">Download symbols</h2>
 <p>Before using Icebox on our &ldquo;win10&rdquo; VM, we need to download PDBs so we can understand &amp; match addresses to symbols and read/write kernel structures.</p>
-<p>On linux, you can use the symbols.py script to automatically download missing symbols from microsoft servers to a local directory:</p>
+<p>For Windows guests, you will need at least matching ntkrnlmp and ntdll pdbs.</p>
+<p>On Linux hosts, you can use the symbols.py script to automatically download missing symbols from microsoft servers to a local directory.
+Before running the following instructions, check that:</p>
+<ul>
+<li>The VM is running and named &ldquo;win10&rdquo;</li>
+<li>The Wow64 Task Manager is running in the guest (found at <code>c:\windows\syswow64\Taskmgr.exe</code>).</li>
+</ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># setup symbols directory</span>
 cd
 mkdir symbols
@@ -258,15 +322,26 @@ python3 $icebox_dir/src/icebox/icebox_py/symbols.py download win10
 
 <span style="color:#75715e"># in case of errors, you can try the following script with verbose output</span>
 python3 $icebox_dir/src/icebox/icebox_py/symbols.py check win10
-</code></pre></div><h2 id="run-tests-optional">Run tests (optional)</h2>
+</code></pre></div><p>Note that downloading PDBs is also possible using <code>symchk.exe</code> tool from Microsoft, with a command like this:</p>
+<pre><code>symchk /r ntoskrnl.exe /od /s SRV*c:\symbols\*http://msdl.microsoft.com/download/symbols
+</code></pre><h2 id="run-tests-optional">Run tests (optional)</h2>
 <p>You can run our automated tests to ensure everything is working, that you can import and use icebox through Python.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># run python tests</span>
 python3 $icebox_dir/src/icebox/tests/win10.py $icebox_dir/bin/x64
 </code></pre></div><h2 id="icebox-bindings">Icebox Bindings</h2>
-<p>Starting from here, we will describe the Icebox python API</p>
+<p>Starting from here, we have:</p>
+<ul>
+<li>An hypervisor back-end, based on VirtualBox</li>
+<li>A live VM running Windows 10, named &ldquo;win10&rdquo;</li>
+<li>An icebox python module</li>
+</ul>
+<p>We will now describe the various features icebox expose to users.</p>
 <h3 id="vm-api">VM API</h3>
-<p>The VM API allows you to attach to a named VM &amp; control it.
-Full script can be found at <code>src/icebox/icebox_py/examples/vm.py</code></p>
+<p>After importing icebox, you can attach to a live VM using <code>icebox.attach</code> function. It will return an <code>icebox.Vm</code> object allowing you to:</p>
+<ul>
+<li>Pause, resume, step once and control the VM execution</li>
+<li>Read &amp; write common &amp; MSR registers</li>
+</ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> icebox
 
 <span style="color:#75715e"># attach to &#39;win10&#39; VM</span>
@@ -287,9 +362,20 @@ vm<span style="color:#f92672">.</span>registers<span style="color:#f92672">.</sp
 
 <span style="color:#75715e"># read/write MSR registers</span>
 <span style="color:#66d9ef">print</span>(hex(vm<span style="color:#f92672">.</span>msr<span style="color:#f92672">.</span>lstar))
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/vm.py</code></p>
+<p>You can run this example and all others with a command like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">PYTHONPATH<span style="color:#f92672">=</span>$icebox_dir/bin/x64 python3 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    $icebox_dir/src/icebox/icebox_py/examples/vm.py
 </code></pre></div><h3 id="process-api">Process API</h3>
-<p>You can manipulate processes as entities.
-Full script can be found at <code>src/icebox/icebox_py/examples/process.py</code></p>
+<p>All process-related API can be found in <code>vm.processes</code>. You can:</p>
+<ul>
+<li>list all current processes</li>
+<li>read the current process</li>
+<li>read process PID, name and other properties</li>
+<li>find any process by name or pid</li>
+<li>join a process in kernel or user-mode</li>
+<li>listen to create/delete process events</li>
+</ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># list current processes</span>
 <span style="color:#66d9ef">for</span> proc <span style="color:#f92672">in</span> vm<span style="color:#f92672">.</span>processes():
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%d</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (proc<span style="color:#f92672">.</span>pid(), proc<span style="color:#f92672">.</span>name()))
@@ -326,9 +412,15 @@ counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.
     <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>break_on_delete(on_delete):
         <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>:
             vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
-</code></pre></div><h3 id="threads-api">Threads API</h3>
-<p>You can also manipulate process threads.
-Full script can be found at <code>src/icebox/icebox_py/examples/threads.py</code></p>
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/process.py</code></p>
+<h3 id="threads-api">Threads API</h3>
+<p>All thread-related API can be found in <code>vm.threads</code> or by accessing threads through a process. You can:</p>
+<ul>
+<li>read current thread</li>
+<li>list all process threads</li>
+<li>read thread properties, like thread process or thread TID</li>
+<li>listen to create/delete thread events</li>
+</ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># list current threads</span>
 proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
 <span style="color:#66d9ef">for</span> thread <span style="color:#f92672">in</span> proc<span style="color:#f92672">.</span>threads():
@@ -352,9 +444,52 @@ counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.
     <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>threads<span style="color:#f92672">.</span>break_on_delete(on_delete):
         <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>:
             vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
-</code></pre></div><h3 id="symbols-api">Symbols API</h3>
-<p>Symbols can be manipulated per-process.
-Full script can be found at <code>src/icebox/icebox_py/examples/symbols.py</code></p>
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/threads.py</code></p>
+<h3 id="memory-api">Memory API</h3>
+<p>Both virtual &amp; physical memory can be accessed for reading &amp; writing.
+You can:</p>
+<ul>
+<li>Read &amp; write virtual memory from one process through <code>proc.memory</code></li>
+<li>Convert a virtual address from one process to a physical address</li>
+<li>Read &amp; write physical memory through <code>vm.physical</code></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># find a virtual address in current process to read</span>
+proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
+rip <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>registers<span style="color:#f92672">.</span>rip
+
+<span style="color:#75715e"># read &amp; write virtual memory</span>
+backup <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>memory[rip: rip<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>]  <span style="color:#75715e"># array-like reads</span>
+backup_bis <span style="color:#f92672">=</span> bytearray(<span style="color:#ae81ff">16</span>)
+proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>read(backup_bis, rip)
+<span style="color:#66d9ef">assert</span>(backup <span style="color:#f92672">==</span> backup_bis)
+
+proc<span style="color:#f92672">.</span>memory[rip] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xcc</span>  <span style="color:#75715e"># array-like writes</span>
+<span style="color:#66d9ef">assert</span>(proc<span style="color:#f92672">.</span>memory[rip] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0xcc</span>)
+proc<span style="color:#f92672">.</span>memory[rip: rip<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">*</span> len(backup)
+proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>write(rip, backup)
+
+<span style="color:#75715e"># convert virtual address to physical memory address</span>
+phy <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>physical_address(rip)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">virtual 0x</span><span style="color:#e6db74">%x</span><span style="color:#e6db74"> -&gt; physical 0x</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (rip, phy))
+
+<span style="color:#75715e"># read &amp; write physical memory</span>
+backup <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>physical[phy: phy<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>]  <span style="color:#75715e"># array-like reads</span>
+backup_bis <span style="color:#f92672">=</span> bytearray(<span style="color:#ae81ff">16</span>)
+vm<span style="color:#f92672">.</span>physical<span style="color:#f92672">.</span>read(backup_bis, phy)
+<span style="color:#66d9ef">assert</span>(backup <span style="color:#f92672">==</span> backup_bis)
+
+vm<span style="color:#f92672">.</span>physical[phy] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xcc</span>  <span style="color:#75715e"># array-like writes</span>
+<span style="color:#66d9ef">assert</span>(vm<span style="color:#f92672">.</span>physical[phy] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0xcc</span>)
+vm<span style="color:#f92672">.</span>physical[phy: phy<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">*</span> len(backup)
+vm<span style="color:#f92672">.</span>physical<span style="color:#f92672">.</span>write(phy, backup)
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/memory.py</code></p>
+<h3 id="symbols-api">Symbols API</h3>
+<p>In order to ease manipulation of OS entities, we need two things:</p>
+<ul>
+<li>symbols: converting a raw address to a string &amp; vice-versa</li>
+<li>types: reading structures &amp; members from memory</li>
+</ul>
+<p>Symbol-related API is mostly per-process and accessed through <code>proc.symbols</code>.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">vm<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_driver(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">hal</span><span style="color:#e6db74">&#34;</span>)  <span style="color:#75715e"># load driver symbols</span>
 vm<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_drivers()  <span style="color:#75715e"># load all driver symbols</span>
 
@@ -392,73 +527,51 @@ member <span style="color:#f92672">=</span> [x <span style="color:#66d9ef">for</
 
 <span style="color:#75715e"># dump type at input address</span>
 proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>dump_type(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">nt!_KPCR</span><span style="color:#e6db74">&#34;</span>, vm<span style="color:#f92672">.</span>msr<span style="color:#f92672">.</span>kernel_gs_base)
-</code></pre></div><h3 id="memory-api">Memory API</h3>
-<p>Both virtual &amp; physical memory can be accessed for read &amp; write.
-Full script can be found at <code>src/icebox/icebox_py/examples/memory.py</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># find a virtual address in current process to read</span>
-proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
-rip <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>registers<span style="color:#f92672">.</span>rip
-
-<span style="color:#75715e"># read &amp; write virtual memory</span>
-backup <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>memory[rip: rip<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>]  <span style="color:#75715e"># array-like reads</span>
-backup_bis <span style="color:#f92672">=</span> bytearray(<span style="color:#ae81ff">16</span>)
-proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>read(backup_bis, rip)
-<span style="color:#66d9ef">assert</span>(backup <span style="color:#f92672">==</span> backup_bis)
-
-proc<span style="color:#f92672">.</span>memory[rip] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xcc</span>  <span style="color:#75715e"># array-like writes</span>
-<span style="color:#66d9ef">assert</span>(proc<span style="color:#f92672">.</span>memory[rip] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0xcc</span>)
-proc<span style="color:#f92672">.</span>memory[rip: rip<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">*</span> len(backup)
-proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>write(rip, backup)
-
-<span style="color:#75715e"># convert virtual address to physical memory address</span>
-phy <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>physical_address(rip)
-<span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">virtual 0x</span><span style="color:#e6db74">%x</span><span style="color:#e6db74"> -&gt; physical 0x</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (rip, phy))
-
-<span style="color:#75715e"># read &amp; write physical memory</span>
-backup <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>physical[phy: phy<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>]  <span style="color:#75715e"># array-like reads</span>
-backup_bis <span style="color:#f92672">=</span> bytearray(<span style="color:#ae81ff">16</span>)
-vm<span style="color:#f92672">.</span>physical<span style="color:#f92672">.</span>read(backup_bis, phy)
-<span style="color:#66d9ef">assert</span>(backup <span style="color:#f92672">==</span> backup_bis)
-
-vm<span style="color:#f92672">.</span>physical[phy] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xcc</span>  <span style="color:#75715e"># array-like writes</span>
-<span style="color:#66d9ef">assert</span>(vm<span style="color:#f92672">.</span>physical[phy] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0xcc</span>)
-vm<span style="color:#f92672">.</span>physical[phy: phy<span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">*</span> len(backup)
-vm<span style="color:#f92672">.</span>physical<span style="color:#f92672">.</span>write(phy, backup)
-</code></pre></div><h3 id="modules--drivers-api">Modules &amp; drivers API</h3>
-<p>Modules &amp; drivers are first-class entities in Icebox.
-Full script can be found at <code>src/icebox/icebox_py/examples/modules.py</code></p>
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/symbols.py</code></p>
+<h3 id="modules--drivers-api">Modules &amp; drivers API</h3>
+<p>Drivers are global OS entities accessible through <code>vm.drivers</code>.
+Modules are per-process and accessible through <code>proc.modules</code>.
+On both of them, you can:</p>
+<ul>
+<li>find whether an address belong to any driver/module</li>
+<li>load their symbols</li>
+<li>read their base address, size and name</li>
+<li>listen to their create/delete events</li>
+</ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># list drivers</span>
 <span style="color:#66d9ef">for</span> drv <span style="color:#f92672">in</span> vm<span style="color:#f92672">.</span>drivers():
     addr, size <span style="color:#f92672">=</span> drv<span style="color:#f92672">.</span>span()
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">-</span><span style="color:#e6db74">%x</span><span style="color:#e6db74"> </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (addr, addr<span style="color:#f92672">+</span>size, drv<span style="color:#f92672">.</span>name()))
 
 <span style="color:#75715e"># find driver by address</span>
-p <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
+proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
 vm<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_drivers()
-addr <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>address(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ndis!NdisSendNetBufferLists</span><span style="color:#e6db74">&#34;</span>)
+addr <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>address(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ndis!NdisSendNetBufferLists</span><span style="color:#e6db74">&#34;</span>)
 drv <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>drivers<span style="color:#f92672">.</span>find(addr)
 <span style="color:#66d9ef">print</span>(drv<span style="color:#f92672">.</span>name())
 <span style="color:#66d9ef">assert</span>(drv<span style="color:#f92672">.</span>name() <span style="color:#f92672">==</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">SystemRoot</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">system32</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">drivers</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">ndis.sys</span><span style="color:#e6db74">&#34;</span>)
 
 <span style="color:#75715e"># list modules</span>
-<span style="color:#66d9ef">for</span> mod <span style="color:#f92672">in</span> p<span style="color:#f92672">.</span>modules():
+<span style="color:#66d9ef">for</span> mod <span style="color:#f92672">in</span> proc<span style="color:#f92672">.</span>modules():
     addr, size <span style="color:#f92672">=</span> mod<span style="color:#f92672">.</span>span()
     flags <span style="color:#f92672">=</span> mod<span style="color:#f92672">.</span>flags()
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">-</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%s</span><span style="color:#e6db74"> flags:</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (addr, addr<span style="color:#f92672">+</span>size, mod<span style="color:#f92672">.</span>name(), flags))
 
 <span style="color:#75715e"># call this function on every new module created</span>
+counter <span style="color:#f92672">=</span> icebox<span style="color:#f92672">.</span>counter()
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">on_create</span>(mod):
     addr, _ <span style="color:#f92672">=</span> mod<span style="color:#f92672">.</span>span()
     <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">: </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (addr, mod<span style="color:#f92672">.</span>name()))
+    counter<span style="color:#f92672">.</span>add()
 
 <span style="color:#75715e"># add breakpoint on module creation</span>
-p <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>wait(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">notepad.exe</span><span style="color:#e6db74">&#34;</span>)
-<span style="color:#66d9ef">with</span> p<span style="color:#f92672">.</span>modules<span style="color:#f92672">.</span>break_on_create(on_create):
-    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">2</span>):
+proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>wait(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">notepad.exe</span><span style="color:#e6db74">&#34;</span>)
+<span style="color:#66d9ef">with</span> proc<span style="color:#f92672">.</span>modules<span style="color:#f92672">.</span>break_on_create(on_create):
+    <span style="color:#66d9ef">while</span> counter<span style="color:#f92672">.</span>read() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>:
         vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
-</code></pre></div><h3 id="breakpoint-api">Breakpoint API</h3>
-<p>Icebox have various breakpoint handlers accessible with python.
-Full script can be found at <code>src/icebox/icebox_py/examples/breakpoints.py</code></p>
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/modules.py</code></p>
+<h3 id="breakpoints-api">Breakpoints API</h3>
+<p>Icebox have various breakpoint handlers. When possible, use the right breakpoint so filtering is done in the core or better, in VirtualBox itself.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>find_name(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">Taskmgr.exe</span><span style="color:#e6db74">&#34;</span>)  <span style="color:#75715e"># find Taskmgr process</span>
 proc<span style="color:#f92672">.</span>symbols<span style="color:#f92672">.</span>load_module(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ntdll</span><span style="color:#e6db74">&#34;</span>)
 
@@ -484,9 +597,14 @@ thread <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</spa
 phy <span style="color:#f92672">=</span> proc<span style="color:#f92672">.</span>memory<span style="color:#f92672">.</span>physical_address(addr)
 <span style="color:#66d9ef">with</span> vm<span style="color:#f92672">.</span>break_on_physical(phy, print_hit):
     vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
-</code></pre></div><h3 id="funtions--callstacks-api">Funtions &amp; callstacks API</h3>
-<p>Icebox offer useful helpers, like functions &amp; callstacks
-Full script can be found at <code>src/icebox/icebox_py/examples/callstacks.py</code></p>
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/breakpoints.py</code></p>
+<h3 id="funtions--callstacks-api">Funtions &amp; callstacks API</h3>
+<p>Icebox offer various helpers, like <code>vm.functions</code> and <code>proc.callstack</code> allowing you to:</p>
+<ul>
+<li>Read &amp; write function arguments easily</li>
+<li>Set a single-use breakpoint on function return</li>
+<li>Read callstack addresses</li>
+</ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># load symbols from current module</span>
 <span style="color:#75715e"># which will allow nice callstack symbols</span>
 proc <span style="color:#f92672">=</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()
@@ -521,7 +639,18 @@ vm<span style="color:#f92672">.</span><span style="color:#66d9ef">exec</span>()
 <span style="color:#75715e"># check callstack</span>
 addrs_return <span style="color:#f92672">=</span> [x <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> vm<span style="color:#f92672">.</span>processes<span style="color:#f92672">.</span>current()<span style="color:#f92672">.</span>callstack()]
 <span style="color:#66d9ef">assert</span>(addrs[<span style="color:#ae81ff">1</span>:] <span style="color:#f92672">==</span> addrs_return)
-</code></pre></div> </div>
+</code></pre></div><p>Full script can be found at <code>src/icebox/icebox_py/examples/callstacks.py</code></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This concludes our overview of <strong>icebox</strong> python API. Following these instructions, you should have a working icebox installation with:</p>
+<ul>
+<li>An hypervisor backend based on VirtualBox &amp; ready to run</li>
+<li>A windows 10 VM and a ready-to-go snapshot</li>
+<li>A freshly compiled icebox python module which you can import and use</li>
+</ul>
+<p>Icebox currently supports one backend, VirtualBox and two OS guests: Windows &amp; Linux.
+Goals of this project are to enable fast tool prototyping on top of VMI and novel ways to analyze code and kernel internals.</p>
+<p>All source code can be found at our <a href="https://github.com/thalium/icebox">github page</a>. Comments, patches or suggestions are welcome!</p>
+ </div>
     <footer class="post-footer">
 
   <div class="post-footer-data">

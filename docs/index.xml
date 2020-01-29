@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Thalium Blog</title>
+    <title>THALIUM</title>
     <link>https://thalium.github.io/icebox/</link>
-    <description>Recent content on Thalium Blog</description>
+    <description>Recent content on THALIUM</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright (c) 2020, all rights reserved.</copyright>
@@ -18,9 +18,10 @@
       <pubDate>Fri, 24 Jan 2020 12:00:00 +0100</pubDate>
       
       <guid>https://thalium.github.io/icebox/posts/getting_started/</guid>
-      <description>Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any process system-wide. All Icebox code can be found on our github page.
-Try Icebox Icebox now comes with new python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
-User-land breakpoints &amp;amp; callstacks example Here&amp;rsquo;s a short example on how to break a user-land windows 10 process on every ntdll!</description>
+      <description>Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any kernel or user code system-wide.
+All Icebox source code can be found on our github page.
+Try Icebox Icebox now comes with full python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
+The core itself is in C++ and exposes most of its public functions into a &amp;lsquo;icebox&amp;rsquo; python 3 module.</description>
     </item>
     
   </channel>
