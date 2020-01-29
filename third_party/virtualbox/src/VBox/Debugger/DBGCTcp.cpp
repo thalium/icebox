@@ -212,7 +212,7 @@ static DECLCALLBACK(int) dbgcTcpConnection(RTSOCKET Sock, void *pvUser)
 #include <stdio.h>
 #include <FDP/include/FDP.h>
 #include <FDP/include/FDP_structs.h>
-#include <FDP/FDP.c>
+#include <FDP/FDP.cpp>
 
 #include <VBox/vmm/pgm.h>
 #include <VBox/vmm/mm.h>

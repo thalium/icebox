@@ -118,7 +118,7 @@ extern "C"
     } FDP_SERVER_INTERFACE_T;
 
     // FDP API
-    FDP_EXPORTED FDP_SHM*   FDP_CreateSHM               (char* shmName);
+    FDP_EXPORTED FDP_SHM*   FDP_CreateSHM               (const char* shmName);
     FDP_EXPORTED FDP_SHM*   FDP_OpenSHM                 (const char* pShmName);
     FDP_EXPORTED void       FDP_ExitSHM                 (FDP_SHM* pShm);
     FDP_EXPORTED bool       FDP_Init                    (FDP_SHM* pShm);

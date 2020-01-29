@@ -191,7 +191,7 @@ __inline static uint32_t ReadFDPData(FDP_SHM_CANAL* pFDPCanal, uint8_t* buffer)
 }
 
 FDP_EXPORTED
-FDP_SHM* FDP_CreateSHM(char* shmName)
+FDP_SHM* FDP_CreateSHM(const char* shmName)
 {
     void* pBuf;
 
