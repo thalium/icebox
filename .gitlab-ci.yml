@@ -66,6 +66,10 @@ build:msvc:
     - cd out/x64
     - cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
     - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - bin/x64
 
 .virtualbox:pre_kmk:gcc:
   stage: virtualbox
@@ -193,7 +197,6 @@ virtualbox:msvc:
     expire_in: 1 day
     paths:
       - third_party/virtualbox/out/win.amd64/release/bin
-      - bin/x64/fdp.dll
 
 deploy:
   stage: deploy
@@ -206,6 +209,8 @@ deploy:
     - cp bin/x64/fdp.dll third_party/virtualbox/out/win.amd64/release/bin/.
     - cd third_party/virtualbox/out/win.amd64/release/bin
     - 7za a -mx=9 ../../../../../../binaries/vbox-$(git describe --long --tags)-win10.7z *
+    - cd ../../../../../../bin/x64
+    - 7za a -mx=9 ../../binaries/icebox-$(git describe --long --tags)-win10.7z *
   only:
     - master
   artifacts:
