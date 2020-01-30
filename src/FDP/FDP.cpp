@@ -21,6 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 */
+#define FDP_INTERNAL_ONLY
 #include "include/FDP.h"
 #include "include/FDP_structs.h"
 
@@ -1290,6 +1291,13 @@ bool FDP_SetFDPServer(FDP_SHM* pFDP, FDP_SERVER_INTERFACE_T* pFDPServer)
         return false;
     }
     pFDP->pFdpServer = pFDPServer;
+    return true;
+}
+
+FDP_EXPORTED
+bool FDP_SetFDPServerRunning(FDP_SHM* pFDP, bool bRunning)
+{
+    pFDP->pFdpServer->bIsRunning = bRunning;
     return true;
 }
 

@@ -211,8 +211,12 @@ static DECLCALLBACK(int) dbgcTcpConnection(RTSOCKET Sock, void *pvUser)
 /*MYCODE*/
 #include <stdio.h>
 #include <FDP/include/FDP.h>
-#include <FDP/include/FDP_structs.h>
+
+#ifndef _MSC_VER
 #include <FDP/FDP.cpp>
+#else
+#include <FDP/include/FDP_structs.h>
+#endif
 
 #include <VBox/vmm/pgm.h>
 #include <VBox/vmm/mm.h>
@@ -766,8 +770,7 @@ bool FDPVBOX_Reboot(void *pUserHandle)
     SLEEP(100);
 
     //Signal that the VM as changed, and what a change...
-    myVBOXHandle->pFDPServer->pSharedFDPSHM->stateChanged = true;
-
+    FDP_SetStateChanged(myVBOXHandle->pFDPServer);
     return true;
 }
 

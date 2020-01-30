@@ -149,9 +149,15 @@ virtualbox:gcc:
     OPENSSL_DIR: c:/OpenSSL-Win64
     CURL_DIR: c:/curl-7.64.0
   before_script:
+    # build fdp dll
+    - mkdir out\x64
+    - cd out/x64
+    - cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
+    - cmake --build . --config RelWithDebInfo --target fdp -- -verbosity:minimal
+    # configure virtualbox
     - set PATH=%PATH%;c:/Windows/System32
     - "cmd /C \"\"c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd\" /x64 /Release\""
-    - cd third_party/virtualbox/include
+    - cd ../../third_party/virtualbox/include
     - mklink /J FDP ..\..\..\src\FDP
     - cd ..
     - cscript configure.vbs
@@ -197,6 +203,7 @@ virtualbox:msvc:
     expire_in: 1 day
     paths:
       - third_party/virtualbox/out/win.amd64/release/bin
+      - bin/x64/fdp.dll
 
 deploy:
   stage: deploy
@@ -206,6 +213,7 @@ deploy:
   script:
     - $APT_UPDATE && $APT_INSTALL git p7zip-full xz-utils > /dev/null
     - mkdir binaries
+    - cp bin/x64/fdp.dll third_party/virtualbox/out/win.amd64/release/bin/.
     - cd third_party/virtualbox/out/win.amd64/release/bin
     - 7za a -mx=9 ../../../../../../binaries/vbox-$(git describe --long --tags)-win10.7z *
     - cd $CI_PROJECT_DIR/third_party/virtualbox/linux.amd64.bin

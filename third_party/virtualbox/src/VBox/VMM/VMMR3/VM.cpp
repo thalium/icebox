@@ -2392,7 +2392,7 @@ VMMR3DECL(int)   VMR3PowerOff(PUVM pUVM)
 
         //Stop FDP Debugger
         FDP_SHM *pFdpShm = (FDP_SHM *)pUVM->pVM->mystate.s.pFdpShm;
-        pFdpShm->pFdpServer->bIsRunning = false;
+        FDP_SetFDPServerRunning(pFdpShm, false);
     }
     /*ENDMYCODE*/
 

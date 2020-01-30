@@ -32,8 +32,6 @@
 
 #include "FDP.h"
 
-#include <atomic>
-
 #pragma pack(push, 1)
 typedef struct FDP_CPU_CTX_
 {
@@ -129,7 +127,11 @@ typedef struct _FDP_SetBreakpoint_req
 #define FDP_1M              1024 * 1024
 #define FDP_MAX_DATA_SIZE   10 * FDP_1M
 
-typedef struct ALIGNED_(1) FDP_SHM_CANAL_
+#ifdef FDP_INTERNAL_ONLY
+
+#    include <atomic>
+
+typedef struct FDP_SHM_CANAL_
 {
     std::atomic_flag  lock;         // Per channel lock
     std::atomic_bool  bDataPresent; // is data present
@@ -138,7 +140,7 @@ typedef struct ALIGNED_(1) FDP_SHM_CANAL_
     volatile uint8_t  data[FDP_MAX_DATA_SIZE];
 } FDP_SHM_CANAL;
 
-typedef struct ALIGNED_(1) FDP_SHM_SHARED_
+typedef struct FDP_SHM_SHARED_
 {
     std::atomic_flag lock; // General lock for the whole FDP_SHM_SHARED
     std::atomic_flag stateChangedLock;
@@ -157,7 +159,8 @@ struct ALIGNED_(1) FDP_SHM_
     FDP_CPU_CTX*            pCpuShm;
 };
 
-#define FDP_SHM_SHARED_SIZE sizeof(FDP_SHM_SHARED)
+#    define FDP_SHM_SHARED_SIZE sizeof(FDP_SHM_SHARED)
+#endif
 
 typedef struct FDP_SIMPLE_PKT_REQ_
 {

@@ -439,6 +439,9 @@ if "$(KBUILD_TARGET)" == "win" && !defined(VBOX_ONLY_EXTPACKS_USE_IMPLIBS)
  VBoxVMMPdbTypeHack_INTERMEDIATES  = $(VBoxVMM_INTERMEDIATES)
 endif
 
+if "$(KBUILD_TARGET)" == "win"
+ VBoxVMM_LIBS += $(PATH_ROOT)\..\..\out\x64\RelWithDebInfo\fdp.lib
+endif
 
 if defined(VBOX_WITH_RAW_MODE) && $(intersects $(VBOX_LDR_FMT32), pe lx)
 

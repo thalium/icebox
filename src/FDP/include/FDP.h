@@ -150,6 +150,9 @@ extern "C"
     FDP_EXPORTED bool       FDP_GetStateChanged         (FDP_SHM* pShm);
     FDP_EXPORTED void       FDP_SetStateChanged         (FDP_SHM* pShm);
     FDP_EXPORTED bool       FDP_InjectInterrupt         (FDP_SHM* pShm, uint32_t CpuId, uint32_t uInterruptionCode, uint32_t uErrorCode, uint64_t Cr2Value);
+    FDP_EXPORTED bool       FDP_SetFDPServer            (FDP_SHM* pFDP, FDP_SERVER_INTERFACE_T* pFDPServer);
+    FDP_EXPORTED bool       FDP_SetFDPServerRunning     (FDP_SHM* pFDP, bool bRunning);
+    FDP_EXPORTED bool       FDP_ServerLoop              (FDP_SHM* pFDP);
 
     uint8_t FDP_Test(FDP_SHM* pShm);
 
