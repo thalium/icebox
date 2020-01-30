@@ -129,16 +129,6 @@ virtualbox:gcc:
     - mkdir -p out/linux.amd64/release/bin/additions
     - touch out/linux.amd64/release/bin/additions/VBoxGuestAdditions.iso
     - kmk packing VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
-    - mkdir linux.amd64.bin
-    - 7za -y e out/linux.amd64/release/bin/*.run -otmp
-    - tar -xjf tmp/VirtualBox.tar.bz2 -C linux.amd64.bin
-    - rm -r tmp
-  only:
-    - master
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - third_party/virtualbox/linux.amd64.bin
 
 .virtualbox:pre_kmk:msvc:
   stage: virtualbox
@@ -216,8 +206,6 @@ deploy:
     - cp bin/x64/fdp.dll third_party/virtualbox/out/win.amd64/release/bin/.
     - cd third_party/virtualbox/out/win.amd64/release/bin
     - 7za a -mx=9 ../../../../../../binaries/vbox-$(git describe --long --tags)-win10.7z *
-    - cd $CI_PROJECT_DIR/third_party/virtualbox/linux.amd64.bin
-    - tar cvJf ../../../binaries/vbox-$(git describe --long --tags)-ubu18.tar.xz *
   only:
     - master
   artifacts:
