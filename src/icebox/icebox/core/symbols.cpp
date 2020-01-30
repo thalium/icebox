@@ -406,12 +406,15 @@ namespace
 
     std::string read_empty_symbol(core::Core& core, proc_t proc, uint64_t addr)
     {
-        if(!process::is_valid(core, proc))
-            return to_offset(0, addr);
+        if(!is_kernel_proc(proc))
+        {
+            if(!process::is_valid(core, proc))
+                return to_offset(0, addr);
 
-        const auto opt_mod = read_name_from_module(core, proc, addr);
-        if(opt_mod)
-            return *opt_mod;
+            const auto opt_mod = read_name_from_module(core, proc, addr);
+            if(opt_mod)
+                return *opt_mod;
+        }
 
         const auto opt_drv = read_name_from_driver(core, addr);
         if(opt_drv)
