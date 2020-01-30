@@ -14,7 +14,7 @@ All Icebox source code can be found on our [github page](https://github.com/thal
 
 Icebox now comes with full python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
 
-The core itself is in C++ and exposes most of its public functions into a 'icebox' python 3 module.
+The core itself is in C++ and exposes most of its public functions into an 'icebox' python 3 module.
 
 This article is a prelude to more technical articles exploring various kernel internals or malicious code behavior.
 
@@ -188,7 +188,7 @@ There are only two prerequisites:
 - Configure the VM to have only one CPU
 - Configure the VM to have at most 8192 MB of RAM
 
-Those two limitations may be removed eventually.
+We've planned to possibly remove those two limitations eventually.
 
 We will assume that your vm is named "win10" for the rest of this article.
 We advise you to create a snapshot of the VM after installation so you can fast restore a clean environment and skip the need to reboot the whole operating system.
