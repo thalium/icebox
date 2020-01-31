@@ -12,15 +12,15 @@ All Icebox source code can be found on our [github page](https://github.com/thal
 
 ## Try Icebox
 
-Icebox now comes with full python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
+Icebox now comes with full Python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
 
-The core itself is in C++ and exposes most of its public functions into an 'icebox' python 3 module.
+The core itself is in C++ and exposes most of its public functions into an `icebox` Python 3 module.
 
 This article is a prelude to more technical articles exploring various kernel internals or malicious code behavior.
 
 ### User-land breakpoints & callstacks example
 
-This is a short example showing a few features of icebox python bindings.
+This is a short example showing a few features of the Icebox Python bindings.
 
 This script will attach to a live VirtualBox VM running windows and named "win10".
 
@@ -93,9 +93,9 @@ kernel32!BaseThreadInitThunk+0x14
 ntdll!RtlUserThreadStart+0x21
 ```
 
-During startup, the icebox core has attached itself to the live VirtualBox VM named "win10", detected various kernel structures, like the kernel base address, or the current KPCR (Kernel Processor Control Region).
+During startup, the Icebox core has attached itself to the live VirtualBox VM named "win10", detected various kernel structures, like the kernel base address, or the current KPCR (Kernel Processor Control Region).
 
-The Desktop Windows Manager process has been found with PID 896 and we loaded symbols from modules "kernel32" & "kernelbase". Note that you will need to have _NT_SYMBOL_PATH defined so icebox can read & parse PDBs.
+The Desktop Windows Manager process has been found with PID 896 and we loaded symbols from modules "kernel32" & "kernelbase". Note that you will need to have _NT_SYMBOL_PATH defined so Icebox can read & parse PDBs.
 
 Eventually, we break on every `ntdll!NtWaitForSingleObject` function call from dwm.exe and print the current callstack.
 
@@ -107,7 +107,7 @@ The first step to use Icebox is to build or download a customized hypervisor bac
 
 ### Build VirtualBox
 
-These instructions have been tested on ubuntu 18.04.3 LTS.
+These instructions have been tested on Ubuntu 18.04.3 LTS.
 
 ```sh
 # export icebox_dir as your root icebox directory
@@ -162,7 +162,7 @@ cd $icebox_dir/third_party/virtualbox/out/linux.amd64/release/bin
 ```
 
 On Windows, before using VirtualBox you will need to be able to load unsigned drivers first. Please be aware that enabling unsigned drivers is a security risk and take appropriate measures.
-Use the following instructions to start VirtualBox on windows using our precompiled binaries:
+Use the following instructions to start VirtualBox on Windows using our precompiled binaries:
 
 ```
 # start an admin console
@@ -188,10 +188,10 @@ There are only two prerequisites:
 - Configure the VM to have only one CPU
 - Configure the VM to have at most 8192 MB of RAM
 
-We've planned to possibly remove those two limitations eventually.
+We plan to possibly remove those two limitations eventually.
 
-We will assume that your vm is named "win10" for the rest of this article.
-We advise you to create a snapshot of the VM after installation so you can fast restore a clean environment and skip the need to reboot the whole operating system.
+We will assume that your VM is named "win10" for the rest of this article.
+We advise you to create a snapshot of the VM after installation so you can quickly restore a clean environment and skip the need to reboot the whole operating system.
 
 ## Build Icebox
 
@@ -211,7 +211,7 @@ Before using Icebox on our "win10" VM, we need to download PDBs so we can unders
 
 For Windows guests, you will need at least matching ntkrnlmp and ntdll pdbs.
 
-On Linux hosts, you can use the symbols.py script to automatically download missing symbols from microsoft servers to a local directory.
+On Linux hosts, you can use the symbols.py script to automatically download missing symbols from Microsoft servers to a local directory.
 Before running the following instructions, check that:
 - The VM is running and named "win10"
 - The Wow64 Task Manager is running in the guest (found at `c:\windows\syswow64\Taskmgr.exe`).
@@ -243,7 +243,7 @@ symchk /r ntoskrnl.exe /od /s SRV*c:\symbols\*http://msdl.microsoft.com/download
 
 ## Run tests (optional)
 
-You can run our automated tests to ensure everything is working, that you can import and use icebox through Python.
+You can run our automated tests to ensure everything is working, that you can import and use Icebox through Python.
 
 ```sh
 # run python tests
@@ -255,13 +255,13 @@ python3 $icebox_dir/src/icebox/tests/win10.py $icebox_dir/bin/x64
 Starting from here, we have:
 - An hypervisor back-end, based on VirtualBox
 - A live VM running Windows 10, named "win10"
-- An icebox python module
+- An Icebox Python module
 
-We will now describe the various features icebox expose to users.
+We will now describe the various features Icebox expose to users.
 
 ### VM API
 
-After importing icebox, you can attach to a live VM using `icebox.attach` function. It will return an `icebox.Vm` object allowing you to:
+After importing `icebox`, you can attach to a live VM using `icebox.attach` function. It will return an `icebox.Vm` object allowing you to:
 - Pause, resume, step once and control the VM execution
 - Read & write common & MSR registers
 
@@ -287,7 +287,7 @@ vm.registers.rax = rax
 # read/write MSR registers
 print(hex(vm.msr.lstar))
 ```
-Full script can be found at `src/icebox/icebox_py/examples/vm.py`
+Full script can be found at `src/icebox/icebox_py/examples/vm.py`.
 
 You can run this example and all others with a command like this:
 ```sh
@@ -298,12 +298,12 @@ PYTHONPATH=$icebox_dir/bin/x64 python3 \
 ### Process API
 
 All process-related API can be found in `vm.processes`. You can:
-- list all current processes
-- read the current process
-- read process PID, name and other properties
-- find any process by name or pid
-- join a process in kernel or user-mode
-- listen to create/delete process events
+- List all current processes
+- Read the current process
+- Read process PID, name and other properties
+- Find any process by name or PID
+- Join a process in kernel or user-mode
+- Listen to create/delete process events
 
 ```python
 # list current processes
@@ -343,15 +343,15 @@ with vm.processes.break_on_create(on_create):
         while counter.read() < 4:
             vm.exec()
 ```
-Full script can be found at `src/icebox/icebox_py/examples/process.py`
+Full script can be found at `src/icebox/icebox_py/examples/process.py`.
 
 ### Threads API
 
 All thread-related API can be found in `vm.threads` or by accessing threads through a process. You can:
-- read current thread
-- list all process threads
-- read thread properties, like thread process or thread TID
-- listen to create/delete thread events
+- Read current thread
+- List all process threads
+- Read thread properties, like thread process or thread TID
+- Listen to create/delete thread events
 
 ```python
 # list current threads
@@ -378,7 +378,7 @@ with vm.threads.break_on_create(on_create):
         while counter.read() < 4:
             vm.exec()
 ```
-Full script can be found at `src/icebox/icebox_py/examples/threads.py`
+Full script can be found at `src/icebox/icebox_py/examples/threads.py`.
 
 ### Memory API
 
@@ -419,13 +419,13 @@ assert(vm.physical[phy] == 0xcc)
 vm.physical[phy: phy+16] = b"\x00" * len(backup)
 vm.physical.write(phy, backup)
 ```
-Full script can be found at `src/icebox/icebox_py/examples/memory.py`
+Full script can be found at `src/icebox/icebox_py/examples/memory.py`.
 
 ### Symbols API
 
 In order to ease manipulation of OS entities, we need two things:
-- symbols: converting a raw address to a string & vice-versa
-- types: reading structures & members from memory
+- Symbols: converting a raw address to a string & vice-versa
+- Types: reading structures & members from memory
 
 Symbol-related API is mostly per-process and accessed through `proc.symbols`.
 
@@ -469,17 +469,17 @@ assert(member.offset > 0)
 proc.symbols.dump_type("nt!_KPCR", vm.msr.kernel_gs_base)
 ```
 
-Full script can be found at `src/icebox/icebox_py/examples/symbols.py`
+Full script can be found at `src/icebox/icebox_py/examples/symbols.py`.
 
 ### Modules & drivers API
 
 Drivers are global OS entities accessible through `vm.drivers`.
 Modules are per-process and accessible through `proc.modules`.
 On both of them, you can:
-- find whether an address belong to any driver/module
-- load their symbols
-- read their base address, size and name
-- listen to their create/delete events
+- Find whether an address belong to any driver/module
+- Load their symbols
+- Read their base address, size and name
+- Listen to their create/delete events
 
 ```python
 # list drivers
@@ -515,11 +515,11 @@ with proc.modules.break_on_create(on_create):
         vm.exec()
 ```
 
-Full script can be found at `src/icebox/icebox_py/examples/modules.py`
+Full script can be found at `src/icebox/icebox_py/examples/modules.py`.
 
 ### Breakpoints API
 
-Icebox have various breakpoint handlers. When possible, use the right breakpoint so filtering is done in the core or better, in VirtualBox itself.
+Icebox has various breakpoint handlers. When possible, use the right breakpoint so filtering is done in the core or better, in VirtualBox itself.
 
 ```python
 proc = vm.processes.find_name("Taskmgr.exe")  # find Taskmgr process
@@ -548,7 +548,7 @@ phy = proc.memory.physical_address(addr)
 with vm.break_on_physical(phy, print_hit):
     vm.exec()
 ```
-Full script can be found at `src/icebox/icebox_py/examples/breakpoints.py`
+Full script can be found at `src/icebox/icebox_py/examples/breakpoints.py`.
 
 ### Funtions & callstacks API
 
@@ -594,16 +594,16 @@ addrs_return = [x for x in vm.processes.current().callstack()]
 assert(addrs[1:] == addrs_return)
 ```
 
-Full script can be found at `src/icebox/icebox_py/examples/callstacks.py`
+Full script can be found at `src/icebox/icebox_py/examples/callstacks.py`.
 
 ## Conclusion
 
-This concludes our overview of **icebox** python API. Following these instructions, you should have a working icebox installation with:
+This concludes our overview of the **Icebox** Python API. Following these instructions, you should have a working Icebox installation with:
 - An hypervisor backend based on VirtualBox & ready to run
-- A windows 10 VM and a ready-to-go snapshot
-- A freshly compiled icebox python module which you can import and use
+- A Windows 10 VM and a ready-to-go snapshot
+- A freshly compiled Icebox Python module which you can import and use
 
 Icebox currently supports one backend, VirtualBox and two OS guests: Windows & Linux.
-Goals of this project are to enable fast tool prototyping on top of VMI and novel ways to analyze code and kernel internals.
+The goals of this project are to enable fast tool prototyping on top of VMI and novel ways to analyze code and kernel internals.
 
 All source code can be found at our [github page](https://github.com/thalium/icebox). Comments, patches or suggestions are welcome!
