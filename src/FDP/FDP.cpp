@@ -21,101 +21,80 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 */
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#ifndef __cplusplus
-#    include <stdbool.h>
-#endif
-
 #include "include/FDP.h"
 #include "include/FDP_structs.h"
 
 #ifdef _MSC_VER
-#    include <Windows.h>
+#    define NOMINMAX
 #    include <intrin.h>
-
-#    define SLEEP Sleep
+#    include <windows.h>
+#    define FORCE_INLINE    __forceinline
+#    define PAUSE           _mm_pause()
 
 #else
 #    include <fcntl.h>
-#    include <pthread.h>
 #    include <sys/mman.h>
 #    include <sys/shm.h>
 #    include <sys/stat.h>
-#    include <time.h>
 #    include <unistd.h>
-
-#    define SLEEP(X)          \
-        do                    \
-        {                     \
-            usleep(X * 1000); \
-        } while(0)
-
+#    define FORCE_INLINE    inline __attribute__((__always_inline__))
+#    define PAUSE           asm("pause")
 #endif
 
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#include <cstring>
+#include <random>
+#include <thread>
 
-#define FDP_POWER_SAVE 1
-
-__inline static void ttas_spinlock_lock(volatile bool* lock)
+namespace
 {
-    uint16_t test_counter = 0;
+    constexpr size_t max_wait_iters    = 0x10000;
+    constexpr size_t min_backoff_iters = 0x20;
 
-    while(true)
+    FORCE_INLINE void yield_sleep()
     {
-#ifdef _MSC_VER
-        if(*lock == 0)
+        std::this_thread::sleep_for(std::chrono::microseconds(500));
+    }
+
+    constexpr size_t max_backoff_iters = 1024;
+
+    FORCE_INLINE void backoff(size_t& delay)
+    {
+        thread_local auto dist = std::uniform_int_distribution<size_t>{};
+        thread_local auto gen  = std::minstd_rand(std::random_device{}());
+        const auto spin_iters  = dist(gen, decltype(dist)::param_type{0, delay});
+        delay                  = std::min(delay * 2, max_backoff_iters);
+        for(size_t i = 0; i < spin_iters; ++i)
+            PAUSE;
+    }
+
+    FORCE_INLINE void ttas_spinlock_lock(std::atomic_flag* flag)
+    {
+        size_t current_max_delay = min_backoff_iters;
+        // exponential back-off spinlock
+        while(true)
         {
-            test_counter = 0;
-            if(_InterlockedCompareExchange8((volatile char*) lock, 1, 0) == 0)
-            {
+            const auto locked = flag->test_and_set(std::memory_order_acquire);
+            if(!locked)
                 return;
-            }
-        }
-#else
-        if(__sync_lock_test_and_set(lock, 1) == 0)
-        {
-            test_counter = 0;
-            return;
-        }
-#endif
-        else
-        {
-            if((test_counter & 0xFFFF) == 0xFFFF)
-            {
-#if FDP_POWER_SAVE == 1
-                SLEEP(10);
-#endif
-            }
-            else
-            {
-                test_counter++;
-            }
+
+            backoff(current_max_delay);
         }
     }
-}
 
-__inline static void ttas_spinlock_unlock(volatile bool* lock)
-{
-#ifdef _MSC_VER
-    *lock = 0;
-#else
-    __sync_lock_release(lock);
-#endif
+    FORCE_INLINE void ttas_spinlock_unlock(std::atomic_flag* flag)
+    {
+        flag->clear(std::memory_order_release);
+    }
 
-    return;
-}
+    FORCE_INLINE void LockSHM(FDP_SHM_SHARED* FDPShm)
+    {
+        ttas_spinlock_lock(&FDPShm->lock);
+    }
 
-__inline static void LockSHM(FDP_SHM_SHARED* FDPShm)
-{
-    ttas_spinlock_lock(&FDPShm->lock);
-}
-
-__inline static void UnlockSHM(FDP_SHM_SHARED* FDPShm)
-{
-    ttas_spinlock_unlock(&FDPShm->lock);
+    FORCE_INLINE void UnlockSHM(FDP_SHM_SHARED* FDPShm)
+    {
+        ttas_spinlock_unlock(&FDPShm->lock);
+    }
 }
 
 static bool WriteFDPDataWithStatus(FDP_SHM_CANAL* pFDPCanal, uint8_t* pData, uint32_t DataSize, bool bStatus)
@@ -125,10 +104,11 @@ static bool WriteFDPDataWithStatus(FDP_SHM_CANAL* pFDPCanal, uint8_t* pData, uin
     {
         return false;
     }
+
     do
     {
         ttas_spinlock_lock(&pFDPCanal->lock);
-        if(pFDPCanal->bDataPresent == false)
+        if(!pFDPCanal->bDataPresent)
         {
             memcpy((char*) pFDPCanal->data, pData, DataSize);
             pFDPCanal->bDataPresent = true;
@@ -137,7 +117,7 @@ static bool WriteFDPDataWithStatus(FDP_SHM_CANAL* pFDPCanal, uint8_t* pData, uin
             dataWritten             = true;
         }
         ttas_spinlock_unlock(&pFDPCanal->lock);
-    } while(dataWritten == false);
+    } while(!dataWritten);
     return true;
 }
 
@@ -146,45 +126,47 @@ static bool WriteFDPData(FDP_SHM_CANAL* pFDPCanal, uint8_t* pData, uint32_t Data
     return WriteFDPDataWithStatus(pFDPCanal, pData, DataSize, true);
 }
 
+namespace
+{
+    FORCE_INLINE void wait_until_bool_is(std::atomic_bool* lock, bool value)
+    {
+        size_t num_iters = 0;
+        while(lock->load(std::memory_order_relaxed) != value)
+        {
+            if(num_iters < max_wait_iters)
+            {
+                ++num_iters;
+                PAUSE;
+            }
+            else
+            {
+                yield_sleep();
+            }
+        }
+    }
+}
+
 static uint32_t ReadFDPDataWithStatus(FDP_SHM_CANAL* pFDPCanal, uint8_t* buffer, bool* pbStatus)
 {
-    bool dataRead         = false;
     uint32_t dataReadSize = 0;
-    uint32_t readTry      = 0;
     do
     {
+        wait_until_bool_is(&pFDPCanal->bDataPresent, true);
+        ttas_spinlock_lock(&pFDPCanal->lock);
         if(pFDPCanal->bDataPresent)
         {
-            ttas_spinlock_lock(&pFDPCanal->lock);
-            if(pFDPCanal->bDataPresent) // Verification
-            {
-                if(pFDPCanal->dataSize < FDP_MAX_DATA_SIZE)
-                {
-                    memcpy(buffer, (char*) pFDPCanal->data, pFDPCanal->dataSize);
-                }
-                pFDPCanal->bDataPresent = false; // All data is read !
-                dataRead                = true;
-                dataReadSize            = pFDPCanal->dataSize;
-                *pbStatus               = pFDPCanal->bStatus;
-                readTry                 = 0;
-            }
-            ttas_spinlock_unlock(&pFDPCanal->lock);
+            if(pFDPCanal->dataSize < FDP_MAX_DATA_SIZE)
+                memcpy(buffer, (char*) pFDPCanal->data, pFDPCanal->dataSize);
+            dataReadSize            = pFDPCanal->dataSize;
+            *pbStatus               = pFDPCanal->bStatus;
+            pFDPCanal->bDataPresent = false;
         }
-        if((readTry & 0xFFFFFF) == 0xFFFFFF)
-        {
-#if FDP_POWER_SAVE == 1
-            SLEEP(10);
-#endif
-        }
-        else
-        {
-            readTry++;
-        }
-    } while(dataRead == false);
+        ttas_spinlock_unlock(&pFDPCanal->lock);
+    } while(!dataReadSize);
     return dataReadSize;
 }
 
-__inline static uint32_t ReadFDPData(FDP_SHM_CANAL* pFDPCanal, uint8_t* buffer)
+FORCE_INLINE static uint32_t ReadFDPData(FDP_SHM_CANAL* pFDPCanal, uint8_t* buffer)
 {
     bool bIsSuccess;
     return ReadFDPDataWithStatus(pFDPCanal, buffer, &bIsSuccess);
@@ -415,7 +397,7 @@ bool FDP_ReadPhysicalMemory(FDP_SHM* pFDP, uint8_t* pDstBuffer, uint32_t ReadSiz
     uint32_t CurrentOffset = 0;
     do
     {
-        uint32_t CurrentReadSize = MIN(ReadSize, FDP_MAX_DATA_SIZE - 1);
+        uint32_t CurrentReadSize = std::min<uint32_t>(ReadSize, FDP_MAX_DATA_SIZE - 1);
         if(FDP_ReadPhysicalMemoryInternal(pFDP, pDstBuffer + CurrentOffset, CurrentReadSize,
                                           PhysicalAddress + CurrentOffset)
            == false)
@@ -449,7 +431,7 @@ bool FDP_ReadVirtualMemory(FDP_SHM* pFDP, uint32_t CpuId, uint8_t* pDstBuffer, u
     uint32_t CurrentOffset = 0;
     do
     {
-        uint32_t CurrentReadSize = MIN(ReadSize, FDP_MAX_DATA_SIZE - 1);
+        uint32_t CurrentReadSize = std::min<uint32_t>(ReadSize, FDP_MAX_DATA_SIZE - 1);
         if(FDP_ReadVirtualMemoryInternal(pFDP, CpuId, pDstBuffer + CurrentOffset, CurrentReadSize,
                                          VirtualAddress + CurrentOffset)
            == false)
@@ -773,7 +755,7 @@ bool FDP_WaitForStateChanged(FDP_SHM* pFDP, FDP_State* DebuggeeState)
     }
     while(true)
     {
-        SLEEP(0);
+        std::this_thread::yield();
         if(FDP_GetStateChanged(pFDP) == true)
         {
             return FDP_GetState(pFDP, DebuggeeState);

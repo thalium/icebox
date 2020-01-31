@@ -32,6 +32,8 @@
 
 #include "FDP.h"
 
+#include <atomic>
+
 #pragma pack(push, 1)
 typedef struct FDP_CPU_CTX_
 {
@@ -129,8 +131,8 @@ typedef struct _FDP_SetBreakpoint_req
 
 typedef struct ALIGNED_(1) FDP_SHM_CANAL_
 {
-    volatile bool     lock;         // Per channel lock
-    volatile bool     bDataPresent; // is data present
+    std::atomic_flag  lock;         // Per channel lock
+    std::atomic_bool  bDataPresent; // is data present
     volatile bool     bStatus;
     volatile uint32_t dataSize;
     volatile uint8_t  data[FDP_MAX_DATA_SIZE];
@@ -138,11 +140,11 @@ typedef struct ALIGNED_(1) FDP_SHM_CANAL_
 
 typedef struct ALIGNED_(1) FDP_SHM_SHARED_
 {
-    volatile bool lock; // General lock for the whole FDP_SHM_SHARED
-    volatile bool stateChangedLock;
-    volatile bool stateChanged;
-    FDP_SHM_CANAL ClientToServer;
-    FDP_SHM_CANAL ServerToClient;
+    std::atomic_flag lock; // General lock for the whole FDP_SHM_SHARED
+    std::atomic_flag stateChangedLock;
+    volatile bool    stateChanged;
+    FDP_SHM_CANAL    ClientToServer;
+    FDP_SHM_CANAL    ServerToClient;
 } FDP_SHM_SHARED;
 
 struct ALIGNED_(1) FDP_SHM_
