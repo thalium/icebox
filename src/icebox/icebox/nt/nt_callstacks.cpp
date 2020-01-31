@@ -57,6 +57,7 @@ namespace
         uint32_t start_address;
         uint32_t end_address;
         uint32_t stack_frame_size;
+        uint32_t mother_stack_frame_size;
         uint32_t prev_frame_reg;
         uint32_t mother_start_addr;
         uint32_t machframe_rip_off;
@@ -210,19 +211,20 @@ namespace
 
     opt<uint64_t> get_stack_frame_size(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
     {
-        const auto opt_nb = get_unwind_nb_max(off_in_mod, function_table, function_entry);
+        const auto base_size = function_entry.mother_stack_frame_size;
+        const auto opt_nb    = get_unwind_nb_max(off_in_mod, function_table, function_entry);
         if(!opt_nb)
             return {};
 
         const auto nb = *opt_nb;
         if(nb == 0)
-            return 0;
+            return base_size;
 
         if(nb == function_entry.unwind_codes_nb)
-            return function_entry.stack_frame_size;
+            return base_size + function_entry.stack_frame_size;
 
         const auto idx = function_entry.unwind_codes_idx;
-        return function_entry.stack_frame_size - function_table.unwinds[idx + nb].stack_size_to_use;
+        return base_size + function_entry.stack_frame_size - function_table.unwinds[idx + nb].stack_size_to_use;
     }
 
     opt<uint64_t> get_prev_frame_reg(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
@@ -469,7 +471,7 @@ namespace
                     continue;
                 }
 
-                function_entry.stack_frame_size += mother_function_entry->stack_frame_size;
+                function_entry.mother_stack_frame_size += mother_function_entry->stack_frame_size + mother_function_entry->mother_stack_frame_size;
                 function_entry.prev_frame_reg = mother_function_entry->prev_frame_reg; // child_function_entry should not change frame register ?
             }
 
@@ -487,7 +489,7 @@ namespace
             if(!mother_function_entry)
                 continue; // Should never happend
 
-            orphan_fe.stack_frame_size += mother_function_entry->stack_frame_size;
+            orphan_fe.mother_stack_frame_size += mother_function_entry->stack_frame_size + mother_function_entry->mother_stack_frame_size;
             orphan_fe.prev_frame_reg = mother_function_entry->prev_frame_reg; // child_function_entry should not change frame register ?
             function_table.function_entries.push_back(orphan_fe);
         }
