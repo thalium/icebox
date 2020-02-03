@@ -240,16 +240,11 @@ target_include_directories(icebox_py PRIVATE
     ${PYTHON_INCLUDE_DIRS}
 )
 if(WIN32)
-    get_filename_component(python_libdir ${PYTHON_DEBUG_LIBRARY} DIRECTORY)
-    target_link_directories(icebox_py PRIVATE
-        ${python_libdir}
-    )
     set_target_properties(icebox_py PROPERTIES SUFFIX ".pyd")
-else()
-    target_link_libraries(icebox_py PRIVATE ${PYTHON_LIBRARIES})
 endif()
 target_link_libraries(icebox_py PRIVATE
     icebox
+    ${PYTHON_LIBRARIES}
 )
 set(deploy_dir $<$<CONFIG:Debug>:${bin_d_dir}>$<$<CONFIG:RelWithDebInfo>:${bin_dir}>$<$<CONFIG:Release>:${bin_dir}>)
 add_custom_command(TARGET icebox_py POST_BUILD
