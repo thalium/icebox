@@ -20,7 +20,7 @@
       <guid>https://thalium.github.io/icebox/posts/getting_started/</guid>
       <description>Icebox is a VMI (Virtual Machine Introspection) framework enabling you to stealthily trace and debug any kernel or user code system-wide.
 All Icebox source code can be found on our github page.
-Try Icebox Icebox now comes with full Python bindings allowing fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
+Try Icebox Icebox now comes with full Python bindings enabling fast prototyping on top of VMI, whether you want to trace a user process or inspect the kernel internals.
 The core itself is in C++ and exposes most of its public functions into an icebox Python 3 module.</description>
     </item>
     
