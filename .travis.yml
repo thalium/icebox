@@ -1,15 +1,15 @@
 language: cpp
+os: linux
 
-linux-build: &linux-build
-  dist: bionic
-  script:
-    - cd build
-    - ./configure.sh
-    - cd ../out/x64
-    - make -j2
-
-matrix:
+jobs:
     include:
+        - &linux-build
+          dist: bionic
+          script:
+            - cd build
+            - ./configure.sh
+            - cd ../out/x64
+            - make -j2
         - name: gcc linux
           compiler: gcc
           <<: *linux-build
