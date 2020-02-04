@@ -64,7 +64,7 @@ build:msvc:
   script:
     - mkdir out\x64
     - cd out/x64
-    - cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
+    - cmake ../../build -G "Visual Studio 16 2019" -A x64 -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
     - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
   artifacts:
     expire_in: 1 day
@@ -148,7 +148,7 @@ virtualbox:gcc:
     # build fdp dll
     - mkdir out\x64
     - cd out/x64
-    - cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
+    - cmake ../../build -G "Visual Studio 16 2019" -A x64 -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
     - cmake --build . --config RelWithDebInfo --target fdp -- -verbosity:minimal
     # configure virtualbox
     - set PATH=%PATH%;c:/Windows/System32
