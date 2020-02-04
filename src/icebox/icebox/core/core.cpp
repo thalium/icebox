@@ -103,10 +103,12 @@ namespace
 
             return true;
         }
+
+        core.os_ = &*core.none_;
         return false;
     }
 
-    auto setup(core::Core& core, const std::string& name)
+    void attach_to(core::Core& core, const std::string& name)
     {
         LOG(INFO, "waiting for shm...");
         while(!core.shm_)
@@ -121,24 +123,36 @@ namespace
         core.state_   = state::setup(core);
         core.func_    = functions::setup();
         core.symbols_ = std::make_unique<symbols::Modules>(core);
-
-        const auto loaded = try_load_os(core);
-        if(loaded)
-            return true;
-
-        state::resume(core);
-        return false;
+        core.none_    = os::make_none();
+        core.os_      = &*core.none_;
     }
 }
 
-std::shared_ptr<core::Core> core::attach(const std::string& name)
+std::shared_ptr<core::Core> core::attach_only(const std::string& name)
 {
     auto ptr = std::make_shared<core::Core>(name);
     if(!ptr)
         return {};
 
-    if(!::setup(*ptr, name))
+    attach_to(*ptr, name);
+    return ptr;
+}
+
+bool core::detect(core::Core& core)
+{
+    return try_load_os(core);
+}
+
+std::shared_ptr<core::Core> core::attach(const std::string& name)
+{
+    const auto ptr = attach_only(name);
+    if(!ptr)
         return {};
 
-    return ptr;
+    const auto loaded = try_load_os(*ptr);
+    if(loaded)
+        return ptr;
+
+    state::resume(*ptr);
+    return {};
 }

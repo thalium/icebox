@@ -19,5 +19,13 @@
 namespace core
 {
     struct Core;
+
+    // attach returns a core from a live vm by name & try to auto-detect os.
     std::shared_ptr<Core> attach(const std::string& name);
+
+    // attach_only returns a core from a live vm by name without os auto-detection.
+    std::shared_ptr<Core> attach_only(const std::string& name);
+
+    // detect try to detect current os & possibly change current os helper.
+    bool detect(core::Core& core);
 } // namespace core

@@ -42,7 +42,7 @@ namespace core
     using Callstacks = std::unique_ptr<callstacks::Module>;
     using Symbols    = std::unique_ptr<symbols::Modules>;
     using Nt         = std::shared_ptr<nt::Os>;
-    using Linux      = std::unique_ptr<os::Module>;
+    using Os         = std::unique_ptr<os::Module>;
 
     struct Core
     {
@@ -54,8 +54,9 @@ namespace core
         Memory            mem_;
         State             state_;
         Functions         func_;
+        Os                none_;
         Nt                nt_;
-        Linux             linux_;
+        Os                linux_;
         os::Module*       os_;
         Callstacks        callstacks_;
         Symbols           symbols_;

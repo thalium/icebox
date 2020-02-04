@@ -232,6 +232,7 @@ class Modules:
 
     def break_on_create(self, callback, flags=flags_any):
         """Return breakpoint on modules creation."""
+
         def fmod(mod): return callback(Module(self.proc, mod))
         bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
         return BreakpointId(bpid, fmod)
@@ -541,8 +542,11 @@ class KernelSymbols:
 
 
 class Vm:
-    def __init__(self, name):
-        _icebox.attach(name)
+    def __init__(self, name, attach_only=False):
+        if attach_only:
+            _icebox.attach_only(name)
+        else:
+            _icebox.attach(name)
         r, w = _icebox.register_read, _icebox.register_write
         self.registers = Registers(_icebox.register_list, r, w)
         r, w = _icebox.msr_read, _icebox.msr_write
@@ -557,6 +561,10 @@ class Vm:
     def detach(self):
         """Detach from vm."""
         _icebox.detach()
+
+    def detect(self):
+        """Detect OS."""
+        _icebox.detect()
 
     def resume(self):
         """Resume vm."""
@@ -625,8 +633,13 @@ class Vm:
 
 
 def attach(name):
-    """Attach to live VM from name name."""
+    """Attach to live VM by name."""
     return Vm(name)
+
+
+def attach_only(name):
+    """Attach to live VM by name without os detection."""
+    return Vm(name, attach_only=True)
 
 
 class Counter():

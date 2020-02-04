@@ -50,6 +50,41 @@ namespace
         Py_RETURN_NONE;
     }
 
+    PyObject* core_attach_only(PyObject* self, PyObject* args)
+    {
+        auto name     = static_cast<const char*>(nullptr);
+        const auto ok = PyArg_ParseTuple(args, "s", &name);
+        if(!ok)
+            return nullptr;
+
+        auto handle = handle_from_self(self);
+        if(!handle)
+            return nullptr;
+
+        if(handle->core)
+            return py::fail_with(nullptr, PyExc_RuntimeError, "already attached");
+
+        const auto core = core::attach_only(name ? name : "");
+        if(!core)
+            return py::fail_with(nullptr, PyExc_RuntimeError, "unable to attach");
+
+        new(handle) Handle{core};
+        Py_RETURN_NONE;
+    }
+
+    PyObject* core_detect(PyObject* self, PyObject* /*args*/)
+    {
+        auto handle = handle_from_self(self);
+        if(!handle)
+            return nullptr;
+
+        const auto ok = core::detect(*handle->core);
+        if(!ok)
+            Py_RETURN_FALSE;
+
+        Py_RETURN_TRUE;
+    }
+
     PyObject* core_detach(PyObject* self, PyObject* /*args*/)
     {
         auto handle = handle_from_self(self);
@@ -100,6 +135,8 @@ namespace
 {
     constexpr auto ice_methods = std::array<PyMethodDef, 80>{{
         {"attach", core_attach, METH_VARARGS, "attach vm <name>"},
+        {"attach_only", core_attach_only, METH_VARARGS, "attach_only vm <name>"},
+        {"detect", core_detect, METH_NOARGS, "detect os"},
         {"detach", core_detach, METH_NOARGS, "detach from vm"},
         // state
         {"pause", &core_exec<&py::state::pause>, METH_NOARGS, "pause vm"},

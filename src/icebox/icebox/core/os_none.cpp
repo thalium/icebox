@@ -71,7 +71,7 @@ bool None::setup()
     return true;
 }
 
-std::unique_ptr<os::Module> os::make_none(core::Core& /*core*/)
+std::unique_ptr<os::Module> os::make_none()
 {
     return std::make_unique<None>();
 }

@@ -72,5 +72,5 @@ namespace os
     std::shared_ptr<nt::Os> make_nt     (core::Core& core);
     void                    attach      (core::Core&, nt::Os&);
     std::unique_ptr<Module> make_linux  (core::Core& core);
-    std::unique_ptr<Module> make_none   (core::Core& core);
+    std::unique_ptr<Module> make_none   ();
 } // namespace os
