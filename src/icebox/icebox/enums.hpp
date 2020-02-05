@@ -4,12 +4,9 @@
 
 enum class reg_e
 {
-    cs,
-    rsp,
     rip,
+    rsp,
     rbp,
-    cr3,
-    cr8,
     rax,
     rbx,
     rcx,
@@ -24,7 +21,12 @@ enum class reg_e
     r13,
     r14,
     r15,
-    last = r15, // must be last
+    // segment registers
+    cs,
+    // control registers
+    cr3,
+    cr8,
+    last = cr8, // must be last
 };
 
 enum class walk_e

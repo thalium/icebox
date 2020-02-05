@@ -21,13 +21,24 @@ class Number(int):
 class Registers:
     def __init__(self, regs, read, write):
         props = {}
+        self.regs = []
+        self.read = read
         for name, idx in regs():
             def get_property(idx):
                 def fget(_): return Number(read(idx))
                 def fset(_, arg): return write(idx, arg)
                 return property(fget, fset)
             props[name] = get_property(idx)
+            self.regs.append((name, idx))
         _attach_dynamic_properties(self, props)
+
+    def __call__(self):
+        return [x for x, _ in self.regs]
+
+    def dump(self):
+        """Dump all registers."""
+        for name, idx in self.regs:
+            print("%3s 0x%x" % (name, self.read(idx)))
 
 
 class Flags:
