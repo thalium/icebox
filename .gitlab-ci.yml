@@ -126,13 +126,6 @@ virtualbox:gcc:
   extends: .virtualbox:pre_kmk:gcc
   script:
     - kmk VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
-    - cd out/linux.amd64/release/bin/src
-    - make
-    - make install
-    - cd ../../../../..
-    - mkdir -p out/linux.amd64/release/bin/additions
-    - touch out/linux.amd64/release/bin/additions/VBoxGuestAdditions.iso
-    - kmk packing VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
   only:
     - master
 
