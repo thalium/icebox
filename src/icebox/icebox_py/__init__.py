@@ -13,12 +13,17 @@ def _attach_dynamic_properties(instance, properties):
     instance.__class__ = child_class
 
 
+class Number(int):
+    def __repr__(self):
+        return hex(self)
+
+
 class Registers:
     def __init__(self, regs, read, write):
         props = {}
         for name, idx in regs():
             def get_property(idx):
-                def fget(_): return read(idx)
+                def fget(_): return Number(read(idx))
                 def fset(_, arg): return write(idx, arg)
                 return property(fget, fset)
             props[name] = get_property(idx)
