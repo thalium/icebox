@@ -48,7 +48,16 @@
 
 namespace
 {
-    constexpr size_t max_wait_iters    = 0x10000;
+    template <int WANT, int GOT>
+    struct expect_eq
+    {
+        static_assert(WANT == GOT, "size mismatch");
+        static constexpr bool ok = true;
+    };
+#define STATIC_ASSERT_EQ(A, B) static_assert(!!expect_eq<A, B>::ok, "");
+    STATIC_ASSERT_EQ(sizeof(FDP_SHM_CANAL), FDP_MAX_DATA_SIZE + 8);
+
+    constexpr size_t max_wait_iters    = 0x100000;
     constexpr size_t min_backoff_iters = 0x20;
 
     FORCE_INLINE void yield_sleep()
@@ -68,13 +77,13 @@ namespace
             PAUSE;
     }
 
-    FORCE_INLINE void ttas_spinlock_lock(std::atomic_flag* flag)
+    FORCE_INLINE void ttas_spinlock_lock(std::atomic_bool* flag)
     {
         size_t current_max_delay = min_backoff_iters;
         // exponential back-off spinlock
         while(true)
         {
-            const auto locked = flag->test_and_set(std::memory_order_acquire);
+            const auto locked = flag->exchange(true, std::memory_order_acquire);
             if(!locked)
                 return;
 
@@ -82,9 +91,9 @@ namespace
         }
     }
 
-    FORCE_INLINE void ttas_spinlock_unlock(std::atomic_flag* flag)
+    FORCE_INLINE void ttas_spinlock_unlock(std::atomic_bool* flag)
     {
-        flag->clear(std::memory_order_release);
+        flag->store(false, std::memory_order_release);
     }
 
     FORCE_INLINE void LockSHM(FDP_SHM_SHARED* FDPShm)

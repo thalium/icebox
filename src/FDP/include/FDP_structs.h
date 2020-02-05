@@ -133,17 +133,18 @@ typedef struct _FDP_SetBreakpoint_req
 
 typedef struct FDP_SHM_CANAL_
 {
-    std::atomic_flag  lock;         // Per channel lock
+    volatile uint8_t  data[FDP_MAX_DATA_SIZE];
+    volatile uint32_t dataSize;
+    std::atomic_bool  lock;         // Per channel lock
     std::atomic_bool  bDataPresent; // is data present
     volatile bool     bStatus;
-    volatile uint32_t dataSize;
-    volatile uint8_t  data[FDP_MAX_DATA_SIZE];
+    uint8_t           _;
 } FDP_SHM_CANAL;
 
 typedef struct FDP_SHM_SHARED_
 {
-    std::atomic_flag lock; // General lock for the whole FDP_SHM_SHARED
-    std::atomic_flag stateChangedLock;
+    std::atomic_bool lock; // General lock for the whole FDP_SHM_SHARED
+    std::atomic_bool stateChangedLock;
     volatile bool    stateChanged;
     FDP_SHM_CANAL    ClientToServer;
     FDP_SHM_CANAL    ServerToClient;
