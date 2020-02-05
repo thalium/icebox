@@ -138,7 +138,7 @@ typedef struct FDP_SHM_CANAL_
     std::atomic_bool  lock;         // Per channel lock
     std::atomic_bool  bDataPresent; // is data present
     volatile bool     bStatus;
-    uint8_t           _;
+    uint8_t           _;            // padding
 } FDP_SHM_CANAL;
 
 typedef struct FDP_SHM_SHARED_
@@ -146,6 +146,7 @@ typedef struct FDP_SHM_SHARED_
     std::atomic_bool lock; // General lock for the whole FDP_SHM_SHARED
     std::atomic_bool stateChangedLock;
     volatile bool    stateChanged;
+    uint8_t          _;    // padding
     FDP_SHM_CANAL    ClientToServer;
     FDP_SHM_CANAL    ServerToClient;
 } FDP_SHM_SHARED;

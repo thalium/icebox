@@ -56,6 +56,7 @@ namespace
     };
 #define STATIC_ASSERT_EQ(A, B) static_assert(!!expect_eq<A, B>::ok, "");
     STATIC_ASSERT_EQ(sizeof(FDP_SHM_CANAL), FDP_MAX_DATA_SIZE + 8);
+    STATIC_ASSERT_EQ(sizeof(FDP_SHM_SHARED), 2 * sizeof(FDP_SHM_CANAL) + 4);
 
     constexpr size_t max_wait_iters    = 0x100000;
     constexpr size_t min_backoff_iters = 0x20;
