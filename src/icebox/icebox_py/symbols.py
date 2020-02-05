@@ -139,19 +139,19 @@ vm.symbols.load_drivers()
 
 print("loading explorer.exe symbols...")
 p = vm.processes.wait("explorer.exe", icebox.flags_any)
-p.join("user")
+p.join_user()
 p.symbols.load_modules()
 
 print("loading taskmgr.exe wow64 symbols...")
 p = vm.processes.find_name("Taskmgr.exe", icebox.flags_x86)
-p.join("user")
+p.join_user()
 p.symbols.load_modules()
 """
 
 
 def check_script(args):
     txt = load_all_symbols.format(vm_name=args.vm_name)
-    return subprocess.check_call(["python3", "-c", txt])
+    return subprocess.check_call([sys.executable, "-c", txt])
 
 
 def binexec(*args):
@@ -163,7 +163,7 @@ def binexec(*args):
 
 
 def exec_once(dst, script, args):
-    output = binexec("python3", "-c", script)
+    output = binexec(sys.executable, "-c", script)
     with fut.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = []
         for name, guid in read_pdbs(output):
