@@ -107,6 +107,31 @@ namespace
 
         return Op(*handle->core, args);
     }
+
+    PyObject* log_redirect(PyObject* /*self*/, PyObject* args)
+    {
+        auto py_func = static_cast<PyObject*>(nullptr);
+        auto ok      = PyArg_ParseTuple(args, "O", &py_func);
+        if(!ok)
+            return nullptr;
+
+        if(!PyCallable_Check(py_func))
+            return py::fail_with(nullptr, PyExc_TypeError, "arg must be callable");
+
+        Py_INCREF(py_func); // FIXME leak ?
+        logg::redirect([=](logg::level_t level, const char* fmt)
+        {
+            const auto args = Py_BuildValue("(Ks)", (uint64_t) level, fmt);
+            if(!args)
+                return;
+
+            PY_DEFER_DECREF(args);
+            const auto ret = PyEval_CallObject(py_func, args);
+            if(ret)
+                PY_DEFER_DECREF(ret);
+        });
+        Py_RETURN_NONE;
+    }
 }
 
 PyObject* py::to_bytes(const char* ptr, size_t size)
@@ -133,11 +158,12 @@ const char* py::from_bytes(PyObject* self, size_t size)
 
 namespace
 {
-    constexpr auto ice_methods = std::array<PyMethodDef, 80>{{
+    constexpr auto ice_methods = std::array<PyMethodDef, 128>{{
         {"attach", core_attach, METH_VARARGS, "attach vm <name>"},
         {"attach_only", core_attach_only, METH_VARARGS, "attach_only vm <name>"},
         {"detect", core_detect, METH_NOARGS, "detect os"},
         {"detach", core_detach, METH_NOARGS, "detach from vm"},
+        {"log_redirect", log_redirect, METH_VARARGS, "redirect logs"},
         // state
         {"pause", &core_exec<&py::state::pause>, METH_NOARGS, "pause vm"},
         {"resume", &core_exec<&py::state::resume>, METH_NOARGS, "resume vm"},

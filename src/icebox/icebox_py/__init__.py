@@ -557,8 +557,20 @@ class KernelSymbols:
         return _icebox.symbols_load_driver(name)
 
 
+def _get_default_logger():
+    import logging
+    logging.basicConfig(format='%(asctime)s:%(levelname)s %(message)s', level=logging.INFO)
+    def log_it(level, msg):
+        if level == 0:
+            logging.info(msg)
+        elif level == 1:
+            logging.error(msg)
+    return log_it
+
+
 class Vm:
-    def __init__(self, name, attach_only=False):
+    def __init__(self, name, attach_only=False, get_logger=_get_default_logger):
+        _icebox.log_redirect(get_logger())
         if attach_only:
             _icebox.attach_only(name)
         else:

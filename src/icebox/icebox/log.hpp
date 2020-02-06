@@ -4,6 +4,8 @@
 #    error "missing FDP_MODULE define"
 #endif
 
+#include <functional>
+
 namespace logg
 {
     enum class level_t
@@ -12,7 +14,10 @@ namespace logg
         error,
     };
 
+    using log_fn = std::function<void(level_t level, const char* txt)>;
+
     void    init    (int argc, char** argv);
+    void    redirect(log_fn on_log);
     void    print   (level_t level, const char* fmt, ...);
 } // namespace logg
 

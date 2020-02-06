@@ -17,6 +17,16 @@ void logg::init(int argc, char** argv)
     loguru::init(argc, argv, options);
 }
 
+namespace
+{
+    auto g_log = logg::log_fn{};
+}
+
+void logg::redirect(logg::log_fn on_log)
+{
+    g_log = std::move(on_log);
+}
+
 #ifdef _MSC_VER
 #    define FMT_VSNPRINTF vsprintf_s
 #else
@@ -30,6 +40,9 @@ void logg::print(logg::level_t level, const char* fmt, ...)
     va_start(args, fmt);
     FMT_VSNPRINTF(buffer, sizeof buffer, fmt, args);
     va_end(args);
+    if(g_log)
+        return g_log(level, buffer);
+
     switch(level)
     {
         case level_t::info:
