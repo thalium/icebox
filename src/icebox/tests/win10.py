@@ -283,9 +283,11 @@ class Windows(unittest.TestCase):
             self.vm.exec()
         stack_0 = self.vm.functions.read_stack(0)
         self.assertIsNotNone(stack_0)
-        arg_0 = self.vm.functions.read_arg(0)
+        arg_0 = self.vm.functions.args[0]
         self.assertIsNotNone(arg_0)
-        self.vm.functions.write_arg(0, arg_0)
+        self.vm.functions.args[0] = arg_0
+        args = self.vm.functions.args[1: 3]
+        self.vm.functions.args[1:] = args
         self.vm.functions.break_on_return(lambda: None)
         self.vm.exec()
 

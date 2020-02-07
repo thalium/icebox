@@ -472,9 +472,31 @@ class Physical:
         return _icebox.memory_write_physical(buf, ptr)
 
 
-class Functions:
+class Args:
     def __init__(self):
         pass
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            args = []
+            start = key.start if key.start else 0
+            for i in range(start, key.stop):
+                args.append(_icebox.functions_read_arg(i))
+            return args
+        return _icebox.functions_read_arg(key)
+
+    def __setitem__(self, key, item):
+        if isinstance(key, slice):
+            start = key.start if key.start else 0
+            for i in range(start, start+len(item)):
+                _icebox.functions_write_arg(i, item[i-start])
+            return
+        return _icebox.functions_write_arg(key, item)
+
+
+class Functions:
+    def __init__(self):
+        self.args = Args()
 
     def read_stack(self, idx):
         """Read indexed stack value."""
