@@ -52,7 +52,25 @@
 	  "{{.Name}}",
 	  "--vrde", 
 	  "off"
-	]
+	],
+        [
+	  "setextradata",
+	  "{{.Name}}",
+	  "'VBoxInternal/TM/TSCMode'", 
+	  "RealTSCOffset"
+	],
+ 	[
+	  "setextradata",
+	  "{{.Name}}",
+	  "'VBoxInternal/CPUM/SSE4.1'", 
+	  "1"
+	],
+ 	[
+	  "setextradata",
+	  "{{.Name}}",
+	  "'VBoxInternal/CPUM/SSE4.2'", 
+	  "1"
+	],
       ]
     } 
   ],
@@ -103,6 +121,6 @@
     "cpus": "2",
     "memory_size": "4096",
     "switch_name": "Default Switch",
-    "disk_size": "61440"
+    "disk_size": "91440"
   }
 }

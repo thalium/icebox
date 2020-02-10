@@ -13,6 +13,8 @@ if [[ ${KERNEL_HEADER_V:0:1} == "4" ]] ; then
   ln -s ../../../src/FDP
   cd ..
   ./configure --disable-hardening --disable-docs --disable-java
+# Enable debug if needed
+#  ./configure --disable-hardening --disable-docs --disable-java --build-debug
   source env.sh
   kmk VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
   cd out/linux.amd64/release/bin/src

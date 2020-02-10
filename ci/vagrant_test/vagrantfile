@@ -1,5 +1,6 @@
 Vagrant.configure("2") do |config|
 	config.vm.box = "inclusivedesign/windows10-eval"
+	config.vm.boot_timeout = 1000
 	config.vm.provider "virtualbox"
 	config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
 	config.vm.provider "virtualbox" do |v|
@@ -14,5 +15,10 @@ Vagrant.configure("2") do |config|
 		v.customize ["modifyvm", :id, "--usbxhci", "off"]
 		v.memory = 4096
 		v.cpus = 2
+#		v.customize ["setextradata", :id, "VBoxInternal/TM/TSCModeSwitchAllowed", 0]
+#		v.customize ["setextradata", :id, "VBoxInternal/TM/TSCMode", "VirtTSCEmulated"]
+		v.customize ["setextradata", :id, "VBoxInternal/TM/TSCMode", "RealTSCOffset"]
+		v.customize ["setextradata", :id, "VBoxInternal/CPUM/SSE4.1", 1]
+		v.customize ["setextradata", :id, "VBoxInternal/CPUM/SSE4.2", 1]
 	end
 end

@@ -1,0 +1,19 @@
+image: thelittlefireman/ubuntu_build_vbox:4
+
+stages:
+  - build
+
+variables:
+  DISABLE_CLANG_FORMAT: "true"
+  USER: user
+
+build:
+  stage: build
+  tags:
+    - docker
+  script:
+    - ./ci/build.sh
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - third_party/virtualbox/linux.amd64.bin
