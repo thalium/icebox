@@ -4641,6 +4641,8 @@ VMMR3_INT_DECL(void) CPUMR3SetGuestCpuIdFeature(PVM pVM, CPUMCPUIDFEATURE enmFea
                 pVM->cpum.s.aGuestCpuIdPatmStd[1].uEcx = pLeaf->uEcx |= X86_CPUID_FEATURE_ECX_HVP;
             pVM->cpum.s.GuestFeatures.fHypervisorPresent = 1;
             LogRel(("CPUM: SetGuestCpuIdFeature: Enabled Hypervisor Present bit\n"));
+            // Fix detections : Checking hypervisor bit in cpuid feature bits : Override never set HypervisorBit
+            CPUMR3ClearGuestCpuIdFeature(pVM, CPUMCPUIDFEATURE_HVP);
             break;
 
         /*

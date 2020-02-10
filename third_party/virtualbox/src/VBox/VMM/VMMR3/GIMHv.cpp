@@ -220,7 +220,8 @@ VMMR3_INT_DECL(int) gimR3HvInit(PVM pVM, PCFGMNODE pGimCfg)
     /** @cfgm{/GIM/HyperV/VendorID, string, 'VBoxVBoxVBox'}
      * The Hyper-V vendor signature, must be 12 characters. */
     char szVendor[13];
-    int rc = CFGMR3QueryStringDef(pCfgHv, "VendorID", szVendor, sizeof(szVendor), "VBoxVBoxVBox");
+    // Fix detection : hyper-v signature vendorID
+    int rc = CFGMR3QueryStringDef(pCfgHv, "VendorID", szVendor, sizeof(szVendor), "ASUSASUSASUS");
     AssertLogRelRCReturn(rc, rc);
     AssertLogRelMsgReturn(strlen(szVendor) == 12,
                           ("The VendorID config value must be exactly 12 chars, '%s' isn't!\n", szVendor),
@@ -340,8 +341,9 @@ VMMR3_INT_DECL(int) gimR3HvInit(PVM pVM, PCFGMNODE pGimCfg)
     /*
      * Expose HVP (Hypervisor Present) bit to the guest.
      */
-    CPUMR3SetGuestCpuIdFeature(pVM, CPUMCPUIDFEATURE_HVP);
-
+    // Fix detections : Checking hypervisor bit in cpuid feature bits : never set HypervisorBit
+    //CPUMR3SetGuestCpuIdFeature(pVM, CPUMCPUIDFEATURE_HVP);
+    CPUMR3ClearGuestCpuIdFeature(pVM, CPUMCPUIDFEATURE_HVP);
     /*
      * Modify the standard hypervisor leaves for Hyper-V.
      */
