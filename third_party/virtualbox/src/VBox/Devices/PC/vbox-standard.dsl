@@ -15,7 +15,7 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-DefinitionBlock ("SSDT.aml", "SSDT", 1, "VBOX  ", "VBOXCPUT", 2)
+DefinitionBlock ("SSDT.aml", "SSDT", 1, "ALASKA", "AMI  ", 2)
 {
     // Processor object
     // #1463: Showing the CPU can make the guest do bad things on it like SpeedStep.

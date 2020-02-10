@@ -15,7 +15,7 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-DefinitionBlock ("SSDT-cpuhotplug.aml", "SSDT", 1, "VBOX  ", "VBOXCPUT", 2)
+DefinitionBlock ("SSDT-cpuhotplug.aml", "SSDT", 1, "ALASKA", "AMI  ", 2)
 {
     External(CPUC)
     External(CPUL)
