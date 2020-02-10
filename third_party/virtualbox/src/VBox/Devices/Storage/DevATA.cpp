@@ -7674,7 +7674,7 @@ static DECLCALLBACK(int) ataR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFGM
                     }
 
                     rc = CFGMR3QueryStringDef(pCfgNode, "ModelNumber", pIf->szModelNumber, sizeof(pIf->szModelNumber),
-                                              pIf->fATAPI ? "VBOX CD-ROM" : "VBOX HARDDISK");
+                                              pIf->fATAPI ? "ASUS CD-ROM" : "ASUS HARDDISK");
                     if (RT_FAILURE(rc))
                     {
                         if (rc == VERR_CFGM_NOT_ENOUGH_SPACE)
@@ -7688,7 +7688,7 @@ static DECLCALLBACK(int) ataR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFGM
                     if (pIf->fATAPI)
                     {
                         rc = CFGMR3QueryStringDef(pCfgNode, "ATAPIVendorId", pIf->szInquiryVendorId, sizeof(pIf->szInquiryVendorId),
-                                                  "VBOX");
+                                                  "ASUS");
                         if (RT_FAILURE(rc))
                         {
                             if (rc == VERR_CFGM_NOT_ENOUGH_SPACE)

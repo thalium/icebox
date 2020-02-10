@@ -5522,7 +5522,7 @@ static int ahciR3VpdInit(PPDMDEVINS pDevIns, PAHCIPort pAhciPort, const char *ps
     }
 
     rc = CFGMR3QueryStringDef(pCfgNode, "ModelNumber", pAhciPort->szModelNumber, sizeof(pAhciPort->szModelNumber),
-                              pAhciPort->fATAPI ? "VBOX CD-ROM" : "VBOX HARDDISK");
+                              pAhciPort->fATAPI ? "ASUS CD-ROM" : "ASUS HARDDISK");
     if (RT_FAILURE(rc))
     {
         if (rc == VERR_CFGM_NOT_ENOUGH_SPACE)
