@@ -15,7 +15,7 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-DefinitionBlock ("DSDT.aml", "DSDT", 2, "ASUS  ", "ASUSBIOS", 2)
+DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "AMI  ", 2)
 {
     // Declare debugging ports withing SystemIO
     OperationRegion(DBG0, SystemIO, 0x3000, 4)
@@ -1423,10 +1423,10 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ASUS  ", "ASUSBIOS", 2)
                     0x00,       // Design capacity of Low
                     0x04,       // Battery capacity granularity 1
                     0x04,       // Battery capacity granularity 2
-                    "1",        // Model number
-                    "0",        // Serial number
-                    "VBOX",     // Battery type
-                    "innotek"   // OEM Information
+                    "7",        // Model number
+                    "515.0",        // Serial number
+                    "MK570",     // Battery type
+                    "Intel"   // OEM Information
                 })
 
                 Name (PBST, Package () {
