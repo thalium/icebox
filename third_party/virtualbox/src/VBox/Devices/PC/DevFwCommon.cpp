@@ -55,26 +55,26 @@ static const int32_t g_iDefDmiBIOSReleaseMajor  = 0;
 static const int32_t g_iDefDmiBIOSReleaseMinor  = 0;
 static const int32_t g_iDefDmiBIOSFirmwareMajor = 0;
 static const int32_t g_iDefDmiBIOSFirmwareMinor = 0;
-static const char   *g_pszDefDmiBIOSVendor      = "innotek GmbH";
-static const char   *g_pszDefDmiBIOSVersion     = "VirtualBox";
-static const char   *g_pszDefDmiBIOSReleaseDate = "12/01/2006";
+static const char   *g_pszDefDmiBIOSVendor      = "American Megatrends Inc.";
+static const char   *g_pszDefDmiBIOSVersion     = "AMI BIOS v14.1.1";
+static const char   *g_pszDefDmiBIOSReleaseDate = "23/08/2016";
 /* type 1 -- DMI system information */
-static const char   *g_pszDefDmiSystemVendor    = "innotek GmbH";
-static const char   *g_pszDefDmiSystemProduct   = "VirtualBox";
-static const char   *g_pszDefDmiSystemVersion   = "1.2";
-static const char   *g_pszDefDmiSystemSerial    = "0";
+static const char   *g_pszDefDmiSystemVendor    = "American Megatrends Inc.";
+static const char   *g_pszDefDmiSystemProduct   = "AMI BIOS";
+static const char   *g_pszDefDmiSystemVersion   = "14.1.1";
+static const char   *g_pszDefDmiSystemSerial    = "6";
 static const char   *g_pszDefDmiSystemSKU       = "";
 static const char   *g_pszDefDmiSystemFamily    = "Virtual Machine";
 /* type 2 -- DMI board information */
-static const char   *g_pszDefDmiBoardVendor     = "Oracle Corporation";
-static const char   *g_pszDefDmiBoardProduct    = "VirtualBox";
-static const char   *g_pszDefDmiBoardVersion    = "1.2";
-static const char   *g_pszDefDmiBoardSerial     = "0";
+static const char   *g_pszDefDmiBoardVendor     = "American Megatrends Inc.";
+static const char   *g_pszDefDmiBoardProduct    = "AMI BIOS";
+static const char   *g_pszDefDmiBoardVersion    = "14.1.1";
+static const char   *g_pszDefDmiBoardSerial     = "7";
 static const char   *g_pszDefDmiBoardAssetTag   = "";
 static const char   *g_pszDefDmiBoardLocInChass = "";
 static const int32_t g_iDefDmiBoardBoardType    = 0x0A; /* Motherboard */
 /* type 3 -- DMI chassis information */
-static const char   *g_pszDefDmiChassisVendor   = "Oracle Corporation";
+static const char   *g_pszDefDmiChassisVendor   = "American Megatrends Inc.";
 static const int32_t g_iDefDmiChassisType       = 0x01; /* ''other'', no chassis lock present */
 static const char   *g_pszDefDmiChassisVersion  = "";
 static const char   *g_pszDefDmiChassisSerial   = "";
@@ -907,10 +907,10 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
         pOEMStrings->u8Count          = 2;
 
         char szTmp[64];
-        RTStrPrintf(szTmp, sizeof(szTmp), "vboxVer_%u.%u.%u",
+        RTStrPrintf(szTmp, sizeof(szTmp), "Ver_%u.%u.%u",
                     RTBldCfgVersionMajor(), RTBldCfgVersionMinor(), RTBldCfgVersionBuild());
         DMI_READ_CFG_STR_DEF(pOEMStrings->u8VBoxVersion, "DmiOEMVBoxVer", szTmp);
-        RTStrPrintf(szTmp, sizeof(szTmp), "vboxRev_%u", RTBldCfgRevision());
+        RTStrPrintf(szTmp, sizeof(szTmp), "Rev_%u", RTBldCfgRevision());
         DMI_READ_CFG_STR_DEF(pOEMStrings->u8VBoxRevision, "DmiOEMVBoxRev", szTmp);
         DMI_TERM_STRUCT;
 
@@ -1036,8 +1036,8 @@ void FwCommonPlantMpsTable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, 
     PMPSCFGTBLHEADER pCfgTab      = (MPSCFGTBLHEADER*)pTable;
     memcpy(pCfgTab->au8Signature, "PCMP", 4);
     pCfgTab->u8SpecRev             =  4;    /* 1.4 */
-    memcpy(pCfgTab->au8OemId, "VBOXCPU ", 8);
-    memcpy(pCfgTab->au8ProductId, "VirtualBox  ", 12);
+    memcpy(pCfgTab->au8OemId, "INTELCPU", 8);
+    memcpy(pCfgTab->au8ProductId, "IntelCorp   ", 12);
     pCfgTab->u32OemTablePtr        =  0;
     pCfgTab->u16OemTableSize       =  0;
     pCfgTab->u16EntryCount         =  0;    /* Incremented as we go. */
