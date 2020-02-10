@@ -3949,9 +3949,10 @@ static DECLCALLBACK(int) vmmdevConstruct(PPDMDEVINS pDevIns, int iInstance, PCFG
     pThis->pDevIns = pDevIns;
 
     /* PCI vendor, just a free bogus value */
-    PCIDevSetVendorId(&pThis->PciDev, 0x80ee);
+    PCIDevSetVendorId(&pThis->PciDev, 0x8086);
     /* device ID */
-    PCIDevSetDeviceId(&pThis->PciDev, 0xcafe);
+    // FIX detection Win32_PnPDevice DeviceId from WMI for VBox PCI device
+    PCIDevSetDeviceId(&pThis->PciDev, 0x340a);
     /* class sub code (other type of system peripheral) */
     PCIDevSetClassSub(&pThis->PciDev, 0x80);
     /* class base code (base system peripheral) */
