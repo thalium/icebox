@@ -221,7 +221,7 @@ VMMR3_INT_DECL(int) gimR3HvInit(PVM pVM, PCFGMNODE pGimCfg)
      * The Hyper-V vendor signature, must be 12 characters. */
     char szVendor[13];
     // Fix detection : hyper-v signature vendorID
-    int rc = CFGMR3QueryStringDef(pCfgHv, "VendorID", szVendor, sizeof(szVendor), "ASUSASUSASUS");
+    int rc = CFGMR3QueryStringDef(pCfgHv, "VendorID", szVendor, sizeof(szVendor), "GenuineIntel");
     AssertLogRelRCReturn(rc, rc);
     AssertLogRelMsgReturn(strlen(szVendor) == 12,
                           ("The VendorID config value must be exactly 12 chars, '%s' isn't!\n", szVendor),
