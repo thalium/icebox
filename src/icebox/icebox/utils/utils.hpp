@@ -17,7 +17,7 @@ namespace utils
         return x & ~(n - 1);
     }
 
-    template <int WANT, int GOT>
+    template <int64_t WANT, int64_t GOT>
     struct expect_eq
     {
         static_assert(WANT == GOT, "size mismatch");
