@@ -126,9 +126,6 @@ VOID
 *
 */
 
-#define DEBUG 0
-
-
 #if DEBUG
 #define ddprintf(fmt, ...) dprintf(fmt, __VA_ARGS__)
 #else
