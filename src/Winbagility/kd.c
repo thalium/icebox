@@ -203,7 +203,7 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
             printf("\t\tProcessorLevel: %04x\n", pkt->ManipulateState64.ProcessorLevel);
             printf("\t\tProcessor: %04x\n", pkt->ManipulateState64.Processor);
             printf("\t\tProcessor: %04x\n", pkt->ManipulateState64.Processor);
-            printf("\t\tReturnStatus: %08x\n", pkt->ManipulateState64.ReturnStatus);
+            printf("\t\tReturnStatus: %08lx\n", pkt->ManipulateState64.ReturnStatus);
             dumpHexData((char*)pkt->ManipulateState64.data, pkt->Length - 12);
             printf("\t\t----------------------------\n");
         }
@@ -241,8 +241,8 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
         case DbgKdWriteVirtualMemoryApi:
             printf("\t[DbgKdWriteVirtualMemoryApi]\n");
             printf("\tTargetBaseAddress %llx\n", pkt->ManipulateState64.WriteMemory.TargetBaseAddress);
-            printf("\tTransferCount %08x\n", pkt->ManipulateState64.WriteMemory.TransferCount);
-            printf("\tActualBytesWritten %08x\n", pkt->ManipulateState64.WriteMemory.ActualBytesWritten);
+            printf("\tTransferCount %08lx\n", pkt->ManipulateState64.WriteMemory.TransferCount);
+            printf("\tActualBytesWritten %08lx\n", pkt->ManipulateState64.WriteMemory.ActualBytesWritten);
             //printf("\tUnknown1 %llx\n", pkt->ManipulateState64.WriteMemory.Unknown1);
             //printf("\tUnknown2 %llx\n", pkt->ManipulateState64.WriteMemory.Unknown2);
             //printf("\tUnknown3 %llx\n", pkt->ManipulateState64.WriteMemory.Unknown3);
@@ -266,8 +266,8 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
         case DbgKdWritePhysicalMemoryApi:
             printf("\t[DbgKdWritePhysicalMemoryApi]\n");
             printf("\tTargetBaseAddress %llx\n", pkt->ManipulateState64.WriteMemory.TargetBaseAddress);
-            printf("\tTransferCount %08x\n", pkt->ManipulateState64.WriteMemory.TransferCount);
-            printf("\tActualBytesWritten %08x\n", pkt->ManipulateState64.WriteMemory.ActualBytesWritten);
+            printf("\tTransferCount %08lx\n", pkt->ManipulateState64.WriteMemory.TransferCount);
+            printf("\tActualBytesWritten %08lx\n", pkt->ManipulateState64.WriteMemory.ActualBytesWritten);
             //printf("\tUnknown1 %llx\n", pkt->ManipulateState64.WriteMemory.Unknown1);
             //printf("\tUnknown2 %llx\n", pkt->ManipulateState64.WriteMemory.Unknown2);
             //printf("\tUnknown3 %llx\n", pkt->ManipulateState64.WriteMemory.Unknown3);
@@ -331,8 +331,8 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
         case DbgKdWriteControlSpaceApi:
             printf("\t[DbgKdWriteControlSpaceApi]\n");
             printf("\tTargetBaseAddress(index) %llx\n", pkt->ManipulateState64.WriteMemory.TargetBaseAddress);
-            printf("\tTransferCount %08x\n", pkt->ManipulateState64.WriteMemory.TransferCount);
-            printf("\tActualBytesWritten %08x\n", pkt->ManipulateState64.WriteMemory.ActualBytesWritten);
+            printf("\tTransferCount %08lx\n", pkt->ManipulateState64.WriteMemory.TransferCount);
+            printf("\tActualBytesWritten %08lx\n", pkt->ManipulateState64.WriteMemory.ActualBytesWritten);
             switch (pkt->ManipulateState64.ReadMemory.TargetBaseAddress){
             case 0: //@v_KPCR
                 break;
@@ -375,7 +375,7 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
             break;
         case DbgKdRestoreBreakPointApi:
             printf("\t[DbgKdRestoreBreakPointApi]\n");
-            printf("\tBreakPointHandle %08x\n", pkt->ManipulateState64.RestoreBreakPoint.BreakPointHandle);
+            printf("\tBreakPointHandle %08lx\n", pkt->ManipulateState64.RestoreBreakPoint.BreakPointHandle);
             break;
         case DbgKdClearAllInternalBreakpointsApi:
             printf("\t[DbgKdClearAllInternalBreakpointsApi]\n");
@@ -398,7 +398,7 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
                 printf("SegFs %04x\n", pkt->ManipulateState64.GetRegisters.SegFs);
                 printf("SegGs %04x\n", pkt->ManipulateState64.GetRegisters.SegGs);
                 printf("SegSs %04x\n", pkt->ManipulateState64.GetRegisters.SegSs);
-                printf("EFlags %08x\n", pkt->ManipulateState64.GetRegisters.EFlags);
+                printf("EFlags %08lx\n", pkt->ManipulateState64.GetRegisters.EFlags);
 
                 printf("Dr0 %llx\n", pkt->ManipulateState64.GetRegisters.Dr0);
                 printf("Dr1 %llx\n", pkt->ManipulateState64.GetRegisters.Dr1);
@@ -514,7 +514,7 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
             printf("\tNewState %08x\n", pkt->StateChange.NewState);
             printf("\tProcessorLevel %04x\n", pkt->StateChange.ProcessorLevel);
             printf("\tProcessor %04x\n", pkt->StateChange.Processor);
-            printf("\tNumberProcessors %08x\n", pkt->StateChange.NumberProcessors);
+            printf("\tNumberProcessors %08lx\n", pkt->StateChange.NumberProcessors);
             printf("\tThread %llx\n", pkt->StateChange.Thread);
             printf("\tProgramCounter %llx\n", pkt->StateChange.ProgramCounter);
 
@@ -532,7 +532,7 @@ bool ParseKDPkt(KD_PACKET_T* pkt)
 
             printf("\tDR6 %llx\n", pkt->StateChange.ControlReport.Dr6);
             printf("\tDR7 %llx\n", pkt->StateChange.ControlReport.Dr7);
-            printf("\tEFlags %08x\n", pkt->StateChange.ControlReport.EFlags);
+            printf("\tEFlags %08lx\n", pkt->StateChange.ControlReport.EFlags);
             printf("\tInstructionCount %04x\n", pkt->StateChange.ControlReport.InstructionCount);
             printf("\tReportFlags %04x\n", pkt->StateChange.ControlReport.ReportFlags);
             for (int i = 0; i<min(DBGKD_MAXSTREAM, pkt->StateChange.ControlReport.InstructionCount); i++){

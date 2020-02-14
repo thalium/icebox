@@ -52,11 +52,11 @@ bool PdbOpenPdb(PDB_PARSER_T *pPdbParserHandle, const char *pPDBPath)
                 bOk = true;
             }
             else{
-                printf("Failed to SymLoadModuleEx (%d)\n", GetLastError());
+                printf("Failed to SymLoadModuleEx (%lu)\n", GetLastError());
             }
         }
         else{
-            printf("Failed to GetFileSize (%d)\n", GetLastError());
+            printf("Failed to GetFileSize (%lu)\n", GetLastError());
         }
     }
     else{
@@ -85,7 +85,7 @@ bool PdbGetSymbolsRVA(PDB_PARSER_T  *pPdbParserHandle, const char *pSymbolName, 
     pInfo->ModBase = 0;
 
     if (SymFromName(pPdbParserHandle->hProcess, pSymbolName, pInfo) == false) {
-        printf("Failed to SymFromName (%d)\n", GetLastError());
+        printf("Failed to SymFromName (%lu)\n", GetLastError());
         return false;
     }
     *pRVA = pInfo->Address - FAKE_BASE_ADDRESS;

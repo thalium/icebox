@@ -835,7 +835,7 @@ bool GDB_Init(GDB_TYPE_T *pGDB)
     pGDB->HardwareBreakpoint[0] = 0;
     pGDB->HardwareBreakpoint[1] = 0;
     pGDB->HardwareBreakpoint[2] = 0;
-    pGDB->HardwareBreakpoint[4] = 0;
+    pGDB->HardwareBreakpoint[3] = 0;
 
     pGDB->bIsX86 = false;
     if (strlen(g_GeneralRegisters) == 344) { //Tricky for VMware 328=>x64  344=>x86
@@ -974,7 +974,7 @@ int  GDB_SetBreakpoint(GDB_TYPE_T *pGDB, uint32_t CpuId, FDP_BreakpointType Brea
     SendGDBPacket(pGDB->Sock, Command);
     //Receive 
     RecvGDBPacket(pGDB->Sock, Command);
-    if (Command[0] = 'O' && Command[1] == 'K'){
+    if (Command[0] == 'O' && Command[1] == 'K'){
         pGDB->HardwareBreakpoint[BreakpointIndex] = BreakpointAddress;
         return BreakpointIndex;
     }

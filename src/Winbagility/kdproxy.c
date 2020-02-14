@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <sys/Types.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h>
@@ -50,7 +50,7 @@ DWORD WINAPI DebuggeeToWinDbg(LPVOID lpParam)
             if (result != KdNoPacket){
                 DWORD numBytesWritten = WriteKDPipe(proxyDBGPipe, pKdPkt);
                 WaitForSingleObject(ghMutex, INFINITE);
-                printf("[VM->Windbg] Write to Windbg : %d\n", numBytesWritten);
+                printf("[VM->Windbg] Write to Windbg : %lu\n", numBytesWritten);
                 ParseKDPkt(pKdPkt);
                 ReleaseMutex(ghMutex);
             }
@@ -66,7 +66,6 @@ DWORD WINAPI WindDbgToDebuggee(LPVOID lpParam)
     KD_PACKET_T* pKdPkt = (KD_PACKET_T*)malloc(65 * 1024);
     int result;
     while (bProxyRunning == true){
-        DWORD numBytesRead = 0;
         DWORD numBytesWritten = 0;
         result = ReadKDPipe(proxyDBGPipe, pKdPkt);
         if (result != KdNoPacket){
@@ -79,7 +78,7 @@ DWORD WINAPI WindDbgToDebuggee(LPVOID lpParam)
             else{
                 numBytesWritten = WriteKDPipe(proxyVMPipe, pKdPkt);
                 WaitForSingleObject(ghMutex, INFINITE);
-                printf("[Windbg->VM] Write to VM : %d\n", numBytesWritten);
+                printf("[Windbg->VM] Write to VM : %lu\n", numBytesWritten);
                 ParseKDPkt(pKdPkt);
                 ReleaseMutex(ghMutex);
             }

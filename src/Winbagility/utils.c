@@ -151,6 +151,7 @@ bool GetPipeTry(HANDLE hPipe, uint8_t* data, uint64_t size, bool timeout)
         if (avalaibleBytes >= size){
             DWORD numBytesRead = 0;
             BOOL result = ReadFile(hPipe, data, (uint32_t)size, &numBytesRead, NULL);
+            (void) result;
             return true;
         }
         else{
@@ -202,6 +203,7 @@ DWORD PutPipe(HANDLE hPipe, uint8_t *data, uint64_t size)
 {
     DWORD numBytesWritten = 0;
     BOOL result = WriteFile(hPipe, data, (uint32_t)size, &numBytesWritten, NULL);
+    (void) result;
     return numBytesWritten;
 }
 
@@ -231,7 +233,6 @@ bool IsLetter(char c)
 
 char* GetSymbolsDirectory()
 {
-    char *pSymbolsDirectoryReturned = NULL;
     char *pSymbolsDirectory = NULL;
     char Buffer[512];
     if (GetEnvironmentVariableA("_NT_SYMBOL_PATH", Buffer, sizeof(Buffer)) == 0){

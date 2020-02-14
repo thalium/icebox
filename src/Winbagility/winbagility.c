@@ -34,7 +34,7 @@
 #include "dissectors.h"
 #include "utils.h"
 #include "kdproxy.h"
-#include "STUB/windows_structs.h"
+#include "STUB/Windows_structs.h"
 #include "STUB/GDB.h"
 #include "STUB/CRASH.h"
 #include "STUB/LIVEKADAY.h"
@@ -176,7 +176,6 @@ int main(int argc, char* argv[])
 
     int iReturnCode = -1;
     WINBAGILITY_CONTEXT_T *pWinbagilityCtx = NULL;
-    char *pStubOpenArg = NULL;
 
     if (argc != 4){
         Usage();

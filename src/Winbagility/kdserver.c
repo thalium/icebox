@@ -23,7 +23,7 @@
 */
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/Types.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
@@ -671,8 +671,6 @@ BOOL HandleDbgKdSwitchProcessor(WINBAGILITY_CONTEXT_T *pWinbagilityCtx, KD_PACKE
 {
     LogFlow();
 
-    KD_PACKET_T *pRespKdPkt = (KD_PACKET_T*)pWinbagilityCtx->TmpOuputBuffer;
-
     pWinbagilityCtx->CurrentCpuId = pReqKdPkt->ManipulateState64.Processor;
 
     HandleBreakPkt(pWinbagilityCtx, false, false);
@@ -885,7 +883,6 @@ bool HandleDbgKdWriteControlSpaceApi(WINBAGILITY_CONTEXT_T *pWinbagilityCtx, KD_
     case 1: //@KPRCB
         break;
     case 2:{ //@SpecialRegisters
-        _KPROCESSOR_STATE64 *tmpProcessorState = (_KPROCESSOR_STATE64*)pReqKdPkt->ManipulateState64.WriteMemory.Data;
         KSPECIAL_REGISTERS64_T *tmpSpecialRegisters = (KSPECIAL_REGISTERS64_T*)pReqKdPkt->ManipulateState64.WriteMemory.Data;
 
         pWinbagilityCtx->pfnWriteRegister(pWinbagilityCtx->pUserHandle, CurrentCpuId, FDP_DR0_REGISTER, tmpSpecialRegisters->KernelDr0);
@@ -916,8 +913,6 @@ bool HandleDbgKdWriteControlSpaceApi(WINBAGILITY_CONTEXT_T *pWinbagilityCtx, KD_
 bool HandleDbgKdContinueApi(WINBAGILITY_CONTEXT_T *pWinbagilityCtx, KD_PACKET_T *pReqKdPkt)
 {
     LogFlow();
-
-    KD_PACKET_T *pRespKdPkt = (KD_PACKET_T*)pWinbagilityCtx->TmpOuputBuffer;
 
     uint32_t CurrentCpuId = pReqKdPkt->ManipulateState64.Processor;
 

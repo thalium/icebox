@@ -23,7 +23,7 @@
 */
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/Types.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h>

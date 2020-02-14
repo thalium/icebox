@@ -136,6 +136,7 @@ bool GetPipe(HANDLE hPipe, uint8_t* data, uint64_t size){
         if (avalaibleBytes >= size){
             DWORD numBytesRead = 0;
             BOOL result = ReadFile(hPipe, data, (uint32_t)size, &numBytesRead, NULL);
+            (void) result;
             return true;
         }
         else{
@@ -173,6 +174,7 @@ uint64_t Get64Pipe(HANDLE hPipe){
 DWORD PutPipe(HANDLE hPipe, uint8_t *data, uint64_t size){
     DWORD numBytesWritten = 0;
     BOOL result = WriteFile(hPipe, data, (uint32_t)size, &numBytesWritten, NULL);
+    (void) result;
     return numBytesWritten;
 }
 
