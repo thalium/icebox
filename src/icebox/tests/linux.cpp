@@ -65,10 +65,10 @@ namespace
         });
 
         if(utilities.empty())
-            return FAIL(ext::nullopt, "Execute ./linux_tst_ibx before running tests (see TESTS.md for details)");
+            return FAIL(std::nullopt, "Execute ./linux_tst_ibx before running tests (see TESTS.md for details)");
 
         if(utilities.size() > 2)
-            return FAIL(ext::nullopt, "Multiple instance of ./linux_tst_ibx found, kill them and execute it only once");
+            return FAIL(std::nullopt, "Multiple instance of ./linux_tst_ibx found, kill them and execute it only once");
 
         for(const auto utility : utilities)
         {

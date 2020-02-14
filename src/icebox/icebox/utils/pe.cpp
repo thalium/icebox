@@ -175,7 +175,7 @@ opt<bool> pe::is_pe64(const memory::Io& io, const uint64_t image_file_header)
 {
     const auto machine = io.le16(image_file_header + offsetof(nt::IMAGE_FILE_HEADER, Machine));
     if(!machine)
-        return FAIL(ext::nullopt, "unable to read IMAGE_FILE_HEADER.Machine");
+        return FAIL(std::nullopt, "unable to read IMAGE_FILE_HEADER.Machine");
 
     return *machine == nt::image_file_machine_amd64;
 }
@@ -184,7 +184,7 @@ opt<span_t> pe::find_image_directory(const memory::Io& io, const span_t span, co
 {
     const auto e_lfanew = io.le32(span.addr + offsetof(nt::IMAGE_DOS_HEADER, e_lfanew));
     if(!e_lfanew)
-        return FAIL(ext::nullopt, "unable to read e_lfanew");
+        return FAIL(std::nullopt, "unable to read e_lfanew");
 
     const auto image_nt_header       = span.addr + *e_lfanew;
     const auto image_file_header     = image_nt_header + offsetof(nt::IMAGE_NT_HEADERS64, FileHeader);
@@ -192,17 +192,17 @@ opt<span_t> pe::find_image_directory(const memory::Io& io, const span_t span, co
 
     const auto pe64 = is_pe64(io, image_file_header);
     if(!pe64)
-        return FAIL(ext::nullopt, "unable to read get pe machine type");
+        return FAIL(std::nullopt, "unable to read get pe machine type");
 
     const auto offset          = *pe64 ? offsetof(nt::IMAGE_OPTIONAL_HEADER64, DataDirectory) : offsetof(nt::IMAGE_OPTIONAL_HEADER32, DataDirectory);
     const auto data_directory  = image_optional_header + offset + id * sizeof(nt::IMAGE_DATA_DIRECTORY);
     const auto virtual_address = io.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, VirtualAddress));
     if(!virtual_address || !*virtual_address)
-        return FAIL(ext::nullopt, "unable to read DataDirectory.VirtualAddress");
+        return FAIL(std::nullopt, "unable to read DataDirectory.VirtualAddress");
 
     const auto size = io.le32(data_directory + offsetof(nt::IMAGE_DATA_DIRECTORY, Size));
     if(!size)
-        return FAIL(ext::nullopt, "unable to read DataDirectory.Size");
+        return FAIL(std::nullopt, "unable to read DataDirectory.Size");
 
     // LOG(INFO, "exception_dir addr {:#x} section size {:#x}", span.addr + *data_directory_virtual_address, *data_directory_size);
     return span_t{span.addr + *virtual_address, *size};
@@ -219,7 +219,7 @@ opt<span_t> pe::find_debug_codeview(const memory::Io& io, span_t span)
         return {};
 
     if(*type != 2)
-        return FAIL(ext::nullopt, "invalid IMAGE_DEBUG_TYPE, want IMAGE_DEBUG_TYPE_CODEVIEW = 2, got %d", *type);
+        return FAIL(std::nullopt, "invalid IMAGE_DEBUG_TYPE, want IMAGE_DEBUG_TYPE_CODEVIEW = 2, got %d", *type);
 
     const auto addr = io.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, AddressOfRawData));
     const auto size = io.le32(directory->addr + offsetof(nt::IMAGE_DEBUG_DIRECTORY, SizeOfData));

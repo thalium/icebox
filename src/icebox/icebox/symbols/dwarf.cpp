@@ -144,22 +144,22 @@ namespace
         auto attr  = Dwarf_Attribute{};
         auto err   = dwarf_attr(die, DW_AT_data_member_location, &attr, &error);
         if(err == DW_DLV_ERROR)
-            return FAIL(ext::nullopt, "libdwarf error %llu when reading attributes of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
+            return FAIL(std::nullopt, "libdwarf error %llu when reading attributes of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
 
         if(err == DW_DLV_NO_ENTRY)
-            return ext::nullopt;
+            return std::nullopt;
 
         auto form = Dwarf_Half{};
         err       = dwarf_whatform(attr, &form, &error);
         if(err != DW_DLV_OK)
-            return FAIL(ext::nullopt, "libdwarf error %llu when reading form of DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
+            return FAIL(std::nullopt, "libdwarf error %llu when reading form of DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
 
         if(form == DW_FORM_data1 || form == DW_FORM_data2 || form == DW_FORM_data4 || form == DW_FORM_data8 || form == DW_FORM_udata)
         {
             auto offset = Dwarf_Unsigned{};
             err         = dwarf_formudata(attr, &offset, &error);
             if(err != DW_DLV_OK)
-                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
+                return FAIL(std::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
 
             return offset;
         }
@@ -169,10 +169,10 @@ namespace
             auto offset = Dwarf_Signed{};
             err         = dwarf_formsdata(attr, &offset, &error);
             if(err != DW_DLV_OK)
-                return FAIL(ext::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
+                return FAIL(std::nullopt, "libdwarf error %llu when reading DW_AT_data_member_location attribute : %s", dwarf_errno(error), dwarf_errmsg(error));
 
             if(offset < 0)
-                return FAIL(ext::nullopt, "unsupported negative offset for DW_AT_data_member_location attribute");
+                return FAIL(std::nullopt, "unsupported negative offset for DW_AT_data_member_location attribute");
 
             return offset;
         }
@@ -183,13 +183,13 @@ namespace
         if(err != DW_DLV_OK)
         {
             dwarf_dealloc(&dbg, &llbuf, DW_DLA_LOCDESC);
-            return FAIL(ext::nullopt, "unsupported member offset in DW_AT_data_member_location attribute");
+            return FAIL(std::nullopt, "unsupported member offset in DW_AT_data_member_location attribute");
         }
 
         if(listlen != 1 || llbuf[0]->ld_cents != 1 || llbuf[0]->ld_s->lr_atom != DW_OP_plus_uconst)
         {
             dwarf_dealloc(&dbg, &llbuf, DW_DLA_LOCDESC);
-            return FAIL(ext::nullopt, "unsupported location expression in DW_AT_data_member_location attribute");
+            return FAIL(std::nullopt, "unsupported location expression in DW_AT_data_member_location attribute");
         }
 
         const auto offset = llbuf[0]->ld_s->lr_number;
@@ -203,7 +203,7 @@ namespace
         auto size      = Dwarf_Unsigned{};
         const auto err = dwarf_bytesize(struc, &size, &error);
         if(err == DW_DLV_ERROR)
-            return FAIL(ext::nullopt, "libdwarf error %llu when reading size of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
+            return FAIL(std::nullopt, "libdwarf error %llu when reading size of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
 
         if(err == DW_DLV_NO_ENTRY)
             return {};

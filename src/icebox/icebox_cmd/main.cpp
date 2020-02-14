@@ -113,7 +113,7 @@ namespace
                 const auto pid      = process::pid(core, *proc);
                 const auto thread   = threads::current(core);
                 const auto tid      = threads::tid(core, *proc, *thread);
-                const auto procname = proc ? process::name(core, *proc) : ext::nullopt;
+                const auto procname = proc ? process::name(core, *proc) : std::nullopt;
                 const auto symbol   = symbols::string(core, *proc, rip);
                 LOG(INFO, "BREAK! rip: 0x%" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
                     rip, symbol.data(), procname ? procname->data() : "", pid, tid);

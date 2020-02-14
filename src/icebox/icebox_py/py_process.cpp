@@ -72,12 +72,12 @@ opt<flags_t> py::flags::to(PyObject* arg)
     auto flags = flags_t{};
     auto attr  = PyObject_GetAttrString(arg, "is_x64");
     if(!attr || !PyBool_Check(attr))
-        return py::fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x64 attribute");
+        return py::fail_with(std::nullopt, PyExc_RuntimeError, "missing or invalid is_x64 attribute");
 
     flags.is_x64 = PyLong_AsLong(attr);
     attr         = PyObject_GetAttrString(arg, "is_x86");
     if(!attr || !PyBool_Check(attr))
-        return py::fail_with(ext::nullopt, PyExc_RuntimeError, "missing or invalid is_x86 attribute");
+        return py::fail_with(std::nullopt, PyExc_RuntimeError, "missing or invalid is_x86 attribute");
 
     flags.is_x86 = PyLong_AsLong(attr);
     return flags;

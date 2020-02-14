@@ -71,11 +71,11 @@ namespace
 
         const auto handle_table = d.io.read(handle_table_addr);
         if(!handle_table)
-            return FAIL(ext::nullopt, "unable to read handle table");
+            return FAIL(std::nullopt, "unable to read handle table");
 
         auto handle_table_code = d.io.read(*handle_table + d.nt.offsets_[HANDLE_TABLE_TableCode]);
         if(!handle_table_code)
-            return FAIL(ext::nullopt, "unable to read handle table code");
+            return FAIL(std::nullopt, "unable to read handle table code");
 
         const auto handle_table_level = *handle_table_code & 3;
         *handle_table_code &= ~3;
@@ -116,14 +116,14 @@ namespace
                 break;
 
             default:
-                return FAIL(ext::nullopt, "Unknown table level");
+                return FAIL(std::nullopt, "Unknown table level");
         }
         if(!*handle_table_code)
-            return {};
+            return std::nullopt;
 
         const auto handle_table_entry = d.io.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
         if(!handle_table_entry)
-            return FAIL(ext::nullopt, "unable to read table entry");
+            return FAIL(std::nullopt, "unable to read table entry");
 
         // TODO deal with theses shifts on x32
         uint64_t p                = 0xffff;
@@ -155,14 +155,14 @@ namespace
         {
             const auto header_cookie = d.io.byte(*opt_cookie);
             if(!header_cookie)
-                return FAIL(ext::nullopt, "unable to read ObHeaderCookie");
+                return FAIL(std::nullopt, "unable to read ObHeaderCookie");
 
             type_idx ^= *header_cookie;
         }
 
         const auto obj_type = d.io.read(*d.nt.symbols_[ObTypeIndexTable] + static_cast<size_t>(type_idx) * POINTER_SIZE);
         if(!obj_type)
-            return FAIL(ext::nullopt, "unable to read object type");
+            return FAIL(std::nullopt, "unable to read object type");
 
         return nt::read_unicode_string(d.io, *obj_type + d.nt.offsets_[OBJECT_TYPE_Name]);
     }

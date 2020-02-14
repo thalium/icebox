@@ -53,11 +53,11 @@ namespace
     {
         const auto addr = symbols::address(d.core, proc, d.module, name);
         if(!addr)
-            return FAIL(ext::nullopt, "unable to find symbole %s!%s", d.module.data(), name);
+            return FAIL(std::nullopt, "unable to find symbole %s!%s", d.module.data(), name);
 
         const auto bp = state::break_on_process(d.core, name, proc, *addr, on_call);
         if(!bp)
-            return FAIL(ext::nullopt, "unable to set breakpoint");
+            return FAIL(std::nullopt, "unable to set breakpoint");
 
         return state::save_breakpoint_with(d.core, bpid, bp);
     }

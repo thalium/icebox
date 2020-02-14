@@ -483,7 +483,7 @@ namespace
             const auto ok = fdp::unset_breakpoint(core, it->second.id);
             targets.erase(it);
             if(!ok)
-                return {};
+                return std::nullopt;
 
             // add new breakpoint without filtering
             dtb = {};
@@ -492,7 +492,7 @@ namespace
         const auto dtb_val = dtb ? dtb->val : 0;
         const auto bpid    = fdp::set_breakpoint(core, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy.val, 1, dtb_val);
         if(bpid < 0)
-            return FAIL(ext::nullopt, "unable to set breakpoint %s phy:0x%" PRIx64 " dtb:0x%" PRIx64, std::string{name}.data(), phy.val, dtb_val);
+            return FAIL(std::nullopt, "unable to set breakpoint %s phy:0x%" PRIx64 " dtb:0x%" PRIx64, std::string{name}.data(), phy.val, dtb_val);
 
         targets.emplace(phy, Breakpoint{dtb, bpid});
         return bpid;
@@ -535,7 +535,7 @@ namespace
             return nullptr;
 
         const auto dtb     = dtb_select(core, *opt_proc, ptr);
-        const auto opt_dtb = proc || thread ? ext::make_optional(dtb) : ext::nullopt;
+        const auto opt_dtb = proc || thread ? std::make_optional(dtb) : std::nullopt;
         return set_physical_breakpoint(core, name, *opt_phy, opt_dtb, proc, thread, task);
     }
 }

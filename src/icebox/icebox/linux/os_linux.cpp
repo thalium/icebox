@@ -306,7 +306,7 @@ namespace
         {
             const auto ok = io.read_all(&buffer[0], addr + offset, buffer_size);
             if(!ok)
-                return FAIL(ext::nullopt, "unable to read %u bytes at address (0x%" PRIx64 ")", buffer_size, addr + offset);
+                return FAIL(std::nullopt, "unable to read %u bytes at address (0x%" PRIx64 ")", buffer_size, addr + offset);
 
             buffer.back() = 0;
             ret.append(&buffer[0]);
@@ -466,15 +466,15 @@ namespace
         auto& symbols    = symbols::Modules::modules(core);
         const auto dwarf = symbols::make_dwarf("kernel", guid);
         if(!dwarf)
-            return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/elf", guid.data());
+            return FAIL(std::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/elf", guid.data());
 
         auto ok = symbols.insert(symbols::kernel, "kernel", {}, dwarf);
         if(!ok)
-            return FAIL(ext::nullopt, "unable to store dwarf kernel symbols");
+            return FAIL(std::nullopt, "unable to store dwarf kernel symbols");
 
         const auto sysmap = symbols::make_map("kernel", guid);
         if(!sysmap)
-            return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/System.map file", guid.data());
+            return FAIL(std::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/System.map file", guid.data());
 
         const auto addr = sysmap->symbol_offset(strSymbol);
         if(!addr)
@@ -492,7 +492,7 @@ namespace
         sysmap->rebase_symbols(-static_cast<int64_t>(*text));
         ok = symbols.insert(symbols::kernel, "kernel_sym", {*text + kaslr, *end - *text}, sysmap);
         if(!ok)
-            return FAIL(ext::nullopt, "unable to store sysmap kernel symbols");
+            return FAIL(std::nullopt, "unable to store sysmap kernel symbols");
 
         return kaslr;
     }
@@ -751,7 +751,7 @@ namespace
 
         const auto stack_ptr = p.io_.read(thread.id + *p.offsets_[TASKSTRUCT_STACK]);
         if(!stack_ptr)
-            return FAIL(ext::nullopt, "unable to read task_struct->stack of 0x%" PRIx64 " thread", thread.id);
+            return FAIL(std::nullopt, "unable to read task_struct->stack of 0x%" PRIx64 " thread", thread.id);
 
         uint8_t THREAD_SIZE_ORDER;
         if(p.kversion < version("3.15"))
@@ -888,7 +888,7 @@ opt<proc_t> OsLinux::proc_parent(proc_t proc)
 {
     const auto thread_parent = io_.read(proc.id + *offsets_[TASKSTRUCT_REALPARENT]);
     if(!thread_parent)
-        return FAIL(ext::nullopt, "unable to read pointer to the parent of process 0x%" PRIx64, proc.id);
+        return FAIL(std::nullopt, "unable to read pointer to the parent of process 0x%" PRIx64, proc.id);
 
     return thread_proc(thread_t{*thread_parent});
 }
@@ -919,7 +919,7 @@ opt<thread_t> OsLinux::thread_current()
 {
     const auto addr = io_.read(per_cpu + *symbols_[CURRENT_TASK] - *symbols_[PER_CPU_START]);
     if(!addr)
-        return FAIL(ext::nullopt, "unable to read current_task in per_cpu area");
+        return FAIL(std::nullopt, "unable to read current_task in per_cpu area");
 
     return thread_t{*addr};
 }
@@ -939,11 +939,11 @@ namespace
     {
         const auto pgd_t = p.io_.read(mm + *p.offsets_[MMSTRUCT_PGD]);
         if(!pgd_t)
-            return FAIL(ext::nullopt, "unable to read pgd_t at 0x%" PRIx64 " in mm_struct of process", mm + *p.offsets_[MMSTRUCT_PGD]);
+            return FAIL(std::nullopt, "unable to read pgd_t at 0x%" PRIx64 " in mm_struct of process", mm + *p.offsets_[MMSTRUCT_PGD]);
 
         const auto pgd = memory::virtual_to_physical_with_dtb(p.core_, dtb_t{p.kpgd}, *pgd_t);
         if(!pgd)
-            return FAIL(ext::nullopt, "unable to find the pgd converting virtual addr 0x%" PRIx64 " to physical one", *pgd_t);
+            return FAIL(std::nullopt, "unable to find the pgd converting virtual addr 0x%" PRIx64 " to physical one", *pgd_t);
 
         return pgd->val;
     }
@@ -953,7 +953,7 @@ opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
     const auto proc_id = io_.read(thread.id + *offsets_[TASKSTRUCT_GROUPLEADER]);
     if(!proc_id)
-        return FAIL(ext::nullopt, "unable to find the leader of thread 0x%" PRIx64, thread.id);
+        return FAIL(std::nullopt, "unable to find the leader of thread 0x%" PRIx64, thread.id);
 
     const auto kdtb = kernel_dtb();
     const auto mm   = proc_mm(*this, *proc_id);
@@ -978,7 +978,7 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t thread)
 
     const auto pt_regs_ptr = pt_regs(*this, thread);
     if(!pt_regs_ptr)
-        return FAIL(ext::nullopt, "unable to find pt_regs struct of thread 0x%" PRIx64, thread.id);
+        return FAIL(std::nullopt, "unable to find pt_regs struct of thread 0x%" PRIx64, thread.id);
 
     return io_.read(*pt_regs_ptr - 8);
 }
@@ -1012,7 +1012,7 @@ namespace
     {
         const auto file = p.io_.read(vm_area.id + *p.offsets_[VMAREASTRUCT_VMFILE]);
         if(!file)
-            return FAIL(ext::nullopt, "unable to read vm_file pointer in vm_area 0x%" PRIx64, vm_area.id);
+            return FAIL(std::nullopt, "unable to read vm_file pointer in vm_area 0x%" PRIx64, vm_area.id);
 
         if(!*file) // anonymous vm_area like stack, heap or other...
             return {};
@@ -1023,15 +1023,15 @@ namespace
         else if(p.offsets_[FILE_FDENTRY])
             dentry_offset = *p.offsets_[FILE_FDENTRY];
         else
-            return FAIL(ext::nullopt, "unable to find the offset of dentry member in file structures");
+            return FAIL(std::nullopt, "unable to find the offset of dentry member in file structures");
 
         const auto dentry = p.io_.read(*file + dentry_offset);
         if(!dentry)
-            return FAIL(ext::nullopt, "unable to read dentry pointer in file 0x%" PRIx64, *file);
+            return FAIL(std::nullopt, "unable to read dentry pointer in file 0x%" PRIx64, *file);
 
         const auto name = p.io_.read(*dentry + *p.offsets_[DENTRY_DNAME] + *p.offsets_[QSTR_NAME]);
         if(!name)
-            return FAIL(ext::nullopt, "unable to read qstr_name pointer in dentry 0x%" PRIx64, *dentry);
+            return FAIL(std::nullopt, "unable to read qstr_name pointer in dentry 0x%" PRIx64, *dentry);
 
         return read_str(p.io_, *name, 32);
     }
@@ -1102,22 +1102,22 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 
     const auto mm = proc_mm(*this, proc.id);
     if(!mm)
-        return FAIL(ext::nullopt, "unable to find the mm_struct which module 0x%" PRIx64 " belongs", mod.id);
+        return FAIL(std::nullopt, "unable to find the mm_struct which module 0x%" PRIx64 " belongs", mod.id);
 
     const auto start_brk = io_.read(*mm + *offsets_[MMSTRUCT_STARTBRK]);
     const auto mmap_base = io_.read(*mm + *offsets_[MMSTRUCT_MMAPBASE]);
     if(!start_brk || !mmap_base || !*start_brk || !*mmap_base)
-        return FAIL(ext::nullopt, "unable to read addresses of start_brk and mmap_base in mm 0x%" PRIx64, *mm);
+        return FAIL(std::nullopt, "unable to read addresses of start_brk and mmap_base in mm 0x%" PRIx64, *mm);
 
     const auto mod_start = io_.read(mod.id + *offsets_[VMAREASTRUCT_VMSTART]);
     if(!mod_start)
-        return FAIL(ext::nullopt, "unable to read vm_start of module 0x%" PRIx64, mod.id);
+        return FAIL(std::nullopt, "unable to read vm_start of module 0x%" PRIx64, mod.id);
 
     bool main_elf = (mod_start < start_brk);
 
     const auto file_first_part = io_.read(mod.id + *offsets_[VMAREASTRUCT_VMFILE]);
     if(!file_first_part)
-        return FAIL(ext::nullopt, "unable to read vm_file pointer in module 0x%" PRIx64, mod.id);
+        return FAIL(std::nullopt, "unable to read vm_file pointer in module 0x%" PRIx64, mod.id);
 
     opt<uint64_t> mod_end = {};
     const auto ok         = vm_area_list_from(*this, vm_area_t{mod.id}, [&](vm_area_t vm_area)
@@ -1159,7 +1159,7 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
     });
 
     if(!ok || !mod_end || !*mod_end)
-        return FAIL(ext::nullopt, "unable to find the end of module 0x%" PRIx64, mod.id);
+        return FAIL(std::nullopt, "unable to find the end of module 0x%" PRIx64, mod.id);
 
     return span_t{*mod_start, *mod_end - *mod_start};
 }
@@ -1223,7 +1223,7 @@ opt<span_t> OsLinux::vm_area_span(proc_t /*proc*/, vm_area_t vm_area)
     const auto start = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
     const auto end   = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
     if(!start || !end || !*end || *start > *end)
-        return FAIL(ext::nullopt, "unable to read vm_start and vm_end of vm_area 0x%" PRIx64, vm_area.id);
+        return FAIL(std::nullopt, "unable to read vm_start and vm_end of vm_area 0x%" PRIx64, vm_area.id);
 
     return span_t{*start, *end - *start};
 }
@@ -1298,7 +1298,7 @@ opt<std::string> OsLinux::vm_area_name(proc_t proc, vm_area_t vm_area)
 {
     const auto vma_start = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMSTART]);
     if(!vma_start)
-        return FAIL(ext::nullopt, "unable to read vm_start of vm_area 0x%" PRIx64, vm_area.id);
+        return FAIL(std::nullopt, "unable to read vm_start of vm_area 0x%" PRIx64, vm_area.id);
 
     const auto mod = mod_find(proc, *vma_start);
     if(mod)
@@ -1346,7 +1346,7 @@ opt<span_t> OsLinux::driver_span(driver_t drv)
         size_offet  = *offsets_[MODULE_CORESIZE];
     }
     else
-        return FAIL(ext::nullopt, "unable to find base address and size in module structures");
+        return FAIL(std::nullopt, "unable to find base address and size in module structures");
 
     const auto addr = io_.read(drv.id + addr_offset);
     const auto size = io_.le32(drv.id + size_offet);

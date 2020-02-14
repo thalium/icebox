@@ -16,7 +16,7 @@ namespace
         auto value    = T{};
         const auto ok = io.read_all(&value, src, sizeof value);
         if(!ok)
-            return {};
+            return std::nullopt;
 
         return read(&value);
     }

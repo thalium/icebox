@@ -427,7 +427,7 @@ namespace
             const auto to_read = mod_base_addr + unwind_info_ptr;
             ok                 = io.read_all(&unwind_info[0], to_read, sizeof unwind_info);
             if(!ok)
-                return FAIL(ext::nullopt, "unable to read unwind info");
+                return FAIL(std::nullopt, "unable to read unwind info");
 
             const bool chained_flag        = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
             function_entry.prolog_size     = unwind_info[1];
@@ -453,7 +453,7 @@ namespace
             auto buffer = &buf[buf_offset];
             ok          = io.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
             if(!ok)
-                return FAIL(ext::nullopt, "unable to read unwind codes");
+                return FAIL(std::nullopt, "unable to read unwind codes");
 
             function_entry.unwind_codes_idx = function_table.unwinds.size();
             get_unwind_codes(function_table.unwinds, function_entry, &buffer[0], unwind_codes_size, chained_info_size);
@@ -504,11 +504,11 @@ namespace
         const auto io            = memory::make_io(c.core_, proc);
         const auto exception_dir = pe::find_image_directory(io, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
         if(!exception_dir)
-            return FAIL(ext::nullopt, "unable to get span of exception_dir");
+            return FAIL(std::nullopt, "unable to get span of exception_dir");
 
         const auto function_table = parse_exception_dir(c, proc, span.addr, *exception_dir, name);
         if(!function_table)
-            return FAIL(ext::nullopt, "unable to parse exception dir from %s", name.data());
+            return FAIL(std::nullopt, "unable to parse exception dir from %s", name.data());
 
         const auto ret = c.exception_dirs_.emplace(name, *function_table);
         if(!ret.second)
@@ -562,7 +562,7 @@ namespace
     opt<span_t> get_user_stack(NtCallstacks& c, const memory::Io& io, const context_t& ctx)
     {
         if(!read_user_offsets(c, ctx.flags))
-            return FAIL(ext::nullopt, "unable to read ntdll offsets");
+            return FAIL(std::nullopt, "unable to read ntdll offsets");
 
         const auto is_kernel_ctx = !(ctx.cs & 0x03);
         const auto msr_read      = ctx.flags.is_x86 ? msr_e::fs_base : (is_kernel_ctx ? msr_e::kernel_gs_base : msr_e::gs_base);
@@ -571,7 +571,7 @@ namespace
         auto base                = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackBase));
         auto limit               = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackLimit));
         if(!base || !limit)
-            return FAIL(ext::nullopt, "unable to find stack boundaries");
+            return FAIL(std::nullopt, "unable to find stack boundaries");
 
         if(ctx.flags.is_x86)
         {
@@ -837,7 +837,7 @@ namespace
         const auto off_in_mod     = static_cast<uint32_t>(fake_ctx.ip - span.addr);
         const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
         if(!function_entry)
-            return FAIL(ext::nullopt, "No matching function entry");
+            return FAIL(std::nullopt, "No matching function entry");
 
         const auto bp = io.read(*base - function_entry->stack_frame_size + function_entry->prev_frame_reg);
         if(!bp)

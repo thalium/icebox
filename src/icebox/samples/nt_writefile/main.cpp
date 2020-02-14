@@ -27,11 +27,11 @@ namespace
     {
         const auto file = objects::file_read(d, FileHandle);
         if(!file)
-            return FAIL(ext::nullopt, "unable to read object 0x%" PRIx64, FileHandle);
+            return FAIL(std::nullopt, "unable to read object 0x%" PRIx64, FileHandle);
 
         const auto filename = objects::file_name(d, *file);
         if(!filename)
-            return FAIL(ext::nullopt, "unable to read filename from object 0x%" PRIx64, file->id);
+            return FAIL(std::nullopt, "unable to read filename from object 0x%" PRIx64, file->id);
 
         return *filename;
     }

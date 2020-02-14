@@ -58,7 +58,7 @@ opt<proc_t> nt::Os::proc_current()
 {
     const auto current = thread_current();
     if(!current)
-        return FAIL(ext::nullopt, "unable to get current thread");
+        return FAIL(std::nullopt, "unable to get current thread");
 
     return thread_proc(*current);
 }

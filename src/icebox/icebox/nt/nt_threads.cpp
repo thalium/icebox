@@ -37,7 +37,7 @@ opt<thread_t> nt::Os::thread_current()
 {
     const auto thread = io_.read(kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_CurrentThread]);
     if(!thread)
-        return FAIL(ext::nullopt, "unable to read KPCR.Prcb.CurrentThread");
+        return FAIL(std::nullopt, "unable to read KPCR.Prcb.CurrentThread");
 
     return thread_t{*thread};
 }
@@ -46,7 +46,7 @@ opt<proc_t> nt::Os::thread_proc(thread_t thread)
 {
     const auto kproc = io_.read(thread.id + offsets_[KTHREAD_Process]);
     if(!kproc)
-        return FAIL(ext::nullopt, "unable to read KTHREAD.Process");
+        return FAIL(std::nullopt, "unable to read KTHREAD.Process");
 
     const auto eproc = *kproc - offsets_[EPROCESS_Pcb];
     return make_proc(*this, eproc);
@@ -56,7 +56,7 @@ opt<uint64_t> nt::Os::thread_pc(proc_t /*proc*/, thread_t thread)
 {
     const auto ktrap_frame = io_.read(thread.id + offsets_[ETHREAD_Tcb] + offsets_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
-        return FAIL(ext::nullopt, "unable to read KTHREAD.TrapFrame");
+        return FAIL(std::nullopt, "unable to read KTHREAD.TrapFrame");
 
     if(!*ktrap_frame)
         return {};

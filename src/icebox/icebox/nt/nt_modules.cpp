@@ -122,7 +122,7 @@ namespace
     {
         const auto peb = io.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
-            return FAIL(ext::nullopt, "unable to read EPROCESS.Peb");
+            return FAIL(std::nullopt, "unable to read EPROCESS.Peb");
 
         // no PEB on system process
         if(!*peb)
@@ -130,7 +130,7 @@ namespace
 
         const auto ldr = io.read(*peb + os.offsets_[PEB_Ldr]);
         if(!ldr)
-            return FAIL(ext::nullopt, "unable to read PEB.Ldr");
+            return FAIL(std::nullopt, "unable to read PEB.Ldr");
 
         // Ldr = 0 before the process loads it's first module
         if(!*ldr)
@@ -151,7 +151,7 @@ namespace
     {
         const auto wowp = io.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
-            return FAIL(ext::nullopt, "unable to read EPROCESS.Wow64Process");
+            return FAIL(std::nullopt, "unable to read EPROCESS.Wow64Process");
 
         if(!*wowp)
             return {};
@@ -161,7 +161,7 @@ namespace
 
         const auto peb32 = io.read(*wowp + os.offsets_[EWOW64PROCESS_Peb]);
         if(!peb32)
-            return FAIL(ext::nullopt, "unable to read EWOW64PROCESS.Peb");
+            return FAIL(std::nullopt, "unable to read EWOW64PROCESS.Peb");
 
         return *peb32;
     }
@@ -180,7 +180,7 @@ namespace
 
         const auto ldr32 = io.le32(*peb32 + os.offsets_[PEB32_Ldr]);
         if(!ldr32)
-            return FAIL(ext::nullopt, "unable to read PEB32.Ldr");
+            return FAIL(std::nullopt, "unable to read PEB32.Ldr");
 
         // Ldr = 0 before the process loads it's first module
         if(!*ldr32)
