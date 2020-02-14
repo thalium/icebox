@@ -14,7 +14,11 @@ static thread_local cothread_t co_active_handle = 0;
 static void (*co_swap)(cothread_t, cothread_t) = 0;
 
 #ifdef LIBCO_MPROTECT
-  alignas(4096)
+#ifdef __clang__
+  _Alignas(4096)
+#else
+    alignas(4096)
+#endif
 #else
   section(text)
 #endif
