@@ -135,7 +135,7 @@ class PDBFile
 		PDBFile(void) :
 				pdb_loaded(false), pdb_initialized(false), pdb_filename(nullptr), pdb_version(0), page_size(0), pdb_file_size(
 				        0), pdb_file_data(
-				nullptr), num_streams(0), pdb_fpo_num(0), pdb_newfpo_num(0), pdb_omap_from_num(0), pdb_ori_sec_num(0), pdb_sec_num(0), pdb_header(nullptr), pdb_root_dir(
+				nullptr), num_streams(0), pdb_fpo_num(0), pdb_newfpo_num(0), pdb_omap_from_num(0), pdb_sec_num(0), pdb_ori_sec_num(0), pdb_header(nullptr), pdb_root_dir(
 				nullptr), pdb_info_v700(nullptr), dbi_header_v700(nullptr), pdb_types(nullptr), pdb_symbols(nullptr)
 		{
 		}

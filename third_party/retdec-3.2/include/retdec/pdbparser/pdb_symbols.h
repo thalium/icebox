@@ -126,7 +126,7 @@ class PDBSymbols
 {
 	public:
 		// Constructor and destructor
-		PDBSymbols(PDBStream *gsi, PDBStream *psi, PDBStream *sym, PDBModulesVec & m, PDBSectionsVec & s,
+		PDBSymbols(PDBStream */*gsi*/, PDBStream */*psi*/, PDBStream *sym, PDBModulesVec & m, PDBSectionsVec & s,
 		        PDBSectionsVec & os, PDBOmapFroms & omaps, PDBTypes * tps) :
 //		pdb_gsi_size(gsi->size),
 //		pdb_gsi_data(gsi->data),
