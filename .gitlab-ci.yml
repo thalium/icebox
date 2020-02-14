@@ -9,7 +9,7 @@ variables:
   DISABLE_CLANG_FORMAT: "true"
   USER: user
 
-build:gcc:
+build:gcc_linux:
   stage: build
   tags:
     - ubuntu
@@ -32,7 +32,7 @@ build:gcc:
     - cd ../out/x64
     - ninja
 
-build:clang:
+build:clang_linux:
   stage: build
   tags:
     - ubuntu
@@ -57,7 +57,7 @@ build:clang:
     - cd ../out/x64
     - ninja
 
-build:msvc:
+build:msvc_win10:
   stage: build
   tags:
     - msvc2017
@@ -70,6 +70,23 @@ build:msvc:
     expire_in: 1 day
     paths:
       - bin/x64
+
+build:clang_win10:
+  stage: build
+  tags:
+    - msvc2017
+  variables:
+    CC: c:/llvm/bin/clang.exe
+    CXX: c:/llvm/bin/clang++.exe
+  script:
+    - mkdir out\ninja
+    - cd out/ninja
+    - call vcvars64.bat
+    - cmake ../../build -G Ninja
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DCMAKE_MAKE_PROGRAM=c:/apps/ninja.exe
+      -DPYTHON_LIBS=optimized;c:/Python38/libs/python38.lib;debug;C:/Python38/libs/python38_d.lib
+    - ninja
 
 .virtualbox:pre_kmk:gcc:
   stage: virtualbox
