@@ -44,7 +44,10 @@ BENCHMARK_F(win10, single_step)
         return state.SkipWithError("unable to read lstar");
 
     for(auto _ : state)
+    {
+        (void) _;
         benchmark::DoNotOptimize(FDP_SingleStep(shm, 0));
+    }
     state.SetItemsProcessed(int64_t(state.iterations()));
 }
 
@@ -54,6 +57,7 @@ BENCHMARK_F(win10, get_state)
     auto arg = FDP_State{};
     for(auto _ : state)
     {
+        (void) _;
         const auto ok = FDP_GetState(shm, &arg);
         if(!ok)
             return state.SkipWithError("unable to get state");
@@ -66,6 +70,7 @@ BENCHMARK_F(win10, read_write_registers)
 {
     for(auto _ : state)
     {
+        (void) _;
         auto reg       = uint64_t{};
         const auto rok = FDP_ReadRegister(shm, 0, FDP_RAX_REGISTER, &reg);
         if(!rok)
@@ -90,6 +95,7 @@ BENCHMARK_DEFINE_F(win10, read_virtual_memory)
     auto bytes = std::vector<uint8_t>(state.range(0));
     for(auto _ : state)
     {
+        (void) _;
         const auto ok = FDP_ReadVirtualMemory(shm, 0, &bytes[0], uint32_t(bytes.size()), lstar);
         if(!ok)
             return state.SkipWithError("unable to read memory");
@@ -108,6 +114,7 @@ BENCHMARK_F(win10, set_breakpoint)
 
     for(auto _ : state)
     {
+        (void) _;
         auto bpid = FDP_SetBreakpoint(shm, 0, FDP_SOFTHBP, -1, FDP_EXECUTE_BP, FDP_VIRTUAL_ADDRESS, lstar, 1, FDP_NO_CR3);
         if(bpid < 0)
             return state.SkipWithError("unable to set breakpoint");

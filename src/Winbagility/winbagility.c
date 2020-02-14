@@ -164,7 +164,7 @@ bool CreateWinbagilityInterface(WINBAGILITY_CONTEXT_T *pWinbagilityCtx, char *pS
 
 
 
-int main(int argc, char* argv[], char *env)
+int main(int argc, char* argv[])
 {
     //Tests 
     //return startKDProxy();
