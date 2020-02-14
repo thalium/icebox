@@ -17,7 +17,7 @@ get_filename_component(bin_dir      ${root_dir}/bin/${ARCH}    ABSOLUTE)
 
 find_package(PythonLibs 3 REQUIRED)
 
-if(NOT MSVC)
+if(NOT WIN32)
     add_compile_options(
         -Wno-unused-local-typedefs
         -fPIC
