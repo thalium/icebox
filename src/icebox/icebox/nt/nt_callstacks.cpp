@@ -201,7 +201,7 @@ namespace
 
         for(auto i = 0; i < nb; ++i)
         {
-            const auto uwd = function_table.unwinds[idx];
+            const auto uwd = function_table.unwinds[idx + i];
             if(off_in_prolog > uwd.code_offset)
                 return i;
         }
