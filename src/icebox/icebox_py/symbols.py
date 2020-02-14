@@ -130,6 +130,38 @@ def download_pdbs_from_log(args):
         return count
 
 
+r_manifest_pdb = r"(.+\.pdb),([A-F0-9]+),(.+)"
+
+
+def read_manifest_pdbs(text):
+    for pdb in re.finditer(r_manifest_pdb, text):
+        yield pdb.group(1), pdb.group(2)
+
+
+def list_manifest_pdbs(filename):
+    for line in read_lines(filename):
+        for name, guid in read_manifest_pdbs(line):
+            yield name, guid
+
+
+def download_pdbs_from_manifest(args):
+    dst = read_symbol_path()
+    with fut.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+        futures = []
+        for name, guid in list_manifest_pdbs(args.file):
+            fret = executor.submit(download_pdb, dst, name, guid, args)
+            futures.append(fret)
+
+        count = 0
+        for fret in fut.as_completed(futures):
+            try:
+                fret.result()
+                count += 1
+            except BaseException as exc:
+                print(exc)
+        return count
+
+
 load_all_symbols = """
 import icebox
 
@@ -217,6 +249,13 @@ if __name__ == "__main__":
     download.add_argument("--max-size", type=int, default=max_size,
                           help=max_size_help)
     download.set_defaults(func=download_pdbs_from_vm)
+
+    # manifest
+    manifest = subparsers.add_parser("manifest", help="download pdbs from manifest")
+    manifest.add_argument("file", type=str, help="filename or - for stdin")
+    manifest.add_argument("--max-size", type=int,
+                           default=max_size, help=max_size_help)
+    manifest.set_defaults(func=download_pdbs_from_manifest)
 
     # check
     check = subparsers.add_parser("check", help="check load script")
