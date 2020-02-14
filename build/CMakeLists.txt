@@ -242,6 +242,9 @@ target_include_directories(icebox_py PRIVATE
 if(WIN32)
     set_target_properties(icebox_py PROPERTIES SUFFIX ".pyd")
 endif()
+if(PYTHON_LIBS)
+    set(PYTHON_LIBRARIES ${PYTHON_LIBS})
+endif()
 target_link_libraries(icebox_py PRIVATE
     icebox
     ${PYTHON_LIBRARIES}
