@@ -1853,6 +1853,59 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "AMI  ", 2)
         }
     }
 
+    Scope (_TZ)
+    {
+        PowerResource(FNP0,0,0) {
+            Method(_STA) {
+                Store(0xF,Local0)
+                Return(Local0)
+            }
+            Method(_ON) {
+                /* DBGO("\\_TZ\\TZ00\\FAN0 _ON\n") */
+            }
+            Method(_OFF) {
+                /* DBGO("\\_TZ\\TZ00\\FAN0 _OFF\n") */
+            }
+        }
+
+        ThermalZone (TZ00)
+        {
+            Device (FAN0)
+            {
+                Name (_HID, EisaId ("PNP0C0B") /* ACPI System Fan */)  // _HID: Hardware ID
+                Name (_UID, Zero)  // _UID: Unique ID
+                Name (_PR0, Package () { FNP0 })
+            }
+            // Temporary variable for holding the current temprature reading
+            Name(PTMP, 3000)
+            Name(SINI, 0)
+            Name(ADDR, 0x96) // SMBUS Address of temperature sensor
+            Name(LTV0, 0)    // Local Temperature Value
+            Name(RTV1, 1)    // Remote 1 Temperature Value
+            Name(RTV2, 0x30) // Remote 2 Temperature Value
+            Name(HITP, 0x55) // Temp High Limit
+
+            Method (_CRT, 0, Serialized)  // _CRT: Critical Temperature
+            {
+                Return (0x12E0)
+            }
+            Method(_AC0,0) {	/* Active Cooling 0 (0=highest fan speed) */
+                /* DBGO("\\_TZ\\TZ00\\_AC0\n") */
+                Return(Add(0, 2730))
+            }
+            Method(_AL0,0) {	/* Returns package of cooling device to turn on */
+                /* DBGO("\\_TZ\\TZ00\\_AL0\n") */
+                Return(Package() {\_TZ.TZ00.FAN0})
+            }
+            Method (_TMP, 0, Serialized)  // _TMP: Temperature
+            {
+                Return (0x0BB8)
+            }
+
+        }
+
+    }
+    /*
     // Sx states
     Name (_S0, Package (2) {
         0x00,
@@ -1877,6 +1930,36 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "AMI  ", 2)
     Name (_S5, Package (2) {
         0x05,
         0x05,
+    })
+    */
+
+    Name (\_S0, Package (0x04)  // _S0_: S0 System State
+    {
+        0x00,
+        0x00,
+        0x00,
+        0x00
+    })
+    Name (\_S3, Package (0x04)  // _S3_: S3 System State
+    {
+        0x05,
+        0x05,
+        0x00,
+        0x00
+    })
+    Name (\_S4, Package (0x04)  // _S4_: S4 System State
+    {
+        0x06,
+        0x06,
+        0x00,
+        0x00
+    })
+    Name (\_S5, Package (0x04)  // _S5_: S5 System State
+    {
+        0x07,
+        0x07,
+        0x00,
+        0x00
     })
 
     Method (_PTS, 1, NotSerialized)
