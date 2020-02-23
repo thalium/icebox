@@ -88,7 +88,6 @@ static       char    g_szHostDmiSystemProduct[64];
 /** The host DMI system version value, for DmiUseHostInfo=1. */
 static       char    g_szHostDmiSystemVersion[64];
 
-
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
 *********************************************************************************************************************************/
@@ -234,6 +233,61 @@ typedef struct DMIPROCESSORINF
 } *PDMIPROCESSORINF;
 AssertCompileSize(DMIPROCESSORINF, 0x2a);
 
+/** DMI Cache memory (Type 7) */
+typedef struct DMIPROCCACHEMEMORY
+{
+    DMIHDR          header;
+    uint8_t         u8SocketDesignation;
+    uint16_t        u16CacheCaracteristics1;
+    uint16_t        u16CacheCaracteristics2;
+    uint16_t        u16CacheCaracteristics3;
+    uint16_t        u16SupportedSRamType;
+    uint16_t        u16InstalledSRamType;
+    uint8_t         u8Speed;
+    uint8_t         u8ErrorCorrectionType;
+    uint8_t         u8SystemType;
+    uint8_t         u8Associativity;
+} *PDMIPROCCACHEMEMORY;
+AssertCompileSize(DMIPROCCACHEMEMORY, 0x13);
+
+
+/** DMI Port Connectors type (Type 8) */
+typedef struct DMIPORTCONNECTOR
+{
+    DMIHDR          header;
+    uint8_t        u8InternalRefDesignator;
+    uint8_t         u8InternalConnectorType;
+    uint8_t        u8ExternalRefDesignator;
+    uint8_t         u8ExternalConnectorType;
+    uint8_t         u8PortType;
+} *PDMIPORTCONNECTOR;
+AssertCompileSize(DMIPORTCONNECTOR, 0x09);
+
+/** DMI System Slot type (Type 9) */
+typedef struct DMISYSTEMSLOT
+{
+    DMIHDR          header;
+    uint8_t        u8Designation;
+    uint8_t         u8Type;
+    uint8_t         u8BusWidth;
+    uint8_t         u8CurrentUsage;
+    uint8_t         u8Lenght;
+    /* Slot id --> */
+    uint8_t         u8SlotIdCode1;
+    uint8_t         u8SlotIdCode2;
+    /* <-- Slot id */
+    /* Charactéristics --> */
+    uint8_t         u8CharacteristicsCode1;
+    uint8_t         u8CharacteristicsCode2;
+    /* <-- Charactéristics */
+    /* Bus Width --> */
+    uint16_t         u16BusWidthCode1;
+    uint8_t         u8BusWidthCode2;
+    uint8_t         u8BusWidthCode3;
+    /*  <-- Bus Width */
+} *PDMISYSTEMSLOT;
+AssertCompileSize(DMISYSTEMSLOT, 0x11);
+
 /** DMI OEM strings (Type 11) */
 typedef struct DMIOEMSTRINGS
 {
@@ -289,6 +343,92 @@ typedef struct DMIMEMORYDEV
     uint8_t         u8Attributes;
 } *PDMIMEMORYDEV;
 AssertCompileSize(DMIMEMORYDEV, 28);
+
+/** DMI Memory Array Mapped Address (Type 19) */
+typedef struct DMIMEMORYARRAYMAPPEDADDR
+{
+    DMIHDR          header;
+    uint64_t        u64StartAddress;
+    uint64_t        u64EndAddress;
+    uint16_t        u16PhysicalArrayHandle;
+    uint8_t         u8PartitionWidth;
+    uint64_t        u64Padding;
+} *PDMIMEMORYARRAYMAPPEDADDR;
+AssertCompileSize(DMIMEMORYARRAYMAPPEDADDR, 0x1f);
+
+/** DMI Memory Device Mapped Address (Type 20) */
+typedef struct DMIMEMORYDEVMAPPEDADDR
+{
+    DMIHDR          header;
+    uint64_t        u64StartAddress;
+    uint64_t        u64EndAddress;
+    uint16_t        u16PhysicalArrayHandle;
+    uint16_t        u16MemoryMappedAddressHandle;
+    uint8_t         u8PartitionWidth1;
+    uint8_t         u8PartitionWidth2;
+    uint8_t         u8PartitionWidth3;
+} *PDMIMEMORYDEVMAPPEDADDR;
+AssertCompileSize(DMIMEMORYDEVMAPPEDADDR, 27);
+
+/** DMI voltageprobe type (Type 26) */
+typedef struct DMIVOLTAGEPROBE
+{
+    DMIHDR          header;
+    uint8_t         u8Description;
+    uint8_t         u8LocationAndStatus;
+    uint16_t         u16MaxValue;
+    uint16_t         u16MinValue;
+    uint16_t         u16Resolution;
+    uint16_t         u16Tolerance;
+    uint16_t         u16Accuracy;
+    uint32_t        u32OEMdefined;
+    uint16_t         u16NominalValue;
+} *PDMIVOLTAGEPROBE;
+AssertCompileSize(DMIVOLTAGEPROBE, 0x16);
+
+/** DMI voltageprobe type (Type 27) */
+typedef struct DMICOOLINGDEVICE
+{
+    DMIHDR          header;
+    uint16_t         u16TemperatureProbeHandler;
+    uint8_t         u8TypeAndStatus;
+    uint8_t         u8CoolingUnitGroup;
+    uint32_t        u32OEMdefined;
+    uint16_t         u16NominalSpeed;
+} *PDMICOOLINGDEVICE;
+AssertCompileSize(DMICOOLINGDEVICE, 0x0e);
+
+/** DMI TemperatureProbe type (Type 28) */
+typedef struct DMITEMPERATUREPROBE
+{
+    DMIHDR          header;
+    uint8_t         u8Description;
+    uint8_t         u8LocationAndStatus;
+    uint16_t         u16MaxValue;
+    uint16_t         u16MinValue;
+    uint16_t         u16Resolution;
+    uint16_t         u16Tolerance;
+    uint16_t         u16Accuracy;
+    uint32_t        u32OEMdefined;
+    uint16_t         u16NominalValue;
+} *PDMITEMPERATUREPROBE;
+AssertCompileSize(DMITEMPERATUREPROBE, 0x16);
+
+/** DMI TemperatureProbe type (Type 29) */
+typedef struct DMIELECTRICALCURRENTPROBE
+{
+    DMIHDR          header;
+    uint8_t         u8Description;
+    uint8_t         u8LocationAndStatus;
+    uint16_t         u16MaxValue;
+    uint16_t         u16MinValue;
+    uint16_t         u16Resolution;
+    uint16_t         u16Tolerance;
+    uint16_t         u16Accuracy;
+    uint32_t        u32OEMdefined;
+    uint16_t         u16NominalValue;
+} *PDMIELECTRICALCURRENTPROBE;
+AssertCompileSize(DMIELECTRICALCURRENTPROBE, 0x16);
 
 /** MPS floating pointer structure */
 typedef struct MPSFLOATPTR
@@ -802,9 +942,9 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
                                            | RT_BIT(0)  /* CPU enabled */
                                            ;
         pProcessorInf->u8ProcessorUpgrade  = 0x04;   /* ZIF Socket */
-        pProcessorInf->u16L1CacheHandle    = 0xFFFF; /* not specified */
-        pProcessorInf->u16L2CacheHandle    = 0xFFFF; /* not specified */
-        pProcessorInf->u16L3CacheHandle    = 0xFFFF; /* not specified */
+        pProcessorInf->u16L1CacheHandle    = 0x0101; /* not specified */
+        pProcessorInf->u16L2CacheHandle    = 0x0102; /* not specified */
+        pProcessorInf->u16L3CacheHandle    = 0x0103; /* not specified */
         pProcessorInf->u8SerialNumber      = 0;      /* not specified */
         pProcessorInf->u8AssetTag          = 0;      /* not specified */
         pProcessorInf->u8PartNumber        = 0;      /* not specified */
@@ -817,6 +957,231 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
         DMI_TERM_STRUCT;
 
         /***************************************
+         * DMI Cache memory (Type 7) *
+         ***************************************/
+
+        /**
+         * Handle 0x0005, DMI type 7, 19 bytes
+            Cache Information
+                Socket Designation: L1-Cache
+                Configuration: Enabled, Not Socketed, Level 1
+                Operational Mode: Write Back
+                Location: Internal
+                Installed Size: 256 kB
+                Maximum Size: 256 kB
+                Supported SRAM Types:
+                    Other
+                Installed SRAM Type: Other
+                Speed: Unknown
+                Error Correction Type: None
+                System Type: Unified
+                Associativity: 8-way Set-associative
+
+            Handle 0x0006, DMI type 7, 19 bytes
+            Cache Information
+                Socket Designation: L2-Cache
+                Configuration: Enabled, Not Socketed, Level 2
+                Operational Mode: Varies With Memory Address
+                Location: Internal
+                Installed Size: 1024 kB
+                Maximum Size: 1024 kB
+                Supported SRAM Types:
+                    Other
+                Installed SRAM Type: Other
+                Speed: Unknown
+                Error Correction Type: None
+                System Type: Unified
+                Associativity: 8-way Set-associative
+
+            Handle 0x0007, DMI type 7, 19 bytes
+            Cache Information
+                Socket Designation: L3-Cache
+                Configuration: Disabled, Not Socketed, Level 3
+                Operational Mode: Unknown
+                Location: Internal
+                Installed Size: 8192 kB
+                Maximum Size: 8192 kB
+                Supported SRAM Types:
+                    Other
+                Installed SRAM Type: Other
+                Speed: Unknown
+                Error Correction Type: None
+                System Type: Unified
+                Associativity: 16-way Set-associative
+
+                ### RAW ###
+                Handle 0x0007, DMI type 7, 19 bytes
+                Header and Data:
+                    07 13 07 00 01 80 01 80 00 80 00 20 00 20 00 00
+                    04 05 07
+                Strings:
+                    4C 31 20 43 61 63 68 65 00
+                    "L1 Cache"
+
+                Handle 0x0008, DMI type 7, 19 bytes
+                    Header and Data:
+                        07 13 08 00 01 81 01 00 02 00 02 20 00 20 00 00
+                        05 05 05
+                    Strings:
+                        4C 32 20 43 61 63 68 65 00
+                        "L2 Cache"
+
+                Handle 0x0009, DMI type 7, 19 bytes
+                    Header and Data:
+                        07 13 09 00 01 82 01 00 0C 00 0C 20 00 20 00 00
+                        06 05 09
+                    Strings:
+                        4C 33 20 43 61 63 68 65 00
+                        "L3 Cache"
+
+         */
+
+        /* Cache L1 : 01 80 01 80 00 80 00 */
+        PDMIPROCCACHEMEMORY pProcCacheMemory1 = (PDMIPROCCACHEMEMORY)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pProcCacheMemory1));
+        DMI_START_STRUCT(pProcCacheMemory1);
+        pProcCacheMemory1->header.u8Type    = 0x07; /* Voltage Probe */
+        pProcCacheMemory1->header.u8Length  = sizeof(*pProcCacheMemory1);
+        pProcCacheMemory1->header.u16Handle = 0x0101;
+        DMI_READ_CFG_STR_DEF(pProcCacheMemory1->u8SocketDesignation, " ", "L1 Cache");
+        pProcCacheMemory1->u16CacheCaracteristics1        = 0x8001;
+        pProcCacheMemory1->u16CacheCaracteristics2        = 0x8000;
+        pProcCacheMemory1->u16CacheCaracteristics3        = 0x8000;
+        pProcCacheMemory1->u16SupportedSRamType           = 0x2000;
+        pProcCacheMemory1->u16InstalledSRamType           = 0x2000;
+        pProcCacheMemory1->u8Speed                        = 0x00;
+        pProcCacheMemory1->u8ErrorCorrectionType          = 0x04;
+        pProcCacheMemory1->u8SystemType                   = 0x05;
+        pProcCacheMemory1->u8Associativity                = 0x07;
+        DMI_TERM_STRUCT;
+
+        /* Cache L2 : 01 81 01 00 02 00 02 */
+        PDMIPROCCACHEMEMORY pProcCacheMemory2 = (PDMIPROCCACHEMEMORY)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pProcCacheMemory2));
+        DMI_START_STRUCT(pProcCacheMemory2);
+        pProcCacheMemory2->header.u8Type    = 0x07; /* Voltage Probe */
+        pProcCacheMemory2->header.u8Length  = sizeof(*pProcCacheMemory2);
+        pProcCacheMemory2->header.u16Handle = 0x0102;
+        DMI_READ_CFG_STR_DEF(pProcCacheMemory2->u8SocketDesignation, " ", "L2 Cache");
+        pProcCacheMemory2->u16CacheCaracteristics1        = 0x8101;
+        pProcCacheMemory2->u16CacheCaracteristics2        = 0x0002;
+        pProcCacheMemory2->u16CacheCaracteristics3        = 0x0002;
+        pProcCacheMemory2->u16SupportedSRamType           = 0x2000;
+        pProcCacheMemory2->u16InstalledSRamType           = 0x2000;
+        pProcCacheMemory2->u8Speed                        = 0x00;
+        pProcCacheMemory2->u8ErrorCorrectionType          = 0x05;
+        pProcCacheMemory2->u8SystemType                   = 0x05;
+        pProcCacheMemory2->u8Associativity                = 0x05;
+        DMI_TERM_STRUCT;
+
+        /* Cache L3 : 01 82 01 00 0C 00 0C */
+        PDMIPROCCACHEMEMORY pProcCacheMemory3 = (PDMIPROCCACHEMEMORY)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pProcCacheMemory3));
+        DMI_START_STRUCT(pProcCacheMemory3);
+        pProcCacheMemory3->header.u8Type    = 0x07; /* Voltage Probe */
+        pProcCacheMemory3->header.u8Length  = sizeof(*pProcCacheMemory3);
+        pProcCacheMemory3->header.u16Handle = 0x0103;
+        DMI_READ_CFG_STR_DEF(pProcCacheMemory3->u8SocketDesignation, " ", "L3 Cache");
+        pProcCacheMemory3->u16CacheCaracteristics1        = 0x8201;
+        pProcCacheMemory3->u16CacheCaracteristics2        = 0x000C;
+        pProcCacheMemory3->u16CacheCaracteristics3        = 0x000C;
+        pProcCacheMemory3->u16SupportedSRamType           = 0x2000;
+        pProcCacheMemory3->u16InstalledSRamType           = 0x2000;
+        pProcCacheMemory3->u8Speed                        = 0x00;
+        pProcCacheMemory3->u8ErrorCorrectionType          = 0x06;
+        pProcCacheMemory3->u8SystemType                   = 0x05;
+        pProcCacheMemory3->u8Associativity                = 0x09;
+        DMI_TERM_STRUCT;
+
+        /***************************************
+         * DMI Prot Connector Array (Type 8) *
+         ***************************************/
+
+        /** Exemple
+         * Handle 0x001D, DMI type 8, 9 bytes
+        Port Connector Information
+            Internal Reference Designator: Not Available
+            Internal Connector Type: None
+            External Reference Designator: Headphone/Microphone Combo Jack1
+            External Connector Type: Mini Jack (headphones)
+            Port Type: Audio Port
+        // ### RAW ###
+         Handle 0x001D, DMI type 8, 9 bytes
+	    Header and Data:
+		    08 09 1D 00 01 00 02 1F 1D
+        Strings:
+            4E 6F 74 20 41 76 61 69 6C 61 62 6C 65 00
+            "Not Available"
+            48 65 61 64 70 68 6F 6E 65 2F 4D 69 63 72 6F 70
+            68 6F 6E 65 20 43 6F 6D 62 6F 20 4A 61 63 6B 31
+            00
+            "Headphone/Microphone Combo Jack1"
+         */
+
+        PDMIPORTCONNECTOR pPortConnector = (PDMIPORTCONNECTOR)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pPortConnector));
+        DMI_START_STRUCT(pPortConnector);
+        pPortConnector->header.u8Type    = 0x08; /* Voltage Probe */
+        pPortConnector->header.u8Length  = sizeof(*pPortConnector);
+        pPortConnector->header.u16Handle = 0x001d;
+
+        DMI_READ_CFG_STR_DEF(pPortConnector->u8InternalRefDesignator, " ", "Not Available");
+        pPortConnector->u8InternalConnectorType     = 0x00;
+        DMI_READ_CFG_STR_DEF(pPortConnector->u8ExternalRefDesignator, " ", "Headphone/Microphone Combo Jack1");
+        pPortConnector->u8ExternalConnectorType     = 0x1f;
+        pPortConnector->u8PortType                  = 0x1d;
+        DMI_TERM_STRUCT;
+
+        /***************************************
+         * DMI System Slot Array (Type 9) *
+         ***************************************/
+        /**Handle 0x001F, DMI type 9, 17 bytes
+        System Slot Information
+            Designation: Media Card Slot
+            Type: Other
+            Current Usage: Available
+            Length: Other
+            Characteristics:
+                Hot-plug devices are supported
+            Bus Address: 0000:00:00.0
+
+         #### RAW ####
+         Handle 0x001F, DMI type 9, 17 bytes
+            Header and Data:
+                09 11 1F 00 01 01 01 03 01 00 00 00 02 00 00 00
+                00
+            Strings:
+                4D 65 64 69 61 20 43 61 72 64 20 53 6C 6F 74 00
+                "Media Card Slot
+         */
+
+        PDMISYSTEMSLOT pSystemSlot = (PDMISYSTEMSLOT)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pSystemSlot));
+        DMI_START_STRUCT(pSystemSlot);
+        pSystemSlot->header.u8Type    = 0x09; /* System Slot */
+        pSystemSlot->header.u8Length  = sizeof(*pSystemSlot);
+        pSystemSlot->header.u16Handle = 0x001f;
+
+        DMI_READ_CFG_STR_DEF(pSystemSlot->u8Designation, "", "Media Card Slot");
+        pSystemSlot->u8Type                     = 0x01; // "Unknown"
+        pSystemSlot->u8BusWidth                 = 0x01;  // "Other"
+        pSystemSlot->u8CurrentUsage             = 0x03; // "Available"
+        pSystemSlot->u8Lenght                   = 0x01;
+        /* Slot id --> */
+        pSystemSlot->u8SlotIdCode1              = 0x00;
+        pSystemSlot->u8SlotIdCode2              = 0x00;
+        /* <-- Slot id */
+        /* Charactéristics --> */
+        pSystemSlot->u8CharacteristicsCode1     = 0x00;
+        pSystemSlot->u8CharacteristicsCode2     = 0x02; // "Hot-plug devices are supported"
+        /* Bus Width --> */
+        pSystemSlot->u16BusWidthCode1            = 0x0000; // ==> 0000:00:00.00
+        pSystemSlot->u8BusWidthCode2            = 0x00;
+        pSystemSlot->u8BusWidthCode3            = 0x00;
+        /*  <-- Bus Width */
+        DMI_TERM_STRUCT;
+
+        /***************************************
          * DMI Physical Memory Array (Type 16) *
          ***************************************/
         uint64_t const  cbRamSize = MMR3PhysGetRamSize(PDMDevHlpGetVM(pDevIns));
@@ -824,10 +1189,10 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
         PDMIRAMARRAY pMemArray = (PDMIRAMARRAY)pszStr;
         DMI_CHECK_SIZE(sizeof(*pMemArray));
         DMI_START_STRUCT(pMemArray);
-        if (fDmiExposeMemoryTable)
+        //if (fDmiExposeMemoryTable)
             pMemArray->header.u8Type     = 16;     /* Physical Memory Array */
-        else
-            pMemArray->header.u8Type     = 126;    /* inactive structure */
+        /*else
+            pMemArray->header.u8Type     = 126;*/    /* inactive structure */
         pMemArray->header.u8Length       = sizeof(*pMemArray);
         pMemArray->header.u16Handle      = 0x0005;
         pMemArray->u8Location            = 0x03;   /* Motherboard */
@@ -853,10 +1218,10 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
         PDMIMEMORYDEV pMemDev = (PDMIMEMORYDEV)pszStr;
         DMI_CHECK_SIZE(sizeof(*pMemDev));
         DMI_START_STRUCT(pMemDev);
-        if (fDmiExposeMemoryTable)
+        //if (fDmiExposeMemoryTable)
             pMemDev->header.u8Type       = 17;     /* Memory Device */
-        else
-            pMemDev->header.u8Type       = 126;    /* inactive structure */
+        /*else
+            pMemDev->header.u8Type       = 126;  */  /* inactive structure */
         pMemDev->header.u8Length         = sizeof(*pMemDev);
         pMemDev->header.u16Handle        = 0x0006;
         pMemDev->u16PhysMemArrayHandle   = 0x0005; /* handle of array we belong to */
@@ -891,6 +1256,80 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
         pMemDev->u8Attributes            = 0; /* Unknown */
         DMI_TERM_STRUCT;
 
+
+        /*****************************
+         * DMI Memory Array Mapped Address (Type 19) *
+         *****************************/
+        /**
+         * Handle 0x0013, DMI type 19, 15 bytes
+            Memory Array Mapped Address
+                Starting Address: 0x00000000000
+                Ending Address: 0x002FFFFFFFF
+                Range Size: 12 GB
+                Physical Array Handle: 0x0012
+                Partition Width: 0
+         */
+
+        PDMIMEMORYARRAYMAPPEDADDR pMemArrayMappedAddr    = (PDMIMEMORYARRAYMAPPEDADDR)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pMemArrayMappedAddr));
+        DMI_START_STRUCT(pMemArrayMappedAddr);
+
+        pMemArrayMappedAddr->header.u8Type    = 0x13; /* Voltage Probe */
+        pMemArrayMappedAddr->header.u8Length  = sizeof(*pMemArrayMappedAddr);
+        pMemArrayMappedAddr->header.u16Handle = 0x0013;
+
+        int64_t u64RamSizeM;
+        if (cbRamSize / _1M > INT64_MAX)
+        {
+            /** @todo 32G-1M limit. Provide multiple type-17 descriptors.
+             * The highest bit of u16Size must be 0 to specify 'GB' units / 1 would be 'KB' */
+            AssertLogRelMsgFailed(("DMI: RAM size %#RX64 too big for one type-17 descriptor, clipping to %#RX64\n",
+                    cbRamSize, (uint64_t)INT64_MAX * _1M));
+            u64RamSizeM = INT64_MAX;
+        }
+        else
+            u64RamSizeM = (uint64_t)(cbRamSize / _1M);
+        if (u64RamSizeM == 0)
+            u64RamSizeM = 0x000000000400; /* 1G */
+
+        pMemArrayMappedAddr->u64StartAddress              = 0x000000000000;
+        pMemArrayMappedAddr->u64EndAddress                = u64RamSizeM;
+        pMemArrayMappedAddr->u16PhysicalArrayHandle       = 0x0005; // Type 16 handle !
+        pMemArrayMappedAddr->u8PartitionWidth             = 0x00;
+        pMemArrayMappedAddr->u64Padding                    = 0x000000000000;
+        DMI_TERM_STRUCT;
+
+        /*****************************
+         * DMI Memory Array Mapped Address(Type 20) *
+         *****************************/
+        /**
+        Handle 0x0015, DMI type 20, 19 bytes
+        Memory Device Mapped Address
+            Starting Address: 0x00200000000
+            Ending Address: 0x002FFFFFFFF
+            Range Size: 4 GB
+            Physical Device Handle: 0x0014
+            Memory Array Mapped Address Handle: 0x0013
+            Partition Row Position: 1
+        */
+
+        PDMIMEMORYDEVMAPPEDADDR pMemDevMappedAddr    = (PDMIMEMORYDEVMAPPEDADDR)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pMemDevMappedAddr));
+        DMI_START_STRUCT(pMemDevMappedAddr);
+        pMemDevMappedAddr->header.u8Type    = 0x14; /* Voltage Probe */
+        pMemDevMappedAddr->header.u8Length  = sizeof(*pMemDevMappedAddr);
+        pMemDevMappedAddr->header.u16Handle = 0x0015;
+
+        pMemDevMappedAddr->u64StartAddress = 0x000000000000;
+        pMemDevMappedAddr->u64EndAddress = u64RamSizeM;
+        pMemDevMappedAddr->u16PhysicalArrayHandle = 0x0005; // Type 16 handle !
+        pMemDevMappedAddr->u16MemoryMappedAddressHandle  = 0x0013; // Type 19 handle !
+        pMemDevMappedAddr->u8PartitionWidth1 = 0x00;
+        pMemDevMappedAddr->u8PartitionWidth2 = 0x00;
+        pMemDevMappedAddr->u8PartitionWidth3 = 0x01;
+        DMI_TERM_STRUCT;
+
+
         /*****************************
          * DMI OEM strings (Type 11) *
          *****************************/
@@ -912,6 +1351,120 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
         DMI_READ_CFG_STR_DEF(pOEMStrings->u8VBoxVersion, "DmiOEMVBoxVer", szTmp);
         RTStrPrintf(szTmp, sizeof(szTmp), "Rev_%u", RTBldCfgRevision());
         DMI_READ_CFG_STR_DEF(pOEMStrings->u8VBoxRevision, "DmiOEMVBoxRev", szTmp);
+        DMI_TERM_STRUCT;
+
+        /*****************************
+         * DMI VoltageProbe (Type 26) *
+         *****************************/
+        /** Exemple
+        Handle 0x0036, DMI type 26, 22 bytes
+       Voltage Probe
+               Description: LM78A
+               Location: Motherboard
+               Status: OK
+               Maximum Value: 1.990 V
+               Minimum Value: 0.000 V
+               Resolution: 7.8 mV
+               Tolerance: Unknown
+               Accuracy: 2.00%
+               OEM-specific Information: 0x0000DC02
+               Nominal Value: Unknown
+
+               ######## RAW ###################
+               Handle 0x0036, DMI type 26, 22 bytes
+                Header and Data:
+                1A 16 36 |
+                00 01 6A
+                | 00 80 | 00 80 | 00 80 | 00 80 | 00 80
+                | 00 00 00 00 | 00 80
+        Strings:
+                4C 4D 37 38 41 00
+                "LM78A"
+        */
+        PDMIVOLTAGEPROBE pVoltageProbe = (PDMIVOLTAGEPROBE)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pVoltageProbe));
+        DMI_START_STRUCT(pVoltageProbe);
+        pVoltageProbe->header.u8Type    = 0x1a; /* Voltage Probe */
+        pVoltageProbe->header.u8Length  = sizeof(*pVoltageProbe);
+        pVoltageProbe->header.u16Handle = 0x0036;
+        DMI_READ_CFG_STR_DEF(pVoltageProbe->u8Description, " ", "LM78A");
+        pVoltageProbe->u8LocationAndStatus = 0x67;  /* OK & Motherboard */
+        pVoltageProbe->u16MaxValue = 0x1000;
+        pVoltageProbe->u16MinValue = 0x0000;
+        pVoltageProbe->u16Resolution = 0x0001;
+        pVoltageProbe->u16Tolerance = 0x0002;
+        pVoltageProbe->u16Accuracy = 0x0002;
+        pVoltageProbe->u32OEMdefined = 0x00000000;
+        pVoltageProbe->u16NominalValue = 0x0050;
+        DMI_TERM_STRUCT;
+
+        /*****************************
+         * DMI Cooling Device (Type 27) *
+         *****************************/
+        /**
+         * Handle 0x0025, DMI type 27, 14 bytes
+        Cooling Device
+            Temperature Probe Handle: 0x0022
+            Type: <OUT OF SPEC>
+            Status: <OUT OF SPEC>
+            Cooling Unit Group: 1
+            OEM-specific Information: 0x00000000
+            Nominal Speed: Unknown Or Non-rotating
+         */
+
+        PDMICOOLINGDEVICE pCoolingDevice = (PDMICOOLINGDEVICE)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pCoolingDevice));
+        DMI_START_STRUCT(pCoolingDevice);
+        pCoolingDevice->header.u8Type    = 0x1B; /* Temperature Probe */
+        pCoolingDevice->header.u8Length  = sizeof(*pCoolingDevice);
+        pCoolingDevice->header.u16Handle = 0x0037;
+        pCoolingDevice->u16TemperatureProbeHandler = 0x0038;
+        pCoolingDevice->u8TypeAndStatus         = 0x63;
+        pCoolingDevice->u8CoolingUnitGroup      = 0x01;
+        pCoolingDevice->u32OEMdefined           = 0x00000000;
+        pCoolingDevice->u16NominalSpeed         = 0x0050;
+        DMI_TERM_STRUCT;
+
+        /*****************************
+         * DMI Temperature Probe (Type 28) *
+         *****************************/
+
+        PDMITEMPERATUREPROBE pTemperatureProbe = (PDMITEMPERATUREPROBE)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pTemperatureProbe));
+        DMI_START_STRUCT(pTemperatureProbe);
+        pTemperatureProbe->header.u8Type    = 0x1C; /* Temperature Probe */
+        pTemperatureProbe->header.u8Length  = sizeof(*pTemperatureProbe);
+        pTemperatureProbe->header.u16Handle = 0x0038;
+        DMI_READ_CFG_STR_DEF(pTemperatureProbe->u8Description, " ", "Generic Temperature Sensor");
+        pTemperatureProbe->u8LocationAndStatus = 0x67;  /* OK & Motherboard */
+        pTemperatureProbe->u16MaxValue = 0x0A00;
+        pTemperatureProbe->u16MinValue = 0x0000;
+        pTemperatureProbe->u16Resolution = 0x0001;
+        pTemperatureProbe->u16Tolerance = 0x0002;
+        pTemperatureProbe->u16Accuracy = 0x0002;
+        pTemperatureProbe->u32OEMdefined = 0x00000000;
+        pTemperatureProbe->u16NominalValue = 0x0050;
+        DMI_TERM_STRUCT;
+
+        /*****************************
+         * DMI Electrical Current Probe (Type 29) *
+         *****************************/
+
+        PDMIELECTRICALCURRENTPROBE pElectricalCurrentProbe = (PDMIELECTRICALCURRENTPROBE)pszStr;
+        DMI_CHECK_SIZE(sizeof(*pElectricalCurrentProbe));
+        DMI_START_STRUCT(pElectricalCurrentProbe);
+        pElectricalCurrentProbe->header.u8Type    = 0x1d; /* Electrical Current Probe */
+        pElectricalCurrentProbe->header.u8Length  = sizeof(*pElectricalCurrentProbe);
+        pElectricalCurrentProbe->header.u16Handle = 0x0039;
+        DMI_READ_CFG_STR_DEF(pElectricalCurrentProbe->u8Description, " ", "Generic Voltage Sensor");
+        pElectricalCurrentProbe->u8LocationAndStatus = 0x67; /* OK & Motherboard */
+        pElectricalCurrentProbe->u16MaxValue = 0x1000;
+        pElectricalCurrentProbe->u16MinValue = 0x0000;
+        pElectricalCurrentProbe->u16Resolution = 0x0001;
+        pElectricalCurrentProbe->u16Tolerance = 0x0002;
+        pElectricalCurrentProbe->u16Accuracy = 0x0002;
+        pElectricalCurrentProbe->u32OEMdefined = 0x00000000;
+        pElectricalCurrentProbe->u16NominalValue = 0x0050;
         DMI_TERM_STRUCT;
 
         /*************************************
@@ -936,7 +1489,7 @@ int FwCommonPlantDMITable(PPDMDEVINS pDevIns, uint8_t *pTable, unsigned cbMax, P
         *pcbDmiTables = ((uintptr_t)pszStr - (uintptr_t)pTable) + 2;
 
         /* We currently plant 10 DMI tables. Update this if tables number changed. */
-        *pcNumDmiTables = 10;
+        *pcNumDmiTables = 20;
 
         /* If more fields are added here, fix the size check in DMI_READ_CFG_STR */
 

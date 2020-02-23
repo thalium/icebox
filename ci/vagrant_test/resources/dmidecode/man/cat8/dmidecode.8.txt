@@ -1,0 +1,253 @@
+DMIDECODE(8)                                       DMIDECODE(8)
+
+
+
+NAME
+       dmidecode - DMI table decoder
+
+SYNOPSIS
+       dmidecode [OPTIONS]
+
+
+DESCRIPTION
+       dmidecode  is  a tool for dumping a computer's DMI (some
+       say SMBIOS) table contents in a  human-readable  format.
+       This  table contains a description of the system's hard-
+       ware components, as  well  as  other  useful  pieces  of
+       information  such  as  serial numbers and BIOS revision.
+       Thanks to this table, you can retrieve this  information
+       without  having to probe for the actual hardware.  While
+       this is a good point in terms of report speed and  safe-
+       ness, this also makes the presented information possibly
+       unreliable.
+
+       The DMI table doesn't only describe what the  system  is
+       currently  made of, it also can report the possible evo-
+       lutions (such as the fastest supported CPU or the  maxi-
+       mal amount of memory supported).
+
+       SMBIOS  stands  for  System  Management  BIOS, while DMI
+       stands for Desktop Management Interface. Both  standards
+       are  tightly  related and developed by the DMTF (Desktop
+       Management Task Force).
+
+       As you run it, dmidecode will try to locate the DMI  ta-
+       ble.  If  it succeeds, it will then parse this table and
+       display a list of records like this one:
+
+       Handle 0x0002, DMI type 2, 8 bytes.  Base Board Informa-
+       tion
+               Manufacturer: Intel
+               Product Name: C440GX+
+               Version: 727281-001
+               Serial Number: INCY92700942
+
+       Each record has:
+
+       · A  handle.  This  is a unique identifier, which allows
+         records to reference each other. For example,  proces-
+         sor  records  usually  reference  cache memory records
+         using their handles.
+
+       · A type. The  SMBIOS  specification  defines  different
+         types  of  elements a computer can be made of. In this
+         example, the type is 2, which means  that  the  record
+         contains "Base Board Information".
+
+       · A  size.  Each  record  has a 4-byte header (2 for the
+         handle, 1 for the type, 1 for the size), the  rest  is
+         used  by the record data. This value doesn't take text
+         strings into account (these are placed at the  end  of
+         the record), so the actual length of the record may be
+         (and is often) greater than the displayed value.
+
+       · Decoded values. The information  presented  of  course
+         depends  on  the  type of record. Here, we learn about
+         the board's manufacturer, model,  version  and  serial
+         number.
+
+
+OPTIONS
+       -d, --dev-mem FILE
+              Read memory from device FILE (default: /dev/mem)
+
+       -q, --quiet
+              Be  less  verbose. Unknown, inactive and OEM-spe-
+              cific entries are not  displayed.  Meta-data  and
+              handle references are hidden.
+
+       -s, --string KEYWORD
+              Only  display the value of the DMI string identi-
+              fied by KEYWORD.  KEYWORD must be a keyword  from
+              the  following  list:  bios-vendor, bios-version,
+              bios-release-date,  system-manufacturer,  system-
+              product-name,  system-version, system-serial-num-
+              ber, system-uuid,  baseboard-manufacturer,  base-
+              board-product-name, baseboard-version, baseboard-
+              serial-number, baseboard-asset-tag, chassis-manu-
+              facturer, chassis-type, chassis-version, chassis-
+              serial-number, chassis-asset-tag,  processor-fam-
+              ily,  processor-manufacturer,  processor-version,
+              processor-frequency.  Each keyword corresponds to
+              a  given  DMI type and a given offset within this
+              entry type.  Not all strings may be meaningful or
+              even  defined  on  all systems. Some keywords may
+              return more than one result on some systems (e.g.
+              processor-version  on  a multi-processor system).
+              If KEYWORD is not provided or not valid,  a  list
+              of  all  valid  keywords is printed and dmidecode
+              exits with an error.  This option cannot be  used
+              more than once.
+
+       -t, --type TYPE
+              Only  display  the entries of type TYPE. TYPE can
+              be either a DMI type number, or a comma-separated
+              list  of type numbers, or a keyword from the fol-
+              lowing list: bios,  system,  baseboard,  chassis,
+              processor,  memory, cache, connector, slot. Refer
+              to the DMI TYPES section below for  details.   If
+              this  option  is  used more than once, the set of
+              displayed entries will be the union  of  all  the
+              given  types.   If  TYPE  is  not provided or not
+              valid, a list of all valid  keywords  is  printed
+              and dmidecode exits with an error.
+
+       -u, --dump
+              Do not decode the entries, dump their contents as
+              hexadecimal instead.  Note that this is  still  a
+              text  output,  no binary data will be thrown upon
+              you. The strings attached to each entry are  dis-
+              played as both hexadecimal and ASCII. This option
+              is mainly useful for debugging.
+
+           --dump-bin FILE
+              Do not decode the entries, instead dump  the  DMI
+              data to a file in binary form. The generated file
+              is suitable to pass to --from-dump later.
+
+           --from-dump FILE
+              Read the DMI data from a binary  file  previously
+              generated using --dump-bin.
+
+       -h, --help
+              Display usage information and exit
+
+       -V, --version
+              Display the version and exit
+
+       Options  --string,  --type  and --dump-bin determine the
+       output format and are mutually exclusive.
+
+
+DMI TYPES
+       The  SMBIOS  specification  defines  the  following  DMI
+       types:
+
+
+       Type   Information
+       ----------------------------------------
+          0   BIOS
+          1   System
+          2   Base Board
+          3   Chassis
+          4   Processor
+          5   Memory Controller
+          6   Memory Module
+          7   Cache
+          8   Port Connector
+          9   System Slots
+         10   On Board Devices
+         11   OEM Strings
+         12   System Configuration Options
+         13   BIOS Language
+         14   Group Associations
+         15   System Event Log
+         16   Physical Memory Array
+         17   Memory Device
+         18   32-bit Memory Error
+         19   Memory Array Mapped Address
+         20   Memory Device Mapped Address
+         21   Built-in Pointing Device
+         22   Portable Battery
+         23   System Reset
+         24   Hardware Security
+         25   System Power Controls
+         26   Voltage Probe
+         27   Cooling Device
+         28   Temperature Probe
+         29   Electrical Current Probe
+         30   Out-of-band Remote Access
+         31   Boot Integrity Services
+         32   System Boot
+         33   64-bit Memory Error
+         34   Management Device
+         35   Management Device Component
+         36   Management Device Threshold Data
+         37   Memory Channel
+         38   IPMI Device
+         39   Power Supply
+         40   Additional Information
+         41   Onboard Device
+
+       Additionally,  type 126 is used for disabled entries and
+       type 127 is an end-of-table marker. Types 128 to 255 are
+       for  OEM-specific  data.   dmidecode  will display these
+       entries by default, but it can only decode them when the
+       vendors have contributed documentation or code for them.
+
+       Keywords can  be  used  instead  of  type  numbers  with
+       --type.   Each  keyword  is equivalent to a list of type
+       numbers:
+
+
+       Keyword     Types
+       ------------------------------
+       bios        0, 13
+       system      1, 12, 15, 23, 32
+       baseboard   2, 10, 41
+       chassis     3
+       processor   4
+       memory      5, 6, 16, 17
+       cache       7
+       connector   8
+       slot        9
+
+       Keywords are matched case-insensitively.  The  following
+       command lines are equivalent:
+
+       · dmidecode --type 0 --type 13
+
+       · dmidecode --type 0,13
+
+       · dmidecode --type bios
+
+       · dmidecode --type BIOS
+
+
+BINARY DUMP FILE FORMAT
+       The  binary  dump files generated by --dump-bin and read
+       using --from-dump are formatted as follows:
+
+       · The SMBIOS or DMI entry point  is  located  at  offset
+         0x00.  It is crafted to hard-code the table address at
+         offset 0x20.
+
+       · The DMI table is located at offset 0x20.
+
+
+FILES
+       /dev/mem
+
+BUGS
+       More often than not, information contained  in  the  DMI
+       tables is inaccurate, incomplete or simply wrong.
+
+AUTHORS
+       Alan Cox, Jean Delvare
+
+SEE ALSO
+       biosdecode(8), mem(4), ownership(8), vpddecode(8)
+
+
+
+dmidecode                November 2008             DMIDECODE(8)

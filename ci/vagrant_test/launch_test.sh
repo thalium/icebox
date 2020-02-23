@@ -20,6 +20,10 @@ if [ ! -z "$(which VirtualBox)" ]; then
 	echo "4) ---sems.exe ---"
 	echo "----- EXECUTE TESTS : SEMS -----"
 	vagrant winrm --shell powershell -c "C:\resources\sems\sems.exe"
+
+	echo "6) ---dmidecode.exe ---"
+	echo "----- EXECUTE TESTS : dmidecode -----"
+	vagrant winrm --shell powershell -c "C:\resources\dmidecode\sbin\dmidecode.exe"
 else
 	echo "error VirtualBox exe not found !"
 	return 2

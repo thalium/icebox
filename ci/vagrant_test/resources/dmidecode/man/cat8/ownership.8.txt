@@ -1,0 +1,43 @@
+OWNERSHIP(8)                                       OWNERSHIP(8)
+
+
+
+NAME
+       ownership - Compaq ownership tag retriever
+
+SYNOPSIS
+       ownership [OPTIONS]
+
+
+DESCRIPTION
+       ownership  retrieves and prints the "ownership tag" that
+       can be set on Compaq computers. Contrary  to  all  other
+       programs  of  the  dmidecode  package, ownership doesn't
+       print any version information, nor labels, but only  the
+       raw  ownership  tag. This should help its integration in
+       scripts.
+
+
+OPTIONS
+       -d, --dev-mem FILE
+              Read memory from device FILE (default: /dev/mem)
+
+       -h, --help
+              Display usage information and exit
+
+       -V, --version
+              Display the version and exit
+
+
+FILES
+       /dev/mem
+
+AUTHOR
+       Jean Delvare
+
+SEE ALSO
+       biosdecode(8), dmidecode(8), mem(4), vpddecode(8)
+
+
+
+dmidecode                February 2005             OWNERSHIP(8)

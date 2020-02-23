@@ -1,0 +1,50 @@
+* DmiDecode-2.10 for Windows *
+==============================
+
+What is it?
+-----------
+DmiDecode: DMI-table decoder
+
+Description
+-----------
+Dmidecode reports information about your system's hardware as described in your system BIOS according to the SMBIOS/DMI standard. This information typically includes system manufacturer, model name, serial number, BIOS version, asset tag as well as a lot of other details of varying level of interest and reliability depending on the manufacturer. This will often include usage status for the CPU sockets, expansion slots (e.g. AGP, PCI, ISA) and memory module slots, and the list of I/O ports (e.g. serial, parallel, USB). Beware that DMI data have proven to be too unreliable to be blindly trusted. Dmidecode does not scan your hardware, it only reports what the BIOS told it to. Three additional tools come with dmidecode: - biosdecode prints all BIOS related information it can find - ownership retrieves the "ownership tag" that can be set on Compaq computers - vpddecode prints the "vital product data" information that can be found in almost all IBM computers This MS-Windows port is based on the patches created by Hugo Weber <http://lists.gnu.org/archive/html/dmidecode-devel/2006-10/msg00001.html>. It works only on MS-Windows NT systems (NT, 2000, XP, 2003, Vista, 2008) and not on MS-Windows 9x systems (95, 98, ME).
+	 
+Homepage
+--------
+http://www.nongnu.org/dmidecode/
+Sources: http://download.savannah.gnu.org/releases/dmidecode/dmidecode-2.10.tar.gz
+	 
+System
+------
+- Win32, i.e. MS-Windows 95 / 98 / ME / NT / 2000 / XP / 2003 / Vista / 2008 with msvcrt.dll
+- if msvcrt.dll is not in your Windows/System folder, get it from
+  Microsoft <http://support.microsoft.com/kb/259403>
+  or by installing Internet Explorer 4.0 or higher
+  <http://www.microsoft.com/windows/ie> 
+
+Notes
+-----
+- Bugs and questions on this MS-Windows port: gnuwin32@users.sourceforge.net
+
+Package Availability
+--------------------
+- in: http://gnuwin32.sourceforge.net
+Installation
+------------
+This MS-Windows port works only on MS-Windows NT systems (NT, 2000, XP, 2003, Vista, 2008) and not on MS-Windows 9x systems (95, 98, ME).
+
+Sources
+-------
+- dmidecode-2.10-src.zip
+
+Compilation
+-----------
+The package has been compiled with GNU auto-tools, GNU make, and Mingw
+(GCC for MS-Windows). Any differences from the original sources are given
+in dmidecode-2.10-GnuWin32.diffs in dmidecode-2.10-src.zip. Libraries needed
+for compilation can be found at the lines starting with 'LIBS = ' in the
+Makefiles. Usually, these are standard libraries provided with Mingw, or
+libraries from the package itself; 'gw32c' refers to the libgw32c package,
+which provides MS-Windows substitutes or stubs for functions normally found in
+Unix. For more information, see: http://gnuwin32.sourceforge.net/compile.html
+and http://gnuwin32.sourceforge.net/packages/libgw32c.htm.

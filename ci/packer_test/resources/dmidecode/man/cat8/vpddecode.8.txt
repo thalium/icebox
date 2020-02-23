@@ -1,0 +1,83 @@
+VPDDECODE(8)                                       VPDDECODE(8)
+
+
+
+NAME
+       vpddecode - VPD structure decoder
+
+SYNOPSIS
+       vpddecode [OPTIONS]
+
+
+DESCRIPTION
+       vpddecode  prints  the  "vital product data" information
+       that can be found in almost all IBM and  Lenovo  comput-
+       ers. Available items are:
+
+       · BIOS Build ID
+
+       · Box Serial Number
+
+       · Motherboard Serial Number
+
+       · Machine Type/Model
+
+
+       Some systems have these additional items:
+
+       · BIOS Release Date
+
+       · Default Flash Image File Name
+
+
+       Note  that  these additional items are not documented by
+       IBM, so this is guess work, and as such  should  not  be
+       blindly  trusted.  Feedback  about the accuracy of these
+       labels is welcome.
+
+
+OPTIONS
+       -d, --dev-mem FILE
+              Read memory from device FILE (default: /dev/mem)
+
+       -s, --string KEYWORD
+              Only display the value of the VPD string  identi-
+              fied  by KEYWORD.  KEYWORD must be a keyword from
+              the following  list:  bios-build-id,  box-serial-
+              number,  motherboard-serial-number, machine-type-
+              model, bios-release-date.   Each  keyword  corre-
+              sponds  to  an offset and a length within the VPD
+              record.  Not all strings may be  defined  on  all
+              VPD-enabled  systems.  If KEYWORD is not provided
+              or not valid, a list of  all  valid  keywords  is
+              printed  and vpddecode exits with an error.  This
+              option cannot be used more than  once.   Mutually
+              exclusive with --dump.
+
+       -u, --dump
+              Do  not  decode  the VPD records, dump their con-
+              tents as hexadecimal instead.  Note that this  is
+              still  a  text  output,  no  binary  data will be
+              thrown upon you. ASCII  equivalent  is  displayed
+              when  possible.  This option is mainly useful for
+              debugging.  Mutually exclusive with --string.
+
+       -h, --help
+              Display usage information and exit
+
+       -V, --version
+              Display the version and exit
+
+
+FILES
+       /dev/mem
+
+AUTHOR
+       Jean Delvare
+
+SEE ALSO
+       biosdecode(8), dmidecode(8), mem(4), ownership(8)
+
+
+
+dmidecode                February 2007             VPDDECODE(8)

@@ -1,0 +1,21 @@
+sbin/biosdecode.exe f4d12d5450384dbafaef1b6ded8069d3
+sbin/dmidecode.exe bca173dc4758676dd812c7632017d0ae
+sbin/ownership.exe 69ca8b15a629760d437a44f023220789
+sbin/vpddecode.exe 64f47bc66b8302cf84fa6208a1b373e2
+man/cat8/biosdecode.8.txt 699e44df1c7c47a0cc351407248918b5
+man/cat8/dmidecode.8.txt cbf9672e42b71acde1aa2c2c632074f9
+man/cat8/ownership.8.txt e89bbfdb279d2746305a960f982c93c5
+man/cat8/vpddecode.8.txt e1c97e16b0944c5de1d7b608e78edc11
+contrib/dmidecode/2.10/dmidecode/2.10/dmidecode-2.10-GnuWin32.README 9637e6b6dbd0a687cb05c7e9cd228034
+contrib/dmidecode/2.10/dmidecode/2.10/dmidecode-2.10-src/AUTHORS 54acda0b5975a695fec754b309e53158
+contrib/dmidecode/2.10/dmidecode/2.10/dmidecode-2.10-src/CHANGELOG 372baad7f583767f089e5c431e20b403
+contrib/dmidecode/2.10/dmidecode/2.10/dmidecode-2.10-src/LICENSE 393a5ca445f6965873eca0259a17f833
+contrib/dmidecode/2.10/dmidecode/2.10/dmidecode-2.10-src/README c916ec2b98c6de3c5065861743b3eb01
+contrib/dmidecode/2.10/dmidecode/dmidecode-GnuWin32.README 0b1f3c1e2abd4a7c3435b012c4ff2799
+contrib/dmidecode/2.10/dmidecode-2.10-GnuWin32.README f69329251798c3e8a0414a1e21350cf8
+contrib/dmidecode/2.10/dmidecode-2.10-src/AUTHORS 54acda0b5975a695fec754b309e53158
+contrib/dmidecode/2.10/dmidecode-2.10-src/CHANGELOG 372baad7f583767f089e5c431e20b403
+contrib/dmidecode/2.10/dmidecode-2.10-src/LICENSE 393a5ca445f6965873eca0259a17f833
+contrib/dmidecode/2.10/dmidecode-2.10-src/README c916ec2b98c6de3c5065861743b3eb01
+manifest/dmidecode-2.10-bin.mft
+manifest/dmidecode-2.10-bin.ver 572bf227dcc686191c41ce916d2dad34

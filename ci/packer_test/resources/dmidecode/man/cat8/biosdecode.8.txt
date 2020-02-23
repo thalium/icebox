@@ -1,0 +1,79 @@
+BIOSDECODE(8)                                     BIOSDECODE(8)
+
+
+
+NAME
+       biosdecode - BIOS information decoder
+
+SYNOPSIS
+       biosdecode [OPTIONS]
+
+
+DESCRIPTION
+       biosdecode parses the BIOS memory and prints information
+       about all structures (or entry points) it knows of. Cur-
+       rently known entry point types are:
+
+       · SMBIOS (System Management BIOS)
+         Use dmidecode for a more detailed output.
+
+       · DMI (Desktop Management Interface, a legacy version of
+         SMBIOS)
+         Use dmidecode for a more detailed output.
+
+       · SYSID
+
+       · PNP (Plug and Play)
+
+       · ACPI (Advanced Configuration and Power Interface)
+
+       · BIOS32 (BIOS32 Service Directory)
+
+       · PIR (PCI IRQ Routing)
+
+       · 32OS (BIOS32 Extension, Compaq-specific)
+         See ownership for a  Compaq  ownership  tag  retrieval
+         tool.
+
+       · SNY (Sony-specific, not decoded)
+
+       · VPD (Vital Product Data, IBM-specific)
+         Use vpddecode for a more detailed output.
+
+       · FJKEYINF (Application Panel, Fujitsu-specific)
+
+
+       biosdecode  started  its life as a part of dmidecode but
+       as more entry point types were added, if was moved to  a
+       different program.
+
+
+OPTIONS
+       -d, --dev-mem FILE
+              Read memory from device FILE (default: /dev/mem)
+
+       -h, --help
+              Display usage information and exit
+
+       -V, --version
+              Display the version and exit
+
+
+FILES
+       /dev/mem
+
+BUGS
+       Most of the time, biosdecode prints too much information
+       (you don't really care about addresses)  or  not  enough
+       (because  it  doesn't  follow pointers and has no lookup
+       tables).
+
+AUTHORS
+       Alan Cox, Jean Delvare
+
+SEE ALSO
+       dmidecode(8), mem(4), ownership(8), vpddecode(8)
+
+
+
+dmidecode                February 2007            BIOSDECODE(8)

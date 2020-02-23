@@ -27,7 +27,7 @@
  * The size should be at least 16-byte aligned for a proper alignment of
  * the MPS table.
  */
-#define VBOX_DMI_TABLE_SIZE         768
+#define VBOX_DMI_TABLE_SIZE         896
 
 
 /** @def VBOX_LANBOOT_SEG
