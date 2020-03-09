@@ -70,7 +70,7 @@
 	  "{{.Name}}",
 	  "'VBoxInternal/CPUM/SSE4.2'", 
 	  "1"
-	],
+	]
       ]
     } 
   ],
@@ -110,6 +110,10 @@
 {
   "type": "powershell",
   "inline": ["'n' | cmd /c c:\\resources\\sems\\sems.exe 2>null"]
+},
+{
+  "type": "powershell",
+  "inline": ["'n' | cmd /c c:\\resources\\vmde64.exe"]
 }
 ],
 "variables": {
