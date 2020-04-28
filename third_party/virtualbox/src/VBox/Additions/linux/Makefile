@@ -24,6 +24,7 @@ obj-m = vboxguest/ vboxsf/ vboxvideo/
 else # ! KBUILD_EXTMOD
 
 KBUILD_VERBOSE =
+PWD ?= $(shell pwd)
 
 all: vboxguest vboxsf vboxvideo
 
@@ -42,6 +43,7 @@ vboxsf: vboxguest
 	    if [ -f vboxguest/Module.symvers ]; then \
 	        cp vboxguest/Module.symvers vboxsf; \
 	    fi; \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxsf/Module.symvers; \
 	    echo "=== Building 'vboxsf' module ==="; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_EXTRA_SYMBOLS=$(abspath vboxsf/Module.symvers) -C vboxsf || exit 1; \
 	    if [ -f vboxsf/vboxsf.ko ]; then \
@@ -57,6 +59,7 @@ vboxvideo:
 	    if [ -f vboxguest/Module.symvers ]; then \
 	        cp vboxguest/Module.symvers vboxvideo; \
 	    fi; \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxvideo/Module.symvers; \
 	    echo "=== Building 'vboxvideo' module ==="; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_EXTRA_SYMBOLS=$(abspath vboxvideo/Module.symvers) -C vboxvideo || exit 1; \
 	    if [ -f vboxvideo/vboxvideo.ko ]; then \
@@ -70,9 +73,11 @@ vboxvideo:
 install:
 	@$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxguest install
 	@if [ -d vboxsf ]; then \
+	    export KBULID_EXTRA_SYMBOLS=${PWD}/vboxsf/Module.symvers; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxsf install; \
 	fi
 	@if [ -d vboxvideo ]; then \
+	    export KBULID_EXTRA_SYMBOLS=${PWD}/vboxvideo/Module.symvers; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxvideo install; \
 	fi
 

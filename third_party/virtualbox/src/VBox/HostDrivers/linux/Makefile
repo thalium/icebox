@@ -44,6 +44,7 @@ else # ! KBUILD_EXTMOD
 # convenience Makefile without KBUILD_EXTMOD
 
 KBUILD_VERBOSE ?=
+PWD ?= $(shell pwd)
 KERN_VER ?= $(shell uname -r)
 .PHONY: all install clean check unload load vboxdrv vboxnetflt vboxnetadp \
     vboxpci
@@ -64,6 +65,7 @@ vboxnetflt: vboxdrv
 	    if [ -f vboxdrv/Module.symvers ]; then \
 	        cp vboxdrv/Module.symvers vboxnetflt; \
 	    fi; \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxnetflt/Module.symvers; \
 	    echo "=== Building 'vboxnetflt' module ==="; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxnetflt || exit 1; \
 	    cp vboxnetflt/vboxnetflt.ko .; \
@@ -75,6 +77,7 @@ vboxnetadp: vboxdrv
 	    if [ -f vboxdrv/Module.symvers ]; then \
 	        cp vboxdrv/Module.symvers vboxnetadp; \
 	    fi; \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxnetadp/Module.symvers; \
 	    echo "=== Building 'vboxnetadp' module ==="; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxnetadp || exit 1; \
 	    cp vboxnetadp/vboxnetadp.ko .; \
@@ -86,6 +89,7 @@ vboxpci: vboxdrv
 	    if [ -f vboxdrv/Module.symvers ]; then \
 	        cp vboxdrv/Module.symvers vboxpci; \
 	    fi; \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxpci/Module.symvers; \
 	    echo "=== Building 'vboxpci' module ==="; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxpci || exit 1; \
 	    cp vboxpci/vboxpci.ko .; \
@@ -95,12 +99,15 @@ vboxpci: vboxdrv
 install:
 	@$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxdrv install
 	@if [ -d vboxnetflt ]; then \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxnetflt/Module.symvers; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxnetflt install; \
 	fi
 	@if [ -d vboxnetadp ]; then \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxnetadp/Module.symvers; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxnetadp install; \
 	fi
 	@if [ -d vboxpci ]; then \
+	    export KBUILD_EXTRA_SYMBOLS=${PWD}/vboxpci/Module.symvers; \
 	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxpci install; \
 	fi
 
@@ -131,7 +138,7 @@ check:
 	@$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxdrv check
 
 unload:
-	@for module in vboxpci vboxnetadp vboxnetflt vboxdrv; do \
+	@for module in vboxpci vboxnetadp vboxnetflt vboxdrv vboxpci; do \
 		if grep "^$$module " /proc/modules >/dev/null; then \
 			echo "Removing previously installed $$module module"; \
 			/sbin/rmmod $$module; \
