@@ -2521,11 +2521,14 @@ int vmsvga3dGenerateMipmaps(PVGASTATE pThis, uint32_t sid, SVGA3dTextureFilter f
         rc = vmsvga3dBackCreateTexture(pState, pContext, cid, pSurface);
         AssertRCReturn(rc, rc);
     }
-    else
-    {
-        hr = pSurface->u.pTexture->SetAutoGenFilterType((D3DTEXTUREFILTERTYPE)filter);
-        AssertMsg(hr == D3D_OK, ("SetAutoGenFilterType failed with %x\n", hr));
-    }
+
+    AssertReturn(   pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_TEXTURE
+                 || pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_CUBE_TEXTURE
+                 || pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_VOLUME_TEXTURE,
+                 VERR_INVALID_PARAMETER);
+
+    hr = pSurface->u.pTexture->SetAutoGenFilterType((D3DTEXTUREFILTERTYPE)filter);
+    AssertMsg(hr == D3D_OK, ("SetAutoGenFilterType failed with %x\n", hr));
 
     /* Generate the mip maps. */
     pSurface->u.pTexture->GenerateMipSubLevels();
@@ -4308,6 +4311,7 @@ int vmsvga3dSetRenderTarget(PVGASTATE pThis, uint32_t cid, SVGA3dRenderTargetTyp
         }
         else
         {
+            AssertReturn(pRenderTarget->enmD3DResType == VMSVGA3D_D3DRESTYPE_SURFACE, VERR_INVALID_PARAMETER);
             hr = pContext->pDevice->SetDepthStencilSurface(pRenderTarget->u.pSurface);
             AssertMsgReturn(hr == D3D_OK, ("SetDepthStencilSurface failed with %x\n", hr), VERR_INTERNAL_ERROR);
         }
@@ -4383,11 +4387,13 @@ int vmsvga3dSetRenderTarget(PVGASTATE pThis, uint32_t cid, SVGA3dRenderTargetTyp
                 AssertReturn(pRenderTarget->fUsageD3D & D3DUSAGE_RENDERTARGET, VERR_INVALID_PARAMETER);
 
             Assert(pRenderTarget->idAssociatedContext == cid);
-            Assert(pRenderTarget->enmD3DResType == VMSVGA3D_D3DRESTYPE_SURFACE);
+            AssertMsgReturn(pRenderTarget->enmD3DResType == VMSVGA3D_D3DRESTYPE_SURFACE,
+                            ("Invalid render target %#x\n", pRenderTarget->enmD3DResType),
+                            VERR_INVALID_PARAMETER);
             pSurface = pRenderTarget->u.pSurface;
         }
 
-        AssertReturn(pRenderTarget->u.pSurface, VERR_INVALID_PARAMETER);
+        AssertReturn(pSurface, VERR_INVALID_PARAMETER);
         Assert(!pRenderTarget->fDirty);
 
         pRenderTarget->fUsageD3D            |= D3DUSAGE_RENDERTARGET;
@@ -4595,12 +4601,14 @@ int vmsvga3dSetTextureState(PVGASTATE pThis, uint32_t cid, uint32_t cTextureStat
                 }
                 else
                 {
-                    Assert(   pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_TEXTURE
-                           || pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_CUBE_TEXTURE
-                           || pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_VOLUME_TEXTURE);
                     /* Must flush the other context's 3d pipeline to make sure all drawing is complete for the surface we're about to use. */
                     vmsvga3dSurfaceFlush(pThis, pSurface);
                 }
+
+                AssertReturn(   pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_TEXTURE
+                             || pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_CUBE_TEXTURE
+                             || pSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_VOLUME_TEXTURE,
+                             VERR_INVALID_PARAMETER);
 
 #ifndef VBOX_VMSVGA3D_WITH_WINE_OPENGL
                 if (pSurface->idAssociatedContext != cid)
@@ -4885,6 +4893,7 @@ int vmsvga3dSetLightData(PVGASTATE pThis, uint32_t cid, uint32_t index, SVGA3dLi
     AssertReturn(pState, VERR_NO_MEMORY);
 
     Log(("vmsvga3dSetLightData %x index=%d\n", cid, index));
+    AssertReturn(index < SVGA3D_MAX_LIGHTS, VERR_INVALID_PARAMETER);
 
     int rc = vmsvga3dContextFromCid(pState, cid, &pContext);
     AssertRCReturn(rc, rc);
@@ -4910,13 +4919,8 @@ int vmsvga3dSetLightData(PVGASTATE pThis, uint32_t cid, uint32_t index, SVGA3dLi
     }
 
     /* Store for vm state save/restore */
-    if (index < SVGA3D_MAX_LIGHTS)
-    {
-        pContext->state.aLightData[index].fValidData = true;
-        pContext->state.aLightData[index].data = *pData;
-    }
-    else
-        AssertFailed();
+    pContext->state.aLightData[index].fValidData = true;
+    pContext->state.aLightData[index].data = *pData;
 
     light.Diffuse.r     = pData->diffuse[0];
     light.Diffuse.g     = pData->diffuse[1];
@@ -5558,7 +5562,7 @@ static int vmsvga3dDrawPrimitivesSyncVertexBuffer(PVMSVGA3DCONTEXT pContext,
         && pVertexSurface->enmD3DResType != VMSVGA3D_D3DRESTYPE_VERTEX_BUFFER)
     {
         /* The buffer object is not an vertex one. Recreate the D3D resource. */
-        Assert(pVertexSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_INDEX_BUFFER);
+        AssertReturn(pVertexSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_INDEX_BUFFER, VERR_INVALID_PARAMETER);
         D3D_RELEASE(pVertexSurface->u.pIndexBuffer);
         pVertexSurface->enmD3DResType = VMSVGA3D_D3DRESTYPE_NONE;
 
@@ -5613,7 +5617,7 @@ static int vmsvga3dDrawPrimitivesSyncIndexBuffer(PVMSVGA3DCONTEXT pContext,
         && pIndexSurface->enmD3DResType != VMSVGA3D_D3DRESTYPE_INDEX_BUFFER)
     {
         /* The buffer object is not an index one. Must recreate the D3D resource. */
-        Assert(pIndexSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_VERTEX_BUFFER);
+        AssertReturn(pIndexSurface->enmD3DResType == VMSVGA3D_D3DRESTYPE_VERTEX_BUFFER, VERR_INVALID_PARAMETER);
         D3D_RELEASE(pIndexSurface->u.pVertexBuffer);
         pIndexSurface->enmD3DResType = VMSVGA3D_D3DRESTYPE_NONE;
 
@@ -6020,25 +6024,6 @@ int vmsvga3dShaderDefine(PVGASTATE pThis, uint32_t cid, uint32_t shid, SVGA3dSha
     AssertReturn(pState, VERR_NO_MEMORY);
 
     Log(("vmsvga3dShaderDefine %x shid=%x type=%s cbData=%x\n", cid, shid, (type == SVGA3D_SHADERTYPE_VS) ? "VERTEX" : "PIXEL", cbData));
-#ifdef LOG_ENABLED
-    Log3(("Shader code:\n"));
-    const uint32_t cTokensPerLine = 8;
-    const uint32_t *paTokens = (uint32_t *)pShaderData;
-    const uint32_t cTokens = cbData / sizeof(uint32_t);
-    for (uint32_t iToken = 0; iToken < cTokens; ++iToken)
-    {
-        if ((iToken % cTokensPerLine) == 0)
-        {
-            if (iToken == 0)
-                Log3(("0x%08X,", paTokens[iToken]));
-            else
-                Log3(("\n0x%08X,", paTokens[iToken]));
-        }
-        else
-            Log3((" 0x%08X,", paTokens[iToken]));
-    }
-    Log3(("\n"));
-#endif
 
     if (    cid >= pState->cContexts
         ||  pState->papContexts[cid]->id != cid)
@@ -6049,6 +6034,15 @@ int vmsvga3dShaderDefine(PVGASTATE pThis, uint32_t cid, uint32_t shid, SVGA3dSha
     pContext = pState->papContexts[cid];
 
     AssertReturn(shid < SVGA3D_MAX_SHADER_IDS, VERR_INVALID_PARAMETER);
+
+    int rc = vmsvga3dShaderParse(cbData, pShaderData);
+    if (RT_FAILURE(rc))
+    {
+        AssertRC(rc);
+        vmsvga3dShaderLogRel("Failed to parse", type, cbData, pShaderData);
+        return rc;
+    }
+
     if (type == SVGA3D_SHADERTYPE_VS)
     {
         if (shid >= pContext->cVertexShaders)
@@ -6121,6 +6115,9 @@ int vmsvga3dShaderDefine(PVGASTATE pThis, uint32_t cid, uint32_t shid, SVGA3dSha
     }
     if (hr != D3D_OK)
     {
+        /* Dump the shader code. */
+        vmsvga3dShaderLogRel("Failed to create", type, cbData, pShaderData);
+
         RTMemFree(pShader->pShaderProgram);
         memset(pShader, 0, sizeof(*pShader));
         pShader->id = SVGA3D_INVALID_ID;

@@ -450,6 +450,7 @@
 #include <iprt/string.h>
 #include <iprt/initterm.h>
 #include <iprt/param.h>
+#include <iprt/path.h>
 
 #include "SUPLibInternal.h"
 
@@ -538,6 +539,10 @@ static
 char                    g_szSupLibHardenedExePath[RTPATH_MAX];
 /** The application bin directory path. */
 static char             g_szSupLibHardenedAppBinPath[RTPATH_MAX];
+/** The offset into g_szSupLibHardenedExePath of the executable name. */
+static size_t           g_offSupLibHardenedExecName;
+/** The length of the executable name in g_szSupLibHardenedExePath. */
+static size_t           g_cchSupLibHardenedExecName;
 
 /** The program name. */
 static const char      *g_pszSupLibHardenedProgName;
@@ -1341,6 +1346,11 @@ static void supR3HardenedGetFullExePath(void)
     suplibHardenedStrCopy(g_szSupLibHardenedAppBinPath, g_szSupLibHardenedExePath);
     suplibHardenedPathStripFilename(g_szSupLibHardenedAppBinPath);
 
+    g_offSupLibHardenedExecName = suplibHardenedStrLen(g_szSupLibHardenedAppBinPath);
+    while (RTPATH_IS_SEP(g_szSupLibHardenedExePath[g_offSupLibHardenedExecName]))
+           g_offSupLibHardenedExecName++;
+    g_cchSupLibHardenedExecName = suplibHardenedStrLen(&g_szSupLibHardenedExePath[g_offSupLibHardenedExecName]);
+
     if (g_enmSupR3HardenedMainState < SUPR3HARDENEDMAINSTATE_HARDENED_MAIN_CALLED)
         supR3HardenedFatal("supR3HardenedExecDir: Called before SUPR3HardenedMain! (%d)\n", g_enmSupR3HardenedMainState);
     switch (g_fSupHardenedMain & SUPSECMAIN_FLAGS_LOC_MASK)
@@ -1350,6 +1360,43 @@ static void supR3HardenedGetFullExePath(void)
         case SUPSECMAIN_FLAGS_LOC_TESTCASE:
             suplibHardenedPathStripFilename(g_szSupLibHardenedAppBinPath);
             break;
+#ifdef RT_OS_DARWIN
+        case SUPSECMAIN_FLAGS_LOC_OSX_HLP_APP:
+        {
+            /* We must ascend to the parent bundle's Contents directory then decend into its MacOS: */
+            static const RTSTRTUPLE s_aComponentsToSkip[] =
+            { { RT_STR_TUPLE("MacOS") }, { RT_STR_TUPLE("Contents") }, { NULL /*some.app*/, 0 }, { RT_STR_TUPLE("Resources") } };
+            size_t cchPath = suplibHardenedStrLen(g_szSupLibHardenedAppBinPath);
+            for (uintptr_t i = 0; i < RT_ELEMENTS(s_aComponentsToSkip); i++)
+            {
+                while (cchPath > 1 && g_szSupLibHardenedAppBinPath[cchPath - 1] == '/')
+                    cchPath--;
+                size_t const cchMatch = s_aComponentsToSkip[i].cch;
+                if (cchMatch > 0)
+                {
+                    if (   cchPath >= cchMatch + sizeof("VirtualBox.app/Contents")
+                        && g_szSupLibHardenedAppBinPath[cchPath - cchMatch - 1] == '/'
+                        && suplibHardenedMemComp(&g_szSupLibHardenedAppBinPath[cchPath - cchMatch],
+                                                 s_aComponentsToSkip[i].psz, cchMatch) == 0)
+                        cchPath -= cchMatch;
+                    else
+                        supR3HardenedFatal("supR3HardenedExecDir: Bad helper app path (tail component #%u '%s'): %s\n",
+                                           i, s_aComponentsToSkip[i].psz, g_szSupLibHardenedAppBinPath);
+                }
+                else if (   cchPath > g_cchSupLibHardenedExecName  + sizeof("VirtualBox.app/Contents/Resources/.app")
+                         && suplibHardenedMemComp(&g_szSupLibHardenedAppBinPath[cchPath - 4], ".app", 4) == 0
+                         && suplibHardenedMemComp(&g_szSupLibHardenedAppBinPath[cchPath - 4 - g_cchSupLibHardenedExecName],
+                                                  &g_szSupLibHardenedExePath[g_offSupLibHardenedExecName],
+                                                  g_cchSupLibHardenedExecName) == 0)
+                    cchPath -= g_cchSupLibHardenedExecName + 4;
+                else
+                    supR3HardenedFatal("supR3HardenedExecDir: Bad helper app path (tail component #%u '%s.app'): %s\n",
+                                       i, &g_szSupLibHardenedExePath[g_offSupLibHardenedExecName], g_szSupLibHardenedAppBinPath);
+            }
+            suplibHardenedMemCopy(&g_szSupLibHardenedAppBinPath[cchPath], "MacOS", sizeof("MacOS"));
+            break;
+        }
+#endif /* RT_OS_DARWIN */
         default:
             supR3HardenedFatal("supR3HardenedExecDir: Unknown program binary location: %#x\n", g_fSupHardenedMain);
     }
@@ -2310,6 +2357,9 @@ static int supR3HardenedMainGetTrustedLib(const char *pszProgName, uint32_t fMai
     switch (g_fSupHardenedMain & SUPSECMAIN_FLAGS_LOC_MASK)
     {
         case SUPSECMAIN_FLAGS_LOC_APP_BIN:
+#ifdef RT_OS_DARWIN
+        case SUPSECMAIN_FLAGS_LOC_OSX_HLP_APP:
+#endif
             pszSubDirSlash = "/";
             break;
         case SUPSECMAIN_FLAGS_LOC_TESTCASE:

@@ -65,7 +65,7 @@ vboxnetflt: vboxdrv
 	        cp vboxdrv/Module.symvers vboxnetflt; \
 	    fi; \
 	    echo "=== Building 'vboxnetflt' module ==="; \
-	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxnetflt || exit 1; \
+	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_EXTRA_SYMBOLS=$(abspath vboxnetflt/Module.symvers) -C vboxnetflt || exit 1; \
 	    cp vboxnetflt/vboxnetflt.ko .; \
 	    echo; \
 	fi
@@ -76,7 +76,7 @@ vboxnetadp: vboxdrv
 	        cp vboxdrv/Module.symvers vboxnetadp; \
 	    fi; \
 	    echo "=== Building 'vboxnetadp' module ==="; \
-	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxnetadp || exit 1; \
+	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_EXTRA_SYMBOLS=$(abspath vboxnetadp/Module.symvers) -C vboxnetadp || exit 1; \
 	    cp vboxnetadp/vboxnetadp.ko .; \
 	    echo; \
 	fi
@@ -87,7 +87,7 @@ vboxpci: vboxdrv
 	        cp vboxdrv/Module.symvers vboxpci; \
 	    fi; \
 	    echo "=== Building 'vboxpci' module ==="; \
-	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) -C vboxpci || exit 1; \
+	    $(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_EXTRA_SYMBOLS=$(abspath vboxpci/Module.symvers) -C vboxpci || exit 1; \
 	    cp vboxpci/vboxpci.ko .; \
 	    echo; \
 	fi

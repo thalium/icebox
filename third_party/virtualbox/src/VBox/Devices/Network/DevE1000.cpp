@@ -4077,7 +4077,7 @@ static void e1kInsertChecksum(PE1KSTATE pThis, uint8_t *pPkt, uint16_t u16PktLen
         return;
     }
 
-    if (cse == 0)
+    if (cse == 0 || cse >= u16PktLen)
         cse = u16PktLen - 1;
     else if (cse < css)
     {

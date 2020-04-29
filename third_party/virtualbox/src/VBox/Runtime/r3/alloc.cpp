@@ -66,6 +66,7 @@
 #undef RTMemTmpAllocZ
 #undef RTMemTmpAllocZTag
 #undef RTMemTmpFree
+#undef RTMemTmpFreeZ
 #undef RTMemAlloc
 #undef RTMemAllocTag
 #undef RTMemAllocZ
@@ -77,6 +78,7 @@
 #undef RTMemRealloc
 #undef RTMemReallocTag
 #undef RTMemFree
+#undef RTMemFreeZ
 #undef RTMemDup
 #undef RTMemDupTag
 #undef RTMemDupEx
@@ -100,6 +102,12 @@ RTDECL(void *)  RTMemTmpAllocZTag(size_t cb, const char *pszTag) RT_NO_THROW_DEF
 RTDECL(void) RTMemTmpFree(void *pv) RT_NO_THROW_DEF
 {
     RTMemFree(pv);
+}
+
+
+RTDECL(void) RTMemTmpFreeZ(void *pv, size_t cb) RT_NO_THROW_DEF
+{
+    RTMemFreeZ(pv, cb);
 }
 
 
@@ -211,13 +219,30 @@ RTDECL(void) RTMemFree(void *pv) RT_NO_THROW_DEF
 {
     if (pv)
 #ifdef RTALLOC_USE_EFENCE
-        rtR3MemFree("Free", RTMEMTYPE_RTMEMFREE, pv, ASMReturnAddress(), NULL, 0, NULL);
+        rtR3MemFree("Free", RTMEMTYPE_RTMEMFREE, pv, 0, ASMReturnAddress(), NULL, 0, NULL);
 #else
 # ifdef RTMEMALLOC_USE_TRACKER
         pv = RTMemTrackerHdrFree(pv, 0, NULL, RTMEMTRACKERMETHOD_FREE);
 # endif
         free(pv);
 #endif
+}
+
+
+RTDECL(void) RTMemFreeZ(void *pv, size_t cb) RT_NO_THROW_DEF
+{
+    if (pv)
+    {
+#ifdef RTALLOC_USE_EFENCE
+        rtR3MemFree("Free", RTMEMTYPE_RTMEMFREEZ, pv, cb, ASMReturnAddress(), NULL, 0, NULL);
+#else
+# ifdef RTMEMALLOC_USE_TRACKER
+        pv = RTMemTrackerHdrFree(pv, cb, NULL, ASMReturnAddress(), RTMEMTRACKERMETHOD_FREE);
+# endif
+        RT_BZERO(pv, cb);
+        free(pv);
+#endif
+    }
 }
 
 

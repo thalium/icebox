@@ -104,8 +104,13 @@
 
 /* This flag was added in 10.6, it seems.  Should be harmless in earlier
    releases... */
-#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
+#if __MAC_OS_X_VERSION_MAX_ALLOWED < 1060
 # define kIOMemoryMapperNone UINT32_C(0x800)
+#endif
+
+/* This flag was added in 10.8.2, it seems. */
+#if __MAC_OS_X_VERSION_MAX_ALLOWED < 1082
+# define kIOMemoryHostPhysicallyContiguous UINT32_C(0x00000080)
 #endif
 
 /** @name Macros for preserving EFLAGS.AC (despair / paranoid)

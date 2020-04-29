@@ -719,11 +719,7 @@ void UIMachineSettingsDisplay::polishPage()
 #endif /* !VBOX_WS_MAC */
     m_pLabelVideoOptions->setEnabled(isMachineOffline());
     m_pCheckbox3D->setEnabled(isMachineOffline());
-#ifdef VBOX_WITH_VIDEOHWACCEL
-    m_pCheckbox2DVideo->setEnabled(isMachineOffline() && VBoxGlobal::isAcceleration2DVideoAvailable());
-#else /* !VBOX_WITH_VIDEOHWACCEL */
     m_pCheckbox2DVideo->hide();
-#endif /* !VBOX_WITH_VIDEOHWACCEL */
 
     /* Polish 'Remote Display' availability: */
     m_pTabWidget->setTabEnabled(1, oldDisplayData.m_fRemoteDisplayServerSupported);

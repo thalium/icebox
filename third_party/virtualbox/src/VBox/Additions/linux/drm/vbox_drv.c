@@ -41,7 +41,6 @@
 #include <linux/console.h>
 #include <linux/vt_kern.h>
 
-#include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 
 int vbox_modeset = -1;

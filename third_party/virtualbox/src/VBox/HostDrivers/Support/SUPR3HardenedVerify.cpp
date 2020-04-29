@@ -198,7 +198,7 @@ static SUPINSTFILE const    g_aSupInstallFiles[] =
     {   kSupIFT_Exe,  kSupID_AppBin,             true, "VirtualBox" SUPLIB_EXE_SUFF },
     {   kSupIFT_Dll,  kSupID_AppPrivArch,        true, "VirtualBox" SUPLIB_DLL_SUFF },
 # ifdef RT_OS_DARWIN
-    {   kSupIFT_Exe,  kSupID_AppBin,             true, "VirtualBoxVM" SUPLIB_EXE_SUFF },
+    {   kSupIFT_Exe,  kSupID_AppMacHelper,       true, "VirtualBoxVM" SUPLIB_EXE_SUFF },
 # endif
 # if !defined(RT_OS_DARWIN) && !defined(RT_OS_WINDOWS) && !defined(RT_OS_OS2)
     {   kSupIFT_Dll,  kSupID_AppSharedLib,       true, "VBoxKeyboard" SUPLIB_DLL_SUFF },
@@ -269,8 +269,9 @@ static SUPVERIFIEDDIR   g_aSupVerifiedDirs[kSupID_End];
  * @param   pszDst              Where to assemble the path.
  * @param   cchDst              The size of the buffer.
  * @param   fFatal              Whether failures should be treated as fatal (true) or not (false).
+ * @param   pFile               The file (for darwin helper app paths).
  */
-static int supR3HardenedMakePath(SUPINSTDIR enmDir, char *pszDst, size_t cchDst, bool fFatal)
+static int supR3HardenedMakePath(SUPINSTDIR enmDir, char *pszDst, size_t cchDst, bool fFatal, PCSUPINSTFILE pFile)
 {
     int rc;
     switch (enmDir)
@@ -309,6 +310,33 @@ static int supR3HardenedMakePath(SUPINSTDIR enmDir, char *pszDst, size_t cchDst,
                     rc = VERR_BUFFER_OVERFLOW;
             }
             break;
+#ifdef RT_OS_DARWIN
+        case kSupID_AppMacHelper:
+            rc = supR3HardenedPathAppBin(pszDst, cchDst);
+            if (RT_SUCCESS(rc))
+            {
+                /* Up one level from the VirtualBox.app/Contents/MacOS directory: */
+                size_t offDst = suplibHardenedStrLen(pszDst);
+                while (offDst > 1 && pszDst[offDst - 1] == '/')
+                    offDst--;
+                while (offDst > 1 && pszDst[offDst - 1] != '/')
+                    offDst--;
+
+                /* Construct the path to the helper application's Contents/MacOS directory: */
+                size_t cchFile = suplibHardenedStrLen(pFile->pszFile);
+                if (offDst + cchFile + sizeof("Resources/.app/Contents/MacOS") <= cchDst)
+                {
+                    suplibHardenedMemCopy(&pszDst[offDst], RT_STR_TUPLE("Resources/"));
+                    offDst += sizeof("Resources/") - 1;
+                    suplibHardenedMemCopy(&pszDst[offDst], pFile->pszFile, cchFile);
+                    offDst += cchFile;
+                    suplibHardenedMemCopy(&pszDst[offDst], RT_STR_TUPLE(".app/Contents/MacOS") + 1);
+                }
+                else
+                    rc = VERR_BUFFER_OVERFLOW;
+            }
+            break;
+#endif
         default:
             return supR3HardenedError(VERR_INTERNAL_ERROR, fFatal,
                                       "supR3HardenedMakePath: enmDir=%d\n", enmDir);
@@ -316,6 +344,7 @@ static int supR3HardenedMakePath(SUPINSTDIR enmDir, char *pszDst, size_t cchDst,
     if (RT_FAILURE(rc))
         supR3HardenedError(rc, fFatal,
                            "supR3HardenedMakePath: enmDir=%d rc=%d\n", enmDir, rc);
+    NOREF(pFile);
     return rc;
 }
 
@@ -338,7 +367,7 @@ static int supR3HardenedMakeFilePath(PCSUPINSTFILE pFile, char *pszDst, size_t c
     /*
      * Combine supR3HardenedMakePath and the filename.
      */
-    int rc = supR3HardenedMakePath(pFile->enmDir, pszDst, cchDst, fFatal);
+    int rc = supR3HardenedMakePath(pFile->enmDir, pszDst, cchDst, fFatal, pFile);
     if (RT_SUCCESS(rc) && fWithFilename)
     {
         size_t cchFile = suplibHardenedStrLen(pFile->pszFile);
@@ -365,8 +394,9 @@ static int supR3HardenedMakeFilePath(PCSUPINSTFILE pFile, char *pszDst, size_t c
  * @param   enmDir              The directory specifier.
  * @param   fFatal              Whether validation failures should be treated as
  *                              fatal (true) or not (false).
+ * @param   pFile               The file (for darwin helper app paths).
  */
-DECLHIDDEN(int) supR3HardenedVerifyFixedDir(SUPINSTDIR enmDir, bool fFatal)
+DECLHIDDEN(int) supR3HardenedVerifyFixedDir(SUPINSTDIR enmDir, bool fFatal, PCSUPINSTFILE pFile)
 {
     /*
      * Validate the index just to be on the safe side...
@@ -393,7 +423,7 @@ DECLHIDDEN(int) supR3HardenedVerifyFixedDir(SUPINSTDIR enmDir, bool fFatal)
      * Make the path and open the directory.
      */
     char szPath[RTPATH_MAX];
-    int rc = supR3HardenedMakePath(enmDir, szPath, sizeof(szPath), fFatal);
+    int rc = supR3HardenedMakePath(enmDir, szPath, sizeof(szPath), fFatal, pFile);
     if (RT_SUCCESS(rc))
     {
 #if defined(RT_OS_WINDOWS)
@@ -678,7 +708,7 @@ static int supR3HardenedVerifyFileInternal(int iFile, bool fFatal, bool fLeaveFi
      * (This'll make sure the directory is opened and that we can (later)
      *  use openat if we wish.)
      */
-    int rc = supR3HardenedVerifyFixedDir(pFile->enmDir, fFatal);
+    int rc = supR3HardenedVerifyFixedDir(pFile->enmDir, fFatal, pFile);
     if (RT_SUCCESS(rc))
     {
 #if defined(RT_OS_WINDOWS)

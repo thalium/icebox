@@ -3529,6 +3529,12 @@ DECLCALLBACK(void) Display::i_displayProcessDisplayDataCallback(PPDMIDISPLAYCONN
 
 int Display::i_handleVHWACommandProcess(int enmCmd, bool fGuestCmd, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *pCommand)
 {
+    /* bugref:9691 Disable the legacy VHWA interface.
+     * Keep the host commands enabled because they are needed when an old saved state is loaded.
+     */
+    if (fGuestCmd)
+        return VERR_NOT_IMPLEMENTED;
+
     unsigned id = (unsigned)pCommand->iDisplay;
     if (id >= mcMonitors)
         return VERR_INVALID_PARAMETER;
@@ -4044,6 +4050,7 @@ DECLCALLBACK(int) Display::i_displayVBVAEnable(PPDMIDISPLAYCONNECTOR pInterface,
 
     PDRVMAINDISPLAY pDrv = PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface);
     Display *pThis = pDrv->pDisplay;
+    AssertReturn(uScreenId < pThis->mcMonitors, VERR_INVALID_PARAMETER);
 
     if (pThis->maFramebuffers[uScreenId].fVBVAEnabled && pThis->maFramebuffers[uScreenId].fRenderThreadMode != fRenderThreadMode)
     {
@@ -4073,6 +4080,7 @@ DECLCALLBACK(void) Display::i_displayVBVADisable(PPDMIDISPLAYCONNECTOR pInterfac
 
     PDRVMAINDISPLAY pDrv = PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface);
     Display *pThis = pDrv->pDisplay;
+    AssertReturnVoid(uScreenId < pThis->mcMonitors);
 
     DISPLAYFBINFO *pFBInfo = &pThis->maFramebuffers[uScreenId];
 
@@ -4139,7 +4147,10 @@ DECLCALLBACK(void) Display::i_displayVBVAUpdateProcess(PPDMIDISPLAYCONNECTOR pIn
 
     PDRVMAINDISPLAY pDrv = PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface);
     Display *pThis = pDrv->pDisplay;
-    DISPLAYFBINFO *pFBInfo = &pThis->maFramebuffers[uScreenId];
+    DISPLAYFBINFO *pFBInfo;
+    AssertReturnVoid(uScreenId < pThis->mcMonitors);
+
+    pFBInfo = &pThis->maFramebuffers[uScreenId];
 
     if (pFBInfo->fDefaultFormat)
     {
@@ -4222,7 +4233,10 @@ DECLCALLBACK(void) Display::i_displayVBVAUpdateEnd(PPDMIDISPLAYCONNECTOR pInterf
 
     PDRVMAINDISPLAY pDrv = PDMIDISPLAYCONNECTOR_2_MAINDISPLAY(pInterface);
     Display *pThis = pDrv->pDisplay;
-    DISPLAYFBINFO *pFBInfo = &pThis->maFramebuffers[uScreenId];
+    DISPLAYFBINFO *pFBInfo;
+    AssertReturnVoid(uScreenId < pThis->mcMonitors);
+
+    pFBInfo = &pThis->maFramebuffers[uScreenId];
 
     /** @todo handleFramebufferUpdate (uScreenId,
      *                                x - pThis->maFramebuffers[uScreenId].xOrigin,

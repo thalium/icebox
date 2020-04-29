@@ -395,6 +395,12 @@ static PVUSBURB vusbRhNewUrb(PVUSBROOTHUB pRh, uint8_t DstAddress, PVUSBDEV pDev
     RT_NOREF(pszTag);
     PVUSBURBPOOL pUrbPool = &pRh->Hub.Dev.UrbPool;
 
+    if (RT_UNLIKELY(cbData > (32 * _1M)))
+    {
+        LogFunc(("Bad URB size (%u)!\n", cbData));
+        return NULL;
+    }
+
     if (!pDev)
         pDev = vusbRhFindDevByAddress(pRh, DstAddress);
     else

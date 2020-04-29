@@ -387,6 +387,8 @@ static int dhcp_send_ack(PNATState pData, struct bootp_t *bp, BOOTPClient *bc, s
 {
     int offReply = 0; /* boot_reply will fill general options and add END before sending response */
 
+    AssertReturn(bc != NULL, -1);
+
     dhcp_create_msg(pData, bp, m, DHCPACK);
     slirp_update_guest_addr_guess(pData, bc->addr.s_addr, "DHCP ACK");
     offReply = dhcp_do_ack_offer(pData, m, bc, fDhcpRequest);
@@ -458,11 +460,7 @@ static int dhcp_decode_request(PNATState pData, struct bootp_t *bp, size_t vlen,
             return -1; /* silently ignored */
         }
         dhcp_stat = SELECTING;
-        Assert((bp->bp_ciaddr.s_addr == INADDR_ANY));
-#if 0
-        /* DSL xid in request differ from offer */
-        Assert((bp->bp_xid == bc->xid));
-#endif
+        /* Assert((bp->bp_ciaddr.s_addr == INADDR_ANY)); */
     }
     else
     {
@@ -496,7 +494,6 @@ static int dhcp_decode_request(PNATState pData, struct bootp_t *bp, size_t vlen,
              *  |ciaddr        |IP address   |
              *  ------------------------------
              */
-            Assert((server_ip == NULL && req_ip == NULL && bp->bp_ciaddr.s_addr != INADDR_ANY));
             if (   server_ip
                 || req_ip
                 || bp->bp_ciaddr.s_addr == INADDR_ANY)
@@ -506,7 +503,7 @@ static int dhcp_decode_request(PNATState pData, struct bootp_t *bp, size_t vlen,
             }
             if (bc != NULL)
             {
-                Assert((bc->addr.s_addr == bp->bp_ciaddr.s_addr));
+                /* Assert((bc->addr.s_addr == bp->bp_ciaddr.s_addr)); */
                 /*if it already here well just do ack, we aren't aware of dhcp time expiration*/
             }
             else
@@ -543,8 +540,6 @@ static int dhcp_decode_request(PNATState pData, struct bootp_t *bp, size_t vlen,
              *  ------------------------------
              *
              */
-            Assert(server_ip == NULL);
-            Assert(req_ip != NULL);
             if (   server_ip
                 || !req_ip
                 || bp->bp_ciaddr.s_addr != INADDR_ANY)
@@ -576,16 +571,14 @@ static int dhcp_decode_request(PNATState pData, struct bootp_t *bp, size_t vlen,
             break;
 
         case NONE:
-            Assert((dhcp_stat != NONE));
-            if (dhcp_stat == REBINDING)
-                LogRel(("NAT: REBINDING state isn't impemented\n"));
-            else if (dhcp_stat == SELECTING)
-                LogRel(("NAT: SELECTING state isn't impemented\n"));
             return -1;
 
         default:
             break;
     }
+
+    if (bc == NULL)
+        return -1;
 
     LogRel(("NAT: DHCP offered IP address %RTnaipv4\n", bc->addr.s_addr));
     offReply = dhcp_send_ack(pData, bp, bc, m, /* fDhcpRequest=*/ 1);
@@ -818,7 +811,8 @@ static void dhcp_decode(PNATState pData, struct bootp_t *bp, size_t vlen)
             break;
 
         default:
-            AssertMsgFailed(("unsupported DHCP message type"));
+            /* unsupported DHCP message type */
+            break;
     }
     /* silently ignore */
     m_freem(pData, m);

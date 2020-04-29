@@ -2843,7 +2843,7 @@ static DECLCALLBACK(int) vmmdevRequestHandler(PPDMDEVINS pDevIns, void *pvUser, 
         PDMDevHlpPhysWrite(pDevIns, u32, pRequestHeader, pRequestHeader->size);
         if (fDelayedUnlock)
             PDMCritSectLeave(&pThis->CritSect);
-        RTMemFree(pRequestHeader);
+        RTMemFreeZ(pRequestHeader, requestHeader.size);
     }
     else
     {

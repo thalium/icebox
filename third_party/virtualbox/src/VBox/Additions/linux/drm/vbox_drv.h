@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2017 Oracle Corporation
+ * Copyright (C) 2013-2020 Oracle Corporation
  * This file is based on ast_drv.h
  * Copyright 2012 Red Hat Inc.
  *
@@ -47,6 +47,7 @@
 #include <linux/genalloc.h>
 #include <linux/io.h>
 #include <linux/string.h>
+#include <linux/pci.h>
 
 #if defined(RHEL_MAJOR) && defined(RHEL_MINOR)
 # if RHEL_MAJOR == 8 && RHEL_MINOR >= 1
@@ -102,7 +103,19 @@
 #define S64_MIN         ((s64)(-S64_MAX - 1))
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 0)
 #include <drm/drmP.h>
+#else /* >= KERNEL_VERSION(5, 5, 0) */
+#include <drm/drm_file.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_device.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_irq.h>
+#include <drm/drm_vblank.h>
+#include <drm/drm_pci.h>
+#endif /* >= KERNEL_VERSION(5, 5, 0) */
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_72)
 #include <drm/drm_gem.h>
 #endif

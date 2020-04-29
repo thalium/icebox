@@ -2151,7 +2151,8 @@ HRESULT Machine::getAccelerate2DVideoEnabled(BOOL *aAccelerate2DVideoEnabled)
 {
     AutoReadLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-    *aAccelerate2DVideoEnabled = mHWData->mAccelerate2DVideoEnabled;
+    /* bugref:9691 The legacy VHWA acceleration has been disabled completely. */
+    *aAccelerate2DVideoEnabled = FALSE;
 
     return S_OK;
 }

@@ -885,8 +885,11 @@ RTR3DECL(RTTLS) RTTlsAlloc(void);
  * @param   piTls           Where to store the index of the allocated TLS entry.
  *                          This is set to NIL_RTTLS on failure.
  * @param   pfnDestructor   Optional callback function for cleaning up on
- *                          thread termination. WARNING! This feature may not
- *                          be implemented everywhere.
+ *                          thread termination.
+ * @note    In static builds on windows, the destructor will only be invoked for
+ *          IPRT threads.
+ * @note    There are probably OS specific restrictions on what operations you
+ *          are allowed to perform from a TLS destructor, so keep it simple.
  */
 RTR3DECL(int) RTTlsAllocEx(PRTTLS piTls, PFNRTTLSDTOR pfnDestructor);
 

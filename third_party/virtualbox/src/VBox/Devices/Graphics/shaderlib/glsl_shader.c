@@ -1576,7 +1576,8 @@ static void shader_glsl_get_register_name(const struct wined3d_shader_register *
             break;
 
         case WINED3DSPR_RASTOUT:
-            sprintf(register_name, "%s", hwrastout_reg_names[reg->idx]);
+            if (reg->idx < RT_ELEMENTS(hwrastout_reg_names)) sprintf(register_name, "%s", hwrastout_reg_names[reg->idx]);
+            else sprintf(register_name, "%s", hwrastout_reg_names[0]);
             break;
 
         case WINED3DSPR_DEPTHOUT:

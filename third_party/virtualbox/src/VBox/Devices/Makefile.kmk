@@ -274,6 +274,7 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
   VBoxDD_DEFS           += VBOX_WITH_VMSVGA3D
   VBoxDD_SOURCES        += \
   	Graphics/DevVGA-SVGA3d.cpp \
+  	Graphics/DevVGA-SVGA3d-hlp.cpp \
   	Graphics/DevVGA-SVGA3d-info.cpp \
   	Graphics/DevVGA-SVGA3d-shared.cpp \
   	Graphics/DevVGA-SVGA3d-savedstate.cpp

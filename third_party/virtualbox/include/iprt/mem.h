@@ -134,6 +134,20 @@ RTDECL(void *)  RTMemTmpAllocZTag(size_t cb, const char *pszTag) RT_NO_THROW_PRO
  */
 RTDECL(void)    RTMemTmpFree(void *pv) RT_NO_THROW_PROTO;
 
+/**
+ * Clear and free temporary memory.
+ *
+ * This is strongly recommended when the memory being freed holds untrusted data
+ * to help counter heap spraying.
+ *
+ * @param   pv      Pointer to memory block.
+ * @param   cb      Size of the memory block.
+ *
+ * @note    The memory isn't always filled with zeros, it can be set to a
+ *          different value in some configurations.
+ */
+RTDECL(void)    RTMemTmpFreeZ(void *pv, size_t cb) RT_NO_THROW_PROTO;
+
 /** @}  */
 
 
@@ -289,11 +303,48 @@ RTDECL(void *) RTMemDupExTag(const void *pvSrc, size_t cbSrc, size_t cbExtra, co
 RTDECL(void *)  RTMemReallocTag(void *pvOld, size_t cbNew, const char *pszTag) RT_NO_THROW_PROTO;
 
 /**
+ * Reallocates memory with default tag, initializing any new space to zero.
+ *
+ * @returns Pointer to the allocated memory.
+ * @returns NULL on failure.
+ * @param   pvOld   The memory block to reallocate.
+ * @param   cbOld   The old block size (in bytes).
+ * @param   cbNew   The new block size (in bytes).
+ */
+#define RTMemReallocZ(pvOld, cbOld, cbNew)  RTMemReallocZTag((pvOld), (cbOld), (cbNew), RTMEM_TAG)
+
+/**
+ * Reallocates memory with custom tag, initializing any new space to zero.
+ *
+ * @returns Pointer to the allocated memory.
+ * @returns NULL on failure.
+ * @param   pvOld   The memory block to reallocate.
+ * @param   cbOld   The old block size (in bytes).
+ * @param   cbNew   The new block size (in bytes).
+ * @param   pszTag  Allocation tag used for statistics and such.
+ */
+RTDECL(void *)  RTMemReallocZTag(void *pvOld, size_t cbOld, size_t cbNew, const char *pszTag) RT_NO_THROW_PROTO;
+
+/**
  * Frees memory.
  *
  * @param   pv      Pointer to memory block.
  */
 RTDECL(void)    RTMemFree(void *pv) RT_NO_THROW_PROTO;
+
+/**
+ * Clears and frees memory.
+ *
+ * This is strongly recommended when the memory being freed holds untrusted data
+ * to help counter heap spraying.
+ *
+ * @param   pv      Pointer to memory block.
+ * @param   cb      The size of the allocation.
+ *
+ * @note    The memory isn't always filled with zeros, it can be set to a
+ *          different value in some configurations.
+ */
+RTDECL(void)    RTMemFreeZ(void *pv, size_t cb) RT_NO_THROW_PROTO;
 
 
 
@@ -689,6 +740,16 @@ RTDECL(void *)  RTMemEfTmpAllocZ(size_t cb, const char *pszTag, RT_SRC_POS_DECL)
 RTDECL(void)    RTMemEfTmpFree(void *pv, RT_SRC_POS_DECL) RT_NO_THROW_PROTO;
 
 /**
+ * Same as RTMemTmpFreeZ() except that it's for fenced memory.
+ *
+ * @param   pv      Pointer to memory block.
+ * @param   cb      Size of the memory block.
+ * @param   SRC_POS The source position where call is being made from.  Use
+ *                  RT_SRC_POS when possible.  Optional.
+ */
+RTDECL(void)    RTMemEfTmpFreeZ(void *pv, size_t cb, RT_SRC_POS_DECL) RT_NO_THROW_PROTO;
+
+/**
  * Same as RTMemAllocTag() except that it's fenced.
  *
  * @returns Pointer to the allocated memory. Free with RTMemEfFree().
@@ -750,6 +811,20 @@ RTDECL(void *)  RTMemEfAllocZVar(size_t cbUnaligned, const char *pszTag, RT_SRC_
 RTDECL(void *)  RTMemEfRealloc(void *pvOld, size_t cbNew, const char *pszTag, RT_SRC_POS_DECL) RT_NO_THROW_PROTO;
 
 /**
+ * Same as RTMemReallocZTag() except that it's fenced.
+ *
+ * @returns Pointer to the allocated memory.
+ * @returns NULL on failure.
+ * @param   pvOld   The memory block to reallocate.
+ * @param   cbOld   The old block size (in bytes).
+ * @param   cbNew   The new block size (in bytes).
+ * @param   pszTag  Allocation tag used for statistics and such.
+ * @param   SRC_POS The source position where call is being made from.  Use
+ *                  RT_SRC_POS when possible.  Optional.
+ */
+RTDECL(void *)  RTMemEfReallocZ(void *pvOld, size_t cbOld, size_t cbNew, const char *pszTag, RT_SRC_POS_DECL) RT_NO_THROW_PROTO;
+
+/**
  * Free memory allocated by any of the RTMemEf* allocators.
  *
  * @param   pv      Pointer to memory block.
@@ -757,6 +832,16 @@ RTDECL(void *)  RTMemEfRealloc(void *pvOld, size_t cbNew, const char *pszTag, RT
  *                  RT_SRC_POS when possible.  Optional.
  */
 RTDECL(void)    RTMemEfFree(void *pv, RT_SRC_POS_DECL) RT_NO_THROW_PROTO;
+
+/**
+ * Clear and free memory allocated by any of the RTMemEf* allocators.
+ *
+ * @param   pv      Pointer to memory block.
+ * @param   cb      Size of the allocation.
+ * @param   SRC_POS The source position where call is being made from.  Use
+ *                  RT_SRC_POS when possible.  Optional.
+ */
+RTDECL(void)    RTMemEfFreeZ(void *pv, size_t cb, RT_SRC_POS_DECL) RT_NO_THROW_PROTO;
 
 /**
  * Same as RTMemDupTag() except that it's fenced.
@@ -930,12 +1015,15 @@ RTDECL(void *) RTMemEfDupEx(const void *pvSrc, size_t cbSrc, size_t cbExtra, con
 # define RTMemTmpAllocTag(cb, pszTag)                   RTMemEfTmpAlloc((cb), (pszTag), RT_SRC_POS)
 # define RTMemTmpAllocZTag(cb, pszTag)                  RTMemEfTmpAllocZ((cb), (pszTag), RT_SRC_POS)
 # define RTMemTmpFree(pv)                               RTMemEfTmpFree((pv), RT_SRC_POS)
+# define RTMemTmpFreeZ(pv, cb)                          RTMemEfTmpFreeZ((pv), (cb), RT_SRC_POS)
 # define RTMemAllocTag(cb, pszTag)                      RTMemEfAlloc((cb), (pszTag), RT_SRC_POS)
 # define RTMemAllocZTag(cb, pszTag)                     RTMemEfAllocZ((cb), (pszTag), RT_SRC_POS)
 # define RTMemAllocVarTag(cbUnaligned, pszTag)          RTMemEfAllocVar((cbUnaligned), (pszTag), RT_SRC_POS)
 # define RTMemAllocZVarTag(cbUnaligned, pszTag)         RTMemEfAllocZVar((cbUnaligned), (pszTag), RT_SRC_POS)
 # define RTMemReallocTag(pvOld, cbNew, pszTag)          RTMemEfRealloc((pvOld), (cbNew), (pszTag), RT_SRC_POS)
+# define RTMemReallocZTag(pvOld, cbOld, cbNew, pszTag)  RTMemEfReallocZ((pvOld), (cbOld), (cbNew), (pszTag), RT_SRC_POS)
 # define RTMemFree(pv)                                  RTMemEfFree((pv), RT_SRC_POS)
+# define RTMemFreeZ(pv, cb)                             RTMemEfFreeZ((pv), (cb), RT_SRC_POS)
 # define RTMemDupTag(pvSrc, cb, pszTag)                 RTMemEfDup((pvSrc), (cb), (pszTag), RT_SRC_POS)
 # define RTMemDupExTag(pvSrc, cbSrc, cbExtra, pszTag)   RTMemEfDupEx((pvSrc), (cbSrc), (cbExtra), (pszTag), RT_SRC_POS)
 #endif
@@ -956,10 +1044,16 @@ RTDECL(void *)  RTMemEfTmpAllocNP(size_t cb, const char *pszTag) RT_NO_THROW_PRO
 RTDECL(void *)  RTMemEfTmpAllocZNP(size_t cb, const char *pszTag) RT_NO_THROW_PROTO;
 
 /**
- * Fenced drop-in replacement for RTMemTmpFreeTag.
+ * Fenced drop-in replacement for RTMemTmpFree.
  * @copydoc RTMemTmpFree
  */
 RTDECL(void)    RTMemEfTmpFreeNP(void *pv) RT_NO_THROW_PROTO;
+
+/**
+ * Fenced drop-in replacement for RTMemTmpFreeZ.
+ * @copydoc RTMemTmpFreeZ
+ */
+RTDECL(void)    RTMemEfTmpFreeZNP(void *pv, size_t cb) RT_NO_THROW_PROTO;
 
 /**
  * Fenced drop-in replacement for RTMemAllocTag.
@@ -992,10 +1086,22 @@ RTDECL(void *)  RTMemEfAllocZVarNP(size_t cbUnaligned, const char *pszTag) RT_NO
 RTDECL(void *)  RTMemEfReallocNP(void *pvOld, size_t cbNew, const char *pszTag) RT_NO_THROW_PROTO;
 
 /**
+ * Fenced drop-in replacement for RTMemReallocZTag.
+ * @copydoc RTMemReallocZTag
+ */
+RTDECL(void *)  RTMemEfReallocZNP(void *pvOld, size_t cbOld, size_t cbNew, const char *pszTag) RT_NO_THROW_PROTO;
+
+/**
  * Fenced drop-in replacement for RTMemFree.
  * @copydoc RTMemFree
  */
 RTDECL(void)    RTMemEfFreeNP(void *pv) RT_NO_THROW_PROTO;
+
+/**
+ * Fenced drop-in replacement for RTMemFreeZ.
+ * @copydoc RTMemFreeZ
+ */
+RTDECL(void)    RTMemEfFreeZNP(void *pv, size_t cb) RT_NO_THROW_PROTO;
 
 /**
  * Fenced drop-in replacement for RTMemDupExTag.

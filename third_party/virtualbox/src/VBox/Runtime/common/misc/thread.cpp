@@ -657,12 +657,14 @@ DECLHIDDEN(void) rtThreadTerminate(PRTTHREADINT pThread, int rc)
 {
     Assert(pThread->cRefs >= 1);
 
-#ifdef IPRT_WITH_GENERIC_TLS
     /*
      * Destroy TLS entries.
      */
+#ifdef IPRT_WITH_GENERIC_TLS
     rtThreadTlsDestruction(pThread);
-#endif /* IPRT_WITH_GENERIC_TLS */
+#elif defined(RT_OS_WINDOWS) && defined(IN_RING3)
+    rtThreadWinTlsDestruction();
+#endif
 
     /*
      * Set the rc, mark it terminated and signal anyone waiting.

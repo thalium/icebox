@@ -1120,18 +1120,23 @@ DECLHIDDEN(int) SUPR3HardenedMain(const char *pszProgName, uint32_t fFlags, int 
 #define SUPSECMAIN_FLAGS_DONT_OPEN_DEV      RT_BIT_32(0)
 /** The hardened DLL has a "TrustedError" function (see FNSUPTRUSTEDERROR). */
 #define SUPSECMAIN_FLAGS_TRUSTED_ERROR      RT_BIT_32(1)
-/** Hack for making VirtualBoxVM use VirtualBox.dylib on Mac OS X. */
+/** Hack for making VirtualBoxVM use VirtualBox.dylib on Mac OS X.
+ * @note Not used since 6.0  */
 #define SUPSECMAIN_FLAGS_OSX_VM_APP         RT_BIT_32(2)
 /** Program binary location mask. */
-#define SUPSECMAIN_FLAGS_LOC_MASK           UINT32_C(0x00000010)
+#define SUPSECMAIN_FLAGS_LOC_MASK           UINT32_C(0x00000030)
 /** Default binary location is the application binary directory.  Does
  * not need to be given explicitly (it's 0).  */
 #define SUPSECMAIN_FLAGS_LOC_APP_BIN        UINT32_C(0x00000000)
 /** The binary is located in the testcase directory instead of the
  * default application binary directory. */
 #define SUPSECMAIN_FLAGS_LOC_TESTCASE       UINT32_C(0x00000010)
-/** The first process. */
-#define SUPSECMAIN_FLAGS_FIRST_PROCESS      UINT32_C(0x00000020)
+/** The binary is located in a nested application bundle under Resources/ in the
+ * main Mac OS X application (think Resources/VirtualBoxVM.app).  */
+#define SUPSECMAIN_FLAGS_LOC_OSX_HLP_APP    UINT32_C(0x00000020)
+/** The first process.
+ * @internal  */
+#define SUPSECMAIN_FLAGS_FIRST_PROCESS      UINT32_C(0x00000100)
 /** @} */
 
 /**

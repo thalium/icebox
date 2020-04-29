@@ -43,9 +43,16 @@
 #include <iprt/mem.h>
 #include <iprt/param.h>
 #include <iprt/process.h>
+#include <iprt/semaphore.h>
 #include <iprt/string.h>
 #include <iprt/thread.h>
 #include "internal/memobj.h"
+
+
+/*********************************************************************************************************************************
+*   Defined Constants And Macros                                                                                                 *
+*********************************************************************************************************************************/
+#define MY_PRINTF(...) do { printf(__VA_ARGS__); kprintf(__VA_ARGS__); } while (0)
 
 /*#define USE_VM_MAP_WIRE - may re-enable later when non-mapped allocations are added. */
 
@@ -65,6 +72,52 @@ typedef struct RTR0MEMOBJDARWIN
     /** Pointer to the memory mapping object for mapped memory. */
     IOMemoryMap        *pMemMap;
 } RTR0MEMOBJDARWIN, *PRTR0MEMOBJDARWIN;
+
+/**
+ * Common thread_call_allocate/thread_call_enter argument package.
+ */
+typedef struct RTR0MEMOBJDARWINTHREADARGS
+{
+    int32_t volatile        rc;
+    RTSEMEVENTMULTI         hEvent;
+} RTR0MEMOBJDARWINTHREADARGS;
+
+
+/**
+ * Arguments for rtR0MemObjNativeAllockWorkOnKernelThread.
+ */
+typedef struct RTR0MEMOBJDARWINALLOCARGS
+{
+    RTR0MEMOBJDARWINTHREADARGS Core;
+    PPRTR0MEMOBJINTERNAL    ppMem;
+    size_t                  cb;
+    bool                    fExecutable;
+    bool                    fContiguous;
+    mach_vm_address_t       PhysMask;
+    uint64_t                MaxPhysAddr;
+    RTR0MEMOBJTYPE          enmType;
+    size_t                  uAlignment;
+} RTR0MEMOBJDARWINALLOCARGS;
+
+/**
+ * Arguments for rtR0MemObjNativeProtectWorkOnKernelThread.
+ */
+typedef struct RTR0MEMOBJDARWINPROTECTARGS
+{
+    RTR0MEMOBJDARWINTHREADARGS Core;
+    PRTR0MEMOBJINTERNAL     pMem;
+    size_t                  offSub;
+    size_t                  cbSub;
+    uint32_t                fProt;
+} RTR0MEMOBJDARWINPROTECTARGS;
+
+
+/*********************************************************************************************************************************
+*   Internal Functions                                                                                                           *
+*********************************************************************************************************************************/
+static void rtR0MemObjNativeAllockWorkerOnKernelThread(void *pvUser0, void *pvUser1);
+static int  rtR0MemObjNativeProtectWorker(PRTR0MEMOBJINTERNAL pMem, size_t offSub, size_t cbSub, uint32_t fProt);
+static void rtR0MemObjNativeProtectWorkerOnKernelThread(void *pvUser0, void *pvUser1);
 
 
 /**
@@ -137,7 +190,9 @@ DECLINLINE(vm_map_t) rtR0MemObjDarwinGetMap(PRTR0MEMOBJINTERNAL pMem)
 
         case RTR0MEMOBJTYPE_PHYS:
         case RTR0MEMOBJTYPE_PHYS_NC:
-            return NULL; /* pretend these have no mapping atm. */
+            if (pMem->pv)
+                return kernel_map;
+            return NULL;
 
         case RTR0MEMOBJTYPE_LOCK:
             return pMem->u.Lock.R0Process == NIL_RTR0PROCESS
@@ -240,12 +295,12 @@ static void rtR0MemObjDarwinReadPhys(RTHCPHYS HCPhys, size_t cb, void *pvDst)
             pMemMap->release();
         }
         else
-            printf("rtR0MemObjDarwinReadPhys: createMappingInTask failed; HCPhys=%llx\n", HCPhys);
+            MY_PRINTF("rtR0MemObjDarwinReadPhys: createMappingInTask failed; HCPhys=%llx\n", HCPhys);
 
         pMemDesc->release();
     }
     else
-        printf("rtR0MemObjDarwinReadPhys: withAddressRanges failed; HCPhys=%llx\n", HCPhys);
+        MY_PRINTF("rtR0MemObjDarwinReadPhys: withAddressRanges failed; HCPhys=%llx\n", HCPhys);
 }
 
 
@@ -280,7 +335,7 @@ static uint64_t rtR0MemObjDarwinGetPTE(void *pvPage)
         rtR0MemObjDarwinReadPhys((cr3 & ~(RTCCUINTREG)PAGE_OFFSET_MASK) | (((uint64_t)(uintptr_t)pvPage >> X86_PML4_SHIFT) & X86_PML4_MASK) * 8, 8, &u64);
         if (!(u64.u & X86_PML4E_P))
         {
-            printf("rtR0MemObjDarwinGetPTE: %p -> PML4E !p\n", pvPage);
+            MY_PRINTF("rtR0MemObjDarwinGetPTE: %p -> PML4E !p\n", pvPage);
             return 0;
         }
 
@@ -288,7 +343,7 @@ static uint64_t rtR0MemObjDarwinGetPTE(void *pvPage)
         rtR0MemObjDarwinReadPhys((u64.u & ~(uint64_t)PAGE_OFFSET_MASK) | (((uintptr_t)pvPage >> X86_PDPT_SHIFT) & X86_PDPT_MASK_AMD64) * 8, 8, &u64);
         if (!(u64.u & X86_PDPE_P))
         {
-            printf("rtR0MemObjDarwinGetPTE: %p -> PDPTE !p\n", pvPage);
+            MY_PRINTF("rtR0MemObjDarwinGetPTE: %p -> PDPTE !p\n", pvPage);
             return 0;
         }
         if (u64.u & X86_PDPE_LM_PS)
@@ -298,7 +353,7 @@ static uint64_t rtR0MemObjDarwinGetPTE(void *pvPage)
         rtR0MemObjDarwinReadPhys((u64.u & ~(uint64_t)PAGE_OFFSET_MASK) | (((uintptr_t)pvPage >> X86_PD_PAE_SHIFT) & X86_PD_PAE_MASK) * 8, 8, &u64);
         if (!(u64.u & X86_PDE_P))
         {
-            printf("rtR0MemObjDarwinGetPTE: %p -> PDE !p\n", pvPage);
+            MY_PRINTF("rtR0MemObjDarwinGetPTE: %p -> PDE !p\n", pvPage);
             return 0;
         }
         if (u64.u & X86_PDE_PS)
@@ -308,7 +363,7 @@ static uint64_t rtR0MemObjDarwinGetPTE(void *pvPage)
         rtR0MemObjDarwinReadPhys((u64.u & ~(uint64_t)PAGE_OFFSET_MASK) | (((uintptr_t)pvPage >> X86_PT_PAE_SHIFT) & X86_PT_PAE_MASK) * 8, 8, &u64);
         if (!(u64.u &  X86_PTE_P))
         {
-            printf("rtR0MemObjDarwinGetPTE: %p -> PTE !p\n", pvPage);
+            MY_PRINTF("rtR0MemObjDarwinGetPTE: %p -> PTE !p\n", pvPage);
             return 0;
         }
         return u64.u;
@@ -431,6 +486,57 @@ DECLHIDDEN(int) rtR0MemObjNativeFree(RTR0MEMOBJ pMem)
 }
 
 
+/**
+ * This is a helper function to executes @a pfnWorker in the context of the
+ * kernel_task
+ *
+ * @returns IPRT status code - result from pfnWorker or dispatching error.
+ * @param   pfnWorker       The function to call.
+ * @param   pArgs           The arguments to pass to the function.
+ */
+static int rtR0MemObjDarwinDoInKernelTaskThread(thread_call_func_t pfnWorker, RTR0MEMOBJDARWINTHREADARGS *pArgs)
+{
+    pArgs->rc     = VERR_IPE_UNINITIALIZED_STATUS;
+    pArgs->hEvent = NIL_RTSEMEVENTMULTI;
+    int rc = RTSemEventMultiCreate(&pArgs->hEvent);
+    if (RT_SUCCESS(rc))
+    {
+        thread_call_t hCall = thread_call_allocate(pfnWorker, (void *)pArgs);
+        if (hCall)
+        {
+            boolean_t fRc = thread_call_enter(hCall);
+            AssertLogRel(fRc == FALSE);
+
+            rc = RTSemEventMultiWaitEx(pArgs->hEvent, RTSEMWAIT_FLAGS_INDEFINITE | RTSEMWAIT_FLAGS_UNINTERRUPTIBLE,
+                                       RT_INDEFINITE_WAIT);
+            AssertLogRelRC(rc);
+
+            rc = pArgs->rc;
+            thread_call_free(hCall);
+        }
+        else
+            rc = VERR_NO_MEMORY;
+        RTSemEventMultiDestroy(pArgs->hEvent);
+    }
+    return rc;
+}
+
+
+/**
+ * Signals result to thread waiting in rtR0MemObjDarwinDoInKernelTaskThread.
+ *
+ * @param   pArgs           The argument structure.
+ * @param   rc              The IPRT status code to signal.
+ */
+static void rtR0MemObjDarwinSignalThreadWaitinOnTask(RTR0MEMOBJDARWINTHREADARGS volatile *pArgs, int rc)
+{
+    if (ASMAtomicCmpXchgS32(&pArgs->rc, rc, VERR_IPE_UNINITIALIZED_STATUS))
+    {
+        rc = RTSemEventMultiSignal(pArgs->hEvent);
+        AssertLogRelRC(rc);
+    }
+}
+
 
 /**
  * Kernel memory alloc worker that uses inTaskWithPhysicalMask.
@@ -447,12 +553,46 @@ DECLHIDDEN(int) rtR0MemObjNativeFree(RTR0MEMOBJ pMem)
  * @param   MaxPhysAddr     The max address to verify the result against. Use
  *                          UINT64_MAX if it doesn't matter.
  * @param   enmType         The object type.
+ * @param   uAlignment      The allocation alignment (in bytes).
+ * @param   fOnKernelThread Set if we're already on the kernel thread.
  */
 static int rtR0MemObjNativeAllocWorker(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
                                        bool fExecutable, bool fContiguous,
                                        mach_vm_address_t PhysMask, uint64_t MaxPhysAddr,
-                                       RTR0MEMOBJTYPE enmType)
+                                       RTR0MEMOBJTYPE enmType, size_t uAlignment, bool fOnKernelThread)
 {
+    int rc;
+
+    /*
+     * Because of process code signing properties leaking into kernel space in
+     * in XNU's vm_fault.c code, we have to defer allocations of exec memory to
+     * a thread running in the kernel_task to get consistent results here.
+     *
+     * Trouble strikes in vm_fault_enter() when cs_enforcement_enabled is determined
+     * to be true because current process has the CS_ENFORCEMENT flag, the page flag
+     * vmp_cs_validated is clear, and the protection mask includes VM_PROT_EXECUTE
+     * (pmap_cs_enforced does not apply to macOS it seems).  This test seems to go
+     * back to 10.5, though I'm not sure whether it's enabled for macOS that early
+     * on.  Only VM_PROT_EXECUTE is problematic for kernel memory, (though
+     * VM_PROT_WRITE on code signed pages is also problematic in theory).  As long as
+     * kernel_task doesn't have CS_ENFORCEMENT enabled, we'll be fine switching to it.
+     */
+    if (!fExecutable || fOnKernelThread)
+    { /* likely */ }
+    else
+    {
+        RTR0MEMOBJDARWINALLOCARGS Args;
+        Args.ppMem          = ppMem;
+        Args.cb             = cb;
+        Args.fExecutable    = fExecutable;
+        Args.fContiguous    = fContiguous;
+        Args.PhysMask       = PhysMask;
+        Args.MaxPhysAddr    = MaxPhysAddr;
+        Args.enmType        = enmType;
+        Args.uAlignment     = uAlignment;
+        return rtR0MemObjDarwinDoInKernelTaskThread(rtR0MemObjNativeAllockWorkerOnKernelThread, &Args.Core);
+    }
+
     /*
      * Try inTaskWithPhysicalMask first, but since we don't quite trust that it
      * actually respects the physical memory mask (10.5.x is certainly busted),
@@ -462,34 +602,69 @@ static int rtR0MemObjNativeAllocWorker(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
      *
      * The kIOMemoryMapperNone flag is required since 10.8.2 (IOMMU changes?).
      */
-    int rc;
+
+    /* This is an old fudge from the snow leoard days: "Is it only on snow leopard?
+       Seen allocating memory for the VM structure, last page corrupted or
+       inaccessible."  Made it only apply to snow leopard and older for now. */
     size_t cbFudged = cb;
-    if (1) /** @todo Figure out why this is broken. Is it only on snow leopard? Seen allocating memory for the VM structure, last page corrupted or inaccessible. */
+    if (version_major >= 11 /* 10 = 10.7.x = Lion. */)
+    { /* likely */ }
+    else
          cbFudged += PAGE_SIZE;
-#if 1
+
     IOOptionBits fOptions = kIOMemoryKernelUserShared | kIODirectionInOut;
     if (fContiguous)
+    {
         fOptions |= kIOMemoryPhysicallyContiguous;
+        if (   version_major > 12
+            || (version_major == 12 && version_minor >= 2) /* 10.8.2 = Mountain Kitten */ )
+            fOptions |= kIOMemoryHostPhysicallyContiguous; /* (Just to make ourselves clear, in case the xnu code changes.)  */
+    }
     if (version_major >= 12 /* 12 = 10.8.x = Mountain Kitten */)
         fOptions |= kIOMemoryMapperNone;
-    IOBufferMemoryDescriptor *pMemDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task, fOptions,
-                                                                                          cbFudged, PhysMask);
-#else /* Requires 10.7 SDK, but allows alignment to be specified: */
-    uint64_t     uAlignment = PAGE_SIZE;
-    IOOptionBits fOptions   = kIODirectionInOut | kIOMemoryMapperNone;
-    if (fContiguous || MaxPhysAddr < UINT64_MAX)
-    {
-        fOptions  |= kIOMemoryPhysicallyContiguous;
-        uAlignment = 1;                 /* PhysMask isn't respected if higher. */
-    }
 
-    IOBufferMemoryDescriptor *pMemDesc = new IOBufferMemoryDescriptor;
-    if (pMemDesc && !pMemDesc->initWithPhysicalMask(kernel_task, fOptions, cbFudged, uAlignment, PhysMask))
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070 && 0 /* enable when/if necessary */
+    /* Paranoia: Don't misrepresent our intentions, we won't map kernel executable memory into ring-0. */
+    if (fExecutable && version_major >= 11 /* 10.7.x = Lion, as below */)
     {
-        pMemDesc->release();
-        pMemDesc = NULL;
+        fOptions &= ~kIOMemoryKernelUserShared;
+        if (uAlignment < PAGE_SIZE)
+            uAlignment = PAGE_SIZE;
     }
 #endif
+
+    /* The public initWithPhysicalMask virtual method appeared in 10.7.0, in
+       versions 10.5.0 up to 10.7.0 it was private, and 10.4.8-10.5.0 it was
+       x86 only and didn't have the alignment parameter (slot was different too). */
+    uint64_t uAlignmentActual = uAlignment;
+    IOBufferMemoryDescriptor *pMemDesc;
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+    if (version_major >= 11 /* 11 = 10.7.x = Lion, could probably allow 10.5.0+ here if we really wanted to. */)
+    {
+        /* Starting with 10.6.x the physical mask is ignored if alignment is higher
+           than 1.  The assumption seems to be that inTaskWithPhysicalMask() should
+           be used and the alignment inferred from the PhysMask argument. */
+        if (MaxPhysAddr != UINT64_MAX)
+        {
+            Assert(RT_ALIGN_64(PhysMask, uAlignment) == PhysMask);
+            uAlignmentActual = 1;
+        }
+
+        pMemDesc = new IOBufferMemoryDescriptor;
+        if (pMemDesc)
+        {
+            if (pMemDesc->initWithPhysicalMask(kernel_task, fOptions, cbFudged, uAlignmentActual, PhysMask))
+            { /* likely */ }
+            else
+            {
+                pMemDesc->release();
+                pMemDesc = NULL;
+            }
+        }
+    }
+    else
+#endif
+        pMemDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task, fOptions, cbFudged, PhysMask);
     if (pMemDesc)
     {
         IOReturn IORet = pMemDesc->prepare(kIODirectionInOut);
@@ -521,11 +696,32 @@ static int rtR0MemObjNativeAllocWorker(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
                         pMemDesc->complete();
                         pMemDesc->release();
                         if (PhysMask)
-                            LogRel(("rtR0MemObjNativeAllocWorker: off=%x Addr=%llx AddrPrev=%llx MaxPhysAddr=%llx PhysMas=%llx fContiguous=%RTbool fOptions=%#x - buggy API!\n",
-                                    off, Addr, AddrPrev, MaxPhysAddr, PhysMask, fContiguous, fOptions));
+                        {
+                            kprintf("rtR0MemObjNativeAllocWorker: off=%zx Addr=%llx AddrPrev=%llx MaxPhysAddr=%llx PhysMas=%llx fContiguous=%d fOptions=%#x - buggy API!\n",
+                                    (size_t)off, Addr, AddrPrev, MaxPhysAddr, PhysMask, fContiguous, fOptions);
+                            LogRel(("rtR0MemObjNativeAllocWorker: off=%zx Addr=%llx AddrPrev=%llx MaxPhysAddr=%llx PhysMas=%llx fContiguous=%RTbool fOptions=%#x - buggy API!\n",
+                                    (size_t)off, Addr, AddrPrev, MaxPhysAddr, PhysMask, fContiguous, fOptions));
+                        }
                         return VERR_ADDRESS_TOO_BIG;
                     }
                     AddrPrev = Addr;
+                }
+
+                /*
+                 * Check that it's aligned correctly.
+                 */
+                if ((uintptr_t)pv & (uAlignment - 1))
+                {
+                    pMemDesc->complete();
+                    pMemDesc->release();
+                    if (PhysMask)
+                    {
+                        kprintf("rtR0MemObjNativeAllocWorker: pv=%p uAlignment=%#zx (MaxPhysAddr=%llx PhysMas=%llx fContiguous=%d fOptions=%#x) - buggy API!!\n",
+                                pv, uAlignment, MaxPhysAddr, PhysMask, fContiguous, fOptions);
+                        LogRel(("rtR0MemObjNativeAllocWorker: pv=%p uAlignment=%#zx (MaxPhysAddr=%llx PhysMas=%llx fContiguous=%RTbool fOptions=%#x) - buggy API!\n",
+                                pv, uAlignment, MaxPhysAddr, PhysMask, fContiguous, fOptions));
+                    }
+                    return VERR_NOT_SUPPORTED;
                 }
 
 #ifdef RT_STRICT
@@ -560,25 +756,26 @@ static int rtR0MemObjNativeAllocWorker(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
                             AssertMsgFailed(("enmType=%d\n", enmType));
                     }
 
-#if 1 /* Experimental code. */
                     if (fExecutable)
                     {
-                        rc = rtR0MemObjNativeProtect(&pMemDarwin->Core, 0, cb, RTMEM_PROT_READ | RTMEM_PROT_WRITE | RTMEM_PROT_EXEC);
-# ifdef RT_STRICT
-                        /* check that the memory is actually mapped. */
-                        RTTHREADPREEMPTSTATE State2 = RTTHREADPREEMPTSTATE_INITIALIZER;
-                        RTThreadPreemptDisable(&State2);
-                        rtR0MemObjDarwinTouchPages(pv, cb);
-                        RTThreadPreemptRestore(&State2);
-# endif
-
+                        rc = rtR0MemObjNativeProtectWorker(&pMemDarwin->Core, 0, cb,
+                                                           RTMEM_PROT_READ | RTMEM_PROT_WRITE | RTMEM_PROT_EXEC);
+#ifdef RT_STRICT
+                        if (RT_SUCCESS(rc))
+                        {
+                            /* check that the memory is actually mapped. */
+                            RTTHREADPREEMPTSTATE State2 = RTTHREADPREEMPTSTATE_INITIALIZER;
+                            RTThreadPreemptDisable(&State2);
+                            rtR0MemObjDarwinTouchPages(pv, cb);
+                            RTThreadPreemptRestore(&State2);
+                        }
+#endif
                         /* Bug 6226: Ignore KERN_PROTECTION_FAILURE on Leopard and older. */
                         if (   rc == VERR_PERMISSION_DENIED
                             && version_major <= 10 /* 10 = 10.6.x = Snow Leopard. */)
                             rc = VINF_SUCCESS;
                     }
                     else
-#endif
                         rc = VINF_SUCCESS;
                     if (RT_SUCCESS(rc))
                     {
@@ -615,12 +812,25 @@ static int rtR0MemObjNativeAllocWorker(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
 }
 
 
+/**
+ * rtR0MemObjNativeAllocWorker kernel_task wrapper function.
+ */
+static void rtR0MemObjNativeAllockWorkerOnKernelThread(void *pvUser0, void *pvUser1)
+{
+    AssertPtr(pvUser0); Assert(pvUser1 == NULL); NOREF(pvUser1);
+    RTR0MEMOBJDARWINALLOCARGS volatile *pArgs = (RTR0MEMOBJDARWINALLOCARGS volatile *)pvUser0;
+    int rc = rtR0MemObjNativeAllocWorker(pArgs->ppMem, pArgs->cb, pArgs->fExecutable, pArgs->fContiguous, pArgs->PhysMask,
+                                         pArgs->MaxPhysAddr, pArgs->enmType, pArgs->uAlignment, true /*fOnKernelThread*/);
+    rtR0MemObjDarwinSignalThreadWaitinOnTask(&pArgs->Core, rc);
+}
+
+
 DECLHIDDEN(int) rtR0MemObjNativeAllocPage(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, bool fExecutable)
 {
     IPRT_DARWIN_SAVE_EFL_AC();
 
-    int rc = rtR0MemObjNativeAllocWorker(ppMem, cb, fExecutable, false /* fContiguous */,
-                                         0 /* PhysMask */, UINT64_MAX, RTR0MEMOBJTYPE_PAGE);
+    int rc = rtR0MemObjNativeAllocWorker(ppMem, cb, fExecutable, false /* fContiguous */, 0 /* PhysMask */, UINT64_MAX,
+                                         RTR0MEMOBJTYPE_PAGE, PAGE_SIZE, false /*fOnKernelThread*/);
 
     IPRT_DARWIN_RESTORE_EFL_AC();
     return rc;
@@ -638,11 +848,11 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocLow(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, 
      *
      * (See bug comment in the worker and IOBufferMemoryDescriptor::initWithPhysicalMask.)
      */
-    int rc = rtR0MemObjNativeAllocWorker(ppMem, cb, fExecutable, false /* fContiguous */,
-                                         ~(uint32_t)PAGE_OFFSET_MASK, _4G - PAGE_SIZE, RTR0MEMOBJTYPE_LOW);
+    int rc = rtR0MemObjNativeAllocWorker(ppMem, cb, fExecutable, false /* fContiguous */, ~(uint32_t)PAGE_OFFSET_MASK,
+                                         _4G - PAGE_SIZE, RTR0MEMOBJTYPE_LOW, PAGE_SIZE, false /*fOnKernelThread*/);
     if (rc == VERR_ADDRESS_TOO_BIG)
-        rc = rtR0MemObjNativeAllocWorker(ppMem, cb, fExecutable, false /* fContiguous */,
-                                         0 /* PhysMask */, _4G - PAGE_SIZE, RTR0MEMOBJTYPE_LOW);
+        rc = rtR0MemObjNativeAllocWorker(ppMem, cb, fExecutable, false /* fContiguous */, 0 /* PhysMask */,
+                                         _4G - PAGE_SIZE, RTR0MEMOBJTYPE_LOW, PAGE_SIZE, false /*fOnKernelThread*/);
 
     IPRT_DARWIN_RESTORE_EFL_AC();
     return rc;
@@ -655,7 +865,7 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
 
     int rc = rtR0MemObjNativeAllocWorker(ppMem, cb, fExecutable, true /* fContiguous */,
                                          ~(uint32_t)PAGE_OFFSET_MASK, _4G - PAGE_SIZE,
-                                         RTR0MEMOBJTYPE_CONT);
+                                         RTR0MEMOBJTYPE_CONT, PAGE_SIZE, false /*fOnKernelThread*/);
 
     /*
      * Workaround for bogus IOKernelAllocateContiguous behavior, just in case.
@@ -664,7 +874,7 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
     if (RT_FAILURE(rc) && cb <= PAGE_SIZE)
         rc = rtR0MemObjNativeAllocWorker(ppMem, cb + PAGE_SIZE, fExecutable, true /* fContiguous */,
                                          ~(uint32_t)PAGE_OFFSET_MASK, _4G - PAGE_SIZE,
-                                         RTR0MEMOBJTYPE_CONT);
+                                         RTR0MEMOBJTYPE_CONT, PAGE_SIZE, false /*fOnKernelThread*/);
     IPRT_DARWIN_RESTORE_EFL_AC();
     return rc;
 }
@@ -672,9 +882,12 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocCont(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
 
 DECLHIDDEN(int) rtR0MemObjNativeAllocPhys(PPRTR0MEMOBJINTERNAL ppMem, size_t cb, RTHCPHYS PhysHighest, size_t uAlignment)
 {
-    /** @todo alignment */
     if (uAlignment != PAGE_SIZE)
-        return VERR_NOT_SUPPORTED;
+    {
+        /* See rtR0MemObjNativeAllocWorker: */
+        if (version_major < 9 /* 9 = 10.5.x = Snow Leopard */)
+            return VERR_NOT_SUPPORTED;
+    }
 
     IPRT_DARWIN_SAVE_EFL_AC();
 
@@ -683,8 +896,9 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocPhys(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
      */
     int rc;
     if (PhysHighest == NIL_RTHCPHYS)
-        rc = rtR0MemObjNativeAllocWorker(ppMem, cb, true /* fExecutable */, true /* fContiguous */,
-                                         0 /* PhysMask*/, UINT64_MAX, RTR0MEMOBJTYPE_PHYS);
+        rc = rtR0MemObjNativeAllocWorker(ppMem, cb, false /* fExecutable */, true /* fContiguous */,
+                                         uAlignment <= PAGE_SIZE ? 0 : ~(mach_vm_address_t)(uAlignment - 1) /* PhysMask*/,
+                                         UINT64_MAX, RTR0MEMOBJTYPE_PHYS, uAlignment, false /*fOnKernelThread*/);
     else
     {
         mach_vm_address_t PhysMask = 0;
@@ -692,10 +906,10 @@ DECLHIDDEN(int) rtR0MemObjNativeAllocPhys(PPRTR0MEMOBJINTERNAL ppMem, size_t cb,
         while (PhysMask > (PhysHighest | PAGE_OFFSET_MASK))
             PhysMask >>= 1;
         AssertReturn(PhysMask + 1 <= cb, VERR_INVALID_PARAMETER);
-        PhysMask &= ~(mach_vm_address_t)PAGE_OFFSET_MASK;
+        PhysMask &= ~(mach_vm_address_t)(uAlignment - 1);
 
-        rc = rtR0MemObjNativeAllocWorker(ppMem, cb, true /* fExecutable */, true /* fContiguous */,
-                                         PhysMask, PhysHighest, RTR0MEMOBJTYPE_PHYS);
+        rc = rtR0MemObjNativeAllocWorker(ppMem, cb, false /* fExecutable */, true /* fContiguous */,
+                                         PhysMask, PhysHighest, RTR0MEMOBJTYPE_PHYS, uAlignment, false /*fOnKernelThread*/);
     }
 
     IPRT_DARWIN_RESTORE_EFL_AC();
@@ -902,10 +1116,18 @@ DECLHIDDEN(int) rtR0MemObjNativeMapKernel(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ
     PRTR0MEMOBJDARWIN pMemToMapDarwin = (PRTR0MEMOBJDARWIN)pMemToMap;
     if (pMemToMapDarwin->pMemDesc)
     {
+        /* The kIOMapPrefault option was added in 10.10.0; causes PTEs to be populated with
+           INTEL_PTE_WIRED to be set, just like we desire (see further down).  However, till
+           10.13.0 it was not available for use on kernel mappings. Oh, fudge. */
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+        static uint32_t volatile s_fOptions = UINT32_MAX;
+        uint32_t fOptions = s_fOptions;
+        if (RT_UNLIKELY(fOptions == UINT32_MAX))
+            s_fOptions = fOptions = version_major >= 17 ? 0x10000000 /*kIOMapPrefault*/ : 0; /* Since 10.13.0 (High Sierra). */
+
         IOMemoryMap *pMemMap = pMemToMapDarwin->pMemDesc->createMappingInTask(kernel_task,
                                                                               0,
-                                                                              kIOMapAnywhere | kIOMapDefaultCache,
+                                                                              kIOMapAnywhere | kIOMapDefaultCache | fOptions,
                                                                               offSub,
                                                                               cbSub);
 #else
@@ -919,10 +1141,14 @@ DECLHIDDEN(int) rtR0MemObjNativeMapKernel(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ
         {
             IOVirtualAddress VirtAddr = pMemMap->getVirtualAddress();
             void *pv = (void *)(uintptr_t)VirtAddr;
-            if ((uintptr_t)pv == VirtAddr)
+            if ((uintptr_t)pv == VirtAddr && pv != NULL)
             {
-                //addr64_t Addr = pMemToMapDarwin->pMemDesc->getPhysicalSegment64(offSub, NULL);
-                //printf("pv=%p: %8llx %8llx\n", pv, rtR0MemObjDarwinGetPTE(pv), Addr);
+//#ifdef __LP64__
+//                addr64_t Addr = pMemToMapDarwin->pMemDesc->getPhysicalSegment(offSub, NULL, kIOMemoryMapperNone);
+//#else
+//                addr64_t Addr = pMemToMapDarwin->pMemDesc->getPhysicalSegment64(offSub, NULL);
+//#endif
+//                MY_PRINTF("pv=%p: %8llx %8llx\n", pv, rtR0MemObjDarwinGetPTE(pv), Addr);
 
 //                /*
 //                 * Explicitly lock it so that we're sure it is present and that
@@ -943,16 +1169,23 @@ DECLHIDDEN(int) rtR0MemObjNativeMapKernel(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ
 //                    IOReturn IORet = pMemDesc->prepare(kIODirectionInOut);
 //                    if (IORet == kIOReturnSuccess)
 //                    {
-                        /* HACK ALERT! */
-                        rtR0MemObjDarwinTouchPages(pv, cbSub);
+                        /* HACK ALERT! On kernels older than 10.10 (xnu version 14), we need to fault in
+                                       the pages here so they can safely be accessed from inside simple
+                                       locks and when preemption is disabled (no page-ins allowed).
+                           Note! This touching does not cause INTEL_PTE_WIRED (bit 10) to be set as we go
+                                 thru general #PF and vm_fault doesn't figure it should be wired or something.  */
+                        rtR0MemObjDarwinTouchPages(pv, cbSub ? cbSub : pMemToMap->cb);
                         /** @todo First, the memory should've been mapped by now, and second, it
-                         *        should have the wired attribute in the PTE (bit 9). Neither
-                         *        seems to be the case. The disabled locking code doesn't make any
-                         *        difference, which is extremely odd, and breaks
-                         *        rtR0MemObjNativeGetPagePhysAddr (getPhysicalSegment64 -> 64 for the
-                         *        lock descriptor. */
-                        //addr64_t Addr = pMemDesc->getPhysicalSegment64(0, NULL);
-                        //printf("pv=%p: %8llx %8llx (%d)\n", pv, rtR0MemObjDarwinGetPTE(pv), Addr, 2);
+                         *        should have the wired attribute in the PTE (bit 10). Neither seems to
+                         *        be the case. The disabled locking code doesn't make any difference,
+                         *        which is extremely odd, and breaks rtR0MemObjNativeGetPagePhysAddr
+                         *        (getPhysicalSegment64 -> 64 for the lock descriptor. */
+//#ifdef __LP64__
+//                        addr64_t Addr2 = pMemToMapDarwin->pMemDesc->getPhysicalSegment(offSub, NULL, kIOMemoryMapperNone);
+//#else
+//                        addr64_t Addr2 = pMemToMapDarwin->pMemDesc->getPhysicalSegment64(offSub, NULL);
+//#endif
+//                        MY_PRINTF("pv=%p: %8llx %8llx (%d)\n", pv, rtR0MemObjDarwinGetPTE(pv), Addr2, 2);
 
                         /*
                          * Create the IPRT memory object.
@@ -980,8 +1213,10 @@ DECLHIDDEN(int) rtR0MemObjNativeMapKernel(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ
 //                else
 //                    rc = VERR_MEMOBJ_INIT_FAILED;
             }
-            else
+            else if (pv)
                 rc = VERR_ADDRESS_TOO_BIG;
+            else
+                rc = VERR_MAP_FAILED;
             pMemMap->release();
         }
         else
@@ -1014,10 +1249,20 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
     PRTR0MEMOBJDARWIN pMemToMapDarwin = (PRTR0MEMOBJDARWIN)pMemToMap;
     if (pMemToMapDarwin->pMemDesc)
     {
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101000 /* The kIOMapPrefault option was added in 10.10.0. */
+         IOMemoryMap *pMemMap = pMemToMapDarwin->pMemDesc->createMappingInTask((task_t)R0Process,
+                                                                              0,
+                                                                              kIOMapAnywhere | kIOMapDefaultCache | kIOMapPrefault,
+                                                                              offSub,
+                                                                              cbSub);
+#elif MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+        static uint32_t volatile s_fOptions = UINT32_MAX;
+        uint32_t fOptions = s_fOptions;
+        if (RT_UNLIKELY(fOptions == UINT32_MAX))
+            s_fOptions = fOptions = version_major >= 14 ? 0x10000000 /*kIOMapPrefault*/ : 0; /* Since 10.10.0. */
         IOMemoryMap *pMemMap = pMemToMapDarwin->pMemDesc->createMappingInTask((task_t)R0Process,
                                                                               0,
-                                                                              kIOMapAnywhere | kIOMapDefaultCache,
+                                                                              kIOMapAnywhere | kIOMapDefaultCache | fOptions,
                                                                               0 /* offset */,
                                                                               0 /* length */);
 #else
@@ -1029,7 +1274,7 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
         {
             IOVirtualAddress VirtAddr = pMemMap->getVirtualAddress();
             void *pv = (void *)(uintptr_t)VirtAddr;
-            if ((uintptr_t)pv == VirtAddr)
+            if ((uintptr_t)pv == VirtAddr && pv != NULL)
             {
                 /*
                  * Create the IPRT memory object.
@@ -1048,8 +1293,10 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
 
                 rc = VERR_NO_MEMORY;
             }
-            else
+            else if (pv)
                 rc = VERR_ADDRESS_TOO_BIG;
+            else
+                rc = VERR_MAP_FAILED;
             pMemMap->release();
         }
         else
@@ -1061,7 +1308,11 @@ DECLHIDDEN(int) rtR0MemObjNativeMapUser(PPRTR0MEMOBJINTERNAL ppMem, RTR0MEMOBJ p
 }
 
 
-DECLHIDDEN(int) rtR0MemObjNativeProtect(PRTR0MEMOBJINTERNAL pMem, size_t offSub, size_t cbSub, uint32_t fProt)
+/**
+ * Worker for rtR0MemObjNativeProtect that's typically called in a different
+ * context.
+ */
+static int rtR0MemObjNativeProtectWorker(PRTR0MEMOBJINTERNAL pMem, size_t offSub, size_t cbSub, uint32_t fProt)
 {
     IPRT_DARWIN_SAVE_EFL_AC();
 
@@ -1159,6 +1410,43 @@ DECLHIDDEN(int) rtR0MemObjNativeProtect(PRTR0MEMOBJINTERNAL pMem, size_t offSub,
 
     IPRT_DARWIN_RESTORE_EFL_AC();
     return VINF_SUCCESS;
+}
+
+
+/**
+ * rtR0MemObjNativeProtect kernel_task wrapper function.
+ */
+static void rtR0MemObjNativeProtectWorkerOnKernelThread(void *pvUser0, void *pvUser1)
+{
+    AssertPtr(pvUser0); Assert(pvUser1 == NULL); NOREF(pvUser1);
+    RTR0MEMOBJDARWINPROTECTARGS *pArgs = (RTR0MEMOBJDARWINPROTECTARGS *)pvUser0;
+    int rc = rtR0MemObjNativeProtectWorker(pArgs->pMem, pArgs->offSub, pArgs->cbSub, pArgs->fProt);
+    rtR0MemObjDarwinSignalThreadWaitinOnTask(&pArgs->Core, rc);
+}
+
+
+DECLHIDDEN(int) rtR0MemObjNativeProtect(PRTR0MEMOBJINTERNAL pMem, size_t offSub, size_t cbSub, uint32_t fProt)
+{
+    /*
+     * The code won't work right because process codesigning properties leaks
+     * into kernel_map memory management.  So, if the user process we're running
+     * in has CS restrictions active, we cannot play around with the EXEC
+     * protection because some vm_fault.c think we're modifying the process map
+     * or something.
+     */
+    int rc;
+    if (rtR0MemObjDarwinGetMap(pMem) == kernel_map)
+    {
+        RTR0MEMOBJDARWINPROTECTARGS Args;
+        Args.pMem       = pMem;
+        Args.offSub     = offSub;
+        Args.cbSub      = cbSub;
+        Args.fProt      = fProt;
+        rc = rtR0MemObjDarwinDoInKernelTaskThread(rtR0MemObjNativeProtectWorkerOnKernelThread, &Args.Core);
+    }
+    else
+        rc = rtR0MemObjNativeProtectWorker(pMem, offSub, cbSub, fProt);
+    return rc;
 }
 
 
