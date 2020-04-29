@@ -290,6 +290,58 @@ VMMR3DECL(int) MMR3HeapAllocZEx(PVM pVM, MMTAG enmTag, size_t cbSize, void **ppv
 
 
 /**
+ * Links @a pHdr into the heap block list (tail).
+ *
+ * @param   pHeap       Heap handle.
+ * @param   pHdr        The block to link.
+ *
+ * @note    Caller has locked the heap!
+ */
+DECLINLINE(void) mmR3HeapLink(PMMHEAP pHeap, PMMHEAPHDR pHdr)
+{
+    /* Tail insertion: */
+    pHdr->pNext = NULL;
+    PMMHEAPHDR pTail = pHeap->pTail;
+    pHdr->pPrev = pTail;
+    if (pTail)
+    {
+        Assert(!pTail->pNext);
+        pTail->pNext = pHdr;
+    }
+    else
+    {
+        Assert(!pHeap->pHead);
+        pHeap->pHead = pHdr;
+    }
+    pHeap->pTail = pHdr;
+}
+
+
+/**
+ * Unlinks @a pHdr from the heal block list.
+ *
+ * @param   pHeap       Heap handle.
+ * @param   pHdr        The block to unlink.
+ *
+ * @note    Caller has locked the heap!
+ */
+DECLINLINE(void) mmR3HeapUnlink(PMMHEAP pHeap, PMMHEAPHDR pHdr)
+{
+    PMMHEAPHDR const pPrev = pHdr->pPrev;
+    PMMHEAPHDR const pNext = pHdr->pNext;
+    if (pPrev)
+        pPrev->pNext = pNext;
+    else
+        pHeap->pHead = pNext;
+
+    if (pNext)
+        pNext->pPrev = pPrev;
+    else
+        pHeap->pTail = pHdr->pPrev;
+}
+
+
+/**
  * Allocate memory from the heap.
  *
  * @returns Pointer to allocated memory.
@@ -359,6 +411,7 @@ void *mmR3HeapAlloc(PMMHEAP pHeap, MMTAG enmTag, size_t cbSize, bool fZero)
         pHeap->Stat.cFailures++;
         RTCritSectLeave(&pHeap->Lock);
 #endif
+        AssertFailed();
         return NULL;
     }
 
@@ -366,8 +419,10 @@ void *mmR3HeapAlloc(PMMHEAP pHeap, MMTAG enmTag, size_t cbSize, bool fZero)
      * Allocate heap block.
      */
     cbSize = RT_ALIGN_Z(cbSize, MMR3HEAP_SIZE_ALIGNMENT) + sizeof(MMHEAPHDR);
-    PMMHEAPHDR  pHdr = (PMMHEAPHDR)(fZero ? RTMemAllocZ(cbSize) : RTMemAlloc(cbSize));
-    if (!pHdr)
+    PMMHEAPHDR const pHdr = (PMMHEAPHDR)(fZero ? RTMemAllocZ(cbSize) : RTMemAlloc(cbSize));
+    if (pHdr)
+    { /* likely */ }
+    else
     {
         AssertMsgFailed(("Failed to allocate heap block %d, enmTag=%x(%.4s).\n", cbSize, enmTag, &enmTag));
 #ifdef MMR3HEAP_WITH_STATISTICS
@@ -380,24 +435,19 @@ void *mmR3HeapAlloc(PMMHEAP pHeap, MMTAG enmTag, size_t cbSize, bool fZero)
     }
     Assert(!((uintptr_t)pHdr & (RTMEM_ALIGNMENT - 1)));
 
-    RTCritSectEnter(&pHeap->Lock);
-
     /*
      * Init and link in the header.
      */
-    pHdr->pNext = NULL;
-    pHdr->pPrev = pHeap->pTail;
-    if (pHdr->pPrev)
-        pHdr->pPrev->pNext = pHdr;
-    else
-        pHeap->pHead = pHdr;
-    pHeap->pTail = pHdr;
 #ifdef MMR3HEAP_WITH_STATISTICS
     pHdr->pStat  = pStat;
 #else
     pHdr->pStat  = &pHeap->Stat;
 #endif
     pHdr->cbSize = cbSize;
+
+    RTCritSectEnter(&pHeap->Lock);
+
+    mmR3HeapLink(pHeap, pHdr);
 
     /*
      * Update statistics
@@ -416,7 +466,11 @@ void *mmR3HeapAlloc(PMMHEAP pHeap, MMTAG enmTag, size_t cbSize, bool fZero)
 
 
 /**
- * Reallocate memory allocated with MMR3HeapAlloc() or MMR3HeapRealloc().
+ * Reallocate memory allocated with MMR3HeapAlloc(), MMR3HeapAllocZ() or
+ * MMR3HeapRealloc().
+ *
+ * Any additional memory is zeroed (only reliable if the initial allocation was
+ * also of the zeroing kind).
  *
  * @returns Pointer to reallocated memory.
  * @param   pv          Pointer to the memory block to reallocate.
@@ -441,71 +495,64 @@ VMMR3DECL(void *) MMR3HeapRealloc(void *pv, size_t cbNewSize)
     /*
      * Validate header.
      */
-    PMMHEAPHDR  pHdr = (PMMHEAPHDR)pv - 1;
-    if (    pHdr->cbSize & (MMR3HEAP_SIZE_ALIGNMENT - 1)
-        ||  (uintptr_t)pHdr & (RTMEM_ALIGNMENT - 1))
-    {
-        AssertMsgFailed(("Invalid heap header! pv=%p, size=%#x\n", pv, pHdr->cbSize));
-        return NULL;
-    }
+    PMMHEAPHDR const pHdr      = (PMMHEAPHDR)pv - 1;
+    size_t const     cbOldSize = pHdr->cbSize;
+    AssertMsgReturn(   !(cbOldSize & (MMR3HEAP_SIZE_ALIGNMENT - 1))
+                    && !((uintptr_t)pHdr & (RTMEM_ALIGNMENT - 1)),
+                    ("Invalid heap header! pv=%p, size=%#x\n", pv, cbOldSize),
+                    NULL);
     Assert(pHdr->pStat != NULL);
     Assert(!((uintptr_t)pHdr->pNext & (RTMEM_ALIGNMENT - 1)));
     Assert(!((uintptr_t)pHdr->pPrev & (RTMEM_ALIGNMENT - 1)));
 
     PMMHEAP pHeap = pHdr->pStat->pHeap;
 
-#ifdef MMR3HEAP_WITH_STATISTICS
+    /*
+     * Unlink the header before we reallocate the block.
+     */
     RTCritSectEnter(&pHeap->Lock);
+#ifdef MMR3HEAP_WITH_STATISTICS
     pHdr->pStat->cReallocations++;
     pHeap->Stat.cReallocations++;
-    RTCritSectLeave(&pHeap->Lock);
 #endif
+    mmR3HeapUnlink(pHeap, pHdr);
+    RTCritSectLeave(&pHeap->Lock);
 
     /*
-     * Reallocate the block.
+     * Reallocate the block.  Clear added space.
      */
     cbNewSize = RT_ALIGN_Z(cbNewSize, MMR3HEAP_SIZE_ALIGNMENT) + sizeof(MMHEAPHDR);
-    PMMHEAPHDR pHdrNew = (PMMHEAPHDR)RTMemRealloc(pHdr, cbNewSize);
-    if (!pHdrNew)
+    PMMHEAPHDR pHdrNew = (PMMHEAPHDR)RTMemReallocZ(pHdr, cbOldSize, cbNewSize);
+    if (pHdrNew)
+        pHdrNew->cbSize = cbNewSize;
+    else
     {
-#ifdef MMR3HEAP_WITH_STATISTICS
         RTCritSectEnter(&pHeap->Lock);
+        mmR3HeapLink(pHeap, pHdr);
+#ifdef MMR3HEAP_WITH_STATISTICS
         pHdr->pStat->cFailures++;
         pHeap->Stat.cFailures++;
-        RTCritSectLeave(&pHeap->Lock);
 #endif
+        RTCritSectLeave(&pHeap->Lock);
         return NULL;
     }
 
-    /*
-     * Update pointers.
-     */
-    if (pHdrNew != pHdr)
-    {
-        RTCritSectEnter(&pHeap->Lock);
-        if (pHdrNew->pPrev)
-            pHdrNew->pPrev->pNext = pHdrNew;
-        else
-            pHeap->pHead = pHdrNew;
+    RTCritSectEnter(&pHeap->Lock);
 
-        if (pHdrNew->pNext)
-            pHdrNew->pNext->pPrev = pHdrNew;
-        else
-            pHeap->pTail = pHdrNew;
-        RTCritSectLeave(&pHeap->Lock);
-    }
+    /*
+     * Relink the header.
+     */
+    mmR3HeapLink(pHeap, pHdrNew);
 
     /*
      * Update statistics.
      */
 #ifdef MMR3HEAP_WITH_STATISTICS
-    RTCritSectEnter(&pHeap->Lock);
     pHdrNew->pStat->cbAllocated += cbNewSize - pHdrNew->cbSize;
     pHeap->Stat.cbAllocated += cbNewSize - pHdrNew->cbSize;
-    RTCritSectLeave(&pHeap->Lock);
 #endif
 
-    pHdrNew->cbSize = cbNewSize;
+    RTCritSectLeave(&pHeap->Lock);
 
     return pHdrNew + 1;
 }
@@ -636,6 +683,9 @@ VMMR3DECL(char *)    MMR3HeapAPrintfVU(PUVM pUVM, MMTAG enmTag, const char *pszF
 /**
  * Releases memory allocated with MMR3HeapAlloc() or MMR3HeapRealloc().
  *
+ * The memory is cleared/filled before freeing to prevent heap spraying, info
+ * leaks, and help detect use after free trouble.
+ *
  * @param   pv          Pointer to the memory block to free.
  */
 VMMR3DECL(void) MMR3HeapFree(void *pv)
@@ -647,14 +697,12 @@ VMMR3DECL(void) MMR3HeapFree(void *pv)
     /*
      * Validate header.
      */
-    PMMHEAPHDR  pHdr = (PMMHEAPHDR)pv - 1;
-    if (    pHdr->cbSize & (MMR3HEAP_SIZE_ALIGNMENT - 1)
-        ||  (uintptr_t)pHdr & (RTMEM_ALIGNMENT - 1))
-    {
-        AssertMsgFailed(("Invalid heap header! pv=%p, size=%#x\n", pv, pHdr->cbSize));
-        return;
-    }
-    Assert(pHdr->pStat != NULL);
+    PMMHEAPHDR const pHdr         = (PMMHEAPHDR)pv - 1;
+    size_t const     cbAllocation = pHdr->cbSize;
+    AssertMsgReturnVoid(   !(pHdr->cbSize & (MMR3HEAP_SIZE_ALIGNMENT - 1))
+                        && !((uintptr_t)pHdr & (RTMEM_ALIGNMENT - 1)),
+                        ("Invalid heap header! pv=%p, size=%#x\n", pv, pHdr->cbSize));
+    AssertPtr(pHdr->pStat);
     Assert(!((uintptr_t)pHdr->pNext & (RTMEM_ALIGNMENT - 1)));
     Assert(!((uintptr_t)pHdr->pPrev & (RTMEM_ALIGNMENT - 1)));
 
@@ -667,30 +715,24 @@ VMMR3DECL(void) MMR3HeapFree(void *pv)
 #ifdef MMR3HEAP_WITH_STATISTICS
     pHdr->pStat->cFrees++;
     pHeap->Stat.cFrees++;
-    pHdr->pStat->cbFreed            += pHdr->cbSize;
-    pHeap->Stat.cbFreed             += pHdr->cbSize;
-    pHdr->pStat->cbCurAllocated     -= pHdr->cbSize;
-    pHeap->Stat.cbCurAllocated      -= pHdr->cbSize;
+    pHdr->pStat->cbFreed            += cbAllocation;
+    pHeap->Stat.cbFreed             += cbAllocation;
+    pHdr->pStat->cbCurAllocated     -= cbAllocation;
+    pHeap->Stat.cbCurAllocated      -= cbAllocation;
 #endif
 
     /*
      * Unlink it.
      */
-    if (pHdr->pPrev)
-        pHdr->pPrev->pNext = pHdr->pNext;
-    else
-        pHeap->pHead = pHdr->pNext;
-
-    if (pHdr->pNext)
-        pHdr->pNext->pPrev = pHdr->pPrev;
-    else
-        pHeap->pTail = pHdr->pPrev;
+    mmR3HeapUnlink(pHeap, pHdr);
 
     RTCritSectLeave(&pHeap->Lock);
 
     /*
-     * Free the memory.
+     * Free the memory.  We clear just to be on the safe size wrt
+     * heap spraying and leaking sensitive info (also helps detecting
+     * double freeing).
      */
-    RTMemFree(pHdr);
+    RTMemFreeZ(pHdr, cbAllocation);
 }
 

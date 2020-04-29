@@ -211,6 +211,8 @@ static DECLCALLBACK(int) vgsvcGstCtrlInit(void)
            VGSvcVerbose(3, "Host features: %#RX64\n", g_fControlHostFeatures0);
        else
            VGSvcVerbose(1, "Warning! Feature reporing failed: %Rrc\n", rc);
+
+       return VINF_SUCCESS;
     }
     else
     {
@@ -223,9 +225,11 @@ static DECLCALLBACK(int) vgsvcGstCtrlInit(void)
         }
         else
             VGSvcError("Failed to connect to the guest control service! Error: %Rrc\n", rc);
-        RTSemEventMultiDestroy(g_hControlEvent);
-        g_hControlEvent = NIL_RTSEMEVENTMULTI;
     }
+
+    RTSemEventMultiDestroy(g_hControlEvent);
+    g_hControlEvent       = NIL_RTSEMEVENTMULTI;
+    g_uControlSvcClientID = 0;
     return rc;
 }
 

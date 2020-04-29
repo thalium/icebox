@@ -63,11 +63,16 @@
 #else /* !VBOX_WITH_HARDENING */
 # include <VBox/err.h>
 #endif /* !VBOX_WITH_HARDENING */
+#ifdef VBOX_WS_MAC
+# include <iprt/path.h>
+#endif
 
 /* Other includes: */
 #ifdef VBOX_WS_MAC
 # include <dlfcn.h>
 # include <sys/mman.h>
+//# include <mach-o/dyld.h>
+extern "C" const char *_dyld_get_image_name(uint32_t);
 #endif /* VBOX_WS_MAC */
 #ifdef VBOX_WS_X11
 # include <dlfcn.h>
@@ -133,6 +138,232 @@ QString g_QStrHintReinstall = QApplication::tr(
 
 
 #ifdef VBOX_WS_MAC
+
+# include <unistd.h>
+# include <stdio.h>
+# include <dlfcn.h>
+# include <iprt/formats/mach-o.h>
+
+/**
+ * Override this one to try hide the fact that we're setuid to root
+ * orginially.
+ */
+int issetugid_for_AppKit(void)
+{
+    Dl_info Info = {0};
+    char szMsg[512];
+    size_t cchMsg;
+    const void * uCaller = __builtin_return_address(0);
+    if (dladdr(uCaller, &Info))
+        cchMsg = snprintf(szMsg, sizeof(szMsg), "DEBUG: issetugid_for_AppKit was called by %p %s::%s+%p (via %p)\n",
+                          uCaller, Info.dli_fname, Info.dli_sname, (void *)((uintptr_t)uCaller - (uintptr_t)Info.dli_saddr), __builtin_return_address(1));
+    else
+        cchMsg = snprintf(szMsg, sizeof(szMsg), "DEBUG: issetugid_for_AppKit was called by %p (via %p)\n", uCaller, __builtin_return_address(1));
+    write(2, szMsg, cchMsg);
+    return 0;
+}
+
+static bool patchExtSym(mach_header_64_t *pHdr, const char *pszSymbol, uintptr_t uNewValue)
+{
+    /*
+     * First do some basic header checks and the scan the load
+     * commands for the symbol table info.
+     */
+    AssertLogRelMsgReturn(pHdr->magic == (ARCH_BITS == 64 ? MH_MAGIC_64 : MH_MAGIC),
+                          ("%p: magic=%#x\n", pHdr, pHdr->magic), false);
+    uint32_t const cCmds = pHdr->ncmds;
+    uint32_t const cbCmds = pHdr->sizeofcmds;
+    AssertLogRelMsgReturn(cCmds < 16384 && cbCmds < _2M, ("%p: ncmds=%u sizeofcmds=%u\n", pHdr, cCmds, cbCmds), false);
+
+    /*
+     * First command pass: Locate the symbol table and dynamic symbol table info
+     *                     commands, also calc the slide (load addr - link addr).
+     */
+    dysymtab_command_t const   *pDySymTab = NULL;
+    symtab_command_t const     *pSymTab   = NULL;
+    segment_command_64_t const *pFirstSeg = NULL;
+    uintptr_t                   offSlide  = 0;
+    uint32_t                    offCmd    = 0;
+    for (uint32_t iCmd = 0; iCmd < cCmds; iCmd++)
+    {
+        AssertLogRelMsgReturn(offCmd + sizeof(load_command_t) <= cbCmds,
+                              ("%p: iCmd=%u offCmd=%#x cbCmds=%#x\n", pHdr, iCmd, offCmd, cbCmds), false);
+        load_command_t const * const pCmd = (load_command_t const *)((uintptr_t)(pHdr + 1) + offCmd);
+        uint32_t const cbCurCmd = pCmd->cmdsize;
+        AssertLogRelMsgReturn(offCmd + cbCurCmd <= cbCmds && cbCurCmd <= cbCmds,
+                              ("%p: iCmd=%u offCmd=%#x cbCurCmd=%#x cbCmds=%#x\n", pHdr, iCmd, offCmd, cbCurCmd, cbCmds), false);
+        offCmd += cbCurCmd;
+
+        if (pCmd->cmd == LC_SYMTAB)
+        {
+            AssertLogRelMsgReturn(!pSymTab, ("%p: pSymTab=%p pCmd=%p\n", pHdr, pSymTab, pCmd), false);
+            pSymTab = (symtab_command_t const *)pCmd;
+            AssertLogRelMsgReturn(cbCurCmd == sizeof(*pSymTab), ("%p: pSymTab=%p cbCurCmd=%#x\n", pHdr, pCmd, cbCurCmd), false);
+
+        }
+        else if (pCmd->cmd == LC_DYSYMTAB)
+        {
+            AssertLogRelMsgReturn(!pDySymTab, ("%p: pDySymTab=%p pCmd=%p\n", pHdr, pDySymTab, pCmd), false);
+            pDySymTab = (dysymtab_command_t const *)pCmd;
+            AssertLogRelMsgReturn(cbCurCmd == sizeof(*pDySymTab), ("%p: pDySymTab=%p cbCurCmd=%#x\n", pHdr, pCmd, cbCurCmd),
+                                  false);
+        }
+        else if (pCmd->cmd == LC_SEGMENT_64 && !pFirstSeg) /* ASSUMES the first seg is the one with the header and stuff. */
+        {
+            /* Note! the fileoff and vmaddr seems to be modified. */
+            pFirstSeg = (segment_command_64_t const *)pCmd;
+            AssertLogRelMsgReturn(cbCurCmd >= sizeof(*pFirstSeg), ("%p: iCmd=%u cbCurCmd=%#x\n", pHdr, iCmd, cbCurCmd), false);
+            AssertLogRelMsgReturn(/*pFirstSeg->fileoff == 0 && */ pFirstSeg->vmsize >= sizeof(*pHdr) + cbCmds,
+                                  ("%p: iCmd=%u fileoff=%llx vmsize=%#llx cbCmds=%#x name=%.16s\n",
+                                   pHdr, iCmd, pFirstSeg->fileoff, pFirstSeg->vmsize, cbCmds, pFirstSeg->segname), false);
+            offSlide = (uintptr_t)pHdr - pFirstSeg->vmaddr;
+        }
+    }
+    AssertLogRelMsgReturn(pSymTab, ("%p: no LC_SYMTAB\n", pHdr), false);
+    AssertLogRelMsgReturn(pDySymTab, ("%p: no LC_DYSYMTAB\n", pHdr), false);
+    AssertLogRelMsgReturn(pFirstSeg, ("%p: no LC_SEGMENT_64\n", pHdr), false);
+
+    /*
+     * Second command pass: Locate the memory locations of the symbol table, string
+     *                      table and the indirect symbol table by checking LC_SEGMENT_xx.
+     */
+    macho_nlist_64_t const *paSymbols  = NULL;
+    uint32_t const          offSymbols = pSymTab->symoff;
+    uint32_t const          cSymbols   = pSymTab->nsyms;
+    AssertLogRelMsgReturn(cSymbols > 0 && offSymbols >= sizeof(pHdr) + cbCmds,
+                          ("%p: cSymbols=%#x offSymbols=%#x\n", pHdr, cSymbols, offSymbols), false);
+
+    const char    *pchStrTab = NULL;
+    uint32_t const offStrTab = pSymTab->stroff;
+    uint32_t const cbStrTab  = pSymTab->strsize;
+    AssertLogRelMsgReturn(cbStrTab > 0 && offStrTab >= sizeof(pHdr) + cbCmds,
+                          ("%p: cbStrTab=%#x offStrTab=%#x\n", pHdr, cbStrTab, offStrTab), false);
+
+    uint32_t const *paidxIndirSymbols = NULL;
+    uint32_t const  offIndirSymbols = pDySymTab->indirectsymboff;
+    uint32_t const  cIndirSymbols   = pDySymTab->nindirectsymb;
+    AssertLogRelMsgReturn(cIndirSymbols > 0 && offIndirSymbols >= sizeof(pHdr) + cbCmds,
+                          ("%p: cIndirSymbols=%#x offIndirSymbols=%#x\n", pHdr, cIndirSymbols, offIndirSymbols), false);
+
+    offCmd = 0;
+    for (uint32_t iCmd = 0; iCmd < cCmds; iCmd++)
+    {
+        load_command_t const * const pCmd = (load_command_t const *)((uintptr_t)(pHdr + 1) + offCmd);
+        uint32_t const cbCurCmd = pCmd->cmdsize;
+        AssertLogRelMsgReturn(offCmd + cbCurCmd <= cbCmds && cbCurCmd <= cbCmds,
+                              ("%p: iCmd=%u offCmd=%#x cbCurCmd=%#x cbCmds=%#x\n", pHdr, iCmd, offCmd, cbCurCmd, cbCmds), false);
+        offCmd += cbCurCmd;
+
+        if (pCmd->cmd == LC_SEGMENT_64)
+        {
+            segment_command_64_t const *pSeg = (segment_command_64_t const *)pCmd;
+            AssertLogRelMsgReturn(cbCurCmd >= sizeof(*pSeg), ("%p: iCmd=%u cbCurCmd=%#x\n", pHdr, iCmd, cbCurCmd), false);
+            uintptr_t const uPtrSeg = pSeg->vmaddr + offSlide;
+            uint64_t const  cbSeg   = pSeg->vmsize;
+            uint64_t const  offFile = pSeg->fileoff;
+
+            uint64_t offSeg = offSymbols - offFile;
+            if (offSeg < cbSeg)
+            {
+                AssertLogRelMsgReturn(!paSymbols, ("%p: paSymbols=%p uPtrSeg=%p off=%#llx\n", pHdr, paSymbols, uPtrSeg, offSeg),
+                                      false);
+                AssertLogRelMsgReturn(offSeg + cSymbols * sizeof(paSymbols[0]) <= cbSeg,
+                                      ("%p: offSeg=%#llx cSymbols=%#x cbSeg=%llx\n", pHdr, offSeg, cSymbols, cbSeg), false);
+                paSymbols = (macho_nlist_64_t const *)(uPtrSeg + offSeg);
+            }
+
+            offSeg = offStrTab - offFile;
+            if (offSeg < cbSeg)
+            {
+                AssertLogRelMsgReturn(!pchStrTab, ("%p: paSymbols=%p uPtrSeg=%p\n", pHdr, pchStrTab, uPtrSeg), false);
+                AssertLogRelMsgReturn(offSeg + cbStrTab <= cbSeg,
+                                      ("%p: offSeg=%#llx cbStrTab=%#x cbSeg=%llx\n", pHdr, offSeg, cbStrTab, cbSeg), false);
+                pchStrTab = (const char *)(uPtrSeg + offSeg);
+            }
+
+            offSeg = offIndirSymbols - offFile;
+            if (offSeg < cbSeg)
+            {
+                AssertLogRelMsgReturn(!paidxIndirSymbols,
+                                      ("%p: paidxIndirSymbols=%p uPtrSeg=%p\n", pHdr, paidxIndirSymbols, uPtrSeg), false);
+                AssertLogRelMsgReturn(offSeg + cIndirSymbols * sizeof(paidxIndirSymbols[0]) <= cbSeg,
+                                      ("%p: offSeg=%#llx cIndirSymbols=%#x cbSeg=%llx\n", pHdr, offSeg, cIndirSymbols, cbSeg),
+                                      false);
+                paidxIndirSymbols = (uint32_t const *)(uPtrSeg + offSeg);
+            }
+        }
+    }
+
+    AssertLogRelMsgReturn(paSymbols, ("%p: offSymbols=%#x\n", pHdr, offSymbols), false);
+    AssertLogRelMsgReturn(pchStrTab, ("%p: offStrTab=%#x\n", pHdr, offStrTab), false);
+    AssertLogRelMsgReturn(paidxIndirSymbols, ("%p: offIndirSymbols=%#x\n", pHdr, offIndirSymbols), false);
+
+    /*
+     * Third command pass: Process sections of types S_NON_LAZY_SYMBOL_POINTERS
+     *                     and S_LAZY_SYMBOL_POINTERS
+     */
+    bool fFound = false;
+    offCmd = 0;
+    for (uint32_t iCmd = 0; iCmd < cCmds; iCmd++)
+    {
+        load_command_t const * const pCmd = (load_command_t const *)((uintptr_t)(pHdr + 1) + offCmd);
+        uint32_t const cbCurCmd = pCmd->cmdsize;
+        AssertLogRelMsgReturn(offCmd + cbCurCmd <= cbCmds && cbCurCmd <= cbCmds,
+                              ("%p: iCmd=%u offCmd=%#x cbCurCmd=%#x cbCmds=%#x\n", pHdr, iCmd, offCmd, cbCurCmd, cbCmds), false);
+        offCmd += cbCurCmd;
+        if (pCmd->cmd == LC_SEGMENT_64)
+        {
+            segment_command_64_t const *pSeg = (segment_command_64_t const *)pCmd;
+            AssertLogRelMsgReturn(cbCurCmd >= sizeof(*pSeg), ("%p: iCmd=%u cbCurCmd=%#x\n", pHdr, iCmd, cbCurCmd), false);
+            uint64_t const  uSegAddr = pSeg->vmaddr;
+            uint64_t const  cbSeg    = pSeg->vmsize;
+
+            uint32_t const             cSections  = pSeg->nsects;
+            section_64_t const * const paSections = (section_64_t const *)(pSeg + 1);
+            AssertLogRelMsgReturn(cSections < _256K && sizeof(*pSeg) + cSections * sizeof(paSections[0]) <= cbCurCmd,
+                                  ("%p: iCmd=%u cSections=%#x cbCurCmd=%#x\n", pHdr, iCmd, cSections, cbCurCmd), false);
+            for (uint32_t iSection = 0; iSection < cSections; iSection++)
+            {
+                if (   paSections[iSection].flags == S_NON_LAZY_SYMBOL_POINTERS
+                    || paSections[iSection].flags == S_LAZY_SYMBOL_POINTERS)
+                {
+                    uint32_t const idxIndirBase = paSections[iSection].reserved1;
+                    uint32_t const cEntries     = paSections[iSection].size / sizeof(uintptr_t);
+                    AssertLogRelMsgReturn(idxIndirBase <= cIndirSymbols && idxIndirBase + cEntries <= cIndirSymbols,
+                                          ("%p: idxIndirBase=%#x cEntries=%#x cIndirSymbols=%#x\n",
+                                           pHdr, idxIndirBase, cEntries, cIndirSymbols), false);
+                    uint64_t const uSecAddr = paSections[iSection].addr;
+                    uint64_t const offInSeg = uSecAddr - uSegAddr;
+                    AssertLogRelMsgReturn(offInSeg < cbSeg && offInSeg + cEntries * sizeof(uintptr_t) <= cbSeg,
+                                          ("%p: offInSeg=%#llx cEntries=%#x cbSeg=%#llx\n", pHdr, offInSeg, cEntries, cbSeg),
+                                          false);
+                    uintptr_t *pauPtrs = (uintptr_t *)(uSecAddr + offSlide);
+                    for (uint32_t iEntry = 0; iEntry < cEntries; iEntry++)
+                    {
+                        uint32_t const idxSym = paidxIndirSymbols[idxIndirBase + iEntry];
+                        if (idxSym < cSymbols)
+                        {
+                            macho_nlist_64_t const * const pSym    = &paSymbols[idxSym];
+                            const char * const             pszName = pSym->n_un.n_strx < cbStrTab
+                                                                   ? &pchStrTab[pSym->n_un.n_strx] : "!invalid symtab offset!";
+                            if (strcmp(pszName, pszSymbol) == 0)
+                            {
+                                pauPtrs[iEntry] = uNewValue;
+                                fFound = true;
+                                break;
+                            }
+                        }
+                        else
+                            AssertMsg(idxSym == INDIRECT_SYMBOL_LOCAL || idxSym == INDIRECT_SYMBOL_ABS, ("%#x\n", idxSym));
+                    }
+                }
+            }
+        }
+    }
+    AssertLogRel(fFound);
+    return fFound;
+}
+
 /**
  * Mac OS X: Really ugly hack to bypass a set-uid check in AppKit.
  *
@@ -144,12 +375,36 @@ QString g_QStrHintReinstall = QApplication::tr(
  */
 static void HideSetUidRootFromAppKit()
 {
+    void *pvAddr;
     /* Find issetguid() and make it always return 0 by modifying the code: */
-    void *pvAddr = dlsym(RTLD_DEFAULT, "issetugid");
+# if 0
+    pvAddr = dlsym(RTLD_DEFAULT, "issetugid");
     int rc = mprotect((void *)((uintptr_t)pvAddr & ~(uintptr_t)0xfff), 0x2000, PROT_WRITE | PROT_READ | PROT_EXEC);
     if (!rc)
         ASMAtomicWriteU32((volatile uint32_t *)pvAddr, 0xccc3c031); /* xor eax, eax; ret; int3 */
+    else
+# endif
+    {
+        /* Failing that, find AppKit and patch its import table: */
+        void *pvAppKit = dlopen("/System/Library/Frameworks/AppKit.framework/AppKit", RTLD_NOLOAD);
+        pvAddr = dlsym(pvAppKit, "NSApplicationMain");
+        Dl_info Info = {0};
+        if (   dladdr(pvAddr, &Info)
+            && Info.dli_fbase != NULL)
+        {
+            if (!patchExtSym((mach_header_64_t *)Info.dli_fbase, "_issetugid", (uintptr_t)&issetugid_for_AppKit))
+                write(2, RT_STR_TUPLE("WARNING: Failed to patch issetugid in AppKit! (patchExtSym)\n"));
+# ifdef DEBUG
+            else
+                write(2, RT_STR_TUPLE("INFO: Successfully patched _issetugid import for AppKit!\n"));
+# endif
+        }
+        else
+            write(2, RT_STR_TUPLE("WARNING: Failed to patch issetugid in AppKit! (dladdr)\n"));
+    }
+
 }
+
 #endif /* VBOX_WS_MAC */
 
 #ifdef VBOX_WS_X11
@@ -388,6 +643,21 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char ** /*envp*/)
 
         /* Instantiate own NSApplication before QApplication do it for us: */
         UICocoaApplication::instance();
+
+# ifdef VBOX_RUNTIME_UI
+        /* If we're a helper app inside Resources in the main application bundle,
+           we need to amend the library path so the platform plugin can be found.
+           Note! This builds on the initIprtForDarwinHelperApp() hack. */
+        {
+            char szExecDir[RTPATH_MAX];
+            int vrc = RTPathExecDir(szExecDir, sizeof(szExecDir));
+            AssertRC(vrc);
+            RTPathStripTrailingSlash(szExecDir); /* .../Contents/MacOS */
+            RTPathStripFilename(szExecDir);      /* .../Contents */
+            RTPathAppend(szExecDir, sizeof(szExecDir), "plugins");      /* .../Contents/plugins */
+            QCoreApplication::addLibraryPath(QString::fromUtf8(szExecDir));
+        }
+# endif
 #endif /* VBOX_WS_MAC */
 
 #ifdef VBOX_WS_X11
@@ -507,6 +777,60 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char ** /*envp*/)
 
 #ifndef VBOX_WITH_HARDENING
 
+# ifdef RT_OS_DARWIN
+/** Init runtime with the executable path pointing into the
+ * VirtualBox.app/Contents/MacOS/ rather than
+ * VirtualBox.app/Contents/Resource/VirtualBoxVM.app/Contents/MacOS/ for the
+ * VirtualBoxVM helper app.
+ *
+ * This is a HACK to make codesign and friends happy on OS X.   The idea is to
+ * improve and eliminate this over time.
+ */
+DECL_NO_INLINE(static, int) initIprtForDarwinTakingHelperAppIntoAccount(int cArgs, char ***ppapszArgs, uint32_t fFlags)
+{
+    const char *pszImageName = _dyld_get_image_name(0);
+    AssertReturn(pszImageName, VERR_INTERNAL_ERROR);
+
+    char szTmpPath[PATH_MAX + 1];
+    const char *psz = realpath(pszImageName, szTmpPath);
+    int rc;
+    if (psz)
+    {
+        char *pszFilename = RTPathFilename(szTmpPath);
+        if (pszFilename)
+        {
+            /* Is it the helper VM process? */
+            if (   RTStrICmp(pszFilename, "VirtualBoxVM") == 0
+                && RTStrIStr(szTmpPath, "VirtualBoxVM.app") != NULL)
+            {
+                char const chSavedFilename0 = *pszFilename;
+                *pszFilename = '\0';
+                RTPathStripTrailingSlash(szTmpPath); /* VirtualBox.app/Contents/Resources/VirtualBoxVM.app/Contents/MacOS */
+                RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents/Resources/VirtualBoxVM.app/Contents/ */
+                RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents/Resources/VirtualBoxVM.app */
+                RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents/Resources */
+                RTPathStripFilename(szTmpPath);      /* VirtualBox.app/Contents */
+                char *pszDst = strchr(szTmpPath, '\0');
+                pszDst = (char *)memcpy(pszDst, RT_STR_TUPLE("/MacOS/")) + sizeof("/MacOS/") - 1; /** @todo where is mempcpy? */
+                *pszFilename = chSavedFilename0;
+                memmove(pszDst, pszFilename, strlen(pszFilename) + 1);
+
+                return RTR3InitEx(RTR3INIT_VER_CUR, fFlags, cArgs, ppapszArgs, szTmpPath);
+            }
+
+            /* It's the main application: */
+            return RTR3InitExe(cArgs, ppapszArgs, fFlags);
+        }
+        rc = VERR_INVALID_NAME;
+    }
+    else
+        rc = RTErrConvertFromErrno(errno);
+    AssertMsgRCReturn(rc, ("rc=%Rrc pszLink=\"%s\"\nhex: %.*Rhxs\n", rc, pszImageName, strlen(pszImageName), pszImageName), rc);
+    return rc;
+}
+# endif
+
+
 int main(int argc, char **argv, char **envp)
 {
 # ifdef VBOX_WS_X11
@@ -538,8 +862,11 @@ int main(int argc, char **argv, char **envp)
     }
 
     uint32_t fFlags = fStartVM && !fSeparateProcess ? RTR3INIT_FLAGS_SUPLIB : 0;
-
+# ifdef RT_OS_DARWIN
+    int rc = initIprtForDarwinTakingHelperAppIntoAccount(argc, &argv, fFlags);
+# else
     int rc = RTR3InitExe(argc, &argv, fFlags);
+# endif
 
     /* Initialization failed: */
     if (RT_FAILURE(rc))

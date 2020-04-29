@@ -181,6 +181,9 @@ typedef enum SUPINSTDIR
     kSupID_AppPrivArchComp,
     kSupID_AppPrivNoArch,
     kSupID_Testcase,
+#ifdef RT_OS_DARWIN
+    kSupID_AppMacHelper,
+#endif
     kSupID_End
 } SUPINSTDIR;
 
@@ -443,7 +446,7 @@ DECLHIDDEN(void)    supR3HardenedLogFlush(void);
 
 
 DECLHIDDEN(int)     supR3HardenedVerifyAll(bool fFatal, const char *pszProgName, const char *pszExePath, uint32_t fMainFlags);
-DECLHIDDEN(int)     supR3HardenedVerifyFixedDir(SUPINSTDIR enmDir, bool fFatal);
+DECLHIDDEN(int)     supR3HardenedVerifyFixedDir(SUPINSTDIR enmDir, bool fFatal, PCSUPINSTFILE pFile);
 DECLHIDDEN(int)     supR3HardenedVerifyFixedFile(const char *pszFilename, bool fFatal);
 DECLHIDDEN(int)     supR3HardenedVerifyDir(const char *pszDirPath, bool fRecursive, bool fCheckFiles, PRTERRINFO pErrInfo);
 DECLHIDDEN(int)     supR3HardenedVerifyFile(const char *pszFilename, RTHCUINTPTR hNativeFile, bool fMaybe3rdParty,

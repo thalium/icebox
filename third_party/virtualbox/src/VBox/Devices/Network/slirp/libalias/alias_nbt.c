@@ -436,6 +436,10 @@ AliasHandleUdpNbt(
     uh = (struct udphdr *)ip_next(pip);
     pmax = (char *)uh + ntohs(uh->uh_ulen);
 
+    /* IP header has been verified, cross-check uh_ulen */
+    if (RT_UNLIKELY(pmax != (char *)pip + ntohs(pip->ip_len)))
+        return (-1);
+
     ndh = (NbtDataHeader *)udp_next(uh);
     if ((char *)(ndh + 1) > pmax)
         return (-1);
@@ -884,6 +888,10 @@ AliasHandleUdpNbtNS(
     nsh = (NbtNSHeader *)udp_next(uh);
     p = (u_char *) (nsh + 1);
     pmax = (char *)uh + ntohs(uh->uh_ulen);
+
+    /* IP header has been verified, cross-check uh_ulen */
+    if (RT_UNLIKELY(pmax != (char *)pip + ntohs(pip->ip_len)))
+        return (-1);
 
     if ((char *)(nsh + 1) > pmax)
         return (-1);

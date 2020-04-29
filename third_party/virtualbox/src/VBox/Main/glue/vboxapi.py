@@ -25,7 +25,7 @@ CDDL are applicable instead of those of the GPL.
 You may elect to license modified versions of this file under the
 terms and conditions of either the GPL or the CDDL or both.
 """
-__version__ = "$Revision: 131698 $"
+__version__ = "$Revision: 136276 $"
 
 
 # Note! To set Python bitness on OSX use 'export VERSIONER_PYTHON_PREFER_32_BIT=yes'
@@ -452,7 +452,7 @@ class PlatformMSCOM(PlatformBase):
             if isinstance(oXcpt, pythoncom.com_error) and self.xcptGetStatus(oXcpt) == -2147417831: # RPC_E_TOO_LATE
                 print("Warning: CoInitializeSecurity was already called");
             else:
-                print("Warning: CoInitializeSecurity failed: ", oXctp);
+                print("Warning: CoInitializeSecurity failed: ", oXcpt);
 
         # Remember this thread ID and get its handle so we can wait on it in waitForEvents().
         self.tid = GetCurrentThreadId()
@@ -959,7 +959,7 @@ class PlatformWEBSERVICE(PlatformBase):
 # was used.  Most clients does talk to multiple VBox instance on different
 # platforms at the same time, so this should be sufficent for most uses and
 # be way simpler to use than VirtualBoxManager::oXcptClass.
-CurXctpClass = None
+CurXcptClass = None
 
 
 class VirtualBoxManager(object):

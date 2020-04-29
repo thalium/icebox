@@ -5,7 +5,7 @@
 #
 
 #
-# Copyright (C) 2006-2017 Oracle Corporation
+# Copyright (C) 2006-2019 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -53,6 +53,7 @@ current  := $(shell pwd)
 vboxroot := $(shell while ! test -r configure && ! test "$PWD" = "/"; do cd ..; done; pwd)
 pkgdir   := $(if $(PKGDIR),$(PKGDIR),$(shell cd $(vboxroot)/..; pwd))
 builddir := $(vboxroot)/rpm/builddir
+stagedir := $(vboxroot)/src/VBox/Installer/linux/rpmbuild
 rpmlib   := $(shell if [ `uname -m` = "x86_64" ]; then echo "lib64"; else echo "lib"; fi)
 chrarch  := $(shell if [ `uname -m` = "x86_64" ]; then echo "amd64"; else echo "x86"; fi)
 verfile  := $(builddir)/version-generated.mk
@@ -90,6 +91,10 @@ ifneq ($(MAKECMDGOALS),clean)
  # look for openSUSE
   rpmrel  := $(shell cat /etc/SUSE-brand 2> /dev/null | sed -ne 's/^VERSION *= *\([0-9]*\)\.\([0-9]*\)/openSUSE\1\2/p')
  endif
+ # look for openSUSE Tumbleweed
+ ifeq ($(rpmrel),)
+  rpmrel := $(shell cat /etc/SUSE-brand 2> /dev/null | sed -ne 's/^VERSION *= *tumbleweed/openSUSETW/p')
+ endif
  ifeq ($(rpmrel),)
   $(error failed to detect the release type.  Hack the detection.)
  endif
@@ -102,7 +107,7 @@ ifneq ($(MAKECMDGOALS),clean)
  ifeq ($(filter-out el5 el6 el7 el8 fedora18 fedora19 fedora20 fedora21 fedora22 fedora24 fedora25 fedora26 fedora29,$(rpmrel)),)
   rpmspec := rpm_redhat
  endif
- ifeq ($(filter-out openSUSE110 openSUSE111 openSUSE112 openSUSE113 openSUSE114 openSUSE123 openSUSE131 openSUSE132 openSUSE150,$(rpmrel)),)
+ ifeq ($(filter-out openSUSE110 openSUSE111 openSUSE112 openSUSE113 openSUSE114 openSUSE123 openSUSE131 openSUSE132 openSUSE150 openSUSETW,$(rpmrel)),)
   rpmspec := rpm_suse
  endif
  ifeq ($(rpmspec),)
@@ -196,9 +201,11 @@ rpm/build-stamp: rpm/configure-stamp
 
 clean:
 	rm -rf $(archdir)
-	rm -rf $(builddir) rpm/VirtualBox-*
-	rm -f rpm/VirtualBox.tar
-	rm -f rpm/VirtualBox.tar.bz2
+	rm -rf $(stagedir)
+	rm -rf $(builddir)
+	rm -rf $(vboxroot)/rpm
+	rm -rf rpm/VirtualBox-*	
+	rm -f rpm/VirtualBox.tar rpm/VirtualBox.tar.bz2
 	rm -f rpm/VirtualBox.spec
 	rm -f rpm/build-stamp rpm/configure-stamp rpm/configure.log
 	rm -f rpm/AutoConfig.kmk rpm/env.sh

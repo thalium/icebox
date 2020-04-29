@@ -179,7 +179,7 @@
 
           <para>To support high-end guests which require SAS controllers,
           VirtualBox emulates a LSI Logic SAS controller, which can be enabled
-          much the same way as a SCSI controller. At this time, up to eight
+          much the same way as a SCSI controller. At this time, up to 255
           devices can be connected to the SAS controller.</para>
 
           <warning>
@@ -248,7 +248,7 @@
         </listitem>
 
         <listitem>
-          <para>eight slots attached to the SAS controller, if enabled and
+          <para>up to 255 slots attached to the SAS controller, if enabled and
           supported by the guest operating system.</para>
         </listitem>
 

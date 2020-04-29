@@ -718,6 +718,15 @@ inline bool GuestSession::i_directoryExists(uint32_t uDirID, ComObjPtr<GuestDire
     return false;
 }
 
+/**
+ * Queries information about a directory on the guest.
+ *
+ * @returns VBox status code, or VERR_NOT_A_DIRECTORY if the file system object exists but is not a directory.
+ * @param   strPath             Path to directory to query information for.
+ * @param   fFollowSymlinks     Whether to follow symlinks or not.
+ * @param   objData             Where to store the information returned on success.
+ * @param   pGuestRc            Guest rc, when returning VERR_GSTCTL_GUEST_ERROR.
+ */
 int GuestSession::i_directoryQueryInfoInternal(const Utf8Str &strPath, bool fFollowSymlinks,
                                                GuestFsObjData &objData, int *pGuestRc)
 {
@@ -2697,17 +2706,19 @@ HRESULT GuestSession::directoryCreateTemp(const com::Utf8Str &aTemplateName, ULO
 
 HRESULT GuestSession::directoryExists(const com::Utf8Str &aPath, BOOL aFollowSymlinks, BOOL *aExists)
 {
-    LogFlowThisFuncEnter();
-
     if (RT_UNLIKELY((aPath.c_str()) == NULL || *(aPath.c_str()) == '\0'))
         return setError(E_INVALIDARG, tr("No directory to check existence for specified"));
 
     HRESULT hr = S_OK;
 
-    GuestFsObjData objData; int guestRc;
+    LogFlowThisFuncEnter();
+
+    GuestFsObjData objData;
+    int guestRc = VERR_IPE_UNINITIALIZED_STATUS;
+
     int rc = i_directoryQueryInfoInternal(aPath, aFollowSymlinks != FALSE, objData, &guestRc);
     if (RT_SUCCESS(rc))
-        *aExists = objData.mType == FsObjType_Directory;
+        *aExists = TRUE;
     else
     {
         switch (rc)
@@ -2724,6 +2735,12 @@ HRESULT GuestSession::directoryExists(const com::Utf8Str &aPath, BOOL aFollowSym
                                                             aPath.c_str(), GuestProcess::i_guestErrorToString(guestRc).c_str());
                         break;
                 }
+                break;
+            }
+
+            case VERR_NOT_A_DIRECTORY:
+            {
+                *aExists = FALSE;
                 break;
             }
 
@@ -3604,4 +3621,3 @@ HRESULT GuestSession::waitForArray(const std::vector<GuestSessionWaitForFlag_T> 
 
     return WaitFor(fWaitFor, aTimeoutMS, aReason);
 }
-

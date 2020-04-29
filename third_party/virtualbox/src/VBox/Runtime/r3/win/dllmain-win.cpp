@@ -69,6 +69,7 @@ BOOL __stdcall DllMain(HANDLE hModule, DWORD dwReason, PVOID pvReserved)
             break;
 
         case DLL_THREAD_DETACH:
+            rtThreadWinTlsDestruction();
             rtThreadNativeDetach();
             break;
     }

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2020 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -38,12 +38,23 @@
 
 DECLINLINE(uint64_t) rtTimeGetSystemNanoTS(void)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 16) /* This must match timer-r0drv-linux.c! */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
+    /*
+     * Starting with kernel version 5.6-rc3 only 64-bit time interfaces
+     * are allowed in the kernel.
+     */
+    uint64_t u64;
+    struct timespec64 Ts = { 0, 0 };
+    ktime_get_ts64(&Ts);
+    u64 = Ts.tv_sec * RT_NS_1SEC_64 + Ts.tv_nsec;
+    return u64;
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 16) /* This must match timer-r0drv-linux.c! */
     /*
      * Use ktime_get_ts, this is also what clock_gettime(CLOCK_MONOTONIC,) is using.
      */
     uint64_t u64;
-    struct timespec Ts;
+    struct timespec Ts = { 0, 0 };
     ktime_get_ts(&Ts);
     u64 = Ts.tv_sec * RT_NS_1SEC_64 + Ts.tv_nsec;
     return u64;
@@ -182,9 +193,9 @@ RTDECL(PRTTIMESPEC) RTTimeNow(PRTTIMESPEC pTime)
     IPRT_LINUX_RESTORE_EFL_AC();
 # ifdef _LINUX_TIME64_H
     return RTTimeSpecSetTimespec64(pTime, &Ts);
-#else
+# else
     return RTTimeSpecSetTimespec(pTime, &Ts);
-#endif
+# endif
 #else   /* < 2.6.16 */
     struct timeval Tv;
     do_gettimeofday(&Tv);

@@ -702,6 +702,10 @@ static bool vusbMsgSetup(PVUSBPIPE pPipe, const void *pvBuf, uint32_t cbBuf)
      */
     if (pExtra->cbMax < cbBuf + pSetupIn->wLength + sizeof(VUSBURBVUSBINT))
     {
+#if 1
+        LogRelMax(10, ("VUSB: Control URB too large (wLength=%u)!\n", pSetupIn->wLength));
+        return false;
+#else
         uint32_t cbReq = RT_ALIGN_32(cbBuf + pSetupIn->wLength + sizeof(VUSBURBVUSBINT), 1024);
         PVUSBCTRLEXTRA pNew = (PVUSBCTRLEXTRA)RTMemRealloc(pExtra, RT_UOFFSETOF_DYN(VUSBCTRLEXTRA, Urb.abData[cbReq]));
         if (!pNew)
@@ -716,9 +720,16 @@ static bool vusbMsgSetup(PVUSBPIPE pPipe, const void *pvBuf, uint32_t cbBuf)
             pExtra = pNew;
             pPipe->pCtrl = pExtra;
         }
+
+        PVUSBURBVUSB pOldVUsb = (PVUSBURBVUSB)&pExtra->Urb.abData[pExtra->cbMax - sizeof(VUSBURBVUSBINT)];
         pExtra->Urb.pVUsb = (PVUSBURBVUSB)&pExtra->Urb.abData[cbBuf + pSetupIn->wLength];
+        memmove(pExtra->Urb.pVUsb, pOldVUsb, sizeof(VUSBURBVUSBINT));
+        memset(pOldVUsb, 0, (uint8_t *)pExtra->Urb.pVUsb - (uint8_t *)pOldVUsb);
         pExtra->Urb.pVUsb->pUrb = &pExtra->Urb;
+        pExtra->Urb.pVUsb->pvFreeCtx = &pExtra->Urb;
         pExtra->cbMax = cbReq;
+
+#endif
     }
     Assert(pExtra->Urb.enmState == VUSBURBSTATE_ALLOCATED);
 
@@ -1267,8 +1278,8 @@ void vusbUrbDoReapAsync(PRTLISTANCHOR pUrbLst, RTMSINTERVAL cMillies)
                    && ((pRipe = pDev->pUsbIns->pReg->pfnUrbReap(pDev->pUsbIns, cMillies)) != NULL))
             {
                 vusbUrbAssert(pRipe);
-                if (pRipe == pVUsbUrbNext->pUrb)
-                    pVUsbUrbNext = RTListGetNext(pUrbLst, pVUsbUrb, VUSBURBVUSBINT, NdLst);
+                if (pVUsbUrbNext && pRipe == pVUsbUrbNext->pUrb)
+                    pVUsbUrbNext = RTListGetNext(pUrbLst, pVUsbUrbNext, VUSBURBVUSBINT, NdLst);
                 vusbUrbRipe(pRipe);
             }
         }

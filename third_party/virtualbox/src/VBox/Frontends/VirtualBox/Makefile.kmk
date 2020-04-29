@@ -68,6 +68,7 @@ src/platform/win/VirtualBoxHardened.rc_DEPS  = $(VirtualBox_0_OUTDIR)/VirtualBox
 ifeq ($(KBUILD_TARGET),darwin)
  VirtualBoxVM_EXTENDS = VirtualBoxHardened
  VirtualBoxVM_NAME    = VirtualBoxVM
+ VirtualBoxVM_INST.darwin = $(INST_VIRTUALBOX)Contents/Resources/VirtualBoxVM.app/Contents/MacOS/
  VirtualBoxVM_DEFS    = $(VirtualBoxHardened_DEFS) VIRTUALBOX_VM
 endif
 
@@ -262,6 +263,7 @@ endif
 
 VirtualBox_LDFLAGS.darwin = \
 	-framework AppKit -framework Carbon -framework IOKit \
+	$(if $(VBOX_WITH_HARDENING),,-rpath @executable_path/../MacOS -rpath @executable_path/../Frameworks) \
 	$(if $(VBOX_WITH_HARDENING),-install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VirtualBox.dylib)
 ifdef VBOX_WITH_ICHAT_THEATER
  VirtualBox_LDFLAGS.darwin += -framework InstantMessage -framework QuartzCore
@@ -1146,9 +1148,17 @@ VirtualBox.app_SOURCES = \
  VirtualBoxVM.app_SOURCES = \
  	src/platform/darwin/VM-PkgInfo=>PkgInfo \
  	$(VirtualBoxVM.app_0_OUTDIR)/VM-Info.plist=>Info.plist \
-        $(foreach mysrc,$(VirtualBox.app_SOURCES),$(if-expr $(pos =>Resources/,$(mysrc)) > 0,$(mysrc),))
- VirtualBoxVM.app_SYMLINKS = \
- 	MacOS=>../../../MacOS/
+ 	$(foreach mysrc,$(VirtualBox.app_SOURCES),$(if-expr $(pos =>Resources/,$(mysrc)) > 0,$(mysrc),))
+ ifndef VBOX_WITH_HARDENING
+  VirtualBoxVM.app_EXEC_SOURCES = \
+  	$(VirtualBoxVM.app_0_OUTDIR)/VirtualBoxVM=>MacOS/VirtualBoxVM
+  $$(VirtualBoxVM.app_0_OUTDIR)/VirtualBoxVM: $$(VirtualBox_1_TARGET) | $$(@D)/
+	$(CP) -f -- "$<" "$@"
+	install_name_tool \
+		-rpath "@executable_path/../MacOS"      "@executable_path/../../../../MacOS" \
+		-rpath "@executable_path/../Frameworks" "@executable_path/../../../../Frameworks" \
+		"$@"
+ endif
 
  $$(VirtualBoxVM.app_0_OUTDIR)/VM-Info.plist: $(PATH_SUB_CURRENT)/src/platform/darwin/VM-Info.plist $(VBOX_VERSION_MK) | $$(@D)/
 	$(call MSG_GENERATE,VirtualBoxVM.app,$<,$@)

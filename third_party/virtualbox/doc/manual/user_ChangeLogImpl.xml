@@ -27,6 +27,60 @@ are ordered as follows:
 <chapter> <!-- HACK ALERT! Seems we must have a single top level element for xi:include to work.
                            So, we use chapter and xpointer="xpointer(/chapter/)" with xi:include. -->
 
+
+  <sect1>
+    <title>Version 5.2.40 (2020-04-14)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>VBoxManage: multiple fixes for guestcontrol command</para>
+      </listitem>
+
+      <listitem>
+        <para>USB: Multiple enhancements improving prformance and stability</para>
+      </listitem>
+
+      <listitem>
+        <para>Graphics: Enhancements in 2D and 3D acceleration and rendering</para>
+      </listitem>
+
+      <listitem>
+        <para>API: fix exception handling bug in Python bindings</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux: Support Linux kernel 5.6 (bug #19312)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.38 (2020-02-21)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>USB: Fix isochronous transfers to the VM for xHCI</para>
+      </listitem>
+
+      <listitem>
+        <para>macOS host: Fix a possible crash when accessing VM related
+          memory from the kernel</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux guest: Support Linux 5.5 (bug #19145)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
   <sect1>
 
     <title>Version 5.2.36 (2020-01-14)</title>

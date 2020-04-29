@@ -257,6 +257,9 @@ DECLHIDDEN(int)          rtThreadDoSetProcPriority(RTPROCPRIORITY enmPriority);
 DECLHIDDEN(void)         rtThreadClearTlsEntry(RTTLS iTls);
 DECLHIDDEN(void)         rtThreadTlsDestruction(PRTTHREADINT pThread); /* in tls-generic.cpp */
 #endif
+#ifdef RT_OS_WINDOWS
+DECLHIDDEN(void)         rtThreadWinTlsDestruction(void); /* in tls-win.cpp */
+#endif
 
 #ifdef ___iprt_asm_h
 
