@@ -17,7 +17,7 @@ def write_file(filename, data):
 def load_yaml(input):
     f = read_file(input)
     try:
-        return yaml.load(f)
+        return yaml.load(f, Loader=yaml.FullLoader)
     except yaml.YAMLError:
         return []
 
