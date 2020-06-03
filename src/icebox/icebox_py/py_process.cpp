@@ -60,6 +60,48 @@ PyObject* py::process::pid(core::Core& core, PyObject* args)
     return PyLong_FromUnsignedLongLong(pid);
 }
 
+PyObject* py::process::native(core::Core& /*core*/, PyObject* args)
+{
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    return PyLong_FromUnsignedLongLong(opt_proc->id);
+}
+
+PyObject* py::process::kdtb(core::Core& /*core*/, PyObject* args)
+{
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    return PyLong_FromUnsignedLongLong(opt_proc->kdtb.val);
+}
+
+PyObject* py::process::udtb(core::Core& /*core*/, PyObject* args)
+{
+    auto py_proc = static_cast<PyObject*>(nullptr);
+    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    if(!ok)
+        return nullptr;
+
+    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
+    if(!opt_proc)
+        return nullptr;
+
+    return PyLong_FromUnsignedLongLong(opt_proc->udtb.val);
+}
+
 PyObject* py::flags::from(flags_t flags)
 {
     return Py_BuildValue("{s:O,s:O}",

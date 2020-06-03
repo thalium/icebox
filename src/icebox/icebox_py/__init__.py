@@ -312,6 +312,18 @@ class Process:
     def __repr__(self):
         return "%s pid:%d" % (self.name(), self.pid())
 
+    def native(self):
+        """Return native process handle."""
+        return _icebox.process_native(self.proc)
+
+    def kdtb(self):
+        """Return kernel Directory Table Base."""
+        return _icebox.process_kdtb(self.proc)
+
+    def udtb(self):
+        """Return user Directory Table Base."""
+        return _icebox.process_udtb(self.proc)
+
     def name(self):
         """Return process name."""
         return _icebox.process_name(self.proc)

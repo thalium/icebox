@@ -51,6 +51,9 @@ namespace py
     namespace process
     {
         PyObject*   current         (core::Core& core, PyObject* args);
+        PyObject*   native          (core::Core& core, PyObject* args);
+        PyObject*   kdtb            (core::Core& core, PyObject* args);
+        PyObject*   udtb            (core::Core& core, PyObject* args);
         PyObject*   name            (core::Core& core, PyObject* args);
         PyObject*   is_valid        (core::Core& core, PyObject* args);
         PyObject*   pid             (core::Core& core, PyObject* args);
