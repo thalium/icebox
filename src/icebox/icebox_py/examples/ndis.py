@@ -10,8 +10,8 @@ def on_break():
     p = vm.processes.current()
     p.symbols.load_modules()
     p.symbols.dump_type("ndis!_NET_BUFFER_LIST", vm.registers.rdx)
-    for addr in p.callstacks():
+    for addr in p.callstack():
         print(p.symbols.string(addr))
 
-with vm.break_on_physical("", phy, on_break):
+with vm.break_on_physical(phy, on_break):
     vm.exec()
