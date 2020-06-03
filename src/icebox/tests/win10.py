@@ -181,8 +181,7 @@ class Windows(unittest.TestCase):
         self.assertIn("SizeOfImage", members)
         self.assertIsNotNone(offset)
         self.assertGreater(offset, 0)
-        proc_ptr = struct.unpack_from("<Q", p.proc)[0]
-        print()
+        proc_ptr = p.native()
         p.symbols.dump_type("nt!_EPROCESS", proc_ptr)
 
     def test_modules(self):
