@@ -81,9 +81,18 @@ namespace
         return true;
     }
 
+    constexpr uint8_t inst_retn = 0xc3;
+
     opt<mod_t> wait_for_ntdll(nt::Os& os, core::Core& core)
     {
-        const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? *os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
+        const auto csrss = process::find_name(core, "csrss.exe", flags::x64);
+        if(csrss)
+        {
+            process::join(core, *csrss, mode_e::kernel);
+            return modules::find_name(core, *csrss, "ntdll.dll", flags::x64);
+        }
+
+        const auto sysret_exit = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : registers::read_msr(core, msr_e::lstar);
         auto ntdll             = opt<mod_t>{};
         auto breakpoints       = std::vector<state::Breakpoint>{};
         auto rips              = std::unordered_set<uint64_t>{};
@@ -107,14 +116,40 @@ namespace
                 if(!proc_name)
                     return;
 
-                // for some reason, smss contain ntdll but is not readable
-                if(*proc_name == "smss.exe")
-                    return;
-
-                ntdll = modules::find_name(core, *proc, "ntdll.dll", flags::x64);
+                if(*proc_name == "csrss.exe")
+                {
+                    ntdll = modules::find_name(core, *proc, "ntdll.dll", flags::x64);
+                }
             });
             rips.insert(ret_addr);
             breakpoints.emplace_back(ret_bp);
+        });
+        //disable paging files
+        const auto ntCreatePagingFile    = symbols::address(core, symbols::kernel, "nt", "NtCreatePagingFile");
+        const auto bp_ntCreatePagingFile = state::break_on(core, "NtCreatePagingFile", *ntCreatePagingFile, [&]
+        {
+            auto proc = process::current(core);
+            if(!proc)
+                return;
+            auto name = process::name(core, *proc);
+            if(!name)
+                return;
+            LOG(INFO, "%s NtCreatePagingFile", name->c_str());
+            auto rip                      = registers::read(core, reg_e::rip);
+            auto ntCreatePagingFileBuffer = std::vector<uint8_t>(1024);
+            auto ok                       = os.io_.read_all(&ntCreatePagingFileBuffer[0], *ntCreatePagingFile, ntCreatePagingFileBuffer.size());
+            if(!ok)
+                return;
+            for(auto i = 0; i < ntCreatePagingFileBuffer.size(); i++)
+            {
+                if(ntCreatePagingFileBuffer[i] == inst_retn)
+                {
+                    rip += i;
+                    registers::write(core, reg_e::rip, rip);
+                    registers::write(core, reg_e::rax, 0);  //force STATUS_SUCCESS
+                    break;
+                }
+            }
         });
         while(!ntdll)
             state::exec(core);
