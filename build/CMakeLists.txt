@@ -8,6 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 if(${NO_CLANG_FORMAT})
     message("-- clang-format: disabled")
     set(ENV{DISABLE_CLANG_FORMAT} "true")
+else()
+    message("-- clang-format: enabled")
 endif()
 
 include(common.cmake)
@@ -296,12 +298,16 @@ if(WIN32)
 endif()
 
 # Generate BUILD.gen.md from .gitlab-ci.yml
-add_custom_target(md_doc ALL
+set(output "${root_dir}/doc/BUILD.gen.md")
+add_custom_target(md_doc
+    DEPENDS ${output}
+)
+add_custom_command(OUTPUT ${output}
     COMMAND
         ${PYTHON_EXECUTABLE}
         "${root_dir}/build/yml2md.py"
         -i "${root_dir}/.gitlab-ci.yml"
-        -o "${root_dir}/doc/BUILD.gen.md"
+        -o ${output}
     DEPENDS
         "${root_dir}/.gitlab-ci.yml"
     COMMENT "Generating BUILD.gen.md"

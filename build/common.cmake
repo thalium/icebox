@@ -389,13 +389,19 @@ function(setup_clang_format target)
         get_filename_component(f ${f} ABSOLUTE)
         list(APPEND files ${f})
     endforeach()
+    set(output ${CMAKE_CURRENT_BINARY_DIR}/${target}.fmt)
     add_custom_target(${target}_fmt
+        DEPENDS ${output}
+    )
+    add_custom_command(OUTPUT ${output}
         COMMAND
             ${PYTHON_EXECUTABLE}
             "${root_dir}/build/format.py"
-            ${target}
+            ${output}
             ${CLANG_FORMAT}
             ${files}
+        DEPENDS ${files}
+        COMMENT "clang-format ${target}"
     )
     set_target_properties(${target}_fmt PROPERTIES FOLDER fmt)
     add_dependencies(${target} ${target}_fmt)

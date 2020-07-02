@@ -152,7 +152,6 @@ def main():
         data = read_file(filename)
         targets.append((filename, data))
 
-    target = sys.argv[1]
     clang = os.path.abspath(sys.argv[2])
     for filename, data in targets:
         t = timeit.default_timer()
@@ -164,8 +163,10 @@ def main():
         total += step
         if value != data:
             write_file(filename, value)
-            print("fmt: %s/%s" % (target, os.path.basename(filename)))
+            print("fmt: %s" % os.path.basename(filename))
     # print("fmt: %s %d files %dms" % (target, len(files), round_time(total)))
+    with open(sys.argv[1], "wb") as fh:
+        fh.write(b"")
 
 
 if __name__ == "__main__":
