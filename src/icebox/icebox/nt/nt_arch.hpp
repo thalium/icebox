@@ -161,7 +161,8 @@ namespace nt_namespace
     const auto access_mask_all = nt_types::access_mask_all;
     const auto page_access_all = nt_types::page_access_all;
 
-    union _LARGE_INTEGER {
+    union _LARGE_INTEGER
+    {
         struct
         {
             uint32_t LowPart;
