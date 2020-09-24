@@ -38,6 +38,12 @@ PyObject* py::state::wait(core::Core& core, PyObject* /*args*/)
     return none_or_error(ok);
 }
 
+PyObject* py::state::interrupt(core::Core& core, PyObject* /*args*/)
+{
+    ::state::interrupt(core);
+    Py_RETURN_NONE;
+}
+
 namespace
 {
     PyObject* from_breakpoint(core::Core& core, const state::Breakpoint& bp)

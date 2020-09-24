@@ -18,6 +18,7 @@ namespace py
         PyObject*   resume                      (core::Core& core, PyObject* args);
         PyObject*   single_step                 (core::Core& core, PyObject* args);
         PyObject*   wait                        (core::Core& core, PyObject* args);
+        PyObject*   interrupt                   (core::Core& core, PyObject* args);
         PyObject*   break_on                    (core::Core& core, PyObject* args);
         PyObject*   break_on_process            (core::Core& core, PyObject* args);
         PyObject*   break_on_thread             (core::Core& core, PyObject* args);

@@ -10,6 +10,7 @@
 
 #include <libco.h>
 
+#include <atomic>
 #include <cstring>
 #include <deque>
 #include <map>
@@ -126,15 +127,16 @@ struct state::State
     {
     }
 
-    core::Core& core;
-    Breakers    targets;
-    Observers   observers;
-    Breakpoints breakpoints;
-    bpid_t      last_bpid;
-    phy_t       breakphy;
-    cothread_t  co_main;
-    WorkerPool  pool;
-    Workers     workers;
+    core::Core&       core;
+    Breakers          targets;
+    Observers         observers;
+    Breakpoints       breakpoints;
+    bpid_t            last_bpid;
+    phy_t             breakphy;
+    cothread_t        co_main;
+    WorkerPool        pool;
+    Workers           workers;
+    std::atomic<bool> interrupted;
 };
 
 std::shared_ptr<state::State> state::setup(core::Core& core)
@@ -429,7 +431,8 @@ namespace
 
     bool try_wait(Data& d, state_e state, breakpoints_e check)
     {
-        while(true)
+        d.interrupted = false;
+        while(!d.interrupted)
         {
             std::this_thread::yield();
             const auto ok = fdp::state_changed(d.core);
@@ -442,6 +445,7 @@ namespace
                 check_breakpoints(d);
             return true;
         }
+        return false;
     }
 }
 
@@ -449,6 +453,12 @@ bool state::wait(core::Core& core)
 {
     auto& d = *core.state_;
     return try_wait(d, state_e::update, breakpoints_e::update);
+}
+
+void state::interrupt(core::Core& core)
+{
+    auto& d       = *core.state_;
+    d.interrupted = true;
 }
 
 void state::exec(core::Core& core)

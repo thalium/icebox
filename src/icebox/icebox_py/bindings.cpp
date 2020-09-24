@@ -169,6 +169,7 @@ namespace
         {"resume", &core_exec<&py::state::resume>, METH_NOARGS, "resume vm"},
         {"single_step", &core_exec<&py::state::single_step>, METH_NOARGS, "execute a single instruction"},
         {"wait", &core_exec<&py::state::wait>, METH_NOARGS, "wait vm"},
+        {"interrupt", &core_exec<&py::state::interrupt>, METH_NOARGS, "interrupt vm"},
         {"break_on", &core_exec<&py::state::break_on>, METH_VARARGS, "break on virtual address"},
         {"break_on_process", &core_exec<&py::state::break_on_process>, METH_VARARGS, "break process on address"},
         {"break_on_thread", &core_exec<&py::state::break_on_thread>, METH_VARARGS, "break thread on address"},
