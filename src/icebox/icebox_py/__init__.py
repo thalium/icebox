@@ -649,6 +649,10 @@ class Vm:
         self.resume()
         self.wait()
 
+    def interrupt(self):
+        """Interrupt vm execution."""
+        _icebox.interrupt()
+
     def _to_virtual(self, where, get_proc):
         if not isinstance(where, str):
             return where
