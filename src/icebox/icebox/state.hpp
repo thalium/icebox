@@ -20,8 +20,15 @@ namespace state
         BP_CR3_NONE,
     };
 
+    enum class blocking_e
+    {
+        begin,
+        end,
+    };
+
     // generic functor object
-    using Task = std::function<void(void)>;
+    using Task     = std::function<void(void)>;
+    using Blocking = std::function<void(blocking_e)>;
 
     bool        pause                       (core::Core& core);
     bool        resume                      (core::Core& core);
@@ -32,6 +39,7 @@ namespace state
     void        wait_for                    (core::Core& core, int timeout_ms);
     void        exec                        (core::Core& core);
     void        interrupt                   (core::Core& core);
+    void        on_blocking_call            (core::Core& core, const Blocking& on_blocking);
     Breakpoint  break_on                    (core::Core& core, std::string_view name, uint64_t ptr, const Task& task);
     Breakpoint  break_on_process            (core::Core& core, std::string_view name, proc_t proc, uint64_t ptr, const Task& task);
     Breakpoint  break_on_thread             (core::Core& core, std::string_view name, thread_t thread, uint64_t ptr, const Task& task);

@@ -124,6 +124,7 @@ struct state::State
         , breakphy{}
         , co_main(co_active())
         , pool(16)
+        , on_blocking([](auto) {})
     {
     }
 
@@ -136,6 +137,7 @@ struct state::State
     cothread_t        co_main;
     WorkerPool        pool;
     Workers           workers;
+    Blocking          on_blocking;
     std::atomic<bool> interrupted;
 };
 
@@ -431,21 +433,26 @@ namespace
 
     bool try_wait(Data& d, state_e state, breakpoints_e check)
     {
+        // notify caller we are blocking execution here
+        // so we can, for example, release locked python interpreter
         d.interrupted = false;
+        d.on_blocking(state::blocking_e::begin);
         while(!d.interrupted)
-        {
-            std::this_thread::yield();
-            const auto ok = fdp::state_changed(d.core);
-            if(!ok)
-                continue;
+            if(fdp::state_changed(d.core))
+                break;
+            else
+                std::this_thread::yield();
+        d.on_blocking(state::blocking_e::end);
 
-            if(state == state_e::update)
-                update_break_state(d);
-            if(check == breakpoints_e::update)
-                check_breakpoints(d);
-            return true;
-        }
-        return false;
+        // do not update state or call callbacks if we are interrupted
+        if(d.interrupted)
+            return false;
+
+        if(state == state_e::update)
+            update_break_state(d);
+        if(check == breakpoints_e::update)
+            check_breakpoints(d);
+        return true;
     }
 }
 
@@ -459,6 +466,12 @@ void state::interrupt(core::Core& core)
 {
     auto& d       = *core.state_;
     d.interrupted = true;
+}
+
+void state::on_blocking_call(core::Core& core, const Blocking& on_blocking)
+{
+    auto& d       = *core.state_;
+    d.on_blocking = on_blocking;
 }
 
 void state::exec(core::Core& core)
