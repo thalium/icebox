@@ -6,7 +6,19 @@ namespace
 {
     struct Handle
     {
+        Handle(const std::shared_ptr<core::Core>& core)
+        {
+            state::on_blocking_call(*core, [=](state::blocking_e blocking)
+            {
+                if(blocking == state::blocking_e::begin)
+                    thread_state = PyEval_SaveThread();
+                else
+                    PyEval_RestoreThread(thread_state);
+            });
+        }
+
         std::shared_ptr<core::Core> core;
+        PyThreadState* thread_state = nullptr;
     };
 
     Handle* handle_from_self(PyObject* self)
