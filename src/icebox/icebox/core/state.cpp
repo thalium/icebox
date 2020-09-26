@@ -124,7 +124,7 @@ struct state::State
         , breakphy{}
         , co_main(co_active())
         , pool(16)
-        , on_blocking([](auto) {})
+        , on_blocking([](auto /*unused*/) {})
     {
     }
 
