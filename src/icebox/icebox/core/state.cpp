@@ -446,7 +446,7 @@ namespace
 
         // do not update state or call callbacks if we are interrupted
         if(d.interrupted)
-            return false;
+            return try_pause(d);
 
         if(state == state_e::update)
             update_break_state(d);
