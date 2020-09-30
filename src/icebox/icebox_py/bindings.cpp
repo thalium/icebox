@@ -6,7 +6,10 @@ namespace
 {
     struct Handle
     {
+        Handle() = default;
+
         Handle(const std::shared_ptr<core::Core>& core)
+            : core(core)
         {
             state::on_blocking_call(*core, [=](state::blocking_e blocking)
             {
@@ -58,7 +61,7 @@ namespace
         if(!core)
             return py::fail_with(nullptr, PyExc_RuntimeError, "unable to attach");
 
-        new(handle) Handle{core};
+        new(handle) Handle(core);
         Py_RETURN_NONE;
     }
 
@@ -80,7 +83,7 @@ namespace
         if(!core)
             return py::fail_with(nullptr, PyExc_RuntimeError, "unable to attach");
 
-        new(handle) Handle{core};
+        new(handle) Handle(core);
         Py_RETURN_NONE;
     }
 
@@ -297,6 +300,6 @@ PyMODINIT_FUNC PyInit__icebox()
     if(!handle)
         return nullptr;
 
-    new(handle) Handle{{}};
+    new(handle) Handle();
     return ptr;
 }
