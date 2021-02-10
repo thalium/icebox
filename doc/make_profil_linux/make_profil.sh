@@ -16,7 +16,7 @@
 tmp=$(mktemp -dt)
 trap "rm -rf $tmp ; cd $PWD" 0
 
-version=`dmesg -t | grep "Linux version" | tr -d '\n'`
+version=`sudo dmesg -t | grep "Linux version" | tr -d '\n'`
 echo "Version of linux found : '$version'"
 
 hash=`printf '%s' "$version" | sha1sum | cut -c1-40`
@@ -28,7 +28,7 @@ make
 mv elf $wdir
 
 user_script=$USER
-sudo cp /boot/System.map-$(uname -r) $wdir/System.map
+sudo cp /boot/System.map-$(uname -r) $wdir/System.map || sudo cp /proc/kallsyms $wdir/System.map
 sudo chown $user_script:$user_script $wdir/System.map
 chmod 664 $wdir/System.map
 
