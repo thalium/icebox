@@ -7633,7 +7633,7 @@ opt<bpid_t> wow64::syscalls32::register_all(proc_t proc, const wow64::syscalls32
 {
     auto& d         = *d_;
     const auto bpid = state::acquire_breakpoint_id(d.core);
-    for(const auto cfg : g_callcfgs)
+    for(const auto& cfg : g_callcfgs)
         register_callback_with(d, bpid, proc, cfg.name, [=]{ on_call(cfg); });
     return bpid;
 }

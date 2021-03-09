@@ -81,7 +81,7 @@ uint32_t WDBG_GetBreakInCpu(WINBAGILITY_CONTEXT_T *pWinbagilityCtx)
     if (pWinbagilityCtx->CurrentMode == StubTypeFdp){
         FDP_State state;
         FDP_GetState((FDP_SHM*)pWinbagilityCtx->pUserHandle, &state);
-        if (state | FDP_STATE_BREAKPOINT_HIT){
+        if (state & FDP_STATE_BREAKPOINT_HIT){
             for (uint32_t c = 0; c < pWinbagilityCtx->CpuCount; c++){
                 FDP_State CpuState;
                 FDP_GetCpuState((FDP_SHM*)pWinbagilityCtx->pUserHandle, c, &CpuState);
