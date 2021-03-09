@@ -76,7 +76,7 @@ PyObject* py::state::break_on(core::Core& core, PyObject* args)
             return;
 
         PY_DEFER_DECREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
+        const auto ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });
@@ -108,7 +108,7 @@ PyObject* py::state::break_on_process(core::Core& core, PyObject* args)
             return;
 
         PY_DEFER_DECREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
+        const auto ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });
@@ -140,7 +140,7 @@ PyObject* py::state::break_on_thread(core::Core& core, PyObject* args)
             return;
 
         PY_DEFER_DECREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
+        const auto ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });
@@ -167,7 +167,7 @@ PyObject* py::state::break_on_physical(core::Core& core, PyObject* args)
             return;
 
         PY_DEFER_DECREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
+        const auto ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });
@@ -195,7 +195,7 @@ PyObject* py::state::break_on_physical_process(core::Core& core, PyObject* args)
             return;
 
         PY_DEFER_DECREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
+        const auto ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });

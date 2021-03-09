@@ -164,7 +164,7 @@ PyObject* py::modules::listen_create(core::Core& core, PyObject* args)
             return;
 
         PY_DEFER_DECREF(args);
-        const auto ret = PyEval_CallObject(py_func, args);
+        const auto ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });
