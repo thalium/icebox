@@ -67,7 +67,7 @@ opt<bpid_t> callstacks::autoload_modules(core::Core& core, proc_t proc)
         load_module(core, proc, mod);
         return walk_e::next;
     });
-    const auto ptr   = &core;
+    auto *const ptr  = &core;
     const auto flags = process::flags(core, proc);
     const auto bpid  = modules::listen_create(core, proc, flags, [=](mod_t mod)
     {
