@@ -9,12 +9,12 @@ import tqdm
 import concurrent.futures as fut
 
 
-def sizeof_fmt(num, suffix='B'):
-    for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
         if abs(num) < 1024.0:
             return "%3.1f%s%s" % (num, unit, suffix)
         num /= 1024.0
-    return "%.1f%s%s" % (num, 'Yi', suffix)
+    return "%.1f%s%s" % (num, "Yi", suffix)
 
 
 def download_file(url, guid, name, headers, dst, args):
@@ -22,10 +22,9 @@ def download_file(url, guid, name, headers, dst, args):
     if r.status_code != 200:
         return r.status_code
 
-    total_size = int(r.headers.get('content-length', 0))
+    total_size = int(r.headers.get("content-length", 0))
     if total_size > args.max_size:
-        raise BaseException("skip:  %s %s: %s" %
-                            (guid, name, sizeof_fmt(total_size)))
+        raise BaseException("skip:  %s %s: %s" % (guid, name, sizeof_fmt(total_size)))
 
     if not os.path.exists(os.path.dirname(dst)):
         try:
@@ -35,9 +34,14 @@ def download_file(url, guid, name, headers, dst, args):
                 raise
 
     data = b""
-    with tqdm.tqdm(desc="%s %s" % (guid, name), total=total_size,
-                   ascii=True, unit='B', unit_scale=True) as pbar:
-        for chunk in r.iter_content(chunk_size=4*1024):
+    with tqdm.tqdm(
+        desc="%s %s" % (guid, name),
+        total=total_size,
+        ascii=True,
+        unit="B",
+        unit_scale=True,
+    ) as pbar:
+        for chunk in r.iter_content(chunk_size=4 * 1024):
             if chunk:
                 data += chunk
                 pbar.update(len(chunk))
@@ -53,10 +57,10 @@ def download_pdb(dst, name, guid, args):
     if os.path.isfile(filename):
         return
 
-    path = 'symbols/{name}/{guid}/{name}'.format(name=name, guid=guid)
-    url = 'http://msdl.microsoft.com/download/' + path
-    user_agent = 'Microsoft-Symbol-Server/6.11.0001.404'
-    headers = ({'User-Agent': user_agent})
+    path = "symbols/{name}/{guid}/{name}".format(name=name, guid=guid)
+    url = "http://msdl.microsoft.com/download/" + path
+    user_agent = "Microsoft-Symbol-Server/6.11.0001.404"
+    headers = {"User-Agent": user_agent}
     err = download_file(url, guid, name, headers, filename, args)
     if err:
         raise BaseException("error: %s %s err:%d" % (guid, name, err))
@@ -224,37 +228,33 @@ def download_pdbs_from_vm(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(help='sub-commands')
-    max_size = 30*1024*1024
+    subparsers = parser.add_subparsers(help="sub-commands")
+    max_size = 30 * 1024 * 1024
     max_size_help = "max pdb size to download in bytes"
 
     # pdb
     pdb_cmd = subparsers.add_parser("pdb", help="download pdb from guid")
-    pdb_cmd.add_argument("guid", type=str, help='guid name')
-    pdb_cmd.add_argument("name", type=str, help='module name')
-    pdb_cmd.add_argument("--max-size", type=int,
-                         default=max_size, help=max_size_help)
+    pdb_cmd.add_argument("guid", type=str, help="guid name")
+    pdb_cmd.add_argument("name", type=str, help="module name")
+    pdb_cmd.add_argument("--max-size", type=int, default=max_size, help=max_size_help)
     pdb_cmd.set_defaults(func=download_pdb_from_guid)
 
     # pdbs
     from_pdbs = subparsers.add_parser("pdbs", help="download pdbs from log")
     from_pdbs.add_argument("file", type=str, help="filename or - for stdin")
-    from_pdbs.add_argument("--max-size", type=int,
-                           default=max_size, help=max_size_help)
+    from_pdbs.add_argument("--max-size", type=int, default=max_size, help=max_size_help)
     from_pdbs.set_defaults(func=download_pdbs_from_log)
 
     # download
     download = subparsers.add_parser("download", help="download pdbs from vm")
     download.add_argument("vm_name", type=str, help="vm name")
-    download.add_argument("--max-size", type=int, default=max_size,
-                          help=max_size_help)
+    download.add_argument("--max-size", type=int, default=max_size, help=max_size_help)
     download.set_defaults(func=download_pdbs_from_vm)
 
     # manifest
     manifest = subparsers.add_parser("manifest", help="download pdbs from manifest")
     manifest.add_argument("file", type=str, help="filename or - for stdin")
-    manifest.add_argument("--max-size", type=int,
-                           default=max_size, help=max_size_help)
+    manifest.add_argument("--max-size", type=int, default=max_size, help=max_size_help)
     manifest.set_defaults(func=download_pdbs_from_manifest)
 
     # check

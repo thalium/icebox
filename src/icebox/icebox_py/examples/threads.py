@@ -9,7 +9,7 @@ for thread in proc.threads():
 
 thread = vm.threads.current()  # get current thread
 proc_bis = thread.process()
-assert(proc == proc_bis)
+assert proc == proc_bis
 
 counter = icebox.counter()
 

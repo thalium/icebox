@@ -12,11 +12,11 @@ proc = vm.processes.find_name("Taskmgr.exe", icebox.flags_x86)
 proc = vm.processes.find_pid(4)  # get process by pid
 proc = vm.processes.wait("Taskmgr.exe")  # get or wait for process to begin
 
-assert(proc.is_valid())
-assert(proc.name() == "Taskmgr.exe")
-assert(proc.pid() > 0)
-assert(proc.flags() == icebox.flags_x86)
-assert(proc.parent())
+assert proc.is_valid()
+assert proc.name() == "Taskmgr.exe"
+assert proc.pid() > 0
+assert proc.flags() == icebox.flags_x86
+assert proc.parent()
 
 proc.join_kernel()
 print(hex(vm.registers.rip))

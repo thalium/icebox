@@ -8,7 +8,7 @@ from . import _icebox
 
 # magic to attach dynamic properties to a single class instance
 def _attach_dynamic_properties(instance, properties):
-    class_name = instance.__class__.__name__ + '_'
+    class_name = instance.__class__.__name__ + "_"
     child_class = type(class_name, (instance.__class__,), properties)
     instance.__class__ = child_class
 
@@ -24,10 +24,16 @@ class Registers:
         self.regs = []
         self.read = read
         for name, idx in regs():
+
             def get_property(idx):
-                def fget(_): return Number(read(idx))
-                def fset(_, arg): return write(idx, arg)
+                def fget(_):
+                    return Number(read(idx))
+
+                def fset(_, arg):
+                    return write(idx, arg)
+
                 return property(fget, fset)
+
             props[name] = get_property(idx)
             self.regs.append((name, idx))
         _attach_dynamic_properties(self, props)
@@ -53,9 +59,9 @@ class Flags:
         return vars(self) == vars(other)
 
 
-flags_any = Flags({"is_x86": False,  "is_x64": False})
-flags_x86 = Flags({"is_x86": True,   "is_x64": False})
-flags_x64 = Flags({"is_x86": False,  "is_x64": True})
+flags_any = Flags({"is_x86": False, "is_x64": False})
+flags_x86 = Flags({"is_x86": True, "is_x64": False})
+flags_x64 = Flags({"is_x86": False, "is_x64": True})
 
 
 def dump_bytes(buf):
@@ -164,9 +170,8 @@ class Symbols:
             if not size:
                 continue
 
-            buf = self.py_proc.memory[ptr + m.offset: ptr + m.offset + size]
-            print("  %3x %s %s" %
-                  (m.offset, m.name.ljust(max_name), dump_bytes(buf)))
+            buf = self.py_proc.memory[ptr + m.offset : ptr + m.offset + size]
+            print("  %3x %s %s" % (m.offset, m.name.ljust(max_name), dump_bytes(buf)))
 
 
 class Virtual:
@@ -249,7 +254,9 @@ class Modules:
     def break_on_create(self, callback, flags=flags_any):
         """Return breakpoint on modules creation."""
 
-        def fmod(mod): return callback(Module(self.proc, mod))
+        def fmod(mod):
+            return callback(Module(self.proc, mod))
+
         bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
         return BreakpointId(bpid, fmod)
 
@@ -402,13 +409,19 @@ class Processes:
 
     def break_on_create(self, callback):
         """Return breakpoint on process creation."""
-        def fproc(proc): return callback(Process(proc))
+
+        def fproc(proc):
+            return callback(Process(proc))
+
         bpid = _icebox.process_listen_create(fproc)
         return BreakpointId(bpid, fproc)
 
     def break_on_delete(self, callback):
         """Return breakpoint on process deletion."""
-        def fproc(proc): return callback(Process(proc))
+
+        def fproc(proc):
+            return callback(Process(proc))
+
         bpid = _icebox.process_listen_delete(fproc)
         return BreakpointId(bpid, fproc)
 
@@ -446,13 +459,19 @@ class Threads:
 
     def break_on_create(self, callback):
         """Return breakpoint on thread creation."""
-        def fthread(thread): return callback(Thread(thread))
+
+        def fthread(thread):
+            return callback(Thread(thread))
+
         bpid = _icebox.thread_listen_create(fthread)
         return BreakpointId(bpid, fthread)
 
     def break_on_delete(self, callback):
         """Return breakpoint on thread deletion."""
-        def fthread(thread): return callback(Thread(thread))
+
+        def fthread(thread):
+            return callback(Thread(thread))
+
         bpid = _icebox.thread_listen_delete(fthread)
         return BreakpointId(bpid, fthread)
 
@@ -500,8 +519,8 @@ class Args:
     def __setitem__(self, key, item):
         if isinstance(key, slice):
             start = key.start if key.start else 0
-            for i in range(start, start+len(item)):
-                _icebox.functions_write_arg(i, item[i-start])
+            for i in range(start, start + len(item)):
+                _icebox.functions_write_arg(i, item[i - start])
             return
         return _icebox.functions_write_arg(key, item)
 
@@ -573,7 +592,10 @@ class Drivers:
 
     def break_on(self, callback):
         """Return breakpoint on driver load and unload."""
-        def fdrv(drv, load): return callback(Driver(drv), load)
+
+        def fdrv(drv, load):
+            return callback(Driver(drv), load)
+
         bpid = _icebox.drivers_listen(fdrv)
         return BreakpointId(bpid, fdrv)
 
@@ -593,12 +615,17 @@ class KernelSymbols:
 
 def _get_default_logger():
     import logging
-    logging.basicConfig(format='%(asctime)s:%(levelname)s %(message)s', level=logging.INFO)
+
+    logging.basicConfig(
+        format="%(asctime)s:%(levelname)s %(message)s", level=logging.INFO
+    )
+
     def log_it(level, msg):
         if level == 0:
             logging.info(msg)
         elif level == 1:
             logging.error(msg)
+
     return log_it
 
 
@@ -708,7 +735,7 @@ def attach_only(name):
     return Vm(name, attach_only=True)
 
 
-class Counter():
+class Counter:
     def __init__(self):
         """Initialize a new counter."""
         self.count = 0

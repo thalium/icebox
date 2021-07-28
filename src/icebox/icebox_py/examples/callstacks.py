@@ -38,4 +38,4 @@ vm.exec()
 
 # check callstack
 addrs_return = [x for x in vm.processes.current().callstack()]
-assert(addrs[1:] == addrs_return)
+assert addrs[1:] == addrs_return

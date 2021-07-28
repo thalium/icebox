@@ -5,7 +5,6 @@ import unittest
 
 
 class Windows(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.vm = icebox.attach("win10")
@@ -110,7 +109,7 @@ class Windows(unittest.TestCase):
         bufa = bytearray(16)
         p.memory.read(bufa, rip)
 
-        bufb = p.memory[rip: rip + len(bufa)]
+        bufb = p.memory[rip : rip + len(bufa)]
         self.assertEqual(bufa, bufb)
 
         idx = len(bufa) >> 1
@@ -124,7 +123,7 @@ class Windows(unittest.TestCase):
         self.vm.physical.read(bufc, phy)
         self.assertEqual(bufa, bufc)
 
-        bufd = self.vm.physical[phy: phy + len(bufc)]
+        bufd = self.vm.physical[phy : phy + len(bufc)]
         self.assertEqual(bufc, bufd)
 
         val = self.vm.physical[phy + idx]
@@ -134,31 +133,31 @@ class Windows(unittest.TestCase):
         rip = self.vm.registers.rip
         p = self.vm.processes.current()
         backup = p.memory[rip]
-        p.memory[rip] = 0xcc
+        p.memory[rip] = 0xCC
         val = p.memory[rip]
-        self.assertEqual(val, 0xcc)
+        self.assertEqual(val, 0xCC)
         p.memory[rip] = backup
 
-        backup = p.memory[rip: rip + 16]
-        zero = b'\x00' * len(backup)
-        p.memory[rip: rip + len(backup)] = zero
-        val = p.memory[rip: rip + len(backup)]
+        backup = p.memory[rip : rip + 16]
+        zero = b"\x00" * len(backup)
+        p.memory[rip : rip + len(backup)] = zero
+        val = p.memory[rip : rip + len(backup)]
         self.assertEqual(zero, val)
         p.memory.write(rip, backup)
-        val = p.memory[rip: rip + len(backup)]
+        val = p.memory[rip : rip + len(backup)]
         self.assertEqual(val, backup)
 
         phy = p.memory.physical_address(rip)
         self.assertIsNotNone(phy)
 
-        phy_backup = self.vm.physical[phy: phy + 16]
+        phy_backup = self.vm.physical[phy : phy + 16]
         self.assertEqual(backup, phy_backup)
-        zero = b'\x00' * len(backup)
-        self.vm.physical[phy: phy + len(backup)] = zero
-        val = self.vm.physical[phy: phy + len(backup)]
+        zero = b"\x00" * len(backup)
+        self.vm.physical[phy : phy + len(backup)] = zero
+        val = self.vm.physical[phy : phy + len(backup)]
         self.assertEqual(zero, val)
         self.vm.physical.write(phy, backup)
-        val = self.vm.physical[phy: phy + len(backup)]
+        val = self.vm.physical[phy : phy + len(backup)]
         self.assertEqual(val, backup)
 
     def test_symbols(self):
@@ -191,8 +190,8 @@ class Windows(unittest.TestCase):
         for mod in p.modules():
             modules.append(mod)
             addr, size = mod.span()
-            header = p.memory[addr: addr + 2]
-            self.assertEqual(header, b'MZ')
+            header = p.memory[addr : addr + 2]
+            self.assertEqual(header, b"MZ")
             other = p.modules.find(addr)
             self.assertEqual(mod, other)
             other = p.modules.find(addr + size - 1)
@@ -285,7 +284,7 @@ class Windows(unittest.TestCase):
         arg_0 = self.vm.functions.args[0]
         self.assertIsNotNone(arg_0)
         self.vm.functions.args[0] = arg_0
-        args = self.vm.functions.args[1: 3]
+        args = self.vm.functions.args[1:3]
         self.vm.functions.args[1:] = args
         self.vm.functions.break_on_return(lambda: None)
         self.vm.exec()
@@ -316,10 +315,11 @@ class Windows(unittest.TestCase):
             _, _ = vma.span()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     path = os.path.abspath(sys.argv[1])
     sys.path.append(path)
     del sys.argv[1]
     global icebox
     import icebox
+
     unittest.main()
