@@ -549,8 +549,7 @@ namespace
 
     state::Breakpoint set_virtual_breakpoint(core::Core& core, std::string_view name, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const state::Task& task)
     {
-        const auto opt_proc = proc ? proc : thread ? threads::process(core, *thread)
-                                                   : process::current(core);
+        const auto opt_proc = proc ? proc : thread ? threads::process(core, *thread) : process::current(core);
         if(!opt_proc)
             return {};
 
