@@ -43,7 +43,7 @@ namespace
         {ETHREAD_Cid,                                  cat_e::REQUIRED, "nt", "_ETHREAD",                         "Cid"},
         {ETHREAD_Tcb,                                  cat_e::REQUIRED, "nt", "_ETHREAD",                         "Tcb"},
         {ETHREAD_ThreadListEntry,                      cat_e::REQUIRED, "nt", "_ETHREAD",                         "ThreadListEntry"},
-        {EWOW64PROCESS_NtdllType,                      cat_e::OPTIONAL, "nt", "_EWOW64PROCESS",                   "NtdllType"},
+        {EWOW64PROCESS_Machine,                        cat_e::OPTIONAL, "nt", "_EWOW64PROCESS",                   "Machine"},
         {EWOW64PROCESS_Peb,                            cat_e::OPTIONAL, "nt", "_EWOW64PROCESS",                   "Peb"},
         {FILE_OBJECT_DeviceObject,                     cat_e::REQUIRED, "nt", "_FILE_OBJECT",                     "DeviceObject"},
         {FILE_OBJECT_FileName,                         cat_e::REQUIRED, "nt", "_FILE_OBJECT",                     "FileName"},

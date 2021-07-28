@@ -23,7 +23,7 @@ enum offset_e
     ETHREAD_Cid,
     ETHREAD_Tcb,
     ETHREAD_ThreadListEntry,
-    EWOW64PROCESS_NtdllType,
+    EWOW64PROCESS_Machine,
     EWOW64PROCESS_Peb,
     FILE_OBJECT_DeviceObject,
     FILE_OBJECT_FileName,

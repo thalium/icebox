@@ -156,7 +156,10 @@ namespace
         if(!*wowp)
             return {};
 
-        if(!os.offsets_[EWOW64PROCESS_NtdllType])
+        // if we don't find Machine offset, it means we are under win10
+        // and that EWOW64PROCESS is directly a PEB32
+        // if not: load the corresponding Peb member
+        if(!os.offsets_[EWOW64PROCESS_Machine])
             return wowp;
 
         const auto peb32 = io.read(*wowp + os.offsets_[EWOW64PROCESS_Peb]);
