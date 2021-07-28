@@ -12,6 +12,10 @@ else()
     message("-- clang-format: enabled")
 endif()
 
+if(MSVC)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 include(common.cmake)
 get_filename_component(root_dir     ${CMAKE_CURRENT_SOURCE_DIR}/.. ABSOLUTE)
 get_filename_component(bin_d_dir    ${root_dir}/bin/d_${ARCH}  ABSOLUTE)

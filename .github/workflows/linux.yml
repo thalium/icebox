@@ -1,0 +1,24 @@
+name: linux
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Build Environment
+      run: cmake -E make_directory out
+
+    - name: configure
+      working-directory: out
+      run: |
+        cmake -DNO_CLANG_FORMAT=1 -DCMAKE_BUILD_TYPE=Release ../build
+
+    - name: build
+      working-directory: out
+      run: |
+        threads=`nproc`
+        cmake --build . --config Release --parallel $threads
