@@ -12,12 +12,12 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory out
 
-    - name: configure
+    - name: Configure
       working-directory: out
       run: |
         cmake -DNO_CLANG_FORMAT=1 -DCMAKE_BUILD_TYPE=Release -A x64 ../build
 
-    - name: build
+    - name: Build
       working-directory: out
       run: |
         $threads = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors

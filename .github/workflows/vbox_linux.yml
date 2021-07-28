@@ -1,0 +1,60 @@
+name: virtualbox:linux
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install package dependencies
+      run: |
+        sudo apt-get -qq -y update
+        sudo apt-get -qq -y install \
+          acpica-tools \
+          build-essential \
+          g++-multilib \
+          gcc-multilib \
+          libcap-dev \
+          libcurl4-openssl-dev \
+          libdevmapper-dev \
+          libidl-dev \
+          libelf-dev \
+          libopus-dev \
+          libpam0g-dev \
+          libqt5x11extras5-dev \
+          libsdl1.2-dev \
+          libsdl2-dev \
+          libssl-dev \
+          libvpx-dev \
+          libxml2-dev \
+          libxmu-dev \
+          linux-headers-$(uname -r) \
+          linux-libc-dev \
+          makeself \
+          nasm \
+          p7zip-full \
+          python-dev \
+          qt5-default \
+          qttools5-dev-tools \
+          xsltproc
+
+    - name: Include FDP into virtualbox
+      working-directory: third_party/virtualbox/include
+      run: ln -s ../../../src/FDP
+
+    - name: Build Virtualbox driver
+      working-directory: third_party/virtualbox
+      run: |
+        ./configure \
+          --disable-hardening \
+          --disable-docs \
+          --disable-java
+        . env.sh
+        kmk VBoxVMM \
+          VBOX_WITH_ADDITIONS= \
+          VBOX_WITH_TESTCASES= \
+          VBOX_WITH_TESTSUITE= \
+          VBOX_DO_STRIP=1

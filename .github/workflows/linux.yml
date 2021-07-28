@@ -12,12 +12,43 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory out
 
-    - name: configure
+    - name: Configure
       working-directory: out
       run: |
         cmake -DNO_CLANG_FORMAT=1 -DCMAKE_BUILD_TYPE=Release ../build
 
-    - name: build
+    - name: Build
+      working-directory: out
+      run: |
+        threads=`nproc`
+        cmake --build . --config Release --parallel $threads
+
+  clang-tidy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Build Environment
+      run: cmake -E make_directory out
+
+    - name: Install package dependencies
+      run: |
+        sudo apt-get -qq -y update
+        sudo apt-get -qq -y install \
+          clang \
+          clang-tidy \
+          clang-tools
+
+    - name: Configure
+      working-directory: out
+      env:
+        CC: clang
+        CXX: clang++
+      run: |
+        cmake -DNO_CLANG_FORMAT=1 -DUSE_STATIC_ANALYZER=1 -DCMAKE_BUILD_TYPE=Release ../build
+
+    - name: Build
       working-directory: out
       run: |
         threads=`nproc`
