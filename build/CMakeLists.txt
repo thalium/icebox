@@ -269,6 +269,7 @@ foreach(sample IN ITEMS
     nt_writefile
     vm_resume
     wireshark
+    winpe_boot
 )
     add_target(${sample} samples "${root_dir}/src/icebox/samples/${sample}" OPTIONS executable fmt tidy)
     set_target_output_directory(${sample} "")
