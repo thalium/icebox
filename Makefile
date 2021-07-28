@@ -52,6 +52,7 @@ vm_resume:
 	$(root_dir)/bin/x64/vm_resume $(vm_name)
 
 test.win10:
+	$(root_dir)/out/x64/icebox_tests --gtest_filter=win10*
 	python3 $(root_dir)/src/icebox/tests/win10.py $(root_dir)/bin/x64 -v
 
 download.win10:
