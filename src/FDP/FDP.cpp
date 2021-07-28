@@ -211,17 +211,17 @@ FDP_SHM* FDP_CreateSHM(const char* shmName)
         return NULL;
     }
 #else
-    uint32_t fdSHM;
 
     /* create the shared memory segment */
-    fdSHM = shm_open(shmName, O_CREAT | O_RDWR, 0666);
-    if(!fdSHM)
+    auto fdSHM = shm_open(shmName, O_CREAT | O_RDWR, 0666);
+    if(fdSHM == -1)
     {
         return NULL;
     }
 
     /* configure the size of the shared memory segment */
-    if(ftruncate(fdSHM, FDP_SHM_SHARED_SIZE))
+    auto err = ftruncate(fdSHM, FDP_SHM_SHARED_SIZE);
+    if(err == -1)
     {
         shm_unlink(shmName);
         return NULL;
@@ -229,6 +229,7 @@ FDP_SHM* FDP_CreateSHM(const char* shmName)
 
     /* now map the shared memory segment in the address space of the process */
     pBuf = mmap(0, FDP_SHM_SHARED_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
+    close(fdSHM);
     if(pBuf == NULL)
     {
         shm_unlink(shmName);
@@ -270,17 +271,17 @@ void* OpenShm(const char* pShmName, size_t szShmSize)
         return NULL;
     }
 #else
-    uint32_t fdSHM;
 
     /* open the shared memory segment */
-    fdSHM = shm_open(pShmName, O_RDWR, 0666);
-    if(!fdSHM)
+    auto fdSHM = shm_open(pShmName, O_RDWR, 0666);
+    if(fdSHM == -1)
     {
         return NULL;
     }
 
     /* now map the shared memory segment in the address space of the process */
     pBuf = mmap(0, szShmSize, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
+    close(fdSHM);
     if(pBuf == MAP_FAILED)
     {
         shm_unlink(pShmName);
