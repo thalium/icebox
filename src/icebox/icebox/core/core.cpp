@@ -145,7 +145,7 @@ bool core::detect(core::Core& core)
 
 std::shared_ptr<core::Core> core::attach(const std::string& name)
 {
-    const auto ptr = attach_only(name);
+    auto ptr = attach_only(name);
     if(!ptr)
         return {};
 
