@@ -347,14 +347,6 @@ class Process:
         """Return process flags."""
         return Flags(_icebox.process_flags(self.proc))
 
-    def join_kernel(self):
-        """Join process in kernel mode."""
-        return _icebox.process_join(self.proc, "kernel")
-
-    def join_user(self):
-        """Join process in user mode."""
-        return _icebox.process_join(self.proc, "user")
-
     def parent(self):
         """Return parent process."""
         ret = _icebox.process_parent(self.proc)

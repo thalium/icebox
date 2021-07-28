@@ -175,12 +175,10 @@ vm.symbols.load_drivers()
 
 print("loading explorer.exe symbols...")
 p = vm.processes.wait("explorer.exe", icebox.flags_any)
-p.join_user()
 p.symbols.load_modules()
 
 print("loading taskmgr.exe wow64 symbols...")
 p = vm.processes.find_name("Taskmgr.exe", icebox.flags_x86)
-p.join_user()
 p.symbols.load_modules()
 """
 

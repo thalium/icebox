@@ -237,7 +237,6 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         flags_t             proc_flags      (proc_t proc) override;
-        void                proc_join       (proc_t proc, mode_e mode) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
 
         bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) override;
@@ -773,114 +772,6 @@ namespace
 
         const auto start_stack = *stack_ptr + THREAD_SIZE - TOP_OF_KERNEL_STACK_PADDING;
         return start_stack - p.pt_regs_size;
-    }
-}
-
-namespace
-{
-    uint8_t cpu_ring(OsLinux& p)
-    {
-        return registers::read(p.core_, reg_e::cs) & 0b11ULL;
-    }
-
-    void proc_join_any(OsLinux& p, proc_t proc)
-    {
-        std::unordered_set<uint64_t> ptrs;
-        p.thread_list(proc, [&](thread_t thread)
-        {
-            const auto ptr = p.thread_pc({}, thread);
-            if(!ptr)
-            {
-                ptrs.clear();
-                return FAIL(walk_e::stop, "unable to find the return address of thread 0x%" PRIx64, thread.id);
-            }
-
-            ptrs.insert(*ptr);
-            return walk_e::next;
-        });
-
-        if(ptrs.empty())
-            LOG(ERROR, "unable to proc_join_any on process 0x%" PRIx64, proc.id);
-        else
-        {
-            state::run_to(p.core_, std::string_view("proc_join_any"), ptrs, state::BP_CR3_NONE, [&](proc_t bp_proc, thread_t /*thread*/)
-            {
-                return bp_proc.id == proc.id ? walk_e::stop : walk_e::next;
-            });
-        }
-    }
-
-    void run_until_next_cr3(OsLinux& p)
-    {
-        state::run_to(p.core_, std::string_view("next_cr3"), std::unordered_set<uint64_t>(), state::BP_CR3_ON_WRITINGS, [&](proc_t /*proc*/, thread_t /*thread*/)
-        {
-            return walk_e::stop;
-        });
-    }
-}
-
-void OsLinux::proc_join(proc_t proc, mode_e mode)
-{
-    while(true)
-    {
-        const auto current_proc = proc_current();
-        if(!current_proc)
-        {
-            LOG(ERROR, "unable to join process 0x%" PRIx64 " because current thread is undeterminable", proc.id);
-            return;
-        }
-
-        if(current_proc->id == proc.id && ((mode == mode_e::kernel) | (mode == mode_e::user && cpu_ring(*this) == 3)))
-            return;
-
-        if(current_proc->id != proc.id)
-            proc_join_any(*this, proc);
-
-        // here, we are in the targetted process and in kernel mode
-        // if it was already the case, we did not move
-
-        if(mode == mode_e::kernel)
-            return;
-
-        // and we want to join the user mode...
-        const auto current_thread = thread_current();
-        if(!current_thread)
-            continue;
-
-        const auto pt_regs_ptr = pt_regs(*this, *current_thread);
-        if(!pt_regs_ptr)
-        {
-            LOG(ERROR, "unable to find pt_regs struct of thread 0x%" PRIx64, current_thread->id);
-            run_until_next_cr3(*this);
-            continue;
-        }
-
-        const auto user_rip = io_.read(*pt_regs_ptr + *offsets_[PTREGS_IP]);
-        if(!user_rip)
-            LOG(ERROR, "unable to read rip in pt_regs struct of thread 0x%" PRIx64, current_thread->id);
-        if(!user_rip || !(*user_rip))
-        {
-            run_until_next_cr3(*this);
-            continue;
-        }
-
-        state::run_to(core_, "proc_join_user", std::unordered_set<uint64_t>{*user_rip}, state::BP_CR3_ON_WRITINGS, [&](proc_t /*proc*/, thread_t bp_thread)
-        {
-            if((cpu_ring(*this) == 3) | (bp_thread.id != current_thread->id))
-                return walk_e::stop;
-
-            // we are still in the targetted process and in kernel mode
-            const auto updated_pt_regs_ptr = pt_regs(*this, *current_thread);
-            if(!updated_pt_regs_ptr)
-                return walk_e::stop;
-
-            const auto updated_user_rip = io_.read(*updated_pt_regs_ptr + *offsets_[PTREGS_IP]);
-            if(!updated_user_rip || *user_rip != *updated_user_rip)
-                return walk_e::stop;
-
-            // nothing changed
-            return walk_e::next;
-        });
     }
 }
 

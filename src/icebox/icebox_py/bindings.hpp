@@ -59,7 +59,6 @@ namespace py
         PyObject*   is_valid        (core::Core& core, PyObject* args);
         PyObject*   pid             (core::Core& core, PyObject* args);
         PyObject*   flags           (core::Core& core, PyObject* args);
-        PyObject*   join            (core::Core& core, PyObject* args);
         PyObject*   parent          (core::Core& core, PyObject* args);
         PyObject*   list            (core::Core& core, PyObject* args);
         PyObject*   wait            (core::Core& core, PyObject* args);

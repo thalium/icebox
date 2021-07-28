@@ -110,7 +110,6 @@ namespace nt
         bool                proc_is_valid   (proc_t proc) override;
         flags_t             proc_flags      (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
-        void                proc_join       (proc_t proc, mode_e mode) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
 
         bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) override;

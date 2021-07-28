@@ -15,12 +15,6 @@ print("%s = 0x%x" % (symbol, lstar))
 addr = proc.symbols.address(symbol)  # convert string to address
 assert lstar == addr
 
-proc.join_kernel()
-print(proc.symbols.string(vm.registers.rip))
-
-proc.join_user()
-print(proc.symbols.string(vm.registers.rip))
-
 # list all known strucs for named module
 count = 0
 for struc_name in proc.symbols.strucs("nt"):

@@ -44,12 +44,6 @@ enum class msr_e : uint32_t
     last = kernel_gs_base, // must be last
 };
 
-enum class mode_e
-{
-    kernel,
-    user,
-};
-
 enum constants_e
 {
     PAGE_SIZE  = 0x1000,

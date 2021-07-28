@@ -478,7 +478,6 @@ namespace
 
     opt<mod_t> wait_for_module(core::Core& core, proc_t proc, const std::string& name)
     {
-        process::join(core, proc, mode_e::user);
         auto found           = opt<mod_t>{};
         const auto io        = memory::make_io(core, proc);
         const auto check_mod = [&](mod_t mod)

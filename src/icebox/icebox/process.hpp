@@ -20,7 +20,6 @@ namespace process
     bool                is_valid        (core::Core&, proc_t proc);
     uint64_t            pid             (core::Core&, proc_t proc);
     flags_t             flags           (core::Core&, proc_t proc);
-    void                join            (core::Core&, proc_t proc, mode_e mode);
     opt<proc_t>         parent          (core::Core&, proc_t proc);
     opt<proc_t>         wait            (core::Core& core, std::string_view name, flags_t flags);
     opt<bpid_t>         listen_create   (core::Core&, const on_event_fn& on_proc_event);

@@ -147,22 +147,33 @@ TEST_F(win10, processes)
 
     const auto exproc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!exproc);
+}
 
-    // join proc in kernel
-    process::join(core, *exproc, mode_e::kernel);
-    const auto kcur = process::current(core);
-    EXPECT_TRUE(!!kcur);
-    EXPECT_EQ(exproc->id, kcur->id);
-    EXPECT_EQ(exproc->udtb.val, kcur->udtb.val);
-    EXPECT_EQ(exproc->kdtb.val, kcur->kdtb.val);
+namespace
+{
+    template <typename T>
+    auto wait_for_predicate(core::Core& core, const T& predicate)
+    {
+        while(true)
+        {
+            const auto ret = predicate();
+            if(ret)
+                return ret;
 
-    // join proc in user-mode
-    process::join(core, *exproc, mode_e::user);
-    const auto cur = process::current(core);
-    EXPECT_TRUE(!!cur);
-    EXPECT_EQ(exproc->id, kcur->id);
-    EXPECT_EQ(exproc->udtb.val, kcur->udtb.val);
-    EXPECT_EQ(exproc->kdtb.val, kcur->kdtb.val);
+            const auto ok = state::run_to_cr_write(core, reg_e::cr3);
+            if(!ok)
+                LOG(ERROR, "unable to run to cr3 write");
+        }
+    }
+
+    void wait_for_process(core::Core& core, proc_t proc)
+    {
+        wait_for_predicate(core, [&]
+        {
+            const auto opt_proc = process::current(core);
+            return opt_proc && opt_proc->id == proc.id;
+        });
+    }
 }
 
 TEST_F(win10, threads)
@@ -186,7 +197,7 @@ TEST_F(win10, threads)
     });
     EXPECT_NE(threads.size(), 0U);
 
-    process::join(core, *explorer, mode_e::kernel);
+    wait_for_process(core, *explorer);
     const auto current = threads::current(core);
     EXPECT_TRUE(!!current);
 
@@ -403,8 +414,6 @@ TEST_F(win10, memory)
     auto& core = *ptr_core;
     auto proc  = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
-    process::join(core, *proc, mode_e::user);
-
     auto ok = test_memory(core, *proc);
     EXPECT_TRUE(!!ok);
 }
@@ -456,7 +465,6 @@ TEST_F(win10, vm_area)
     EXPECT_TRUE(!!proc);
     LOG(INFO, "explorer udtb: 0x%" PRIx64, proc->udtb.val);
 
-    process::join(core, *proc, mode_e::kernel);
     LOG(INFO, "MMVAD               address             size                access      image");
     vm_area::list(core, *proc, [&](vm_area_t area)
     {
@@ -510,12 +518,8 @@ TEST_F(win10, loader)
     const auto proc = process::wait(core, "dwm.exe", flags::x64);
     ASSERT_TRUE(!!proc);
 
-    process::join(core, *proc, mode_e::kernel);
     symbols::load_drivers(core);
-
-    process::join(core, *proc, mode_e::user);
     symbols::autoload_modules(core, *proc);
-
     const auto ok = symbols::load_module(core, *proc, "ntdll");
     EXPECT_TRUE(!!ok);
 }
@@ -523,13 +527,11 @@ TEST_F(win10, loader)
 TEST_F(win10, out_of_context_loads)
 {
     auto& core      = *ptr_core;
-    const auto proc = process::find_name(core, "explorer.exe", flags::x64);
+    const auto proc = process::find_name(core, "dwm.exe", flags::x64);
     ASSERT_TRUE(!!proc);
 
-    // join another process
-    const auto other = process::find_name(core, "dwm.exe", flags::x64);
+    const auto other = process::find_name(core, "explorer.exe", flags::x64);
     ASSERT_TRUE(!!other);
-    process::join(core, *other, mode_e::user);
 
     // test memory from another process context
     symbols::load_modules(core, *proc);
@@ -590,7 +592,6 @@ TEST_F(win10, callstacks)
         return walk_e::next;
     });
 
-    process::join(core, *proc, mode_e::user);
     symbols::autoload_modules(core, *proc);
     callstacks::autoload_modules(core, *proc);
 

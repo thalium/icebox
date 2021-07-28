@@ -172,36 +172,6 @@ opt<proc_t> select_process(core::Core& core)
     }
 }
 
-void proc_join(core::Core& core, proc_t target, mode_e mode)
-{
-    state::pause(core);
-
-    printf("Process found, VM running...\n");
-    process::join(core, target, mode);
-
-    const auto thread = threads::current(core);
-    if(thread)
-    {
-        std::cout << "Current thread  : ";
-        display_thread(core, *thread);
-    }
-    else
-        LOG(ERROR, "no current thread");
-
-    const auto proc = process::current(core);
-    if(proc)
-    {
-        std::cout << "Current process : ";
-        display_proc(core, *proc);
-    }
-    else
-        LOG(ERROR, "no current proc");
-
-    printf("\nPress a key to resume VM...\n");
-    SYSTEM_PAUSE
-    state::resume(core);
-}
-
 int main(int argc, char** argv)
 {
     logg::init(argc, argv);
@@ -232,17 +202,7 @@ int main(int argc, char** argv)
     });
     state::resume(*core);
 
-    // proc_join in kernel mode
-    printf("\n--- Join a process in kernel mode ---\n");
     auto target = select_process(*core);
-    if(target)
-        process::join(*core, *target, mode_e::kernel);
-
-    // proc_join in user mode
-    printf("\n--- Join a process in user mode ---\n");
-    target = select_process(*core);
-    if(target)
-        process::join(*core, *target, mode_e::user);
 
     printf("\n");
     SYSTEM_PAUSE

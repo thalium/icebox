@@ -36,7 +36,6 @@ namespace
         if(!ok)
             return;
 
-        process::join(core, *target, mode_e::user);
         plugins::Syscalls32 syscalls(core, *target);
         LOG(INFO, "Every thing is ready ! Please trigger some syscalls");
 
@@ -83,9 +82,6 @@ namespace
             return false;
 
         LOG(INFO, "%s: 0x%" PRIx64 " kdtb: 0x%" PRIx64 " ukdtb: 0x%" PRIx64 " %s", proc_target, target->id, target->kdtb.val, target->udtb.val, process::name(core, *target)->data());
-        process::join(core, *target, mode_e::kernel);
-        process::join(core, *target, mode_e::user);
-
         const auto is_32bit = process::flags(core, *target).is_x86;
         symbols::load_modules(core, *target);
 

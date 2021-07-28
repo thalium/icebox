@@ -162,13 +162,11 @@ TEST_F(Linux, processes)
         EXPECT_TRUE(name && *name == bintest_name);
     }
 
-    process::join(core, *child, mode_e::kernel);
     auto current = process::current(core);
     EXPECT_TRUE(current && current->id && current->udtb.val);
     EXPECT_EQ(child->id, current->id);
     EXPECT_EQ(child->udtb.val, current->udtb.val);
 
-    process::join(core, *child, mode_e::user);
     current = process::current(core);
     EXPECT_TRUE(current && current->id && current->udtb.val);
     EXPECT_EQ(child->id, current->id);

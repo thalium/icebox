@@ -26,7 +26,6 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         flags_t             proc_flags      (proc_t proc) override;
-        void                proc_join       (proc_t proc, mode_e mode) override;
         opt<proc_t>         proc_parent     (proc_t proc) override;
 
         bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) override;
@@ -134,10 +133,6 @@ bool None::write_page(uint64_t /*ptr*/, const void* /*src*/, proc_t* /*proc*/, d
 flags_t None::proc_flags(proc_t /*proc*/)
 {
     return {};
-}
-
-void None::proc_join(proc_t /*proc*/, mode_e /*mode*/)
-{
 }
 
 opt<proc_t> None::proc_parent(proc_t /*proc*/)

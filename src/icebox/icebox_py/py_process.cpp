@@ -140,23 +140,6 @@ PyObject* py::process::flags(core::Core& core, PyObject* args)
     return py::flags::from(flags);
 }
 
-PyObject* py::process::join(core::Core& core, PyObject* args)
-{
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto strmode = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &strmode);
-    if(!ok)
-        return nullptr;
-
-    const auto opt_proc = py::from_bytes<proc_t>(py_proc);
-    if(!opt_proc)
-        return nullptr;
-
-    const auto mode = strmode && strmode == std::string_view{"kernel"} ? mode_e::kernel : mode_e::user;
-    ::process::join(core, *opt_proc, mode);
-    Py_RETURN_NONE;
-}
-
 PyObject* py::process::parent(core::Core& core, PyObject* args)
 {
     auto py_proc = static_cast<PyObject*>(nullptr);

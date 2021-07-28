@@ -211,7 +211,6 @@ namespace
         {"process_current", &core_exec<&py::process::current>, METH_NOARGS, "read current process"},
         {"process_flags", &core_exec<&py::process::flags>, METH_VARARGS, "read process flags"},
         {"process_is_valid", &core_exec<&py::process::is_valid>, METH_VARARGS, "check if process is valid"},
-        {"process_join", &core_exec<&py::process::join>, METH_VARARGS, "join process"},
         {"process_list", &core_exec<&py::process::list>, METH_NOARGS, "list available processes"},
         {"process_listen_create", &core_exec<&py::process::listen_create>, METH_VARARGS, "listen on process creation"},
         {"process_listen_delete", &core_exec<&py::process::listen_delete>, METH_VARARGS, "listen on process deletion"},

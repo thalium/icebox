@@ -180,77 +180,9 @@ flags_t nt::Os::proc_flags(proc_t proc)
     return flags;
 }
 
-namespace
-{
-    template <typename T>
-    void break_on_any_return_of(nt::Os& os, proc_t proc, const std::string& name, uint64_t addr, const T& read_ret_addr)
-    {
-        auto hit      = false;
-        auto rets     = std::unordered_set<uint64_t>{};
-        auto bps      = std::vector<state::Breakpoint>{};
-        const auto bp = state::break_on_process(os.core_, name, proc, addr, [&]
-        {
-            const auto opt_ret = read_ret_addr();
-            if(!opt_ret)
-                return;
-
-            const auto ret_addr = *opt_ret;
-            if(rets.count(ret_addr))
-                return;
-
-            const auto bp_ret = state::break_on_process(os.core_, name + " return", proc, ret_addr, [&]
-            {
-                hit = true;
-            });
-            bps.emplace_back(bp_ret);
-            rets.insert(ret_addr);
-        });
-        while(!hit)
-            state::exec(os.core_);
-    }
-
-    void proc_join_kernel(nt::Os& os, proc_t proc)
-    {
-        while(true)
-        {
-            state::run_to_cr_write(os.core_, reg_e::cr3);
-            const auto curr = process::current(os.core_);
-            if(curr && curr->id == proc.id)
-                return;
-        }
-    }
-
-    void proc_join_user(nt::Os& os, proc_t proc)
-    {
-        // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
-        const auto where = os.symbols_[KiKernelSysretExit] ? *os.symbols_[KiKernelSysretExit] : registers::read_msr(os.core_, msr_e::lstar);
-        break_on_any_return_of(os, proc, "KiKernelSysretExit", where, [&]
-        {
-            return std::make_optional(registers::read(os.core_, reg_e::rcx));
-        });
-    }
-}
-
 bool nt::is_user_mode(uint64_t cs)
 {
     return !!(cs & 3);
-}
-
-void nt::Os::proc_join(proc_t proc, mode_e mode)
-{
-    const auto current   = proc_current();
-    const auto same_proc = current && current->id == proc.id;
-    const auto user_mode = is_user_mode(registers::read(core_, reg_e::cs));
-    if(mode == mode_e::kernel && same_proc && !user_mode)
-        return;
-
-    if(mode == mode_e::kernel)
-        return proc_join_kernel(*this, proc);
-
-    if(same_proc && user_mode)
-        return;
-
-    return proc_join_user(*this, proc);
 }
 
 opt<proc_t> nt::Os::proc_parent(proc_t proc)

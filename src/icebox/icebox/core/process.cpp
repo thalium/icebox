@@ -47,11 +47,6 @@ flags_t process::flags(core::Core& core, proc_t proc)
     return core.os_->proc_flags(proc);
 }
 
-void process::join(core::Core& core, proc_t proc, mode_e mode)
-{
-    return core.os_->proc_join(proc, mode);
-}
-
 opt<proc_t> process::parent(core::Core& core, proc_t proc)
 {
     return core.os_->proc_parent(proc);

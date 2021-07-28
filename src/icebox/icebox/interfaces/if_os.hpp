@@ -30,7 +30,6 @@ namespace os
         virtual bool                proc_is_valid   (proc_t proc) = 0;
         virtual uint64_t            proc_id         (proc_t proc) = 0;
         virtual flags_t             proc_flags      (proc_t proc) = 0;
-        virtual void                proc_join       (proc_t proc, mode_e mode) = 0;
         virtual opt<proc_t>         proc_parent     (proc_t proc) = 0;
 
         virtual bool            thread_list     (proc_t proc, threads::on_thread_fn on_thread) = 0;
