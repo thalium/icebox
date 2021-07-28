@@ -32,7 +32,7 @@ class Windows(unittest.TestCase):
         self.vm.registers.rax -= 1
         p = self.vm.processes.current()
         lstar = p.symbols.string(self.vm.msr.lstar)
-        self.assertEqual(lstar, "nt!KiSystemCall64Shadow")
+        self.assertIn(lstar, ["nt!KiSystemCall64", "nt!KiSystemCall64Shadow"])
 
     def test_processes(self):
         num = 0
@@ -49,7 +49,7 @@ class Windows(unittest.TestCase):
         self.assertFalse(flags.is_x86)
 
         pa = self.vm.processes.current()
-        pb = self.vm.processes.find_name(pa.name(), pa.flags())
+        pb = self.vm.processes.find_pid(pa.pid())
         self.assertEqual(pa, pb)
 
         pd = self.vm.processes.wait("explorer.exe", icebox.flags_x64)
@@ -96,7 +96,6 @@ class Windows(unittest.TestCase):
         pa = t.process()
         self.assertEqual(p, pa)
         self.assertNotEqual(t.program_counter(), 0)
-        self.assertNotEqual(t.tid(), 0)
 
     def test_memory(self):
         rip = self.vm.registers.rip
@@ -159,8 +158,9 @@ class Windows(unittest.TestCase):
     def test_symbols(self):
         p = self.vm.processes.current()
         lstar = self.vm.msr.lstar
-        self.assertEqual(p.symbols.string(lstar), "nt!KiSystemCall64Shadow")
-        self.assertEqual(lstar, p.symbols.address("nt!KiSystemCall64Shadow"))
+        sym = p.symbols.string(lstar)
+        self.assertIn(sym, ["nt!KiSystemCall64", "nt!KiSystemCall64Shadow"])
+        self.assertEqual(lstar, p.symbols.address(sym))
         strucs = []
         for s in p.symbols.strucs("nt"):
             strucs.append(s)
