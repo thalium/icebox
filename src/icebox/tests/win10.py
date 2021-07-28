@@ -1,13 +1,19 @@
 import os
-import struct
 import sys
 import unittest
+
+
+def get_vm_name():
+    try:
+        return os.environ["VM_NAME"]
+    except:
+        return "win10"
 
 
 class Windows(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.vm = icebox.attach("win10")
+        cls.vm = icebox.attach(get_vm_name())
 
     @classmethod
     def tearDownClass(cls):

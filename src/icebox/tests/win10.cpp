@@ -17,7 +17,11 @@
 
 namespace
 {
-    static constexpr char vm_name[] = "win10";
+    std::string get_vm_name()
+    {
+        const auto ptr = getenv("VM_NAME");
+        return ptr ? ptr : "win10";
+    }
 
     struct win10
         : public ::testing::Test
@@ -25,7 +29,7 @@ namespace
       protected:
         void SetUp() override
         {
-            ptr_core = core::attach(vm_name);
+            ptr_core = core::attach(get_vm_name());
             ASSERT_TRUE(ptr_core);
             const auto paused = state::pause(*ptr_core);
             ASSERT_TRUE(paused);
@@ -45,7 +49,7 @@ TEST(win10_, attach_detach)
 {
     for(size_t i = 0; i < 16; ++i)
     {
-        const auto core = core::attach(vm_name);
+        const auto core = core::attach(get_vm_name());
         EXPECT_TRUE(!!core);
         state::resume(*core);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

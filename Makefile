@@ -3,7 +3,7 @@
 root_dir := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 ice_dir = $(root_dir)/third_party/virtualbox/out/linux.amd64/release/bin
 vm_name = win10_1803
-snapshot = off
+snapshot = ready
 
 driver.configure:
 	cd $(root_dir)/third_party/virtualbox ;\
@@ -51,9 +51,13 @@ icebox.build:
 vm_resume:
 	$(root_dir)/bin/x64/vm_resume $(vm_name)
 
-test.win10:
-	$(root_dir)/out/x64/icebox_tests --gtest_filter=win10*
-	python3 $(root_dir)/src/icebox/tests/win10.py $(root_dir)/bin/x64 -v
+test.win10.cpp:
+	VM_NAME=$(vm_name) $(root_dir)/out/x64/icebox_tests --gtest_filter=win10*
+
+test.win10.py:
+	VM_NAME=$(vm_name) python3 $(root_dir)/src/icebox/tests/win10.py $(root_dir)/bin/x64 -v
+
+test.win10: test.win10.cpp test.win10.py
 
 download.win10:
 	cd $(root_dir)/bin/x64 ;\
