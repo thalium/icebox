@@ -369,16 +369,6 @@ namespace
                 return FAIL(walk_e::stop, "invalid buffer");
 
             got_read.resize(span->size);
-            ok = memory::read_virtual_with_dtb(core, proc.udtb, &got_read[0], span->addr, span->size);
-            if(!ok)
-                return FAIL(walk_e::stop, "read_virtual_with_dtb");
-
-            if(!!memcmp(&buffer[0], &got_read[0], span->size))
-            {
-                dump_buffer(buffer, got_read);
-                return FAIL(walk_e::stop, "buffer and got_read are different!");
-            }
-
             const auto phy = memory::virtual_to_physical(core, proc, span->addr);
             if(!phy)
                 return FAIL(walk_e::stop, "memory::virtual_to_physical");
@@ -399,7 +389,10 @@ namespace
                 return FAIL(walk_e::stop, "memory::read_virtual");
 
             if(!!memcmp(&buffer[0], &got_read[0], span->size))
+            {
+                dump_buffer(buffer, got_read);
                 return FAIL(walk_e::stop, "buffer and got_read are different!");
+            }
 
             ret = true;
             return walk_e::next;

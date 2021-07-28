@@ -6,6 +6,9 @@
 
 opt<uint64_t> nt::read_vad_root_addr(nt::Os& os, const memory::Io& io, proc_t proc, uint64_t vad_root_offset)
 {
+    if(!os.NtMajorVersion_)
+        LOG(ERROR, "missing nt major version");
+
     if(os.NtMajorVersion_ > 6)
         return io.read(proc.id + vad_root_offset);
 
@@ -54,6 +57,8 @@ namespace
 
     bool read_vad(nt::Os& os, vad_t& vad, const memory::Io& io, uint64_t current_vad)
     {
+        if(!os.NtMajorVersion_)
+            LOG(ERROR, "missing nt major version");
         if(os.NtMajorVersion_ > 6)
         {
             auto temp_vad = nt::win10::_MMVAD_SHORT{};

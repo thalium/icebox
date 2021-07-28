@@ -153,6 +153,7 @@ namespace nt
         Symbols     symbols_;
         std::string last_dump_;
         uint64_t    kpcr_;
+        span_t      kernel_;
         memory::Io  io_;
         size_t      num_page_faults_;
 
