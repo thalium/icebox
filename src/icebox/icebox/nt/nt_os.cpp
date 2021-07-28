@@ -111,7 +111,7 @@ namespace
         symbols::Identity pdb;
     };
 
-    static constexpr uint64_t user_shared_data_addr = 0xFFFFF78000000000ULL;
+    constexpr uint64_t user_shared_data_addr = 0xFFFFF78000000000ULL;
 
     opt<dtb_t> find_some_dtb(nt::Os& os)
     {
@@ -147,14 +147,12 @@ namespace
             auto mod = find_kernel_at_up(os, ea, lstar);
             if(!mod)
             {
-                if(max_kernel_size == small_kernel_size)
-                {
-                    max_kernel_size <<= 4;
-                    ea = lstar - max_kernel_size;
-                    continue;
-                }
-                else
+                if(max_kernel_size != small_kernel_size)
                     return FAIL(std::nullopt, "unable to read kernel");
+
+                max_kernel_size <<= 4;
+                ea = lstar - max_kernel_size;
+                continue;
             }
 
             ea          = mod->addr + mod->size;
