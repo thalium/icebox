@@ -124,7 +124,7 @@ def main():
         # remove whitespaces after return
         (r"return +", r"return "),
         # enforce space after comment
-        (r"//([^ ])", r"// \1"),
+        (r" //([^ ])", r" // \1"),
         # remove trailing whitespace
         (r"[ \t\r]+\n", r"\n"),
         # remove = 0 misalignment
