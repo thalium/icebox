@@ -378,6 +378,20 @@ function(setup_clang_format target)
         message(FATAL_ERROR "clang-format not found")
     endif()
     find_package(PythonInterp REQUIRED)
+    if(NOT "$ENV{CLANG_FORMAT_CHECKED}" STREQUAL "1")
+        set(ENV{CLANG_FORMAT_CHECKED} 1)
+        execute_process(COMMAND
+            ${PYTHON_EXECUTABLE}
+            "${root_dir}/build/format.py"
+            "--version"
+            ${CLANG_FORMAT}
+            RESULT_VARIABLE error
+            OUTPUT_VARIABLE output
+        )
+        if(NOT "${error}" STREQUAL "0")
+            message(FATAL_ERROR ${output})
+        endif()
+    endif()
     get_target_property(files_ ${target} SOURCES)
     set(files)
     foreach(f ${files_})

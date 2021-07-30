@@ -6,6 +6,7 @@ import sys
 import tempfile
 import time
 import timeit
+import traceback
 
 
 def read_file(filename):
@@ -181,7 +182,29 @@ def main():
     with open(sys.argv[1], "wb") as fh:
         fh.write(b"")
 
+    return 0
+
+
+def check_version(min_ver):
+    try:
+        clang = os.path.abspath(sys.argv[2])
+        args = [clang, "--version"]
+        out = subprocess.check_output(args).decode()
+        print(out)
+        m = re.search(r"clang-format version (\d+)\.\d+\.\d+\b", out)
+        version = int(m.group(1))
+        if version >= min_ver:
+            return 0
+
+        print(f"invalid clang-format version: {version} < {min_ver}")
+    except:
+        traceback.print_exc()
+    return -1
+
 
 if __name__ == "__main__":
-    main()
-    sys.exit(0)
+    if sys.argv[1] == "--version":
+        ret = check_version(12)
+    else:
+        ret = main()
+    sys.exit(ret)
