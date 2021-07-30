@@ -4,6 +4,7 @@ Language: Cpp
 AlignConsecutiveAssignments:        true
 AlignEscapedNewlines:               Left
 AlignConsecutiveBitFields:          Consecutive
+AlignConsecutiveMacros:             Consecutive
 AllowShortCaseLabelsOnASingleLine:  true
 BreakBeforeBinaryOperators:         NonAssignment
 BreakConstructorInitializers:       BeforeComma

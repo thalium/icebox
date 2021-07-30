@@ -29,8 +29,8 @@
 #    define NOMINMAX
 #    include <intrin.h>
 #    include <windows.h>
-#    define FORCE_INLINE    __forceinline
-#    define PAUSE           _mm_pause()
+#    define FORCE_INLINE __forceinline
+#    define PAUSE        _mm_pause()
 
 #else
 #    include <fcntl.h>
@@ -38,8 +38,8 @@
 #    include <sys/shm.h>
 #    include <sys/stat.h>
 #    include <unistd.h>
-#    define FORCE_INLINE    inline __attribute__((__always_inline__))
-#    define PAUSE           asm("pause")
+#    define FORCE_INLINE inline __attribute__((__always_inline__))
+#    define PAUSE        asm("pause")
 #endif
 
 #include <cstring>

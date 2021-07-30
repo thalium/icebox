@@ -124,8 +124,8 @@ typedef struct _FDP_SetBreakpoint_req
 #    pragma warning(disable : 4200)
 #endif
 
-#define FDP_1M              1024 * 1024
-#define FDP_MAX_DATA_SIZE   10 * FDP_1M
+#define FDP_1M            1024 * 1024
+#define FDP_MAX_DATA_SIZE 10 * FDP_1M
 
 #ifdef FDP_INTERNAL_ONLY
 

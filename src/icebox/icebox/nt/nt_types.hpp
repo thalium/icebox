@@ -113,8 +113,8 @@ namespace nt_types
     const char*                 page_access_str (PAGE_ACCESS arg);
     std::vector<const char*>    page_access_all (uint32_t arg);
 
-#define WOW64_SIZE_OF_80387_REGISTERS       80
-#define WOW64_MAXIMUM_SUPPORTED_EXTENSION   512
+#define WOW64_SIZE_OF_80387_REGISTERS     80
+#define WOW64_MAXIMUM_SUPPORTED_EXTENSION 512
 
     struct _WOW64_FLOATING_SAVE_AREA
     {

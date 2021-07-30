@@ -25,9 +25,9 @@ namespace defer
     }
 } // namespace defer
 
-#define CONCAT__(X, Y)  Y
-#define CONCAT_(X, Y)   CONCAT__(~, X##Y)
-#define CONCAT(X, Y)    CONCAT_(X, Y)
+#define CONCAT__(X, Y) Y
+#define CONCAT_(X, Y)  CONCAT__(~, X##Y)
+#define CONCAT(X, Y)   CONCAT_(X, Y)
 
-#define DEFER(X)            const auto CONCAT(defer_, __COUNTER__) = defer::make(X)
-#define PY_DEFER_DECREF(X)  DEFER([=] { Py_DECREF(X); })
+#define DEFER(X)           const auto CONCAT(defer_, __COUNTER__) = defer::make(X)
+#define PY_DEFER_DECREF(X) DEFER([=] { Py_DECREF(X); })

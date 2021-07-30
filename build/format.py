@@ -101,8 +101,6 @@ def main():
     fields = [
         # align case ...: return ...;
         (4, r" +(?:case .+|default):", " +", r"[^ ].+;"),
-        # align #define MACRO(...) ...
-        (4, r"# *define [a-zA-Z_][a-zA-Z_0-9_]*(?:\([^)]+\))?", " +", r".+?"),
         # align members (or try to...)
         (
             0,
