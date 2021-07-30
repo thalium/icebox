@@ -14,10 +14,12 @@ def read_file(filename):
 
 
 def write_file(filename, data):
-    fd = tempfile.NamedTemporaryFile(mode="wb",
-                                     prefix=os.path.basename(filename),
-                                     dir=os.path.dirname(filename),
-                                     delete=False)
+    fd = tempfile.NamedTemporaryFile(
+        mode="wb",
+        prefix=os.path.basename(filename),
+        dir=os.path.dirname(filename),
+        delete=False,
+    )
     try:
         fd.write(data.encode("utf-8"))
     finally:
@@ -79,8 +81,8 @@ def apply_patterns(data, patterns):
 def process(data, pre_patterns, re_fields, post_patterns):
     if not len(data):
         return data
-    if data[-1] != '\n':
-        data += '\n'
+    if data[-1] != "\n":
+        data += "\n"
     data = apply_patterns(data, pre_patterns)
     for blobs, lines, align in re_fields:
         data = align_fields(data, blobs, lines, align)
@@ -103,16 +105,28 @@ def main():
         # align #define MACRO(...) ...
         (4, r"# *define [a-zA-Z_][a-zA-Z_0-9_]*(?:\([^)]+\))?", " +", r".+?"),
         # align members (or try to...)
-        (0, r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*", " +",
-         r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\]| = {[^}]+})?;"),
+        (
+            0,
+            r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*",
+            " +",
+            r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\]| = {[^}]+})?;",
+        ),
         # align ... = ...
         (0, r" *\b(?:using )?[^\n ]+", " +", r"= .+?"),
         # align method names
-        (4, r" *\b[^\n=]*?[^\n=, +]", " +",
-         r"(?:\b\w+|\(\*\w+\)) *\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
+        (
+            4,
+            r" *\b[^\n=]*?[^\n=, +]",
+            " +",
+            r"(?:\b\w+|\(\*\w+\)) *\([^\n={}]*\)(?: *const)?(?: override| += 0)?;",
+        ),
         # align method parameters
-        (4, r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))", " *",
-         r"\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
+        (
+            4,
+            r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))",
+            " *",
+            r"\([^\n={}]*\)(?: *const)?(?: override| += 0)?;",
+        ),
     ]
     post_patterns = [
         # align constructor with destructor
@@ -155,8 +169,7 @@ def main():
     clang = os.path.abspath(sys.argv[2])
     for filename, data in targets:
         t = timeit.default_timer()
-        after_clang = subprocess.check_output(
-            [clang, "-style=file", filename]).decode()
+        after_clang = subprocess.check_output([clang, "-style=file", filename]).decode()
         value = process(after_clang, pre_patterns, re_fields, post_patterns)
         step = timeit.default_timer() - t
         # print("%4dms: %s" % (round_time(step), f))
