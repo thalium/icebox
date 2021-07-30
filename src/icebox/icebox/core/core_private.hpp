@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef PRIVATE_CORE__
+#ifndef PRIVATE_CORE_
 #    error do not include this header directly
 #endif
 

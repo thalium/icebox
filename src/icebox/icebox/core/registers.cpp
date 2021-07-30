@@ -1,6 +1,6 @@
 #include "registers.hpp"
 
-#define PRIVATE_CORE__
+#define PRIVATE_CORE_
 #include "fdp.hpp"
 
 uint64_t registers::read(core::Core& core, reg_e reg)

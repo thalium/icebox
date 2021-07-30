@@ -1,7 +1,7 @@
 #include "callstacks.hpp"
 
 #define FDP_MODULE "unwind"
-#define PRIVATE_CORE__
+#define PRIVATE_CORE_
 #include "core.hpp"
 #include "core/core_private.hpp"
 #include "endian.hpp"

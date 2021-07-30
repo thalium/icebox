@@ -1,6 +1,6 @@
 #include "os.hpp"
 
-#define PRIVATE_CORE__
+#define PRIVATE_CORE_
 #define FDP_MODULE "core"
 #include "core.hpp"
 #include "core_private.hpp"

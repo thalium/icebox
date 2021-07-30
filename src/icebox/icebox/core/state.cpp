@@ -1,6 +1,6 @@
 #include "state.hpp"
 
-#define PRIVATE_CORE__
+#define PRIVATE_CORE_
 #define FDP_MODULE "state"
 #include "core.hpp"
 #include "core_private.hpp"

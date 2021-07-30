@@ -1,6 +1,6 @@
 #include "nt_os.hpp"
 
-#define PRIVATE_CORE__
+#define PRIVATE_CORE_
 #define FDP_MODULE "nt"
 #include "core/core_private.hpp"
 #include "interfaces/if_symbols.hpp"

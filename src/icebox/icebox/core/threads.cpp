@@ -1,6 +1,6 @@
 #include "threads.hpp"
 
-#define PRIVATE_CORE__
+#define PRIVATE_CORE_
 #define FDP_MODULE "threads"
 #include "core.hpp"
 #include "core_private.hpp"

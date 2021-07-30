@@ -1,6 +1,6 @@
 #include "nt_objects.hpp"
 
-#define PRIVATE_CORE__
+#define PRIVATE_CORE_
 #define FDP_MODULE "nt_objects"
 #include "core.hpp"
 #include "core/core_private.hpp"
