@@ -3,6 +3,7 @@ Language: Cpp
 
 AlignConsecutiveAssignments:        true
 AlignEscapedNewlines:               Left
+AlignConsecutiveBitFields:          Consecutive
 AllowShortCaseLabelsOnASingleLine:  true
 BreakBeforeBinaryOperators:         NonAssignment
 BreakConstructorInitializers:       BeforeComma

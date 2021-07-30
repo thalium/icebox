@@ -41,8 +41,8 @@ struct thread_t
 
 struct flags_t
 {
-    uint8_t is_x64  : 1;
-    uint8_t is_x86  : 1;
+    uint8_t is_x64 : 1;
+    uint8_t is_x86 : 1;
 };
 
 namespace flags
