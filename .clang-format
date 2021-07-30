@@ -1,11 +1,12 @@
 ---
 Language: Cpp
 
-AlignConsecutiveAssignments:        true
-AlignEscapedNewlines:               Left
+AlignConsecutiveAssignments:        Consecutive
 AlignConsecutiveBitFields:          Consecutive
-AlignConsecutiveMacros:             Consecutive
 AlignConsecutiveDeclarations:       Consecutive
+AlignConsecutiveMacros:             Consecutive
+AlignEscapedNewlines:               Left
+AlignTrailingComments:              true
 AllowShortCaseLabelsOnASingleLine:  true
 BreakBeforeBinaryOperators:         NonAssignment
 BreakConstructorInitializers:       BeforeComma
