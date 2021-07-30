@@ -123,7 +123,7 @@ namespace
     }
 }
 
-bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span, const std::shared_ptr<Module>& symbols)
+bool symbols::Modules::insert(proc_t proc, const std::string& module, span_t span, const std::shared_ptr<Module>& symbols) const
 {
     return insert_module(*d_, proc, module, span, symbols, insert_e::loaded);
 }
@@ -132,10 +132,10 @@ namespace
 {
     std::string fix_module_name(const std::string& name)
     {
-        auto       is_lower = false;
-        auto       is_upper = false;
-        const auto stripped = path::filename(name).replace_extension().generic_string();
-        auto       ret      = stripped;
+        auto is_lower = false;
+        auto is_upper = false;
+        auto stripped = path::filename(name).replace_extension().generic_string();
+        auto ret      = stripped;
         for(auto& c : ret)
         {
             const auto alpha = isalpha(c);
@@ -150,7 +150,7 @@ namespace
     }
 }
 
-bool symbols::Modules::insert(proc_t proc, const memory::Io& io, span_t span)
+bool symbols::Modules::insert(proc_t proc, const memory::Io& io, span_t span) const
 {
     // do not reload known modules
     auto& d = *d_;
@@ -180,14 +180,14 @@ namespace
 {
     bool has_id(Data& d, std::string_view id)
     {
-        for(const auto& it : d.mods)
-            if(it.second.module->id() == id)
-                return true;
-        return false;
+        return std::any_of(std::begin(d.mods), std::end(d.mods), [&](const auto& it)
+        {
+            return it.second.module->id() == id;
+        });
     }
 }
 
-bool symbols::Modules::remove(proc_t proc, const std::string& module)
+bool symbols::Modules::remove(proc_t proc, const std::string& module) const
 {
     auto&      d  = *d_;
     const auto it = d.mods.find({module, proc});
@@ -202,7 +202,7 @@ bool symbols::Modules::remove(proc_t proc, const std::string& module)
     return true;
 }
 
-bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module)
+bool symbols::Modules::list(proc_t proc, const on_module_fn& on_module) const
 {
     for(const auto& m : d_->mods)
         if(m.first.proc.id == proc.id)
@@ -239,13 +239,13 @@ namespace
     }
 }
 
-symbols::Module* symbols::Modules::find(proc_t proc, const std::string& module)
+symbols::Module* symbols::Modules::find(proc_t proc, const std::string& module) const
 {
     const auto it = find_module(*d_, proc, module, find_e::all);
     return it ? it->module.get() : nullptr;
 }
 
-opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, const std::string& symbol)
+opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, const std::string& symbol) const
 {
     const auto it = find_module(*d_, proc, module, find_e::all);
     if(!it)
@@ -258,14 +258,14 @@ opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, 
     return it->span.addr + *opt_offset;
 }
 
-void symbols::Modules::list_strucs(proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc)
+void symbols::Modules::list_strucs(proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc) const
 {
     const auto mod = find(proc, module);
     if(mod)
         mod->list_strucs(on_struc);
 }
 
-opt<symbols::Struc> symbols::Modules::read_struc(proc_t proc, const std::string& module, const std::string& struc)
+opt<symbols::Struc> symbols::Modules::read_struc(proc_t proc, const std::string& module, const std::string& struc) const
 {
     const auto mod = find(proc, module);
     if(!mod)
@@ -338,7 +338,7 @@ namespace
 
     auto find_mod(Data& s, proc_t proc, uint64_t addr)
     {
-        const auto p = find(s, proc, addr);
+        auto p = find(s, proc, addr);
         if(p)
             return p;
 
@@ -412,7 +412,7 @@ namespace
     }
 }
 
-std::string symbols::Modules::string(proc_t proc, uint64_t addr)
+std::string symbols::Modules::string(proc_t proc, uint64_t addr) const
 {
     auto&      d = *d_;
     const auto p = ::find_mod(d, proc, addr);
@@ -454,17 +454,14 @@ namespace
 
     bool is_target(span_t span, const memory::Io& io, const std::string& name)
     {
-        for(const auto& h : g_helpers)
+        return std::any_of(std::begin(g_helpers), std::end(g_helpers), [&](const auto& h)
         {
             const auto opt_id = h.identify(span, io);
             if(!opt_id)
-                continue;
+                return false;
 
-            const auto fix_name = fix_module_name(opt_id->name);
-            if(fix_name == name)
-                return true;
-        }
-        return false;
+            return name == fix_module_name(opt_id->name);
+        });
     }
 
     bool is_target_module(core::Core& core, proc_t proc, mod_t mod, const memory::Io& io, const std::string& name)

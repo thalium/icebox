@@ -42,7 +42,7 @@ PyObject* py::symbols::list_strucs(core::Core& core, PyObject* args)
     PY_DEFER_DECREF(py_list);
     ::symbols::list_strucs(core, *opt_proc, module, [&](std::string_view name)
     {
-        const auto py_name = PyUnicode_FromStringAndSize(name.data(), name.size());
+        const auto py_name = py_to_string(name.data(), name.size());
         if(!py_name)
             return;
 
@@ -105,7 +105,7 @@ PyObject* py::symbols::string(core::Core& core, PyObject* args)
         return nullptr;
 
     const auto sym = ::symbols::string(core, *opt_proc, ptr);
-    return PyUnicode_FromStringAndSize(sym.data(), sym.size());
+    return py_to_string(sym.data(), sym.size());
 }
 
 PyObject* py::symbols::load_module_memory(core::Core& core, PyObject* args)

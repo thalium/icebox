@@ -21,8 +21,8 @@ namespace pcap
         Writer();
         ~Writer();
 
-        void    add_packet  (const metadata_t& m, const void* data, size_t size);
-        bool    write       (const std::string& filepath);
+        void    add_packet  (const metadata_t& m, const void* data, size_t size) const;
+        bool    write       (const std::string& filepath) const;
 
         struct Data;
         std::unique_ptr<Data> d;

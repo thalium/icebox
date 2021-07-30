@@ -24,7 +24,7 @@ PyObject* py::process::name(core::Core& core, PyObject* args)
     if(!opt_name)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read process name");
 
-    return PyUnicode_FromStringAndSize(opt_name->data(), opt_name->size());
+    return py_to_string(opt_name->data(), opt_name->size());
 }
 
 PyObject* py::process::is_valid(core::Core& core, PyObject* args)

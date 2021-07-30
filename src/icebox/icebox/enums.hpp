@@ -44,7 +44,7 @@ enum class msr_e : uint32_t
     last = kernel_gs_base, // must be last
 };
 
-enum constants_e
+enum constants_e : uint64_t
 {
     PAGE_SIZE  = 0x1000,
     PAGE_FAULT = 0xE,

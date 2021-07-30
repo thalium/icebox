@@ -14,7 +14,7 @@ namespace plugins
         Syscalls(core::Core& core, proc_t proc);
         ~Syscalls();
 
-        bool generate(const fs::path& file_name);
+        bool generate(const fs::path& file_name) const;
 
         struct Data;
         std::unique_ptr<Data> d_;
@@ -25,7 +25,7 @@ namespace plugins
         Syscalls32(core::Core& core, proc_t proc);
         ~Syscalls32();
 
-        bool generate(const fs::path& file_name);
+        bool generate(const fs::path& file_name) const;
 
         struct Data;
         std::unique_ptr<Data> d_;

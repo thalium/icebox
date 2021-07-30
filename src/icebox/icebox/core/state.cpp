@@ -51,8 +51,8 @@ namespace
             : task(std::move(task))
             , name(name)
             , phy(phy)
-            , proc(std::move(proc))
-            , thread(std::move(thread))
+            , proc(proc)
+            , thread(thread)
             , bpid(-1)
         {
         }

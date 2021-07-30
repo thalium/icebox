@@ -11,7 +11,7 @@ PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
     {
         const auto arg     = static_cast<reg_e>(i);
         const auto strname = ::registers::to_string(arg);
-        const auto name    = PyUnicode_FromStringAndSize(strname.data(), strname.size());
+        const auto name    = py_to_string(strname.data(), strname.size());
         if(!name)
             return nullptr;
 
@@ -45,7 +45,7 @@ PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
     {
         const auto arg     = static_cast<msr_e>(i);
         const auto strname = ::registers::to_string(arg);
-        const auto name    = PyUnicode_FromStringAndSize(strname.data(), strname.size());
+        const auto name    = py_to_string(strname.data(), strname.size());
         if(!name)
             return nullptr;
 

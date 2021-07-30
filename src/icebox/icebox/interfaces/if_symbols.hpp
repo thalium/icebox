@@ -47,16 +47,16 @@ namespace symbols
 
         using on_module_fn = std::function<walk_e(span_t span, const Module& module)>;
 
-        bool    insert  (proc_t proc, const std::string& module, span_t span, const std::shared_ptr<Module>& symbols);
-        bool    insert  (proc_t proc, const memory::Io& io, span_t span);
-        bool    remove  (proc_t proc, const std::string& module);
+        bool    insert  (proc_t proc, const std::string& module, span_t span, const std::shared_ptr<Module>& symbols) const;
+        bool    insert  (proc_t proc, const memory::Io& io, span_t span) const;
+        bool    remove  (proc_t proc, const std::string& module) const;
 
-        bool                list        (proc_t proc, const on_module_fn& on_module);
-        Module*             find        (proc_t proc, const std::string& module);
-        opt<uint64_t>       address     (proc_t proc, const std::string& module, const std::string& symbol);
-        void                list_strucs (proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc);
-        opt<symbols::Struc> read_struc  (proc_t proc, const std::string& module, const std::string& struc);
-        std::string         string      (proc_t proc, uint64_t addr);
+        bool                list        (proc_t proc, const on_module_fn& on_module) const;
+        Module*             find        (proc_t proc, const std::string& module) const;
+        opt<uint64_t>       address     (proc_t proc, const std::string& module, const std::string& symbol) const;
+        void                list_strucs (proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc) const;
+        opt<symbols::Struc> read_struc  (proc_t proc, const std::string& module, const std::string& struc) const;
+        std::string         string      (proc_t proc, uint64_t addr) const;
 
         // remove me
         static Modules& modules(core::Core& core);

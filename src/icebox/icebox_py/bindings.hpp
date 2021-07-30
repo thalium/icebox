@@ -169,4 +169,11 @@ namespace py
         memcpy(&ret, ptr, sizeof ret);
         return ret;
     }
+
+    // cast size to Py_ssize_t & avoid clang-tidy warning
+    inline PyObject* py_to_string(const char* data, size_t size)
+    {
+        return PyUnicode_FromStringAndSize(data, static_cast<Py_ssize_t>(size));
+    }
+
 } // namespace py

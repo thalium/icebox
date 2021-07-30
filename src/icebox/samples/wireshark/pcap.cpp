@@ -67,7 +67,7 @@ pcap::Writer::Writer()
 
 pcap::Writer::~Writer() = default;
 
-void pcap::Writer::add_packet(const metadata_t& m, const void* data, size_t size)
+void pcap::Writer::add_packet(const metadata_t& m, const void* data, size_t size) const
 {
     Packet p;
     p.meta = m;
@@ -224,7 +224,7 @@ namespace
     }
 }
 
-bool pcap::Writer::write(const std::string& filepath)
+bool pcap::Writer::write(const std::string& filepath) const
 {
     auto file = fopen(filepath.data(), "wb");
     if(file == nullptr)

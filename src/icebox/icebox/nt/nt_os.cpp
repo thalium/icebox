@@ -9,6 +9,8 @@
 #include "utils/pe.hpp"
 #include "utils/utils.hpp"
 
+#include <atomic>
+
 nt::Os::Os(core::Core& core)
     : core_(core)
     , kpcr_(0)
@@ -334,7 +336,7 @@ namespace
 
         LOG(INFO, "hot-patching NtCreatePagingFile...");
         const auto where = symbols::address(core, symbols::kernel, "nt", "NtCreatePagingFile");
-        auto       done  = false;
+        auto       done  = std::atomic<bool>(false);
         const auto bp    = state::break_on(core, "NtCreatePagingFile", *where, [&] { done = patch_nt_create_paging_file(os, core, *where); });
         while(!done)
             state::exec(core);

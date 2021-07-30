@@ -135,7 +135,7 @@ namespace
     opt<MMPTE> read_pml4e(nt::Os& os, const virt_t& virt, dtb_t dtb)
     {
         const auto pml4e_base = dtb.val & (mask(40) << 12);
-        const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
+        const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8ULL;
         auto       pml4e      = MMPTE{};
         const auto ok         = memory::read_physical(os.core_, &pml4e, pml4e_ptr, sizeof pml4e);
         if(!ok)

@@ -52,8 +52,8 @@ namespace
 
 std::shared_ptr<objects::Data> objects::make(core::Core& core, proc_t proc)
 {
-    const auto ptr = std::make_shared<Data>(core, proc);
-    const auto ok  = setup(*ptr);
+    auto ptr = std::make_shared<Data>(core, proc);
+    auto ok  = setup(*ptr);
     if(!ok)
         return {};
 

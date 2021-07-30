@@ -151,7 +151,7 @@ namespace
 
 PyObject* py::to_bytes(const char* ptr, size_t size)
 {
-    return PyBytes_FromStringAndSize(ptr, size);
+    return PyBytes_FromStringAndSize(ptr, static_cast<Py_ssize_t>(size));
 }
 
 const char* py::from_bytes(PyObject* self, size_t size)

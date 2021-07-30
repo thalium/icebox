@@ -506,7 +506,7 @@ namespace
         if(!exception_dir)
             return FAIL(std::nullopt, "unable to get span of exception_dir");
 
-        const auto function_table = parse_exception_dir(c, proc, span.addr, *exception_dir, name);
+        auto function_table = parse_exception_dir(c, proc, span.addr, *exception_dir, name);
         if(!function_table)
             return FAIL(std::nullopt, "unable to parse exception dir from %s", name.data());
 

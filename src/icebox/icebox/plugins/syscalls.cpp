@@ -171,7 +171,7 @@ bool Data::setup()
     return true;
 }
 
-bool plugins::Syscalls::generate(const fs::path& file_name)
+bool plugins::Syscalls::generate(const fs::path& file_name) const
 {
     auto&      d      = *d_;
     const auto output = create_calltree(d.core_, d.triggers_, d.args_, d.proc_, d.callsteps_);
