@@ -3,7 +3,7 @@ import os
 import struct
 import types
 
-from . import _icebox
+from . import libicebox
 
 
 # magic to attach dynamic properties to a single class instance
@@ -98,7 +98,7 @@ class BreakpointId:
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        _icebox.drop_breakpoint(self.bpid)
+        libicebox.drop_breakpoint(self.bpid)
         del self.bpid
         del self.callback
 
@@ -111,16 +111,16 @@ class Symbols:
     def address(self, name):
         """Convert symbol to process virtual address."""
         module, symbol = name.split("!")
-        return _icebox.symbols_address(self.proc, module, symbol)
+        return libicebox.symbols_address(self.proc, module, symbol)
 
     def strucs(self, module):
         """List all structure names from process module name."""
-        return _icebox.symbols_list_strucs(self.proc, module)
+        return libicebox.symbols_list_strucs(self.proc, module)
 
     def struc(self, name):
         """Read structure type from name."""
         module, struc_name = name.split("!")
-        ret = _icebox.symbols_read_struc(self.proc, module, struc_name)
+        ret = libicebox.symbols_read_struc(self.proc, module, struc_name)
         if not ret:
             return ret
 
@@ -139,23 +139,23 @@ class Symbols:
 
     def string(self, ptr):
         """Convert process virtual memory address to symbol string."""
-        return _icebox.symbols_string(self.proc, ptr)
+        return libicebox.symbols_string(self.proc, ptr)
 
     def load_module_memory(self, addr, size):
         """Load symbols from virtual memory address and size."""
-        return _icebox.symbols_load_module_memory(self.proc, addr, size)
+        return libicebox.symbols_load_module_memory(self.proc, addr, size)
 
     def load_module(self, name):
         """Load symbols from process module name."""
-        return _icebox.symbols_load_module(self.proc, name)
+        return libicebox.symbols_load_module(self.proc, name)
 
     def load_modules(self):
         """Load symbols from all process modules."""
-        return _icebox.symbols_load_modules(self.proc)
+        return libicebox.symbols_load_modules(self.proc)
 
     def autoload_modules(self):
         """Return an object auto-loading symbols from process modules."""
-        bpid = _icebox.symbols_autoload_modules(self.proc)
+        bpid = libicebox.symbols_autoload_modules(self.proc)
         return BreakpointId(bpid, None)
 
     def dump_type(self, name, ptr):
@@ -190,11 +190,11 @@ class Virtual:
 
     def read(self, buf, ptr):
         """Read buffer from virtual memory."""
-        return _icebox.memory_read_virtual(buf, self.proc, ptr)
+        return libicebox.memory_read_virtual(buf, self.proc, ptr)
 
     def physical_address(self, ptr):
         """Convert virtual memory address to physical address."""
-        return _icebox.memory_virtual_to_physical(self.proc, ptr)
+        return libicebox.memory_virtual_to_physical(self.proc, ptr)
 
     def __setitem__(self, key, item):
         if isinstance(key, slice):
@@ -203,7 +203,7 @@ class Virtual:
 
     def write(self, ptr, buf):
         """Write buffer to virtual memory."""
-        return _icebox.memory_write_virtual(buf, self.proc, ptr)
+        return libicebox.memory_write_virtual(buf, self.proc, ptr)
 
 
 class Module:
@@ -221,15 +221,15 @@ class Module:
 
     def name(self):
         """Return module name."""
-        return _icebox.modules_name(self.proc, self.mod)
+        return libicebox.modules_name(self.proc, self.mod)
 
     def span(self):
         """Return module base address and size."""
-        return _icebox.modules_span(self.proc, self.mod)
+        return libicebox.modules_span(self.proc, self.mod)
 
     def flags(self):
         """Return module flags."""
-        return Flags(_icebox.modules_flags(self.mod))
+        return Flags(libicebox.modules_flags(self.mod))
 
 
 class Modules:
@@ -238,17 +238,17 @@ class Modules:
 
     def __call__(self):
         """List all process modules."""
-        for x in _icebox.modules_list(self.proc):
+        for x in libicebox.modules_list(self.proc):
             yield Module(self.proc, x)
 
     def find(self, addr):
         """Find module by address."""
-        mod = _icebox.modules_find(self.proc, addr)
+        mod = libicebox.modules_find(self.proc, addr)
         return Module(self.proc, mod) if mod else None
 
     def find_name(self, name, flags=flags_any):
         """Find module by name."""
-        mod = _icebox.modules_find_name(self.proc, name, flags)
+        mod = libicebox.modules_find_name(self.proc, name, flags)
         return Module(self.proc, mod) if mod else None
 
     def break_on_create(self, callback, flags=flags_any):
@@ -257,7 +257,7 @@ class Modules:
         def fmod(mod):
             return callback(Module(self.proc, mod))
 
-        bpid = _icebox.modules_listen_create(self.proc, flags, fmod)
+        bpid = libicebox.modules_listen_create(self.proc, flags, fmod)
         return BreakpointId(bpid, fmod)
 
 
@@ -267,20 +267,20 @@ class Callstack:
 
     def __call__(self):
         """List callstack addresses."""
-        for x in _icebox.callstacks_read(self.proc, 256):
+        for x in libicebox.callstacks_read(self.proc, 256):
             yield x
 
     def load_module(self, mod):
         """Load unwind data from module."""
-        return _icebox.callstacks_load_module(self.proc, mod.mod)
+        return libicebox.callstacks_load_module(self.proc, mod.mod)
 
     def load_driver(self, drv):
         """Load unwind data from driver."""
-        return _icebox.callstacks_load_driver(self.proc, drv.drv)
+        return libicebox.callstacks_load_driver(self.proc, drv.drv)
 
     def autoload_modules(self):
         """Return an object auto-loading unwind data from modules."""
-        bpid = _icebox.callstacks_autoload_modules(self.proc)
+        bpid = libicebox.callstacks_autoload_modules(self.proc)
         return BreakpointId(bpid, None)
 
 
@@ -291,7 +291,7 @@ class VmArea:
 
     def span(self):
         """Return vma base address and size."""
-        return _icebox.vm_area_span(self.proc, self.vma)
+        return libicebox.vm_area_span(self.proc, self.vma)
 
 
 class VmAreas:
@@ -300,7 +300,7 @@ class VmAreas:
 
     def __call__(self):
         """List all current active virtual memory areas."""
-        for x in _icebox.vm_area_list(self.proc):
+        for x in libicebox.vm_area_list(self.proc):
             yield VmArea(self.proc, x)
 
 
@@ -321,40 +321,40 @@ class Process:
 
     def native(self):
         """Return native process handle."""
-        return _icebox.process_native(self.proc)
+        return libicebox.process_native(self.proc)
 
     def kdtb(self):
         """Return kernel Directory Table Base."""
-        return _icebox.process_kdtb(self.proc)
+        return libicebox.process_kdtb(self.proc)
 
     def udtb(self):
         """Return user Directory Table Base."""
-        return _icebox.process_udtb(self.proc)
+        return libicebox.process_udtb(self.proc)
 
     def name(self):
         """Return process name."""
-        return _icebox.process_name(self.proc)
+        return libicebox.process_name(self.proc)
 
     def is_valid(self):
         """Return whether this process is valid."""
-        return _icebox.process_is_valid(self.proc)
+        return libicebox.process_is_valid(self.proc)
 
     def pid(self):
         """Return process identifier."""
-        return _icebox.process_pid(self.proc)
+        return libicebox.process_pid(self.proc)
 
     def flags(self):
         """Return process flags."""
-        return Flags(_icebox.process_flags(self.proc))
+        return Flags(libicebox.process_flags(self.proc))
 
     def parent(self):
         """Return parent process."""
-        ret = _icebox.process_parent(self.proc)
+        ret = libicebox.process_parent(self.proc)
         return Process(ret) if ret else None
 
     def threads(self):
         """List all process threads."""
-        for x in _icebox.thread_list(self.proc):
+        for x in libicebox.thread_list(self.proc):
             yield Thread(x)
 
 
@@ -364,12 +364,12 @@ class Processes:
 
     def __call__(self):
         """List all current processes."""
-        for x in _icebox.process_list():
+        for x in libicebox.process_list():
             yield Process(x)
 
     def current(self):
         """Return current active process."""
-        return Process(_icebox.process_current())
+        return Process(libicebox.process_current())
 
     def find_name(self, name, flags=flags_any):
         """Find process by name."""
@@ -397,7 +397,7 @@ class Processes:
 
     def wait(self, name, flags=flags_any):
         """Return or wait for process to start from name."""
-        return Process(_icebox.process_wait(name, flags))
+        return Process(libicebox.process_wait(name, flags))
 
     def break_on_create(self, callback):
         """Return breakpoint on process creation."""
@@ -405,7 +405,7 @@ class Processes:
         def fproc(proc):
             return callback(Process(proc))
 
-        bpid = _icebox.process_listen_create(fproc)
+        bpid = libicebox.process_listen_create(fproc)
         return BreakpointId(bpid, fproc)
 
     def break_on_delete(self, callback):
@@ -414,7 +414,7 @@ class Processes:
         def fproc(proc):
             return callback(Process(proc))
 
-        bpid = _icebox.process_listen_delete(fproc)
+        bpid = libicebox.process_listen_delete(fproc)
         return BreakpointId(bpid, fproc)
 
 
@@ -430,15 +430,15 @@ class Thread:
 
     def process(self):
         """Return thread processus."""
-        return Process(_icebox.thread_process(self.thread))
+        return Process(libicebox.thread_process(self.thread))
 
     def program_counter(self):
         """Return thread program counter."""
-        return _icebox.thread_program_counter(self.thread)
+        return libicebox.thread_program_counter(self.thread)
 
     def tid(self):
         """Return thread id."""
-        return _icebox.thread_tid(self.thread)
+        return libicebox.thread_tid(self.thread)
 
 
 class Threads:
@@ -447,7 +447,7 @@ class Threads:
 
     def current(self):
         """Return current active thread."""
-        return Thread(_icebox.thread_current())
+        return Thread(libicebox.thread_current())
 
     def break_on_create(self, callback):
         """Return breakpoint on thread creation."""
@@ -455,7 +455,7 @@ class Threads:
         def fthread(thread):
             return callback(Thread(thread))
 
-        bpid = _icebox.thread_listen_create(fthread)
+        bpid = libicebox.thread_listen_create(fthread)
         return BreakpointId(bpid, fthread)
 
     def break_on_delete(self, callback):
@@ -464,7 +464,7 @@ class Threads:
         def fthread(thread):
             return callback(Thread(thread))
 
-        bpid = _icebox.thread_listen_delete(fthread)
+        bpid = libicebox.thread_listen_delete(fthread)
         return BreakpointId(bpid, fthread)
 
 
@@ -483,7 +483,7 @@ class Physical:
 
     def read(self, buf, ptr):
         """Read physical memory to buffer."""
-        return _icebox.memory_read_physical(buf, ptr)
+        return libicebox.memory_read_physical(buf, ptr)
 
     def __setitem__(self, key, item):
         if isinstance(key, slice):
@@ -492,7 +492,7 @@ class Physical:
 
     def write(self, ptr, buf):
         """Write buffer to physical memory."""
-        return _icebox.memory_write_physical(buf, ptr)
+        return libicebox.memory_write_physical(buf, ptr)
 
 
 class Args:
@@ -504,17 +504,17 @@ class Args:
             args = []
             start = key.start if key.start else 0
             for i in range(start, key.stop):
-                args.append(_icebox.functions_read_arg(i))
+                args.append(libicebox.functions_read_arg(i))
             return args
-        return _icebox.functions_read_arg(key)
+        return libicebox.functions_read_arg(key)
 
     def __setitem__(self, key, item):
         if isinstance(key, slice):
             start = key.start if key.start else 0
             for i in range(start, start + len(item)):
-                _icebox.functions_write_arg(i, item[i - start])
+                libicebox.functions_write_arg(i, item[i - start])
             return
-        return _icebox.functions_write_arg(key, item)
+        return libicebox.functions_write_arg(key, item)
 
 
 class Functions:
@@ -523,20 +523,20 @@ class Functions:
 
     def read_stack(self, idx):
         """Read indexed stack value."""
-        return _icebox.functions_read_stack(idx)
+        return libicebox.functions_read_stack(idx)
 
     def read_arg(self, idx):
         """Read indexed function argument."""
-        return _icebox.functions_read_arg(idx)
+        return libicebox.functions_read_arg(idx)
 
     def write_arg(self, idx, arg):
         """Write indexed function argument."""
-        return _icebox.functions_write_arg(idx, arg)
+        return libicebox.functions_write_arg(idx, arg)
 
     def break_on_return(self, callback, name=""):
         """Set a single-use breakpoint callback on function return."""
         # TODO do we need to keep ref on callback ?
-        return _icebox.functions_break_on_return(name, callback)
+        return libicebox.functions_break_on_return(name, callback)
 
 
 class Driver:
@@ -552,11 +552,11 @@ class Driver:
 
     def name(self):
         """Return driver name."""
-        return _icebox.drivers_name(self.drv)
+        return libicebox.drivers_name(self.drv)
 
     def span(self):
         """Return driver base address and size."""
-        return _icebox.drivers_span(self.drv)
+        return libicebox.drivers_span(self.drv)
 
 
 class Drivers:
@@ -565,12 +565,12 @@ class Drivers:
 
     def __call__(self):
         """List all current drivers."""
-        for x in _icebox.drivers_list():
+        for x in libicebox.drivers_list():
             yield Driver(x)
 
     def find(self, addr):
         """Find driver from address."""
-        drv = _icebox.drivers_find(addr)
+        drv = libicebox.drivers_find(addr)
         return Driver(drv) if drv else None
 
     def find_name(self, name):
@@ -588,7 +588,7 @@ class Drivers:
         def fdrv(drv, load):
             return callback(Driver(drv), load)
 
-        bpid = _icebox.drivers_listen(fdrv)
+        bpid = libicebox.drivers_listen(fdrv)
         return BreakpointId(bpid, fdrv)
 
 
@@ -598,11 +598,11 @@ class KernelSymbols:
 
     def load_drivers(self):
         """Load symbols from all drivers."""
-        return _icebox.symbols_load_drivers()
+        return libicebox.symbols_load_drivers()
 
     def load_driver(self, name):
         """Load symbols from named driver."""
-        return _icebox.symbols_load_driver(name)
+        return libicebox.symbols_load_driver(name)
 
 
 def _get_default_logger():
@@ -623,15 +623,15 @@ def _get_default_logger():
 
 class Vm:
     def __init__(self, name, attach_only=False, get_logger=_get_default_logger):
-        _icebox.log_redirect(get_logger())
+        libicebox.log_redirect(get_logger())
         if attach_only:
-            _icebox.attach_only(name)
+            libicebox.attach_only(name)
         else:
-            _icebox.attach(name)
-        r, w = _icebox.register_read, _icebox.register_write
-        self.registers = Registers(_icebox.register_list, r, w)
-        r, w = _icebox.msr_read, _icebox.msr_write
-        self.msr = Registers(_icebox.msr_list, r, w)
+            libicebox.attach(name)
+        r, w = libicebox.register_read, libicebox.register_write
+        self.registers = Registers(libicebox.register_list, r, w)
+        r, w = libicebox.msr_read, libicebox.msr_write
+        self.msr = Registers(libicebox.msr_list, r, w)
         self.threads = Threads()
         self.processes = Processes()
         self.physical = Physical()
@@ -641,27 +641,27 @@ class Vm:
 
     def detach(self):
         """Detach from vm."""
-        _icebox.detach()
+        libicebox.detach()
 
     def detect(self):
         """Detect OS."""
-        _icebox.detect()
+        libicebox.detect()
 
     def resume(self):
         """Resume vm."""
-        _icebox.resume()
+        libicebox.resume()
 
     def pause(self):
         """Pause vm."""
-        _icebox.pause()
+        libicebox.pause()
 
     def step_once(self):
         """Execute a single instruction."""
-        _icebox.single_step()
+        libicebox.single_step()
 
     def wait(self):
         """Wait for vm to break."""
-        _icebox.wait()
+        libicebox.wait()
 
     def exec(self):
         """Execute vm once until next break."""
@@ -670,7 +670,7 @@ class Vm:
 
     def interrupt(self):
         """Interrupt vm execution."""
-        _icebox.interrupt()
+        libicebox.interrupt()
 
     def _to_virtual(self, where, get_proc):
         if not isinstance(where, str):
@@ -689,31 +689,31 @@ class Vm:
     def break_on(self, where, callback, name=""):
         """Return breakpoint on virtual address."""
         where = self._to_virtual(where, lambda: self.processes.current())
-        bp = _icebox.break_on(name, where, callback)
+        bp = libicebox.break_on(name, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_process(self, proc, where, callback, name=""):
         """Return breakpoint on virtual address filtered by process."""
         where = self._to_virtual(where, lambda: proc)
-        bp = _icebox.break_on_process(name, proc.proc, where, callback)
+        bp = libicebox.break_on_process(name, proc.proc, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_thread(self, thread, where, callback, name=""):
         """Return breakpoint on virtual address filtered by thread."""
         where = self._to_virtual(where, lambda: where.process())
-        bp = _icebox.break_on_thread(name, thread.thread, where, callback)
+        bp = libicebox.break_on_thread(name, thread.thread, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_physical(self, where, callback, name=""):
         """Return breakpoint on physical address."""
         where = self._to_physical(where, lambda: self.processes.current())
-        bp = _icebox.break_on_physical(name, where, callback)
+        bp = libicebox.break_on_physical(name, where, callback)
         return BreakpointId(bp, callback)
 
     def break_on_physical_process(self, dtb, where, callback, name=""):
         """Return breakpoint on physical address filtered by DTB."""
         where = self._to_physical(where, self.processes.current())
-        bp = _icebox.break_on_physical_process(name, dtb, where, callback)
+        bp = libicebox.break_on_physical_process(name, dtb, where, callback)
         return BreakpointId(bp, callback)
 
 

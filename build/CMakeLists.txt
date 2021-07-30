@@ -240,7 +240,7 @@ target_link_libraries(icebox_cmd PRIVATE icebox)
 # icebox_py
 add_target(icebox_py libs "${root_dir}/src/icebox/icebox_py" OPTIONS shared fmt tidy)
 set_target_output_directory(icebox_py "icebox")
-set_target_output_name(icebox_py _icebox _icebox_d)
+set_target_output_name(icebox_py libicebox libicebox_d)
 set_target_properties(icebox_py PROPERTIES PREFIX "")
 target_include_directories(icebox_py PRIVATE
     ${PYTHON_INCLUDE_DIRS}

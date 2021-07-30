@@ -11,6 +11,6 @@ setup(
     url="https://github.com/thalium/icebox",
     packages=["icebox"],
     package_data={
-        "icebox": ["icebox/_icebox.pyd"],
+        "icebox": ["icebox/libicebox.pyd"],
     },
 )

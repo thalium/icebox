@@ -273,16 +273,16 @@ namespace
     }};
 }
 
-PyMODINIT_FUNC PyInit__icebox()
+PyMODINIT_FUNC PyInit_libicebox()
 {
-    char       main[] = "_icebox";
+    char       main[] = "libicebox";
     auto       args   = std::array<char*, 2>{main, nullptr};
     const auto argc   = static_cast<int>(args.size());
     logg::init(argc - 1, &args[0]);
 
     static auto ice_module = PyModuleDef{
         PyModuleDef_HEAD_INIT,                     // m_base
-        "_icebox",                                 // m_name
+        "libicebox",                               // m_name
         "Python interface for the icebox library", // m_doc
         sizeof(Handle),                            // m_size
         const_cast<PyMethodDef*>(&ice_methods[0]), // m_methods
