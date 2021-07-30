@@ -18,7 +18,7 @@ namespace pcap
 
     struct Writer
     {
-         Writer();
+        Writer();
         ~Writer();
 
         void    add_packet  (const metadata_t& m, const void* data, size_t size);

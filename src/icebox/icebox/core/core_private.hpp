@@ -46,7 +46,7 @@ namespace core
 
     struct Core
     {
-         Core(std::string name);
+        Core(std::string name);
         ~Core();
 
         const std::string name_;

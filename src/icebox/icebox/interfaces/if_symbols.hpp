@@ -42,7 +42,7 @@ namespace symbols
 
     struct Modules
     {
-         Modules(core::Core& core);
+        Modules(core::Core& core);
         ~Modules();
 
         using on_module_fn = std::function<walk_e(span_t span, const Module& module)>;

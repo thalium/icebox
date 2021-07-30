@@ -95,14 +95,10 @@ def main():
     pre_patterns = [
         # break line after lambda
         (r"(\n *)(.+\[[^]]*\](?: *\([^)]*\))?(?: -> .+)?) {\n", r"\1\2\1{\n"),
-        # break line after union
-        (r"(\n *)union {\n", r"\1union\1{\n"),
     ]
     fields = [
         # align case ...: return ...;
         (4, r" +(?:case .+|default):", " +", r"[^ ].+;"),
-        # align ... = ...
-        (0, r" *\b(?:using )?[^\n ]+", " +", r"= .+?"),
         # align method names
         (
             4,
@@ -119,16 +115,12 @@ def main():
         ),
     ]
     post_patterns = [
-        # align constructor with destructor
-        (r"\n( +)(\w+)(\(.*\));\n\1~\2\(\);\n", r"\n\1 \2\3;\n\1~\2();\n"),
         # put forward declarations on one line
         (r"\n(namespace \w+)\n{\n +((?:\w+) \w+;)\n}\n", r"\n\1 { \2 }\n"),
         # remove empty namespaces close comments
         (r"(\n *}) // namespace\n", r"\1\n"),
         # align back ...] =\n{\n
         (r"(\n *)(.+?)\] =\n +{", r"\1\2] =\1{"),
-        # remove struct ...; alignment
-        (r"struct +([a-zA-Z_][a-zA-Z0-9_]+;)", r"struct \1"),
         # remove whitespaces after return
         (r"return +", r"return "),
         # enforce space after comment

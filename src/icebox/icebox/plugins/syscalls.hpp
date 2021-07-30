@@ -11,7 +11,7 @@ namespace plugins
 {
     struct Syscalls
     {
-         Syscalls(core::Core& core, proc_t proc);
+        Syscalls(core::Core& core, proc_t proc);
         ~Syscalls();
 
         bool generate(const fs::path& file_name);
@@ -22,7 +22,7 @@ namespace plugins
 
     struct Syscalls32
     {
-         Syscalls32(core::Core& core, proc_t proc);
+        Syscalls32(core::Core& core, proc_t proc);
         ~Syscalls32();
 
         bool generate(const fs::path& file_name);

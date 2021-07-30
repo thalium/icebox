@@ -10,7 +10,7 @@ namespace plugins
 {
     struct HeapSan
     {
-         HeapSan(core::Core& core, proc_t target);
+        HeapSan(core::Core& core, proc_t target);
         ~HeapSan();
 
         struct Data;
