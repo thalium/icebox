@@ -91,7 +91,7 @@ namespace
     };
 
     template <typename T, size_t N>
-    std::vector<const char*> dump_all(const T (&masks)[N], uint32_t arg, const char*(to_str)(T))
+    std::vector<const char*> dump_all(const T (&masks)[N], uint32_t arg, const char*(to_str) (T))
     {
         std::vector<const char*> reply;
         for(auto mask : masks)

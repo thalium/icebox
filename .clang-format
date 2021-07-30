@@ -5,7 +5,6 @@ AlignConsecutiveAssignments:        true
 AlignEscapedNewlines:               Left
 AllowShortCaseLabelsOnASingleLine:  true
 BreakBeforeBinaryOperators:         NonAssignment
-BreakBeforeBraces:                  Allman
 BreakConstructorInitializers:       BeforeComma
 BreakInheritanceList:               BeforeComma
 ColumnLimit:                        0
@@ -19,3 +18,19 @@ PointerAlignment:                   Left
 SpaceAfterCStyleCast:               true
 SpaceBeforeParens:                  Never
 UseTab:                             Never
+
+BreakBeforeBraces:          Custom
+BraceWrapping:
+    AfterCaseLabel:         true
+    AfterClass:             true
+    AfterControlStatement:  Always
+    AfterEnum:              true
+    AfterFunction:          true
+    AfterNamespace:         true
+    AfterStruct:            true
+    AfterUnion:             true
+    AfterExternBlock:       true
+    BeforeCatch:            true
+    BeforeElse:             true
+    BeforeLambdaBody:       false
+    BeforeWhile:            false

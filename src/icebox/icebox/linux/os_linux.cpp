@@ -1133,13 +1133,13 @@ vma_access_e OsLinux::vm_area_access(proc_t /*proc*/, vm_area_t vm_area)
 
     vma_access_e ret = VMA_ACCESS_NONE;
     if(*flags & VM_READ)
-        ret = (vma_access_e)(ret | VMA_ACCESS_READ);
+        ret = (vma_access_e) (ret | VMA_ACCESS_READ);
     if(*flags & VM_WRITE)
-        ret = (vma_access_e)(ret | VMA_ACCESS_WRITE);
+        ret = (vma_access_e) (ret | VMA_ACCESS_WRITE);
     if(*flags & VM_EXEC)
-        ret = (vma_access_e)(ret | VMA_ACCESS_EXEC);
+        ret = (vma_access_e) (ret | VMA_ACCESS_EXEC);
     if(*flags & VM_SHARED)
-        ret = (vma_access_e)(ret | VMA_ACCESS_SHARED);
+        ret = (vma_access_e) (ret | VMA_ACCESS_SHARED);
 
     return ret;
 }
