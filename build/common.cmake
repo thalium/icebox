@@ -367,6 +367,8 @@ function(setup_target target)
     endif()
 endfunction()
 
+add_custom_target(fmt)
+
 function(setup_clang_format target)
     if("$ENV{DISABLE_CLANG_FORMAT}" STREQUAL "true")
         return()
@@ -405,6 +407,7 @@ function(setup_clang_format target)
     )
     set_target_properties(${target}_fmt PROPERTIES FOLDER fmt)
     add_dependencies(${target} ${target}_fmt)
+    add_dependencies(fmt ${target}_fmt)
 endfunction()
 
 function(setup_clang_tidy target)
