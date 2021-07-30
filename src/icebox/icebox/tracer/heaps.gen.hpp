@@ -26,15 +26,15 @@ namespace nt
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         using callcfgs_t = std::array<tracer::callcfg_t, 6>;
 
-        opt<bpid_t>                 register_all(proc_t proc, const on_call_fn& on_call);
+        opt<bpid_t>                 register_all(proc_t proc, const on_call_fn& on_call) const;
         static const callcfgs_t&    callcfgs    ();
 
-        opt<bpid_t> register_RtlFreeHeap               (proc_t proc, const on_RtlFreeHeap_fn& on_func);
-        opt<bpid_t> register_RtlGetUserInfoHeap        (proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func);
-        opt<bpid_t> register_RtlSetUserValueHeap       (proc_t proc, const on_RtlSetUserValueHeap_fn& on_func);
-        opt<bpid_t> register_RtlSizeHeap               (proc_t proc, const on_RtlSizeHeap_fn& on_func);
-        opt<bpid_t> register_RtlpAllocateHeapInternal  (proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func);
-        opt<bpid_t> register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func);
+        opt<bpid_t> register_RtlFreeHeap               (proc_t proc, const on_RtlFreeHeap_fn& on_func) const;
+        opt<bpid_t> register_RtlGetUserInfoHeap        (proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func) const;
+        opt<bpid_t> register_RtlSetUserValueHeap       (proc_t proc, const on_RtlSetUserValueHeap_fn& on_func) const;
+        opt<bpid_t> register_RtlSizeHeap               (proc_t proc, const on_RtlSizeHeap_fn& on_func) const;
+        opt<bpid_t> register_RtlpAllocateHeapInternal  (proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func) const;
+        opt<bpid_t> register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func) const;
 
         struct Data;
         std::unique_ptr<Data> d_;

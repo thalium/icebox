@@ -475,7 +475,7 @@ namespace
     }
 }
 
-opt<bpid_t> nt::syscalls::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAcceptConnectPort", [=]
     {
@@ -495,7 +495,7 @@ opt<bpid_t> nt::syscalls::register_NtAcceptConnectPort(proc_t proc, const on_NtA
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAddDriverEntry", [=]
     {
@@ -511,7 +511,7 @@ opt<bpid_t> nt::syscalls::register_NtAddDriverEntry(proc_t proc, const on_NtAddD
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAdjustGroupsToken(proc_t proc, const on_NtAdjustGroupsToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAdjustGroupsToken(proc_t proc, const on_NtAdjustGroupsToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAdjustGroupsToken", [=]
     {
@@ -531,7 +531,7 @@ opt<bpid_t> nt::syscalls::register_NtAdjustGroupsToken(proc_t proc, const on_NtA
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAdjustPrivilegesToken(proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAdjustPrivilegesToken(proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAdjustPrivilegesToken", [=]
     {
@@ -551,7 +551,7 @@ opt<bpid_t> nt::syscalls::register_NtAdjustPrivilegesToken(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlertThread", [=]
     {
@@ -566,7 +566,7 @@ opt<bpid_t> nt::syscalls::register_NtAlertThread(proc_t proc, const on_NtAlertTh
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAllocateReserveObject", [=]
     {
@@ -583,7 +583,7 @@ opt<bpid_t> nt::syscalls::register_NtAllocateReserveObject(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcCancelMessage(proc_t proc, const on_NtAlpcCancelMessage_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcCancelMessage(proc_t proc, const on_NtAlpcCancelMessage_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcCancelMessage", [=]
     {
@@ -600,7 +600,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcCancelMessage(proc_t proc, const on_NtA
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcConnectPort(proc_t proc, const on_NtAlpcConnectPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcConnectPort(proc_t proc, const on_NtAlpcConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcConnectPort", [=]
     {
@@ -625,7 +625,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcConnectPort(proc_t proc, const on_NtAlp
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCreatePort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCreatePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcCreatePort", [=]
     {
@@ -642,7 +642,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpc
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcCreateSectionView(proc_t proc, const on_NtAlpcCreateSectionView_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcCreateSectionView(proc_t proc, const on_NtAlpcCreateSectionView_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcCreateSectionView", [=]
     {
@@ -659,7 +659,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcCreateSectionView(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcCreateSecurityContext(proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcCreateSecurityContext(proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcCreateSecurityContext", [=]
     {
@@ -676,7 +676,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcCreateSecurityContext(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcDeletePortSection(proc_t proc, const on_NtAlpcDeletePortSection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcDeletePortSection(proc_t proc, const on_NtAlpcDeletePortSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcDeletePortSection", [=]
     {
@@ -693,7 +693,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcDeletePortSection(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcDeleteResourceReserve", [=]
     {
@@ -710,7 +710,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcDeleteResourceReserve(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcDisconnectPort", [=]
     {
@@ -726,7 +726,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcDisconnectPort(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcImpersonateClientOfPort(proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcImpersonateClientOfPort(proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcImpersonateClientOfPort", [=]
     {
@@ -743,7 +743,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcImpersonateClientOfPort(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcOpenSenderProcess(proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcOpenSenderProcess(proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcOpenSenderProcess", [=]
     {
@@ -763,7 +763,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcOpenSenderProcess(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcOpenSenderThread(proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcOpenSenderThread(proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcOpenSenderThread", [=]
     {
@@ -783,7 +783,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcOpenSenderThread(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcRevokeSecurityContext", [=]
     {
@@ -800,7 +800,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcRevokeSecurityContext(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAlpcSetInformation", [=]
     {
@@ -818,7 +818,7 @@ opt<bpid_t> nt::syscalls::register_NtAlpcSetInformation(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtApphelpCacheControl", [=]
     {
@@ -834,7 +834,7 @@ opt<bpid_t> nt::syscalls::register_NtApphelpCacheControl(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const on_NtAssignProcessToJobObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const on_NtAssignProcessToJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtAssignProcessToJobObject", [=]
     {
@@ -850,7 +850,7 @@ opt<bpid_t> nt::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCancelTimer(proc_t proc, const on_NtCancelTimer_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCancelTimer(proc_t proc, const on_NtCancelTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCancelTimer", [=]
     {
@@ -866,7 +866,7 @@ opt<bpid_t> nt::syscalls::register_NtCancelTimer(proc_t proc, const on_NtCancelT
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtClearEvent", [=]
     {
@@ -881,7 +881,7 @@ opt<bpid_t> nt::syscalls::register_NtClearEvent(proc_t proc, const on_NtClearEve
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtClose(proc_t proc, const on_NtClose_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtClose", [=]
     {
@@ -896,7 +896,7 @@ opt<bpid_t> nt::syscalls::register_NtClose(proc_t proc, const on_NtClose_fn& on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCommitComplete(proc_t proc, const on_NtCommitComplete_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCommitComplete(proc_t proc, const on_NtCommitComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCommitComplete", [=]
     {
@@ -912,7 +912,7 @@ opt<bpid_t> nt::syscalls::register_NtCommitComplete(proc_t proc, const on_NtComm
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCompactKeys", [=]
     {
@@ -928,7 +928,7 @@ opt<bpid_t> nt::syscalls::register_NtCompactKeys(proc_t proc, const on_NtCompact
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCompleteConnectPort", [=]
     {
@@ -943,7 +943,7 @@ opt<bpid_t> nt::syscalls::register_NtCompleteConnectPort(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCompressKey(proc_t proc, const on_NtCompressKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCompressKey(proc_t proc, const on_NtCompressKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCompressKey", [=]
     {
@@ -958,7 +958,7 @@ opt<bpid_t> nt::syscalls::register_NtCompressKey(proc_t proc, const on_NtCompres
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateDebugObject(proc_t proc, const on_NtCreateDebugObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateDebugObject(proc_t proc, const on_NtCreateDebugObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateDebugObject", [=]
     {
@@ -976,7 +976,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateDebugObject(proc_t proc, const on_NtC
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateDirectoryObject(proc_t proc, const on_NtCreateDirectoryObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateDirectoryObject(proc_t proc, const on_NtCreateDirectoryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateDirectoryObject", [=]
     {
@@ -993,7 +993,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateDirectoryObject(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateEnlistment(proc_t proc, const on_NtCreateEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateEnlistment(proc_t proc, const on_NtCreateEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateEnlistment", [=]
     {
@@ -1015,7 +1015,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateEnlistment(proc_t proc, const on_NtCr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateIoCompletion", [=]
     {
@@ -1033,7 +1033,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateIoCompletion(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateMutant(proc_t proc, const on_NtCreateMutant_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateMutant(proc_t proc, const on_NtCreateMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateMutant", [=]
     {
@@ -1051,7 +1051,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateMutant(proc_t proc, const on_NtCreate
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateNamedPipeFile(proc_t proc, const on_NtCreateNamedPipeFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateNamedPipeFile(proc_t proc, const on_NtCreateNamedPipeFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateNamedPipeFile", [=]
     {
@@ -1079,7 +1079,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateNamedPipeFile(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreatePagingFile", [=]
     {
@@ -1097,7 +1097,7 @@ opt<bpid_t> nt::syscalls::register_NtCreatePagingFile(proc_t proc, const on_NtCr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateProcess(proc_t proc, const on_NtCreateProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateProcess(proc_t proc, const on_NtCreateProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateProcess", [=]
     {
@@ -1119,7 +1119,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateProcess(proc_t proc, const on_NtCreat
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateResourceManager(proc_t proc, const on_NtCreateResourceManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateResourceManager(proc_t proc, const on_NtCreateResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateResourceManager", [=]
     {
@@ -1140,7 +1140,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateResourceManager(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateSection", [=]
     {
@@ -1161,7 +1161,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateSection(proc_t proc, const on_NtCreat
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateSemaphore", [=]
     {
@@ -1180,7 +1180,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateSemaphore(proc_t proc, const on_NtCre
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateThread", [=]
     {
@@ -1202,7 +1202,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateThread(proc_t proc, const on_NtCreate
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateThreadEx", [=]
     {
@@ -1227,7 +1227,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateThreadEx(proc_t proc, const on_NtCrea
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateToken", [=]
     {
@@ -1254,7 +1254,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateToken(proc_t proc, const on_NtCreateT
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateTransaction", [=]
     {
@@ -1278,7 +1278,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateTransaction(proc_t proc, const on_NtC
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateUserProcess", [=]
     {
@@ -1303,7 +1303,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateUserProcess(proc_t proc, const on_NtC
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateWaitablePort(proc_t proc, const on_NtCreateWaitablePort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateWaitablePort(proc_t proc, const on_NtCreateWaitablePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateWaitablePort", [=]
     {
@@ -1322,7 +1322,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateWaitablePort(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtCreateWorkerFactory", [=]
     {
@@ -1346,7 +1346,7 @@ opt<bpid_t> nt::syscalls::register_NtCreateWorkerFactory(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDebugActiveProcess", [=]
     {
@@ -1362,7 +1362,7 @@ opt<bpid_t> nt::syscalls::register_NtDebugActiveProcess(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDebugContinue(proc_t proc, const on_NtDebugContinue_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDebugContinue(proc_t proc, const on_NtDebugContinue_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDebugContinue", [=]
     {
@@ -1379,7 +1379,7 @@ opt<bpid_t> nt::syscalls::register_NtDebugContinue(proc_t proc, const on_NtDebug
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAtom_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDeleteAtom", [=]
     {
@@ -1394,7 +1394,7 @@ opt<bpid_t> nt::syscalls::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDeleteBootEntry", [=]
     {
@@ -1409,7 +1409,7 @@ opt<bpid_t> nt::syscalls::register_NtDeleteBootEntry(proc_t proc, const on_NtDel
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDeleteFile", [=]
     {
@@ -1424,7 +1424,7 @@ opt<bpid_t> nt::syscalls::register_NtDeleteFile(proc_t proc, const on_NtDeleteFi
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDeleteKey", [=]
     {
@@ -1439,7 +1439,7 @@ opt<bpid_t> nt::syscalls::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDeletePrivateNamespace", [=]
     {
@@ -1454,7 +1454,7 @@ opt<bpid_t> nt::syscalls::register_NtDeletePrivateNamespace(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDeviceIoControlFile(proc_t proc, const on_NtDeviceIoControlFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDeviceIoControlFile(proc_t proc, const on_NtDeviceIoControlFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDeviceIoControlFile", [=]
     {
@@ -1478,7 +1478,7 @@ opt<bpid_t> nt::syscalls::register_NtDeviceIoControlFile(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDisableLastKnownGood", [=]
     {
@@ -1491,7 +1491,7 @@ opt<bpid_t> nt::syscalls::register_NtDisableLastKnownGood(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDrawText(proc_t proc, const on_NtDrawText_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDrawText(proc_t proc, const on_NtDrawText_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDrawText", [=]
     {
@@ -1506,7 +1506,7 @@ opt<bpid_t> nt::syscalls::register_NtDrawText(proc_t proc, const on_NtDrawText_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtDuplicateToken", [=]
     {
@@ -1526,7 +1526,7 @@ opt<bpid_t> nt::syscalls::register_NtDuplicateToken(proc_t proc, const on_NtDupl
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtEnableLastKnownGood", [=]
     {
@@ -1539,7 +1539,7 @@ opt<bpid_t> nt::syscalls::register_NtEnableLastKnownGood(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtEnumerateBootEntries(proc_t proc, const on_NtEnumerateBootEntries_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtEnumerateBootEntries(proc_t proc, const on_NtEnumerateBootEntries_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtEnumerateBootEntries", [=]
     {
@@ -1555,7 +1555,7 @@ opt<bpid_t> nt::syscalls::register_NtEnumerateBootEntries(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtEnumerateKey(proc_t proc, const on_NtEnumerateKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtEnumerateKey(proc_t proc, const on_NtEnumerateKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtEnumerateKey", [=]
     {
@@ -1575,7 +1575,7 @@ opt<bpid_t> nt::syscalls::register_NtEnumerateKey(proc_t proc, const on_NtEnumer
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtEnumerateSystemEnvironmentValuesEx", [=]
     {
@@ -1592,7 +1592,7 @@ opt<bpid_t> nt::syscalls::register_NtEnumerateSystemEnvironmentValuesEx(proc_t p
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtEnumerateTransactionObject(proc_t proc, const on_NtEnumerateTransactionObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtEnumerateTransactionObject(proc_t proc, const on_NtEnumerateTransactionObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtEnumerateTransactionObject", [=]
     {
@@ -1611,7 +1611,7 @@ opt<bpid_t> nt::syscalls::register_NtEnumerateTransactionObject(proc_t proc, con
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtExtendSection(proc_t proc, const on_NtExtendSection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtExtendSection(proc_t proc, const on_NtExtendSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtExtendSection", [=]
     {
@@ -1627,7 +1627,7 @@ opt<bpid_t> nt::syscalls::register_NtExtendSection(proc_t proc, const on_NtExten
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtFlushInstallUILanguage(proc_t proc, const on_NtFlushInstallUILanguage_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtFlushInstallUILanguage(proc_t proc, const on_NtFlushInstallUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtFlushInstallUILanguage", [=]
     {
@@ -1643,7 +1643,7 @@ opt<bpid_t> nt::syscalls::register_NtFlushInstallUILanguage(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtFlushInstructionCache(proc_t proc, const on_NtFlushInstructionCache_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtFlushInstructionCache(proc_t proc, const on_NtFlushInstructionCache_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtFlushInstructionCache", [=]
     {
@@ -1660,7 +1660,7 @@ opt<bpid_t> nt::syscalls::register_NtFlushInstructionCache(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtFlushWriteBuffer", [=]
     {
@@ -1673,7 +1673,7 @@ opt<bpid_t> nt::syscalls::register_NtFlushWriteBuffer(proc_t proc, const on_NtFl
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtFreezeRegistry", [=]
     {
@@ -1688,7 +1688,7 @@ opt<bpid_t> nt::syscalls::register_NtFreezeRegistry(proc_t proc, const on_NtFree
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtGetNextProcess(proc_t proc, const on_NtGetNextProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtGetNextProcess(proc_t proc, const on_NtGetNextProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtGetNextProcess", [=]
     {
@@ -1707,7 +1707,7 @@ opt<bpid_t> nt::syscalls::register_NtGetNextProcess(proc_t proc, const on_NtGetN
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtGetNotificationResourceManager", [=]
     {
@@ -1728,7 +1728,7 @@ opt<bpid_t> nt::syscalls::register_NtGetNotificationResourceManager(proc_t proc,
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtInitializeNlsFiles", [=]
     {
@@ -1745,7 +1745,7 @@ opt<bpid_t> nt::syscalls::register_NtInitializeNlsFiles(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtInitializeRegistry(proc_t proc, const on_NtInitializeRegistry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtInitializeRegistry(proc_t proc, const on_NtInitializeRegistry_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtInitializeRegistry", [=]
     {
@@ -1760,7 +1760,7 @@ opt<bpid_t> nt::syscalls::register_NtInitializeRegistry(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtInitiatePowerAction", [=]
     {
@@ -1778,7 +1778,7 @@ opt<bpid_t> nt::syscalls::register_NtInitiatePowerAction(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtIsProcessInJob(proc_t proc, const on_NtIsProcessInJob_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtIsProcessInJob(proc_t proc, const on_NtIsProcessInJob_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtIsProcessInJob", [=]
     {
@@ -1794,7 +1794,7 @@ opt<bpid_t> nt::syscalls::register_NtIsProcessInJob(proc_t proc, const on_NtIsPr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtIsUILanguageComitted(proc_t proc, const on_NtIsUILanguageComitted_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtIsUILanguageComitted(proc_t proc, const on_NtIsUILanguageComitted_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtIsUILanguageComitted", [=]
     {
@@ -1807,7 +1807,7 @@ opt<bpid_t> nt::syscalls::register_NtIsUILanguageComitted(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtListenPort(proc_t proc, const on_NtListenPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtListenPort(proc_t proc, const on_NtListenPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtListenPort", [=]
     {
@@ -1823,7 +1823,7 @@ opt<bpid_t> nt::syscalls::register_NtListenPort(proc_t proc, const on_NtListenPo
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtLoadKey", [=]
     {
@@ -1839,7 +1839,7 @@ opt<bpid_t> nt::syscalls::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn&
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtLoadKeyEx", [=]
     {
@@ -1857,7 +1857,7 @@ opt<bpid_t> nt::syscalls::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtLockProductActivationKeys(proc_t proc, const on_NtLockProductActivationKeys_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtLockProductActivationKeys(proc_t proc, const on_NtLockProductActivationKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtLockProductActivationKeys", [=]
     {
@@ -1873,7 +1873,7 @@ opt<bpid_t> nt::syscalls::register_NtLockProductActivationKeys(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtLockVirtualMemory(proc_t proc, const on_NtLockVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtLockVirtualMemory(proc_t proc, const on_NtLockVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtLockVirtualMemory", [=]
     {
@@ -1891,7 +1891,7 @@ opt<bpid_t> nt::syscalls::register_NtLockVirtualMemory(proc_t proc, const on_NtL
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtMakePermanentObject(proc_t proc, const on_NtMakePermanentObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtMakePermanentObject(proc_t proc, const on_NtMakePermanentObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtMakePermanentObject", [=]
     {
@@ -1906,7 +1906,7 @@ opt<bpid_t> nt::syscalls::register_NtMakePermanentObject(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtMakeTemporaryObject", [=]
     {
@@ -1921,7 +1921,7 @@ opt<bpid_t> nt::syscalls::register_NtMakeTemporaryObject(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFModule_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFModule_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtMapCMFModule", [=]
     {
@@ -1941,7 +1941,7 @@ opt<bpid_t> nt::syscalls::register_NtMapCMFModule(proc_t proc, const on_NtMapCMF
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtMapUserPhysicalPages", [=]
     {
@@ -1958,7 +1958,7 @@ opt<bpid_t> nt::syscalls::register_NtMapUserPhysicalPages(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtModifyBootEntry", [=]
     {
@@ -1973,7 +1973,7 @@ opt<bpid_t> nt::syscalls::register_NtModifyBootEntry(proc_t proc, const on_NtMod
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtNotifyChangeDirectoryFile", [=]
     {
@@ -1996,7 +1996,7 @@ opt<bpid_t> nt::syscalls::register_NtNotifyChangeDirectoryFile(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtNotifyChangeMultipleKeys", [=]
     {
@@ -2022,7 +2022,7 @@ opt<bpid_t> nt::syscalls::register_NtNotifyChangeMultipleKeys(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtNotifyChangeSession", [=]
     {
@@ -2044,7 +2044,7 @@ opt<bpid_t> nt::syscalls::register_NtNotifyChangeSession(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenEnlistment", [=]
     {
@@ -2063,7 +2063,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenEnlistment(proc_t proc, const on_NtOpen
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenEvent", [=]
     {
@@ -2080,7 +2080,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenFile", [=]
     {
@@ -2100,7 +2100,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenFile(proc_t proc, const on_NtOpenFile_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenIoCompletion_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenIoCompletion", [=]
     {
@@ -2117,7 +2117,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenIoCompletion(proc_t proc, const on_NtOp
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenJobObject", [=]
     {
@@ -2134,7 +2134,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenJobObject(proc_t proc, const on_NtOpenJ
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenKey", [=]
     {
@@ -2151,7 +2151,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn&
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenKeyEx", [=]
     {
@@ -2169,7 +2169,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenKeyedEvent", [=]
     {
@@ -2186,7 +2186,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpen
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenMutant", [=]
     {
@@ -2203,7 +2203,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenMutant(proc_t proc, const on_NtOpenMuta
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenPrivateNamespace", [=]
     {
@@ -2221,7 +2221,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenPrivateNamespace(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenProcess(proc_t proc, const on_NtOpenProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenProcess(proc_t proc, const on_NtOpenProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenProcess", [=]
     {
@@ -2239,7 +2239,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenProcess(proc_t proc, const on_NtOpenPro
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenProcessToken(proc_t proc, const on_NtOpenProcessToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenProcessToken(proc_t proc, const on_NtOpenProcessToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenProcessToken", [=]
     {
@@ -2256,7 +2256,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenProcessToken(proc_t proc, const on_NtOp
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpenProcessTokenEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpenProcessTokenEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenProcessTokenEx", [=]
     {
@@ -2274,7 +2274,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenProcessTokenEx(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenResourceManager(proc_t proc, const on_NtOpenResourceManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenResourceManager(proc_t proc, const on_NtOpenResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenResourceManager", [=]
     {
@@ -2293,7 +2293,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenResourceManager(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenSection", [=]
     {
@@ -2310,7 +2310,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenSection(proc_t proc, const on_NtOpenSec
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenThreadToken", [=]
     {
@@ -2328,7 +2328,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenThreadToken(proc_t proc, const on_NtOpe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenThreadTokenEx", [=]
     {
@@ -2347,7 +2347,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenThreadTokenEx(proc_t proc, const on_NtO
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtOpenTransactionManager(proc_t proc, const on_NtOpenTransactionManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtOpenTransactionManager(proc_t proc, const on_NtOpenTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtOpenTransactionManager", [=]
     {
@@ -2367,7 +2367,7 @@ opt<bpid_t> nt::syscalls::register_NtOpenTransactionManager(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtPowerInformation(proc_t proc, const on_NtPowerInformation_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtPowerInformation(proc_t proc, const on_NtPowerInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtPowerInformation", [=]
     {
@@ -2386,7 +2386,7 @@ opt<bpid_t> nt::syscalls::register_NtPowerInformation(proc_t proc, const on_NtPo
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtPrePrepareEnlistment", [=]
     {
@@ -2402,7 +2402,7 @@ opt<bpid_t> nt::syscalls::register_NtPrePrepareEnlistment(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtPrivilegeObjectAuditAlarm", [=]
     {
@@ -2422,7 +2422,7 @@ opt<bpid_t> nt::syscalls::register_NtPrivilegeObjectAuditAlarm(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtPropagationComplete", [=]
     {
@@ -2440,7 +2440,7 @@ opt<bpid_t> nt::syscalls::register_NtPropagationComplete(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtPropagationFailed(proc_t proc, const on_NtPropagationFailed_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtPropagationFailed(proc_t proc, const on_NtPropagationFailed_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtPropagationFailed", [=]
     {
@@ -2457,7 +2457,7 @@ opt<bpid_t> nt::syscalls::register_NtPropagationFailed(proc_t proc, const on_NtP
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryBootOptions(proc_t proc, const on_NtQueryBootOptions_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryBootOptions(proc_t proc, const on_NtQueryBootOptions_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryBootOptions", [=]
     {
@@ -2473,7 +2473,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryBootOptions(proc_t proc, const on_NtQu
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryDefaultLocale", [=]
     {
@@ -2489,7 +2489,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryDefaultLocale(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryDirectoryFile(proc_t proc, const on_NtQueryDirectoryFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryDirectoryFile(proc_t proc, const on_NtQueryDirectoryFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryDirectoryFile", [=]
     {
@@ -2514,7 +2514,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryDirectoryFile(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryDriverEntryOrder", [=]
     {
@@ -2530,7 +2530,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryDriverEntryOrder(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryEvent", [=]
     {
@@ -2549,7 +2549,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryEvent(proc_t proc, const on_NtQueryEve
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryFullAttributesFile(proc_t proc, const on_NtQueryFullAttributesFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryFullAttributesFile(proc_t proc, const on_NtQueryFullAttributesFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryFullAttributesFile", [=]
     {
@@ -2565,7 +2565,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryFullAttributesFile(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationAtom", [=]
     {
@@ -2584,7 +2584,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationAtom(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationEnlistment(proc_t proc, const on_NtQueryInformationEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationEnlistment(proc_t proc, const on_NtQueryInformationEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationEnlistment", [=]
     {
@@ -2603,7 +2603,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationEnlistment(proc_t proc, con
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationFile(proc_t proc, const on_NtQueryInformationFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationFile(proc_t proc, const on_NtQueryInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationFile", [=]
     {
@@ -2622,7 +2622,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationFile(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationJobObject(proc_t proc, const on_NtQueryInformationJobObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationJobObject(proc_t proc, const on_NtQueryInformationJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationJobObject", [=]
     {
@@ -2641,7 +2641,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationJobObject(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationPort(proc_t proc, const on_NtQueryInformationPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationPort(proc_t proc, const on_NtQueryInformationPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationPort", [=]
     {
@@ -2660,7 +2660,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationPort(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationProcess(proc_t proc, const on_NtQueryInformationProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationProcess(proc_t proc, const on_NtQueryInformationProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationProcess", [=]
     {
@@ -2679,7 +2679,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationProcess(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationResourceManager", [=]
     {
@@ -2698,7 +2698,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationResourceManager(proc_t proc
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationToken(proc_t proc, const on_NtQueryInformationToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationToken(proc_t proc, const on_NtQueryInformationToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationToken", [=]
     {
@@ -2717,7 +2717,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationToken(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInformationTransactionManager", [=]
     {
@@ -2736,7 +2736,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInformationTransactionManager(proc_t p
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryInstallUILanguage", [=]
     {
@@ -2751,7 +2751,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryInstallUILanguage(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryIntervalProfile", [=]
     {
@@ -2767,7 +2767,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryIntervalProfile(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryIoCompletion", [=]
     {
@@ -2786,7 +2786,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryIoCompletion(proc_t proc, const on_NtQ
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryOpenSubKeys", [=]
     {
@@ -2802,7 +2802,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQu
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryOpenSubKeysEx", [=]
     {
@@ -2820,7 +2820,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryOpenSubKeysEx(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryPerformanceCounter", [=]
     {
@@ -2836,7 +2836,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryPerformanceCounter(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryPortInformationProcess(proc_t proc, const on_NtQueryPortInformationProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryPortInformationProcess(proc_t proc, const on_NtQueryPortInformationProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryPortInformationProcess", [=]
     {
@@ -2849,7 +2849,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryPortInformationProcess(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryQuotaInformationFile(proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryQuotaInformationFile(proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryQuotaInformationFile", [=]
     {
@@ -2872,7 +2872,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryQuotaInformationFile(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQuerySection(proc_t proc, const on_NtQuerySection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQuerySection(proc_t proc, const on_NtQuerySection_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQuerySection", [=]
     {
@@ -2891,7 +2891,7 @@ opt<bpid_t> nt::syscalls::register_NtQuerySection(proc_t proc, const on_NtQueryS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQuerySecurityObject", [=]
     {
@@ -2910,7 +2910,7 @@ opt<bpid_t> nt::syscalls::register_NtQuerySecurityObject(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQuerySymbolicLinkObject(proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQuerySymbolicLinkObject(proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQuerySymbolicLinkObject", [=]
     {
@@ -2927,7 +2927,7 @@ opt<bpid_t> nt::syscalls::register_NtQuerySymbolicLinkObject(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQuerySystemEnvironmentValue(proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQuerySystemEnvironmentValue(proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQuerySystemEnvironmentValue", [=]
     {
@@ -2945,7 +2945,7 @@ opt<bpid_t> nt::syscalls::register_NtQuerySystemEnvironmentValue(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQuerySystemEnvironmentValueEx(proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQuerySystemEnvironmentValueEx(proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQuerySystemEnvironmentValueEx", [=]
     {
@@ -2964,7 +2964,7 @@ opt<bpid_t> nt::syscalls::register_NtQuerySystemEnvironmentValueEx(proc_t proc, 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQuerySystemInformation", [=]
     {
@@ -2982,7 +2982,7 @@ opt<bpid_t> nt::syscalls::register_NtQuerySystemInformation(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQuerySystemInformationEx(proc_t proc, const on_NtQuerySystemInformationEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQuerySystemInformationEx(proc_t proc, const on_NtQuerySystemInformationEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQuerySystemInformationEx", [=]
     {
@@ -3002,7 +3002,7 @@ opt<bpid_t> nt::syscalls::register_NtQuerySystemInformationEx(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueryValueKey(proc_t proc, const on_NtQueryValueKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueryValueKey(proc_t proc, const on_NtQueryValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueryValueKey", [=]
     {
@@ -3022,7 +3022,7 @@ opt<bpid_t> nt::syscalls::register_NtQueryValueKey(proc_t proc, const on_NtQuery
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueueApcThread", [=]
     {
@@ -3041,7 +3041,7 @@ opt<bpid_t> nt::syscalls::register_NtQueueApcThread(proc_t proc, const on_NtQueu
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtQueueApcThreadEx", [=]
     {
@@ -3061,7 +3061,7 @@ opt<bpid_t> nt::syscalls::register_NtQueueApcThreadEx(proc_t proc, const on_NtQu
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHardError_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHardError_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRaiseHardError", [=]
     {
@@ -3081,7 +3081,7 @@ opt<bpid_t> nt::syscalls::register_NtRaiseHardError(proc_t proc, const on_NtRais
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReadFile", [=]
     {
@@ -3104,7 +3104,7 @@ opt<bpid_t> nt::syscalls::register_NtReadFile(proc_t proc, const on_NtReadFile_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReadRequestData(proc_t proc, const on_NtReadRequestData_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReadRequestData(proc_t proc, const on_NtReadRequestData_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReadRequestData", [=]
     {
@@ -3124,7 +3124,7 @@ opt<bpid_t> nt::syscalls::register_NtReadRequestData(proc_t proc, const on_NtRea
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRecoverTransactionManager(proc_t proc, const on_NtRecoverTransactionManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRecoverTransactionManager(proc_t proc, const on_NtRecoverTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRecoverTransactionManager", [=]
     {
@@ -3139,7 +3139,7 @@ opt<bpid_t> nt::syscalls::register_NtRecoverTransactionManager(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRegisterProtocolAddressInformation", [=]
     {
@@ -3158,7 +3158,7 @@ opt<bpid_t> nt::syscalls::register_NtRegisterProtocolAddressInformation(proc_t p
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRegisterThreadTerminatePort(proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRegisterThreadTerminatePort(proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRegisterThreadTerminatePort", [=]
     {
@@ -3173,7 +3173,7 @@ opt<bpid_t> nt::syscalls::register_NtRegisterThreadTerminatePort(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReleaseKeyedEvent", [=]
     {
@@ -3191,7 +3191,7 @@ opt<bpid_t> nt::syscalls::register_NtReleaseKeyedEvent(proc_t proc, const on_NtR
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReleaseWorkerFactoryWorker(proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReleaseWorkerFactoryWorker(proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReleaseWorkerFactoryWorker", [=]
     {
@@ -3206,7 +3206,7 @@ opt<bpid_t> nt::syscalls::register_NtReleaseWorkerFactoryWorker(proc_t proc, con
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRenameKey", [=]
     {
@@ -3222,7 +3222,7 @@ opt<bpid_t> nt::syscalls::register_NtRenameKey(proc_t proc, const on_NtRenameKey
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRenameTransactionManager", [=]
     {
@@ -3238,7 +3238,7 @@ opt<bpid_t> nt::syscalls::register_NtRenameTransactionManager(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReplaceKey", [=]
     {
@@ -3255,7 +3255,7 @@ opt<bpid_t> nt::syscalls::register_NtReplaceKey(proc_t proc, const on_NtReplaceK
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReplacePartitionUnit", [=]
     {
@@ -3272,7 +3272,7 @@ opt<bpid_t> nt::syscalls::register_NtReplacePartitionUnit(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReplyPort", [=]
     {
@@ -3288,7 +3288,7 @@ opt<bpid_t> nt::syscalls::register_NtReplyPort(proc_t proc, const on_NtReplyPort
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtReplyWaitReplyPort", [=]
     {
@@ -3304,7 +3304,7 @@ opt<bpid_t> nt::syscalls::register_NtReplyWaitReplyPort(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRequestPort(proc_t proc, const on_NtRequestPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRequestPort(proc_t proc, const on_NtRequestPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRequestPort", [=]
     {
@@ -3320,7 +3320,7 @@ opt<bpid_t> nt::syscalls::register_NtRequestPort(proc_t proc, const on_NtRequest
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRestoreKey", [=]
     {
@@ -3337,7 +3337,7 @@ opt<bpid_t> nt::syscalls::register_NtRestoreKey(proc_t proc, const on_NtRestoreK
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRollbackEnlistment", [=]
     {
@@ -3353,7 +3353,7 @@ opt<bpid_t> nt::syscalls::register_NtRollbackEnlistment(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtRollforwardTransactionManager", [=]
     {
@@ -3369,7 +3369,7 @@ opt<bpid_t> nt::syscalls::register_NtRollforwardTransactionManager(proc_t proc, 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSaveKey", [=]
     {
@@ -3385,7 +3385,7 @@ opt<bpid_t> nt::syscalls::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn&
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSaveKeyEx", [=]
     {
@@ -3402,7 +3402,7 @@ opt<bpid_t> nt::syscalls::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSecureConnectPort", [=]
     {
@@ -3425,7 +3425,7 @@ opt<bpid_t> nt::syscalls::register_NtSecureConnectPort(proc_t proc, const on_NtS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetBootOptions(proc_t proc, const on_NtSetBootOptions_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetBootOptions(proc_t proc, const on_NtSetBootOptions_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetBootOptions", [=]
     {
@@ -3441,7 +3441,7 @@ opt<bpid_t> nt::syscalls::register_NtSetBootOptions(proc_t proc, const on_NtSetB
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetContextThread(proc_t proc, const on_NtSetContextThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetContextThread(proc_t proc, const on_NtSetContextThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetContextThread", [=]
     {
@@ -3457,7 +3457,7 @@ opt<bpid_t> nt::syscalls::register_NtSetContextThread(proc_t proc, const on_NtSe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetDefaultHardErrorPort", [=]
     {
@@ -3472,7 +3472,7 @@ opt<bpid_t> nt::syscalls::register_NtSetDefaultHardErrorPort(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetDefaultLocale", [=]
     {
@@ -3488,7 +3488,7 @@ opt<bpid_t> nt::syscalls::register_NtSetDefaultLocale(proc_t proc, const on_NtSe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetDriverEntryOrder", [=]
     {
@@ -3504,7 +3504,7 @@ opt<bpid_t> nt::syscalls::register_NtSetDriverEntryOrder(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetHighEventPair", [=]
     {
@@ -3519,7 +3519,7 @@ opt<bpid_t> nt::syscalls::register_NtSetHighEventPair(proc_t proc, const on_NtSe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationDebugObject(proc_t proc, const on_NtSetInformationDebugObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationDebugObject(proc_t proc, const on_NtSetInformationDebugObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationDebugObject", [=]
     {
@@ -3538,7 +3538,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationDebugObject(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationEnlistment", [=]
     {
@@ -3556,7 +3556,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationEnlistment(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationObject(proc_t proc, const on_NtSetInformationObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationObject(proc_t proc, const on_NtSetInformationObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationObject", [=]
     {
@@ -3574,7 +3574,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationObject(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationProcess(proc_t proc, const on_NtSetInformationProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationProcess(proc_t proc, const on_NtSetInformationProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationProcess", [=]
     {
@@ -3592,7 +3592,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationProcess(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationResourceManager(proc_t proc, const on_NtSetInformationResourceManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationResourceManager(proc_t proc, const on_NtSetInformationResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationResourceManager", [=]
     {
@@ -3610,7 +3610,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationResourceManager(proc_t proc, 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationThread(proc_t proc, const on_NtSetInformationThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationThread(proc_t proc, const on_NtSetInformationThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationThread", [=]
     {
@@ -3628,7 +3628,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationThread(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationToken(proc_t proc, const on_NtSetInformationToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationToken(proc_t proc, const on_NtSetInformationToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationToken", [=]
     {
@@ -3646,7 +3646,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationToken(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationTransaction(proc_t proc, const on_NtSetInformationTransaction_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationTransaction(proc_t proc, const on_NtSetInformationTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationTransaction", [=]
     {
@@ -3664,7 +3664,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationTransaction(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetInformationWorkerFactory(proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetInformationWorkerFactory(proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetInformationWorkerFactory", [=]
     {
@@ -3682,7 +3682,7 @@ opt<bpid_t> nt::syscalls::register_NtSetInformationWorkerFactory(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetIntervalProfile", [=]
     {
@@ -3698,7 +3698,7 @@ opt<bpid_t> nt::syscalls::register_NtSetIntervalProfile(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetSecurityObject", [=]
     {
@@ -3715,7 +3715,7 @@ opt<bpid_t> nt::syscalls::register_NtSetSecurityObject(proc_t proc, const on_NtS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetThreadExecutionState(proc_t proc, const on_NtSetThreadExecutionState_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetThreadExecutionState(proc_t proc, const on_NtSetThreadExecutionState_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetThreadExecutionState", [=]
     {
@@ -3731,7 +3731,7 @@ opt<bpid_t> nt::syscalls::register_NtSetThreadExecutionState(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetTimerResolution", [=]
     {
@@ -3748,7 +3748,7 @@ opt<bpid_t> nt::syscalls::register_NtSetTimerResolution(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSeed_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSeed_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSetUuidSeed", [=]
     {
@@ -3763,7 +3763,7 @@ opt<bpid_t> nt::syscalls::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuid
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtSuspendThread(proc_t proc, const on_NtSuspendThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtSuspendThread(proc_t proc, const on_NtSuspendThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtSuspendThread", [=]
     {
@@ -3779,7 +3779,7 @@ opt<bpid_t> nt::syscalls::register_NtSuspendThread(proc_t proc, const on_NtSuspe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtTerminateJobObject(proc_t proc, const on_NtTerminateJobObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtTerminateJobObject(proc_t proc, const on_NtTerminateJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtTerminateJobObject", [=]
     {
@@ -3795,7 +3795,7 @@ opt<bpid_t> nt::syscalls::register_NtTerminateJobObject(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtTerminateThread(proc_t proc, const on_NtTerminateThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtTerminateThread(proc_t proc, const on_NtTerminateThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtTerminateThread", [=]
     {
@@ -3811,7 +3811,7 @@ opt<bpid_t> nt::syscalls::register_NtTerminateThread(proc_t proc, const on_NtTer
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtTraceControl(proc_t proc, const on_NtTraceControl_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtTraceControl(proc_t proc, const on_NtTraceControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtTraceControl", [=]
     {
@@ -3831,7 +3831,7 @@ opt<bpid_t> nt::syscalls::register_NtTraceControl(proc_t proc, const on_NtTraceC
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtTraceEvent", [=]
     {
@@ -3849,7 +3849,7 @@ opt<bpid_t> nt::syscalls::register_NtTraceEvent(proc_t proc, const on_NtTraceEve
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtTranslateFilePath", [=]
     {
@@ -3867,7 +3867,7 @@ opt<bpid_t> nt::syscalls::register_NtTranslateFilePath(proc_t proc, const on_NtT
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtUnloadKey", [=]
     {
@@ -3882,7 +3882,7 @@ opt<bpid_t> nt::syscalls::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtUnloadKey2", [=]
     {
@@ -3898,7 +3898,7 @@ opt<bpid_t> nt::syscalls::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtUnmapViewOfSection", [=]
     {
@@ -3914,7 +3914,7 @@ opt<bpid_t> nt::syscalls::register_NtUnmapViewOfSection(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtWaitForKeyedEvent", [=]
     {
@@ -3932,7 +3932,7 @@ opt<bpid_t> nt::syscalls::register_NtWaitForKeyedEvent(proc_t proc, const on_NtW
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtWaitForMultipleObjects", [=]
     {
@@ -3951,7 +3951,7 @@ opt<bpid_t> nt::syscalls::register_NtWaitForMultipleObjects(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtWaitForSingleObject(proc_t proc, const on_NtWaitForSingleObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtWaitForSingleObject(proc_t proc, const on_NtWaitForSingleObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtWaitForSingleObject", [=]
     {
@@ -3968,7 +3968,7 @@ opt<bpid_t> nt::syscalls::register_NtWaitForSingleObject(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtWaitLowEventPair", [=]
     {
@@ -3983,7 +3983,7 @@ opt<bpid_t> nt::syscalls::register_NtWaitLowEventPair(proc_t proc, const on_NtWa
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtWorkerFactoryWorkerReady", [=]
     {
@@ -3998,7 +3998,7 @@ opt<bpid_t> nt::syscalls::register_NtWorkerFactoryWorkerReady(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtWriteFile", [=]
     {
@@ -4021,7 +4021,7 @@ opt<bpid_t> nt::syscalls::register_NtWriteFile(proc_t proc, const on_NtWriteFile
     });
 }
 
-opt<bpid_t> nt::syscalls::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "NtWriteVirtualMemory", [=]
     {
@@ -4040,7 +4040,7 @@ opt<bpid_t> nt::syscalls::register_NtWriteVirtualMemory(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAccessCheck(proc_t proc, const on_ZwAccessCheck_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAccessCheck(proc_t proc, const on_ZwAccessCheck_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAccessCheck", [=]
     {
@@ -4062,7 +4062,7 @@ opt<bpid_t> nt::syscalls::register_ZwAccessCheck(proc_t proc, const on_ZwAccessC
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAccessCheckAndAuditAlarm", [=]
     {
@@ -4087,7 +4087,7 @@ opt<bpid_t> nt::syscalls::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAccessCheckByType(proc_t proc, const on_ZwAccessCheckByType_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAccessCheckByType(proc_t proc, const on_ZwAccessCheckByType_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAccessCheckByType", [=]
     {
@@ -4112,7 +4112,7 @@ opt<bpid_t> nt::syscalls::register_ZwAccessCheckByType(proc_t proc, const on_ZwA
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_ZwAccessCheckByTypeAndAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_ZwAccessCheckByTypeAndAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAccessCheckByTypeAndAuditAlarm", [=]
     {
@@ -4142,7 +4142,7 @@ opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeAndAuditAlarm(proc_t proc,
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultList(proc_t proc, const on_ZwAccessCheckByTypeResultList_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultList(proc_t proc, const on_ZwAccessCheckByTypeResultList_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAccessCheckByTypeResultList", [=]
     {
@@ -4167,7 +4167,7 @@ opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultList(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAccessCheckByTypeResultListAndAuditAlarm", [=]
     {
@@ -4197,7 +4197,7 @@ opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarm(pr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAccessCheckByTypeResultListAndAuditAlarmByHandle", [=]
     {
@@ -4228,7 +4228,7 @@ opt<bpid_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarmByH
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAddAtom(proc_t proc, const on_ZwAddAtom_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAddAtom(proc_t proc, const on_ZwAddAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAddAtom", [=]
     {
@@ -4245,7 +4245,7 @@ opt<bpid_t> nt::syscalls::register_ZwAddAtom(proc_t proc, const on_ZwAddAtom_fn&
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAddBootEntry", [=]
     {
@@ -4261,7 +4261,7 @@ opt<bpid_t> nt::syscalls::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBoo
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlertResumeThread(proc_t proc, const on_ZwAlertResumeThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlertResumeThread(proc_t proc, const on_ZwAlertResumeThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlertResumeThread", [=]
     {
@@ -4277,7 +4277,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlertResumeThread(proc_t proc, const on_ZwA
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAllocateLocallyUniqueId", [=]
     {
@@ -4292,7 +4292,7 @@ opt<bpid_t> nt::syscalls::register_ZwAllocateLocallyUniqueId(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAllocateUserPhysicalPages(proc_t proc, const on_ZwAllocateUserPhysicalPages_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAllocateUserPhysicalPages(proc_t proc, const on_ZwAllocateUserPhysicalPages_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAllocateUserPhysicalPages", [=]
     {
@@ -4309,7 +4309,7 @@ opt<bpid_t> nt::syscalls::register_ZwAllocateUserPhysicalPages(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAllocateUuids(proc_t proc, const on_ZwAllocateUuids_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAllocateUuids(proc_t proc, const on_ZwAllocateUuids_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAllocateUuids", [=]
     {
@@ -4327,7 +4327,7 @@ opt<bpid_t> nt::syscalls::register_ZwAllocateUuids(proc_t proc, const on_ZwAlloc
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAllocateVirtualMemory(proc_t proc, const on_ZwAllocateVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAllocateVirtualMemory(proc_t proc, const on_ZwAllocateVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAllocateVirtualMemory", [=]
     {
@@ -4347,7 +4347,7 @@ opt<bpid_t> nt::syscalls::register_ZwAllocateVirtualMemory(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcAcceptConnectPort(proc_t proc, const on_ZwAlpcAcceptConnectPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcAcceptConnectPort(proc_t proc, const on_ZwAlpcAcceptConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcAcceptConnectPort", [=]
     {
@@ -4370,7 +4370,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcAcceptConnectPort(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcCreatePortSection(proc_t proc, const on_ZwAlpcCreatePortSection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcCreatePortSection(proc_t proc, const on_ZwAlpcCreatePortSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcCreatePortSection", [=]
     {
@@ -4390,7 +4390,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcCreatePortSection(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcCreateResourceReserve", [=]
     {
@@ -4408,7 +4408,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcCreateResourceReserve(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcDeleteSectionView(proc_t proc, const on_ZwAlpcDeleteSectionView_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcDeleteSectionView(proc_t proc, const on_ZwAlpcDeleteSectionView_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcDeleteSectionView", [=]
     {
@@ -4425,7 +4425,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcDeleteSectionView(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcDeleteSecurityContext(proc_t proc, const on_ZwAlpcDeleteSecurityContext_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcDeleteSecurityContext(proc_t proc, const on_ZwAlpcDeleteSecurityContext_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcDeleteSecurityContext", [=]
     {
@@ -4442,7 +4442,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcDeleteSecurityContext(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcQueryInformation", [=]
     {
@@ -4461,7 +4461,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcQueryInformation(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcQueryInformationMessage", [=]
     {
@@ -4481,7 +4481,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcQueryInformationMessage(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAlpcSendWaitReceivePort(proc_t proc, const on_ZwAlpcSendWaitReceivePort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAlpcSendWaitReceivePort(proc_t proc, const on_ZwAlpcSendWaitReceivePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAlpcSendWaitReceivePort", [=]
     {
@@ -4503,7 +4503,7 @@ opt<bpid_t> nt::syscalls::register_ZwAlpcSendWaitReceivePort(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwAreMappedFilesTheSame", [=]
     {
@@ -4519,7 +4519,7 @@ opt<bpid_t> nt::syscalls::register_ZwAreMappedFilesTheSame(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCancelIoFile", [=]
     {
@@ -4535,7 +4535,7 @@ opt<bpid_t> nt::syscalls::register_ZwCancelIoFile(proc_t proc, const on_ZwCancel
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCancelIoFileEx(proc_t proc, const on_ZwCancelIoFileEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCancelIoFileEx(proc_t proc, const on_ZwCancelIoFileEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCancelIoFileEx", [=]
     {
@@ -4552,7 +4552,7 @@ opt<bpid_t> nt::syscalls::register_ZwCancelIoFileEx(proc_t proc, const on_ZwCanc
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCancelSynchronousIoFile(proc_t proc, const on_ZwCancelSynchronousIoFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCancelSynchronousIoFile(proc_t proc, const on_ZwCancelSynchronousIoFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCancelSynchronousIoFile", [=]
     {
@@ -4569,7 +4569,7 @@ opt<bpid_t> nt::syscalls::register_ZwCancelSynchronousIoFile(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCloseObjectAuditAlarm", [=]
     {
@@ -4586,7 +4586,7 @@ opt<bpid_t> nt::syscalls::register_ZwCloseObjectAuditAlarm(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCommitEnlistment(proc_t proc, const on_ZwCommitEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCommitEnlistment(proc_t proc, const on_ZwCommitEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCommitEnlistment", [=]
     {
@@ -4602,7 +4602,7 @@ opt<bpid_t> nt::syscalls::register_ZwCommitEnlistment(proc_t proc, const on_ZwCo
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCommitTransaction(proc_t proc, const on_ZwCommitTransaction_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCommitTransaction(proc_t proc, const on_ZwCommitTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCommitTransaction", [=]
     {
@@ -4618,7 +4618,7 @@ opt<bpid_t> nt::syscalls::register_ZwCommitTransaction(proc_t proc, const on_ZwC
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCompareTokens", [=]
     {
@@ -4635,7 +4635,7 @@ opt<bpid_t> nt::syscalls::register_ZwCompareTokens(proc_t proc, const on_ZwCompa
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwConnectPort(proc_t proc, const on_ZwConnectPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwConnectPort(proc_t proc, const on_ZwConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwConnectPort", [=]
     {
@@ -4657,7 +4657,7 @@ opt<bpid_t> nt::syscalls::register_ZwConnectPort(proc_t proc, const on_ZwConnect
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwContinue", [=]
     {
@@ -4673,7 +4673,7 @@ opt<bpid_t> nt::syscalls::register_ZwContinue(proc_t proc, const on_ZwContinue_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateEvent(proc_t proc, const on_ZwCreateEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateEvent(proc_t proc, const on_ZwCreateEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateEvent", [=]
     {
@@ -4692,7 +4692,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateEvent(proc_t proc, const on_ZwCreateE
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateEventPair(proc_t proc, const on_ZwCreateEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateEventPair(proc_t proc, const on_ZwCreateEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateEventPair", [=]
     {
@@ -4709,7 +4709,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateEventPair(proc_t proc, const on_ZwCre
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateFile(proc_t proc, const on_ZwCreateFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateFile(proc_t proc, const on_ZwCreateFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateFile", [=]
     {
@@ -4734,7 +4734,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateFile(proc_t proc, const on_ZwCreateFi
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateJobObject", [=]
     {
@@ -4751,7 +4751,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateJobObject(proc_t proc, const on_ZwCre
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateJobSet(proc_t proc, const on_ZwCreateJobSet_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateJobSet(proc_t proc, const on_ZwCreateJobSet_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateJobSet", [=]
     {
@@ -4768,7 +4768,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateJobSet(proc_t proc, const on_ZwCreate
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateKey", [=]
     {
@@ -4789,7 +4789,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateKeyTransacted(proc_t proc, const on_ZwCreateKeyTransacted_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateKeyTransacted(proc_t proc, const on_ZwCreateKeyTransacted_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateKeyTransacted", [=]
     {
@@ -4811,7 +4811,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateKeyTransacted(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateKeyedEvent", [=]
     {
@@ -4829,7 +4829,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateMailslotFile", [=]
     {
@@ -4851,7 +4851,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateMailslotFile(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreatePort", [=]
     {
@@ -4870,7 +4870,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreatePort(proc_t proc, const on_ZwCreatePo
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreatePrivateNamespace(proc_t proc, const on_ZwCreatePrivateNamespace_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreatePrivateNamespace(proc_t proc, const on_ZwCreatePrivateNamespace_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreatePrivateNamespace", [=]
     {
@@ -4888,7 +4888,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreatePrivateNamespace(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateProcessEx", [=]
     {
@@ -4911,7 +4911,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateProcessEx(proc_t proc, const on_ZwCre
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateProfile", [=]
     {
@@ -4934,7 +4934,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateProfile(proc_t proc, const on_ZwCreat
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateProfileEx(proc_t proc, const on_ZwCreateProfileEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateProfileEx(proc_t proc, const on_ZwCreateProfileEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateProfileEx", [=]
     {
@@ -4958,7 +4958,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateProfileEx(proc_t proc, const on_ZwCre
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateSymbolicLinkObject", [=]
     {
@@ -4976,7 +4976,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateSymbolicLinkObject(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateTimer", [=]
     {
@@ -4994,7 +4994,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateTimer(proc_t proc, const on_ZwCreateT
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwCreateTransactionManager", [=]
     {
@@ -5014,7 +5014,7 @@ opt<bpid_t> nt::syscalls::register_ZwCreateTransactionManager(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwDelayExecution", [=]
     {
@@ -5030,7 +5030,7 @@ opt<bpid_t> nt::syscalls::register_ZwDelayExecution(proc_t proc, const on_ZwDela
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwDeleteDriverEntry", [=]
     {
@@ -5045,7 +5045,7 @@ opt<bpid_t> nt::syscalls::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwD
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwDeleteObjectAuditAlarm(proc_t proc, const on_ZwDeleteObjectAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwDeleteObjectAuditAlarm(proc_t proc, const on_ZwDeleteObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwDeleteObjectAuditAlarm", [=]
     {
@@ -5062,7 +5062,7 @@ opt<bpid_t> nt::syscalls::register_ZwDeleteObjectAuditAlarm(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwDeleteValueKey(proc_t proc, const on_ZwDeleteValueKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwDeleteValueKey(proc_t proc, const on_ZwDeleteValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwDeleteValueKey", [=]
     {
@@ -5078,7 +5078,7 @@ opt<bpid_t> nt::syscalls::register_ZwDeleteValueKey(proc_t proc, const on_ZwDele
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwDisplayString(proc_t proc, const on_ZwDisplayString_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwDisplayString(proc_t proc, const on_ZwDisplayString_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwDisplayString", [=]
     {
@@ -5093,7 +5093,7 @@ opt<bpid_t> nt::syscalls::register_ZwDisplayString(proc_t proc, const on_ZwDispl
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwDuplicateObject", [=]
     {
@@ -5114,7 +5114,7 @@ opt<bpid_t> nt::syscalls::register_ZwDuplicateObject(proc_t proc, const on_ZwDup
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwEnumerateDriverEntries(proc_t proc, const on_ZwEnumerateDriverEntries_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwEnumerateDriverEntries(proc_t proc, const on_ZwEnumerateDriverEntries_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwEnumerateDriverEntries", [=]
     {
@@ -5130,7 +5130,7 @@ opt<bpid_t> nt::syscalls::register_ZwEnumerateDriverEntries(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwEnumerateValueKey(proc_t proc, const on_ZwEnumerateValueKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwEnumerateValueKey(proc_t proc, const on_ZwEnumerateValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwEnumerateValueKey", [=]
     {
@@ -5150,7 +5150,7 @@ opt<bpid_t> nt::syscalls::register_ZwEnumerateValueKey(proc_t proc, const on_ZwE
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFilterToken(proc_t proc, const on_ZwFilterToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFilterToken(proc_t proc, const on_ZwFilterToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFilterToken", [=]
     {
@@ -5170,7 +5170,7 @@ opt<bpid_t> nt::syscalls::register_ZwFilterToken(proc_t proc, const on_ZwFilterT
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFindAtom(proc_t proc, const on_ZwFindAtom_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFindAtom(proc_t proc, const on_ZwFindAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFindAtom", [=]
     {
@@ -5187,7 +5187,7 @@ opt<bpid_t> nt::syscalls::register_ZwFindAtom(proc_t proc, const on_ZwFindAtom_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFlushBuffersFile", [=]
     {
@@ -5203,7 +5203,7 @@ opt<bpid_t> nt::syscalls::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFl
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFlushKey(proc_t proc, const on_ZwFlushKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFlushKey(proc_t proc, const on_ZwFlushKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFlushKey", [=]
     {
@@ -5218,7 +5218,7 @@ opt<bpid_t> nt::syscalls::register_ZwFlushKey(proc_t proc, const on_ZwFlushKey_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFlushProcessWriteBuffers", [=]
     {
@@ -5231,7 +5231,7 @@ opt<bpid_t> nt::syscalls::register_ZwFlushProcessWriteBuffers(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFlushVirtualMemory", [=]
     {
@@ -5249,7 +5249,7 @@ opt<bpid_t> nt::syscalls::register_ZwFlushVirtualMemory(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFreeUserPhysicalPages(proc_t proc, const on_ZwFreeUserPhysicalPages_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFreeUserPhysicalPages(proc_t proc, const on_ZwFreeUserPhysicalPages_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFreeUserPhysicalPages", [=]
     {
@@ -5266,7 +5266,7 @@ opt<bpid_t> nt::syscalls::register_ZwFreeUserPhysicalPages(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFreeVirtualMemory(proc_t proc, const on_ZwFreeVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFreeVirtualMemory(proc_t proc, const on_ZwFreeVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFreeVirtualMemory", [=]
     {
@@ -5284,7 +5284,7 @@ opt<bpid_t> nt::syscalls::register_ZwFreeVirtualMemory(proc_t proc, const on_ZwF
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFreezeTransactions", [=]
     {
@@ -5300,7 +5300,7 @@ opt<bpid_t> nt::syscalls::register_ZwFreezeTransactions(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwFsControlFile(proc_t proc, const on_ZwFsControlFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwFsControlFile(proc_t proc, const on_ZwFsControlFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwFsControlFile", [=]
     {
@@ -5324,7 +5324,7 @@ opt<bpid_t> nt::syscalls::register_ZwFsControlFile(proc_t proc, const on_ZwFsCon
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwGetContextThread(proc_t proc, const on_ZwGetContextThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwGetContextThread(proc_t proc, const on_ZwGetContextThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwGetContextThread", [=]
     {
@@ -5340,7 +5340,7 @@ opt<bpid_t> nt::syscalls::register_ZwGetContextThread(proc_t proc, const on_ZwGe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwGetCurrentProcessorNumber(proc_t proc, const on_ZwGetCurrentProcessorNumber_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwGetCurrentProcessorNumber(proc_t proc, const on_ZwGetCurrentProcessorNumber_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwGetCurrentProcessorNumber", [=]
     {
@@ -5353,7 +5353,7 @@ opt<bpid_t> nt::syscalls::register_ZwGetCurrentProcessorNumber(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwGetDevicePowerState(proc_t proc, const on_ZwGetDevicePowerState_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwGetDevicePowerState(proc_t proc, const on_ZwGetDevicePowerState_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwGetDevicePowerState", [=]
     {
@@ -5369,7 +5369,7 @@ opt<bpid_t> nt::syscalls::register_ZwGetDevicePowerState(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwGetMUIRegistryInfo(proc_t proc, const on_ZwGetMUIRegistryInfo_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwGetMUIRegistryInfo(proc_t proc, const on_ZwGetMUIRegistryInfo_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwGetMUIRegistryInfo", [=]
     {
@@ -5386,7 +5386,7 @@ opt<bpid_t> nt::syscalls::register_ZwGetMUIRegistryInfo(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwGetNextThread", [=]
     {
@@ -5406,7 +5406,7 @@ opt<bpid_t> nt::syscalls::register_ZwGetNextThread(proc_t proc, const on_ZwGetNe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwGetNlsSectionPtr(proc_t proc, const on_ZwGetNlsSectionPtr_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwGetNlsSectionPtr(proc_t proc, const on_ZwGetNlsSectionPtr_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwGetNlsSectionPtr", [=]
     {
@@ -5425,7 +5425,7 @@ opt<bpid_t> nt::syscalls::register_ZwGetNlsSectionPtr(proc_t proc, const on_ZwGe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwGetWriteWatch(proc_t proc, const on_ZwGetWriteWatch_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwGetWriteWatch(proc_t proc, const on_ZwGetWriteWatch_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwGetWriteWatch", [=]
     {
@@ -5446,7 +5446,7 @@ opt<bpid_t> nt::syscalls::register_ZwGetWriteWatch(proc_t proc, const on_ZwGetWr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwImpersonateAnonymousToken(proc_t proc, const on_ZwImpersonateAnonymousToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwImpersonateAnonymousToken(proc_t proc, const on_ZwImpersonateAnonymousToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwImpersonateAnonymousToken", [=]
     {
@@ -5461,7 +5461,7 @@ opt<bpid_t> nt::syscalls::register_ZwImpersonateAnonymousToken(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwImpersonateClientOfPort", [=]
     {
@@ -5477,7 +5477,7 @@ opt<bpid_t> nt::syscalls::register_ZwImpersonateClientOfPort(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwImpersonateThread", [=]
     {
@@ -5494,7 +5494,7 @@ opt<bpid_t> nt::syscalls::register_ZwImpersonateThread(proc_t proc, const on_ZwI
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwIsSystemResumeAutomatic(proc_t proc, const on_ZwIsSystemResumeAutomatic_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwIsSystemResumeAutomatic(proc_t proc, const on_ZwIsSystemResumeAutomatic_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwIsSystemResumeAutomatic", [=]
     {
@@ -5507,7 +5507,7 @@ opt<bpid_t> nt::syscalls::register_ZwIsSystemResumeAutomatic(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwLoadDriver(proc_t proc, const on_ZwLoadDriver_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwLoadDriver(proc_t proc, const on_ZwLoadDriver_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwLoadDriver", [=]
     {
@@ -5522,7 +5522,7 @@ opt<bpid_t> nt::syscalls::register_ZwLoadDriver(proc_t proc, const on_ZwLoadDriv
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwLoadKey2(proc_t proc, const on_ZwLoadKey2_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwLoadKey2(proc_t proc, const on_ZwLoadKey2_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwLoadKey2", [=]
     {
@@ -5539,7 +5539,7 @@ opt<bpid_t> nt::syscalls::register_ZwLoadKey2(proc_t proc, const on_ZwLoadKey2_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwLockFile(proc_t proc, const on_ZwLockFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwLockFile(proc_t proc, const on_ZwLockFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwLockFile", [=]
     {
@@ -5563,7 +5563,7 @@ opt<bpid_t> nt::syscalls::register_ZwLockFile(proc_t proc, const on_ZwLockFile_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwLockRegistryKey(proc_t proc, const on_ZwLockRegistryKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwLockRegistryKey(proc_t proc, const on_ZwLockRegistryKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwLockRegistryKey", [=]
     {
@@ -5578,7 +5578,7 @@ opt<bpid_t> nt::syscalls::register_ZwLockRegistryKey(proc_t proc, const on_ZwLoc
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwMapUserPhysicalPagesScatter", [=]
     {
@@ -5595,7 +5595,7 @@ opt<bpid_t> nt::syscalls::register_ZwMapUserPhysicalPagesScatter(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwMapViewOfSection", [=]
     {
@@ -5619,7 +5619,7 @@ opt<bpid_t> nt::syscalls::register_ZwMapViewOfSection(proc_t proc, const on_ZwMa
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwModifyDriverEntry", [=]
     {
@@ -5634,7 +5634,7 @@ opt<bpid_t> nt::syscalls::register_ZwModifyDriverEntry(proc_t proc, const on_ZwM
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwNotifyChangeKey(proc_t proc, const on_ZwNotifyChangeKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwNotifyChangeKey(proc_t proc, const on_ZwNotifyChangeKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwNotifyChangeKey", [=]
     {
@@ -5658,7 +5658,7 @@ opt<bpid_t> nt::syscalls::register_ZwNotifyChangeKey(proc_t proc, const on_ZwNot
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenDirectoryObject", [=]
     {
@@ -5675,7 +5675,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenDirectoryObject(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenEventPair(proc_t proc, const on_ZwOpenEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenEventPair(proc_t proc, const on_ZwOpenEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenEventPair", [=]
     {
@@ -5692,7 +5692,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenEventPair(proc_t proc, const on_ZwOpenE
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenKeyTransacted(proc_t proc, const on_ZwOpenKeyTransacted_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenKeyTransacted(proc_t proc, const on_ZwOpenKeyTransacted_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenKeyTransacted", [=]
     {
@@ -5710,7 +5710,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenKeyTransacted(proc_t proc, const on_ZwO
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenKeyTransactedEx(proc_t proc, const on_ZwOpenKeyTransactedEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenKeyTransactedEx(proc_t proc, const on_ZwOpenKeyTransactedEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenKeyTransactedEx", [=]
     {
@@ -5729,7 +5729,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenKeyTransactedEx(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenObjectAuditAlarm", [=]
     {
@@ -5755,7 +5755,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenSemaphore(proc_t proc, const on_ZwOpenSemaphore_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenSemaphore(proc_t proc, const on_ZwOpenSemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenSemaphore", [=]
     {
@@ -5772,7 +5772,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenSemaphore(proc_t proc, const on_ZwOpenS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenSession(proc_t proc, const on_ZwOpenSession_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenSession(proc_t proc, const on_ZwOpenSession_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenSession", [=]
     {
@@ -5789,7 +5789,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenSession(proc_t proc, const on_ZwOpenSes
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenSymbolicLinkObject(proc_t proc, const on_ZwOpenSymbolicLinkObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenSymbolicLinkObject(proc_t proc, const on_ZwOpenSymbolicLinkObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenSymbolicLinkObject", [=]
     {
@@ -5806,7 +5806,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenSymbolicLinkObject(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenThread", [=]
     {
@@ -5824,7 +5824,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenThread(proc_t proc, const on_ZwOpenThre
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenTimer", [=]
     {
@@ -5841,7 +5841,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwOpenTransaction", [=]
     {
@@ -5860,7 +5860,7 @@ opt<bpid_t> nt::syscalls::register_ZwOpenTransaction(proc_t proc, const on_ZwOpe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwPlugPlayControl(proc_t proc, const on_ZwPlugPlayControl_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwPlugPlayControl(proc_t proc, const on_ZwPlugPlayControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwPlugPlayControl", [=]
     {
@@ -5877,7 +5877,7 @@ opt<bpid_t> nt::syscalls::register_ZwPlugPlayControl(proc_t proc, const on_ZwPlu
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwPrePrepareComplete", [=]
     {
@@ -5893,7 +5893,7 @@ opt<bpid_t> nt::syscalls::register_ZwPrePrepareComplete(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwPrepareComplete(proc_t proc, const on_ZwPrepareComplete_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwPrepareComplete(proc_t proc, const on_ZwPrepareComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwPrepareComplete", [=]
     {
@@ -5909,7 +5909,7 @@ opt<bpid_t> nt::syscalls::register_ZwPrepareComplete(proc_t proc, const on_ZwPre
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwPrepareEnlistment", [=]
     {
@@ -5925,7 +5925,7 @@ opt<bpid_t> nt::syscalls::register_ZwPrepareEnlistment(proc_t proc, const on_ZwP
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwPrivilegeCheck", [=]
     {
@@ -5942,7 +5942,7 @@ opt<bpid_t> nt::syscalls::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPriv
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwPrivilegedServiceAuditAlarm(proc_t proc, const on_ZwPrivilegedServiceAuditAlarm_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwPrivilegedServiceAuditAlarm(proc_t proc, const on_ZwPrivilegedServiceAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwPrivilegedServiceAuditAlarm", [=]
     {
@@ -5961,7 +5961,7 @@ opt<bpid_t> nt::syscalls::register_ZwPrivilegedServiceAuditAlarm(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwProtectVirtualMemory", [=]
     {
@@ -5980,7 +5980,7 @@ opt<bpid_t> nt::syscalls::register_ZwProtectVirtualMemory(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwPulseEvent", [=]
     {
@@ -5996,7 +5996,7 @@ opt<bpid_t> nt::syscalls::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEve
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryAttributesFile", [=]
     {
@@ -6012,7 +6012,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryAttributesFile(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryBootEntryOrder", [=]
     {
@@ -6028,7 +6028,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryBootEntryOrder(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryDebugFilterState(proc_t proc, const on_ZwQueryDebugFilterState_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryDebugFilterState(proc_t proc, const on_ZwQueryDebugFilterState_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryDebugFilterState", [=]
     {
@@ -6044,7 +6044,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryDebugFilterState(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryDefaultUILanguage", [=]
     {
@@ -6059,7 +6059,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryDefaultUILanguage(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryDirectoryObject", [=]
     {
@@ -6080,7 +6080,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryDirectoryObject(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryEaFile", [=]
     {
@@ -6103,7 +6103,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEa
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryInformationThread(proc_t proc, const on_ZwQueryInformationThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryInformationThread(proc_t proc, const on_ZwQueryInformationThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryInformationThread", [=]
     {
@@ -6122,7 +6122,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryInformationThread(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryInformationTransaction", [=]
     {
@@ -6141,7 +6141,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryInformationTransaction(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryInformationWorkerFactory", [=]
     {
@@ -6160,7 +6160,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryInformationWorkerFactory(proc_t proc, 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryKey", [=]
     {
@@ -6179,7 +6179,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryLicenseValue(proc_t proc, const on_ZwQueryLicenseValue_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryLicenseValue(proc_t proc, const on_ZwQueryLicenseValue_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryLicenseValue", [=]
     {
@@ -6198,7 +6198,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryLicenseValue(proc_t proc, const on_ZwQ
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryMultipleValueKey(proc_t proc, const on_ZwQueryMultipleValueKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryMultipleValueKey(proc_t proc, const on_ZwQueryMultipleValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryMultipleValueKey", [=]
     {
@@ -6218,7 +6218,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryMultipleValueKey(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryMutant(proc_t proc, const on_ZwQueryMutant_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryMutant(proc_t proc, const on_ZwQueryMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryMutant", [=]
     {
@@ -6237,7 +6237,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryMutant(proc_t proc, const on_ZwQueryMu
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryObject(proc_t proc, const on_ZwQueryObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryObject(proc_t proc, const on_ZwQueryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryObject", [=]
     {
@@ -6256,7 +6256,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryObject(proc_t proc, const on_ZwQueryOb
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQuerySecurityAttributesToken", [=]
     {
@@ -6276,7 +6276,7 @@ opt<bpid_t> nt::syscalls::register_ZwQuerySecurityAttributesToken(proc_t proc, c
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQuerySemaphore", [=]
     {
@@ -6295,7 +6295,7 @@ opt<bpid_t> nt::syscalls::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuer
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQuerySystemTime(proc_t proc, const on_ZwQuerySystemTime_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQuerySystemTime(proc_t proc, const on_ZwQuerySystemTime_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQuerySystemTime", [=]
     {
@@ -6310,7 +6310,7 @@ opt<bpid_t> nt::syscalls::register_ZwQuerySystemTime(proc_t proc, const on_ZwQue
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryTimer", [=]
     {
@@ -6329,7 +6329,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTim
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryTimerResolution(proc_t proc, const on_ZwQueryTimerResolution_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryTimerResolution(proc_t proc, const on_ZwQueryTimerResolution_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryTimerResolution", [=]
     {
@@ -6346,7 +6346,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryTimerResolution(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryVirtualMemory(proc_t proc, const on_ZwQueryVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryVirtualMemory(proc_t proc, const on_ZwQueryVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryVirtualMemory", [=]
     {
@@ -6366,7 +6366,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryVirtualMemory(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwQueryVolumeInformationFile(proc_t proc, const on_ZwQueryVolumeInformationFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwQueryVolumeInformationFile(proc_t proc, const on_ZwQueryVolumeInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwQueryVolumeInformationFile", [=]
     {
@@ -6385,7 +6385,7 @@ opt<bpid_t> nt::syscalls::register_ZwQueryVolumeInformationFile(proc_t proc, con
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRaiseException", [=]
     {
@@ -6402,7 +6402,7 @@ opt<bpid_t> nt::syscalls::register_ZwRaiseException(proc_t proc, const on_ZwRais
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwReadFileScatter(proc_t proc, const on_ZwReadFileScatter_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwReadFileScatter(proc_t proc, const on_ZwReadFileScatter_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwReadFileScatter", [=]
     {
@@ -6425,7 +6425,7 @@ opt<bpid_t> nt::syscalls::register_ZwReadFileScatter(proc_t proc, const on_ZwRea
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwReadOnlyEnlistment", [=]
     {
@@ -6441,7 +6441,7 @@ opt<bpid_t> nt::syscalls::register_ZwReadOnlyEnlistment(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwReadVirtualMemory(proc_t proc, const on_ZwReadVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwReadVirtualMemory(proc_t proc, const on_ZwReadVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwReadVirtualMemory", [=]
     {
@@ -6460,7 +6460,7 @@ opt<bpid_t> nt::syscalls::register_ZwReadVirtualMemory(proc_t proc, const on_ZwR
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRecoverEnlistment(proc_t proc, const on_ZwRecoverEnlistment_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRecoverEnlistment(proc_t proc, const on_ZwRecoverEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRecoverEnlistment", [=]
     {
@@ -6476,7 +6476,7 @@ opt<bpid_t> nt::syscalls::register_ZwRecoverEnlistment(proc_t proc, const on_ZwR
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRecoverResourceManager(proc_t proc, const on_ZwRecoverResourceManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRecoverResourceManager(proc_t proc, const on_ZwRecoverResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRecoverResourceManager", [=]
     {
@@ -6491,7 +6491,7 @@ opt<bpid_t> nt::syscalls::register_ZwRecoverResourceManager(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwReleaseMutant", [=]
     {
@@ -6507,7 +6507,7 @@ opt<bpid_t> nt::syscalls::register_ZwReleaseMutant(proc_t proc, const on_ZwRelea
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwReleaseSemaphore(proc_t proc, const on_ZwReleaseSemaphore_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwReleaseSemaphore(proc_t proc, const on_ZwReleaseSemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwReleaseSemaphore", [=]
     {
@@ -6524,7 +6524,7 @@ opt<bpid_t> nt::syscalls::register_ZwReleaseSemaphore(proc_t proc, const on_ZwRe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRemoveIoCompletion", [=]
     {
@@ -6543,7 +6543,7 @@ opt<bpid_t> nt::syscalls::register_ZwRemoveIoCompletion(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRemoveIoCompletionEx", [=]
     {
@@ -6563,7 +6563,7 @@ opt<bpid_t> nt::syscalls::register_ZwRemoveIoCompletionEx(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRemoveProcessDebug", [=]
     {
@@ -6579,7 +6579,7 @@ opt<bpid_t> nt::syscalls::register_ZwRemoveProcessDebug(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwReplyWaitReceivePort(proc_t proc, const on_ZwReplyWaitReceivePort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwReplyWaitReceivePort(proc_t proc, const on_ZwReplyWaitReceivePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwReplyWaitReceivePort", [=]
     {
@@ -6597,7 +6597,7 @@ opt<bpid_t> nt::syscalls::register_ZwReplyWaitReceivePort(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwReplyWaitReceivePortEx(proc_t proc, const on_ZwReplyWaitReceivePortEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwReplyWaitReceivePortEx(proc_t proc, const on_ZwReplyWaitReceivePortEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwReplyWaitReceivePortEx", [=]
     {
@@ -6616,7 +6616,7 @@ opt<bpid_t> nt::syscalls::register_ZwReplyWaitReceivePortEx(proc_t proc, const o
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRequestWaitReplyPort(proc_t proc, const on_ZwRequestWaitReplyPort_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRequestWaitReplyPort(proc_t proc, const on_ZwRequestWaitReplyPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRequestWaitReplyPort", [=]
     {
@@ -6633,7 +6633,7 @@ opt<bpid_t> nt::syscalls::register_ZwRequestWaitReplyPort(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwResetEvent(proc_t proc, const on_ZwResetEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwResetEvent(proc_t proc, const on_ZwResetEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwResetEvent", [=]
     {
@@ -6649,7 +6649,7 @@ opt<bpid_t> nt::syscalls::register_ZwResetEvent(proc_t proc, const on_ZwResetEve
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwResetWriteWatch", [=]
     {
@@ -6666,7 +6666,7 @@ opt<bpid_t> nt::syscalls::register_ZwResetWriteWatch(proc_t proc, const on_ZwRes
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwResumeProcess", [=]
     {
@@ -6681,7 +6681,7 @@ opt<bpid_t> nt::syscalls::register_ZwResumeProcess(proc_t proc, const on_ZwResum
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwResumeThread", [=]
     {
@@ -6697,7 +6697,7 @@ opt<bpid_t> nt::syscalls::register_ZwResumeThread(proc_t proc, const on_ZwResume
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRollbackComplete", [=]
     {
@@ -6713,7 +6713,7 @@ opt<bpid_t> nt::syscalls::register_ZwRollbackComplete(proc_t proc, const on_ZwRo
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwRollbackTransaction(proc_t proc, const on_ZwRollbackTransaction_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwRollbackTransaction(proc_t proc, const on_ZwRollbackTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwRollbackTransaction", [=]
     {
@@ -6729,7 +6729,7 @@ opt<bpid_t> nt::syscalls::register_ZwRollbackTransaction(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSaveMergedKeys(proc_t proc, const on_ZwSaveMergedKeys_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSaveMergedKeys(proc_t proc, const on_ZwSaveMergedKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSaveMergedKeys", [=]
     {
@@ -6746,7 +6746,7 @@ opt<bpid_t> nt::syscalls::register_ZwSaveMergedKeys(proc_t proc, const on_ZwSave
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSerializeBoot(proc_t proc, const on_ZwSerializeBoot_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSerializeBoot(proc_t proc, const on_ZwSerializeBoot_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSerializeBoot", [=]
     {
@@ -6759,7 +6759,7 @@ opt<bpid_t> nt::syscalls::register_ZwSerializeBoot(proc_t proc, const on_ZwSeria
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetBootEntryOrder", [=]
     {
@@ -6775,7 +6775,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetDebugFilterState(proc_t proc, const on_ZwSetDebugFilterState_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetDebugFilterState(proc_t proc, const on_ZwSetDebugFilterState_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetDebugFilterState", [=]
     {
@@ -6792,7 +6792,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetDebugFilterState(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetDefaultUILanguage", [=]
     {
@@ -6807,7 +6807,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetDefaultUILanguage(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetEaFile", [=]
     {
@@ -6825,7 +6825,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetEvent(proc_t proc, const on_ZwSetEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetEvent(proc_t proc, const on_ZwSetEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetEvent", [=]
     {
@@ -6841,7 +6841,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetEvent(proc_t proc, const on_ZwSetEvent_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetEventBoostPriority(proc_t proc, const on_ZwSetEventBoostPriority_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetEventBoostPriority(proc_t proc, const on_ZwSetEventBoostPriority_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetEventBoostPriority", [=]
     {
@@ -6856,7 +6856,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetEventBoostPriority(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetHighWaitLowEventPair(proc_t proc, const on_ZwSetHighWaitLowEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetHighWaitLowEventPair(proc_t proc, const on_ZwSetHighWaitLowEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetHighWaitLowEventPair", [=]
     {
@@ -6871,7 +6871,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetHighWaitLowEventPair(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetInformationFile", [=]
     {
@@ -6890,7 +6890,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetInformationFile(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetInformationJobObject", [=]
     {
@@ -6908,7 +6908,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetInformationJobObject(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetInformationKey", [=]
     {
@@ -6926,7 +6926,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetInformationKey(proc_t proc, const on_ZwS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetInformationTransactionManager", [=]
     {
@@ -6944,7 +6944,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetInformationTransactionManager(proc_t pro
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetIoCompletion(proc_t proc, const on_ZwSetIoCompletion_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetIoCompletion(proc_t proc, const on_ZwSetIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetIoCompletion", [=]
     {
@@ -6963,7 +6963,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetIoCompletion(proc_t proc, const on_ZwSet
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetIoCompletionEx(proc_t proc, const on_ZwSetIoCompletionEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetIoCompletionEx(proc_t proc, const on_ZwSetIoCompletionEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetIoCompletionEx", [=]
     {
@@ -6983,7 +6983,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetIoCompletionEx(proc_t proc, const on_ZwS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetLdtEntries", [=]
     {
@@ -7003,7 +7003,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLd
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetLowEventPair", [=]
     {
@@ -7018,7 +7018,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetLowEventPair(proc_t proc, const on_ZwSet
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetLowWaitHighEventPair", [=]
     {
@@ -7033,7 +7033,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetLowWaitHighEventPair(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetQuotaInformationFile", [=]
     {
@@ -7051,7 +7051,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetQuotaInformationFile(proc_t proc, const 
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetSystemEnvironmentValue", [=]
     {
@@ -7067,7 +7067,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetSystemEnvironmentValue(proc_t proc, cons
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetSystemEnvironmentValueEx", [=]
     {
@@ -7086,7 +7086,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetSystemEnvironmentValueEx(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetSystemInformation", [=]
     {
@@ -7103,7 +7103,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetSystemInformation(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetSystemPowerState", [=]
     {
@@ -7120,7 +7120,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetSystemPowerState(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetSystemTime", [=]
     {
@@ -7136,7 +7136,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSy
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetTimer", [=]
     {
@@ -7157,7 +7157,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_f
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetTimerEx", [=]
     {
@@ -7175,7 +7175,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimer
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetValueKey", [=]
     {
@@ -7195,7 +7195,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetValueKey(proc_t proc, const on_ZwSetValu
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSetVolumeInformationFile(proc_t proc, const on_ZwSetVolumeInformationFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSetVolumeInformationFile(proc_t proc, const on_ZwSetVolumeInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSetVolumeInformationFile", [=]
     {
@@ -7214,7 +7214,7 @@ opt<bpid_t> nt::syscalls::register_ZwSetVolumeInformationFile(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwShutdownSystem", [=]
     {
@@ -7229,7 +7229,7 @@ opt<bpid_t> nt::syscalls::register_ZwShutdownSystem(proc_t proc, const on_ZwShut
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwShutdownWorkerFactory(proc_t proc, const on_ZwShutdownWorkerFactory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwShutdownWorkerFactory(proc_t proc, const on_ZwShutdownWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwShutdownWorkerFactory", [=]
     {
@@ -7245,7 +7245,7 @@ opt<bpid_t> nt::syscalls::register_ZwShutdownWorkerFactory(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSignalAndWaitForSingleObject", [=]
     {
@@ -7263,7 +7263,7 @@ opt<bpid_t> nt::syscalls::register_ZwSignalAndWaitForSingleObject(proc_t proc, c
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSinglePhaseReject", [=]
     {
@@ -7279,7 +7279,7 @@ opt<bpid_t> nt::syscalls::register_ZwSinglePhaseReject(proc_t proc, const on_ZwS
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwStartProfile(proc_t proc, const on_ZwStartProfile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwStartProfile(proc_t proc, const on_ZwStartProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwStartProfile", [=]
     {
@@ -7294,7 +7294,7 @@ opt<bpid_t> nt::syscalls::register_ZwStartProfile(proc_t proc, const on_ZwStartP
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwStopProfile", [=]
     {
@@ -7309,7 +7309,7 @@ opt<bpid_t> nt::syscalls::register_ZwStopProfile(proc_t proc, const on_ZwStopPro
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSuspendProcess", [=]
     {
@@ -7324,7 +7324,7 @@ opt<bpid_t> nt::syscalls::register_ZwSuspendProcess(proc_t proc, const on_ZwSusp
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwSystemDebugControl(proc_t proc, const on_ZwSystemDebugControl_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwSystemDebugControl(proc_t proc, const on_ZwSystemDebugControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwSystemDebugControl", [=]
     {
@@ -7344,7 +7344,7 @@ opt<bpid_t> nt::syscalls::register_ZwSystemDebugControl(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwTerminateProcess", [=]
     {
@@ -7360,7 +7360,7 @@ opt<bpid_t> nt::syscalls::register_ZwTerminateProcess(proc_t proc, const on_ZwTe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwTestAlert(proc_t proc, const on_ZwTestAlert_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwTestAlert(proc_t proc, const on_ZwTestAlert_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwTestAlert", [=]
     {
@@ -7373,7 +7373,7 @@ opt<bpid_t> nt::syscalls::register_ZwTestAlert(proc_t proc, const on_ZwTestAlert
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwThawRegistry", [=]
     {
@@ -7386,7 +7386,7 @@ opt<bpid_t> nt::syscalls::register_ZwThawRegistry(proc_t proc, const on_ZwThawRe
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwThawTransactions(proc_t proc, const on_ZwThawTransactions_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwThawTransactions(proc_t proc, const on_ZwThawTransactions_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwThawTransactions", [=]
     {
@@ -7399,7 +7399,7 @@ opt<bpid_t> nt::syscalls::register_ZwThawTransactions(proc_t proc, const on_ZwTh
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwUmsThreadYield", [=]
     {
@@ -7412,7 +7412,7 @@ opt<bpid_t> nt::syscalls::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsT
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwUnloadDriver", [=]
     {
@@ -7427,7 +7427,7 @@ opt<bpid_t> nt::syscalls::register_ZwUnloadDriver(proc_t proc, const on_ZwUnload
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwUnloadKeyEx", [=]
     {
@@ -7443,7 +7443,7 @@ opt<bpid_t> nt::syscalls::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadK
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwUnlockFile", [=]
     {
@@ -7462,7 +7462,7 @@ opt<bpid_t> nt::syscalls::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFi
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwUnlockVirtualMemory(proc_t proc, const on_ZwUnlockVirtualMemory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwUnlockVirtualMemory(proc_t proc, const on_ZwUnlockVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwUnlockVirtualMemory", [=]
     {
@@ -7480,7 +7480,7 @@ opt<bpid_t> nt::syscalls::register_ZwUnlockVirtualMemory(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwVdmControl(proc_t proc, const on_ZwVdmControl_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwVdmControl(proc_t proc, const on_ZwVdmControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwVdmControl", [=]
     {
@@ -7496,7 +7496,7 @@ opt<bpid_t> nt::syscalls::register_ZwVdmControl(proc_t proc, const on_ZwVdmContr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwWaitForDebugEvent(proc_t proc, const on_ZwWaitForDebugEvent_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwWaitForDebugEvent(proc_t proc, const on_ZwWaitForDebugEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwWaitForDebugEvent", [=]
     {
@@ -7514,7 +7514,7 @@ opt<bpid_t> nt::syscalls::register_ZwWaitForDebugEvent(proc_t proc, const on_ZwW
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwWaitForMultipleObjects32(proc_t proc, const on_ZwWaitForMultipleObjects32_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwWaitForMultipleObjects32(proc_t proc, const on_ZwWaitForMultipleObjects32_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwWaitForMultipleObjects32", [=]
     {
@@ -7533,7 +7533,7 @@ opt<bpid_t> nt::syscalls::register_ZwWaitForMultipleObjects32(proc_t proc, const
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwWaitForWorkViaWorkerFactory(proc_t proc, const on_ZwWaitForWorkViaWorkerFactory_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwWaitForWorkViaWorkerFactory(proc_t proc, const on_ZwWaitForWorkViaWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwWaitForWorkViaWorkerFactory", [=]
     {
@@ -7549,7 +7549,7 @@ opt<bpid_t> nt::syscalls::register_ZwWaitForWorkViaWorkerFactory(proc_t proc, co
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwWaitHighEventPair", [=]
     {
@@ -7564,7 +7564,7 @@ opt<bpid_t> nt::syscalls::register_ZwWaitHighEventPair(proc_t proc, const on_ZwW
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwWriteFileGather(proc_t proc, const on_ZwWriteFileGather_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwWriteFileGather(proc_t proc, const on_ZwWriteFileGather_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwWriteFileGather", [=]
     {
@@ -7587,7 +7587,7 @@ opt<bpid_t> nt::syscalls::register_ZwWriteFileGather(proc_t proc, const on_ZwWri
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwWriteRequestData(proc_t proc, const on_ZwWriteRequestData_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwWriteRequestData(proc_t proc, const on_ZwWriteRequestData_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwWriteRequestData", [=]
     {
@@ -7607,7 +7607,7 @@ opt<bpid_t> nt::syscalls::register_ZwWriteRequestData(proc_t proc, const on_ZwWr
     });
 }
 
-opt<bpid_t> nt::syscalls::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
+opt<bpid_t> nt::syscalls::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func) const
 {
     return register_callback(*d_, proc, "ZwYieldExecution", [=]
     {
@@ -7620,7 +7620,7 @@ opt<bpid_t> nt::syscalls::register_ZwYieldExecution(proc_t proc, const on_ZwYiel
     });
 }
 
-opt<bpid_t> nt::syscalls::register_all(proc_t proc, const nt::syscalls::on_call_fn& on_call)
+opt<bpid_t> nt::syscalls::register_all(proc_t proc, const nt::syscalls::on_call_fn& on_call) const
 {
     auto& d         = *d_;
     const auto bpid = state::acquire_breakpoint_id(d.core);

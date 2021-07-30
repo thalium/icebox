@@ -82,7 +82,7 @@ namespace
     }
 }
 
-opt<bpid_t> nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func) const
 {
     return register_callback(*d_, proc, "RtlFreeHeap", [=]
     {
@@ -99,7 +99,7 @@ opt<bpid_t> nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func) const
 {
     return register_callback(*d_, proc, "RtlGetUserInfoHeap", [=]
     {
@@ -118,7 +118,7 @@ opt<bpid_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetU
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func) const
 {
     return register_callback(*d_, proc, "RtlSetUserValueHeap", [=]
     {
@@ -136,7 +136,7 @@ opt<bpid_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSet
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func) const
 {
     return register_callback(*d_, proc, "RtlSizeHeap", [=]
     {
@@ -153,7 +153,7 @@ opt<bpid_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func) const
 {
     return register_callback(*d_, proc, "RtlpAllocateHeapInternal", [=]
     {
@@ -169,7 +169,7 @@ opt<bpid_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_R
     });
 }
 
-opt<bpid_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func) const
 {
     return register_callback(*d_, proc, "RtlpReAllocateHeapInternal", [=]
     {
@@ -187,7 +187,7 @@ opt<bpid_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on
     });
 }
 
-opt<bpid_t> nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call)
+opt<bpid_t> nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call) const
 {
     auto& d         = *d_;
     const auto bpid = state::acquire_breakpoint_id(d.core);

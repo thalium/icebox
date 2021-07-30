@@ -475,7 +475,7 @@ namespace
     }
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAcceptConnectPort@24", [=]
     {
@@ -495,7 +495,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAcceptConnectPort(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAccessCheck@32", [=]
     {
@@ -517,7 +517,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAccessCheck(proc_t proc, const on_NtAc
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAccessCheckByType@44", [=]
     {
@@ -542,7 +542,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByType(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAccessCheckByTypeAndAuditAlarm@64", [=]
     {
@@ -572,7 +572,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeAndAuditAlarm(proc_t 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAccessCheckByTypeResultList@44", [=]
     {
@@ -597,7 +597,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeResultList(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAccessCheckByTypeResultListAndAuditAlarm@64", [=]
     {
@@ -627,7 +627,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAccessCheckByTypeResultListAndAuditAla
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAddAtom@12", [=]
     {
@@ -644,7 +644,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAddAtom(proc_t proc, const on_NtAddAto
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAddDriverEntry@8", [=]
     {
@@ -660,7 +660,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAddDriverEntry(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlertResumeThread@8", [=]
     {
@@ -676,7 +676,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlertResumeThread(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlertThread@4", [=]
     {
@@ -691,7 +691,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlertThread(proc_t proc, const on_NtAl
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAllocateReserveObject@12", [=]
     {
@@ -708,7 +708,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAllocateReserveObject(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAllocateUserPhysicalPages@12", [=]
     {
@@ -725,7 +725,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAllocateUserPhysicalPages(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAllocateUuids@16", [=]
     {
@@ -743,7 +743,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAllocateUuids(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAllocateVirtualMemory@24", [=]
     {
@@ -763,7 +763,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAllocateVirtualMemory(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcAcceptConnectPort@36", [=]
     {
@@ -786,7 +786,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcAcceptConnectPort(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcCreatePortSection@24", [=]
     {
@@ -806,7 +806,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcCreatePortSection(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcDeleteResourceReserve@12", [=]
     {
@@ -823,7 +823,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteResourceReserve(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcDeleteSectionView@12", [=]
     {
@@ -840,7 +840,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteSectionView(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcDeleteSecurityContext@12", [=]
     {
@@ -857,7 +857,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcDeleteSecurityContext(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcDisconnectPort@8", [=]
     {
@@ -873,7 +873,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcDisconnectPort(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcRevokeSecurityContext@12", [=]
     {
@@ -890,7 +890,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcRevokeSecurityContext(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcSendWaitReceivePort@32", [=]
     {
@@ -912,7 +912,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcSendWaitReceivePort(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtAlpcSetInformation@16", [=]
     {
@@ -930,7 +930,7 @@ opt<bpid_t> wow64::syscalls32::register_NtAlpcSetInformation(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtApphelpCacheControl@8", [=]
     {
@@ -946,7 +946,7 @@ opt<bpid_t> wow64::syscalls32::register_NtApphelpCacheControl(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCancelIoFileEx@12", [=]
     {
@@ -963,7 +963,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCancelIoFileEx(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCancelSynchronousIoFile@12", [=]
     {
@@ -980,7 +980,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCancelSynchronousIoFile(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtClearEvent@4", [=]
     {
@@ -995,7 +995,7 @@ opt<bpid_t> wow64::syscalls32::register_NtClearEvent(proc_t proc, const on_NtCle
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtClose(proc_t proc, const on_NtClose_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtClose@4", [=]
     {
@@ -1010,7 +1010,7 @@ opt<bpid_t> wow64::syscalls32::register_NtClose(proc_t proc, const on_NtClose_fn
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCommitEnlistment@8", [=]
     {
@@ -1026,7 +1026,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCommitEnlistment(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCommitTransaction@8", [=]
     {
@@ -1042,7 +1042,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCommitTransaction(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCompactKeys@8", [=]
     {
@@ -1058,7 +1058,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCompactKeys(proc_t proc, const on_NtCo
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCompleteConnectPort@4", [=]
     {
@@ -1073,7 +1073,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCompleteConnectPort(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtConnectPort@32", [=]
     {
@@ -1095,7 +1095,7 @@ opt<bpid_t> wow64::syscalls32::register_NtConnectPort(proc_t proc, const on_NtCo
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateEvent@20", [=]
     {
@@ -1114,7 +1114,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateEvent(proc_t proc, const on_NtCr
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateEventPair@12", [=]
     {
@@ -1131,7 +1131,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateEventPair(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateFile@44", [=]
     {
@@ -1156,7 +1156,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateFile(proc_t proc, const on_NtCre
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateIoCompletion@16", [=]
     {
@@ -1174,7 +1174,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateIoCompletion(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateJobSet@12", [=]
     {
@@ -1191,7 +1191,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateJobSet(proc_t proc, const on_NtC
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateKeyTransacted@32", [=]
     {
@@ -1213,7 +1213,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateKeyTransacted(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreatePagingFile@16", [=]
     {
@@ -1231,7 +1231,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreatePagingFile(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreatePrivateNamespace@16", [=]
     {
@@ -1249,7 +1249,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreatePrivateNamespace(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateProfileEx@40", [=]
     {
@@ -1273,7 +1273,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateProfileEx(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateSection@28", [=]
     {
@@ -1294,7 +1294,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateSection(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateSemaphore@20", [=]
     {
@@ -1313,7 +1313,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateSemaphore(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateThread@32", [=]
     {
@@ -1335,7 +1335,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateThread(proc_t proc, const on_NtC
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateThreadEx@44", [=]
     {
@@ -1360,7 +1360,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateThreadEx(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateToken@52", [=]
     {
@@ -1387,7 +1387,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateToken(proc_t proc, const on_NtCr
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateTransaction@40", [=]
     {
@@ -1411,7 +1411,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateTransaction(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateUserProcess@44", [=]
     {
@@ -1436,7 +1436,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateUserProcess(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtCreateWorkerFactory@40", [=]
     {
@@ -1460,7 +1460,7 @@ opt<bpid_t> wow64::syscalls32::register_NtCreateWorkerFactory(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDebugActiveProcess@8", [=]
     {
@@ -1476,7 +1476,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDebugActiveProcess(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDeleteBootEntry@4", [=]
     {
@@ -1491,7 +1491,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDeleteBootEntry(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDeleteFile@4", [=]
     {
@@ -1506,7 +1506,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDeleteFile(proc_t proc, const on_NtDel
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDeleteObjectAuditAlarm@12", [=]
     {
@@ -1523,7 +1523,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDeleteObjectAuditAlarm(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDeletePrivateNamespace@4", [=]
     {
@@ -1538,7 +1538,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDeletePrivateNamespace(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDeleteValueKey@8", [=]
     {
@@ -1554,7 +1554,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDeleteValueKey(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDisableLastKnownGood@0", [=]
     {
@@ -1567,7 +1567,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDisableLastKnownGood(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDisplayString@4", [=]
     {
@@ -1582,7 +1582,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDisplayString(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtDuplicateToken@24", [=]
     {
@@ -1602,7 +1602,7 @@ opt<bpid_t> wow64::syscalls32::register_NtDuplicateToken(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtEnableLastKnownGood@0", [=]
     {
@@ -1615,7 +1615,7 @@ opt<bpid_t> wow64::syscalls32::register_NtEnableLastKnownGood(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtEnumerateDriverEntries@8", [=]
     {
@@ -1631,7 +1631,7 @@ opt<bpid_t> wow64::syscalls32::register_NtEnumerateDriverEntries(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtEnumerateValueKey@24", [=]
     {
@@ -1651,7 +1651,7 @@ opt<bpid_t> wow64::syscalls32::register_NtEnumerateValueKey(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFilterToken@24", [=]
     {
@@ -1671,7 +1671,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFilterToken(proc_t proc, const on_NtFi
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFindAtom@12", [=]
     {
@@ -1688,7 +1688,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFindAtom(proc_t proc, const on_NtFindA
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFlushKey@4", [=]
     {
@@ -1703,7 +1703,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFlushKey(proc_t proc, const on_NtFlush
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFlushWriteBuffer@0", [=]
     {
@@ -1716,7 +1716,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFlushWriteBuffer(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFreeUserPhysicalPages@12", [=]
     {
@@ -1733,7 +1733,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFreeUserPhysicalPages(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFreeVirtualMemory@16", [=]
     {
@@ -1751,7 +1751,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFreeVirtualMemory(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFreezeRegistry@4", [=]
     {
@@ -1766,7 +1766,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFreezeRegistry(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtFsControlFile@40", [=]
     {
@@ -1790,7 +1790,7 @@ opt<bpid_t> wow64::syscalls32::register_NtFsControlFile(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtGetContextThread@8", [=]
     {
@@ -1806,7 +1806,7 @@ opt<bpid_t> wow64::syscalls32::register_NtGetContextThread(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtGetCurrentProcessorNumber@0", [=]
     {
@@ -1819,7 +1819,7 @@ opt<bpid_t> wow64::syscalls32::register_NtGetCurrentProcessorNumber(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtGetDevicePowerState@8", [=]
     {
@@ -1835,7 +1835,7 @@ opt<bpid_t> wow64::syscalls32::register_NtGetDevicePowerState(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtGetMUIRegistryInfo@12", [=]
     {
@@ -1852,7 +1852,7 @@ opt<bpid_t> wow64::syscalls32::register_NtGetMUIRegistryInfo(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtGetNlsSectionPtr@20", [=]
     {
@@ -1871,7 +1871,7 @@ opt<bpid_t> wow64::syscalls32::register_NtGetNlsSectionPtr(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtGetWriteWatch@28", [=]
     {
@@ -1892,7 +1892,7 @@ opt<bpid_t> wow64::syscalls32::register_NtGetWriteWatch(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtImpersonateAnonymousToken@4", [=]
     {
@@ -1907,7 +1907,7 @@ opt<bpid_t> wow64::syscalls32::register_NtImpersonateAnonymousToken(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtInitializeNlsFiles@12", [=]
     {
@@ -1924,7 +1924,7 @@ opt<bpid_t> wow64::syscalls32::register_NtInitializeNlsFiles(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtInitiatePowerAction@16", [=]
     {
@@ -1942,7 +1942,7 @@ opt<bpid_t> wow64::syscalls32::register_NtInitiatePowerAction(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtIsSystemResumeAutomatic@0", [=]
     {
@@ -1955,7 +1955,7 @@ opt<bpid_t> wow64::syscalls32::register_NtIsSystemResumeAutomatic(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtLoadDriver@4", [=]
     {
@@ -1970,7 +1970,7 @@ opt<bpid_t> wow64::syscalls32::register_NtLoadDriver(proc_t proc, const on_NtLoa
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtLoadKey@8", [=]
     {
@@ -1986,7 +1986,7 @@ opt<bpid_t> wow64::syscalls32::register_NtLoadKey(proc_t proc, const on_NtLoadKe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtLoadKey2@12", [=]
     {
@@ -2003,7 +2003,7 @@ opt<bpid_t> wow64::syscalls32::register_NtLoadKey2(proc_t proc, const on_NtLoadK
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtLoadKeyEx@32", [=]
     {
@@ -2025,7 +2025,7 @@ opt<bpid_t> wow64::syscalls32::register_NtLoadKeyEx(proc_t proc, const on_NtLoad
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtLockFile@40", [=]
     {
@@ -2049,7 +2049,7 @@ opt<bpid_t> wow64::syscalls32::register_NtLockFile(proc_t proc, const on_NtLockF
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtLockRegistryKey@4", [=]
     {
@@ -2064,7 +2064,7 @@ opt<bpid_t> wow64::syscalls32::register_NtLockRegistryKey(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtMakeTemporaryObject@4", [=]
     {
@@ -2079,7 +2079,7 @@ opt<bpid_t> wow64::syscalls32::register_NtMakeTemporaryObject(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtMapUserPhysicalPages@12", [=]
     {
@@ -2096,7 +2096,7 @@ opt<bpid_t> wow64::syscalls32::register_NtMapUserPhysicalPages(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtModifyBootEntry@4", [=]
     {
@@ -2111,7 +2111,7 @@ opt<bpid_t> wow64::syscalls32::register_NtModifyBootEntry(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtNotifyChangeDirectoryFile@36", [=]
     {
@@ -2134,7 +2134,7 @@ opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeDirectoryFile(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtNotifyChangeKey@40", [=]
     {
@@ -2158,7 +2158,7 @@ opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeKey(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtNotifyChangeMultipleKeys@48", [=]
     {
@@ -2184,7 +2184,7 @@ opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeMultipleKeys(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtNotifyChangeSession@32", [=]
     {
@@ -2206,7 +2206,7 @@ opt<bpid_t> wow64::syscalls32::register_NtNotifyChangeSession(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenEvent@12", [=]
     {
@@ -2223,7 +2223,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenEvent(proc_t proc, const on_NtOpen
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenEventPair@12", [=]
     {
@@ -2240,7 +2240,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenEventPair(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenFile@24", [=]
     {
@@ -2260,7 +2260,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenFile(proc_t proc, const on_NtOpenF
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenKeyTransacted@16", [=]
     {
@@ -2278,7 +2278,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenKeyTransacted(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenKeyTransactedEx@20", [=]
     {
@@ -2297,7 +2297,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenKeyTransactedEx(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenKeyedEvent@12", [=]
     {
@@ -2314,7 +2314,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenKeyedEvent(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenMutant@12", [=]
     {
@@ -2331,7 +2331,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenMutant(proc_t proc, const on_NtOpe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenPrivateNamespace@16", [=]
     {
@@ -2349,7 +2349,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenPrivateNamespace(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenSection@12", [=]
     {
@@ -2366,7 +2366,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenSection(proc_t proc, const on_NtOp
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenSemaphore@12", [=]
     {
@@ -2383,7 +2383,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenSemaphore(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenSession@12", [=]
     {
@@ -2400,7 +2400,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenSession(proc_t proc, const on_NtOp
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenSymbolicLinkObject@12", [=]
     {
@@ -2417,7 +2417,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenSymbolicLinkObject(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenThreadToken@16", [=]
     {
@@ -2435,7 +2435,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenThreadToken(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtOpenThreadTokenEx@20", [=]
     {
@@ -2454,7 +2454,7 @@ opt<bpid_t> wow64::syscalls32::register_NtOpenThreadTokenEx(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtPlugPlayControl@12", [=]
     {
@@ -2471,7 +2471,7 @@ opt<bpid_t> wow64::syscalls32::register_NtPlugPlayControl(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtPrePrepareEnlistment@8", [=]
     {
@@ -2487,7 +2487,7 @@ opt<bpid_t> wow64::syscalls32::register_NtPrePrepareEnlistment(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtPrepareComplete@8", [=]
     {
@@ -2503,7 +2503,7 @@ opt<bpid_t> wow64::syscalls32::register_NtPrepareComplete(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtPrivilegedServiceAuditAlarm@20", [=]
     {
@@ -2522,7 +2522,7 @@ opt<bpid_t> wow64::syscalls32::register_NtPrivilegedServiceAuditAlarm(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtPropagationComplete@16", [=]
     {
@@ -2540,7 +2540,7 @@ opt<bpid_t> wow64::syscalls32::register_NtPropagationComplete(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryDebugFilterState@8", [=]
     {
@@ -2556,7 +2556,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryDebugFilterState(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryDefaultLocale@8", [=]
     {
@@ -2572,7 +2572,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryDefaultLocale(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryDriverEntryOrder@8", [=]
     {
@@ -2588,7 +2588,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryDriverEntryOrder(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryEvent@20", [=]
     {
@@ -2607,7 +2607,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryEvent(proc_t proc, const on_NtQue
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryInformationAtom@20", [=]
     {
@@ -2626,7 +2626,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryInformationAtom(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryInformationThread@20", [=]
     {
@@ -2645,7 +2645,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryInformationThread(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryInformationTransactionManager@20", [=]
     {
@@ -2664,7 +2664,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryInformationTransactionManager(pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryInstallUILanguage@4", [=]
     {
@@ -2679,7 +2679,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryInstallUILanguage(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryIntervalProfile@8", [=]
     {
@@ -2695,7 +2695,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryIntervalProfile(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryIoCompletion@20", [=]
     {
@@ -2714,7 +2714,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryIoCompletion(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryLicenseValue@20", [=]
     {
@@ -2733,7 +2733,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryLicenseValue(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryMultipleValueKey@24", [=]
     {
@@ -2753,7 +2753,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryMultipleValueKey(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryMutant@20", [=]
     {
@@ -2772,7 +2772,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryMutant(proc_t proc, const on_NtQu
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryObject@20", [=]
     {
@@ -2791,7 +2791,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryObject(proc_t proc, const on_NtQu
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryOpenSubKeys@8", [=]
     {
@@ -2807,7 +2807,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryOpenSubKeys(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryOpenSubKeysEx@16", [=]
     {
@@ -2825,7 +2825,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryOpenSubKeysEx(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryPerformanceCounter@8", [=]
     {
@@ -2841,7 +2841,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryPerformanceCounter(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQuerySecurityObject@20", [=]
     {
@@ -2860,7 +2860,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQuerySecurityObject(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQuerySystemInformation@16", [=]
     {
@@ -2878,7 +2878,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQuerySystemInformation(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQuerySystemTime@4", [=]
     {
@@ -2893,7 +2893,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQuerySystemTime(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryTimerResolution@12", [=]
     {
@@ -2910,7 +2910,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryTimerResolution(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryVirtualMemory@24", [=]
     {
@@ -2930,7 +2930,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryVirtualMemory(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueryVolumeInformationFile@20", [=]
     {
@@ -2949,7 +2949,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueryVolumeInformationFile(proc_t proc
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueueApcThread@20", [=]
     {
@@ -2968,7 +2968,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueueApcThread(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtQueueApcThreadEx@24", [=]
     {
@@ -2988,7 +2988,7 @@ opt<bpid_t> wow64::syscalls32::register_NtQueueApcThreadEx(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReadFile@36", [=]
     {
@@ -3011,7 +3011,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReadFile(proc_t proc, const on_NtReadF
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReadFileScatter@36", [=]
     {
@@ -3034,7 +3034,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReadFileScatter(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReadVirtualMemory@20", [=]
     {
@@ -3053,7 +3053,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReadVirtualMemory(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRecoverEnlistment@8", [=]
     {
@@ -3069,7 +3069,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRecoverEnlistment(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRecoverResourceManager@4", [=]
     {
@@ -3084,7 +3084,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRecoverResourceManager(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReleaseKeyedEvent@16", [=]
     {
@@ -3102,7 +3102,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReleaseKeyedEvent(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReleaseSemaphore@12", [=]
     {
@@ -3119,7 +3119,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReleaseSemaphore(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRenameTransactionManager@8", [=]
     {
@@ -3135,7 +3135,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRenameTransactionManager(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReplacePartitionUnit@12", [=]
     {
@@ -3152,7 +3152,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReplacePartitionUnit(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReplyWaitReceivePort@16", [=]
     {
@@ -3170,7 +3170,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReceivePort(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReplyWaitReceivePortEx@20", [=]
     {
@@ -3189,7 +3189,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReceivePortEx(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtReplyWaitReplyPort@8", [=]
     {
@@ -3205,7 +3205,7 @@ opt<bpid_t> wow64::syscalls32::register_NtReplyWaitReplyPort(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRequestWaitReplyPort@12", [=]
     {
@@ -3222,7 +3222,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRequestWaitReplyPort(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtResetEvent@8", [=]
     {
@@ -3238,7 +3238,7 @@ opt<bpid_t> wow64::syscalls32::register_NtResetEvent(proc_t proc, const on_NtRes
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRestoreKey@12", [=]
     {
@@ -3255,7 +3255,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRestoreKey(proc_t proc, const on_NtRes
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRollbackEnlistment@8", [=]
     {
@@ -3271,7 +3271,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRollbackEnlistment(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRollbackTransaction@8", [=]
     {
@@ -3287,7 +3287,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRollbackTransaction(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtRollforwardTransactionManager@8", [=]
     {
@@ -3303,7 +3303,7 @@ opt<bpid_t> wow64::syscalls32::register_NtRollforwardTransactionManager(proc_t p
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSaveKey@8", [=]
     {
@@ -3319,7 +3319,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSaveKey(proc_t proc, const on_NtSaveKe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSaveKeyEx@12", [=]
     {
@@ -3336,7 +3336,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSaveKeyEx(proc_t proc, const on_NtSave
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSaveMergedKeys@12", [=]
     {
@@ -3353,7 +3353,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSaveMergedKeys(proc_t proc, const on_N
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSecureConnectPort@36", [=]
     {
@@ -3376,7 +3376,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSecureConnectPort(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSerializeBoot@0", [=]
     {
@@ -3389,7 +3389,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSerializeBoot(proc_t proc, const on_Nt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetDebugFilterState@12", [=]
     {
@@ -3406,7 +3406,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetDebugFilterState(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetDefaultHardErrorPort@4", [=]
     {
@@ -3421,7 +3421,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetDefaultHardErrorPort(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetDefaultLocale@8", [=]
     {
@@ -3437,7 +3437,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetDefaultLocale(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetDriverEntryOrder@8", [=]
     {
@@ -3453,7 +3453,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetDriverEntryOrder(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetEvent@8", [=]
     {
@@ -3469,7 +3469,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetEvent(proc_t proc, const on_NtSetEv
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetEventBoostPriority@4", [=]
     {
@@ -3484,7 +3484,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetEventBoostPriority(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetHighEventPair@4", [=]
     {
@@ -3499,7 +3499,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetHighEventPair(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetHighWaitLowEventPair@4", [=]
     {
@@ -3514,7 +3514,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetHighWaitLowEventPair(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetInformationEnlistment@16", [=]
     {
@@ -3532,7 +3532,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetInformationEnlistment(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetIntervalProfile@8", [=]
     {
@@ -3548,7 +3548,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetIntervalProfile(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetIoCompletion@20", [=]
     {
@@ -3567,7 +3567,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetIoCompletion(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetIoCompletionEx@24", [=]
     {
@@ -3587,7 +3587,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetIoCompletionEx(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetSecurityObject@12", [=]
     {
@@ -3604,7 +3604,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetSecurityObject(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetTimerResolution@12", [=]
     {
@@ -3621,7 +3621,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetTimerResolution(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSetVolumeInformationFile@20", [=]
     {
@@ -3640,7 +3640,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSetVolumeInformationFile(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtShutdownWorkerFactory@8", [=]
     {
@@ -3656,7 +3656,7 @@ opt<bpid_t> wow64::syscalls32::register_NtShutdownWorkerFactory(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtStartProfile@4", [=]
     {
@@ -3671,7 +3671,7 @@ opt<bpid_t> wow64::syscalls32::register_NtStartProfile(proc_t proc, const on_NtS
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtSystemDebugControl@24", [=]
     {
@@ -3691,7 +3691,7 @@ opt<bpid_t> wow64::syscalls32::register_NtSystemDebugControl(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtTestAlert@0", [=]
     {
@@ -3704,7 +3704,7 @@ opt<bpid_t> wow64::syscalls32::register_NtTestAlert(proc_t proc, const on_NtTest
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtThawTransactions@0", [=]
     {
@@ -3717,7 +3717,7 @@ opt<bpid_t> wow64::syscalls32::register_NtThawTransactions(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtTraceEvent@16", [=]
     {
@@ -3735,7 +3735,7 @@ opt<bpid_t> wow64::syscalls32::register_NtTraceEvent(proc_t proc, const on_NtTra
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtTranslateFilePath@16", [=]
     {
@@ -3753,7 +3753,7 @@ opt<bpid_t> wow64::syscalls32::register_NtTranslateFilePath(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtUnloadKey@4", [=]
     {
@@ -3768,7 +3768,7 @@ opt<bpid_t> wow64::syscalls32::register_NtUnloadKey(proc_t proc, const on_NtUnlo
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtUnlockVirtualMemory@16", [=]
     {
@@ -3786,7 +3786,7 @@ opt<bpid_t> wow64::syscalls32::register_NtUnlockVirtualMemory(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtUnmapViewOfSection@8", [=]
     {
@@ -3802,7 +3802,7 @@ opt<bpid_t> wow64::syscalls32::register_NtUnmapViewOfSection(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtVdmControl@8", [=]
     {
@@ -3818,7 +3818,7 @@ opt<bpid_t> wow64::syscalls32::register_NtVdmControl(proc_t proc, const on_NtVdm
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWaitForDebugEvent@16", [=]
     {
@@ -3836,7 +3836,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWaitForDebugEvent(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWaitForKeyedEvent@16", [=]
     {
@@ -3854,7 +3854,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWaitForKeyedEvent(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWaitForMultipleObjects@20", [=]
     {
@@ -3873,7 +3873,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWaitForMultipleObjects(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWaitForMultipleObjects32@20", [=]
     {
@@ -3892,7 +3892,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWaitForMultipleObjects32(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWaitForWorkViaWorkerFactory@20", [=]
     {
@@ -3911,7 +3911,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWaitLowEventPair@4", [=]
     {
@@ -3926,7 +3926,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWaitLowEventPair(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWorkerFactoryWorkerReady@4", [=]
     {
@@ -3941,7 +3941,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWorkerFactoryWorkerReady(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWriteFile@36", [=]
     {
@@ -3964,7 +3964,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWriteFile(proc_t proc, const on_NtWrit
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWriteFileGather@36", [=]
     {
@@ -3987,7 +3987,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWriteFileGather(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWriteRequestData@24", [=]
     {
@@ -4007,7 +4007,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWriteRequestData(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_NtWriteVirtualMemory@20", [=]
     {
@@ -4026,7 +4026,7 @@ opt<bpid_t> wow64::syscalls32::register_NtWriteVirtualMemory(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAccessCheckAndAuditAlarm@44", [=]
     {
@@ -4051,7 +4051,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAccessCheckAndAuditAlarm(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle@68", [=]
     {
@@ -4082,7 +4082,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAccessCheckByTypeResultListAndAuditAla
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAddBootEntry@8", [=]
     {
@@ -4098,7 +4098,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAddBootEntry(proc_t proc, const on_ZwA
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAdjustGroupsToken(proc_t proc, const on_ZwAdjustGroupsToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAdjustGroupsToken(proc_t proc, const on_ZwAdjustGroupsToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAdjustGroupsToken@24", [=]
     {
@@ -4118,7 +4118,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAdjustGroupsToken(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAdjustPrivilegesToken(proc_t proc, const on_ZwAdjustPrivilegesToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAdjustPrivilegesToken(proc_t proc, const on_ZwAdjustPrivilegesToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAdjustPrivilegesToken@24", [=]
     {
@@ -4138,7 +4138,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAdjustPrivilegesToken(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAllocateLocallyUniqueId@4", [=]
     {
@@ -4153,7 +4153,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAllocateLocallyUniqueId(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcCancelMessage(proc_t proc, const on_ZwAlpcCancelMessage_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcCancelMessage(proc_t proc, const on_ZwAlpcCancelMessage_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcCancelMessage@12", [=]
     {
@@ -4170,7 +4170,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcCancelMessage(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcConnectPort(proc_t proc, const on_ZwAlpcConnectPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcConnectPort(proc_t proc, const on_ZwAlpcConnectPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcConnectPort@44", [=]
     {
@@ -4195,7 +4195,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcConnectPort(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreatePort(proc_t proc, const on_ZwAlpcCreatePort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreatePort(proc_t proc, const on_ZwAlpcCreatePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcCreatePort@12", [=]
     {
@@ -4212,7 +4212,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreatePort(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcCreateResourceReserve@16", [=]
     {
@@ -4230,7 +4230,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateResourceReserve(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateSectionView(proc_t proc, const on_ZwAlpcCreateSectionView_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateSectionView(proc_t proc, const on_ZwAlpcCreateSectionView_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcCreateSectionView@12", [=]
     {
@@ -4247,7 +4247,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateSectionView(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateSecurityContext(proc_t proc, const on_ZwAlpcCreateSecurityContext_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateSecurityContext(proc_t proc, const on_ZwAlpcCreateSecurityContext_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcCreateSecurityContext@12", [=]
     {
@@ -4264,7 +4264,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcCreateSecurityContext(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcDeletePortSection(proc_t proc, const on_ZwAlpcDeletePortSection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcDeletePortSection(proc_t proc, const on_ZwAlpcDeletePortSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcDeletePortSection@12", [=]
     {
@@ -4281,7 +4281,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcDeletePortSection(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcImpersonateClientOfPort(proc_t proc, const on_ZwAlpcImpersonateClientOfPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcImpersonateClientOfPort(proc_t proc, const on_ZwAlpcImpersonateClientOfPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcImpersonateClientOfPort@12", [=]
     {
@@ -4298,7 +4298,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcImpersonateClientOfPort(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcOpenSenderProcess(proc_t proc, const on_ZwAlpcOpenSenderProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcOpenSenderProcess(proc_t proc, const on_ZwAlpcOpenSenderProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcOpenSenderProcess@24", [=]
     {
@@ -4318,7 +4318,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcOpenSenderProcess(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcOpenSenderThread(proc_t proc, const on_ZwAlpcOpenSenderThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcOpenSenderThread(proc_t proc, const on_ZwAlpcOpenSenderThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcOpenSenderThread@24", [=]
     {
@@ -4338,7 +4338,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcOpenSenderThread(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcQueryInformation@20", [=]
     {
@@ -4357,7 +4357,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcQueryInformation(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAlpcQueryInformationMessage@24", [=]
     {
@@ -4377,7 +4377,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAlpcQueryInformationMessage(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAreMappedFilesTheSame@8", [=]
     {
@@ -4393,7 +4393,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAreMappedFilesTheSame(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwAssignProcessToJobObject(proc_t proc, const on_ZwAssignProcessToJobObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwAssignProcessToJobObject(proc_t proc, const on_ZwAssignProcessToJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwAssignProcessToJobObject@8", [=]
     {
@@ -4409,7 +4409,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwAssignProcessToJobObject(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCancelIoFile@8", [=]
     {
@@ -4425,7 +4425,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCancelIoFile(proc_t proc, const on_ZwC
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCancelTimer(proc_t proc, const on_ZwCancelTimer_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCancelTimer(proc_t proc, const on_ZwCancelTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCancelTimer@8", [=]
     {
@@ -4441,7 +4441,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCancelTimer(proc_t proc, const on_ZwCa
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCloseObjectAuditAlarm@12", [=]
     {
@@ -4458,7 +4458,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCloseObjectAuditAlarm(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCommitComplete(proc_t proc, const on_ZwCommitComplete_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCommitComplete(proc_t proc, const on_ZwCommitComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCommitComplete@8", [=]
     {
@@ -4474,7 +4474,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCommitComplete(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCompareTokens@12", [=]
     {
@@ -4491,7 +4491,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCompareTokens(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCompressKey(proc_t proc, const on_ZwCompressKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCompressKey(proc_t proc, const on_ZwCompressKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCompressKey@4", [=]
     {
@@ -4506,7 +4506,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCompressKey(proc_t proc, const on_ZwCo
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwContinue@8", [=]
     {
@@ -4522,7 +4522,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwContinue(proc_t proc, const on_ZwConti
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateDebugObject(proc_t proc, const on_ZwCreateDebugObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateDebugObject(proc_t proc, const on_ZwCreateDebugObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateDebugObject@16", [=]
     {
@@ -4540,7 +4540,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateDebugObject(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateDirectoryObject(proc_t proc, const on_ZwCreateDirectoryObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateDirectoryObject(proc_t proc, const on_ZwCreateDirectoryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateDirectoryObject@12", [=]
     {
@@ -4557,7 +4557,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateDirectoryObject(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateEnlistment(proc_t proc, const on_ZwCreateEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateEnlistment(proc_t proc, const on_ZwCreateEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateEnlistment@32", [=]
     {
@@ -4579,7 +4579,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateEnlistment(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateJobObject@12", [=]
     {
@@ -4596,7 +4596,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateJobObject(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateKey@28", [=]
     {
@@ -4617,7 +4617,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateKey(proc_t proc, const on_ZwCrea
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateKeyedEvent@16", [=]
     {
@@ -4635,7 +4635,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateKeyedEvent(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateMailslotFile@32", [=]
     {
@@ -4657,7 +4657,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateMailslotFile(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateMutant(proc_t proc, const on_ZwCreateMutant_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateMutant(proc_t proc, const on_ZwCreateMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateMutant@16", [=]
     {
@@ -4675,7 +4675,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateMutant(proc_t proc, const on_ZwC
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateNamedPipeFile(proc_t proc, const on_ZwCreateNamedPipeFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateNamedPipeFile(proc_t proc, const on_ZwCreateNamedPipeFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateNamedPipeFile@56", [=]
     {
@@ -4703,7 +4703,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateNamedPipeFile(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreatePort@20", [=]
     {
@@ -4722,7 +4722,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreatePort(proc_t proc, const on_ZwCre
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateProcess(proc_t proc, const on_ZwCreateProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateProcess(proc_t proc, const on_ZwCreateProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateProcess@32", [=]
     {
@@ -4744,7 +4744,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateProcess(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateProcessEx@36", [=]
     {
@@ -4767,7 +4767,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateProcessEx(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateProfile@36", [=]
     {
@@ -4790,7 +4790,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateProfile(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateResourceManager(proc_t proc, const on_ZwCreateResourceManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateResourceManager(proc_t proc, const on_ZwCreateResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateResourceManager@28", [=]
     {
@@ -4811,7 +4811,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateResourceManager(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateSymbolicLinkObject@16", [=]
     {
@@ -4829,7 +4829,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateSymbolicLinkObject(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateTimer@16", [=]
     {
@@ -4847,7 +4847,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateTimer(proc_t proc, const on_ZwCr
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateTransactionManager@24", [=]
     {
@@ -4867,7 +4867,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateTransactionManager(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwCreateWaitablePort(proc_t proc, const on_ZwCreateWaitablePort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwCreateWaitablePort(proc_t proc, const on_ZwCreateWaitablePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwCreateWaitablePort@20", [=]
     {
@@ -4886,7 +4886,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwCreateWaitablePort(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDebugContinue(proc_t proc, const on_ZwDebugContinue_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDebugContinue(proc_t proc, const on_ZwDebugContinue_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDebugContinue@12", [=]
     {
@@ -4903,7 +4903,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDebugContinue(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDelayExecution@8", [=]
     {
@@ -4919,7 +4919,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDelayExecution(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDeleteAtom(proc_t proc, const on_ZwDeleteAtom_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDeleteAtom(proc_t proc, const on_ZwDeleteAtom_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDeleteAtom@4", [=]
     {
@@ -4934,7 +4934,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDeleteAtom(proc_t proc, const on_ZwDel
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDeleteDriverEntry@4", [=]
     {
@@ -4949,7 +4949,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDeleteDriverEntry(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDeleteKey(proc_t proc, const on_ZwDeleteKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDeleteKey(proc_t proc, const on_ZwDeleteKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDeleteKey@4", [=]
     {
@@ -4964,7 +4964,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDeleteKey(proc_t proc, const on_ZwDele
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDeviceIoControlFile(proc_t proc, const on_ZwDeviceIoControlFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDeviceIoControlFile(proc_t proc, const on_ZwDeviceIoControlFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDeviceIoControlFile@40", [=]
     {
@@ -4988,7 +4988,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDeviceIoControlFile(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDrawText(proc_t proc, const on_ZwDrawText_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDrawText(proc_t proc, const on_ZwDrawText_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDrawText@4", [=]
     {
@@ -5003,7 +5003,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDrawText(proc_t proc, const on_ZwDrawT
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwDuplicateObject@28", [=]
     {
@@ -5024,7 +5024,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwDuplicateObject(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwEnumerateBootEntries(proc_t proc, const on_ZwEnumerateBootEntries_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwEnumerateBootEntries(proc_t proc, const on_ZwEnumerateBootEntries_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwEnumerateBootEntries@8", [=]
     {
@@ -5040,7 +5040,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwEnumerateBootEntries(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwEnumerateKey(proc_t proc, const on_ZwEnumerateKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwEnumerateKey(proc_t proc, const on_ZwEnumerateKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwEnumerateKey@24", [=]
     {
@@ -5060,7 +5060,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwEnumerateKey(proc_t proc, const on_ZwE
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_ZwEnumerateSystemEnvironmentValuesEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_ZwEnumerateSystemEnvironmentValuesEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwEnumerateSystemEnvironmentValuesEx@12", [=]
     {
@@ -5077,7 +5077,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwEnumerateSystemEnvironmentValuesEx(pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwEnumerateTransactionObject(proc_t proc, const on_ZwEnumerateTransactionObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwEnumerateTransactionObject(proc_t proc, const on_ZwEnumerateTransactionObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwEnumerateTransactionObject@20", [=]
     {
@@ -5096,7 +5096,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwEnumerateTransactionObject(proc_t proc
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwExtendSection(proc_t proc, const on_ZwExtendSection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwExtendSection(proc_t proc, const on_ZwExtendSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwExtendSection@8", [=]
     {
@@ -5112,7 +5112,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwExtendSection(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwFlushBuffersFile@8", [=]
     {
@@ -5128,7 +5128,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwFlushBuffersFile(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwFlushInstallUILanguage(proc_t proc, const on_ZwFlushInstallUILanguage_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwFlushInstallUILanguage(proc_t proc, const on_ZwFlushInstallUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwFlushInstallUILanguage@8", [=]
     {
@@ -5144,7 +5144,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwFlushInstallUILanguage(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwFlushInstructionCache(proc_t proc, const on_ZwFlushInstructionCache_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwFlushInstructionCache(proc_t proc, const on_ZwFlushInstructionCache_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwFlushInstructionCache@12", [=]
     {
@@ -5161,7 +5161,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwFlushInstructionCache(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwFlushProcessWriteBuffers@0", [=]
     {
@@ -5174,7 +5174,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwFlushProcessWriteBuffers(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwFlushVirtualMemory@16", [=]
     {
@@ -5192,7 +5192,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwFlushVirtualMemory(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwFreezeTransactions@8", [=]
     {
@@ -5208,7 +5208,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwFreezeTransactions(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwGetNextProcess(proc_t proc, const on_ZwGetNextProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwGetNextProcess(proc_t proc, const on_ZwGetNextProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwGetNextProcess@20", [=]
     {
@@ -5227,7 +5227,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwGetNextProcess(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwGetNextThread@24", [=]
     {
@@ -5247,7 +5247,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwGetNextThread(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwGetNotificationResourceManager(proc_t proc, const on_ZwGetNotificationResourceManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwGetNotificationResourceManager(proc_t proc, const on_ZwGetNotificationResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwGetNotificationResourceManager@28", [=]
     {
@@ -5268,7 +5268,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwGetNotificationResourceManager(proc_t 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwImpersonateClientOfPort@8", [=]
     {
@@ -5284,7 +5284,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwImpersonateClientOfPort(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwImpersonateThread@12", [=]
     {
@@ -5301,7 +5301,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwImpersonateThread(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwInitializeRegistry(proc_t proc, const on_ZwInitializeRegistry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwInitializeRegistry(proc_t proc, const on_ZwInitializeRegistry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwInitializeRegistry@4", [=]
     {
@@ -5316,7 +5316,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwInitializeRegistry(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsProcessInJob_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsProcessInJob_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwIsProcessInJob@8", [=]
     {
@@ -5332,7 +5332,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwIsProcessInJob(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwIsUILanguageComitted(proc_t proc, const on_ZwIsUILanguageComitted_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwIsUILanguageComitted(proc_t proc, const on_ZwIsUILanguageComitted_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwIsUILanguageComitted@0", [=]
     {
@@ -5345,7 +5345,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwIsUILanguageComitted(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwListenPort(proc_t proc, const on_ZwListenPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwListenPort(proc_t proc, const on_ZwListenPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwListenPort@8", [=]
     {
@@ -5361,7 +5361,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwListenPort(proc_t proc, const on_ZwLis
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwLockProductActivationKeys(proc_t proc, const on_ZwLockProductActivationKeys_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwLockProductActivationKeys(proc_t proc, const on_ZwLockProductActivationKeys_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwLockProductActivationKeys@8", [=]
     {
@@ -5377,7 +5377,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwLockProductActivationKeys(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwLockVirtualMemory(proc_t proc, const on_ZwLockVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwLockVirtualMemory(proc_t proc, const on_ZwLockVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwLockVirtualMemory@16", [=]
     {
@@ -5395,7 +5395,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwLockVirtualMemory(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwMakePermanentObject(proc_t proc, const on_ZwMakePermanentObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwMakePermanentObject(proc_t proc, const on_ZwMakePermanentObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwMakePermanentObject@4", [=]
     {
@@ -5410,7 +5410,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwMakePermanentObject(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMFModule_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMFModule_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwMapCMFModule@24", [=]
     {
@@ -5430,7 +5430,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwMapCMFModule(proc_t proc, const on_ZwM
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwMapUserPhysicalPagesScatter@12", [=]
     {
@@ -5447,7 +5447,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwMapUserPhysicalPagesScatter(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwMapViewOfSection@40", [=]
     {
@@ -5471,7 +5471,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwMapViewOfSection(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwModifyDriverEntry@4", [=]
     {
@@ -5486,7 +5486,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwModifyDriverEntry(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenDirectoryObject@12", [=]
     {
@@ -5503,7 +5503,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenDirectoryObject(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpenEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpenEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenEnlistment@20", [=]
     {
@@ -5522,7 +5522,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenEnlistment(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOpenIoCompletion_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOpenIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenIoCompletion@12", [=]
     {
@@ -5539,7 +5539,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenIoCompletion(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJobObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenJobObject@12", [=]
     {
@@ -5556,7 +5556,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenJobObject(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenKey@12", [=]
     {
@@ -5573,7 +5573,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenKey(proc_t proc, const on_ZwOpenKe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenKeyEx@16", [=]
     {
@@ -5591,7 +5591,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpen
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenObjectAuditAlarm@48", [=]
     {
@@ -5617,7 +5617,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenObjectAuditAlarm(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenProcess(proc_t proc, const on_ZwOpenProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenProcess(proc_t proc, const on_ZwOpenProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenProcess@16", [=]
     {
@@ -5635,7 +5635,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenProcess(proc_t proc, const on_ZwOp
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenProcessToken(proc_t proc, const on_ZwOpenProcessToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenProcessToken(proc_t proc, const on_ZwOpenProcessToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenProcessToken@12", [=]
     {
@@ -5652,7 +5652,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenProcessToken(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenProcessTokenEx(proc_t proc, const on_ZwOpenProcessTokenEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenProcessTokenEx(proc_t proc, const on_ZwOpenProcessTokenEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenProcessTokenEx@16", [=]
     {
@@ -5670,7 +5670,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenProcessTokenEx(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenResourceManager(proc_t proc, const on_ZwOpenResourceManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenResourceManager(proc_t proc, const on_ZwOpenResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenResourceManager@20", [=]
     {
@@ -5689,7 +5689,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenResourceManager(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenThread@16", [=]
     {
@@ -5707,7 +5707,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenThread(proc_t proc, const on_ZwOpe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenTimer@12", [=]
     {
@@ -5724,7 +5724,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenTimer(proc_t proc, const on_ZwOpen
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenTransaction@20", [=]
     {
@@ -5743,7 +5743,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenTransaction(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwOpenTransactionManager(proc_t proc, const on_ZwOpenTransactionManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwOpenTransactionManager(proc_t proc, const on_ZwOpenTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwOpenTransactionManager@24", [=]
     {
@@ -5763,7 +5763,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwOpenTransactionManager(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwPowerInformation(proc_t proc, const on_ZwPowerInformation_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwPowerInformation(proc_t proc, const on_ZwPowerInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwPowerInformation@20", [=]
     {
@@ -5782,7 +5782,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwPowerInformation(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwPrePrepareComplete@8", [=]
     {
@@ -5798,7 +5798,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwPrePrepareComplete(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwPrepareEnlistment@8", [=]
     {
@@ -5814,7 +5814,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwPrepareEnlistment(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwPrivilegeCheck@12", [=]
     {
@@ -5831,7 +5831,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwPrivilegeCheck(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, const on_ZwPrivilegeObjectAuditAlarm_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, const on_ZwPrivilegeObjectAuditAlarm_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwPrivilegeObjectAuditAlarm@24", [=]
     {
@@ -5851,7 +5851,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwPrivilegeObjectAuditAlarm(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwPropagationFailed(proc_t proc, const on_ZwPropagationFailed_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwPropagationFailed(proc_t proc, const on_ZwPropagationFailed_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwPropagationFailed@12", [=]
     {
@@ -5868,7 +5868,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwPropagationFailed(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwProtectVirtualMemory@20", [=]
     {
@@ -5887,7 +5887,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwProtectVirtualMemory(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwPulseEvent@8", [=]
     {
@@ -5903,7 +5903,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwPulseEvent(proc_t proc, const on_ZwPul
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryAttributesFile@8", [=]
     {
@@ -5919,7 +5919,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryAttributesFile(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryBootEntryOrder@8", [=]
     {
@@ -5935,7 +5935,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryBootEntryOrder(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryBootOptions(proc_t proc, const on_ZwQueryBootOptions_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryBootOptions(proc_t proc, const on_ZwQueryBootOptions_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryBootOptions@8", [=]
     {
@@ -5951,7 +5951,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryBootOptions(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryDefaultUILanguage@4", [=]
     {
@@ -5966,7 +5966,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryDefaultUILanguage(proc_t proc, co
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryDirectoryFile(proc_t proc, const on_ZwQueryDirectoryFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryDirectoryFile(proc_t proc, const on_ZwQueryDirectoryFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryDirectoryFile@44", [=]
     {
@@ -5991,7 +5991,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryDirectoryFile(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryDirectoryObject@28", [=]
     {
@@ -6012,7 +6012,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryDirectoryObject(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryEaFile@36", [=]
     {
@@ -6035,7 +6035,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryEaFile(proc_t proc, const on_ZwQu
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryFullAttributesFile(proc_t proc, const on_ZwQueryFullAttributesFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryFullAttributesFile(proc_t proc, const on_ZwQueryFullAttributesFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryFullAttributesFile@8", [=]
     {
@@ -6051,7 +6051,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryFullAttributesFile(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationEnlistment(proc_t proc, const on_ZwQueryInformationEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationEnlistment(proc_t proc, const on_ZwQueryInformationEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationEnlistment@20", [=]
     {
@@ -6070,7 +6070,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationEnlistment(proc_t proc
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationFile(proc_t proc, const on_ZwQueryInformationFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationFile(proc_t proc, const on_ZwQueryInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationFile@20", [=]
     {
@@ -6089,7 +6089,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationFile(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationJobObject(proc_t proc, const on_ZwQueryInformationJobObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationJobObject(proc_t proc, const on_ZwQueryInformationJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationJobObject@20", [=]
     {
@@ -6108,7 +6108,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationJobObject(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationPort(proc_t proc, const on_ZwQueryInformationPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationPort(proc_t proc, const on_ZwQueryInformationPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationPort@20", [=]
     {
@@ -6127,7 +6127,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationPort(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationProcess(proc_t proc, const on_ZwQueryInformationProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationProcess(proc_t proc, const on_ZwQueryInformationProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationProcess@20", [=]
     {
@@ -6146,7 +6146,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationProcess(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationResourceManager(proc_t proc, const on_ZwQueryInformationResourceManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationResourceManager(proc_t proc, const on_ZwQueryInformationResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationResourceManager@20", [=]
     {
@@ -6165,7 +6165,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationResourceManager(proc_t
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationToken(proc_t proc, const on_ZwQueryInformationToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationToken(proc_t proc, const on_ZwQueryInformationToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationToken@20", [=]
     {
@@ -6184,7 +6184,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationToken(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationTransaction@20", [=]
     {
@@ -6203,7 +6203,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationTransaction(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryInformationWorkerFactory@20", [=]
     {
@@ -6222,7 +6222,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryInformationWorkerFactory(proc_t p
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryKey@20", [=]
     {
@@ -6241,7 +6241,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryKey(proc_t proc, const on_ZwQuery
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryPortInformationProcess(proc_t proc, const on_ZwQueryPortInformationProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryPortInformationProcess(proc_t proc, const on_ZwQueryPortInformationProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryPortInformationProcess@0", [=]
     {
@@ -6254,7 +6254,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryPortInformationProcess(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryQuotaInformationFile(proc_t proc, const on_ZwQueryQuotaInformationFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryQuotaInformationFile(proc_t proc, const on_ZwQueryQuotaInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryQuotaInformationFile@36", [=]
     {
@@ -6277,7 +6277,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryQuotaInformationFile(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQuerySection(proc_t proc, const on_ZwQuerySection_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQuerySection(proc_t proc, const on_ZwQuerySection_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQuerySection@20", [=]
     {
@@ -6296,7 +6296,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQuerySection(proc_t proc, const on_ZwQ
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQuerySecurityAttributesToken@24", [=]
     {
@@ -6316,7 +6316,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQuerySecurityAttributesToken(proc_t pr
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQuerySemaphore@20", [=]
     {
@@ -6335,7 +6335,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQuerySemaphore(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQuerySymbolicLinkObject(proc_t proc, const on_ZwQuerySymbolicLinkObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQuerySymbolicLinkObject(proc_t proc, const on_ZwQuerySymbolicLinkObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQuerySymbolicLinkObject@12", [=]
     {
@@ -6352,7 +6352,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQuerySymbolicLinkObject(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemEnvironmentValue(proc_t proc, const on_ZwQuerySystemEnvironmentValue_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemEnvironmentValue(proc_t proc, const on_ZwQuerySystemEnvironmentValue_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQuerySystemEnvironmentValue@16", [=]
     {
@@ -6370,7 +6370,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemEnvironmentValue(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, const on_ZwQuerySystemEnvironmentValueEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, const on_ZwQuerySystemEnvironmentValueEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQuerySystemEnvironmentValueEx@20", [=]
     {
@@ -6389,7 +6389,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemEnvironmentValueEx(proc_t p
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemInformationEx(proc_t proc, const on_ZwQuerySystemInformationEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemInformationEx(proc_t proc, const on_ZwQuerySystemInformationEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQuerySystemInformationEx@24", [=]
     {
@@ -6409,7 +6409,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQuerySystemInformationEx(proc_t proc, 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryTimer@20", [=]
     {
@@ -6428,7 +6428,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryTimer(proc_t proc, const on_ZwQue
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwQueryValueKey(proc_t proc, const on_ZwQueryValueKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwQueryValueKey(proc_t proc, const on_ZwQueryValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwQueryValueKey@24", [=]
     {
@@ -6448,7 +6448,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwQueryValueKey(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRaiseException@12", [=]
     {
@@ -6465,7 +6465,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRaiseException(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRaiseHardError(proc_t proc, const on_ZwRaiseHardError_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRaiseHardError(proc_t proc, const on_ZwRaiseHardError_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRaiseHardError@24", [=]
     {
@@ -6485,7 +6485,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRaiseHardError(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwReadOnlyEnlistment@8", [=]
     {
@@ -6501,7 +6501,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwReadOnlyEnlistment(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwReadRequestData(proc_t proc, const on_ZwReadRequestData_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwReadRequestData(proc_t proc, const on_ZwReadRequestData_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwReadRequestData@24", [=]
     {
@@ -6521,7 +6521,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwReadRequestData(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRecoverTransactionManager(proc_t proc, const on_ZwRecoverTransactionManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRecoverTransactionManager(proc_t proc, const on_ZwRecoverTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRecoverTransactionManager@4", [=]
     {
@@ -6536,7 +6536,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRecoverTransactionManager(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRegisterProtocolAddressInformation(proc_t proc, const on_ZwRegisterProtocolAddressInformation_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRegisterProtocolAddressInformation(proc_t proc, const on_ZwRegisterProtocolAddressInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRegisterProtocolAddressInformation@20", [=]
     {
@@ -6555,7 +6555,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRegisterProtocolAddressInformation(pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRegisterThreadTerminatePort(proc_t proc, const on_ZwRegisterThreadTerminatePort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRegisterThreadTerminatePort(proc_t proc, const on_ZwRegisterThreadTerminatePort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRegisterThreadTerminatePort@4", [=]
     {
@@ -6570,7 +6570,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRegisterThreadTerminatePort(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwReleaseMutant@8", [=]
     {
@@ -6586,7 +6586,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwReleaseMutant(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwReleaseWorkerFactoryWorker(proc_t proc, const on_ZwReleaseWorkerFactoryWorker_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwReleaseWorkerFactoryWorker(proc_t proc, const on_ZwReleaseWorkerFactoryWorker_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwReleaseWorkerFactoryWorker@4", [=]
     {
@@ -6601,7 +6601,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwReleaseWorkerFactoryWorker(proc_t proc
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRemoveIoCompletion@20", [=]
     {
@@ -6620,7 +6620,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRemoveIoCompletion(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRemoveIoCompletionEx@24", [=]
     {
@@ -6640,7 +6640,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRemoveIoCompletionEx(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRemoveProcessDebug@8", [=]
     {
@@ -6656,7 +6656,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRemoveProcessDebug(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRenameKey@8", [=]
     {
@@ -6672,7 +6672,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRenameKey(proc_t proc, const on_ZwRena
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwReplaceKey@12", [=]
     {
@@ -6689,7 +6689,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwReplaceKey(proc_t proc, const on_ZwRep
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwReplyPort@8", [=]
     {
@@ -6705,7 +6705,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwReplyPort(proc_t proc, const on_ZwRepl
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRequestPort(proc_t proc, const on_ZwRequestPort_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRequestPort(proc_t proc, const on_ZwRequestPort_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRequestPort@8", [=]
     {
@@ -6721,7 +6721,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRequestPort(proc_t proc, const on_ZwRe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwResetWriteWatch@12", [=]
     {
@@ -6738,7 +6738,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwResetWriteWatch(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwResumeProcess@4", [=]
     {
@@ -6753,7 +6753,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwResumeProcess(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwResumeThread@8", [=]
     {
@@ -6769,7 +6769,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwResumeThread(proc_t proc, const on_ZwR
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwRollbackComplete@8", [=]
     {
@@ -6785,7 +6785,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwRollbackComplete(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetBootEntryOrder@8", [=]
     {
@@ -6801,7 +6801,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetBootEntryOrder(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetBootOptions(proc_t proc, const on_ZwSetBootOptions_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetBootOptions(proc_t proc, const on_ZwSetBootOptions_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetBootOptions@8", [=]
     {
@@ -6817,7 +6817,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetBootOptions(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetContextThread(proc_t proc, const on_ZwSetContextThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetContextThread(proc_t proc, const on_ZwSetContextThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetContextThread@8", [=]
     {
@@ -6833,7 +6833,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetContextThread(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetDefaultUILanguage@4", [=]
     {
@@ -6848,7 +6848,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetDefaultUILanguage(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetEaFile@16", [=]
     {
@@ -6866,7 +6866,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetEaFile(proc_t proc, const on_ZwSetE
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationDebugObject(proc_t proc, const on_ZwSetInformationDebugObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationDebugObject(proc_t proc, const on_ZwSetInformationDebugObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationDebugObject@20", [=]
     {
@@ -6885,7 +6885,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationDebugObject(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationFile@20", [=]
     {
@@ -6904,7 +6904,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationFile(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationJobObject@16", [=]
     {
@@ -6922,7 +6922,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationJobObject(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationKey@16", [=]
     {
@@ -6940,7 +6940,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationKey(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationObject(proc_t proc, const on_ZwSetInformationObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationObject(proc_t proc, const on_ZwSetInformationObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationObject@16", [=]
     {
@@ -6958,7 +6958,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationObject(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationProcess(proc_t proc, const on_ZwSetInformationProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationProcess(proc_t proc, const on_ZwSetInformationProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationProcess@16", [=]
     {
@@ -6976,7 +6976,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationProcess(proc_t proc, con
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationResourceManager(proc_t proc, const on_ZwSetInformationResourceManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationResourceManager(proc_t proc, const on_ZwSetInformationResourceManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationResourceManager@16", [=]
     {
@@ -6994,7 +6994,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationResourceManager(proc_t p
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationThread(proc_t proc, const on_ZwSetInformationThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationThread(proc_t proc, const on_ZwSetInformationThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationThread@16", [=]
     {
@@ -7012,7 +7012,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationThread(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationToken(proc_t proc, const on_ZwSetInformationToken_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationToken(proc_t proc, const on_ZwSetInformationToken_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationToken@16", [=]
     {
@@ -7030,7 +7030,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationToken(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationTransaction(proc_t proc, const on_ZwSetInformationTransaction_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationTransaction(proc_t proc, const on_ZwSetInformationTransaction_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationTransaction@16", [=]
     {
@@ -7048,7 +7048,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationTransaction(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationTransactionManager@16", [=]
     {
@@ -7066,7 +7066,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationTransactionManager(proc_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetInformationWorkerFactory(proc_t proc, const on_ZwSetInformationWorkerFactory_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetInformationWorkerFactory(proc_t proc, const on_ZwSetInformationWorkerFactory_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetInformationWorkerFactory@16", [=]
     {
@@ -7084,7 +7084,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetInformationWorkerFactory(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetLdtEntries@24", [=]
     {
@@ -7104,7 +7104,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetLdtEntries(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetLowEventPair@4", [=]
     {
@@ -7119,7 +7119,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetLowEventPair(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetLowWaitHighEventPair@4", [=]
     {
@@ -7134,7 +7134,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetLowWaitHighEventPair(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetQuotaInformationFile@16", [=]
     {
@@ -7152,7 +7152,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetQuotaInformationFile(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetSystemEnvironmentValue@8", [=]
     {
@@ -7168,7 +7168,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetSystemEnvironmentValue(proc_t proc,
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetSystemEnvironmentValueEx@20", [=]
     {
@@ -7187,7 +7187,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetSystemEnvironmentValueEx(proc_t pro
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetSystemInformation@12", [=]
     {
@@ -7204,7 +7204,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetSystemInformation(proc_t proc, cons
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetSystemPowerState@12", [=]
     {
@@ -7221,7 +7221,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetSystemPowerState(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetSystemTime@8", [=]
     {
@@ -7237,7 +7237,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetSystemTime(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetThreadExecutionState(proc_t proc, const on_ZwSetThreadExecutionState_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetThreadExecutionState(proc_t proc, const on_ZwSetThreadExecutionState_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetThreadExecutionState@8", [=]
     {
@@ -7253,7 +7253,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetThreadExecutionState(proc_t proc, c
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetTimer@28", [=]
     {
@@ -7274,7 +7274,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetTimer(proc_t proc, const on_ZwSetTi
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetTimerEx@16", [=]
     {
@@ -7292,7 +7292,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetTimerEx(proc_t proc, const on_ZwSet
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuidSeed_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuidSeed_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetUuidSeed@4", [=]
     {
@@ -7307,7 +7307,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetUuidSeed(proc_t proc, const on_ZwSe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSetValueKey@24", [=]
     {
@@ -7327,7 +7327,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSetValueKey(proc_t proc, const on_ZwSe
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwShutdownSystem@4", [=]
     {
@@ -7342,7 +7342,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwShutdownSystem(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSignalAndWaitForSingleObject@16", [=]
     {
@@ -7360,7 +7360,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSignalAndWaitForSingleObject(proc_t pr
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSinglePhaseReject@8", [=]
     {
@@ -7376,7 +7376,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSinglePhaseReject(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwStopProfile@4", [=]
     {
@@ -7391,7 +7391,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwStopProfile(proc_t proc, const on_ZwSt
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSuspendProcess@4", [=]
     {
@@ -7406,7 +7406,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSuspendProcess(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwSuspendThread(proc_t proc, const on_ZwSuspendThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwSuspendThread(proc_t proc, const on_ZwSuspendThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwSuspendThread@8", [=]
     {
@@ -7422,7 +7422,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwSuspendThread(proc_t proc, const on_Zw
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwTerminateJobObject(proc_t proc, const on_ZwTerminateJobObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwTerminateJobObject(proc_t proc, const on_ZwTerminateJobObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwTerminateJobObject@8", [=]
     {
@@ -7438,7 +7438,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwTerminateJobObject(proc_t proc, const 
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwTerminateProcess@8", [=]
     {
@@ -7454,7 +7454,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwTerminateProcess(proc_t proc, const on
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwTerminateThread(proc_t proc, const on_ZwTerminateThread_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwTerminateThread(proc_t proc, const on_ZwTerminateThread_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwTerminateThread@8", [=]
     {
@@ -7470,7 +7470,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwTerminateThread(proc_t proc, const on_
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwThawRegistry@0", [=]
     {
@@ -7483,7 +7483,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwThawRegistry(proc_t proc, const on_ZwT
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwTraceControl(proc_t proc, const on_ZwTraceControl_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwTraceControl(proc_t proc, const on_ZwTraceControl_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwTraceControl@24", [=]
     {
@@ -7503,7 +7503,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwTraceControl(proc_t proc, const on_ZwT
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwUmsThreadYield@4", [=]
     {
@@ -7518,7 +7518,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwUmsThreadYield(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwUnloadDriver@4", [=]
     {
@@ -7533,7 +7533,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwUnloadDriver(proc_t proc, const on_ZwU
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKey2_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKey2_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwUnloadKey2@8", [=]
     {
@@ -7549,7 +7549,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwUnloadKey2(proc_t proc, const on_ZwUnl
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwUnloadKeyEx@8", [=]
     {
@@ -7565,7 +7565,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUn
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwUnlockFile@20", [=]
     {
@@ -7584,7 +7584,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwUnlockFile(proc_t proc, const on_ZwUnl
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const on_ZwWaitForSingleObject_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const on_ZwWaitForSingleObject_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwWaitForSingleObject@12", [=]
     {
@@ -7601,7 +7601,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwWaitHighEventPair@4", [=]
     {
@@ -7616,7 +7616,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwWaitHighEventPair(proc_t proc, const o
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
+opt<bpid_t> wow64::syscalls32::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func) const
 {
     return register_callback(*d_, proc, "_ZwYieldExecution@0", [=]
     {
@@ -7629,7 +7629,7 @@ opt<bpid_t> wow64::syscalls32::register_ZwYieldExecution(proc_t proc, const on_Z
     });
 }
 
-opt<bpid_t> wow64::syscalls32::register_all(proc_t proc, const wow64::syscalls32::on_call_fn& on_call)
+opt<bpid_t> wow64::syscalls32::register_all(proc_t proc, const wow64::syscalls32::on_call_fn& on_call) const
 {
     auto& d         = *d_;
     const auto bpid = state::acquire_breakpoint_id(d.core);

@@ -21,7 +21,7 @@ def generate_registers(json_data, pad):
     lines = []
     for target, _ in json_data.items():
         name = ("register_%s" % target).ljust(pad + len("register_"))
-        lines.append("        opt<bpid_t> %s(proc_t proc, const on_%s_fn& on_func);" % (name, target))
+        lines.append("        opt<bpid_t> %s(proc_t proc, const on_%s_fn& on_func) const;" % (name, target))
     lines.sort()
     return "\n".join(lines)
 
@@ -49,7 +49,7 @@ namespace {namespace}
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         using callcfgs_t = std::array<tracer::callcfg_t, {size}>;
 
-        opt<bpid_t>                 register_all(proc_t proc, const on_call_fn& on_call);
+        opt<bpid_t>                 register_all(proc_t proc, const on_call_fn& on_call) const;
         static const callcfgs_t&    callcfgs    ();
 
 {listens}
@@ -87,7 +87,7 @@ def generate_definitions(json_data, filename, namespace, wow64):
             read_args += "\n"
 
         definitions += """
-opt<bpid_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
+opt<bpid_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func) const
 {{
     return register_callback(*d_, proc, "{symbol_name}", [=]
     {{
@@ -192,7 +192,7 @@ namespace
     }}
 }}
 {definitions}
-opt<bpid_t> {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
+opt<bpid_t> {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call) const
 {{
     auto& d         = *d_;
     const auto bpid = state::acquire_breakpoint_id(d.core);
