@@ -126,9 +126,9 @@ namespace
             return FAIL(std::nullopt, "unable to read table entry");
 
         // TODO deal with theses shifts on x32
-        uint64_t p                = 0xffff;
+        uint64_t       p          = 0xffff;
         const uint64_t obj_header = (((*handle_table_entry >> 16) | (p << 48)) >> 4) << 4;
-        const auto obj_body       = obj_header + d.nt.offsets_[OBJECT_HEADER_Body];
+        const auto     obj_body   = obj_header + d.nt.offsets_[OBJECT_HEADER_Body];
         return objects::obj_t{obj_body};
     }
 }
@@ -149,8 +149,8 @@ namespace
             return {};
 
         const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
-        auto type_idx                 = *encoded_type_idx ^ obj_addr_cookie;
-        const auto opt_cookie         = d.nt.symbols_[ObHeaderCookie];
+        auto          type_idx        = *encoded_type_idx ^ obj_addr_cookie;
+        const auto    opt_cookie      = d.nt.symbols_[ObHeaderCookie];
         if(opt_cookie)
         {
             const auto header_cookie = d.io.byte(*opt_cookie);
@@ -177,9 +177,9 @@ namespace
 {
     opt<std::string> object_name(Data& d, objects::obj_t obj)
     {
-        auto info_mask    = uint8_t{};
-        const auto header = obj.id - d.nt.offsets_[OBJECT_HEADER_Body];
-        auto ok           = d.io.read_all(&info_mask, header + d.nt.offsets_[OBJECT_HEADER_InfoMask], sizeof info_mask);
+        auto       info_mask = uint8_t{};
+        const auto header    = obj.id - d.nt.offsets_[OBJECT_HEADER_Body];
+        auto       ok        = d.io.read_all(&info_mask, header + d.nt.offsets_[OBJECT_HEADER_InfoMask], sizeof info_mask);
         if(!ok)
             return {};
 
@@ -261,12 +261,12 @@ namespace
 
     uint32_t hash_name(std::string_view src)
     {
-        const auto wname = utf8::to_utf16(src);
-        auto hash        = uint32_t{0};
-        auto ptr         = wname.data();
-        auto size        = wname.size();
-        auto chunk_hash  = uint64_t{0};
-        auto chunk_idx   = size_t{0};
+        const auto wname      = utf8::to_utf16(src);
+        auto       hash       = uint32_t{0};
+        auto       ptr        = wname.data();
+        auto       size       = wname.size();
+        auto       chunk_hash = uint64_t{0};
+        auto       chunk_idx  = size_t{0};
         for(/**/; chunk_idx + 4 <= size; chunk_idx += 4)
         {
             auto chunk = read_le64(&ptr[chunk_idx]);
@@ -294,7 +294,7 @@ namespace
     {
         const auto hash   = hash_name(name);
         const auto bucket = hash % std::size(root.HashBuckets);
-        auto entry        = nt::_OBJECT_DIRECTORY_ENTRY{};
+        auto       entry  = nt::_OBJECT_DIRECTORY_ENTRY{};
         entry.ChainLink   = root.HashBuckets[bucket];
         while(entry.ChainLink)
         {
@@ -330,8 +330,8 @@ opt<objects::obj_t> objects::find(Data& d, nt::ptr_t root, std::string_view path
     auto entry = nt::_OBJECT_DIRECTORY_ENTRY{};
     for(const auto& token : components)
     {
-        auto directory = nt::_OBJECT_DIRECTORY{};
-        const auto ok  = d.io.read_all(&directory, root, sizeof directory);
+        auto       directory = nt::_OBJECT_DIRECTORY{};
+        const auto ok        = d.io.read_all(&directory, root, sizeof directory);
         if(!ok)
             return {};
 
@@ -356,8 +356,8 @@ namespace
     template <typename T>
     opt<T> read_as(Data& d, uint64_t id)
     {
-        auto struc    = T{};
-        const auto ok = d.io.read_all(&struc, id, sizeof struc);
+        auto       struc = T{};
+        const auto ok    = d.io.read_all(&struc, id, sizeof struc);
         if(!ok)
             return {};
 

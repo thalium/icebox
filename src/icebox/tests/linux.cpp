@@ -107,8 +107,8 @@ namespace
 
 TEST_F(Linux, processes)
 {
-    auto& core           = *ptr_core;
-    bool proc_list_empty = true;
+    auto& core            = *ptr_core;
+    bool  proc_list_empty = true;
     process::list(core, [&](proc_t proc)
     {
         EXPECT_NE(proc.id, 0u);
@@ -130,8 +130,8 @@ TEST_F(Linux, processes)
         // swapper and systemd/initrd
         EXPECT_TRUE(pid > 1 || process::flags(core, proc).is_x64);
 
-        opt<proc_t> children = proc;
-        auto children_pid    = pid;
+        opt<proc_t> children     = proc;
+        auto        children_pid = pid;
         while(children_pid <= 4194304 && children_pid != 0)
         {
             children = process::parent(core, *children);
@@ -176,7 +176,7 @@ TEST_F(Linux, processes)
 
 TEST_F(Linux, threads)
 {
-    auto& core         = *ptr_core;
+    auto&      core    = *ptr_core;
     const auto current = threads::current(core);
     ASSERT_TRUE(current && current->id);
 
@@ -214,8 +214,8 @@ TEST_F(Linux, threads)
 
 TEST_F(Linux, drivers)
 {
-    auto& core              = *ptr_core;
-    int driver_list_counter = 0;
+    auto& core                = *ptr_core;
+    int   driver_list_counter = 0;
     drivers::list(core, [&](driver_t driver)
     {
         EXPECT_NE(driver.id, 0ull);
@@ -298,9 +298,9 @@ namespace
         }
         EXPECT_EQ(vma_heap_or_stack, 2);
 
-        int mod_list_counter = 0;
+        int              mod_list_counter = 0;
         opt<std::string> last_mod_name;
-        bool first_mod = true;
+        bool             first_mod = true;
         modules::list(core, proc, [&](mod_t mod)
         {
             EXPECT_NE(mod.id, 0ull);
@@ -338,7 +338,7 @@ namespace
 
 TEST_F(Linux, vma_modules)
 {
-    auto& core       = *ptr_core;
+    auto&      core  = *ptr_core;
     const auto child = utility_child(core);
     ASSERT_TRUE(child && child->id && child->udtb.val);
 

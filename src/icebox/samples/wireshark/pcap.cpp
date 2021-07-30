@@ -128,7 +128,7 @@ namespace
 
     bool write_comment(FILE* file, Packet& p, uint32_t padding)
     {
-        Option option;
+        Option   option;
         uint32_t paddingBuf = 0;
 
         option.code   = 1; // comment
@@ -161,7 +161,7 @@ namespace
 
     bool write_packet(FILE* file, Packet& p, BlockHeader& hdr)
     {
-        auto size             = p.data.size();
+        auto     size         = p.data.size();
         uint32_t optionLength = 0;
         uint32_t padding      = 0;
         if(size % 4)
@@ -232,7 +232,7 @@ bool pcap::Writer::write(const std::string& filepath)
 
     // Write the Section Header Block
     BlockHeader hdr;
-    auto ok = write_hdr(file, hdr);
+    auto        ok = write_hdr(file, hdr);
     if(!ok)
         return close_and_exit(file, false);
 

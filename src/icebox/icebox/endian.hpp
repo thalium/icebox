@@ -22,7 +22,7 @@ namespace
 
 namespace endian
 {
-    static inline uint8_t bswap(uint8_t x) { return x; }
+    static inline uint8_t  bswap(uint8_t x) { return x; }
     static inline uint16_t bswap(uint16_t x) { return bswap16(x); }
     static inline uint32_t bswap(uint32_t x) { return bswap32(x); }
     static inline uint64_t bswap(uint64_t x) { return bswap64(x); }
@@ -43,7 +43,7 @@ namespace endian
     }
 } // namespace endian
 
-static inline uint8_t read_byte(const void* ptr) { return endian::read_bits<uint8_t, !is_little_endian>(ptr); }
+static inline uint8_t  read_byte(const void* ptr) { return endian::read_bits<uint8_t, !is_little_endian>(ptr); }
 static inline uint16_t read_le16(const void* ptr) { return endian::read_bits<uint16_t, !is_little_endian>(ptr); }
 static inline uint32_t read_le32(const void* ptr) { return endian::read_bits<uint32_t, !is_little_endian>(ptr); }
 static inline uint64_t read_le64(const void* ptr) { return endian::read_bits<uint64_t, !is_little_endian>(ptr); }

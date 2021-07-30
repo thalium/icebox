@@ -279,10 +279,10 @@ namespace
         memory::Io   io_;
         LinuxOffsets offsets_;
         LinuxSymbols symbols_;
-        uint64_t per_cpu = 0;
-        uint64_t kpgd    = 0;
-        version  kversion = {"0"};
-        uint64_t pt_regs_size;
+        uint64_t     per_cpu  = 0;
+        uint64_t     kpgd     = 0;
+        version      kversion = {"0"};
+        uint64_t     pt_regs_size;
     };
 }
 
@@ -297,9 +297,9 @@ namespace
     // dmesg -t | grep -i "Linux version" | sha1sum | cut -c1-40
     opt<std::string> read_str(const memory::Io& io, const uint64_t& addr, const unsigned int& buffer_size)
     {
-        std::string ret;
+        std::string       ret;
         std::vector<char> buffer(buffer_size + 1);
-        uint64_t offset = 0;
+        uint64_t          offset = 0;
 
         do
         {
@@ -369,8 +369,8 @@ namespace
         const auto buffer_begin    = &buffer[0];
         const auto buffer_afterend = buffer.data() + buffer.size();
 
-        uint64_t offset   = START_KERNEL;
-        bool start_kernel = true;
+        uint64_t offset       = START_KERNEL;
+        bool     start_kernel = true;
         while(offset <= END_KERNEL)
         {
             if(p.io_.read_all(&buffer[sizeof target], offset, PAGE_SIZE))
@@ -436,8 +436,8 @@ namespace
 {
     std::string bytesToStr(const std::vector<unsigned char>& in)
     {
-        auto from = in.cbegin();
-        auto to   = in.cend();
+        auto               from = in.cbegin();
+        auto               to   = in.cend();
         std::ostringstream oss;
         for(; from != to; ++from)
             oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(*from);
@@ -447,7 +447,7 @@ namespace
     std::string guid(const std::string& str) // todo - simplify
     {
         std::vector<unsigned char> vstr(str.data(), str.data() + str.length());
-        unsigned char hash[20]; // sha1 length
+        unsigned char              hash[20]; // sha1 length
         mbedtls_sha1(vstr.data(), vstr.size(), hash);
 
         std::vector<unsigned char>  vhash       (hash, hash + 20);
@@ -462,8 +462,8 @@ namespace
         symbols::unload(core, symbols::kernel, "kernel");
         symbols::unload(core, symbols::kernel, "kernel_sym");
 
-        auto& symbols    = symbols::Modules::modules(core);
-        const auto dwarf = symbols::make_dwarf("kernel", guid);
+        auto&      symbols = symbols::Modules::modules(core);
+        const auto dwarf   = symbols::make_dwarf("kernel", guid);
         if(!dwarf)
             return FAIL(std::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/%s/elf", guid.data());
 
@@ -499,7 +499,7 @@ namespace
     bool load_offsets(core::Core& core, LinuxOffsets& offsets)
     {
         bool fail = false;
-        int i     = -1;
+        int  i    = -1;
         for(const auto& off : g_offsets)
         {
             fail |= off.e_id != ++i;
@@ -520,7 +520,7 @@ namespace
     bool load_symbols(core::Core& core, LinuxSymbols& symbols)
     {
         bool fail = false;
-        int i     = -1;
+        int  i    = -1;
         for(const auto& sym : g_symbols)
         {
             fail |= sym.e_id != ++i;
@@ -614,7 +614,7 @@ bool OsLinux::proc_list(process::on_proc_fn on_process)
     if(!current)
         return false;
 
-    const auto head    = current->id + *offsets_[TASKSTRUCT_TASKS];
+    const auto    head = current->id + *offsets_[TASKSTRUCT_TASKS];
     opt<uint64_t> link = head;
     do
     {
@@ -791,7 +791,7 @@ dtb_t OsLinux::kernel_dtb()
 
 bool OsLinux::thread_list(proc_t proc, threads::on_thread_fn on_thread)
 {
-    const auto head    = proc.id + *offsets_[TASKSTRUCT_THREADGROUP];
+    const auto    head = proc.id + *offsets_[TASKSTRUCT_THREADGROUP];
     opt<uint64_t> link = head;
     do
     {
@@ -932,9 +932,9 @@ bool OsLinux::mod_list(proc_t proc, modules::on_mod_fn on_module)
 {
     flags_t flag = proc_flags(proc);
 
-    bool loader_found_or_stopped_before = true;
-    uint64_t last_file                  = 0;
-    const auto ok                       = vm_area_list(proc, [&](vm_area_t vm_area)
+    bool       loader_found_or_stopped_before = true;
+    uint64_t   last_file                      = 0;
+    const auto ok                             = vm_area_list(proc, [&](vm_area_t vm_area)
     {
         loader_found_or_stopped_before = false;
 
@@ -1011,7 +1011,7 @@ opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
         return FAIL(std::nullopt, "unable to read vm_file pointer in module 0x%" PRIx64, mod.id);
 
     opt<uint64_t> mod_end = {};
-    const auto ok         = vm_area_list_from(*this, vm_area_t{mod.id}, [&](vm_area_t vm_area)
+    const auto    ok      = vm_area_list_from(*this, vm_area_t{mod.id}, [&](vm_area_t vm_area)
     {
         const auto end = io_.read(vm_area.id + *offsets_[VMAREASTRUCT_VMEND]);
         if(!end || !*end)

@@ -24,9 +24,9 @@ namespace
 
     Handler open_file(const fs::path& path)
     {
-        auto dbg       = Dwarf_Debug{};
-        auto error     = Dwarf_Error{};
-        const auto err = dwarf_init_path(
+        auto       dbg   = Dwarf_Debug{};
+        auto       error = Dwarf_Error{};
+        const auto err   = dwarf_init_path(
             path.generic_string().data(), // path
             nullptr,                      // true_path_out_buffer
             0,                            // true_path_bufferlen
@@ -199,9 +199,9 @@ namespace
 
     opt<size_t> read_struc_size(Dwarf_Die struc)
     {
-        auto error     = Dwarf_Error{};
-        auto size      = Dwarf_Unsigned{};
-        const auto err = dwarf_bytesize(struc, &size, &error);
+        auto       error = Dwarf_Error{};
+        auto       size  = Dwarf_Unsigned{};
+        const auto err   = dwarf_bytesize(struc, &size, &error);
         if(err == DW_DLV_ERROR)
             return FAIL(std::nullopt, "libdwarf error %llu when reading size of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
 
@@ -233,9 +233,9 @@ namespace
     {
         read_children(dbg, struc, [&](Dwarf_Die child)
         {
-            auto error     = Dwarf_Error{};
-            auto name_ptr  = static_cast<char*>(nullptr);
-            const auto err = dwarf_diename(child, &name_ptr, &error);
+            auto       error    = Dwarf_Error{};
+            auto       name_ptr = static_cast<char*>(nullptr);
+            const auto err      = dwarf_diename(child, &name_ptr, &error);
             if(err == DW_DLV_ERROR)
                 return FAIL(walk_e::next, "error dwarf_diename: %llu: %s", dwarf_errno(error), dwarf_errmsg(error));
 
@@ -264,10 +264,10 @@ namespace
         };
         all_strucs(*dbg, [&](Dwarf_Die struc, std::string_view name)
         {
-            struc               = read_die_child(*dbg, struc, name.data());
-            const auto opt_size = read_struc_size(struc);
-            const auto size     = opt_size ? *opt_size : -1;
-            auto has_members    = false;
+            struc                  = read_die_child(*dbg, struc, name.data());
+            const auto opt_size    = read_struc_size(struc);
+            const auto size        = opt_size ? *opt_size : -1;
+            auto       has_members = false;
             // skip strucs without members
             all_members(*dbg, struc, [&](Dwarf_Die member)
             {

@@ -132,10 +132,10 @@ namespace
 {
     std::string fix_module_name(const std::string& name)
     {
-        auto is_lower       = false;
-        auto is_upper       = false;
+        auto       is_lower = false;
+        auto       is_upper = false;
         const auto stripped = path::filename(name).replace_extension().generic_string();
-        auto ret            = stripped;
+        auto       ret      = stripped;
         for(auto& c : ret)
         {
             const auto alpha = isalpha(c);
@@ -161,7 +161,7 @@ bool symbols::Modules::insert(proc_t proc, const memory::Io& io, span_t span)
             continue;
 
         const auto it        = d.mod_by_ids.find(opt_id->id);
-        auto mod             = ModulePtr{};
+        auto       mod       = ModulePtr{};
         const auto is_cached = it != d.mod_by_ids.end();
         if(is_cached)
             mod = it->second;
@@ -189,7 +189,7 @@ namespace
 
 bool symbols::Modules::remove(proc_t proc, const std::string& module)
 {
-    auto& d       = *d_;
+    auto&      d  = *d_;
     const auto it = d.mods.find({module, proc});
     if(it == d.mods.end())
         return false;
@@ -350,10 +350,10 @@ namespace
         if(!offset)
             return {};
 
-        char dst[2 + 8 * 2 + 1];
+        char       dst[2 + 8 * 2 + 1];
         const auto ptr  = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, offset);
         const auto size = &dst[sizeof dst - 1] - ptr;
-        auto ret        = std::string(!!prefix + size, prefix);
+        auto       ret  = std::string(!!prefix + size, prefix);
         memcpy(&ret[!!prefix], ptr, size);
         return ret;
     }
@@ -414,7 +414,7 @@ namespace
 
 std::string symbols::Modules::string(proc_t proc, uint64_t addr)
 {
-    auto& d      = *d_;
+    auto&      d = *d_;
     const auto p = ::find_mod(d, proc, addr);
     if(!p)
         return read_empty_symbol(d.core, proc, addr);
@@ -478,7 +478,7 @@ namespace
 
     opt<mod_t> wait_for_module(core::Core& core, proc_t proc, const std::string& name)
     {
-        auto found           = opt<mod_t>{};
+        auto       found     = opt<mod_t>{};
         const auto io        = memory::make_io(core, proc);
         const auto check_mod = [&](mod_t mod)
         {
@@ -559,7 +559,7 @@ namespace
 {
     opt<driver_t> wait_for_driver(core::Core& core, const std::string& name)
     {
-        auto found           = opt<driver_t>{};
+        auto       found     = opt<driver_t>{};
         const auto io        = memory::make_io_kernel(core);
         const auto check_drv = [&](driver_t drv)
         {

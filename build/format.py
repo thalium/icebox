@@ -101,13 +101,6 @@ def main():
     fields = [
         # align case ...: return ...;
         (4, r" +(?:case .+|default):", " +", r"[^ ].+;"),
-        # align members (or try to...)
-        (
-            0,
-            r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*",
-            " +",
-            r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\]| = {[^}]+})?;",
-        ),
         # align ... = ...
         (0, r" *\b(?:using )?[^\n ]+", " +", r"= .+?"),
         # align method names

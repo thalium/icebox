@@ -112,7 +112,7 @@ namespace
 bool nt::load_kernel_symbols(nt::Os& os)
 {
     bool fail   = false;
-    int i       = -1;
+    int  i      = -1;
     os.symbols_ = {};
     for(const auto& sym : g_symbols)
     {

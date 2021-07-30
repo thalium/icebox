@@ -125,8 +125,8 @@ namespace
             const auto func_addr = symbols::address(core, *target, pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
-            auto callers  = std::vector<callstacks::caller_t>(128);
-            const auto bp = state::break_on_process(core, func_name, *target, *func_addr, [&]
+            auto       callers = std::vector<callstacks::caller_t>(128);
+            const auto bp      = state::break_on_process(core, func_name, *target, *func_addr, [&]
             {
                 const auto n = callstacks::read(core, &callers[0], callers.size(), *target);
                 for(size_t i = 0; i < n; ++i)

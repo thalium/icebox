@@ -89,7 +89,7 @@ namespace
         if(!ok)
             return {};
 
-        auto pte           = MMPTE{};
+        auto       pte     = MMPTE{};
         const auto pte_ptr = first_proto_pte + ((ptr - area_span->addr) / PAGE_SIZE) * sizeof pte;
         ok                 = memory::read_virtual_with_dtb(os.core_, proc->kdtb, &pte.u.value, pte_ptr, sizeof pte.u.value);
         if(!ok)
@@ -136,7 +136,7 @@ namespace
     {
         const auto pml4e_base = dtb.val & (mask(40) << 12);
         const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
-        auto pml4e            = MMPTE{};
+        auto       pml4e      = MMPTE{};
         const auto ok         = memory::read_physical(os.core_, &pml4e, pml4e_ptr, sizeof pml4e);
         if(!ok)
             return {};
@@ -149,9 +149,9 @@ namespace
 
     opt<MMPTE> read_pdpe(nt::Os& os, const virt_t& virt, const MMPTE& pml4e)
     {
-        auto pdpe           = MMPTE{};
+        auto       pdpe     = MMPTE{};
         const auto pdpe_ptr = pml4e.u.hard.PageFrameNumber * PAGE_SIZE + virt.u.f.pdp * sizeof pdpe;
-        auto ok             = memory::read_physical(os.core_, &pdpe, pdpe_ptr, sizeof pdpe);
+        auto       ok       = memory::read_physical(os.core_, &pdpe, pdpe_ptr, sizeof pdpe);
         if(!ok)
             return {};
 
@@ -174,9 +174,9 @@ namespace
 
     opt<MMPTE> read_pde(nt::Os& os, const virt_t& virt, const MMPTE& pdpe)
     {
-        auto pde           = MMPTE{};
+        auto       pde     = MMPTE{};
         const auto pde_ptr = pdpe.u.hard.PageFrameNumber * PAGE_SIZE + virt.u.f.pd * sizeof pde;
-        auto ok            = memory::read_physical(os.core_, &pde, pde_ptr, sizeof pde);
+        auto       ok      = memory::read_physical(os.core_, &pde, pde_ptr, sizeof pde);
         if(!ok)
             return {};
 

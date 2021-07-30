@@ -32,7 +32,7 @@ namespace
 
     bool setup_pdb(symbols::Indexer& indexer, const fs::path& filename)
     {
-        auto pdb       = pdb::PDBFile{};
+        auto       pdb = pdb::PDBFile{};
         const auto err = pdb.load_pdb_file(filename.generic_string().data());
         if(err != pdb::PDB_STATE_OK)
             return FAIL(false, "unable to open pdb %s: %s", filename.generic_string().data(), to_string(err));
@@ -49,9 +49,9 @@ namespace
             if(raw.type_class != pdb::PDBTYPE_STRUCT)
                 continue;
 
-            const auto& type = reinterpret_cast<const pdb::PDBTypeStruct&>(raw);
-            const auto size  = static_cast<size_t>(type.size_bytes);
-            auto& struc      = indexer.add_struc(it.first, size);
+            const auto& type  = reinterpret_cast<const pdb::PDBTypeStruct&>(raw);
+            const auto  size  = static_cast<size_t>(type.size_bytes);
+            auto&       struc = indexer.add_struc(it.first, size);
             for(const auto& member : type.struct_members)
                 indexer.add_member(struc, member->name, static_cast<size_t>(member->offset));
         }
@@ -76,11 +76,11 @@ namespace
     }
 
     constexpr uint8_t rsds_magic[] = {'R', 'S', 'D', 'S'};
-    const auto rsds_pattern        = std::boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
+    const auto        rsds_pattern = std::boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
 
     opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
-        auto src       = reinterpret_cast<const uint8_t*>(vsrc);
+        auto       src = reinterpret_cast<const uint8_t*>(vsrc);
         const auto end = &src[src_size];
         while(true)
         {
@@ -105,7 +105,7 @@ namespace
             char strguid[sizeof guid * 2];
             hex::convert(strguid, hex::chars_upper, guid, sizeof guid);
 
-            uint32_t age    = read_le32(&rsds[4 + 16]);
+            uint32_t   age  = read_le32(&rsds[4 + 16]);
             const auto name = read_pdb_name(&rsds[4 + 16 + 4], name_end);
             if(name)
                 return PdbCtx{std::string{strguid, sizeof strguid} + std::to_string(age), *name};
@@ -122,8 +122,8 @@ opt<symbols::Identity> symbols::identify_pdb(span_t span, const memory::Io& io)
     const auto debug     = pe::find_debug_codeview(io, span);
     const auto span_read = debug ? *debug : span;
 
-    auto buffer   = std::vector<uint8_t>(span_read.size);
-    const auto ok = io.read_all(&buffer[0], span_read.addr, span_read.size);
+    auto       buffer = std::vector<uint8_t>(span_read.size);
+    const auto ok     = io.read_all(&buffer[0], span_read.addr, span_read.size);
     if(!ok)
         return {};
 

@@ -109,8 +109,8 @@ namespace
     template <typename T>
     PyObject* on_listen(core::Core& core, PyObject* args, const T& operand)
     {
-        auto py_func  = static_cast<PyObject*>(nullptr);
-        const auto ok = PyArg_ParseTuple(args, "O", &py_func);
+        auto       py_func = static_cast<PyObject*>(nullptr);
+        const auto ok      = PyArg_ParseTuple(args, "O", &py_func);
         if(!ok)
             return nullptr;
 

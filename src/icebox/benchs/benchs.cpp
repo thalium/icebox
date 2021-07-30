@@ -38,8 +38,8 @@ namespace
 BENCHMARK_F(win10, single_step)
 (benchmark::State& state)
 {
-    auto lstar     = uint64_t{};
-    const auto rok = FDP_ReadMsr(shm, 0, MSR_LSTAR, &lstar);
+    auto       lstar = uint64_t{};
+    const auto rok   = FDP_ReadMsr(shm, 0, MSR_LSTAR, &lstar);
     if(!rok)
         return state.SkipWithError("unable to read lstar");
 
@@ -71,7 +71,7 @@ BENCHMARK_F(win10, read_write_registers)
     for(auto _ : state)
     {
         (void) _;
-        auto reg       = uint64_t{};
+        auto       reg = uint64_t{};
         const auto rok = FDP_ReadRegister(shm, 0, FDP_RAX_REGISTER, &reg);
         if(!rok)
             return state.SkipWithError("unable to read rax");
@@ -86,8 +86,8 @@ BENCHMARK_F(win10, read_write_registers)
 BENCHMARK_DEFINE_F(win10, read_virtual_memory)
 (benchmark::State& state)
 {
-    auto lstar     = uint64_t{};
-    const auto rok = FDP_ReadMsr(shm, 0, MSR_LSTAR, &lstar);
+    auto       lstar = uint64_t{};
+    const auto rok   = FDP_ReadMsr(shm, 0, MSR_LSTAR, &lstar);
     if(!rok)
         state.SkipWithError("unable to read lstar");
 

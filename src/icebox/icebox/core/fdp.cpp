@@ -76,8 +76,8 @@ void fdp::reset(core::Core& core)
 opt<FDP_State> fdp::state(core::Core& core)
 {
     // accept is_running FDP_GetState calls
-    auto value    = FDP_State{};
-    const auto ok = FDP_GetState(core.shm_->ptr, &value);
+    auto       value = FDP_State{};
+    const auto ok    = FDP_GetState(core.shm_->ptr, &value);
     if(!ok)
         return {};
 
@@ -186,8 +186,8 @@ bool fdp::write_virtual(core::Core& core, uint64_t dst, dtb_t dtb, const void* v
 
 opt<phy_t> fdp::virtual_to_physical(core::Core& core, dtb_t dtb, uint64_t ptr)
 {
-    uint64_t phy  = 0;
-    const auto ok = switch_dtb(core, dtb, [&]
+    uint64_t   phy = 0;
+    const auto ok  = switch_dtb(core, dtb, [&]
     {
         check_vm(core, "fdp::virtual_to_physical");
         return FDP_VirtualToPhysical(core.shm_->ptr, 0, ptr, &phy);
@@ -238,8 +238,8 @@ namespace
 opt<uint64_t> fdp::read_register(core::Core& core, reg_e reg)
 {
     check_vm(core, "fdp::read_register");
-    auto value    = uint64_t{};
-    const auto ok = FDP_ReadRegister(core.shm_->ptr, 0, cast(reg), &value);
+    auto       value = uint64_t{};
+    const auto ok    = FDP_ReadRegister(core.shm_->ptr, 0, cast(reg), &value);
     if(!ok)
         return {};
 
@@ -264,8 +264,8 @@ namespace
 opt<uint64_t> fdp::read_msr_register(core::Core& core, msr_e msr)
 {
     check_vm(core, "fdp::read_msr_register");
-    auto value    = uint64_t{};
-    const auto ok = FDP_ReadMsr(core.shm_->ptr, 0, cast(msr), &value);
+    auto       value = uint64_t{};
+    const auto ok    = FDP_ReadMsr(core.shm_->ptr, 0, cast(msr), &value);
     if(!ok)
         return {};
 

@@ -103,8 +103,8 @@ opt<proc_t> nt::Os::proc_find(uint64_t pid)
 opt<std::string> nt::Os::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
-    auto buffer   = std::array<char, 14 + 1>{};
-    const auto ok = io_.read_all(&buffer[0], proc.id + offsets_[EPROCESS_ImageFileName], sizeof buffer);
+    auto       buffer = std::array<char, 14 + 1>{};
+    const auto ok     = io_.read_all(&buffer[0], proc.id + offsets_[EPROCESS_ImageFileName], sizeof buffer);
     buffer.back() = 0;
     if(!ok)
         return {};
@@ -171,7 +171,7 @@ bool nt::Os::proc_is_valid(proc_t proc)
 flags_t nt::Os::proc_flags(proc_t proc)
 {
     const auto io    = memory::make_io(core_, proc);
-    auto flags       = flags_t{};
+    auto       flags = flags_t{};
     const auto wow64 = io.read(proc.id + offsets_[EPROCESS_Wow64Process]);
     if(*wow64)
         flags.is_x86 = true;

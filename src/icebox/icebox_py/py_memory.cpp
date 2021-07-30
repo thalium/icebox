@@ -2,9 +2,9 @@
 
 PyObject* py::memory::virtual_to_physical(core::Core& core, PyObject* args)
 {
-    auto py_proc  = static_cast<PyObject*>(nullptr);
-    auto ptr      = uint64_t{};
-    const auto ok = PyArg_ParseTuple(args, "OK", &py_proc, &ptr);
+    auto       py_proc = static_cast<PyObject*>(nullptr);
+    auto       ptr     = uint64_t{};
+    const auto ok      = PyArg_ParseTuple(args, "OK", &py_proc, &ptr);
     if(!ok)
         return nullptr;
 
@@ -21,9 +21,9 @@ PyObject* py::memory::virtual_to_physical(core::Core& core, PyObject* args)
 
 PyObject* py::memory::virtual_to_physical_with_dtb(core::Core& core, PyObject* args)
 {
-    auto dtb      = uint64_t{};
-    auto ptr      = uint64_t{};
-    const auto ok = PyArg_ParseTuple(args, "KK", &dtb, &ptr);
+    auto       dtb = uint64_t{};
+    auto       ptr = uint64_t{};
+    const auto ok  = PyArg_ParseTuple(args, "KK", &dtb, &ptr);
     if(!ok)
         return nullptr;
 

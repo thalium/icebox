@@ -35,24 +35,24 @@ void display_thread(core::Core& core, const thread_t& thread)
 
 std::string pad_with(const std::string& arg, int pad)
 {
-    const auto need = std::max(0, pad - static_cast<int>(arg.size()));
-    auto reply      = arg;
+    const auto need  = std::max(0, pad - static_cast<int>(arg.size()));
+    auto       reply = arg;
     return reply.append(need, ' ');
 }
 
 void display_proc(core::Core& core, const proc_t& proc)
 {
-    const auto proc_pid      = process::pid(core, proc);
-    auto proc_name           = process::name(core, proc);
-    const bool proc_32bits   = !!process::flags(core, proc).is_x86;
-    const auto proc_parent   = process::parent(core, proc);
-    uint64_t proc_parent_pid = 0xffffffffffffffff;
+    const auto proc_pid        = process::pid(core, proc);
+    auto       proc_name       = process::name(core, proc);
+    const bool proc_32bits     = !!process::flags(core, proc).is_x86;
+    const auto proc_parent     = process::parent(core, proc);
+    uint64_t   proc_parent_pid = 0xffffffffffffffff;
     if(proc_parent)
         proc_parent_pid = process::pid(core, *proc_parent);
 
     std::string leader_thread_pc;
     std::string threads;
-    int threads_count = -1;
+    int         threads_count = -1;
     threads::list(core, proc, [&](thread_t thread)
     {
         if(threads_count++ < 0)
@@ -89,7 +89,7 @@ void display_mod(core::Core& core, const proc_t& proc)
     modules::list(core, proc, [&](mod_t mod)
     {
         const auto span = modules::span(core, proc, mod);
-        auto name       = modules::name(core, {}, mod);
+        auto       name = modules::name(core, {}, mod);
         if(!name)
             name = "<no-name>";
 
@@ -109,8 +109,8 @@ void display_vm_area(core::Core& core, const proc_t& proc)
     state::pause(core);
     vm_area::list(core, proc, [&](vm_area_t vm_area)
     {
-        const auto span      = vm_area::span(core, proc, vm_area);
-        const auto type      = vm_area::type(core, proc, vm_area);
+        const auto  span     = vm_area::span(core, proc, vm_area);
+        const auto  type     = vm_area::type(core, proc, vm_area);
         std::string type_str = "             ";
         if(type == vma_type_e::heap)
             type_str = "[heap]  ";
@@ -121,8 +121,8 @@ void display_vm_area(core::Core& core, const proc_t& proc)
         else if(type == vma_type_e::other)
             type_str = "[other] ";
 
-        const auto access = vm_area::access(core, proc, vm_area);
-        auto access_str   = std::string{};
+        const auto access     = vm_area::access(core, proc, vm_area);
+        auto       access_str = std::string{};
         access_str += (access & VMA_ACCESS_READ) ? "r" : "-";
         access_str += (access & VMA_ACCESS_WRITE) ? "w" : "-";
         access_str += (access & VMA_ACCESS_EXEC) ? "x" : "-";
@@ -213,7 +213,7 @@ int main(int argc, char** argv)
     drivers::list(*core, [&](driver_t driver)
     {
         const auto span = drivers::span(*core, driver);
-        auto name       = drivers::name(*core, driver);
+        auto       name = drivers::name(*core, driver);
         if(!name)
             name = "<no-name>";
 

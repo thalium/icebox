@@ -53,7 +53,7 @@ struct MMPTE_PROTOTYPE
     uint64_t Prototype            : 1;
     uint64_t Combined             : 1;
     uint64_t Unused1              : 4;
-    int64_t ProtoAddress          : 48; // sign extended
+    int64_t  ProtoAddress         : 48; // sign extended
 };
 
 struct MMPTE_TRANSITION
@@ -72,15 +72,15 @@ struct MMPTE_TRANSITION
 
 struct MMPTE_SUBSECTION
 {
-    uint64_t Valid            : 1;
-    uint64_t Unused0          : 3;
-    uint64_t SwizzleBit       : 1;
-    uint64_t Protection       : 5;
-    uint64_t Prototype        : 1;
-    uint64_t ColdPage         : 1;
-    uint64_t Unused1          : 3;
-    uint64_t ExecutePrivilege : 1;
-    int64_t SubsectionAddress : 48;
+    uint64_t Valid             : 1;
+    uint64_t Unused0           : 3;
+    uint64_t SwizzleBit        : 1;
+    uint64_t Protection        : 5;
+    uint64_t Prototype         : 1;
+    uint64_t ColdPage          : 1;
+    uint64_t Unused1           : 3;
+    uint64_t ExecutePrivilege  : 1;
+    int64_t  SubsectionAddress : 48;
 };
 
 struct MMPTE_SOFTWARE

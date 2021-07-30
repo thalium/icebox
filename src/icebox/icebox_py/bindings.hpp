@@ -161,7 +161,7 @@ namespace py
     template <typename T>
     opt<T> from_bytes(PyObject* self)
     {
-        auto ret       = T{};
+        auto       ret = T{};
         const auto ptr = from_bytes(self, sizeof(T));
         if(!ptr)
             return {};

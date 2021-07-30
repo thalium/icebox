@@ -105,10 +105,10 @@ namespace
 
     struct Worker
     {
-        Buffer buffer        = Buffer(g_stack_size);
+        Buffer     buffer    = Buffer(g_stack_size);
         cothread_t co_thread = nullptr;
-        uint64_t seq_id      = 0;     // current sequence id
-        bool finished        = false; // worker thread is dead
+        uint64_t   seq_id    = 0;     // current sequence id
+        bool       finished  = false; // worker thread is dead
     };
 
     using WorkerPool  = Pool<Worker>;
@@ -349,8 +349,8 @@ struct state::BreakpointPrivate
 
     ~BreakpointPrivate()
     {
-        auto& d              = *core_.state_;
-        bool unique_observer = true;
+        auto&                    d               = *core_.state_;
+        bool                     unique_observer = true;
         opt<Observers::iterator> target;
         lookup_observers(d.observers, observer_->phy, [&](auto it)
         {
@@ -397,8 +397,8 @@ namespace
         auto opt_proc   = opt<proc_t>{};
         lookup_observers(d.observers, d.breakphy, [&](auto it)
         {
-            const auto& bp        = *it->second;
-            const auto has_filter = bp.thread || bp.proc;
+            const auto& bp         = *it->second;
+            const auto  has_filter = bp.thread || bp.proc;
             if(has_filter && !opt_thread)
                 opt_thread = threads::current(d.core);
 
@@ -492,9 +492,9 @@ namespace
 {
     opt<int> try_add_breakpoint(core::Core& core, std::string_view name, phy_t phy, opt<dtb_t> dtb)
     {
-        auto& d       = *core.state_;
-        auto& targets = d.targets;
-        const auto it = targets.find(phy);
+        auto&      d       = *core.state_;
+        auto&      targets = d.targets;
+        const auto it      = targets.find(phy);
         if(it != targets.end())
         {
             // keep using found breakpoint if filtering rules are compatible
@@ -634,7 +634,7 @@ bool state::run_to_cr_write(core::Core& core, reg_e reg)
 
 void state::run_to_current(core::Core& core, std::string_view name)
 {
-    auto& d           = *core.state_;
+    auto&      d      = *core.state_;
     const auto thread = threads::current(core);
     const auto rsp    = registers::read(core, reg_e::rsp);
     const auto rip    = registers::read(core, reg_e::rip);
@@ -657,8 +657,8 @@ void state::run_to(core::Core& core, std::string_view name, std::unordered_set<u
     for(const uint64_t& ptr : ptrs)
         bps.push_back(set_virtual_breakpoint(core, name, ptr, {}, {}, {}));
 
-    int bpid     = -1;
-    uint64_t cr3 = 0;
+    int      bpid = -1;
+    uint64_t cr3  = 0;
     if(bp_cr3 == BP_CR3_ON_WRITINGS)
     {
         bpid = fdp::set_breakpoint(core, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, 0);

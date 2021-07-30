@@ -12,15 +12,15 @@
 std::string utf8::from_utf16(const void* vptr, const void* vend)
 {
     std::wstring_convert<std::codecvt_utf8_utf16<U16_STRING_TYPE, 0x10ffff, std::codecvt_mode::little_endian>, U16_STRING_TYPE> convert;
-    const auto ptr = reinterpret_cast<const U16_STRING_TYPE*>(vptr);
-    const auto end = reinterpret_cast<const U16_STRING_TYPE*>(vend);
+    const auto                                                                                                                  ptr = reinterpret_cast<const U16_STRING_TYPE*>(vptr);
+    const auto                                                                                                                  end = reinterpret_cast<const U16_STRING_TYPE*>(vend);
     return convert.to_bytes(ptr, end);
 }
 
 std::wstring utf8::to_utf16(std::string_view src)
 {
     std::wstring_convert<std::codecvt_utf8_utf16<U16_STRING_TYPE, 0x10ffff, std::codecvt_mode::little_endian>, U16_STRING_TYPE> convert;
-    const auto ptr = src.data();
-    const auto ret = convert.from_bytes(ptr, ptr + src.size());
+    const auto                                                                                                                  ptr = src.data();
+    const auto                                                                                                                  ret = convert.from_bytes(ptr, ptr + src.size());
     return std::wstring(ret.begin(), ret.end());
 }

@@ -33,7 +33,7 @@ namespace hex
     {
         STATIC_ASSERT_EQ(szdst, !!(flags & HexaPrefix) * 2 + size * 2 + 1);
         const auto& hexchars = flags & LowerCase ? chars_lower : chars_upper;
-        const auto prefix    = flags & HexaPrefix ? 2 : 0;
+        const auto  prefix   = flags & HexaPrefix ? 2 : 0;
         convert(&dst[prefix], hexchars, src, size);
         dst[prefix + size * 2] = 0;
         size_t skip            = 0;
@@ -49,7 +49,7 @@ namespace hex
         return &dst[skip];
     }
 
-    inline uint8_t swap(uint8_t x) { return x; }
+    inline uint8_t  swap(uint8_t x) { return x; }
     inline uint16_t swap(uint16_t x) { return bswap16(x); }
     inline uint32_t swap(uint32_t x) { return bswap32(x); }
     inline uint64_t swap(uint64_t x) { return bswap64(x); }

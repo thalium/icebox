@@ -203,8 +203,8 @@ namespace
 
 bool nt::Os::mod_list(proc_t proc, modules::on_mod_fn on_mod)
 {
-    const auto io = memory::make_io(core_, proc);
-    auto ret      = mod_list_64(*this, proc, io, on_mod);
+    const auto io  = memory::make_io(core_, proc);
+    auto       ret = mod_list_64(*this, proc, io, on_mod);
     if(!ret)
         return false;
     if(*ret == walk_e::stop)
@@ -246,8 +246,8 @@ namespace
     template <typename T>
     opt<span_t> read_ldr_span(const memory::Io& io, uint64_t ptr)
     {
-        auto entry    = T{};
-        const auto ok = io.read_all(&entry, ptr, sizeof entry);
+        auto       entry = T{};
+        const auto ok    = io.read_all(&entry, ptr, sizeof entry);
         if(!ok)
             return {};
 

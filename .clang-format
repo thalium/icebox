@@ -5,6 +5,7 @@ AlignConsecutiveAssignments:        true
 AlignEscapedNewlines:               Left
 AlignConsecutiveBitFields:          Consecutive
 AlignConsecutiveMacros:             Consecutive
+AlignConsecutiveDeclarations:       Consecutive
 AllowShortCaseLabelsOnASingleLine:  true
 BreakBeforeBinaryOperators:         NonAssignment
 BreakConstructorInitializers:       BeforeComma

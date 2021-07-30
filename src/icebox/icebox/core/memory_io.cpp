@@ -13,8 +13,8 @@ namespace
     template <typename T, T (*read)(const void*)>
     opt<T> read_mem(const memory::Io& io, uint64_t src)
     {
-        auto value    = T{};
-        const auto ok = io.read_all(&value, src, sizeof value);
+        auto       value = T{};
+        const auto ok    = io.read_all(&value, src, sizeof value);
         if(!ok)
             return std::nullopt;
 

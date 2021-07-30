@@ -73,8 +73,8 @@ namespace
             return true;
         }
 
-        auto temp_vad = nt::win7::_MMVAD_SHORT{};
-        const auto ok = io.read_all(&temp_vad, current_vad, sizeof temp_vad);
+        auto       temp_vad = nt::win7::_MMVAD_SHORT{};
+        const auto ok       = io.read_all(&temp_vad, current_vad, sizeof temp_vad);
         if(!ok)
             return FAIL(false, "unable to read _MMVAD_SHORT_WIN7");
 
@@ -104,8 +104,8 @@ namespace
 
     opt<span_t> get_vad_span(nt::Os& os, const memory::Io& io, uint64_t current_vad)
     {
-        auto vad      = vad_t{};
-        const auto ok = read_vad(os, vad, io, current_vad);
+        auto       vad = vad_t{};
+        const auto ok  = read_vad(os, vad, io, current_vad);
         if(!ok)
             return {};
 
@@ -114,8 +114,8 @@ namespace
 
     bool rec_walk_vad_tree(nt::Os& os, const memory::Io& io, proc_t proc, uint64_t current_vad, uint32_t level, const vm_area::on_vm_area_fn& on_vm_area)
     {
-        auto vad      = vad_t{};
-        const auto ok = read_vad(os, vad, io, current_vad);
+        auto       vad = vad_t{};
+        const auto ok  = read_vad(os, vad, io, current_vad);
         if(!ok)
             return false;
 
@@ -183,7 +183,7 @@ opt<std::string> nt::Os::vm_area_name(proc_t proc, vm_area_t vm_area)
         return "";
 
     const auto io              = memory::make_io(core_, proc);
-    auto vad_subsection        = offsets_[MMVAD_SubSection];
+    auto       vad_subsection  = offsets_[MMVAD_SubSection];
     const auto subsection_addr = io.read(vm_area.id + vad_subsection);
     if(!subsection_addr || !*subsection_addr)
         return "";

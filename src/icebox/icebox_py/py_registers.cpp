@@ -73,8 +73,8 @@ namespace
     template <typename T, uint64_t (*Op)(core::Core&, T)>
     PyObject* reg_read(core::Core& core, PyObject* args)
     {
-        auto reg_id   = int{};
-        const auto ok = PyArg_ParseTuple(args, "i", &reg_id);
+        auto       reg_id = int{};
+        const auto ok     = PyArg_ParseTuple(args, "i", &reg_id);
         if(!ok)
             return nullptr;
 

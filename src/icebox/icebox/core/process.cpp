@@ -68,8 +68,8 @@ opt<proc_t> process::wait(core::Core& core, std::string_view proc_name, flags_t 
     if(proc)
         return *proc;
 
-    auto found      = opt<proc_t>{};
-    const auto bpid = process::listen_create(core, [&](proc_t proc)
+    auto       found = opt<proc_t>{};
+    const auto bpid  = process::listen_create(core, [&](proc_t proc)
     {
         const auto new_flags = process::flags(core, proc);
         if(!os::check_flags(new_flags, flags))

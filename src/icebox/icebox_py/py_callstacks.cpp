@@ -17,8 +17,8 @@ PyObject* py::callstacks::read(core::Core& core, PyObject* args)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
-    auto buf     = std::vector<::callstacks::caller_t>(size);
-    const auto n = ::callstacks::read(core, &buf[0], buf.size(), *opt_proc);
+    auto       buf = std::vector<::callstacks::caller_t>(size);
+    const auto n   = ::callstacks::read(core, &buf[0], buf.size(), *opt_proc);
     for(size_t i = 0; i < n; ++i)
     {
         auto item = PyLong_FromUnsignedLongLong(buf[i].addr);

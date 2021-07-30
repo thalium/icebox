@@ -58,9 +58,9 @@ bool functions::break_on_return(core::Core& core, std::string_view name, const f
     } ctx         = {core};
     const auto bp = state::break_on_thread(core, name, *thread, *return_addr, [=]
     {
-        auto& d        = *ctx.core.func_;
+        auto&      d   = *ctx.core.func_;
         const auto rsp = registers::read(ctx.core, reg_e::rsp) - ptr_size;
-        auto it        = d.returns.find(rsp);
+        auto       it  = d.returns.find(rsp);
         if(it == d.returns.end())
             return;
 

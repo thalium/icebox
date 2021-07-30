@@ -53,8 +53,8 @@ namespace
         auto gdtb = dtb_t{registers::read(os.core_, reg_e::cr3)};
         if(os.offsets_[KPRCB_KernelDirectoryTableBase])
         {
-            auto kgdtb    = uint64_t{};
-            const auto ok = memory::read_virtual_with_dtb(os.core_, gdtb, &kgdtb, os.kpcr_ + os.offsets_[KPCR_Prcb] + os.offsets_[KPRCB_KernelDirectoryTableBase], sizeof kgdtb);
+            auto       kgdtb = uint64_t{};
+            const auto ok    = memory::read_virtual_with_dtb(os.core_, gdtb, &kgdtb, os.kpcr_ + os.offsets_[KPCR_Prcb] + os.offsets_[KPRCB_KernelDirectoryTableBase], sizeof kgdtb);
             if(!ok)
                 return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
 
@@ -131,10 +131,10 @@ namespace
 
     opt<kernel_t> find_kernel_pdb(nt::Os& os)
     {
-        auto lstar                   = registers::read_msr(os.core_, msr_e::lstar);
+        auto       lstar             = registers::read_msr(os.core_, msr_e::lstar);
         auto const small_kernel_size = uint64_t{0x100000};
-        auto max_kernel_size         = small_kernel_size;
-        auto ea                      = lstar - max_kernel_size;
+        auto       max_kernel_size   = small_kernel_size;
+        auto       ea                = lstar - max_kernel_size;
 
         auto dtb = find_some_dtb(os);
         if(!dtb)
@@ -250,7 +250,7 @@ namespace
             return false;
 
         const auto io = memory::make_io(core, *proc);
-        auto ok       = symbols::load_module_memory(core, symbols::kernel, io, *span);
+        auto       ok = symbols::load_module_memory(core, symbols::kernel, io, *span);
         if(!ok)
             return false;
 
@@ -334,7 +334,7 @@ namespace
 
         LOG(INFO, "hot-patching NtCreatePagingFile...");
         const auto where = symbols::address(core, symbols::kernel, "nt", "NtCreatePagingFile");
-        auto done        = false;
+        auto       done  = false;
         const auto bp    = state::break_on(core, "NtCreatePagingFile", *where, [&] { done = patch_nt_create_paging_file(os, core, *where); });
         while(!done)
             state::exec(core);

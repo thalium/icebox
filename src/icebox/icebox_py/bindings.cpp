@@ -21,7 +21,7 @@ namespace
         }
 
         std::shared_ptr<core::Core> core;
-        PyThreadState* thread_state = nullptr;
+        PyThreadState*              thread_state = nullptr;
     };
 
     Handle* handle_from_self(PyObject* self)
@@ -45,8 +45,8 @@ namespace
 
     PyObject* core_attach(PyObject* self, PyObject* args)
     {
-        auto name     = static_cast<const char*>(nullptr);
-        const auto ok = PyArg_ParseTuple(args, "s", &name);
+        auto       name = static_cast<const char*>(nullptr);
+        const auto ok   = PyArg_ParseTuple(args, "s", &name);
         if(!ok)
             return nullptr;
 
@@ -67,8 +67,8 @@ namespace
 
     PyObject* core_attach_only(PyObject* self, PyObject* args)
     {
-        auto name     = static_cast<const char*>(nullptr);
-        const auto ok = PyArg_ParseTuple(args, "s", &name);
+        auto       name = static_cast<const char*>(nullptr);
+        const auto ok   = PyArg_ParseTuple(args, "s", &name);
         if(!ok)
             return nullptr;
 
@@ -159,8 +159,8 @@ const char* py::from_bytes(PyObject* self, size_t size)
     if(!PyBytes_CheckExact(self))
         return py::fail_with(nullptr, PyExc_RuntimeError, "invalid argument");
 
-    auto src       = static_cast<char*>(nullptr);
-    auto len       = ssize_t{};
+    auto       src = static_cast<char*>(nullptr);
+    auto       len = ssize_t{};
     const auto err = PyBytes_AsStringAndSize(self, &src, &len);
     if(err)
         return py::fail_with(nullptr, PyExc_RuntimeError, "invalid argument");
@@ -275,9 +275,9 @@ namespace
 
 PyMODINIT_FUNC PyInit__icebox()
 {
-    char main[]     = "_icebox";
-    auto args       = std::array<char*, 2>{main, nullptr};
-    const auto argc = static_cast<int>(args.size());
+    char       main[] = "_icebox";
+    auto       args   = std::array<char*, 2>{main, nullptr};
+    const auto argc   = static_cast<int>(args.size());
     logg::init(argc - 1, &args[0]);
 
     static auto ice_module = PyModuleDef{

@@ -2,8 +2,8 @@
 
 PyObject* py::vm_area::list(core::Core& core, PyObject* args)
 {
-    auto obj      = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "S", &obj);
+    auto       obj = static_cast<PyObject*>(nullptr);
+    const auto ok  = PyArg_ParseTuple(args, "S", &obj);
     if(!ok)
         return nullptr;
 

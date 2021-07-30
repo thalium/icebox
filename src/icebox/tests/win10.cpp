@@ -66,7 +66,7 @@ TEST_F(win10, drivers)
     using Drivers = std::map<std::string, Driver>;
 
     Drivers drivers;
-    auto& core = *ptr_core;
+    auto&   core = *ptr_core;
     drivers::list(core, [&](driver_t drv)
     {
         const auto name = drivers::name(core, drv);
@@ -111,7 +111,7 @@ TEST_F(win10, processes)
     using Processes = std::multimap<std::string, Process>;
 
     Processes processes;
-    auto& core = *ptr_core;
+    auto&     core = *ptr_core;
     process::list(core, [&](proc_t proc)
     {
         EXPECT_NE(proc.kdtb.val, 0U);
@@ -186,7 +186,7 @@ TEST_F(win10, threads)
 {
     using Threads = std::set<uint64_t>;
 
-    auto& core          = *ptr_core;
+    auto&      core     = *ptr_core;
     const auto explorer = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!explorer);
 
@@ -217,7 +217,7 @@ TEST_F(win10, modules)
     using Module  = std::tuple<uint64_t, uint64_t, size_t, flags_t>;
     using Modules = std::multimap<std::string, Module>;
 
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
 
@@ -266,7 +266,7 @@ namespace
 
 TEST_F(win10, unable_to_single_step_query_information_process)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
@@ -274,7 +274,7 @@ TEST_F(win10, unable_to_single_step_query_information_process)
     EXPECT_TRUE(!!ok);
 
     wow64::syscalls32 tracer{core, "wntdll"};
-    auto count = size_t{0};
+    auto              count = size_t{0};
     // ZwQueryInformationProcess in 32-bit has code reading itself
     // we need to ensure we can break this function & resume properly
     // FDP had a bug where this was not possible
@@ -291,7 +291,7 @@ TEST_F(win10, unable_to_single_step_query_information_process)
 
 TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
@@ -300,7 +300,7 @@ TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
 
     // break on a single function once
     wow64::syscalls32 tracer{core, "wntdll"};
-    int func_start = 0;
+    int               func_start = 0;
     tracer.register_ZwWaitForSingleObject(*proc, [&](wow64::HANDLE /*Handle*/,
                                                      wow64::BOOLEAN /*Alertable*/,
                                                      wow64::PLARGE_INTEGER /*Timeout*/)
@@ -312,8 +312,8 @@ TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
     // set a breakpoint on next instruction
     state::single_step(core);
     const auto addr_a = registers::read(core, reg_e::rip);
-    int func_a        = 0;
-    auto bp_a         = state::break_on_process(core, "ZwWaitForSingleObject + $1", *proc, addr_a, [&]
+    int        func_a = 0;
+    auto       bp_a   = state::break_on_process(core, "ZwWaitForSingleObject + $1", *proc, addr_a, [&]
     {
         func_a++;
     });
@@ -322,7 +322,7 @@ TEST_F(win10, unset_bp_when_two_bps_share_phy_page)
     // we are sure the previous bp share a physical page with at least one bp
     state::single_step(core);
     const auto addr_b = registers::read(core, reg_e::rip);
-    int func_b        = 0;
+    int        func_b = 0;
     const auto bp_b   = state::break_on_process(core, "ZwWaitForSingleObject + $2", *proc, addr_b, [&]
     {
         func_b++;
@@ -355,10 +355,10 @@ namespace
     bool test_memory(core::Core& core, proc_t proc)
     {
         os::debug_print(core);
-        auto buffer   = std::vector<uint8_t>{};
-        auto got_read = std::vector<uint8_t>{};
-        const auto io = memory::make_io(core, proc);
-        auto ret      = bool{};
+        auto       buffer   = std::vector<uint8_t>{};
+        auto       got_read = std::vector<uint8_t>{};
+        const auto io       = memory::make_io(core, proc);
+        auto       ret      = bool{};
         modules::list(core, proc, [&](mod_t mod)
         {
             ret             = false;
@@ -411,7 +411,7 @@ namespace
 TEST_F(win10, memory)
 {
     auto& core = *ptr_core;
-    auto proc  = process::find_name(core, "explorer.exe", {});
+    auto  proc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
     auto ok = test_memory(core, *proc);
     EXPECT_TRUE(!!ok);
@@ -419,7 +419,7 @@ TEST_F(win10, memory)
 
 TEST_F(win10, memory_kernel_passive)
 {
-    auto& core          = *ptr_core;
+    auto&      core     = *ptr_core;
     const auto explorer = process::find_name(core, "explorer.exe", {});
     while(true)
     {
@@ -439,7 +439,7 @@ TEST_F(win10, memory_kernel_passive)
 
 TEST_F(win10, memory_kernel_apc)
 {
-    auto& core          = *ptr_core;
+    auto&      core     = *ptr_core;
     const auto explorer = process::find_name(core, "explorer.exe", {});
     while(true)
     {
@@ -459,7 +459,7 @@ TEST_F(win10, memory_kernel_apc)
 
 TEST_F(win10, vm_area)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::find_name(core, "explorer.exe", {});
     EXPECT_TRUE(!!proc);
     LOG(INFO, "explorer udtb: 0x%" PRIx64, proc->udtb.val);
@@ -513,7 +513,7 @@ TEST_F(win10, vm_area)
 
 TEST_F(win10, loader)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::wait(core, "dwm.exe", flags::x64);
     ASSERT_TRUE(!!proc);
 
@@ -525,7 +525,7 @@ TEST_F(win10, loader)
 
 TEST_F(win10, out_of_context_loads)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::find_name(core, "dwm.exe", flags::x64);
     ASSERT_TRUE(!!proc);
 
@@ -539,7 +539,7 @@ TEST_F(win10, out_of_context_loads)
 
 TEST_F(win10, tracer)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::wait(core, "dwm.exe", {});
     ASSERT_TRUE(!!proc);
 
@@ -578,7 +578,7 @@ namespace
 
 TEST_F(win10, callstacks)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::wait(core, "dwm.exe", {});
     ASSERT_TRUE(!!proc);
 
@@ -600,8 +600,8 @@ TEST_F(win10, callstacks)
     auto bpid   = tracer.register_all(*proc, [&](const auto& /* cfg*/)
     {
         LOG(INFO, " ");
-        auto callers = std::vector<callstacks::caller_t>(128);
-        const auto n = callstacks::read(core, &callers[0], callers.size(), *proc);
+        auto       callers = std::vector<callstacks::caller_t>(128);
+        const auto n       = callstacks::read(core, &callers[0], callers.size(), *proc);
         EXPECT_GT(n, 1U);
         for(size_t i = 0; i < n; ++i)
             LOG(INFO, "0x%02" PRIx64 ": %s", i, dump_address(core, *proc, callers[i].addr).data());
@@ -627,8 +627,8 @@ TEST_F(win10, callstacks)
     {
         const auto curr = process::current(core);
         LOG(INFO, " ");
-        auto callers = std::vector<callstacks::caller_t>(128);
-        const auto n = callstacks::read(core, &callers[0], callers.size(), *curr);
+        auto       callers = std::vector<callstacks::caller_t>(128);
+        const auto n       = callstacks::read(core, &callers[0], callers.size(), *curr);
         EXPECT_EQ(n, 1U);
         const auto last = dump_address(core, *curr, callers[0].addr);
         EXPECT_EQ(last, "ntdll!RtlUserThreadStart");
@@ -640,7 +640,7 @@ TEST_F(win10, callstacks)
 
 TEST_F(win10, listen_module_wow64)
 {
-    auto& core      = *ptr_core;
+    auto&      core = *ptr_core;
     const auto proc = process::wait(core, "Taskmgr.exe", flags::x86);
     EXPECT_TRUE(!!proc);
 
@@ -677,7 +677,7 @@ TEST_F(win10, listen_module_wow64)
 
 TEST_F(win10, symbols)
 {
-    auto& core          = *ptr_core;
+    auto&      core     = *ptr_core;
     const auto opt_proc = process::find_pid(core, 4);
     EXPECT_TRUE(!!opt_proc);
 

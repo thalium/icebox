@@ -187,9 +187,9 @@ PyObject* py::process::list(core::Core& core, PyObject* /*args*/)
 
 PyObject* py::process::wait(core::Core& core, PyObject* args)
 {
-    auto name     = static_cast<const char*>(nullptr);
-    auto py_flags = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "sO", &name, &py_flags);
+    auto       name     = static_cast<const char*>(nullptr);
+    auto       py_flags = static_cast<PyObject*>(nullptr);
+    const auto ok       = PyArg_ParseTuple(args, "sO", &name, &py_flags);
     if(!ok)
         return nullptr;
 
@@ -210,8 +210,8 @@ namespace
     template <typename T>
     PyObject* on_listen(core::Core& core, PyObject* args, const T& operand)
     {
-        auto py_func  = static_cast<PyObject*>(nullptr);
-        const auto ok = PyArg_ParseTuple(args, "O", &py_func);
+        auto       py_func = static_cast<PyObject*>(nullptr);
+        const auto ok      = PyArg_ParseTuple(args, "O", &py_func);
         if(!ok)
             return nullptr;
 

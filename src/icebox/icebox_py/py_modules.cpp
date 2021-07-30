@@ -2,8 +2,8 @@
 
 PyObject* py::modules::list(core::Core& core, PyObject* args)
 {
-    auto py_proc  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "S", &py_proc);
+    auto       py_proc = static_cast<PyObject*>(nullptr);
+    const auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -95,9 +95,9 @@ PyObject* py::modules::flags(core::Core& /*core*/, PyObject* args)
 
 PyObject* py::modules::find(core::Core& core, PyObject* args)
 {
-    auto py_proc  = static_cast<PyObject*>(nullptr);
-    auto ptr      = uint64_t{};
-    const auto ok = PyArg_ParseTuple(args, "OK", &py_proc, &ptr);
+    auto       py_proc = static_cast<PyObject*>(nullptr);
+    auto       ptr     = uint64_t{};
+    const auto ok      = PyArg_ParseTuple(args, "OK", &py_proc, &ptr);
     if(!ok)
         return nullptr;
 
@@ -114,10 +114,10 @@ PyObject* py::modules::find(core::Core& core, PyObject* args)
 
 PyObject* py::modules::find_name(core::Core& core, PyObject* args)
 {
-    auto py_proc  = static_cast<PyObject*>(nullptr);
-    auto name     = static_cast<const char*>(nullptr);
-    auto py_flags = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "OsO", &py_proc, &name, &py_flags);
+    auto       py_proc  = static_cast<PyObject*>(nullptr);
+    auto       name     = static_cast<const char*>(nullptr);
+    auto       py_flags = static_cast<PyObject*>(nullptr);
+    const auto ok       = PyArg_ParseTuple(args, "OsO", &py_proc, &name, &py_flags);
     if(!ok)
         return nullptr;
 
@@ -138,10 +138,10 @@ PyObject* py::modules::find_name(core::Core& core, PyObject* args)
 
 PyObject* py::modules::listen_create(core::Core& core, PyObject* args)
 {
-    auto py_proc  = static_cast<PyObject*>(nullptr);
-    auto py_flags = static_cast<PyObject*>(nullptr);
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "OOO", &py_proc, &py_flags, &py_func);
+    auto       py_proc  = static_cast<PyObject*>(nullptr);
+    auto       py_flags = static_cast<PyObject*>(nullptr);
+    auto       py_func  = static_cast<PyObject*>(nullptr);
+    const auto ok       = PyArg_ParseTuple(args, "OOO", &py_proc, &py_flags, &py_func);
     if(!ok)
         return nullptr;
 

@@ -58,10 +58,10 @@ namespace
 
 PyObject* py::state::break_on(core::Core& core, PyObject* args)
 {
-    auto name     = static_cast<const char*>(nullptr);
-    auto where    = uint64_t{};
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "sKO", &name, &where, &py_func);
+    auto       name    = static_cast<const char*>(nullptr);
+    auto       where   = uint64_t{};
+    auto       py_func = static_cast<PyObject*>(nullptr);
+    const auto ok      = PyArg_ParseTuple(args, "sKO", &name, &where, &py_func);
     if(!ok)
         return nullptr;
 
@@ -85,11 +85,11 @@ PyObject* py::state::break_on(core::Core& core, PyObject* args)
 
 PyObject* py::state::break_on_process(core::Core& core, PyObject* args)
 {
-    auto name     = static_cast<const char*>(nullptr);
-    auto py_proc  = static_cast<PyObject*>(nullptr);
-    auto where    = uint64_t{};
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "sSKO", &name, &py_proc, &where, &py_func);
+    auto       name    = static_cast<const char*>(nullptr);
+    auto       py_proc = static_cast<PyObject*>(nullptr);
+    auto       where   = uint64_t{};
+    auto       py_func = static_cast<PyObject*>(nullptr);
+    const auto ok      = PyArg_ParseTuple(args, "sSKO", &name, &py_proc, &where, &py_func);
     if(!ok)
         return nullptr;
 
@@ -117,11 +117,11 @@ PyObject* py::state::break_on_process(core::Core& core, PyObject* args)
 
 PyObject* py::state::break_on_thread(core::Core& core, PyObject* args)
 {
-    auto name      = static_cast<const char*>(nullptr);
-    auto py_thread = static_cast<PyObject*>(nullptr);
-    auto where     = uint64_t{};
-    auto py_func   = static_cast<PyObject*>(nullptr);
-    const auto ok  = PyArg_ParseTuple(args, "sSKO", &name, &py_thread, &where, &py_func);
+    auto       name      = static_cast<const char*>(nullptr);
+    auto       py_thread = static_cast<PyObject*>(nullptr);
+    auto       where     = uint64_t{};
+    auto       py_func   = static_cast<PyObject*>(nullptr);
+    const auto ok        = PyArg_ParseTuple(args, "sSKO", &name, &py_thread, &where, &py_func);
     if(!ok)
         return nullptr;
 
@@ -149,10 +149,10 @@ PyObject* py::state::break_on_thread(core::Core& core, PyObject* args)
 
 PyObject* py::state::break_on_physical(core::Core& core, PyObject* args)
 {
-    auto name     = static_cast<const char*>(nullptr);
-    auto where    = uint64_t{};
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "sKO", &name, &where, &py_func);
+    auto       name    = static_cast<const char*>(nullptr);
+    auto       where   = uint64_t{};
+    auto       py_func = static_cast<PyObject*>(nullptr);
+    const auto ok      = PyArg_ParseTuple(args, "sKO", &name, &where, &py_func);
     if(!ok)
         return nullptr;
 
@@ -176,11 +176,11 @@ PyObject* py::state::break_on_physical(core::Core& core, PyObject* args)
 
 PyObject* py::state::break_on_physical_process(core::Core& core, PyObject* args)
 {
-    auto name     = static_cast<const char*>(nullptr);
-    auto dtb      = uint64_t{};
-    auto where    = uint64_t{};
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "sKKO", &name, &dtb, &where, &py_func);
+    auto       name    = static_cast<const char*>(nullptr);
+    auto       dtb     = uint64_t{};
+    auto       where   = uint64_t{};
+    auto       py_func = static_cast<PyObject*>(nullptr);
+    const auto ok      = PyArg_ParseTuple(args, "sKKO", &name, &dtb, &where, &py_func);
     if(!ok)
         return nullptr;
 
@@ -204,8 +204,8 @@ PyObject* py::state::break_on_physical_process(core::Core& core, PyObject* args)
 
 PyObject* py::state::drop_breakpoint(core::Core& core, PyObject* args)
 {
-    auto py_bpid  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "O", &py_bpid);
+    auto       py_bpid = static_cast<PyObject*>(nullptr);
+    const auto ok      = PyArg_ParseTuple(args, "O", &py_bpid);
     if(!ok)
         return nullptr;
 

@@ -12,7 +12,7 @@ namespace
     template <typename T>
     opt<std::string> read_unicode_string(const memory::Io& io, uint64_t addr)
     {
-        T str;
+        T    str;
         auto ok = io.read_all(&str, addr, sizeof str);
         if(!ok)
             return {};
@@ -156,7 +156,7 @@ std::string nt_types::ioctl_code_dump(nt_types::IOCTL_CODE arg)
     if(*value)
         return value;
 
-    char buf[2 + sizeof arg * 2 + 1];
+    char       buf[2 + sizeof arg * 2 + 1];
     const auto ptr = hex::convert<hex::RemovePadding | hex::HexaPrefix>(buf, static_cast<uint32_t>(arg));
     return ptr;
 }

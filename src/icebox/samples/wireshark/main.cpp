@@ -49,9 +49,9 @@ namespace
         void*            MiniportReserved[2];
         void*            Scratch;
         void*            SourceHandle;
-        uint32_t         NblFlags;       // public flags
+        uint32_t         NblFlags; // public flags
         int32_t          ChildRefCount;
-        uint32_t         Flags;          // private flags used by NDIs, protocols, miniport, etc.
+        uint32_t         Flags; // private flags used by NDIs, protocols, miniport, etc.
         union
         {
             uint32_t Status;
@@ -63,7 +63,7 @@ namespace
     {
         std::vector<uint8_t> invalid;
 
-        const auto io = memory::make_io_kernel(core);
+        const auto           io = memory::make_io_kernel(core);
         NET_BUFFER_LIST      netBufferList;
         NET_BUFFER           netBuffer;
         MDL                  mdl;
@@ -83,7 +83,7 @@ namespace
             uint32_t dataOffset = 0;
             uint32_t dataSize   = netBuffer.stDataLength;
             uint32_t size       = 0;
-            auto mdlAddress     = (uint64_t) netBuffer.CurrentMdl;
+            auto     mdlAddress = (uint64_t) netBuffer.CurrentMdl;
 
             data.resize(data.size() + dataSize);
             do
@@ -135,9 +135,9 @@ namespace
             return {};
         LOG(INFO, "TEB is: 0x%" PRIx64 ", r12 is: 0x%" PRIx64 ", r13 is: 0x%" PRIx64, teb, TlsSlot, *WOW64_CONTEXT);
 
-        auto offset = 4; // FIXME: why 4 on 10240 ?
+        auto                     offset = 4; // FIXME: why 4 on 10240 ?
         nt_types::_WOW64_CONTEXT wow64ctx;
-        const auto ok = io.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
+        const auto               ok = io.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
         if(!ok)
             return {};
 
@@ -193,8 +193,8 @@ namespace
         if(!ctx)
             return;
 
-        auto callers = std::vector<callstacks::caller_t>(128);
-        const auto n = callstacks::read_from(core, &callers[0], callers.size(), proc, *ctx);
+        auto       callers = std::vector<callstacks::caller_t>(128);
+        const auto n       = callstacks::read_from(core, &callers[0], callers.size(), proc, *ctx);
         for(size_t i = 0; i < n; ++i)
             meta.comment += get_callstep_name(core, proc, callers[i].addr);
     }
@@ -203,8 +203,8 @@ namespace
     {
         load_proc_symbols(core, proc, flags::x64);
 
-        auto callers = std::vector<callstacks::caller_t>(128);
-        const auto n = callstacks::read(core, &callers[0], callers.size(), proc);
+        auto       callers = std::vector<callstacks::caller_t>(128);
+        const auto n       = callstacks::read(core, &callers[0], callers.size(), proc);
         for(size_t i = 0; i < n; ++i)
             meta.comment += get_callstep_name(core, proc, callers[i].addr);
     }
@@ -236,7 +236,7 @@ namespace
     {
         Breakpoints  user_bps;
         pcap::Writer pcap;
-        int bp_id = 0;
+        int          bp_id = 0;
 
         symbols::load_drivers(core);
         // ndis!NdisSendNetBufferLists
@@ -265,9 +265,9 @@ namespace
             const auto now = std::chrono::high_resolution_clock::now();
             meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
 
-            auto continue_to_userland = false;
-            auto callers              = std::vector<callstacks::caller_t>(128);
-            const auto n              = callstacks::read(core, &callers[0], callers.size(), *proc);
+            auto       continue_to_userland = false;
+            auto       callers              = std::vector<callstacks::caller_t>(128);
+            const auto n                    = callstacks::read(core, &callers[0], callers.size(), *proc);
             for(size_t i = 0; i < n; ++i)
             {
                 const auto addr = callers[i].addr;
@@ -275,7 +275,7 @@ namespace
                 {
                     continue_to_userland   = true;
                     const auto is_wow64cpu = is_wow64_emulated(core, *proc, addr);
-                    Private p              = {core, meta, bp_id, is_wow64cpu, &pcap, user_bps};
+                    Private    p           = {core, meta, bp_id, is_wow64cpu, &pcap, user_bps};
                     break_in_userland(p, *proc, addr, data);
                     bp_id++;
                     break;
@@ -301,10 +301,10 @@ namespace
             if(!netBufferLists)
                 return -1;
 
-            const auto data = read_NetBufferList(core, (*netBufferLists).val);
+            const auto       data = read_NetBufferList(core, (*netBufferLists).val);
             pcap::metadata_t meta;
-            auto now       = std::chrono::high_resolution_clock::now();
-            meta.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
+            auto             now = std::chrono::high_resolution_clock::now();
+            meta.timestamp       = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() / 1000;
             pcap.add_packet(meta, &data[0], data.size());
             return 0;
         });

@@ -107,7 +107,7 @@ namespace
     bool private_get_callstack(Data& d)
     {
         constexpr auto max_size = 128;
-        const auto idx          = d.callsteps_.size();
+        const auto     idx      = d.callsteps_.size();
         d.callsteps_.resize(idx + max_size);
         const auto n = callstacks::read(d.core_, &d.callsteps_[idx], max_size, d.proc_);
         if(false)
@@ -130,8 +130,8 @@ bool Data::setup()
                                               nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
     {
         std::vector<char> buf(Length);
-        const auto io = memory::make_io(core_, proc_);
-        const auto ok = io.read_all(&buf[0], Buffer, Length);
+        const auto        io = memory::make_io(core_, proc_);
+        const auto        ok = io.read_all(&buf[0], Buffer, Length);
         if(!ok)
             return 1;
 
@@ -173,7 +173,7 @@ bool Data::setup()
 
 bool plugins::Syscalls::generate(const fs::path& file_name)
 {
-    auto& d           = *d_;
+    auto&      d      = *d_;
     const auto output = create_calltree(d.core_, d.triggers_, d.args_, d.proc_, d.callsteps_);
     const auto dump   = output.dump();
     const auto ok     = file::write(file_name, dump.data(), dump.size());

@@ -62,8 +62,8 @@ PyObject* py::drivers::span(core::Core& core, PyObject* args)
 
 PyObject* py::drivers::find(core::Core& core, PyObject* args)
 {
-    auto ptr      = uint64_t{};
-    const auto ok = PyArg_ParseTuple(args, "K", &ptr);
+    auto       ptr = uint64_t{};
+    const auto ok  = PyArg_ParseTuple(args, "K", &ptr);
     if(!ok)
         return nullptr;
 
@@ -76,8 +76,8 @@ PyObject* py::drivers::find(core::Core& core, PyObject* args)
 
 PyObject* py::drivers::listen(core::Core& core, PyObject* args)
 {
-    auto py_func  = static_cast<PyObject*>(nullptr);
-    const auto ok = PyArg_ParseTuple(args, "O", &py_func);
+    auto       py_func = static_cast<PyObject*>(nullptr);
+    const auto ok      = PyArg_ParseTuple(args, "O", &py_func);
     if(!ok)
         return nullptr;
 

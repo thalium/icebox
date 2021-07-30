@@ -48,12 +48,12 @@ namespace
         if(!ok)
             return FAIL(-1, "unable to load ntdll symbols");
 
-        int idx       = -1;
-        auto objects  = objects::make(core, *proc);
-        auto tracer   = nt::syscalls{core, "ntdll"};
-        auto buffer   = std::vector<uint8_t>{};
-        const auto io = memory::make_io(core, *proc);
-        const auto bp = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
+        int        idx     = -1;
+        auto       objects = objects::make(core, *proc);
+        auto       tracer  = nt::syscalls{core, "ntdll"};
+        auto       buffer  = std::vector<uint8_t>{};
+        const auto io      = memory::make_io(core, *proc);
+        const auto bp      = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
                                                                nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer,
                                                                nt::ULONG Length, nt::PLARGE_INTEGER /*ByteOffset*/, nt::PULONG /*Key*/)
         {

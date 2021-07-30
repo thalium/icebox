@@ -70,10 +70,10 @@ namespace
 
     FORCE_INLINE void backoff(size_t& delay)
     {
-        thread_local auto dist = std::uniform_int_distribution<size_t>{};
-        thread_local auto gen  = std::minstd_rand(std::random_device{}());
-        const auto spin_iters  = dist(gen, decltype(dist)::param_type{0, delay});
-        delay                  = std::min(delay * 2, max_backoff_iters);
+        thread_local auto dist       = std::uniform_int_distribution<size_t>{};
+        thread_local auto gen        = std::minstd_rand(std::random_device{}());
+        const auto        spin_iters = dist(gen, decltype(dist)::param_type{0, delay});
+        delay                        = std::min(delay * 2, max_backoff_iters);
         for(size_t i = 0; i < spin_iters; ++i)
             PAUSE;
     }
@@ -539,7 +539,7 @@ bool FDP_SearchVirtualMemory(FDP_SHM* pFDP, uint32_t CpuId, const void* pPattern
         return false;
     }
     uint64_t FoundAddress = 0x0;
-    bool bReturnCode      = false;
+    bool     bReturnCode  = false;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         FDP_SEARCH_VIRTUAL_MEMORY_PKT_REQ* TempPkt = (FDP_SEARCH_VIRTUAL_MEMORY_PKT_REQ*) pFDP->OutputBuffer;
@@ -701,15 +701,15 @@ bool FDP_UnsetBreakpoint(FDP_SHM* pFDP, int BreakpointId)
 
 FDP_EXPORTED
 int FDP_SetBreakpoint(
-    FDP_SHM* pFDP,
-    uint32_t CpuId,
+    FDP_SHM*           pFDP,
+    uint32_t           CpuId,
     FDP_BreakpointType BreakpointType,
-    int BreakpointId,
-    FDP_Access BreakpointAccessType,
-    FDP_AddressType BreakpointAddressType,
-    uint64_t BreakpointAddress,
-    uint64_t BreakpointLength,
-    uint64_t BreakpointCr3)
+    int                BreakpointId,
+    FDP_Access         BreakpointAccessType,
+    FDP_AddressType    BreakpointAddressType,
+    uint64_t           BreakpointAddress,
+    uint64_t           BreakpointLength,
+    uint64_t           BreakpointCr3)
 {
     if(pFDP == NULL)
     {
@@ -866,7 +866,7 @@ bool FDP_GetPhysicalMemorySize(FDP_SHM* pFDP, uint64_t* PhysicalMemorySize)
     {
         return false;
     }
-    bool bReturnValue = true;
+    bool               bReturnValue = true;
     FDP_SIMPLE_PKT_REQ TempPkt;
     TempPkt.Type = FDPCMD_GET_MEMORYSIZE;
     RunCmd(pFDP, PhysicalMemorySize, &TempPkt, sizeof TempPkt);
@@ -881,7 +881,7 @@ bool FDP_GetCpuCount(FDP_SHM* pFDP, uint32_t* CPUCount)
     {
         return false;
     }
-    bool bReturnValue = true;
+    bool               bReturnValue = true;
     FDP_SIMPLE_PKT_REQ TempPkt;
     TempPkt.Type = FDPCMD_GET_CPU_COUNT;
     RunCmd(pFDP, CPUCount, &TempPkt, sizeof TempPkt);
@@ -1050,8 +1050,8 @@ bool FDP_ServerLoop(FDP_SHM* pFDP)
             }
             case FDPCMD_GET_CPU_STATE:
             {
-                uint8_t CurrentState           = 0;
-                FDP_GET_STATE_PKT_REQ* TempPkt = (FDP_GET_STATE_PKT_REQ*) pFDP->InputBuffer;
+                uint8_t                CurrentState = 0;
+                FDP_GET_STATE_PKT_REQ* TempPkt      = (FDP_GET_STATE_PKT_REQ*) pFDP->InputBuffer;
                 pFDP->pFdpServer->pfnGetCpuState(pFDP->pFdpServer->pUserHandle, TempPkt->CpuId, &CurrentState);
                 pFDP->OutputBuffer[0] = CurrentState;
                 u32OutputBuffersize   = sizeof CurrentState;
@@ -1089,8 +1089,8 @@ bool FDP_ServerLoop(FDP_SHM* pFDP)
             }
             case FDPCMD_VIRTUAL_PHYSICAL:
             {
-                uint64_t PhysicalAddress              = 0;
-                FDP_VIRTUAL_PHYSICAL_PKT_REQ* TempPkt = (FDP_VIRTUAL_PHYSICAL_PKT_REQ*) pFDP->InputBuffer;
+                uint64_t                      PhysicalAddress = 0;
+                FDP_VIRTUAL_PHYSICAL_PKT_REQ* TempPkt         = (FDP_VIRTUAL_PHYSICAL_PKT_REQ*) pFDP->InputBuffer;
                 pFDP->pFdpServer->pfnVirtualToPhysical(pFDP->pFdpServer->pUserHandle,
                                                        TempPkt->CpuId,
                                                        TempPkt->VirtualAddress,
@@ -1116,8 +1116,8 @@ bool FDP_ServerLoop(FDP_SHM* pFDP)
             }
             case FDPCMD_READ_REGISTER:
             {
-                uint64_t RegisterValue             = 0;
-                FDP_READ_REGISTER_PKT_REQ* TempPkt = (FDP_READ_REGISTER_PKT_REQ*) pFDP->InputBuffer;
+                uint64_t                   RegisterValue = 0;
+                FDP_READ_REGISTER_PKT_REQ* TempPkt       = (FDP_READ_REGISTER_PKT_REQ*) pFDP->InputBuffer;
                 pFDP->pFdpServer->pfnReadRegister(pFDP->pFdpServer->pUserHandle,
                                                   TempPkt->CpuId,
                                                   TempPkt->RegisterId,
@@ -1147,8 +1147,8 @@ bool FDP_ServerLoop(FDP_SHM* pFDP)
             }
             case FDPCMD_READ_MSR:
             {
-                uint64_t MsrValue             = 0;
-                FDP_READ_MSR_PKT_REQ* TempPkt = (FDP_READ_MSR_PKT_REQ*) pFDP->InputBuffer;
+                uint64_t              MsrValue = 0;
+                FDP_READ_MSR_PKT_REQ* TempPkt  = (FDP_READ_MSR_PKT_REQ*) pFDP->InputBuffer;
                 pFDP->pFdpServer->pfnReadMsr(pFDP->pFdpServer->pUserHandle,
                                              TempPkt->CpuId,
                                              TempPkt->MsrId,
@@ -1383,7 +1383,7 @@ bool FDP_ClientServerTest()
         return false;
     }
 #else
-    void*     ret;
+    void* ret;
     pthread_t threadServer;
     if(pthread_create(&threadServer, NULL, FDP_UnitTestClient, pFDPServer))
     {

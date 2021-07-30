@@ -114,8 +114,8 @@ typedef struct _FDP_UnsetBreakpoint_req
 
 typedef struct _FDP_SetBreakpoint_req
 {
-    uint8_t cmdType;
-    int     breakPointId;
+    uint8_t  cmdType;
+    int      breakPointId;
     uint64_t breakAddress;
 } FDP_SetBreakpoint_req;
 
@@ -138,7 +138,7 @@ typedef struct FDP_SHM_CANAL_
     std::atomic_bool  lock;         // Per channel lock
     std::atomic_bool  bDataPresent; // is data present
     volatile bool     bStatus;
-    uint8_t           _;            // padding
+    uint8_t           _; // padding
 } FDP_SHM_CANAL;
 
 typedef struct FDP_SHM_SHARED_
@@ -146,7 +146,7 @@ typedef struct FDP_SHM_SHARED_
     std::atomic_bool lock; // General lock for the whole FDP_SHM_SHARED
     std::atomic_bool stateChangedLock;
     volatile bool    stateChanged;
-    uint8_t          _;    // padding
+    uint8_t          _; // padding
     FDP_SHM_CANAL    ClientToServer;
     FDP_SHM_CANAL    ServerToClient;
 } FDP_SHM_SHARED;
@@ -247,7 +247,7 @@ typedef struct FDP_WRITE_REGISTER_PKT_REQ_
     uint8_t      Type;
     uint32_t     CpuId;
     FDP_Register RegisterId;
-    uint64_t RegisterValue;
+    uint64_t     RegisterValue;
 } FDP_WRITE_REGISTER_PKT_REQ;
 
 typedef struct FDP_VIRTUAL_PHYSICAL_PKT_REQ
@@ -283,15 +283,15 @@ typedef struct FDP_UNSET_BREAKPOINT_PKT_REQ
 
 typedef struct FDP_SET_BREAKPOINT_PKT_REQ_
 {
-    uint8_t  Type;
-    uint32_t CpuId;
+    uint8_t            Type;
+    uint32_t           CpuId;
     FDP_BreakpointType BreakpointType;
-    int BreakpointId;
-    FDP_Access BreakpointAccessType;
-    FDP_AddressType BreakpointAddressType;
-    uint64_t BreakpointAddress;
-    uint64_t BreakpointLength;
-    uint64_t BreakpointCr3;
+    int                BreakpointId;
+    FDP_Access         BreakpointAccessType;
+    FDP_AddressType    BreakpointAddressType;
+    uint64_t           BreakpointAddress;
+    uint64_t           BreakpointLength;
+    uint64_t           BreakpointCr3;
 } FDP_SET_BREAKPOINT_PKT_REQ;
 
 typedef struct FDP_INJECT_INTERRUPT_PKT_REQ_
@@ -305,8 +305,8 @@ typedef struct FDP_INJECT_INTERRUPT_PKT_REQ_
 
 typedef struct FDP_SET_FX_STATE_REQ_
 {
-    uint8_t  Type;
-    uint32_t CpuId;
+    uint8_t              Type;
+    uint32_t             CpuId;
     FDP_XSAVE_FORMAT64_T FxState64;
 } FDP_SET_FX_STATE_REQ;
 

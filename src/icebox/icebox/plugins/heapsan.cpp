@@ -113,7 +113,7 @@ namespace
         const auto pdata = &d;
         functions::break_on_return(d.core_, "return RtlpAllocateHeapInternal", [=]
         {
-            auto& d        = *pdata;
+            auto&      d   = *pdata;
             const auto ptr = registers::read(d.core_, reg_e::rax);
             if(!ptr)
                 return;
@@ -150,7 +150,7 @@ namespace
         const auto pdata = &d;
         functions::break_on_return(d.core_, "return RtlSizeHeap", [=]
         {
-            auto& d         = *pdata;
+            auto&      d    = *pdata;
             const auto size = registers::read(d.core_, reg_e::rax);
             if(!size)
                 return;
@@ -242,8 +242,8 @@ namespace
         if(true)
             return;
 
-        auto callers = std::vector<callstacks::caller_t>(128);
-        const auto n = callstacks::read(d.core_, &callers[0], callers.size(), d.target_);
+        auto       callers = std::vector<callstacks::caller_t>(128);
+        const auto n       = callstacks::read(d.core_, &callers[0], callers.size(), d.target_);
         for(size_t i = 0; i < n; ++i)
         {
             const auto addr   = callers[i].addr;

@@ -254,7 +254,7 @@ namespace
             return {};
 
         // lower bound returns first item greater or equal
-        auto it        = mods.lower_bound(addr);
+        auto       it  = mods.lower_bound(addr);
         const auto end = mods.end();
         if(it == end)
             return mods.rbegin()->second;
@@ -282,7 +282,7 @@ namespace
     opt<mod_t> find_mod(NtCallstacks& c, proc_t proc, uint64_t addr)
     {
         auto& modules = get_modules(c.all_modules_, proc);
-        auto mod      = find_prev(addr, modules);
+        auto  mod     = find_prev(addr, modules);
         if(mod)
         {
             const auto span = modules::span(c.core_, proc, *mod);
@@ -321,7 +321,7 @@ namespace
     void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const uint8_t* buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
         constexpr auto reg_size = 0x08; // TODO Defined this somewhere else
-        size_t idx              = 0;
+        size_t         idx      = 0;
         while(idx < unwind_codes_size - chained_info_size)
         {
             const auto unwind_operation = buffer[idx + 1] & 0xF;
@@ -409,13 +409,13 @@ namespace
         auto& buf = c.buffer_;
         buf.resize(exception_dir.size);
         const auto io = memory::make_io(c.core_, proc);
-        auto ok       = io.read_all(&buf[0], exception_dir.addr, exception_dir.size);
+        auto       ok = io.read_all(&buf[0], exception_dir.addr, exception_dir.size);
         if(!ok)
             return {};
 
-        auto function_table          = FunctionTable{};
-        auto orphan_function_entries = FunctionEntries{};
-        const auto buf_offset        = buf.size();
+        auto       function_table          = FunctionTable{};
+        auto       orphan_function_entries = FunctionEntries{};
+        const auto buf_offset              = buf.size();
         for(size_t i = 0; i < exception_dir.size; i = i + sizeof(RuntimeFunction))
         {
             auto function_entry          = function_entry_t{};
@@ -423,9 +423,9 @@ namespace
             function_entry.end_address   = read_le32(&buf[i + offsetof(RuntimeFunction, end_address)]);
             const auto unwind_info_ptr   = read_le32(&buf[i + offsetof(RuntimeFunction, unwind_info)]);
 
-            auto unwind_info   = UnwindInfo{};
-            const auto to_read = mod_base_addr + unwind_info_ptr;
-            ok                 = io.read_all(&unwind_info[0], to_read, sizeof unwind_info);
+            auto       unwind_info = UnwindInfo{};
+            const auto to_read     = mod_base_addr + unwind_info_ptr;
+            ok                     = io.read_all(&unwind_info[0], to_read, sizeof unwind_info);
             if(!ok)
                 return FAIL(std::nullopt, "unable to read unwind info");
 
@@ -532,9 +532,9 @@ namespace
         if(opt_offsets)
             return true;
 
-        const auto name = flags.is_x86 ? "wntdll" : "ntdll";
-        bool fail       = false;
-        auto offsets    = UserOffsets{};
+        const auto name    = flags.is_x86 ? "wntdll" : "ntdll";
+        bool       fail    = false;
+        auto       offsets = UserOffsets{};
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_user_offsets[i].e_id != i;
@@ -568,8 +568,8 @@ namespace
         const auto msr_read      = ctx.flags.is_x86 ? msr_e::fs_base : (is_kernel_ctx ? msr_e::kernel_gs_base : msr_e::gs_base);
         const auto teb           = registers::read_msr(c.core_, msr_read);
         const auto nt_tib        = teb + user_offset(c, ctx.flags, TEB_NtTib);
-        auto base                = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackBase));
-        auto limit               = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackLimit));
+        auto       base          = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackBase));
+        auto       limit         = io.read(nt_tib + user_offset(c, ctx.flags, NT_TIB_StackLimit));
         if(!base || !limit)
             return FAIL(std::nullopt, "unable to find stack boundaries");
 
@@ -583,12 +583,12 @@ namespace
 
     opt<span_t> get_kernel_stack(NtCallstacks& c, const memory::Io& io, const context_t& ctx)
     {
-        const auto is_kernel_ctx  = !(ctx.cs & 0x03);
-        const auto msr_read       = is_kernel_ctx ? msr_e::gs_base : msr_e::kernel_gs_base;
-        const auto kernel_gs_base = registers::read_msr(c.core_, msr_read);
-        const auto& koffsets      = c.core_.nt_->offsets_;
-        const auto rsp_base       = kernel_gs_base + koffsets[KPCR_Prcb] + koffsets[KPRCB_RspBase];
-        auto base                 = io.read(rsp_base);
+        const auto  is_kernel_ctx  = !(ctx.cs & 0x03);
+        const auto  msr_read       = is_kernel_ctx ? msr_e::gs_base : msr_e::kernel_gs_base;
+        const auto  kernel_gs_base = registers::read_msr(c.core_, msr_read);
+        const auto& koffsets       = c.core_.nt_->offsets_;
+        const auto  rsp_base       = kernel_gs_base + koffsets[KPCR_Prcb] + koffsets[KPRCB_RspBase];
+        auto        base           = io.read(rsp_base);
         if(!base)
             return {};
 
@@ -648,7 +648,7 @@ namespace
         // lower bound returns first item greater or equal
         auto entry          = function_entry_t{};
         entry.start_address = offset_in_mod;
-        auto it             = std::lower_bound(function_entries.begin(), function_entries.end(), entry, compare_function_entries);
+        auto       it       = std::lower_bound(function_entries.begin(), function_entries.end(), entry, compare_function_entries);
         const auto end      = function_entries.end();
         if(it == end)
             return check_previous_exist(function_entries.rbegin(), function_entries.rend(), offset_in_mod);
@@ -797,9 +797,9 @@ namespace
         if(false)
             LOG(INFO, "TEB is: 0x%" PRIx64 ", r12 is: 0x%" PRIx64 ", r13 is: 0x%" PRIx64, teb, TlsSlot, *WOW64_CONTEXT);
 
-        auto offset = 4; // FIXME: why 4 on 10240 ?
+        auto                     offset = 4; // FIXME: why 4 on 10240 ?
         nt_types::_WOW64_CONTEXT wow64ctx;
-        const auto ok = io.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
+        const auto               ok = io.read_all(&wow64ctx, *WOW64_CONTEXT + offset, sizeof wow64ctx);
         if(!ok)
             return false;
 
@@ -813,13 +813,13 @@ namespace
 
     opt<uint64_t> switch_bp_x64(NtCallstacks& c, proc_t proc, const memory::Io& io)
     {
-        const auto kernel_gs_base = registers::read_msr(c.core_, msr_e::gs_base);
-        const auto& koffsets      = c.core_.nt_->offsets_;
-        const auto& symbols       = c.core_.nt_->symbols_;
-        const auto shadow         = symbols[KiKvaShadow] ? io.read(*symbols[KiKvaShadow]) : 0;
-        const auto rsp_base_off   = shadow ? koffsets[KPRCB_RspBaseShadow] : koffsets[KPRCB_RspBase];
-        const auto rsp_base       = kernel_gs_base + koffsets[KPCR_Prcb] + rsp_base_off;
-        auto base                 = io.read(rsp_base);
+        const auto  kernel_gs_base = registers::read_msr(c.core_, msr_e::gs_base);
+        const auto& koffsets       = c.core_.nt_->offsets_;
+        const auto& symbols        = c.core_.nt_->symbols_;
+        const auto  shadow         = symbols[KiKvaShadow] ? io.read(*symbols[KiKvaShadow]) : 0;
+        const auto  rsp_base_off   = shadow ? koffsets[KPRCB_RspBaseShadow] : koffsets[KPRCB_RspBase];
+        const auto  rsp_base       = kernel_gs_base + koffsets[KPCR_Prcb] + rsp_base_off;
+        auto        base           = io.read(rsp_base);
         if(!base)
             return {};
 
@@ -849,12 +849,12 @@ namespace
     opt<uint64_t> switch_sp_x64(NtCallstacks& c, const memory::Io& io)
     {
         const auto& symbols = c.core_.nt_->symbols_;
-        const auto shadow   = symbols[KiKvaShadow] ? io.read(*symbols[KiKvaShadow]) : 0;
+        const auto  shadow  = symbols[KiKvaShadow] ? io.read(*symbols[KiKvaShadow]) : 0;
         if(shadow)
         {
-            const auto kernel_gs_base = registers::read_msr(c.core_, msr_e::gs_base);
-            const auto& koffsets      = c.core_.nt_->offsets_;
-            const auto user_rsp       = kernel_gs_base + koffsets[KPCR_Prcb] + koffsets[KPRCB_UserRspShadow];
+            const auto  kernel_gs_base = registers::read_msr(c.core_, msr_e::gs_base);
+            const auto& koffsets       = c.core_.nt_->offsets_;
+            const auto  user_rsp       = kernel_gs_base + koffsets[KPCR_Prcb] + koffsets[KPRCB_UserRspShadow];
             return io.read(user_rsp);
         }
 
@@ -939,13 +939,13 @@ size_t NtCallstacks::read_from(caller_t* callers, size_t num_callers, proc_t pro
 
 size_t NtCallstacks::read(caller_t* callers, size_t num_callers, proc_t proc)
 {
-    const auto ip         = registers::read(core_, reg_e::rip);
-    const auto sp         = registers::read(core_, reg_e::rsp);
-    const auto bp         = registers::read(core_, reg_e::rbp);
-    const auto cs         = registers::read(core_, reg_e::cs);
+    const auto     ip     = registers::read(core_, reg_e::rip);
+    const auto     sp     = registers::read(core_, reg_e::rsp);
+    const auto     bp     = registers::read(core_, reg_e::rbp);
+    const auto     cs     = registers::read(core_, reg_e::cs);
     constexpr auto x86_cs = 0x23;
-    const auto flags      = cs == x86_cs ? flags::x86 : flags::x64;
-    const auto ctx        = context_t{ip, sp, bp, cs, flags};
+    const auto     flags  = cs == x86_cs ? flags::x86 : flags::x64;
+    const auto     ctx    = context_t{ip, sp, bp, cs, flags};
     return read_from(callers, num_callers, proc, ctx);
 }
 

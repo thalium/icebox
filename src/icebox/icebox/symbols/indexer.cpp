@@ -250,7 +250,7 @@ namespace
 opt<symbols::Offset> Data::find_symbol(size_t offset)
 {
     // lower bound returns first item greater or equal
-    auto it        = std::lower_bound(offsets.begin(), offsets.end(), offset, [](const auto& a, const auto& b)
+    auto       it  = std::lower_bound(offsets.begin(), offsets.end(), offset, [](const auto& a, const auto& b)
     {
         return a.offset < b;
     });
