@@ -1388,20 +1388,21 @@ bool testSetCr3(FDP_SHM* pFDP)
     uint64_t u64OldCr3;
     uint64_t OldValue;
     uint64_t Value;
+    uint64_t SharedAddr = 0xFFFFF78000000000;
 
     FDP_Pause(pFDP);
     FDP_ReadRegister(pFDP, 0, FDP_CR3_REGISTER, &u64OldCr3);
-    FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&OldValue, sizeof(Value), 0xFFFFF6FB7DBEDF68);
+    FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&OldValue, sizeof(Value), SharedAddr);
 
     FDP_WriteRegister(pFDP, 0, FDP_CR3_REGISTER, u64OldCr3 + 0x1000);
-    FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&Value, sizeof(Value), 0xFFFFF6FB7DBEDF68);
+    FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&Value, sizeof(Value), SharedAddr);
+    FDP_WriteRegister(pFDP, 0, FDP_CR3_REGISTER, u64OldCr3);
     if (Value == OldValue){
         printf("Failed to change Cr3 !\n");
         return false;
     }
 
-    FDP_WriteRegister(pFDP, 0, FDP_CR3_REGISTER, u64OldCr3);
-    FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&Value, sizeof(Value), 0xFFFFF6FB7DBEDF68);
+    FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&Value, sizeof(Value), SharedAddr);
     if (Value != OldValue){
         printf("Failed to restore Cr3 !");
         return false;
