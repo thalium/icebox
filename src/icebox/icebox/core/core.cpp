@@ -73,14 +73,14 @@ namespace
     const interfaces_t g_interfaces[] =
     {
             {
-                "nt",
-                &setup_nt,
-                &finalize_nt,
-            },
-            {
                 "linux",
                 &setup_linux,
                 &finalize_linux,
+            },
+            {
+                "nt",
+                &setup_nt,
+                &finalize_nt,
             },
     };
 
