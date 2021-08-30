@@ -2,8 +2,8 @@
 
 PyObject* py::threads::list(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -11,14 +11,14 @@ PyObject* py::threads::list(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    auto py_list = PyList_New(0);
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
     ok = ::threads::list(core, *opt_proc, [&](thread_t thread)
     {
-        auto item = py::to_bytes(thread);
+        auto* item = py::to_bytes(thread);
         if(!item)
             return walk_e::stop;
 
@@ -47,8 +47,8 @@ PyObject* py::threads::current(core::Core& core, PyObject* /*args*/)
 
 PyObject* py::threads::process(core::Core& core, PyObject* args)
 {
-    auto py_thread = static_cast<PyObject*>(nullptr);
-    auto ok        = PyArg_ParseTuple(args, "S", &py_thread);
+    auto* py_thread = static_cast<PyObject*>(nullptr);
+    auto  ok        = PyArg_ParseTuple(args, "S", &py_thread);
     if(!ok)
         return nullptr;
 
@@ -65,8 +65,8 @@ PyObject* py::threads::process(core::Core& core, PyObject* args)
 
 PyObject* py::threads::program_counter(core::Core& core, PyObject* args)
 {
-    auto py_thread = static_cast<PyObject*>(nullptr);
-    auto ok        = PyArg_ParseTuple(args, "S", &py_thread);
+    auto* py_thread = static_cast<PyObject*>(nullptr);
+    auto  ok        = PyArg_ParseTuple(args, "S", &py_thread);
     if(!ok)
         return nullptr;
 
@@ -87,8 +87,8 @@ PyObject* py::threads::program_counter(core::Core& core, PyObject* args)
 
 PyObject* py::threads::tid(core::Core& core, PyObject* args)
 {
-    auto py_thread = static_cast<PyObject*>(nullptr);
-    auto ok        = PyArg_ParseTuple(args, "S", &py_thread);
+    auto* py_thread = static_cast<PyObject*>(nullptr);
+    auto  ok        = PyArg_ParseTuple(args, "S", &py_thread);
     if(!ok)
         return nullptr;
 
@@ -109,7 +109,7 @@ namespace
     template <typename T>
     PyObject* on_listen(core::Core& core, PyObject* args, const T& operand)
     {
-        auto       py_func = static_cast<PyObject*>(nullptr);
+        auto*      py_func = static_cast<PyObject*>(nullptr);
         const auto ok      = PyArg_ParseTuple(args, "O", &py_func);
         if(!ok)
             return nullptr;
@@ -119,13 +119,13 @@ namespace
 
         const auto opt_bpid = operand(core, [=](thread_t thread)
         {
-            const auto py_thread = py::to_bytes(thread);
-            const auto args      = Py_BuildValue("(O)", py_thread);
+            auto* py_thread = py::to_bytes(thread);
+            auto* args      = Py_BuildValue("(O)", py_thread);
             if(!args)
                 return;
 
             PY_DEFER_DECREF(args);
-            const auto ret = PyObject_Call(py_func, args, nullptr);
+            auto* ret = PyObject_Call(py_func, args, nullptr);
             if(ret)
                 PY_DEFER_DECREF(ret);
         });

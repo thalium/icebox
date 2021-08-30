@@ -19,7 +19,7 @@ namespace
 {
     std::string get_vm_name()
     {
-        const auto ptr = getenv("VM_NAME");
+        const auto* ptr = getenv("VM_NAME");
         return ptr ? ptr : "win10";
     }
 

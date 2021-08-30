@@ -2,7 +2,7 @@
 
 PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
 {
-    auto py_list = PyList_New(0);
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
@@ -11,17 +11,17 @@ PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
     {
         const auto arg     = static_cast<reg_e>(i);
         const auto strname = ::registers::to_string(arg);
-        const auto name    = py_to_string(strname.data(), strname.size());
+        auto*      name    = py_to_string(strname.data(), strname.size());
         if(!name)
             return nullptr;
 
         PY_DEFER_DECREF(name);
-        const auto idx = PyLong_FromLong(i);
+        auto* idx = PyLong_FromLong(i);
         if(!idx)
             return nullptr;
 
         PY_DEFER_DECREF(idx);
-        const auto item = Py_BuildValue("(OO)", name, idx);
+        auto* item = Py_BuildValue("(OO)", name, idx);
         if(!item)
             return nullptr;
 
@@ -36,7 +36,7 @@ PyObject* py::registers::list(core::Core& /*core*/, PyObject* /*args*/)
 
 PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
 {
-    auto py_list = PyList_New(0);
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
@@ -45,17 +45,17 @@ PyObject* py::registers::msr_list(core::Core& /*core*/, PyObject* /*args*/)
     {
         const auto arg     = static_cast<msr_e>(i);
         const auto strname = ::registers::to_string(arg);
-        const auto name    = py_to_string(strname.data(), strname.size());
+        auto*      name    = py_to_string(strname.data(), strname.size());
         if(!name)
             return nullptr;
 
         PY_DEFER_DECREF(name);
-        const auto idx = PyLong_FromLong(i);
+        auto* idx = PyLong_FromLong(i);
         if(!idx)
             return nullptr;
 
         PY_DEFER_DECREF(idx);
-        const auto item = Py_BuildValue("(OO)", name, idx);
+        auto* item = Py_BuildValue("(OO)", name, idx);
         if(!item)
             return nullptr;
 

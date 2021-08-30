@@ -53,7 +53,11 @@ if(${USE_STATIC_ANALYZER})
         # style...
         "-readability-braces-around-statements"
         "-readability-implicit-bool-conversion"
-        # buggy in clang-tidy-8
+        # recursion is allowed
+        "-misc-no-recursion"
+        # wait for clang-tidy-13
+        "-readability-function-cognitive-complexity"
+        # do not like code disabled with if(false)
         "-readability-simplify-boolean-expr"
     )
         set(enable_checks "${enable_checks},${check}")

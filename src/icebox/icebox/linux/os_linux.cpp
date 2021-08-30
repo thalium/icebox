@@ -366,8 +366,8 @@ namespace
         const uint64_t END_KERNEL   = 0xfffffffffff00000;
         // compability was checked for kernel from 2.6.27 (2008) to 5.1.2 (2019)
 
-        const auto buffer_begin    = &buffer[0];
-        const auto buffer_afterend = buffer.data() + buffer.size();
+        auto* buffer_begin    = &buffer[0];
+        auto* buffer_afterend = buffer.data() + buffer.size();
 
         uint64_t offset       = START_KERNEL;
         bool     start_kernel = true;
@@ -381,7 +381,7 @@ namespace
                     start_kernel = false;
                 }
 
-                const auto match = std::search(buffer_begin, buffer_afterend, pattern);
+                const auto* match = std::search(buffer_begin, buffer_afterend, pattern);
                 if(match != buffer_afterend)
                     if(on_candidate((offset + (match - buffer_begin)) - sizeof target) == walk_e::stop)
                         return true;

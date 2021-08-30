@@ -247,7 +247,7 @@ namespace
 {
     bool is_zero(const void* vptr, size_t size)
     {
-        const auto ptr = reinterpret_cast<const uint8_t*>(vptr);
+        const auto* ptr = reinterpret_cast<const uint8_t*>(vptr);
         for(size_t i = 0; i < size; ++i)
             if(ptr[i])
                 return false;

@@ -29,7 +29,7 @@ namespace
         if(!ok)
             return {};
 
-        const auto p = &buffer[0];
+        const auto* p = &buffer[0];
         return utf8::from_utf16(p, &p[str.Length]);
     }
 }
@@ -152,12 +152,12 @@ const char* nt_types::ioctl_code_str(nt_types::IOCTL_CODE arg)
 
 std::string nt_types::ioctl_code_dump(nt_types::IOCTL_CODE arg)
 {
-    const auto value = ioctl_code_str(arg);
+    const auto* value = ioctl_code_str(arg);
     if(*value)
         return value;
 
-    char       buf[2 + sizeof arg * 2 + 1];
-    const auto ptr = hex::convert<hex::RemovePadding | hex::HexaPrefix>(buf, static_cast<uint32_t>(arg));
+    char        buf[2 + sizeof arg * 2 + 1];
+    const auto* ptr = hex::convert<hex::RemovePadding | hex::HexaPrefix>(buf, static_cast<uint32_t>(arg));
     return ptr;
 }
 

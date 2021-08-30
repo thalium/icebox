@@ -33,7 +33,7 @@ namespace
         if(!where)
             return {};
 
-        const auto ptr = &os;
+        auto*      ptr = &os;
         const auto bp  = state::break_on_process(os.core_, "wntdll!_LdrpProcessMappedModule@16", proc, *where, [=]
         {
             on_LdrpInsertDataTableEntry(*ptr, on_mod);
@@ -83,7 +83,7 @@ namespace
 
 opt<bpid_t> nt::Os::listen_mod_create(proc_t proc, flags_t flags, const modules::on_event_fn& on_load)
 {
-    const auto name = "ntdll!LdrpSendDllNotifications";
+    const auto* name = "ntdll!LdrpSendDllNotifications";
     if(flags.is_x86)
     {
         const auto bpid     = state::acquire_breakpoint_id(core_);

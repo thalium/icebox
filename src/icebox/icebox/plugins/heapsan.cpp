@@ -110,7 +110,7 @@ namespace
         if(!ok)
             return;
 
-        const auto pdata = &d;
+        auto* pdata = &d;
         functions::break_on_return(d.core_, "return RtlpAllocateHeapInternal", [=]
         {
             auto&      d   = *pdata;
@@ -147,7 +147,7 @@ namespace
         if(!ok)
             return;
 
-        const auto pdata = &d;
+        auto* pdata = &d;
         functions::break_on_return(d.core_, "return RtlSizeHeap", [=]
         {
             auto&      d    = *pdata;
@@ -185,7 +185,7 @@ namespace
 
         // disable alloc hooks during this call
         d.reallocs_.insert(realloc_t{*thread, HeapHandle});
-        const auto pdata = &d;
+        auto* pdata = &d;
         functions::break_on_return(d.core_, "return RtlpReAllocateHeapInternal unknown", [=]
         {
             auto& d = *pdata;
@@ -221,7 +221,7 @@ namespace
 
         // remove pointer from heap because it can be freed with original value
         d.heaps_.erase(it);
-        const auto pdata = &d;
+        auto* pdata = &d;
         functions::break_on_return(d.core_, "return RtlpReAllocateHeapInternal known", [=]
         {
             auto& d = *pdata;

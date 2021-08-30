@@ -34,7 +34,7 @@ namespace
 
 std::shared_ptr<symbols::Module> symbols::make_map(const std::string& module, const std::string& guid)
 {
-    const auto path = getenv("_LINUX_SYMBOL_PATH");
+    const auto* path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
         return nullptr;
 

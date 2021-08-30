@@ -31,7 +31,7 @@ struct fdp::shm
 
 std::shared_ptr<fdp::shm> fdp::setup(const std::string& name)
 {
-    const auto ptr = FDP_OpenSHM(name.data());
+    auto* ptr = FDP_OpenSHM(name.data());
     if(!ptr)
         return nullptr;
 
@@ -60,7 +60,7 @@ void fdp::reset(core::Core& core)
 {
     fdp::pause(core);
 
-    auto ptr = core.shm_->ptr;
+    auto* ptr = core.shm_->ptr;
     check_vm(core, "fdp::reset");
     for(int bpid = 0; bpid < FDP_MAX_BREAKPOINT; bpid++)
         FDP_UnsetBreakpoint(ptr, bpid);
@@ -133,7 +133,7 @@ int fdp::set_breakpoint(core::Core& core, FDP_BreakpointType type, int bpid, FDP
 bool fdp::read_physical(core::Core& core, void* vdst, phy_t src, size_t size)
 {
     check_vm(core, "fdp::read_physical");
-    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
+    auto*      dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
     return FDP_ReadPhysicalMemory(core.shm_->ptr, dst, usize, src.val);
 }
@@ -141,7 +141,7 @@ bool fdp::read_physical(core::Core& core, void* vdst, phy_t src, size_t size)
 bool fdp::write_physical(core::Core& core, phy_t dst, const void* vsrc, size_t size)
 {
     check_vm(core, "fdp::write_physical");
-    const auto src   = reinterpret_cast<uint8_t*>(const_cast<void*>(vsrc));
+    auto*      src   = reinterpret_cast<uint8_t*>(const_cast<void*>(vsrc));
     const auto usize = static_cast<uint32_t>(size);
     return FDP_WritePhysicalMemory(core.shm_->ptr, src, usize, dst.val);
 }
@@ -164,7 +164,7 @@ namespace
 
 bool fdp::read_virtual(core::Core& core, void* vdst, uint64_t src, dtb_t dtb, size_t size)
 {
-    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
+    auto*      dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
     return switch_dtb(core, dtb, [&]
     {
@@ -175,7 +175,7 @@ bool fdp::read_virtual(core::Core& core, void* vdst, uint64_t src, dtb_t dtb, si
 
 bool fdp::write_virtual(core::Core& core, uint64_t dst, dtb_t dtb, const void* vsrc, size_t size)
 {
-    const auto src   = reinterpret_cast<uint8_t*>(const_cast<void*>(vsrc));
+    auto*      src   = reinterpret_cast<uint8_t*>(const_cast<void*>(vsrc));
     const auto usize = static_cast<uint32_t>(size);
     return switch_dtb(core, dtb, [&]
     {

@@ -260,14 +260,14 @@ opt<uint64_t> symbols::Modules::address(proc_t proc, const std::string& module, 
 
 void symbols::Modules::list_strucs(proc_t proc, const std::string& module, const symbols::on_name_fn& on_struc) const
 {
-    const auto mod = find(proc, module);
+    auto* mod = find(proc, module);
     if(mod)
         mod->list_strucs(on_struc);
 }
 
 opt<symbols::Struc> symbols::Modules::read_struc(proc_t proc, const std::string& module, const std::string& struc) const
 {
-    const auto mod = find(proc, module);
+    auto* mod = find(proc, module);
     if(!mod)
         return {};
 
@@ -350,10 +350,10 @@ namespace
         if(!offset)
             return {};
 
-        char       dst[2 + 8 * 2 + 1];
-        const auto ptr  = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, offset);
-        const auto size = &dst[sizeof dst - 1] - ptr;
-        auto       ret  = std::string(!!prefix + size, prefix);
+        char        dst[2 + 8 * 2 + 1];
+        const auto* ptr  = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, offset);
+        const auto  size = &dst[sizeof dst - 1] - ptr;
+        auto        ret  = std::string(!!prefix + size, prefix);
         memcpy(&ret[!!prefix], ptr, size);
         return ret;
     }
@@ -538,7 +538,7 @@ bool symbols::load_modules(core::Core& core, proc_t proc)
 opt<bpid_t> symbols::autoload_modules(core::Core& core, proc_t proc)
 {
     load_modules(core, proc);
-    const auto ptr   = &core;
+    auto*      ptr   = &core;
     const auto flags = process::flags(core, proc);
     return modules::listen_create(core, proc, flags, [=](mod_t mod)
     {

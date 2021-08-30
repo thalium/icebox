@@ -2,14 +2,14 @@
 
 PyObject* py::drivers::list(core::Core& core, PyObject* /*args*/)
 {
-    auto py_list = PyList_New(0);
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
     ::drivers::list(core, [&](driver_t drv)
     {
-        auto item = py::to_bytes(drv);
+        auto* item = py::to_bytes(drv);
         if(!item)
             return walk_e::stop;
 
@@ -26,8 +26,8 @@ PyObject* py::drivers::list(core::Core& core, PyObject* /*args*/)
 
 PyObject* py::drivers::name(core::Core& core, PyObject* args)
 {
-    auto py_drv = static_cast<PyObject*>(nullptr);
-    auto ok     = PyArg_ParseTuple(args, "S", &py_drv);
+    auto* py_drv = static_cast<PyObject*>(nullptr);
+    auto  ok     = PyArg_ParseTuple(args, "S", &py_drv);
     if(!ok)
         return nullptr;
 
@@ -44,8 +44,8 @@ PyObject* py::drivers::name(core::Core& core, PyObject* args)
 
 PyObject* py::drivers::span(core::Core& core, PyObject* args)
 {
-    auto py_drv = static_cast<PyObject*>(nullptr);
-    auto ok     = PyArg_ParseTuple(args, "S", &py_drv);
+    auto* py_drv = static_cast<PyObject*>(nullptr);
+    auto  ok     = PyArg_ParseTuple(args, "S", &py_drv);
     if(!ok)
         return nullptr;
 
@@ -76,7 +76,7 @@ PyObject* py::drivers::find(core::Core& core, PyObject* args)
 
 PyObject* py::drivers::listen(core::Core& core, PyObject* args)
 {
-    auto       py_func = static_cast<PyObject*>(nullptr);
+    auto*      py_func = static_cast<PyObject*>(nullptr);
     const auto ok      = PyArg_ParseTuple(args, "O", &py_func);
     if(!ok)
         return nullptr;
@@ -86,13 +86,13 @@ PyObject* py::drivers::listen(core::Core& core, PyObject* args)
 
     const auto opt_bpid = ::drivers::listen_create(core, [=](driver_t drv, bool load)
     {
-        const auto py_drv = py::to_bytes(drv);
-        const auto args   = Py_BuildValue("(OO)", py_drv, load ? Py_True : Py_False);
+        const auto* py_drv = py::to_bytes(drv);
+        auto*       args   = Py_BuildValue("(OO)", py_drv, load ? Py_True : Py_False);
         if(!args)
             return;
 
         PY_DEFER_DECREF(args);
-        const auto ret = PyObject_Call(py_func, args, nullptr);
+        auto* ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });

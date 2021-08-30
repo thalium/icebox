@@ -226,7 +226,7 @@ namespace
 
 bool pcap::Writer::write(const std::string& filepath) const
 {
-    auto file = fopen(filepath.data(), "wb");
+    auto* file = fopen(filepath.data(), "wb");
     if(file == nullptr)
         return false;
 

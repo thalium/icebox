@@ -2,10 +2,10 @@
 
 PyObject* py::symbols::address(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto module  = static_cast<const char*>(nullptr);
-    auto symbol  = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &symbol);
+    auto*       py_proc = static_cast<PyObject*>(nullptr);
+    const auto* module  = static_cast<const char*>(nullptr);
+    const auto* symbol  = static_cast<const char*>(nullptr);
+    auto        ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &symbol);
     if(!ok)
         return nullptr;
 
@@ -24,9 +24,9 @@ PyObject* py::symbols::address(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::list_strucs(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto module  = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &module);
+    auto*       py_proc = static_cast<PyObject*>(nullptr);
+    const auto* module  = static_cast<const char*>(nullptr);
+    auto        ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &module);
     if(!ok)
         return nullptr;
 
@@ -34,15 +34,15 @@ PyObject* py::symbols::list_strucs(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    module       = module ? module : "";
-    auto py_list = PyList_New(0);
+    module        = module ? module : "";
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
     ::symbols::list_strucs(core, *opt_proc, module, [&](std::string_view name)
     {
-        const auto py_name = py_to_string(name.data(), name.size());
+        auto* py_name = py_to_string(name.data(), name.size());
         if(!py_name)
             return;
 
@@ -55,10 +55,10 @@ PyObject* py::symbols::list_strucs(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::read_struc(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto module  = static_cast<const char*>(nullptr);
-    auto struc   = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &struc);
+    auto*       py_proc = static_cast<PyObject*>(nullptr);
+    const auto* module  = static_cast<const char*>(nullptr);
+    const auto* struc   = static_cast<const char*>(nullptr);
+    auto        ok      = PyArg_ParseTuple(args, "Sss", &py_proc, &module, &struc);
     if(!ok)
         return nullptr;
 
@@ -72,16 +72,16 @@ PyObject* py::symbols::read_struc(core::Core& core, PyObject* args)
     if(!opt_struc)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to read struc size");
 
-    auto py_list = PyList_New(0);
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
     for(const auto& m : opt_struc->members)
     {
-        const auto py_item = Py_BuildValue("{s:s,s:K,s:K}",
-                                           "name", m.name.data(),
-                                           "offset", (uint64_t) m.offset,
-                                           "bits", (uint64_t) m.bits);
+        auto* py_item = Py_BuildValue("{s:s,s:K,s:K}",
+                                      "name", m.name.data(),
+                                      "offset", (uint64_t) m.offset,
+                                      "bits", (uint64_t) m.bits);
         PY_DEFER_DECREF(py_item);
         PyList_Append(py_list, py_item);
     }
@@ -94,9 +94,9 @@ PyObject* py::symbols::read_struc(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::string(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ptr     = uint64_t{};
-    auto ok      = PyArg_ParseTuple(args, "SK", &py_proc, &ptr);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ptr     = uint64_t{};
+    auto  ok      = PyArg_ParseTuple(args, "SK", &py_proc, &ptr);
     if(!ok)
         return nullptr;
 
@@ -110,10 +110,10 @@ PyObject* py::symbols::string(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::load_module_memory(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto addr    = uint64_t{};
-    auto size    = uint64_t{};
-    auto ok      = PyArg_ParseTuple(args, "SKK", &py_proc, &addr, &size);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  addr    = uint64_t{};
+    auto  size    = uint64_t{};
+    auto  ok      = PyArg_ParseTuple(args, "SKK", &py_proc, &addr, &size);
     if(!ok)
         return nullptr;
 
@@ -131,9 +131,9 @@ PyObject* py::symbols::load_module_memory(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::load_module(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto name    = static_cast<const char*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &name);
+    auto*       py_proc = static_cast<PyObject*>(nullptr);
+    const auto* name    = static_cast<const char*>(nullptr);
+    auto        ok      = PyArg_ParseTuple(args, "Ss", &py_proc, &name);
     if(!ok)
         return nullptr;
 
@@ -151,8 +151,8 @@ PyObject* py::symbols::load_module(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::load_modules(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -184,8 +184,8 @@ PyObject* py::symbols::load_driver_memory(core::Core& core, PyObject* args)
 
 PyObject* py::symbols::load_driver(core::Core& core, PyObject* args)
 {
-    auto name = static_cast<const char*>(nullptr);
-    auto ok   = PyArg_ParseTuple(args, "s", &name);
+    const auto* name = static_cast<const char*>(nullptr);
+    auto        ok   = PyArg_ParseTuple(args, "s", &name);
     if(!ok)
         return nullptr;
 
@@ -208,8 +208,8 @@ PyObject* py::symbols::load_drivers(core::Core& core, PyObject* /*args*/)
 
 PyObject* py::symbols::autoload_modules(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 

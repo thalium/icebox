@@ -45,9 +45,9 @@ PyObject* py::functions::write_arg(core::Core& core, PyObject* args)
 
 PyObject* py::functions::break_on_return(core::Core& core, PyObject* args)
 {
-    auto name    = static_cast<const char*>(nullptr);
-    auto py_func = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "sO", &name, &py_func);
+    const auto* name    = static_cast<const char*>(nullptr);
+    auto*       py_func = static_cast<PyObject*>(nullptr);
+    auto        ok      = PyArg_ParseTuple(args, "sO", &name, &py_func);
     if(!ok)
         return nullptr;
 
@@ -58,13 +58,13 @@ PyObject* py::functions::break_on_return(core::Core& core, PyObject* args)
     Py_INCREF(py_func);
     ok = ::functions::break_on_return(core, name, [=]
     {
-        const auto args = Py_BuildValue("()");
+        auto* args = Py_BuildValue("()");
         if(!args)
             return;
 
         PY_DEFER_DECREF(args);
         PY_DEFER_DECREF(py_func);
-        const auto ret = PyObject_Call(py_func, args, nullptr);
+        auto* ret = PyObject_Call(py_func, args, nullptr);
         if(ret)
             PY_DEFER_DECREF(ret);
     });

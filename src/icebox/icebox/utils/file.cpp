@@ -2,7 +2,7 @@
 
 bool file::write(const fs::path& output, const void* data, size_t size)
 {
-    const auto fd = fopen(output.generic_string().data(), "wb");
+    auto* fd = fopen(output.generic_string().data(), "wb");
     if(!fd)
         return false;
 

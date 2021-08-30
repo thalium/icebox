@@ -261,12 +261,12 @@ namespace
 
     uint32_t hash_name(std::string_view src)
     {
-        const auto wname      = utf8::to_utf16(src);
-        auto       hash       = uint32_t{0};
-        auto       ptr        = wname.data();
-        auto       size       = wname.size();
-        auto       chunk_hash = uint64_t{0};
-        auto       chunk_idx  = size_t{0};
+        const auto  wname      = utf8::to_utf16(src);
+        auto        hash       = uint32_t{0};
+        const auto* ptr        = wname.data();
+        auto        size       = wname.size();
+        auto        chunk_hash = uint64_t{0};
+        auto        chunk_idx  = size_t{0};
         for(/**/; chunk_idx + 4 <= size; chunk_idx += 4)
         {
             auto chunk = read_le64(&ptr[chunk_idx]);

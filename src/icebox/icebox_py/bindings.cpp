@@ -27,7 +27,7 @@ namespace
     Handle* handle_from_self(PyObject* self)
     {
         if(self)
-            if(const auto ptr = PyModule_GetState(self))
+            if(auto* ptr = PyModule_GetState(self))
                 return static_cast<Handle*>(ptr);
 
         PyErr_SetString(PyExc_RuntimeError, "missing module handle");
@@ -39,18 +39,18 @@ namespace
         if(!ptr)
             return;
 
-        auto handle = static_cast<Handle*>(ptr);
+        auto* handle = static_cast<Handle*>(ptr);
         handle->~Handle();
     }
 
     PyObject* core_attach(PyObject* self, PyObject* args)
     {
-        auto       name = static_cast<const char*>(nullptr);
-        const auto ok   = PyArg_ParseTuple(args, "s", &name);
+        const auto* name = static_cast<const char*>(nullptr);
+        const auto  ok   = PyArg_ParseTuple(args, "s", &name);
         if(!ok)
             return nullptr;
 
-        auto handle = handle_from_self(self);
+        auto* handle = handle_from_self(self);
         if(!handle)
             return nullptr;
 
@@ -67,12 +67,12 @@ namespace
 
     PyObject* core_attach_only(PyObject* self, PyObject* args)
     {
-        auto       name = static_cast<const char*>(nullptr);
-        const auto ok   = PyArg_ParseTuple(args, "s", &name);
+        const auto* name = static_cast<const char*>(nullptr);
+        const auto  ok   = PyArg_ParseTuple(args, "s", &name);
         if(!ok)
             return nullptr;
 
-        auto handle = handle_from_self(self);
+        auto* handle = handle_from_self(self);
         if(!handle)
             return nullptr;
 
@@ -89,7 +89,7 @@ namespace
 
     PyObject* core_detect(PyObject* self, PyObject* /*args*/)
     {
-        auto handle = handle_from_self(self);
+        auto* handle = handle_from_self(self);
         if(!handle)
             return nullptr;
 
@@ -102,7 +102,7 @@ namespace
 
     PyObject* core_detach(PyObject* self, PyObject* /*args*/)
     {
-        auto handle = handle_from_self(self);
+        auto* handle = handle_from_self(self);
         if(!handle)
             return nullptr;
 
@@ -113,7 +113,7 @@ namespace
     template <PyObject* (*Op)(core::Core&, PyObject*)>
     PyObject* core_exec(PyObject* self, PyObject* args)
     {
-        const auto handle = handle_from_self(self);
+        auto* handle = handle_from_self(self);
         if(!handle)
             return nullptr;
 
@@ -125,8 +125,8 @@ namespace
 
     PyObject* log_redirect(PyObject* /*self*/, PyObject* args)
     {
-        auto py_func = static_cast<PyObject*>(nullptr);
-        auto ok      = PyArg_ParseTuple(args, "O", &py_func);
+        auto* py_func = static_cast<PyObject*>(nullptr);
+        auto  ok      = PyArg_ParseTuple(args, "O", &py_func);
         if(!ok)
             return nullptr;
 
@@ -136,12 +136,12 @@ namespace
         Py_INCREF(py_func); // FIXME leak ?
         logg::redirect([=](logg::level_t level, const char* fmt)
         {
-            const auto args = Py_BuildValue("(Ks)", (uint64_t) level, fmt);
+            auto* args = Py_BuildValue("(Ks)", (uint64_t) level, fmt);
             if(!args)
                 return;
 
             PY_DEFER_DECREF(args);
-            const auto ret = PyObject_Call(py_func, args, nullptr);
+            auto* ret = PyObject_Call(py_func, args, nullptr);
             if(ret)
                 PY_DEFER_DECREF(ret);
         });
@@ -159,7 +159,7 @@ const char* py::from_bytes(PyObject* self, size_t size)
     if(!PyBytes_CheckExact(self))
         return py::fail_with(nullptr, PyExc_RuntimeError, "invalid argument");
 
-    auto       src = static_cast<char*>(nullptr);
+    auto*      src = static_cast<char*>(nullptr);
     auto       len = ssize_t{};
     const auto err = PyBytes_AsStringAndSize(self, &src, &len);
     if(err)
@@ -291,11 +291,11 @@ PyMODINIT_FUNC PyInit_libicebox()
         nullptr,                                   // m_clear
         &delete_handle,                            // m_free
     };
-    const auto ptr = PyModule_Create(&ice_module);
+    auto* ptr = PyModule_Create(&ice_module);
     if(!ptr)
         return nullptr;
 
-    auto handle = handle_from_self(ptr);
+    auto* handle = handle_from_self(ptr);
     if(!handle)
         return nullptr;
 

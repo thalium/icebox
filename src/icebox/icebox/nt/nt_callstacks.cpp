@@ -450,8 +450,8 @@ namespace
             }
 
             buf.resize(buf_offset + unwind_codes_size);
-            auto buffer = &buf[buf_offset];
-            ok          = io.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
+            auto* buffer = &buf[buf_offset];
+            ok           = io.read_all(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
             if(!ok)
                 return FAIL(std::nullopt, "unable to read unwind codes");
 
@@ -532,9 +532,9 @@ namespace
         if(opt_offsets)
             return true;
 
-        const auto name    = flags.is_x86 ? "wntdll" : "ntdll";
-        bool       fail    = false;
-        auto       offsets = UserOffsets{};
+        const auto* name    = flags.is_x86 ? "wntdll" : "ntdll";
+        bool        fail    = false;
+        auto        offsets = UserOffsets{};
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_user_offsets[i].e_id != i;
@@ -679,8 +679,8 @@ namespace
         if(!function_table)
             return false;
 
-        const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span.addr);
-        const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
+        const auto  off_in_mod     = static_cast<uint32_t>(ctx.ip - span.addr);
+        const auto* function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
         if(!function_entry)
             return FAIL(false, "No matching function entry");
 
@@ -834,8 +834,8 @@ namespace
         if(!function_table)
             return {};
 
-        const auto off_in_mod     = static_cast<uint32_t>(fake_ctx.ip - span.addr);
-        const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
+        const auto  off_in_mod     = static_cast<uint32_t>(fake_ctx.ip - span.addr);
+        const auto* function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
         if(!function_entry)
             return FAIL(std::nullopt, "No matching function entry");
 

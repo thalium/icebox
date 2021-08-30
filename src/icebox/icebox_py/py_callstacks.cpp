@@ -2,9 +2,9 @@
 
 PyObject* py::callstacks::read(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto size    = uint64_t{};
-    auto ok      = PyArg_ParseTuple(args, "SK", &py_proc, &size);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  size    = uint64_t{};
+    auto  ok      = PyArg_ParseTuple(args, "SK", &py_proc, &size);
     if(!ok)
         return nullptr;
 
@@ -12,7 +12,7 @@ PyObject* py::callstacks::read(core::Core& core, PyObject* args)
     if(!opt_proc)
         return py::fail_with(nullptr, PyExc_RuntimeError, "unable to wait for process");
 
-    auto py_list = PyList_New(0);
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
@@ -21,7 +21,7 @@ PyObject* py::callstacks::read(core::Core& core, PyObject* args)
     const auto n   = ::callstacks::read(core, &buf[0], buf.size(), *opt_proc);
     for(size_t i = 0; i < n; ++i)
     {
-        auto item = PyLong_FromUnsignedLongLong(buf[i].addr);
+        auto* item = PyLong_FromUnsignedLongLong(buf[i].addr);
         if(!item)
             return nullptr;
 
@@ -37,9 +37,9 @@ PyObject* py::callstacks::read(core::Core& core, PyObject* args)
 
 PyObject* py::callstacks::load_module(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto py_mod  = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "SS", &py_proc, &py_mod);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto* py_mod  = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "SS", &py_proc, &py_mod);
     if(!ok)
         return nullptr;
 
@@ -60,9 +60,9 @@ PyObject* py::callstacks::load_module(core::Core& core, PyObject* args)
 
 PyObject* py::callstacks::load_driver(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto py_drv  = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "SS", &py_proc, &py_drv);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto* py_drv  = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "SS", &py_proc, &py_drv);
     if(!ok)
         return nullptr;
 
@@ -83,8 +83,8 @@ PyObject* py::callstacks::load_driver(core::Core& core, PyObject* args)
 
 PyObject* py::callstacks::autoload_modules(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 

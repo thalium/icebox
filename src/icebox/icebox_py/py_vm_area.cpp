@@ -2,7 +2,7 @@
 
 PyObject* py::vm_area::list(core::Core& core, PyObject* args)
 {
-    auto       obj = static_cast<PyObject*>(nullptr);
+    auto*      obj = static_cast<PyObject*>(nullptr);
     const auto ok  = PyArg_ParseTuple(args, "S", &obj);
     if(!ok)
         return nullptr;
@@ -11,14 +11,14 @@ PyObject* py::vm_area::list(core::Core& core, PyObject* args)
     if(!opt_proc)
         return nullptr;
 
-    auto list = PyList_New(0);
+    auto* list = PyList_New(0);
     if(!list)
         return nullptr;
 
     PY_DEFER_DECREF(list);
     ::vm_area::list(core, *opt_proc, [&](vm_area_t vma)
     {
-        auto item = py::to_bytes(vma);
+        auto* item = py::to_bytes(vma);
         if(!item)
             return walk_e::stop;
 
@@ -35,9 +35,9 @@ PyObject* py::vm_area::list(core::Core& core, PyObject* args)
 
 PyObject* py::vm_area::span(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto py_vma  = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "SS", &py_proc, &py_vma);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto* py_vma  = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "SS", &py_proc, &py_vma);
     if(!ok)
         return nullptr;
 

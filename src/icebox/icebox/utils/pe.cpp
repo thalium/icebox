@@ -231,7 +231,7 @@ opt<span_t> pe::find_debug_codeview(const memory::Io& io, span_t span)
 
 opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
 {
-    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+    const auto* src = reinterpret_cast<const uint8_t*>(vsrc);
 
     const auto e_magic = read_be16(&src[0]);
     if(e_magic != nt::image_dos_signature)

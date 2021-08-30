@@ -2,7 +2,7 @@
 
 PyObject* py::memory::virtual_to_physical(core::Core& core, PyObject* args)
 {
-    auto       py_proc = static_cast<PyObject*>(nullptr);
+    auto*      py_proc = static_cast<PyObject*>(nullptr);
     auto       ptr     = uint64_t{};
     const auto ok      = PyArg_ParseTuple(args, "OK", &py_proc, &ptr);
     if(!ok)
@@ -60,10 +60,10 @@ namespace
 
 PyObject* py::memory::read_virtual(core::Core& core, PyObject* args)
 {
-    auto buf     = Py_buffer{};
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto src     = uint64_t{};
-    auto ok      = PyArg_ParseTuple(args, "y*OK", &buf, &py_proc, &src);
+    auto  buf     = Py_buffer{};
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  src     = uint64_t{};
+    auto  ok      = PyArg_ParseTuple(args, "y*OK", &buf, &py_proc, &src);
     if(!ok)
         return nullptr;
 
@@ -123,10 +123,10 @@ PyObject* py::memory::read_physical(core::Core& core, PyObject* args)
 
 PyObject* py::memory::write_virtual(core::Core& core, PyObject* args)
 {
-    auto buf     = Py_buffer{};
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto dst     = uint64_t{};
-    auto ok      = PyArg_ParseTuple(args, "y*OK", &buf, &py_proc, &dst);
+    auto  buf     = Py_buffer{};
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  dst     = uint64_t{};
+    auto  ok      = PyArg_ParseTuple(args, "y*OK", &buf, &py_proc, &dst);
     if(!ok)
         return nullptr;
 

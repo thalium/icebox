@@ -183,7 +183,7 @@ namespace
 
 bool memory::read_virtual(core::Core& core, proc_t proc, void* vdst, uint64_t src, size_t size)
 {
-    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
+    auto*      dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
     const auto dtb   = dtb_select(core, proc, src);
     return ::read_virtual(core, &proc, dtb, dst, src, usize);
@@ -191,34 +191,34 @@ bool memory::read_virtual(core::Core& core, proc_t proc, void* vdst, uint64_t sr
 
 bool memory::read_virtual_with_dtb(core::Core& core, dtb_t dtb, void* vdst, uint64_t src, size_t size)
 {
-    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
+    auto*      dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
     return ::read_virtual(core, nullptr, dtb, dst, src, usize);
 }
 
 bool memory::read_physical(core::Core& core, void* vdst, uint64_t src, size_t size)
 {
-    const auto dst = reinterpret_cast<uint8_t*>(vdst);
+    auto* dst = reinterpret_cast<uint8_t*>(vdst);
     return ::read_physical(core, dst, src, size);
 }
 
 bool memory::write_virtual(core::Core& core, proc_t proc, uint64_t dst, const void* vsrc, size_t size)
 {
-    const auto src   = reinterpret_cast<const uint8_t*>(vsrc);
-    const auto usize = static_cast<uint32_t>(size);
-    const auto dtb   = dtb_select(core, proc, dst);
+    const auto* src   = reinterpret_cast<const uint8_t*>(vsrc);
+    const auto  usize = static_cast<uint32_t>(size);
+    const auto  dtb   = dtb_select(core, proc, dst);
     return ::write_virtual(core, &proc, dtb, dst, src, usize);
 }
 
 bool memory::write_virtual_with_dtb(core::Core& core, dtb_t dtb, uint64_t dst, const void* vsrc, size_t size)
 {
-    const auto src   = reinterpret_cast<const uint8_t*>(vsrc);
-    const auto usize = static_cast<uint32_t>(size);
+    const auto* src   = reinterpret_cast<const uint8_t*>(vsrc);
+    const auto  usize = static_cast<uint32_t>(size);
     return ::write_virtual(core, nullptr, dtb, dst, src, usize);
 }
 
 bool memory::write_physical(core::Core& core, uint64_t dst, const void* vsrc, size_t size)
 {
-    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+    const auto* src = reinterpret_cast<const uint8_t*>(vsrc);
     return ::write_physical(core, dst, src, size);
 }

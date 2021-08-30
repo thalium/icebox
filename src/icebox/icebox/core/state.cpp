@@ -174,11 +174,11 @@ namespace
     void start_worker(Data& d, const Observer& observer)
     {
         d.workers.emplace_back(d.pool.acquire());
-        auto& w            = *d.workers.back();
-        g_co_ctx           = {&d, observer};
-        const auto co_next = co_derive(w.buffer.data(), g_stack_size, []
+        auto& w       = *d.workers.back();
+        g_co_ctx      = {&d, observer};
+        auto* co_next = co_derive(w.buffer.data(), g_stack_size, []
         {
-            const auto co_main = g_co_ctx.pstate->co_main;
+            auto* co_main = g_co_ctx.pstate->co_main;
             {
                 // save a copy of global context & reset it
                 const auto s = g_co_ctx;
@@ -237,8 +237,8 @@ namespace
     template <typename T>
     bool yield_until(Data& d, const T& predicate)
     {
-        const auto current = co_active();
-        const auto pw      = current_worker(d, current);
+        auto* current = co_active();
+        auto* pw      = current_worker(d, current);
         if(!pw)
             return false;
 

@@ -11,8 +11,8 @@ PyObject* py::process::current(core::Core& core, PyObject* /*args*/)
 
 PyObject* py::process::name(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -29,8 +29,8 @@ PyObject* py::process::name(core::Core& core, PyObject* args)
 
 PyObject* py::process::is_valid(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -47,8 +47,8 @@ PyObject* py::process::is_valid(core::Core& core, PyObject* args)
 
 PyObject* py::process::pid(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -62,8 +62,8 @@ PyObject* py::process::pid(core::Core& core, PyObject* args)
 
 PyObject* py::process::native(core::Core& /*core*/, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -76,8 +76,8 @@ PyObject* py::process::native(core::Core& /*core*/, PyObject* args)
 
 PyObject* py::process::kdtb(core::Core& /*core*/, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -90,8 +90,8 @@ PyObject* py::process::kdtb(core::Core& /*core*/, PyObject* args)
 
 PyObject* py::process::udtb(core::Core& /*core*/, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -111,8 +111,8 @@ PyObject* py::flags::from(flags_t flags)
 
 opt<flags_t> py::flags::to(PyObject* arg)
 {
-    auto flags = flags_t{};
-    auto attr  = PyObject_GetAttrString(arg, "is_x64");
+    auto  flags = flags_t{};
+    auto* attr  = PyObject_GetAttrString(arg, "is_x64");
     if(!attr || !PyBool_Check(attr))
         return py::fail_with(std::nullopt, PyExc_RuntimeError, "missing or invalid is_x64 attribute");
 
@@ -127,8 +127,8 @@ opt<flags_t> py::flags::to(PyObject* arg)
 
 PyObject* py::process::flags(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -142,8 +142,8 @@ PyObject* py::process::flags(core::Core& core, PyObject* args)
 
 PyObject* py::process::parent(core::Core& core, PyObject* args)
 {
-    auto py_proc = static_cast<PyObject*>(nullptr);
-    auto ok      = PyArg_ParseTuple(args, "S", &py_proc);
+    auto* py_proc = static_cast<PyObject*>(nullptr);
+    auto  ok      = PyArg_ParseTuple(args, "S", &py_proc);
     if(!ok)
         return nullptr;
 
@@ -160,14 +160,14 @@ PyObject* py::process::parent(core::Core& core, PyObject* args)
 
 PyObject* py::process::list(core::Core& core, PyObject* /*args*/)
 {
-    auto py_list = PyList_New(0);
+    auto* py_list = PyList_New(0);
     if(!py_list)
         return nullptr;
 
     PY_DEFER_DECREF(py_list);
     const auto ok = ::process::list(core, [&](proc_t proc)
     {
-        auto item = py::to_bytes(proc);
+        auto* item = py::to_bytes(proc);
         if(!item)
             return walk_e::stop;
 
@@ -187,9 +187,9 @@ PyObject* py::process::list(core::Core& core, PyObject* /*args*/)
 
 PyObject* py::process::wait(core::Core& core, PyObject* args)
 {
-    auto       name     = static_cast<const char*>(nullptr);
-    auto       py_flags = static_cast<PyObject*>(nullptr);
-    const auto ok       = PyArg_ParseTuple(args, "sO", &name, &py_flags);
+    const auto* name     = static_cast<const char*>(nullptr);
+    auto*       py_flags = static_cast<PyObject*>(nullptr);
+    const auto  ok       = PyArg_ParseTuple(args, "sO", &name, &py_flags);
     if(!ok)
         return nullptr;
 
@@ -210,7 +210,7 @@ namespace
     template <typename T>
     PyObject* on_listen(core::Core& core, PyObject* args, const T& operand)
     {
-        auto       py_func = static_cast<PyObject*>(nullptr);
+        auto*      py_func = static_cast<PyObject*>(nullptr);
         const auto ok      = PyArg_ParseTuple(args, "O", &py_func);
         if(!ok)
             return nullptr;
@@ -220,13 +220,13 @@ namespace
 
         const auto opt_bpid = operand(core, [=](proc_t proc)
         {
-            const auto py_proc = py::to_bytes(proc);
-            const auto args    = Py_BuildValue("(O)", py_proc);
+            const auto* py_proc = py::to_bytes(proc);
+            auto*       args    = Py_BuildValue("(O)", py_proc);
             if(!args)
                 return;
 
             PY_DEFER_DECREF(args);
-            const auto ret = PyObject_Call(py_func, args, nullptr);
+            auto* ret = PyObject_Call(py_func, args, nullptr);
             if(ret)
                 PY_DEFER_DECREF(ret);
         });

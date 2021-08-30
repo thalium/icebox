@@ -39,7 +39,7 @@ namespace
 
         pdb.initialize();
 
-        const auto globals = pdb.get_global_variables();
+        auto* globals = pdb.get_global_variables();
         for(const auto& it : *globals)
             indexer.add_symbol(it.second.name, static_cast<size_t>(it.second.address));
 
@@ -68,7 +68,7 @@ namespace
 
     opt<std::string> read_pdb_name(const uint8_t* ptr, const uint8_t* end)
     {
-        for(auto it = ptr; it != end; ++it)
+        for(const auto* it = ptr; it != end; ++it)
             if(!std::isprint(*it))
                 return {};
 
@@ -80,11 +80,11 @@ namespace
 
     opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
-        auto       src = reinterpret_cast<const uint8_t*>(vsrc);
-        const auto end = &src[src_size];
+        const auto* src = reinterpret_cast<const uint8_t*>(vsrc);
+        const auto* end = &src[src_size];
         while(true)
         {
-            const auto rsds = std::search(&src[0], &src[src_size], rsds_pattern);
+            const auto* rsds = std::search(&src[0], &src[src_size], rsds_pattern);
             if(rsds == &src[src_size])
                 return FAIL(std::nullopt, "unable to find RSDS pattern into kernel module");
 
@@ -92,7 +92,7 @@ namespace
             if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
                 return FAIL(std::nullopt, "kernel module is too small for pdb header");
 
-            const auto name_end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
+            const auto* name_end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
             if(!name_end)
                 return FAIL(std::nullopt, "missing null-terminating byte on PDB header module name");
 
@@ -136,7 +136,7 @@ opt<symbols::Identity> symbols::identify_pdb(span_t span, const memory::Io& io)
 
 std::shared_ptr<symbols::Module> symbols::make_pdb(const std::string& module, const std::string& guid)
 {
-    const auto path = getenv("_NT_SYMBOL_PATH");
+    const auto* path = getenv("_NT_SYMBOL_PATH");
     if(!path)
         return FAIL(nullptr, "missing _NT_SYMBOL_PATH environment variable");
 

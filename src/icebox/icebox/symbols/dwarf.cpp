@@ -18,14 +18,14 @@ namespace
         if(!dbg)
             return;
 
-        auto err = Dwarf_Error{};
+        auto* err = Dwarf_Error{};
         dwarf_finish(dbg, &err);
     }
 
     Handler open_file(const fs::path& path)
     {
-        auto       dbg   = Dwarf_Debug{};
-        auto       error = Dwarf_Error{};
+        auto*      dbg   = Dwarf_Debug{};
+        auto*      error = Dwarf_Error{};
         const auto err   = dwarf_init_path(
             path.generic_string().data(), // path
             nullptr,                      // true_path_out_buffer
@@ -52,7 +52,7 @@ namespace
     template <typename T>
     bool read_cu(Dwarf_Debug_s& dbg, T on_die)
     {
-        auto error = Dwarf_Error{};
+        auto* error = Dwarf_Error{};
         while(true)
         {
             auto offset = Dwarf_Unsigned{};
@@ -78,8 +78,8 @@ namespace
             if(err == DW_DLV_NO_ENTRY)
                 return true;
 
-            auto die = Dwarf_Die{};
-            err      = dwarf_siblingof_b(&dbg, nullptr, true, &die, &error);
+            auto* die = Dwarf_Die{};
+            err       = dwarf_siblingof_b(&dbg, nullptr, true, &die, &error);
             if(err == DW_DLV_NO_ENTRY)
                 continue;
 
@@ -93,9 +93,9 @@ namespace
     template <typename T>
     bool read_children(Dwarf_Debug_s& dbg, const Dwarf_Die& parent, T on_child)
     {
-        auto error = Dwarf_Error{};
-        auto child = Dwarf_Die{};
-        auto err   = dwarf_child(parent, &child, &error);
+        auto* error = Dwarf_Error{};
+        auto* child = Dwarf_Die{};
+        auto  err   = dwarf_child(parent, &child, &error);
         while(err != DW_DLV_NO_ENTRY)
         {
             if(err == DW_DLV_ERROR)
@@ -111,9 +111,9 @@ namespace
 
     const char* read_die_name(Dwarf_Die die)
     {
-        auto error    = Dwarf_Error{};
-        auto name_ptr = static_cast<char*>(nullptr);
-        auto err      = dwarf_diename(die, &name_ptr, &error);
+        auto* error    = Dwarf_Error{};
+        auto* name_ptr = static_cast<char*>(nullptr);
+        auto  err      = dwarf_diename(die, &name_ptr, &error);
         if(err == DW_DLV_ERROR)
             return FAIL(nullptr, "error dwarf_diename: %llu: %s", dwarf_errno(error), dwarf_errmsg(error));
 
@@ -125,9 +125,9 @@ namespace
 
     Dwarf_Die read_die_child(Dwarf_Debug_s& dbg, Dwarf_Die die, const char* name)
     {
-        auto error  = Dwarf_Error{};
-        auto offset = Dwarf_Off{};
-        auto err    = dwarf_dietype_offset(die, &offset, &error);
+        auto* error  = Dwarf_Error{};
+        auto  offset = Dwarf_Off{};
+        auto  err    = dwarf_dietype_offset(die, &offset, &error);
         if(err != DW_DLV_OK)
             return die;
 
@@ -140,9 +140,9 @@ namespace
 
     opt<uint64_t> read_member_offset(Dwarf_Debug_s& dbg, Dwarf_Die die)
     {
-        auto error = Dwarf_Error{};
-        auto attr  = Dwarf_Attribute{};
-        auto err   = dwarf_attr(die, DW_AT_data_member_location, &attr, &error);
+        auto* error = Dwarf_Error{};
+        auto* attr  = Dwarf_Attribute{};
+        auto  err   = dwarf_attr(die, DW_AT_data_member_location, &attr, &error);
         if(err == DW_DLV_ERROR)
             return FAIL(std::nullopt, "libdwarf error %llu when reading attributes of a DIE : %s", dwarf_errno(error), dwarf_errmsg(error));
 
@@ -177,9 +177,9 @@ namespace
             return offset;
         }
 
-        auto llbuf   = static_cast<Dwarf_Locdesc**>(nullptr);
-        auto listlen = Dwarf_Signed{};
-        err          = dwarf_loclist_n(attr, &llbuf, &listlen, &error);
+        auto* llbuf   = static_cast<Dwarf_Locdesc**>(nullptr);
+        auto  listlen = Dwarf_Signed{};
+        err           = dwarf_loclist_n(attr, &llbuf, &listlen, &error);
         if(err != DW_DLV_OK)
         {
             dwarf_dealloc(&dbg, &llbuf, DW_DLA_LOCDESC);
@@ -199,7 +199,7 @@ namespace
 
     opt<size_t> read_struc_size(Dwarf_Die struc)
     {
-        auto       error = Dwarf_Error{};
+        auto*      error = Dwarf_Error{};
         auto       size  = Dwarf_Unsigned{};
         const auto err   = dwarf_bytesize(struc, &size, &error);
         if(err == DW_DLV_ERROR)
@@ -218,7 +218,7 @@ namespace
         {
             read_children(dbg, cu, [&](Dwarf_Die child)
             {
-                const auto name = read_die_name(child);
+                const auto* name = read_die_name(child);
                 if(!name)
                     return walk_e::next;
 
@@ -233,8 +233,8 @@ namespace
     {
         read_children(dbg, struc, [&](Dwarf_Die child)
         {
-            auto       error    = Dwarf_Error{};
-            auto       name_ptr = static_cast<char*>(nullptr);
+            auto*      error    = Dwarf_Error{};
+            auto*      name_ptr = static_cast<char*>(nullptr);
             const auto err      = dwarf_diename(child, &name_ptr, &error);
             if(err == DW_DLV_ERROR)
                 return FAIL(walk_e::next, "error dwarf_diename: %llu: %s", dwarf_errno(error), dwarf_errmsg(error));
@@ -242,7 +242,7 @@ namespace
             if(err == DW_DLV_OK)
                 return on_member(child);
 
-            if(const auto sub = read_die_child(dbg, child, ""))
+            if(auto* sub = read_die_child(dbg, child, ""))
                 if(sub != child)
                     all_members(dbg, sub, on_member);
 
@@ -280,7 +280,7 @@ namespace
             auto& idx = indexer.add_struc(name, size);
             all_members(*dbg, struc, [&](Dwarf_Die member)
             {
-                auto mname = read_die_name(member);
+                const auto* mname = read_die_name(member);
                 if(mname)
                     on_member(idx, member, mname);
                 return walk_e::next;
@@ -293,7 +293,7 @@ namespace
 
 std::shared_ptr<symbols::Module> symbols::make_dwarf(const std::string& module, const std::string& guid)
 {
-    const auto path = getenv("_LINUX_SYMBOL_PATH");
+    const auto* path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
         return nullptr;
 
