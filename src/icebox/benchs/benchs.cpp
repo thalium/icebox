@@ -6,7 +6,12 @@
 
 namespace
 {
-    constexpr char vm_name[] = "win10";
+    const char* get_vm_name()
+    {
+        const auto ptr = getenv("VM_NAME");
+        return ptr ? ptr : "win10";
+    }
+
     constexpr auto MSR_LSTAR = 0xC0000082;
 
     struct win10
@@ -14,7 +19,7 @@ namespace
     {
         void SetUp(::benchmark::State& state) override
         {
-            shm = FDP_OpenSHM(vm_name);
+            shm = FDP_OpenSHM(get_vm_name());
             if(!shm)
                 return state.SkipWithError("unable to open shm");
 

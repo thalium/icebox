@@ -60,7 +60,8 @@ test.win10.py:
 test.fdp:
 	$(root_dir)/bin/x64/test_fdp $(vm_name)
 
-test.win10: test.win10.cpp test.win10.py
+bench.win10:
+	VM_NAME=$(vm_name) $(root_dir)/out/x64/icebox_benchs
 
 download.win10:
 	cd $(root_dir)/bin/x64 ;\
