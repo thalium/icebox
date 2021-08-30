@@ -57,6 +57,9 @@ test.win10.cpp:
 test.win10.py:
 	VM_NAME=$(vm_name) python3 $(root_dir)/src/icebox/tests/win10.py $(root_dir)/bin/x64 -v
 
+test.fdp:
+	$(root_dir)/bin/x64/test_fdp $(vm_name)
+
 test.win10: test.win10.cpp test.win10.py
 
 download.win10:
