@@ -160,12 +160,12 @@ const char* py::from_bytes(PyObject* self, size_t size)
         return py::fail_with(nullptr, PyExc_RuntimeError, "invalid argument");
 
     auto*      src = static_cast<char*>(nullptr);
-    auto       len = ssize_t{};
+    auto       len = Py_ssize_t{};
     const auto err = PyBytes_AsStringAndSize(self, &src, &len);
     if(err)
         return py::fail_with(nullptr, PyExc_RuntimeError, "invalid argument");
 
-    if(len != static_cast<ssize_t>(size))
+    if(len != static_cast<Py_ssize_t>(size))
         return py::fail_with(nullptr, PyExc_RuntimeError, "invalid argument");
 
     return src;
