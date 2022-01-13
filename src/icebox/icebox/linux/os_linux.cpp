@@ -283,6 +283,14 @@ namespace
         uint64_t     kpgd     = 0;
         version      kversion = {"0"};
         uint64_t     pt_regs_size;
+
+        // constants
+        // Information found on System.map of ubuntu server:
+        // Linux 4.15.0-166-generic #174-Ubuntu SMP Wed Dec 8 19:07:44 UTC 2021 x86_64 GNU/Linux
+        // __proc_create is at address 0xffffffff81303da0
+        // __proc_remove is at address 0xffffffff81304880
+        phy_t __proc_create;
+        phy_t __proc_remove;
     };
 }
 
@@ -429,7 +437,7 @@ namespace
             return false;
 
         return (name->substr(0, 7) == "swapper");
-    }
+    }    
 }
 
 namespace
@@ -532,6 +540,8 @@ namespace
             if(sym.e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read %s!%s symbol offset", sym.module, sym.name);
         }
+
+
         return !fail;
     }
 }
@@ -577,11 +587,25 @@ bool OsLinux::setup()
         LOG(INFO, "debug profile found");
         if(!load_symbols(core_, symbols_))
             return walk_e::next;
-
+        
         if(!load_offsets(core_, offsets_))
             return walk_e::next;
 
         if(!check_setup(*this))
+            return walk_e::next;
+
+        // Retrieving __proc_create id. task creation entry function
+        auto proc_create_id = make_symbols(core_, hash, "__proc_create", candidate);
+        if(proc_create_id)
+            __proc_create.val = *proc_create_id;
+        else
+            return walk_e::next;
+
+        // Retrieving __proc_remove id. task removing entry function
+        auto proc_remove_id = make_symbols(core_, hash, "proc_remove", candidate);
+        if(proc_remove_id)
+            __proc_remove.val = *proc_remove_id;
+        else
             return walk_e::next;
 
         if(!std::regex_search(*linux_banner, match, pattern))
@@ -1266,14 +1290,30 @@ void OsLinux::debug_print()
 {
 }
 
-opt<bpid_t> OsLinux::listen_proc_create(const process::on_event_fn& /*on_create*/)
+opt<bpid_t> OsLinux::listen_proc_create(const process::on_event_fn& on_create/*on_create*/)
 {
-    return {};
+    const auto bp = state::break_on_physical(core_, "__proc_create", __proc_create, [=]
+    {
+        const auto proc = process::current(core_);
+        if(!proc)
+            return;
+        LOG(INFO, "proc create callback trigerred");
+        on_create(*proc);
+    });
+    return state::save_breakpoint(core_, bp);
 }
 
-opt<bpid_t> OsLinux::listen_proc_delete(const process::on_event_fn& /*on_delete*/)
+opt<bpid_t> OsLinux::listen_proc_delete(const process::on_event_fn& on_delete/*on_delete*/)
 {
-    return {};
+    const auto bp = state::break_on_physical(core_, "proc_remove", __proc_remove, [=]
+    {
+        const auto proc = process::current(core_);
+        if(!proc)
+            return;
+        LOG(INFO, "proc remove callback trigerred");
+        on_delete(*proc);
+    });
+    return state::save_breakpoint(core_, bp);
 }
 
 opt<bpid_t> OsLinux::listen_thread_create(const threads::on_event_fn& /*on_create*/)
