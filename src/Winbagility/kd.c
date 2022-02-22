@@ -105,6 +105,7 @@ KdPacketType ReadKDPipe(HANDLE hPipe, KD_PACKET_T *pktBuffer)
         uint32_t bytesAlreadyRead = 0;
         while (bytesToRead > 0){
             result = ReadFile(hPipe, pktBuffer->data + bytesAlreadyRead, bytesToRead, &numBytesRead, NULL);
+            (void) result;
             bytesToRead = bytesToRead - numBytesRead;
             bytesAlreadyRead = bytesAlreadyRead + numBytesRead;
         }
